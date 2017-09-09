@@ -1,0 +1,28 @@
+name: BigDoors
+main: nl.pim16aap2.bigDoors.BigDoors
+version: 0.1
+author: Pim
+depend:
+ - WorldEdit
+commands:
+  newdoor:
+    description: Create a new door from selection with name "name".
+    usage: /<command> <doorName>
+    permission: bigdoors.createdoor
+    permission-message: You do not have the bigdoors.createdoor permission node.
+  deldoor:
+    description: Delete door with name "name".
+    usage: /<command> <doorName>
+    permission: bigdoors.deletedoor
+    permission-message: You do not have the bigdoors.deletedoor permission node.
+  opendoor:
+    description: Open the door with name "name".
+    usage: /<command> <doorName>
+    permission: bigdoors.opendoor
+    permission-message: You do not have the bigdoors.opendoor permission node.
+  listdoors:
+    description: Returns a list of all doors.
+    usage: /<command>
+    permission: bigdoors.listdoors
+    permission-message: You do not have the bigdoors.listdoors permission node.
+    
