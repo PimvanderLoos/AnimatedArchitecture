@@ -23,6 +23,7 @@ import com.sk89q.worldedit.bukkit.*;
 import com.sk89q.worldedit.bukkit.selections.*;
 
 import net.md_5.bungee.api.ChatColor;
+import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
  
 public class BigDoors extends JavaPlugin implements Listener 
 {
@@ -30,6 +31,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	private String[] allowedEngineMats = {"IRON_FENCE"};
 	private String[] allowedDoorMats   = {"GOLD_BLOCK"};
 	private List<Door> doors;
+	private BlockMover blockMover;
 	
 	@Override
     public void onEnable() 
@@ -148,7 +150,6 @@ public class BigDoors extends JavaPlugin implements Listener
 	    		if (args.length == 1) 
 	    		{
 	    			makeDoor(player, args[0]);
-	    			
 	    			return true;
 	    		}
 	    	}
@@ -158,7 +159,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	    	{
 	    		if (args.length == 1) 
 	    		{
-	    			deleteDoor(args[1]);
+	    			deleteDoor(getDoor(args[0]));
 	    			return true;
 	    		}
 	    	}
@@ -203,7 +204,6 @@ public class BigDoors extends JavaPlugin implements Listener
     // Check if the selection contains a valid engine.
     public boolean hasValidEngine(World w, int xPos, int zPos, int yMin, int yMax) 
     {	
-//    	Bukkit.broadcastMessage("Checking for valid engine! yMin="+yMin+", yMax="+yMax);
     	for (int index = yMin; index <= yMax; index++)
     	{
 //    		Bukkit.broadcastMessage("Engine: Checking block at:"+xPos+", "+index+", "+zPos+", which is: "+w.getBlockAt(xPos, index, zPos).getType().toString());
@@ -248,7 +248,6 @@ public class BigDoors extends JavaPlugin implements Listener
     	    	}
         	}
     	}
-//    	Bukkit.broadcastMessage("The selection has valid door blocks!");
     	return true;
     }
     
@@ -322,7 +321,7 @@ public class BigDoors extends JavaPlugin implements Listener
     	int count=0;
     	for (Door door : doors) 
     	{
-    		player.sendMessage(count+": "+door.getName()+":\nBaseCoords:"+door.getMinimum().getBlockX()+","+door.getMinimum().getBlockY()+","+door.getMinimum().getBlockZ()+", EndCoords:"+door.getMaximum().getBlockX()+","+door.getMaximum().getBlockY()+","+door.getMaximum().getBlockZ()+",");
+    		player.sendMessage(count+": "+door.getName()+":\nMinimumCoords:"+door.getMinimum().getBlockX()+","+door.getMinimum().getBlockY()+","+door.getMinimum().getBlockZ()+", MaximumCoords:"+door.getMaximum().getBlockX()+","+door.getMaximum().getBlockY()+","+door.getMaximum().getBlockZ());
     		count++;
     	}
     }
@@ -333,16 +332,17 @@ public class BigDoors extends JavaPlugin implements Listener
     	doors.remove(oldDoor);
     }
     
-    // Delete a door from the list of doors.
-    public void deleteDoor(String name)
+    // Get the door named "name".
+    public Door getDoor(String name)
     {
     	for (Door door : doors)
     	{
     		if (door.getName().equals(name))
     		{
-    			deleteDoor(door);
+    			return door;
     		}
     	}
+    	return null;
     }
     
     // Add a door to the list of doors.
@@ -371,7 +371,6 @@ public class BigDoors extends JavaPlugin implements Listener
     	Location engineLoc = verifySelection(player, selection);
     	if (engineLoc != null) 
     	{
-//    		public Door(World world, int xBase, int yBase, int zBase, int xEnd, int yEnd, int zEnd, int engineX, int engineY, int engineZ, String name)
 			int xMin = selection.getMinimumPoint().getBlockX();
 			int xMax = selection.getMaximumPoint().getBlockX();
 			int yMin = selection.getMinimumPoint().getBlockY();
