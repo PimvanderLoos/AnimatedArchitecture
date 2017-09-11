@@ -23,6 +23,8 @@ import com.sk89q.worldedit.bukkit.*;
 import com.sk89q.worldedit.bukkit.selections.*;
 
 import net.md_5.bungee.api.ChatColor;
+import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
+import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
  
 public class BigDoors extends JavaPlugin implements Listener 
 {
@@ -30,11 +32,15 @@ public class BigDoors extends JavaPlugin implements Listener
 	private String[] allowedEngineMats = {"IRON_FENCE"};
 	private String[] allowedDoorMats   = {"GOLD_BLOCK"};
 	private List<Door> doors;
+	private BlockMover blockMover;
+	private DoorOpener doorOpener;
 	
 	@Override
     public void onEnable() 
 	{
 		doors = new ArrayList<Door>();
+		blockMover = new BlockMover(this);
+		doorOpener = new DoorOpener(blockMover);
 		Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
 		worldEdit = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
 		readDoors();
@@ -138,53 +144,62 @@ public class BigDoors extends JavaPlugin implements Listener
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) 
     {
-    	Player player;
-    	if (sender instanceof Player) 
-    	{
-    		player = (Player) sender;
-	    	// /newdoor <doorName>
-	    	if (cmd.getName().equalsIgnoreCase("newdoor")) 
+	    	Player player;
+	    	if (sender instanceof Player) 
 	    	{
-	    		if (args.length == 1) 
-	    		{
-	    			makeDoor(player, args[0]);
-	    			
-	    			return true;
-	    		}
-	    	}
-
-	    	// /deldoor <doorName>
-	    	if (cmd.getName().equalsIgnoreCase("deldoor")) 
+	    		player = (Player) sender;
+		    	// /newdoor <doorName>
+		    	if (cmd.getName().equalsIgnoreCase("newdoor")) 
+		    	{
+		    		if (args.length == 1) 
+		    		{
+		    			makeDoor(player, args[0]);
+		    			return true;
+		    		}
+		    	}
+	
+		    	// /deldoor <doorName>
+		    	if (cmd.getName().equalsIgnoreCase("deldoor")) 
+		    	{
+		    		if (args.length == 1) 
+		    		{
+		    			deleteDoor(getDoor(args[0]));
+		    			return true;
+		    		}
+		    	}
+		    	
+		    	// /opendoor <doorName>
+		    	if (cmd.getName().equalsIgnoreCase("opendoor")) 
+		    	{
+		    		if (args.length == 1) 
+		    		{	
+		    			Door door = getDoor(args[0]);
+		    			if (door!=null) 
+		    			{
+			    			if (!doorOpener.openDoor(getDoor(args[0]))) 
+			    			{
+			    				player.sendMessage(ChatColor.RED+"This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
+			    			}
+		    			} else 
+		    			{
+		    				player.sendMessage(ChatColor.RED+"Not a valid door name!");
+		    			}
+		    			return true;
+		    		}
+		    	}
+		    	
+		    	// /listdoors
+		    	if (cmd.getName().equalsIgnoreCase("listdoors")) 
+		    	{
+		    		listDoors(player);
+		    		return true;
+		    	}
+		    	return false;
+	    	} else 
 	    	{
-	    		if (args.length == 1) 
-	    		{
-	    			deleteDoor(args[1]);
-	    			return true;
-	    		}
-	    	}
-	    	
-	    	// /opendoor <doorName>
-	    	if (cmd.getName().equalsIgnoreCase("opendoor")) 
-	    	{
-	    		if (args.length == 1) 
-	    		{	
-	    			
-	    			return true;
-	    		}
-	    	}
-	    	
-	    	// /listdoors
-	    	if (cmd.getName().equalsIgnoreCase("listdoors")) 
-	    	{
-	    		listDoors(player);
-	    		return true;
+	    		Bukkit.getLogger().log(Level.INFO, "This command can not be used from the console.");
 	    	}
 	    	return false;
-    	} else 
-    	{
-    		Bukkit.getLogger().log(Level.INFO, "This command can not be used from the console.");
-    	}
-    	return false;
     }
     
     // Check if a block is a valid engine block.
@@ -196,59 +211,55 @@ public class BigDoors extends JavaPlugin implements Listener
 			{
 				return true;
 			}
-    	}
-    	return false;
+	    	}
+	    	return false;
     }
     
     // Check if the selection contains a valid engine.
     public boolean hasValidEngine(World w, int xPos, int zPos, int yMin, int yMax) 
     {	
-//    	Bukkit.broadcastMessage("Checking for valid engine! yMin="+yMin+", yMax="+yMax);
-    	for (int index = yMin; index <= yMax; index++)
-    	{
-//    		Bukkit.broadcastMessage("Engine: Checking block at:"+xPos+", "+index+", "+zPos+", which is: "+w.getBlockAt(xPos, index, zPos).getType().toString());
-    		if (!isValidEngineBlock(w.getBlockAt(xPos, index, zPos)))
-    		{
-    			Bukkit.broadcastMessage("Invalid Engine: Block at "+xPos+", "+index+", "+zPos+" is: "+w.getBlockAt(xPos, index, zPos).getType().toString());
-    			return false;
-    		}
-    	}
-    	Bukkit.broadcastMessage("The door has a valid engine!");
-    	return true;
+	    	for (int index = yMin; index <= yMax; index++)
+	    	{
+	    		if (!isValidEngineBlock(w.getBlockAt(xPos, index, zPos)))
+	    		{
+	    			Bukkit.broadcastMessage("Invalid Engine: Block at "+xPos+", "+index+", "+zPos+" is: "+w.getBlockAt(xPos, index, zPos).getType().toString());
+	    			return false;
+	    		}
+	    	}
+	    	Bukkit.broadcastMessage("The door has a valid engine!");
+	    	return true;
     }
     
     // Check if a block is a valid door block.
     public boolean isValidDoorBlock(Block block) 
     {
-		for (String s : allowedDoorMats) 
-		{
-			if (block.getType().toString() == s) 
+			for (String s : allowedDoorMats) 
 			{
-				return true;
-			}
-    	}
-    	return false;
+				if (block.getType().toString() == s) 
+				{
+					return true;
+				}
+	    	}
+	    	return false;
     }
     
     // Check if the selection contains valid door blocks.
     public boolean hasValidDoorBlocks(World w, int xMin, int xMax, int zMin, int zMax, int yMin, int yMax) 
     {
-    	for (int xAxis = xMin; xAxis <= xMax; xAxis++)
-    	{
-    		for (int yAxis = yMin; yAxis <= yMax; yAxis++)
-        	{
-    			for (int zAxis = zMin; zAxis <= zMax; zAxis++)
-    	    	{
-//    	    		Bukkit.broadcastMessage("Checking block at:"+xAxis+", "+yAxis+", "+zAxis+", which is: "+w.getBlockAt(xAxis, yAxis, zAxis).getType().toString());
-    	    		if (!isValidDoorBlock(w.getBlockAt(xAxis, yAxis, zAxis)))
-    	    		{
-    	    			Bukkit.broadcastMessage("Invalid Door: Block at "+xAxis+", "+yAxis+", "+zAxis+" is: "+w.getBlockAt(xAxis, yAxis, zAxis).getType().toString());
-    	    			return false;
-    	    		}
-    	    	}
-        	}
-    	}
-//    	Bukkit.broadcastMessage("The selection has valid door blocks!");
+	    	for (int xAxis = xMin; xAxis <= xMax; xAxis++)
+	    	{
+	    		for (int yAxis = yMin; yAxis <= yMax; yAxis++)
+	        	{
+	    			for (int zAxis = zMin; zAxis <= zMax; zAxis++)
+	    	    	{
+	    	    		if (!isValidDoorBlock(w.getBlockAt(xAxis, yAxis, zAxis)))
+	    	    		{
+	    	    			Bukkit.broadcastMessage("Invalid Door: Block at "+xAxis+", "+yAxis+", "+zAxis+" is: "+w.getBlockAt(xAxis, yAxis, zAxis).getType().toString());
+	    	    			return false;
+	    	    		}
+	    	    	}
+	        	}
+	    	}
     	return true;
     }
     
@@ -256,142 +267,142 @@ public class BigDoors extends JavaPlugin implements Listener
     // Check if the selection contains a valid door and return the location of the engine.
     public Location verifySelection(Player player, Selection selection)
     {	
-    	Location loc = null;
-    	if (selection != null) 
-    	{
-			int xMin = selection.getMinimumPoint().getBlockX();
-			int xMax = selection.getMaximumPoint().getBlockX();
-			int yMin = selection.getMinimumPoint().getBlockY();
-			int yMax = selection.getMaximumPoint().getBlockY();
-			int zMin = selection.getMinimumPoint().getBlockZ();
-			int zMax = selection.getMaximumPoint().getBlockZ();
-			World world = selection.getWorld();
-			
-    		// If the selection is only 1 deep in the z-direction...
-    		if (selection.getLength()==1) 
-    		{	
-    			// First check the side with the lowest X value.
-    			if (hasValidEngine(world, xMin, zMax, yMin, yMax))
-    			{   
-    				loc = new Location(world, xMin, yMin, zMin);
-    				// Check if the blocks (excluding the engine) are valid door blocks.
-    				if (hasValidDoorBlocks(world, xMin, xMax, zMin+1, zMax, yMin, yMax))
-    				{
-        				return loc;
-    				}
-    			// Then check the side with the highest X value.
-    			} else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
-    			{
-    				loc = new Location(world, xMax, yMin, zMin);
-    				// Check if the blocks (excluding the engine) are valid door blocks.
-    				if (hasValidDoorBlocks(world, xMin, xMax, zMin, zMax-1, yMin, yMax))
-    				{
-        				return loc;
-    				}
-    			}
-    		// If the selection is only 1 deep in the x-direction...
-    		} else if (selection.getWidth()==1) 
-    		{
-    			// First check the side with the lowest Z value.
-    			if (hasValidEngine(world, xMax, zMin, yMin, yMax))
-    			{   
-    				loc = new Location(world, xMax, yMin, zMin);
-    				// Check if the blocks (excluding the engine) are valid door blocks.
-    				if (hasValidDoorBlocks(world, xMin, xMax, zMin+1, zMax, yMin, yMax))
-    				{
-        				return loc;
-    				}
-    			// Then check the side with the highest Z value.
-    			} else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
-    			{
-    				loc = new Location(world, xMax, yMin, zMax);
-    				// Check if the blocks (excluding the engine) are valid door blocks.
-    				if (hasValidDoorBlocks(world, xMin, xMax, zMin, zMax-1, yMin, yMax))
-    				{
-        				return loc;
-    				}
-    			}
-    		}
-    	}
-    	return loc;
+	    	Location loc = null;
+	    	if (selection != null) 
+	    	{
+				int xMin = selection.getMinimumPoint().getBlockX();
+				int xMax = selection.getMaximumPoint().getBlockX();
+				int yMin = selection.getMinimumPoint().getBlockY();
+				int yMax = selection.getMaximumPoint().getBlockY();
+				int zMin = selection.getMinimumPoint().getBlockZ();
+				int zMax = selection.getMaximumPoint().getBlockZ();
+				World world = selection.getWorld();
+				
+	    		// If the selection is only 1 deep in the z-direction...
+	    		if (selection.getLength()==1) 
+	    		{	
+	    			// First check the side with the lowest X value.
+	    			if (hasValidEngine(world, xMin, zMax, yMin, yMax))
+	    			{   
+	    				loc = new Location(world, xMin, yMin, zMin);
+	    				// Check if the blocks (excluding the engine) are valid door blocks.
+	    				if (hasValidDoorBlocks(world, xMin, xMax, zMin+1, zMax, yMin, yMax))
+	    				{
+	        				return loc;
+	    				}
+	    			// Then check the side with the highest X value.
+	    			} else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
+	    			{
+	    				loc = new Location(world, xMax, yMin, zMin);
+	    				// Check if the blocks (excluding the engine) are valid door blocks.
+	    				if (hasValidDoorBlocks(world, xMin, xMax, zMin, zMax-1, yMin, yMax))
+	    				{
+	        				return loc;
+	    				}
+	    			}
+	    		// If the selection is only 1 deep in the x-direction...
+	    		} else if (selection.getWidth()==1) 
+	    		{
+	    			// First check the side with the lowest Z value.
+	    			if (hasValidEngine(world, xMax, zMin, yMin, yMax))
+	    			{   
+	    				loc = new Location(world, xMax, yMin, zMin);
+	    				// Check if the blocks (excluding the engine) are valid door blocks.
+	    				if (hasValidDoorBlocks(world, xMin, xMax, zMin+1, zMax, yMin, yMax))
+	    				{
+	        				return loc;
+	    				}
+	    			// Then check the side with the highest Z value.
+	    			} else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
+	    			{
+	    				loc = new Location(world, xMax, yMin, zMax);
+	    				// Check if the blocks (excluding the engine) are valid door blocks.
+	    				if (hasValidDoorBlocks(world, xMin, xMax, zMin, zMax-1, yMin, yMax))
+	    				{
+	        				return loc;
+	    				}
+	    			}
+	    		}
+	    	}
+	    	return loc;
     }
     
     // Print a list of the doors currently in the db.
     public void listDoors(Player player) 
     {
-    	int count=0;
-    	for (Door door : doors) 
-    	{
-    		player.sendMessage(count+": "+door.getName()+":\nBaseCoords:"+door.getMinimum().getBlockX()+","+door.getMinimum().getBlockY()+","+door.getMinimum().getBlockZ()+", EndCoords:"+door.getMaximum().getBlockX()+","+door.getMaximum().getBlockY()+","+door.getMaximum().getBlockZ()+",");
-    		count++;
-    	}
+	    	int count=0;
+	    	for (Door door : doors) 
+	    	{
+	    		player.sendMessage(count+": "+door.getName()+":\nMinimumCoords:"+door.getMinimum().getBlockX()+","+door.getMinimum().getBlockY()+","+door.getMinimum().getBlockZ()+", MaximumCoords:"+door.getMaximum().getBlockX()+","+door.getMaximum().getBlockY()+","+door.getMaximum().getBlockZ());
+	    		count++;
+	    	}
     }
     
     // Delete a door from the list of doors.
     public void deleteDoor(Door oldDoor)
     {
-    	doors.remove(oldDoor);
+    		doors.remove(oldDoor);
     }
     
-    // Delete a door from the list of doors.
-    public void deleteDoor(String name)
+    // Get the door named "name".
+    public Door getDoor(String name)
     {
-    	for (Door door : doors)
-    	{
-    		if (door.getName().equals(name))
-    		{
-    			deleteDoor(door);
-    		}
-    	}
+	    	for (Door door : doors)
+	    	{
+	    		if (door.getName().equals(name))
+	    		{
+	    			return door;
+	    		}
+	    	}
+    	return null;
     }
     
     // Add a door to the list of doors.
     public void addDoor(Door newDoor) 
     {
-    	doors.add(newDoor);
+    		doors.add(newDoor);
     }
     
     // Check if a given name is already in use or not.
     public boolean isNameAvailable(String name) 
     {
-    	for (Door door : doors) 
-    	{
-    		if (name.equals(door.getName()))
-    		{
-    			return false;
-    		}
-    	}
-    	return true;
+	    	for (Door door : doors) 
+	    	{
+	    		if (name.equals(door.getName()))
+	    		{
+	    			return false;
+	    		}
+	    	}
+	    	return true;
     }
     
     // Create a new door.
     public void makeDoor(Player player, String name) 
     {
-    	Selection selection = worldEdit.getSelection(player);
-    	Location engineLoc = verifySelection(player, selection);
-    	if (engineLoc != null) 
-    	{
-//    		public Door(World world, int xBase, int yBase, int zBase, int xEnd, int yEnd, int zEnd, int engineX, int engineY, int engineZ, String name)
-			int xMin = selection.getMinimumPoint().getBlockX();
-			int xMax = selection.getMaximumPoint().getBlockX();
-			int yMin = selection.getMinimumPoint().getBlockY();
-			int yMax = selection.getMaximumPoint().getBlockY();
-			int zMin = selection.getMinimumPoint().getBlockZ();
-			int zMax = selection.getMaximumPoint().getBlockZ();
-			World world = selection.getWorld();
-    		if (isNameAvailable(name)) 
-    		{
-				Door newDoor = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineLoc.getBlockX(), engineLoc.getBlockY(), engineLoc.getBlockZ(), name, false);
-	    		addDoor(newDoor);
-    		} else 
-    		{
-    			player.sendMessage(ChatColor.RED+"Name \""+name+"\" already in use!");
-    		}
-    	    Bukkit.broadcastMessage("This is a valid selection!");
-    	    
-    	} else 
-    	{
-    		Bukkit.broadcastMessage("This is not a valid selection!");
-    	}
+	    	Selection selection = worldEdit.getSelection(player);
+	    	Location engineLoc = verifySelection(player, selection);
+	    	if (engineLoc != null) 
+	    	{
+				int xMin = selection.getMinimumPoint().getBlockX();
+				int xMax = selection.getMaximumPoint().getBlockX();
+				int yMin = selection.getMinimumPoint().getBlockY();
+				int yMax = selection.getMaximumPoint().getBlockY();
+				int zMin = selection.getMinimumPoint().getBlockZ();
+				int zMax = selection.getMaximumPoint().getBlockZ();
+				World world = selection.getWorld();
+	    		if (isNameAvailable(name)) 
+	    		{
+					Door newDoor = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineLoc.getBlockX(), engineLoc.getBlockY(), engineLoc.getBlockZ(), name, false);
+		    		addDoor(newDoor);
+	    		} else 
+	    		{
+	    			player.sendMessage(ChatColor.RED+"Name \""+name+"\" already in use!");
+	    		}
+	    	    Bukkit.broadcastMessage("This is a valid selection!");
+	    	    
+	    	} else 
+	    	{
+	    		Bukkit.broadcastMessage("This is not a valid selection!");
+	    	}
     }
 }
