@@ -194,10 +194,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		    		listDoors(player);
 		    		return true;
 		    	}
-		    	return false;
-	    	} else 
-	    	{
-	    		Bukkit.getLogger().log(Level.INFO, "This command can not be used from the console.");
 	    	}
 	    	return false;
     }
@@ -217,7 +213,7 @@ public class BigDoors extends JavaPlugin implements Listener
     
     // Check if the selection contains a valid engine.
     public boolean hasValidEngine(World w, int xPos, int zPos, int yMin, int yMax) 
-    {	
+    {
 	    	for (int index = yMin; index <= yMax; index++)
 	    	{
 	    		if (!isValidEngineBlock(w.getBlockAt(xPos, index, zPos)))
@@ -251,15 +247,15 @@ public class BigDoors extends JavaPlugin implements Listener
 	    		for (int yAxis = yMin; yAxis <= yMax; yAxis++)
 	        	{
 	    			for (int zAxis = zMin; zAxis <= zMax; zAxis++)
-	    	    	{
-	    	    		if (!isValidDoorBlock(w.getBlockAt(xAxis, yAxis, zAxis)))
 	    	    		{
-	    	    			Bukkit.broadcastMessage("Invalid Door: Block at "+xAxis+", "+yAxis+", "+zAxis+" is: "+w.getBlockAt(xAxis, yAxis, zAxis).getType().toString());
-	    	    			return false;
+		    	    		if (!isValidDoorBlock(w.getBlockAt(xAxis, yAxis, zAxis)))
+		    	    		{
+		    	    			Bukkit.broadcastMessage("Invalid Door: Block at "+xAxis+", "+yAxis+", "+zAxis+" is: "+w.getBlockAt(xAxis, yAxis, zAxis).getType().toString());
+		    	    			return false;
+		    	    		}
 	    	    		}
-	    	    	}
 	        	}
-	    	}
+        	}
     	return true;
     }
     
@@ -354,7 +350,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	    			return door;
 	    		}
 	    	}
-    	return null;
+	    	return null;
     }
     
     // Add a door to the list of doors.
@@ -383,13 +379,13 @@ public class BigDoors extends JavaPlugin implements Listener
 	    	Location engineLoc = verifySelection(player, selection);
 	    	if (engineLoc != null) 
 	    	{
-				int xMin = selection.getMinimumPoint().getBlockX();
-				int xMax = selection.getMaximumPoint().getBlockX();
-				int yMin = selection.getMinimumPoint().getBlockY();
-				int yMax = selection.getMaximumPoint().getBlockY();
-				int zMin = selection.getMinimumPoint().getBlockZ();
-				int zMax = selection.getMaximumPoint().getBlockZ();
-				World world = selection.getWorld();
+			int xMin = selection.getMinimumPoint().getBlockX();
+			int xMax = selection.getMaximumPoint().getBlockX();
+			int yMin = selection.getMinimumPoint().getBlockY();
+			int yMax = selection.getMaximumPoint().getBlockY();
+			int zMin = selection.getMinimumPoint().getBlockZ();
+			int zMax = selection.getMaximumPoint().getBlockZ();
+			World world = selection.getWorld();
 	    		if (isNameAvailable(name)) 
 	    		{
 					Door newDoor = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineLoc.getBlockX(), engineLoc.getBlockY(), engineLoc.getBlockZ(), name, false);

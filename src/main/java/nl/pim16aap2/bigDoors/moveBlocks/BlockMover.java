@@ -29,6 +29,7 @@ public class BlockMover
 		this.plugin = plugin;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void moveBlocks(Location turningPoint, Location pointOpposite, String direction, Direction currentDirection)
 	{
 		this.direction = direction;
