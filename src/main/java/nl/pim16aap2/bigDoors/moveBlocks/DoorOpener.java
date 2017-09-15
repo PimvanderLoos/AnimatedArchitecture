@@ -6,15 +6,16 @@ import org.bukkit.Material;
 
 import com.sk89q.worldedit.util.Direction;
 
+import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 
 public class DoorOpener 
 {
-	private BlockMover blockMover;
+	private BigDoors plugin;
 	
-	public DoorOpener(BlockMover blockMover) 
+	public DoorOpener(BigDoors plugin)
 	{
-		this.blockMover = blockMover;
+		this.plugin = plugin;
 	}
 	
 	// Get the current angle of the door.
@@ -259,6 +260,7 @@ public class DoorOpener
 		Integer angle = getAngleChange(door);
 		if (angle != null)
 		{
+			BlockMover blockMover = new BlockMover(plugin);
 			int xOpposite, yOpposite, zOpposite;
 			// If the xMax is not the same value as the engineX, then xMax is xOpposite.
 			if (door.getMaximum().getBlockX() != door.getEngine().getBlockX())
@@ -284,11 +286,6 @@ public class DoorOpener
 			{
 				yOpposite = door.getMinimum().getBlockY();
 			}
-			
-//			Location startLoc = new Location(door.getWorld(), xStart, yStart, zStart);
-//			Location engineLoc= new Location(door.getWorld(), door.getEngine().getX(), door.getEngine().getY(), door.getEngine().getZ());
-//			String turnDirection = getTurnDirection(currentDirection, newDirection);
-//			blockMover.moveBlocks(startLoc, engineLoc, turnDirection);
 			
 			Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
 			

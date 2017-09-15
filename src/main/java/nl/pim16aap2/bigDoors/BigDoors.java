@@ -23,7 +23,6 @@ import com.sk89q.worldedit.bukkit.*;
 import com.sk89q.worldedit.bukkit.selections.*;
 
 import net.md_5.bungee.api.ChatColor;
-import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
  
 public class BigDoors extends JavaPlugin implements Listener 
@@ -32,15 +31,13 @@ public class BigDoors extends JavaPlugin implements Listener
 	private String[] allowedEngineMats = {"IRON_FENCE"};
 	private String[] allowedDoorMats   = {"GOLD_BLOCK"};
 	private List<Door> doors;
-	private BlockMover blockMover;
 	private DoorOpener doorOpener;
 	
 	@Override
     public void onEnable() 
 	{
 		doors = new ArrayList<Door>();
-		blockMover = new BlockMover(this);
-		doorOpener = new DoorOpener(blockMover);
+		doorOpener = new DoorOpener(this);
 		Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
 		worldEdit = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
 		readDoors();
