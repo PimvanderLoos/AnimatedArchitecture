@@ -50,6 +50,12 @@ public class Door implements Serializable
 		return isOpen;
 	}
 	
+	// Change the open-status of this door.
+	public void setStatus(boolean bool)
+	{
+		isOpen = bool;
+	}
+	
 	// Return the world this door is located in.
 	public World getWorld()
 	{
@@ -57,26 +63,46 @@ public class Door implements Serializable
 	}
 	
 	// Return the location of the engine of this door.
-	public Location getEngine() {
+	public Location getEngine() 
+	{
 		Location engineLoc = new Location(world, engineX, engineY, engineZ);
 		return engineLoc;		
 	}
 	
 	// Return the minimum values of this door.
-	public Location getMinimum() {
+	public Location getMinimum() 
+	{
 		Location minima = new Location(world, xMin, yMin, zMin);
 		return minima;
 	}
 	
 	// Return the maximum values of this door.
-	public Location getMaximum() {
+	public Location getMaximum() 
+	{
 		Location maxima = new Location(world, xMax, yMax, zMax);
 		return maxima;
 	}
 	
+	// Change the minimum values of this door.
+	public void setMinimum(Location loc) 
+	{
+		this.xMin = loc.getBlockX();
+		this.yMin = loc.getBlockY();
+		this.zMin = loc.getBlockZ();
+	}
+	
+	// Change the maximum values of this door.
+	public void setMaximum(Location loc)
+	{
+		this.xMax = loc.getBlockX();
+		this.yMax = loc.getBlockY();
+		this.zMax = loc.getBlockZ();
+	}
+	
 	// Return this object as a string.
 	@Override
-	public String toString() {
+	public String toString() 
+	{
 //		String door = name+"\n  isOpen: "+isOpen+"\n  World: "+world.getName().toString()+"\n  Coords:\n    Minimum: "+xMin+" "+yMin+" "+zMin+"\n    Maximum: "+xMax+" "+yMax+" "+zMax+"\n    Engine:  "+engineX+" "+engineY+" "+engineZ;
 		String door = name+" "+isOpen+" "+world.getName().toString()+" "+xMin+" "+yMin+" "+zMin+" "+xMax+" "+yMax+" "+zMax+" "+engineX+" "+engineY+" "+engineZ;
 		return door;

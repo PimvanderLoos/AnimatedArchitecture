@@ -288,12 +288,82 @@ public class DoorOpener
 			}
 			
 			Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
-			
+						
 			String turnDirection = getTurnDirection(currentDirection, newDirection);
 			blockMover.moveBlocks(door.getEngine(), oppositePoint, turnDirection, currentDirection);
+
+			toggleOpen(door);
+			updateCoords(currentDirection, turnDirection, door);
 			
 			return true;
 		} 
 		return false;
+	}
+	
+	// Update the coordinates of the door after opening/closing it.
+	public void updateCoords(Direction currentDirection, String turnDirection, Door door)
+	{
+		int xMin = door.getMinimum().getBlockX();
+		int yMin = door.getMinimum().getBlockY();
+		int zMin = door.getMinimum().getBlockZ();
+		int xMax = door.getMaximum().getBlockX();
+		int yMax = door.getMaximum().getBlockY();
+		int zMax = door.getMaximum().getBlockZ();
+		int xLen = xMax - xMin; 
+		int zLen = zMax - zMin;
+		Location newMax = null;
+		Location newMin = null;
+		
+		if (currentDirection == Direction.NORTH)
+		{
+			if (turnDirection == "clockwise")
+			{
+				newMin = new Location(door.getWorld(), xMin, yMin, zMax);
+				newMax = new Location(door.getWorld(), (xMin + zLen), yMax, zMax);
+			} else {
+				newMin = new Location(door.getWorld(), (xMin - zLen), yMin, zMax);
+				newMax = new Location(door.getWorld(), xMax, yMax, zMax);
+			}
+			
+		} else if (currentDirection == Direction.SOUTH)
+		{
+			if (turnDirection == "clockwise")
+			{
+				newMin = new Location(door.getWorld(), (xMin - zLen), yMin, zMin);
+				newMax = new Location(door.getWorld(), xMax, yMax, zMin);
+			} else {
+				newMin = new Location(door.getWorld(), xMin, yMin, zMin);
+				newMax = new Location(door.getWorld(), (xMin + zLen), yMax, zMin);
+			}
+			
+		} else if (currentDirection == Direction.EAST)
+		{
+			if (turnDirection == "clockwise")
+			{
+				newMin = new Location(door.getWorld(), xMin, yMin, zMin);
+				newMax = new Location(door.getWorld(), xMin, yMax, (zMax + xLen));
+			} else {
+				newMin = new Location(door.getWorld(), xMin, yMin, (zMin - xLen));
+				newMax = new Location(door.getWorld(), xMin, yMax, zMin);
+			}
+			
+		} else if (currentDirection == Direction.WEST)
+		{
+			if (turnDirection == "clockwise")
+			{
+				newMin = new Location(door.getWorld(), xMax, yMin, (zMin - xLen));
+				newMax = new Location(door.getWorld(), xMax, yMax, zMax);
+			} else {
+				newMin = new Location(door.getWorld(), xMax, yMin, zMin);
+				newMax = new Location(door.getWorld(), xMax, yMax, (zMax + xLen));
+			}
+		}
+		door.setMaximum(newMax);
+		door.setMinimum(newMin);
+	}
+	
+	public void toggleOpen(Door door)
+	{
+		door.setStatus(!door.getStatus());
 	}
 }

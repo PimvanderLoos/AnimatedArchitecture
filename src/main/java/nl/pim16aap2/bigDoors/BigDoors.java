@@ -185,6 +185,38 @@ public class BigDoors extends JavaPlugin implements Listener
 		    		}
 		    	}
 		    	
+		    	// /opendoors <doorName1> <doorName2>
+		    	if (cmd.getName().equalsIgnoreCase("opendoors")) 
+		    	{
+		    		if (args.length == 2) 
+		    		{	
+		    			Door door1 = getDoor(args[0]);
+		    			if (door1!=null) 
+		    			{
+			    			if (!doorOpener.openDoor(getDoor(args[0]))) 
+			    			{
+			    				player.sendMessage(ChatColor.RED+"This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
+			    			}
+		    			} else 
+		    			{
+		    				player.sendMessage(ChatColor.RED+"Not a valid door name!");
+		    			}
+		    			
+		    			Door door2 = getDoor(args[1]);
+		    			if (door2!=null) 
+		    			{
+			    			if (!doorOpener.openDoor(getDoor(args[1]))) 
+			    			{
+			    				player.sendMessage(ChatColor.RED+"This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
+			    			}
+		    			} else 
+		    			{
+		    				player.sendMessage(ChatColor.RED+"Not a valid door name!");
+		    			}
+		    			return true;
+		    		}
+		    	}
+		    	
 		    	// /listdoors
 		    	if (cmd.getName().equalsIgnoreCase("listdoors")) 
 		    	{
