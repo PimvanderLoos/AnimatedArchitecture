@@ -12,7 +12,6 @@ import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.CylindricalEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.CylindricalMovement;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.CylindricalNorth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.CylindricalSouth;
-import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.CylindricalSouthTest;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.CylindricalWest;
 
 public class BlockMover 
@@ -58,7 +57,7 @@ public class BlockMover
 			
 		} else if (currentDirection == Direction.SOUTH)
 		{
-			moveCylindrically = new CylindricalSouthTest();
+			moveCylindrically = new CylindricalSouth();
 			
 		} else if (currentDirection == Direction.WEST)
 		{
