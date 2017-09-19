@@ -40,6 +40,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		doorOpener = new DoorOpener(this);
 		Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
 		worldEdit = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
+//		NoClipArmorStand.registerEntity();
 		readDoors();
 	}
 	

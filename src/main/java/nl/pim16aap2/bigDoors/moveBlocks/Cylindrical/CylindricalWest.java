@@ -47,7 +47,7 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 			{
 				for (double zAxis = zMin ; zAxis <= zMax ; zAxis++)
 				{
-					Location newStandLocation = new Location(world, xAxis+0.5, yAxis-1, zAxis+0.5);
+					Location newStandLocation = new Location(world, xAxis+0.5, yAxis-0.7, zAxis+0.5);
 					
 					Material item = world.getBlockAt((int)xAxis, (int)yAxis, (int)zAxis).getType();
 					world.getBlockAt((int)xAxis, (int)yAxis, (int)zAxis).setType(Material.AIR);
@@ -57,6 +57,7 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 					lastStand.setGravity(false);
 					lastStand.setCollidable(false);
 					lastStand.setVisible(false);
+					lastStand.setSmall(true);
 					
 					@SuppressWarnings("deprecation")
 					FallingBlock block = world.spawnFallingBlock(newStandLocation, item, (byte) 0);
@@ -129,8 +130,8 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
             @Override
             public void run() 
             {
-        			// If the angle equals or exceeds 1.5708 rad (90 degrees) multiplied by the amount of quarter circles it should turn, stop.
-                if (Math.abs(angle) >= 1.5708 * qCircles)
+        			// If the angle equals or exceeds 1.5808 rad (90 degrees) multiplied by the amount of quarter circles it should turn, stop.
+                if (Math.abs(angle) >= 1.5808 * qCircles)
                 {
                 		this.cancel();
                 		putBlocks();
@@ -145,14 +146,14 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 	        				for (double zAxis = zMin ; zAxis <= zMax ; zAxis++)
 	        				{
 	        					angle += -(step*directionMultiplier);
-	        					if (Math.abs(angle) <= 1.5708 * qCircles)
+	        					if (Math.abs(angle) <= 1.5808 * qCircles)
 	        					{
 		        					// Set the gravity stat of the armor stand to true, so it can move again.
 	        						entity.get(index).setGravity(true);
 		        					// Get the radius of the current blockEntity.
 	        						double radius = xLen-index%xLen-1;
 		        					// Set the x and z accelerations.
-	        						double xRot = -Math.sin(angle) * radius / radDiv * Math.sin(1.5708);
+	        						double xRot = -Math.sin(angle) * radius / radDiv * Math.sin(1.5808);
 	        						double zRot = -directionMultiplier * Math.cos(angle) * radius / radDiv;
 		        					entity.get(index).setVelocity(new Vector(directionMultiplier*xRot, 0.002, zRot));
 		        					// If there's more than 0 passengers for the entity (ArmorStand), set its tickslived to 0, so the blocks on the AS's won't despawn.

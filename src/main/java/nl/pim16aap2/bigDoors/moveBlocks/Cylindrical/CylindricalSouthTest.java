@@ -7,20 +7,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.customEntities.NoClipArmorStand;
 
-public class CylindricalSouth extends CylindricalMover implements CylindricalMovement {
+public class CylindricalSouthTest extends CylindricalMover implements CylindricalMovement {
 	
 	private BigDoors plugin;
 	private World world;
 	private String direction;
-	private List<Entity> entity = new ArrayList<Entity>();
+//	private List<NoClipArmorStand> entity = new ArrayList<NoClipArmorStand>();
+	private List<nl.pim16aap2.bigDoors.customEntities.CraftArmorStand> entity = new ArrayList<nl.pim16aap2.bigDoors.customEntities.CraftArmorStand>();
+	private List<Material> blocks = new ArrayList<Material>();
+	private List<FallingBlock> fBlocks = new ArrayList<FallingBlock>();
 	private int xMin, yMin, zMin, xMax, yMax, zMax, xLen, yLen, zLen, qCircles;
 	
 	@Override
@@ -47,26 +51,37 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 			{
 				for (double zAxis = zMax ; zAxis >= zMin ; zAxis--) 
 				{
+//					Location newStandLocation = new Location(world, xAxis+0.5, yAxis-1.48, zAxis+0.5);
 					Location newStandLocation = new Location(world, xAxis+0.5, yAxis-0.7, zAxis+0.5);
 					
 					Material item = world.getBlockAt((int)xAxis, (int)yAxis, (int)zAxis).getType();
+					blocks.add(index, item);
+					
 					world.getBlockAt((int)xAxis, (int)yAxis, (int)zAxis).setType(Material.AIR);
 					
-					ArmorStand lastStand = world.spawn(newStandLocation, ArmorStand.class);	
-					lastStand.setVelocity(new Vector(0, 0.000, 0));
-					lastStand.setGravity(false);
-					lastStand.setCollidable(false);
-					lastStand.setVisible(false);
-					lastStand.setSmall(true);
+					NoClipArmorStand noClipArmorStandTemp = new NoClipArmorStand((org.bukkit.craftbukkit.v1_11_R1.CraftWorld)newStandLocation.getWorld(), newStandLocation);
+					((org.bukkit.craftbukkit.v1_11_R1.CraftWorld)newStandLocation.getWorld()).getHandle().addEntity(noClipArmorStandTemp, SpawnReason.CUSTOM);
+
+					noClipArmorStandTemp.setInvisible(true);
+					noClipArmorStandTemp.setSmall(true);
+					
+					nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStand = new nl.pim16aap2.bigDoors.customEntities.CraftArmorStand((org.bukkit.craftbukkit.v1_11_R1.CraftServer) (Bukkit.getServer()), noClipArmorStandTemp);
+					
+					noClipArmorStand.setVelocity(new Vector(0, 1.002, 0));
+					noClipArmorStand.setGravity(false);
+					noClipArmorStand.setCollidable(false);
+//					//lastStand.setBodyPose(EulerAngle pose); !!!!
 					
 					@SuppressWarnings("deprecation")
-					FallingBlock block = world.spawnFallingBlock(newStandLocation, item, (byte) 0);
-					block.setVelocity(new Vector(0, 0, 0));
-					block.setDropItem(false);
-					block.setGravity(false);
-					lastStand.addPassenger(block);
+					FallingBlock fBlock = world.spawnFallingBlock(newStandLocation, item, (byte) 0);
+					fBlock.setVelocity(new Vector(0, 0, 0));
+					fBlock.setDropItem(false);
+					fBlock.setGravity(false);	
 					
-					entity.add(index, lastStand);
+					noClipArmorStand.addPassenger(fBlock);	
+					entity.add(index, noClipArmorStand);
+					fBlocks.add(fBlock);
+					
 					index++;
 				}
 			}
@@ -84,27 +99,46 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 			{
 				for (double zAxis = zMax ; zAxis >= zMin ; zAxis--) 
 				{
-					// If the entity has any passengers.
-					if (entity.get(index).getPassengers().size() > 0)
-					{
-						Entity fallingBlock = entity.get(index).getPassengers().get(0);
-						if (fallingBlock instanceof FallingBlock)
-						{
-							Material mat = ((FallingBlock) fallingBlock).getMaterial();
-							Location oldPos = new Location(fallingBlock.getWorld(), xAxis, yAxis, zAxis);
-							Location newPos = oldPos;
-							
-							int radius = zLen-index%zLen-1;
-							
-							newPos.setX(oldPos.getX() + (direction == "clockwise" ? -radius : radius));
-							newPos.setZ(zMin);
-							newPos.setY(oldPos.getY());
-							
-							world.getBlockAt(newPos).setType(mat);
-						}
-						entity.get(index).getPassengers().get(0).remove();
-					}
-					entity.get(index).remove();
+//					// If the entity has any passengers.
+//					if (entity.get(index).getPassengers().size() > 0)
+//					{
+//						Entity fallingBlock = entity.get(index).getPassengers().get(0);
+//						if (fallingBlock instanceof FallingBlock)
+//						{
+//							Material mat = ((FallingBlock) fallingBlock).getMaterial();
+//							Location oldPos = new Location(fallingBlock.getWorld(), xAxis, yAxis, zAxis);
+//							Location newPos = oldPos;
+//							
+//							int radius = zLen-index%zLen-1;
+//							
+//							newPos.setX(oldPos.getX() + (direction == "clockwise" ? -radius : radius));
+//							newPos.setZ(zMin);
+//							newPos.setY(oldPos.getY());
+//							
+//							world.getBlockAt(newPos).setType(mat);
+//						}
+//						entity.get(index).getPassengers().clear();
+//					} else {
+//						Bukkit.broadcastMessage("No passengers!");
+//					}
+//					entity.get(index).remove();
+					
+					Material mat = blocks.get(index);
+					Location oldPos = new Location(world, xAxis, yAxis, zAxis);
+					Location newPos = oldPos;
+					
+					int radius = zLen-index%zLen-1;
+					
+					newPos.setX(oldPos.getX() + (direction == "clockwise" ? -radius : radius));
+					newPos.setZ(zMin);
+					newPos.setY(oldPos.getY());
+					
+					world.getBlockAt(newPos).setType(mat);
+					
+					fBlocks.get(index).remove();
+					
+//					entity.get(index).getPassengers().clear();
+//					entity.remove(index);
 					index++;
 				}
 			}
@@ -120,6 +154,7 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 		double divider = getDivider(zLen);
 		double speed = 0.2;
 		double radDiv = divider / speed;
+//		qCircles *= 20;
 		
 		new BukkitRunnable()
         {
@@ -149,6 +184,7 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 	        					if (Math.abs(angle) <= 1.5808 * qCircles)
 	        					{
 		        					// Set the gravity stat of the armor stand to true, so it can move again.
+//	        						entity.get(index).setNoGravity(false);
 	        						entity.get(index).setGravity(true);
 		        					// Get the radius of the current blockEntity.
 	        						double radius = zLen-index%zLen-1;
@@ -156,11 +192,14 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 		        					double xRot = Math.cos(angle) * radius / radDiv;
 		        					double zRot = Math.sin(angle) * radius / radDiv;
 		        					entity.get(index).setVelocity(new Vector(directionMultiplier*xRot, 0.002, zRot));
-		        					// If there's more than 0 passengers for the entity (ArmorStand), set its tickslived to 0, so the blocks on the AS's won't despawn.
-		        					if (entity.get(index).getPassengers().size() > 0)
-		        					{
-		        						entity.get(index).getPassengers().get(0).setTicksLived(1);
-		        					}
+		        					
+		        					fBlocks.get(index).setTicksLived(1);
+		        					
+//		        					// If there's more than 0 passengers for the entity (ArmorStand), set its tickslived to 0, so the blocks on the AS's won't despawn.
+//		        					if (entity.get(index).getPassengers().size() > 0)
+//		        					{
+//		        						entity.get(index).getPassengers().get(0).setTicksLived(1);
+//		        					}
 	        					}
 	        					index++;
 	        				}

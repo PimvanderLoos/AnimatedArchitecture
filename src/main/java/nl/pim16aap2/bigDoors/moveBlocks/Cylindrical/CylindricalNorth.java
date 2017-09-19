@@ -47,7 +47,7 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 			{
 				for (double zAxis = zMin ; zAxis <= zMax ; zAxis++) 
 				{
-					Location newStandLocation = new Location(world, xAxis+0.5, yAxis-1, zAxis+0.5);
+					Location newStandLocation = new Location(world, xAxis+0.5, yAxis-0.7, zAxis+0.5);
 					
 					Material item = world.getBlockAt((int)xAxis, (int)yAxis, (int)zAxis).getType();
 					world.getBlockAt((int)xAxis, (int)yAxis, (int)zAxis).setType(Material.AIR);
@@ -57,6 +57,7 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 					lastStand.setGravity(false);
 					lastStand.setCollidable(false);
 					lastStand.setVisible(false);
+					lastStand.setSmall(true);
 					
 					@SuppressWarnings("deprecation")
 					FallingBlock block = world.spawnFallingBlock(newStandLocation, item, (byte) 0);
@@ -130,8 +131,8 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
             @Override
             public void run() 
             {
-            		// If the angle equals or exceeds 1.5708 rad (90 degrees) multiplied by the amount of quarter circles it should turn, stop.
-                if (Math.abs(angle) >= 1.5708 * qCircles)
+            		// If the angle equals or exceeds 1.5808 rad (90 degrees) multiplied by the amount of quarter circles it should turn, stop.
+                if (Math.abs(angle) >= 1.5808 * qCircles)
                 {
                 		this.cancel();
                 		putBlocks();
@@ -146,7 +147,7 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
                 			for (double zAxis = zMin ; zAxis <= zMax ; zAxis++) 
 	        				{
                 				angle += step;
-	        					if (Math.abs(angle) <= 1.5708 * qCircles)
+	        					if (Math.abs(angle) <= 1.5808 * qCircles)
 	        					{
 		        					// Set the gravity stat of the armor stand to true, so it can move again.
 	        						entity.get(index).setGravity(true);
