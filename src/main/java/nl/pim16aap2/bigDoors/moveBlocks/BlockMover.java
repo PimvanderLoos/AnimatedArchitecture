@@ -22,6 +22,8 @@ public class BlockMover
 	private String direction; 
 	private Direction currentDirection;
 	
+	private double speed = 0.2;
+	
 	public BlockMover(BigDoors plugin)
 	{
 		this.plugin = plugin;
@@ -67,7 +69,7 @@ public class BlockMover
 		// Amount of quarter circles to turn, so 4 = 1 full circle.
 		int qCircles = 1;
 		
-		moveCylindrically.moveBlockCylindrically(plugin, world, qCircles, direction, xMin, yMin, zMin, xMax, yMax, zMax, xLen, yLen, zLen);
+		moveCylindrically.moveBlockCylindrically(plugin, world, qCircles, direction, speed, xMin, yMin, zMin, xMax, yMax, zMax, xLen, yLen, zLen);
 	}
 	
 	public void simpleOpener()

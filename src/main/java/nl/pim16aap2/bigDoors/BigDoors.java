@@ -40,7 +40,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		doorOpener = new DoorOpener(this);
 		Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
 		worldEdit = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
-//		NoClipArmorStand.registerEntity();
 		readDoors();
 	}
 	
@@ -143,6 +142,64 @@ public class BigDoors extends JavaPlugin implements Listener
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) 
     {
 	    	Player player;
+	    	
+	    	// /opendoors <doorName1> <doorName2>
+	    	if (cmd.getName().equalsIgnoreCase("opendoors")) 
+	    	{
+	    		if (args.length == 2) 
+	    		{	
+	    			Door door1 = getDoor(args[0]);
+	    			if (door1!=null) 
+	    			{
+		    			if (!doorOpener.openDoor(getDoor(args[0]))) 
+		    			{
+		    				if (sender instanceof Player)
+		    				{
+		    					((Player) sender).sendMessage(ChatColor.RED+"This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
+		    				} else 
+		    				{
+		    					Bukkit.getLogger().log(Level.INFO, "This door cannot be opened! Check if one side of the \\\"engine\\\" blocks is unobstructed!");
+		    				}
+		    			}
+	    			} else 
+	    			{
+	    				if (sender instanceof Player)
+	    				{
+	    					((Player) sender).sendMessage(ChatColor.RED+"Not a valid door name!");
+	    				} else 
+	    				{
+	    					Bukkit.getLogger().log(Level.INFO, "Not a valid door name!");
+	    				}
+	    			}
+	    			
+	    			Door door2 = getDoor(args[1]);
+	    			if (door2!=null) 
+	    			{
+		    			if (!doorOpener.openDoor(getDoor(args[1]))) 
+		    			{
+		    				if (sender instanceof Player)
+		    				{
+		    					((Player) sender).sendMessage(ChatColor.RED+"This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
+		    				} else 
+		    				{
+		    					Bukkit.getLogger().log(Level.INFO, "This door cannot be opened! Check if one side of the \\\"engine\\\" blocks is unobstructed!");
+		    				}
+		    			}
+	    			} else 
+	    			{
+	    				if (sender instanceof Player)
+	    				{
+	    					((Player) sender).sendMessage(ChatColor.RED+"Not a valid door name!");
+	    				} else 
+	    				{
+	    					Bukkit.getLogger().log(Level.INFO, "Not a valid door name!");
+	    				}
+	    			}
+	    			return true;
+	    		}
+	    	}
+	    	
+	    	
 	    	if (sender instanceof Player) 
 	    	{
 	    		player = (Player) sender;
@@ -152,16 +209,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		    		if (args.length == 1) 
 		    		{
 		    			makeDoor(player, args[0]);
-		    			return true;
-		    		}
-		    	}
-	
-		    	// /deldoor <doorName>
-		    	if (cmd.getName().equalsIgnoreCase("deldoor")) 
-		    	{
-		    		if (args.length == 1) 
-		    		{
-		    			deleteDoor(getDoor(args[0]));
 		    			return true;
 		    		}
 		    	}
@@ -175,38 +222,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		    			if (door!=null) 
 		    			{
 			    			if (!doorOpener.openDoor(getDoor(args[0]))) 
-			    			{
-			    				player.sendMessage(ChatColor.RED+"This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
-			    			}
-		    			} else 
-		    			{
-		    				player.sendMessage(ChatColor.RED+"Not a valid door name!");
-		    			}
-		    			return true;
-		    		}
-		    	}
-		    	
-		    	// /opendoors <doorName1> <doorName2>
-		    	if (cmd.getName().equalsIgnoreCase("opendoors")) 
-		    	{
-		    		if (args.length == 2) 
-		    		{	
-		    			Door door1 = getDoor(args[0]);
-		    			if (door1!=null) 
-		    			{
-			    			if (!doorOpener.openDoor(getDoor(args[0]))) 
-			    			{
-			    				player.sendMessage(ChatColor.RED+"This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
-			    			}
-		    			} else 
-		    			{
-		    				player.sendMessage(ChatColor.RED+"Not a valid door name!");
-		    			}
-		    			
-		    			Door door2 = getDoor(args[1]);
-		    			if (door2!=null) 
-		    			{
-			    			if (!doorOpener.openDoor(getDoor(args[1]))) 
 			    			{
 			    				player.sendMessage(ChatColor.RED+"This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
 			    			}

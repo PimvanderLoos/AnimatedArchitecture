@@ -24,9 +24,10 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 	private List<Material> blocks = new ArrayList<Material>();
 	private List<FallingBlock> fBlocks = new ArrayList<FallingBlock>();
 	private int xMin, yMin, zMin, xMax, yMax, zMax, xLen, yLen, zLen, qCircles;
+	private double speed;
 	
 	@Override
-	public void moveBlockCylindrically(BigDoors plugin, World world, int qCircles, String direction, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int xLen, int yLen, int zLen) {
+	public void moveBlockCylindrically(BigDoors plugin, World world, int qCircles, String direction, double speed, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int xLen, int yLen, int zLen) {
 		this.direction = direction;
 		this.qCircles = qCircles;
 		this.plugin = plugin;
@@ -40,6 +41,7 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 		this.xLen = xLen;
 		this.yLen = yLen;
 		this.zLen = zLen;
+		this.speed = speed;
 		
 		int index = 0;
 		
@@ -49,7 +51,8 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 			{
 				for (double zAxis = zMax ; zAxis >= zMin ; zAxis--) 
 				{
-					Location newStandLocation = new Location(world, xAxis+0.5, yAxis-0.7, zAxis+0.5);
+					Location newStandLocation = new Location(world, xAxis+0.5, yAxis-0.741, zAxis+0.5);
+					Location newFBlockLocation = new Location(world, xAxis+0.5, yAxis-0.02, zAxis+0.5);
 					
 					Material item = world.getBlockAt((int)xAxis, (int)yAxis, (int)zAxis).getType();
 					blocks.add(index, item);
@@ -67,10 +70,9 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 					noClipArmorStand.setVelocity(new Vector(0, 0, 0));
 					noClipArmorStand.setGravity(false);
 					noClipArmorStand.setCollidable(false);
-//					//lastStand.setBodyPose(EulerAngle pose); !!!!
 					
 					@SuppressWarnings("deprecation")
-					FallingBlock fBlock = world.spawnFallingBlock(newStandLocation, item, (byte) 0);
+					FallingBlock fBlock = world.spawnFallingBlock(newFBlockLocation, item, (byte) 0);
 					fBlock.setVelocity(new Vector(0, 0, 0));
 					fBlock.setDropItem(false);
 					fBlock.setGravity(false);	
@@ -123,7 +125,6 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 		
 		int directionMultiplier = direction=="clockwise" ? -1 : 1;
 		double divider = getDivider(zLen);
-		double speed = 0.2;
 		double radDiv = divider / speed;
 		double additionalTurn = 0.07;
 		
