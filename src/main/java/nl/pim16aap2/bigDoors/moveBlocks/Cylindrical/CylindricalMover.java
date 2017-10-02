@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigDoors.moveBlocks.Cylindrical;
 
-public class CylindricalMover {
-	
+public class CylindricalMover
+{
 
-	
 	// Figure out the divider for the width.
-	public double getDivider(int len) 
+	public double getDivider(int len)
 	{
 		double divider = 1;
-		switch (len-1)
+		switch (len - 1)
 		{
 		case 1:
 			divider = 38;
@@ -91,5 +90,5 @@ public class CylindricalMover {
 		}
 		return divider;
 	}
-	
+
 }

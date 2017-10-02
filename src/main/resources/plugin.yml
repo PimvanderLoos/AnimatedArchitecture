@@ -7,27 +7,27 @@ depend:
 commands:
   newdoor:
     description: Create a new door from selection with name "doorName".
-    usage: /<command> <doorName>
+    usage: /newdoor <doorName>
     permission: bigdoors.createdoor
     permission-message: You do not have the bigdoors.createdoor permission node.
   deldoor:
     description: Delete door with name "doorName".
-    usage: /<command> <doorName>
+    usage: /deldoor <doorName>
     permission: bigdoors.deletedoor
     permission-message: You do not have the bigdoors.deletedoor permission node.
   opendoor:
     description: Open the door with name "doorName".
-    usage: /<command> <doorName>
+    usage: /opendoor <doorName> [speed]
     permission: bigdoors.opendoor
     permission-message: You do not have the bigdoors.opendoor permission node.
   opendoors:
     description: Open the doors with name "doorName1" and "doorName2".
-    usage: /<command> <doorName1> <doorName2> 
+    usage: /opendoors <doorName1> <doorName2> [speed]
     permission: bigdoors.opendoors
     permission-message: You do not have the bigdoors.opendoor permission node.
   listdoors:
     description: Returns a list of all doors.
-    usage: /<command>
+    usage: /listdoors
     permission: bigdoors.listdoors
     permission-message: You do not have the bigdoors.listdoors permission node.
     
