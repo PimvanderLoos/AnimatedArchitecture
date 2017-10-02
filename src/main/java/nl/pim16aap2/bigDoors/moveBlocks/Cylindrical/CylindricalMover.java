@@ -1,8 +1,17 @@
 package nl.pim16aap2.bigDoors.moveBlocks.Cylindrical;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.util.Vector;
+
+import nl.pim16aap2.bigDoors.customEntities.NoClipArmorStand;
+
 public class CylindricalMover
 {
-
 	// Figure out the divider for the width.
 	public double getDivider(int len)
 	{
@@ -90,5 +99,46 @@ public class CylindricalMover
 		}
 		return divider;
 	}
+	
+	// Rotate blocks such a logs by modifying its material data.
+	public byte rotateBlockData(Byte matData)
+	{
+		if (matData >= 4 && matData <= 7)
+		{
+			matData = (byte) (matData + 4);
+		} else if (matData >= 7 && matData <= 11)
+		{
+			matData = (byte) (matData - 4);
+		}
+		return matData;
+	}
+	
+	// Make a falling block.
+	public FallingBlock fallingBlockFactory(Location loc, Material mat, byte matData, World world)
+	{
+		@SuppressWarnings("deprecation")
+		FallingBlock fBlock = world.spawnFallingBlock(loc, mat, (byte) matData);
+		fBlock.setVelocity(new Vector(0, 0, 0));
+		fBlock.setDropItem(false);
+		fBlock.setGravity(false);
+		return fBlock;
+	}
+	
+	// Make a no clip armorstand.
+	public nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStandFactory(Location newStandLocation)
+	{
+		NoClipArmorStand noClipArmorStandTemp = new NoClipArmorStand((org.bukkit.craftbukkit.v1_11_R1.CraftWorld) newStandLocation.getWorld(), newStandLocation);
+		((org.bukkit.craftbukkit.v1_11_R1.CraftWorld) newStandLocation.getWorld()).getHandle().addEntity(noClipArmorStandTemp, SpawnReason.CUSTOM);
 
+		noClipArmorStandTemp.setInvisible(true);
+		noClipArmorStandTemp.setSmall(true);
+
+		nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStand = new nl.pim16aap2.bigDoors.customEntities.CraftArmorStand((org.bukkit.craftbukkit.v1_11_R1.CraftServer) (Bukkit.getServer()), noClipArmorStandTemp);
+
+		noClipArmorStand.setVelocity(new Vector(0, 0, 0));
+		noClipArmorStand.setGravity(false);
+		noClipArmorStand.setCollidable(false);
+		
+		return noClipArmorStand;
+	}
 }

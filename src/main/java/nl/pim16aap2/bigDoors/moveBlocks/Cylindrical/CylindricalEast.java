@@ -3,17 +3,14 @@ package nl.pim16aap2.bigDoors.moveBlocks.Cylindrical;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.customEntities.NoClipArmorStand;
 
 public class CylindricalEast extends CylindricalMover implements CylindricalMovement
 {
@@ -58,39 +55,22 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 				{
 					Location newStandLocation = new Location(world, xAxis + 0.5, yAxis - 0.741, zAxis + 0.5);
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.02, zAxis + 0.5);
-
-					Material item = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
+					
+					Material mat = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
 					@SuppressWarnings("deprecation")
-					Byte itemData = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
-					blocks.add(index, item);
-					blocksData.add(index, itemData);
+					Byte matData = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
+					blocks.add(index, mat);
+					blocksData.add(index, matData);
 
 					world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
-
-					NoClipArmorStand noClipArmorStandTemp = new NoClipArmorStand(
-							(org.bukkit.craftbukkit.v1_11_R1.CraftWorld) newStandLocation.getWorld(), newStandLocation);
-					((org.bukkit.craftbukkit.v1_11_R1.CraftWorld) newStandLocation.getWorld()).getHandle()
-							.addEntity(noClipArmorStandTemp, SpawnReason.CUSTOM);
-
-					noClipArmorStandTemp.setInvisible(true);
-					noClipArmorStandTemp.setSmall(true);
-
-					nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStand = new nl.pim16aap2.bigDoors.customEntities.CraftArmorStand(
-							(org.bukkit.craftbukkit.v1_11_R1.CraftServer) (Bukkit.getServer()), noClipArmorStandTemp);
-
-					noClipArmorStand.setVelocity(new Vector(0, 0, 0));
-					noClipArmorStand.setGravity(false);
-					noClipArmorStand.setCollidable(false);
-
-					@SuppressWarnings("deprecation")
-					FallingBlock fBlock = world.spawnFallingBlock(newFBlockLocation, item, (byte) itemData);
-					fBlock.setVelocity(new Vector(0, 0, 0));
-					fBlock.setDropItem(false);
-					fBlock.setGravity(false);
-
+					
+					nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStand = noClipArmorStandFactory(newStandLocation);
+					
+					FallingBlock fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
+					
 					noClipArmorStand.addPassenger(fBlock);
 					entity.add(index, noClipArmorStand);
-					fBlocks.add(fBlock);
+					fBlocks.add(index, fBlock);
 
 					index++;
 				}
@@ -117,14 +97,7 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 					 */
 
 					Material mat = blocks.get(index);
-					Byte matData = blocksData.get(index);
-					if (matData >= 4 && matData <= 7)
-					{
-						matData = (byte) (matData + 4);
-					} else if (matData >= 7 && matData <= 11)
-					{
-						matData = (byte) (matData - 4);
-					}
+					Byte matData = rotateBlockData(blocksData.get(index));
 
 					Location oldPos = new Location(world, xAxis, yAxis, zAxis);
 					Location newPos = oldPos;
@@ -209,19 +182,10 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 								if (replace && (mat == Material.LOG || mat == Material.LOG_2))
 								{
 									Location loc = fBlocks.get(index).getLocation();
-									Byte matData = blocksData.get(index);
-
-									if (matData >= 4 && matData <= 11 && (mat == Material.LOG || mat == Material.LOG_2))
-									{
-										matData = (byte) (matData + (matData <= 7 ? 4 : -4));
-									}
+									Byte matData = rotateBlockData(blocksData.get(index));
 									fBlocks.get(index).remove();
 
-									@SuppressWarnings("deprecation")
-									FallingBlock fBlock = world.spawnFallingBlock(loc, mat, (byte) matData);
-									fBlock.setVelocity(new Vector(0, 0, 0));
-									fBlock.setDropItem(false);
-									fBlock.setGravity(false);
+									FallingBlock fBlock = fallingBlockFactory (loc, mat, (byte) matData, world);
 									fBlocks.set(index, fBlock);
 									entity.get(index).addPassenger(fBlock);
 								} else

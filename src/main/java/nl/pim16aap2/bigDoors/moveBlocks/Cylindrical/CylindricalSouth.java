@@ -3,21 +3,17 @@ package nl.pim16aap2.bigDoors.moveBlocks.Cylindrical;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.customEntities.NoClipArmorStand;
 
 public class CylindricalSouth extends CylindricalMover implements CylindricalMovement
 {
-
 	private BigDoors plugin;
 	private World world;
 	private String direction;
@@ -65,25 +61,11 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 					blocksData.add(index, matData);
 
 					world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
-
-					NoClipArmorStand noClipArmorStandTemp = new NoClipArmorStand((org.bukkit.craftbukkit.v1_11_R1.CraftWorld) newStandLocation.getWorld(), newStandLocation);
-					((org.bukkit.craftbukkit.v1_11_R1.CraftWorld) newStandLocation.getWorld()).getHandle().addEntity(noClipArmorStandTemp, SpawnReason.CUSTOM);
-
-					noClipArmorStandTemp.setInvisible(true);
-					noClipArmorStandTemp.setSmall(true);
-
-					nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStand = new nl.pim16aap2.bigDoors.customEntities.CraftArmorStand((org.bukkit.craftbukkit.v1_11_R1.CraftServer) (Bukkit.getServer()), noClipArmorStandTemp);
-
-					noClipArmorStand.setVelocity(new Vector(0, 0, 0));
-					noClipArmorStand.setGravity(false);
-					noClipArmorStand.setCollidable(false);
-
-					@SuppressWarnings("deprecation")
-					FallingBlock fBlock = world.spawnFallingBlock(newFBlockLocation, mat, (byte) matData);
-					fBlock.setVelocity(new Vector(0, 0, 0));
-					fBlock.setDropItem(false);
-					fBlock.setGravity(false);
-
+					
+					nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStand = noClipArmorStandFactory(newStandLocation);
+					
+					FallingBlock fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
+					
 					noClipArmorStand.addPassenger(fBlock);
 					entity.add(index, noClipArmorStand);
 					fBlocks.add(index, fBlock);
@@ -113,15 +95,8 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 					 */
 
 					Material mat = blocks.get(index);
-					Byte matData = blocksData.get(index);
-					if (matData >= 4 && matData <= 7)
-					{
-						matData = (byte) (matData + 4);
-					} else if (matData >= 7 && matData <= 11)
-					{
-						matData = (byte) (matData - 4);
-					}
-
+					Byte matData = rotateBlockData(blocksData.get(index));
+					
 					Location oldPos = new Location(world, xAxis, yAxis, zAxis);
 					Location newPos = oldPos;
 
@@ -149,7 +124,6 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 	@Override
 	public void rotateEntities()
 	{
-
 		int directionMultiplier = direction == "clockwise" ? -1 : 1;
 		double divider = getDivider(zLen);
 		double radDiv = divider / speed;
@@ -206,19 +180,8 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 								if (replace && (mat == Material.LOG || mat == Material.LOG_2))
 								{
 									Location loc = fBlocks.get(index).getLocation();
-									Byte matData = blocksData.get(index);
-
-									if (matData >= 4 && matData <= 11 && (mat == Material.LOG || mat == Material.LOG_2))
-									{
-										matData = (byte) (matData + (matData <= 7 ? 4 : -4));
-									}
-									fBlocks.get(index).remove();
-
-									@SuppressWarnings("deprecation")
-									FallingBlock fBlock = world.spawnFallingBlock(loc, mat, (byte) matData);
-									fBlock.setVelocity(new Vector(0, 0, 0));
-									fBlock.setDropItem(false);
-									fBlock.setGravity(false);
+									Byte matData = rotateBlockData(blocksData.get(index));
+									FallingBlock fBlock = fallingBlockFactory (loc, mat, (byte) matData, world);
 									fBlocks.set(index, fBlock);
 									entity.get(index).addPassenger(fBlock);
 								} else
