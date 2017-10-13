@@ -11,12 +11,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class CylindricalSouth extends CylindricalMover implements CylindricalMovement
 {
 	private BigDoors plugin;
 	private World world;
-	private String direction;
+	private RotateDirection rotDirection;
 	private List<nl.pim16aap2.bigDoors.customEntities.CraftArmorStand> entity = new ArrayList<nl.pim16aap2.bigDoors.customEntities.CraftArmorStand>();
 	private List<Material> blocks = new ArrayList<Material>();
 	private List<Byte> blocksData = new ArrayList<Byte>();
@@ -26,9 +27,9 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 	private double speed;
 
 	@Override
-	public void moveBlockCylindrically(BigDoors plugin, World world, int qCircles, String direction, double speed, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int xLen, int yLen, int zLen)
+	public void moveBlockCylindrically(BigDoors plugin, World world, int qCircles, RotateDirection rotDirection, double speed, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int xLen, int yLen, int zLen)
 	{
-		this.direction = direction;
+		this.rotDirection = rotDirection;
 		this.qCircles = qCircles;
 		this.plugin = plugin;
 		this.world = world;
@@ -45,11 +46,11 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 
 		int index = 0;
 
-		for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+		for (double zAxis = zMin; zAxis <= zMax; zAxis++)
 		{
 			for (double xAxis = xMin; xAxis <= xMax; xAxis++)
 			{
-				for (double zAxis = zMax; zAxis >= zMin; zAxis--)
+				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					Location newStandLocation = new Location(world, xAxis + 0.5, yAxis - 0.741, zAxis + 0.5);
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.02, zAxis + 0.5);
@@ -62,6 +63,42 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 
 					world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
 					
+					
+//					double radius = index / yLen;
+//					Material newMat = Material.GOLD_BLOCK;
+//					switch ((int)(radius))
+//					{
+//					case 0:
+//						newMat = Material.BEDROCK;
+//						break;
+//					case 1:
+//						newMat = Material.DIAMOND_BLOCK;
+//						break;
+//					case 2:
+//						newMat = Material.HAY_BLOCK;
+//						break;
+//					case 3:
+//						newMat = Material.COAL_BLOCK;
+//						break;
+//					case 4:
+//						newMat = Material.BONE_BLOCK;
+//						break;
+//					case 5:
+//						newMat = Material.HAY_BLOCK;
+//						break;
+//					case 6:
+//						newMat = Material.PURPUR_BLOCK;
+//						break;
+//					case 7:
+//						newMat = Material.EMERALD_BLOCK;
+//						break;
+//					case 8:
+//						newMat = Material.REDSTONE_BLOCK;
+//						break;
+//					}
+//					world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(newMat);
+					
+					
 					nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStand = noClipArmorStandFactory(newStandLocation);
 					
 					FallingBlock fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
@@ -70,23 +107,39 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 					entity.add(index, noClipArmorStand);
 					fBlocks.add(index, fBlock);
 
+					
 					index++;
 				}
 			}
 		}
 		rotateEntities();
 	}
+	
+	
+	public Location getNewLocation(double xPos, double yPos, double zPos, int index)
+	{
+		Location oldPos = new Location(world, xPos, yPos, zPos);
+		Location newPos = oldPos;
+
+		double radius = index / yLen;
+
+		newPos.setX(oldPos.getX() + (rotDirection == RotateDirection.CLOCKWISE ? -radius : radius));
+		newPos.setZ(zMin);
+		newPos.setY(oldPos.getY());
+		return newPos;
+	}
+	
 
 	// Put the door blocks back, but change their state now.
 	@SuppressWarnings("deprecation")
 	public void putBlocks()
 	{
 		int index = 0;
-		for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+		for (double zAxis = zMin; zAxis <= zMax; zAxis++)
 		{
 			for (double xAxis = xMin; xAxis <= xMax; xAxis++)
 			{
-				for (double zAxis = zMax; zAxis >= zMin; zAxis--)
+				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					/*
 					 * 0-3: Vertical oak, spruce, birch, then jungle 4-7: East/west oak, spruce,
@@ -97,14 +150,7 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 					Material mat = blocks.get(index);
 					Byte matData = rotateBlockData(blocksData.get(index));
 					
-					Location oldPos = new Location(world, xAxis, yAxis, zAxis);
-					Location newPos = oldPos;
-
-					double radius = zLen - index % zLen - 1;
-
-					newPos.setX(oldPos.getX() + (direction == "clockwise" ? -radius : radius));
-					newPos.setZ(zMin);
-					newPos.setY(oldPos.getY());
+					Location newPos = getNewLocation(xAxis, yAxis, zAxis, index);
 
 					world.getBlockAt(newPos).setType(mat);
 					world.getBlockAt(newPos).setData(matData);
@@ -120,14 +166,55 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 		fBlocks.clear();
 		entity.clear();
 	}
+	
+	
+	public void finishBlocks()
+	{
+		int index = 0;
+		for (double zAxis = zMin; zAxis <= zMax; zAxis++)
+		{
+			for (double xAxis = xMin; xAxis <= xMax; xAxis++)
+			{
+				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+				{
+					entity.get(index).setGravity(false);
+					
+					// Get final position of the blocks.
+					Location newPos = getNewLocation(xAxis, yAxis, zAxis, index);
+					newPos.setX(newPos.getX() + 0.5);
+					newPos.setY(newPos.getY() - 0.741);
+					newPos.setZ(newPos.getZ() + 0.5);
+
+					// Remove falling block from entity, teleport entity, then reaatch falling block to entity.
+					entity.get(index).eject();
+					entity.get(index).teleport(newPos);
+					entity.get(index).addPassenger(fBlocks.get(index));
+					
+					++index;
+				}
+			}
+		}
+		
+		new BukkitRunnable()
+		{
+			@Override
+			public void run()
+			{
+				putBlocks();
+			}
+		}.runTaskLater(plugin, 5L);
+	}
+	
 
 	@Override
 	public void rotateEntities()
 	{
-		int directionMultiplier = direction == "clockwise" ? -1 : 1;
+		int directionMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
 		double divider = getDivider(zLen);
 		double radDiv = divider / speed;
 		double additionalTurn = 0.07;
+		
+		Location center = new Location(world, xMin, yMin, zMax);
 
 		new BukkitRunnable()
 		{
@@ -145,7 +232,8 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 				if (Math.abs(angle) >= 1.5708 * qCircles + additionalTurn)
 				{
 					this.cancel();
-					putBlocks();
+					finishBlocks();
+//					putBlocks();
 				}
 				int index = 0;
 
@@ -155,21 +243,25 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 					eights += 2;
 					replace = true;
 				}
-
+				
 				// Loop up and down first.
-				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+				for (double zAxis = zMin; zAxis <= zMax; zAxis++)
 				{
 					for (double xAxis = xMin; xAxis <= xMax; xAxis++)
 					{
-						for (double zAxis = zMax; zAxis >= zMin; zAxis--)
+						for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 						{
 							angle -= step;
 							if (Math.abs(angle) <= 1.5708 * qCircles + additionalTurn)
 							{
+								double realAngle = Math.abs(Math.atan2(center.getX() - entity.get(index).getLocation().getX(), center.getZ() - entity.get(index).getLocation().getZ()) - 0.11);
+//								Bukkit.broadcastMessage("Angle = " + angle + ", Real angle = " + realAngle + ", index = " + index);
+								
 								// Set the gravity stat of the armor stand to true, so it can move again.
 								entity.get(index).setGravity(true);
 								// Get the radius of the current blockEntity.
-								double radius = zLen - index % zLen - 1;
+//								double radius = zLen - index % zLen - 1;
+								double radius = index / yLen;
 								// Set the x and z accelerations.
 								double xRot = Math.cos(angle) * radius / radDiv;
 								double zRot = Math.sin(angle) * radius / radDiv;
@@ -181,6 +273,8 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 								{
 									Location loc = fBlocks.get(index).getLocation();
 									Byte matData = rotateBlockData(blocksData.get(index));
+									fBlocks.get(index).remove();
+									
 									FallingBlock fBlock = fallingBlockFactory (loc, mat, (byte) matData, world);
 									fBlocks.set(index, fBlock);
 									entity.get(index).addPassenger(fBlock);

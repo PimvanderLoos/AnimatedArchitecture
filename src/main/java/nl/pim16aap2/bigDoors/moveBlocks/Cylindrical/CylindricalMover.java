@@ -28,7 +28,7 @@ public class CylindricalMover
 			divider = 23;
 			break;
 		case 4:
-			divider = 18;
+			divider = 4.275;
 			break;
 		case 5:
 			divider = 15;

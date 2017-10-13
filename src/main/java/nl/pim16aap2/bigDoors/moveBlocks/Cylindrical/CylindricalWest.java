@@ -11,13 +11,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class CylindricalWest extends CylindricalMover implements CylindricalMovement
 {
 
 	private BigDoors plugin;
 	private World world;
-	private String direction;
+	private RotateDirection rotDirection;
 	private List<nl.pim16aap2.bigDoors.customEntities.CraftArmorStand> entity = new ArrayList<nl.pim16aap2.bigDoors.customEntities.CraftArmorStand>();
 	private List<Material> blocks = new ArrayList<Material>();
 	private List<Byte> blocksData = new ArrayList<Byte>();
@@ -27,10 +28,10 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 	private double speed;
 
 	@Override
-	public void moveBlockCylindrically(BigDoors plugin, World world, int qCircles, String direction, double speed,
+	public void moveBlockCylindrically(BigDoors plugin, World world, int qCircles, RotateDirection rotDirection, double speed,
 			int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int xLen, int yLen, int zLen)
 	{
-		this.direction = direction;
+		this.rotDirection = rotDirection;
 		this.qCircles = qCircles;
 		this.plugin = plugin;
 		this.world = world;
@@ -78,6 +79,19 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 		}
 		rotateEntities();
 	}
+	
+	public Location getNewLocation(double xPos, double yPos, double zPos, int index)
+	{
+		Location oldPos = new Location(world, xPos, yPos, zPos);
+		Location newPos = oldPos;
+
+		double radius = xLen - index % xLen - 1;
+
+		newPos.setZ(oldPos.getZ() + (rotDirection == RotateDirection.CLOCKWISE ? -radius : radius));
+		newPos.setX(xMax);
+		newPos.setY(oldPos.getY());
+		return newPos;
+	}
 
 	// Put the door blocks back, but change their state now.
 	@SuppressWarnings("deprecation")
@@ -99,14 +113,7 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 					Material mat = blocks.get(index);
 					Byte matData = rotateBlockData(blocksData.get(index));
 
-					Location oldPos = new Location(world, xAxis, yAxis, zAxis);
-					Location newPos = oldPos;
-
-					double radius = xLen - index % xLen - 1;
-
-					newPos.setZ(oldPos.getZ() + (direction == "clockwise" ? -radius : radius));
-					newPos.setX(xMax);
-					newPos.setY(oldPos.getY());
+					Location newPos = getNewLocation(xAxis, yAxis, zAxis, index);
 
 					world.getBlockAt(newPos).setType(mat);
 					world.getBlockAt(newPos).setData(matData);
@@ -122,12 +129,50 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 		fBlocks.clear();
 		entity.clear();
 	}
+	
+	
+	public void finishBlocks()
+	{
+		int index = 0;
+		for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+		{
+			for (double xAxis = xMin; xAxis <= xMax; xAxis++)
+			{
+				for (double zAxis = zMin; zAxis <= zMax; zAxis++)
+				{
+					entity.get(index).setGravity(false);
+					
+					// Get final position of the blocks.
+					Location newPos = getNewLocation(xAxis, yAxis, zAxis, index);
+					newPos.setX(newPos.getX() + 0.5);
+					newPos.setY(newPos.getY() - 0.741);
+					newPos.setZ(newPos.getZ() + 0.5);
+
+					// Remove falling block from entity, teleport entity, then reaatch falling block to entity.
+					entity.get(index).eject();
+					entity.get(index).teleport(newPos);
+					entity.get(index).addPassenger(fBlocks.get(index));
+					
+					++index;
+				}
+			}
+		}
+		
+		new BukkitRunnable()
+		{
+			@Override
+			public void run()
+			{
+				putBlocks();
+			}
+		}.runTaskLater(plugin, 5L);
+	}
+	
 
 	@Override
 	public void rotateEntities()
 	{
-
-		int directionMultiplier = direction == "clockwise" ? -1 : 1;
+		int directionMultiplier = rotDirection == RotateDirection.CLOCKWISE ? 1 : -1;
 		double divider = getDivider(xLen);
 		double radDiv = divider / speed;
 		double additionalTurn = 0.07;
@@ -148,7 +193,8 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 				if (Math.abs(angle) >= 1.5708 * qCircles + additionalTurn)
 				{
 					this.cancel();
-					putBlocks();
+//					putBlocks();
+					finishBlocks();
 				}
 				int index = 0;
 
@@ -184,6 +230,8 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 								{
 									Location loc = fBlocks.get(index).getLocation();
 									Byte matData = rotateBlockData(blocksData.get(index));
+									fBlocks.get(index).remove();
+									
 									FallingBlock fBlock = fallingBlockFactory (loc, mat, (byte) matData, world);
 									fBlocks.set(index, fBlock);
 									entity.get(index).addPassenger(fBlock);
