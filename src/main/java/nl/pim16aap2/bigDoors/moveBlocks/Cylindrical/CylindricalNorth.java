@@ -178,6 +178,11 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 		double divider = getDivider(zLen);
 		double radDiv = divider / speed;
 		double additionalTurn = 0.07;
+		
+		Location center = new Location(world, xMin + 0.5, yMin, zMax + 0.5);
+		int testIndex = (zLen - 1) * yLen;
+		double baseAngle = Math.atan2(center.getZ() - entity.get(testIndex).getLocation().getZ(), center.getX() - entity.get(testIndex).getLocation().getX());
+		double angleOffset = 0 - baseAngle;
 
 		new BukkitRunnable()
 		{
@@ -195,14 +200,9 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 				if (Math.abs(angle) >= 1.5708 * qCircles + additionalTurn)
 				{
 					this.cancel();
-//					putBlocks();
 					finishBlocks();
 				}
 				int index = 0;
-
-//				Location center = new Location(world, xMin, yMin, zMax);
-//				double realAngle = -Math.atan2(center.getX() - entity.get(index).getLocation().getX(), center.getZ() - entity.get(index).getLocation().getZ());
-//				Bukkit.broadcastMessage("Real angle = " + realAngle + ", radius = " + (zLen - index % zLen - 1) + ", index = " + index + "" );
 				
 				// Starting at 1/8 circle, every 1/4 circle.
 				if (Math.abs(angle) / (8 * eights) >= 0.1)
@@ -221,13 +221,29 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 							angle += step;
 							if (Math.abs(angle) <= 1.5708 * qCircles + additionalTurn)
 							{
+								/* COUNTER CLOCKWISE:
+								 * realAngle = -realAngle;
+								 * xRot      = -xRot;
+								 * zRot      = -zRot;
+								 */
+								/* CLOCKWISE:
+								 * realAngle = -realAngle;
+								 * xRot      = -xRot;
+								 * zRot      = -zRot;
+								 */
+								
+								// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
+								double realAngle = -1 * directionMultiplier * (Math.atan2(center.getZ() - entity.get(index).getLocation().getZ(), center.getX() - entity.get(index).getLocation().getX()) + angleOffset);
 								// Set the gravity stat of the armor stand to true, so it can move again.
 								entity.get(index).setGravity(true);
 								// Get the radius of the current blockEntity.
 								double radius = zLen - index % zLen - 1;
 								// Set the x and z accelerations.
-								double xRot = Math.cos(angle) * radius / radDiv;
-								double zRot = Math.sin(angle) * radius / radDiv;
+//								double xRot = Math.cos(angle) * radius / radDiv;
+//								double zRot = Math.sin(angle) * radius / radDiv;
+//								entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
+								double xRot = -1 * directionMultiplier * Math.sin(realAngle) * radius / radDiv;
+								double zRot = -1 * directionMultiplier * Math.cos(realAngle) * radius / radDiv;
 								entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
 
 								Material mat = blocks.get(index);

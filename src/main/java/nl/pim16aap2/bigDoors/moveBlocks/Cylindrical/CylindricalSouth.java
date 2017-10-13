@@ -27,7 +27,8 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 	private double speed;
 
 	@Override
-	public void moveBlockCylindrically(BigDoors plugin, World world, int qCircles, RotateDirection rotDirection, double speed, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int xLen, int yLen, int zLen)
+	public void moveBlockCylindrically(BigDoors plugin, World world, int qCircles, RotateDirection rotDirection, double speed, 
+			int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int xLen, int yLen, int zLen)
 	{
 		this.rotDirection = rotDirection;
 		this.qCircles = qCircles;
@@ -202,7 +203,7 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 			{
 				putBlocks();
 			}
-		}.runTaskLater(plugin, 5L);
+		}.runTaskLater(plugin, 8L);
 	}
 	
 
@@ -214,8 +215,12 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 		double radDiv = divider / speed;
 		double additionalTurn = 0.07;
 		
-		Location center = new Location(world, xMin, yMin, zMax);
-
+		Location center = new Location(world, xMin + 0.5, yMin, zMin + 0.5);
+		int testIndex = (zLen - 1) * yLen;
+		double baseAngle = Math.atan2(center.getZ() - entity.get(testIndex).getLocation().getZ(), center.getX() - entity.get(testIndex).getLocation().getX());
+		double angleOffset = 0 - baseAngle;
+		
+		
 		new BukkitRunnable()
 		{
 			double angle = 0.0D;
@@ -233,7 +238,6 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 				{
 					this.cancel();
 					finishBlocks();
-//					putBlocks();
 				}
 				int index = 0;
 
@@ -254,17 +258,15 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 							angle -= step;
 							if (Math.abs(angle) <= 1.5708 * qCircles + additionalTurn)
 							{
-								double realAngle = Math.abs(Math.atan2(center.getX() - entity.get(index).getLocation().getX(), center.getZ() - entity.get(index).getLocation().getZ()) - 0.11);
-//								Bukkit.broadcastMessage("Angle = " + angle + ", Real angle = " + realAngle + ", index = " + index);
-								
+								// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
+								double realAngle = directionMultiplier * Math.atan2(center.getZ() - entity.get(index).getLocation().getZ(), center.getX() - entity.get(index).getLocation().getX()) + angleOffset;
 								// Set the gravity stat of the armor stand to true, so it can move again.
 								entity.get(index).setGravity(true);
 								// Get the radius of the current blockEntity.
-//								double radius = zLen - index % zLen - 1;
 								double radius = index / yLen;
 								// Set the x and z accelerations.
-								double xRot = Math.cos(angle) * radius / radDiv;
-								double zRot = Math.sin(angle) * radius / radDiv;
+								double xRot = directionMultiplier * Math.cos(realAngle) * radius / radDiv;
+								double zRot = directionMultiplier * Math.sin(realAngle) * radius / radDiv;
 								entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
 
 								Material mat = blocks.get(index);

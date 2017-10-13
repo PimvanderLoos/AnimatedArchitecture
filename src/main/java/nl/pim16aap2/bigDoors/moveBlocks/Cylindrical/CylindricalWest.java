@@ -15,7 +15,6 @@ import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class CylindricalWest extends CylindricalMover implements CylindricalMovement
 {
-
 	private BigDoors plugin;
 	private World world;
 	private RotateDirection rotDirection;
@@ -176,6 +175,11 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 		double divider = getDivider(xLen);
 		double radDiv = divider / speed;
 		double additionalTurn = 0.07;
+		
+		Location center = new Location(world, xMax + 0.5, yMin, zMin + 0.5);
+		int testIndex = (xLen - 1) * yLen;
+		double baseAngle = Math.atan2(center.getZ() - entity.get(testIndex).getLocation().getZ(), center.getX() - entity.get(testIndex).getLocation().getX());
+		double angleOffset = 0 - baseAngle;
 
 		new BukkitRunnable()
 		{
@@ -193,7 +197,6 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 				if (Math.abs(angle) >= 1.5708 * qCircles + additionalTurn)
 				{
 					this.cancel();
-//					putBlocks();
 					finishBlocks();
 				}
 				int index = 0;
@@ -215,13 +218,15 @@ public class CylindricalWest extends CylindricalMover implements CylindricalMove
 							angle += -(step * directionMultiplier);
 							if (Math.abs(angle) <= 1.5708 * qCircles + additionalTurn)
 							{
+								// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
+								double realAngle = directionMultiplier * Math.atan2(center.getZ() - entity.get(index).getLocation().getZ(), center.getX() - entity.get(index).getLocation().getX()) + angleOffset;
 								// Set the gravity stat of the armor stand to true, so it can move again.
 								entity.get(index).setGravity(true);
 								// Get the radius of the current blockEntity.
 								double radius = xLen - index % xLen - 1;
 								// Set the x and z accelerations.
-								double xRot = -Math.sin(angle) * radius / radDiv * Math.sin(1.5808);
-								double zRot = -directionMultiplier * Math.cos(angle) * radius / radDiv;
+								double xRot = -1 * directionMultiplier * (-Math.sin(realAngle) * radius / radDiv * Math.sin(1.5808));
+								double zRot = directionMultiplier * directionMultiplier * (-directionMultiplier * Math.cos(realAngle) * radius / radDiv);
 								entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
 
 								Material mat = blocks.get(index);
