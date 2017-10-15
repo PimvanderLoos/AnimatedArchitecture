@@ -30,4 +30,14 @@ commands:
     usage: /listdoors
     permission: bigdoors.listdoors
     permission-message: You do not have the bigdoors.listdoors permission node.
+  fixdoor:
+    description: Verify and fix (if needed) the coords of the specifief door.
+    useage: /fixdoor <doorName>
+    permission: bigdoors.debug
+    permission-message: You do not have the bigdoors.listdoors permission node.
+  updatedoor:
+    description: Update the coords of the specified door.
+    usage: /fixdoor <doorName>
+    permission: bigdoors.updatedoor
+    permissions-message: You do not have the bigdoors.listdoors permission node.
     

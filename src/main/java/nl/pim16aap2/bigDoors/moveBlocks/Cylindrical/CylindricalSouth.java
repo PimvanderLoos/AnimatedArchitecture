@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.moveBlocks.Cylindrical;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -217,9 +218,9 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 		
 		Location center = new Location(world, xMin + 0.5, yMin, zMin + 0.5);
 		int testIndex = (zLen - 1) * yLen;
-		double baseAngle = Math.atan2(center.getZ() - entity.get(testIndex).getLocation().getZ(), center.getX() - entity.get(testIndex).getLocation().getX());
+		double baseAngle = -1 * Math.atan2(center.getZ() - entity.get(testIndex).getLocation().getZ(), center.getX() - entity.get(testIndex).getLocation().getX());
 		double angleOffset = 0 - baseAngle;
-		
+		Bukkit.broadcastMessage("BaseAngle = " + baseAngle);
 		
 		new BukkitRunnable()
 		{
@@ -265,8 +266,8 @@ public class CylindricalSouth extends CylindricalMover implements CylindricalMov
 								// Get the radius of the current blockEntity.
 								double radius = index / yLen;
 								// Set the x and z accelerations.
-								double xRot = directionMultiplier * Math.cos(realAngle) * radius / radDiv;
-								double zRot = directionMultiplier * Math.sin(realAngle) * radius / radDiv;
+								double xRot = -1 * directionMultiplier * Math.cos(realAngle) * radius / radDiv;
+								double zRot = -1 * directionMultiplier * Math.sin(realAngle) * radius / radDiv;
 								entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
 
 								Material mat = blocks.get(index);

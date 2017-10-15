@@ -220,6 +220,23 @@ public class BigDoors extends JavaPlugin implements Listener
 				}
 			}
 
+			// /updatedoor <doorName>
+			if (cmd.getName().equalsIgnoreCase("updatedoor"))
+			{
+				if (args.length == 1)
+				{
+					Door door = getDoor(args[0]);
+					if (door != null)
+					{
+						updateDoor(player, door);
+					} else
+					{
+						player.sendMessage(ChatColor.RED + "Not a valid door name!");
+					}
+					return true;
+				}
+			}
+
 			// /opendoor <doorName>
 			if (cmd.getName().equalsIgnoreCase("opendoor"))
 			{
@@ -248,8 +265,70 @@ public class BigDoors extends JavaPlugin implements Listener
 				listDoors(player);
 				return true;
 			}
+			
+			// /fixdoor
+			if (cmd.getName().equalsIgnoreCase("fixdoor"))
+			{
+				if (args.length >= 1)
+				{
+					Door door = getDoor(args[0]);
+					if (door != null)
+					{
+						verifyDoorCoords(door);
+					} else
+					{
+						player.sendMessage(ChatColor.RED + "Not a valid door name!");
+					}
+					return true;
+				}
+			}
 		}
 		return false;
+	}
+	
+	// Swap min and max values for type mode (0/1/2 -> X/Y/Z) for a specified door.
+	public void swap(Door door, int mode)
+	{
+		Location newMin = door.getMinimum();
+		Location newMax = door.getMaximum();
+		double temp;
+		switch(mode)
+		{
+		case 0:
+			temp = door.getMaximum().getX();
+			newMax.setX(newMin.getX());
+			newMin.setX(temp);
+			break;
+		case 1:
+			temp = door.getMaximum().getY();
+			newMax.setY(newMin.getY());
+			newMin.setY(temp);
+			break;
+		case 2:
+			temp = door.getMaximum().getZ();
+			newMax.setZ(newMin.getZ());
+			newMin.setZ(temp);
+			break;
+		}
+	}
+	
+	// Check if min really is min and max really max.
+	public void verifyDoorCoords(Door door)
+	{
+		int xMin, yMin, zMin;
+		int xMax, yMax, zMax;
+		xMin = door.getMinimum().getBlockX();
+		yMin = door.getMinimum().getBlockY();
+		zMin = door.getMinimum().getBlockZ();
+		xMax = door.getMaximum().getBlockX();
+		yMax = door.getMaximum().getBlockY();
+		zMax = door.getMaximum().getBlockZ();
+		if (xMin > xMax)
+			swap(door, 0);
+		if (yMin > yMax)
+			swap(door, 1);
+		if (zMin > zMax)
+			swap(door, 2);
 	}
 
 	// Check if a block is a valid engine block.
@@ -429,6 +508,34 @@ public class BigDoors extends JavaPlugin implements Listener
 			}
 		}
 		return true;
+	}
+	
+	// Update the coords of the specified door.
+	public void updateDoor(Player player, Door door)
+	{
+		Selection selection = worldEdit.getSelection(player);
+		if (selection != null)
+		{
+			int xMin = selection.getMinimumPoint().getBlockX();
+			int xMax = selection.getMaximumPoint().getBlockX();
+			int yMin = selection.getMinimumPoint().getBlockY();
+			int yMax = selection.getMaximumPoint().getBlockY();
+			int zMin = selection.getMinimumPoint().getBlockZ();
+			int zMax = selection.getMaximumPoint().getBlockZ();
+			World world = selection.getWorld();
+
+			Location newMax = new Location (world, xMax, yMax, zMax);
+			Location newMin = new Location (world, xMin, yMin, zMin);
+			
+			door.setMaximum(newMax);
+			door.setMinimum(newMin);
+			
+			player.sendMessage("Door coordinates updated successfully!");
+
+		} else
+		{
+			Bukkit.broadcastMessage("This is not a valid selection!");
+		}
 	}
 
 	// Create a new door.

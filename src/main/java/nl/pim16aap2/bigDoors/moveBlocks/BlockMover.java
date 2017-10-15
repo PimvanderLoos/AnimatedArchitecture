@@ -30,7 +30,7 @@ public class BlockMover
 		this.plugin = plugin;
 		this.speed = speed;
 	}
-
+	
 	public void moveBlocks(Location turningPoint, Location pointOpposite, RotateDirection rotDirection, DoorDirection currentDirection)
 	{
 		World world = turningPoint.getWorld();

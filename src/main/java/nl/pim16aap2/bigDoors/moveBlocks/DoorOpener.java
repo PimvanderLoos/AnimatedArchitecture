@@ -97,9 +97,16 @@ public class DoorOpener
 	{
 		DoorDirection currentDirection = getCurrentDirection(door);
 		if (currentDirection == null)
+		{
+			Bukkit.broadcastMessage("Current direction is null!");
 			return false;
-		
+		}
 		RotateDirection rotDirection   = getRotationDirection(door, currentDirection);
+		if (rotDirection == null)
+		{
+			Bukkit.broadcastMessage("RotDirection is null!");
+			return false;
+		}
 		
 		Bukkit.broadcastMessage("CurrentDirection = " + currentDirection + ", performing " + rotDirection + " rotation.");
 		

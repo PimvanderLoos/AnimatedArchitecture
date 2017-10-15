@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.moveBlocks.Cylindrical;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -48,11 +49,11 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 
 		int index = 0;
 
-		for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+		for (double xAxis = xMax; xAxis >= xMin; xAxis--)
 		{
-			for (double xAxis = xMax; xAxis >= xMin; xAxis--)
+			for (double zAxis = zMin; zAxis <= zMax; zAxis++)
 			{
-				for (double zAxis = zMin; zAxis <= zMax; zAxis++)
+				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					Location newStandLocation = new Location(world, xAxis + 0.5, yAxis - 0.741, zAxis + 0.5);
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.02, zAxis + 0.5);
@@ -86,7 +87,7 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 		Location oldPos = new Location(world, xPos, yPos, zPos);
 		Location newPos = oldPos;
 
-		double radius = xLen - index % xLen - 1;
+		double radius = xLen - index / yLen - 1;
 
 		newPos.setZ(oldPos.getZ() + (rotDirection == RotateDirection.CLOCKWISE ? radius : -radius));
 		newPos.setX(xMin);
@@ -100,11 +101,11 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 	public void putBlocks()
 	{
 		int index = 0;
-		for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+		for (double xAxis = xMax; xAxis >= xMin; xAxis--)
 		{
 			for (double zAxis = zMin; zAxis <= zMax; zAxis++)
 			{
-				for (double xAxis = xMin; xAxis <= xMax; xAxis++)
+				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					/*
 					 * 0-3: Vertical oak, spruce, birch, then jungle 4-7: East/west oak, spruce,
@@ -136,11 +137,11 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 	public void finishBlocks()
 	{
 		int index = 0;
-		for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+		for (double xAxis = xMax; xAxis >= xMin; xAxis--)
 		{
 			for (double zAxis = zMin; zAxis <= zMax; zAxis++)
 			{
-				for (double xAxis = xMin; xAxis <= xMax; xAxis++)
+				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					entity.get(index).setGravity(false);
 					
@@ -179,6 +180,12 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 		double divider = getDivider(xLen);
 		double radDiv = divider / speed;
 		double additionalTurn = 0.07;
+		
+		Location center = new Location(world, xMin + 0.5, yMin, zMin + 0.5);
+		int testIndex = (xLen - 1) * yLen;
+		double baseAngle = Math.atan2(center.getZ() - entity.get(testIndex).getLocation().getZ(), center.getX() - entity.get(testIndex).getLocation().getX());
+		double angleOffset = 0 - baseAngle;
+		Bukkit.broadcastMessage("baseAngle = " + baseAngle);
 
 		new BukkitRunnable()
 		{
@@ -187,11 +194,6 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 			final double step = ((2 * Math.PI) / ticksPerCircle);
 			int eights = 1;
 			boolean replace = false;
-			
-			Location center = new Location(world, xMin + 0.5, yMin, zMin + 0.5);
-			int testIndex = (xLen - 1) * yLen;
-			double baseAngle = Math.atan2(center.getZ() - entity.get(testIndex).getLocation().getZ(), center.getX() - entity.get(testIndex).getLocation().getX());
-			double angleOffset = 0 - baseAngle;
 
 			@Override
 			public void run()
@@ -201,7 +203,6 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 				if (Math.abs(angle) >= 1.5708 * qCircles + additionalTurn)
 				{
 					this.cancel();
-//					putBlocks();
 					finishBlocks();
 				}
 				int index = 0;
@@ -214,22 +215,23 @@ public class CylindricalEast extends CylindricalMover implements CylindricalMove
 				}
 				
 				// Loop up and down first.
-				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+				for (double xAxis = xMax; xAxis >= xMin; xAxis--)
 				{
 					for (double zAxis = zMin; zAxis <= zMax; zAxis++)
 					{
-						for (double xAxis = xMin; xAxis <= xMax; xAxis++)
+						for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 						{
 							angle += -(step * directionMultiplier);
 							if (Math.abs(angle) <= 1.5708 * qCircles + additionalTurn)
 							{
 								// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
-								double realAngle = -1 * Math.atan2(center.getZ() - entity.get(index).getLocation().getZ(), center.getX() - entity.get(index).getLocation().getX()) + angleOffset;
+								double realAngle = directionMultiplier * Math.atan2(center.getZ() - entity.get(index).getLocation().getZ(), center.getX() - entity.get(index).getLocation().getX()) + angleOffset;
 								// Set the gravity stat of the armor stand to true, so it can move again.
 								entity.get(index).setGravity(true);
 								// Get the radius of the current blockEntity.
-								double radius = xLen - index % xLen - 1;
-								double xRot = -1 * Math.sin(realAngle) * radius / radDiv * Math.sin(1.5808);
+								double radius = xLen - index / yLen - 1;
+								
+								double xRot = directionMultiplier * Math.sin(realAngle) * radius / radDiv;
 								double zRot = -1 * directionMultiplier * Math.cos(realAngle) * radius / radDiv;
 								entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
 

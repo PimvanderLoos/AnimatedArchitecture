@@ -48,11 +48,11 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 
 		int index = 0;
 
-		for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+		for (double zAxis = zMax; zAxis >= zMin; zAxis--)
 		{
 			for (double xAxis = xMin; xAxis <= xMax; xAxis++)
 			{
-				for (double zAxis = zMin; zAxis <= zMax; zAxis++)
+				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					Location newStandLocation = new Location(world, xAxis + 0.5, yAxis - 0.741, zAxis + 0.5);
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.02, zAxis + 0.5);
@@ -86,7 +86,8 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 		Location oldPos = new Location(world, xPos, yPos, zPos);
 		Location newPos = oldPos;
 
-		double radius = zLen - index % zLen - 1;
+//		double radius = zLen - index % zLen - 1;
+		double radius = index / yLen;
 
 		newPos.setX(oldPos.getX() + (rotDirection == RotateDirection.CLOCKWISE ? radius : -radius));
 		newPos.setZ(zMax);
@@ -100,11 +101,11 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 	public void putBlocks()
 	{
 		int index = 0;
-		for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+		for (double zAxis = zMax; zAxis >= zMin; zAxis--)
 		{
 			for (double xAxis = xMin; xAxis <= xMax; xAxis++)
 			{
-				for (double zAxis = zMin; zAxis <= zMax; zAxis++)
+				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					/*
 					 * 0-3: Vertical oak, spruce, birch, then jungle 4-7: East/west oak, spruce,
@@ -136,11 +137,11 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 	public void finishBlocks()
 	{
 		int index = 0;
-		for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+		for (double zAxis = zMax; zAxis >= zMin; zAxis--)
 		{
 			for (double xAxis = xMin; xAxis <= xMax; xAxis++)
 			{
-				for (double zAxis = zMin; zAxis <= zMax; zAxis++)
+				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					entity.get(index).setGravity(false);
 					
@@ -181,7 +182,7 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 		
 		Location center = new Location(world, xMin + 0.5, yMin, zMax + 0.5);
 		int testIndex = (zLen - 1) * yLen;
-		double baseAngle = Math.atan2(center.getZ() - entity.get(testIndex).getLocation().getZ(), center.getX() - entity.get(testIndex).getLocation().getX());
+		double baseAngle = -1 * Math.atan2(center.getZ() - entity.get(testIndex).getLocation().getZ(), center.getX() - entity.get(testIndex).getLocation().getX());
 		double angleOffset = 0 - baseAngle;
 
 		new BukkitRunnable()
@@ -212,38 +213,24 @@ public class CylindricalNorth extends CylindricalMover implements CylindricalMov
 				}
 
 				// Loop up and down first.
-				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+				for (double zAxis = zMax; zAxis >= zMin; zAxis--)
 				{
 					for (double xAxis = xMin; xAxis <= xMax; xAxis++)
 					{
-						for (double zAxis = zMin; zAxis <= zMax; zAxis++)
+						for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 						{
 							angle += step;
 							if (Math.abs(angle) <= 1.5708 * qCircles + additionalTurn)
-							{
-								/* COUNTER CLOCKWISE:
-								 * realAngle = -realAngle;
-								 * xRot      = -xRot;
-								 * zRot      = -zRot;
-								 */
-								/* CLOCKWISE:
-								 * realAngle = -realAngle;
-								 * xRot      = -xRot;
-								 * zRot      = -zRot;
-								 */
-								
+							{	
 								// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
-								double realAngle = -1 * directionMultiplier * (Math.atan2(center.getZ() - entity.get(index).getLocation().getZ(), center.getX() - entity.get(index).getLocation().getX()) + angleOffset);
+								double realAngle = directionMultiplier * Math.atan2(center.getZ() - entity.get(index).getLocation().getZ(), center.getX() - entity.get(index).getLocation().getX()) + angleOffset;
 								// Set the gravity stat of the armor stand to true, so it can move again.
 								entity.get(index).setGravity(true);
 								// Get the radius of the current blockEntity.
-								double radius = zLen - index % zLen - 1;
+								double radius = index / yLen;
 								// Set the x and z accelerations.
-//								double xRot = Math.cos(angle) * radius / radDiv;
-//								double zRot = Math.sin(angle) * radius / radDiv;
-//								entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
-								double xRot = -1 * directionMultiplier * Math.sin(realAngle) * radius / radDiv;
-								double zRot = -1 * directionMultiplier * Math.cos(realAngle) * radius / radDiv;
+								double xRot = -1 * directionMultiplier * Math.cos(realAngle) * radius / radDiv;
+								double zRot = -1 * directionMultiplier * Math.sin(realAngle) * radius / radDiv;
 								entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
 
 								Material mat = blocks.get(index);
