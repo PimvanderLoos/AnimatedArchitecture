@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigDoors.moveBlocks;
 
-import org.bukkit.Bukkit;
+import java.util.logging.Level;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 
@@ -20,7 +21,7 @@ public class DoorOpener
 		this.plugin = plugin;
 	}
 	
-	// Check if the block on the north/east/south/west side of the location if free or not.
+	// Check if the block on the north/east/south/west side of the location is free.
 	public boolean isPosFree(Location loc, DoorDirection direction)
 	{
 		Location newLoc = loc;
@@ -98,54 +99,45 @@ public class DoorOpener
 		DoorDirection currentDirection = getCurrentDirection(door);
 		if (currentDirection == null)
 		{
-			Bukkit.broadcastMessage("Current direction is null!");
+			plugin.debugMsg(Level.WARNING, "Current direction is null!");
 			return false;
 		}
 		RotateDirection rotDirection   = getRotationDirection(door, currentDirection);
 		if (rotDirection == null)
 		{
-			Bukkit.broadcastMessage("RotDirection is null!");
+			plugin.debugMsg(Level.WARNING, "RotDirection is null!");
 			return false;
 		}
 		
-		Bukkit.broadcastMessage("CurrentDirection = " + currentDirection + ", performing " + rotDirection + " rotation.");
+		plugin.debugMsg(Level.WARNING, "CurrentDirection = " + currentDirection + ", performing " + rotDirection + " rotation.");
 		
 		int xOpposite, yOpposite, zOpposite;
 		// If the xMax is not the same value as the engineX, then xMax is xOpposite.
 		if (door.getMaximum().getBlockX() != door.getEngine().getBlockX())
-		{
 			xOpposite = door.getMaximum().getBlockX();
-		} else
-		{
+		else
 			xOpposite = door.getMinimum().getBlockX();
-		}
+
 		// If the zMax is not the same value as the engineZ, then zMax is zOpposite.
 		if (door.getMaximum().getBlockZ() != door.getEngine().getBlockZ())
-		{
 			zOpposite = door.getMaximum().getBlockZ();
-		} else
-		{
+		else
 			zOpposite = door.getMinimum().getBlockZ();
-		}
+
 		// If the yMax is not the same value as the engineY, then yMax is yOpposite.
 		if (door.getMaximum().getBlockY() != door.getEngine().getBlockY())
-		{
 			yOpposite = door.getMaximum().getBlockY();
-		} else
-		{
+		else
 			yOpposite = door.getMinimum().getBlockY();
-		}
 		
 		// Finalise the oppositePoint location.
 		Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
-		
-		// Make a new blockMover object and give it the variables required for the animation.
-		BlockMover blockMover = new BlockMover(plugin, speed);
-		blockMover.moveBlocks(door.getEngine(), oppositePoint, rotDirection, currentDirection);
+		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, door.getEngine(), oppositePoint, currentDirection);
 
 		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen(door);
-		updateCoords(door, currentDirection, rotDirection);
+		plugin.debugMsg(Level.INFO, "Not updating coords!");
+//		updateCoords(door, currentDirection, rotDirection);
 
 		return true;
 	}
@@ -168,12 +160,13 @@ public class DoorOpener
 		case NORTH:
 			if (rotDirection == RotateDirection.CLOCKWISE)
 			{
-				newMin = new Location(door.getWorld(), xMin, yMin, zMax);
+				newMin = new Location(door.getWorld(), xMin,          yMin, zMax);
 				newMax = new Location(door.getWorld(), (xMin + zLen), yMax, zMax);
-			} else
+			} 
+			else
 			{
 				newMin = new Location(door.getWorld(), (xMin - zLen), yMin, zMax);
-				newMax = new Location(door.getWorld(), xMax, yMax, zMax);
+				newMax = new Location(door.getWorld(), xMax,          yMax, zMax);
 			}
 			break;
 			
@@ -181,12 +174,13 @@ public class DoorOpener
 		case EAST:
 			if (rotDirection == RotateDirection.CLOCKWISE)
 			{
-				newMin = new Location(door.getWorld(), xMin, yMin, zMin);
+				newMin = new Location(door.getWorld(), xMin, yMin,          zMin);
 				newMax = new Location(door.getWorld(), xMin, yMax, (zMax + xLen));
-			} else
+			} 
+			else
 			{
 				newMin = new Location(door.getWorld(), xMin, yMin, (zMin - xLen));
-				newMax = new Location(door.getWorld(), xMin, yMax, zMin);
+				newMax = new Location(door.getWorld(), xMin, yMax,          zMin);
 			}
 			break;
 			
@@ -195,10 +189,11 @@ public class DoorOpener
 			if (rotDirection == RotateDirection.CLOCKWISE)
 			{
 				newMin = new Location(door.getWorld(), (xMin - zLen), yMin, zMin);
-				newMax = new Location(door.getWorld(), xMax, yMax, zMin);
-			} else
+				newMax = new Location(door.getWorld(), xMax,          yMax, zMin);
+			} 
+			else
 			{
-				newMin = new Location(door.getWorld(), xMin, yMin, zMin);
+				newMin = new Location(door.getWorld(), xMin,          yMin, zMin);
 				newMax = new Location(door.getWorld(), (xMin + zLen), yMax, zMin);
 			}
 			break;
@@ -208,10 +203,11 @@ public class DoorOpener
 			if (rotDirection == RotateDirection.CLOCKWISE)
 			{
 				newMin = new Location(door.getWorld(), xMax, yMin, (zMin - xLen));
-				newMax = new Location(door.getWorld(), xMax, yMax, zMax);
-			} else
+				newMax = new Location(door.getWorld(), xMax, yMax,          zMax);
+			} 
+			else
 			{
-				newMin = new Location(door.getWorld(), xMax, yMin, zMin);
+				newMin = new Location(door.getWorld(), xMax, yMin,          zMin);
 				newMax = new Location(door.getWorld(), xMax, yMax, (zMax + xLen));
 			}
 			break;

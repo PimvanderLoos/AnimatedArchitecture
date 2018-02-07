@@ -42,7 +42,8 @@ public class NoClipArmorStand extends net.minecraft.server.v1_11_R1.EntityArmorS
 		{
 			eject();
 			return ((CraftEntity) passenger).getHandle().startRiding(getHandle());
-		} else
+		} 
+		else
 		{
 			return false;
 		}
@@ -51,9 +52,7 @@ public class NoClipArmorStand extends net.minecraft.server.v1_11_R1.EntityArmorS
 	public boolean eject()
 	{
 		if (isEmpty())
-		{
 			return false;
-		}
 
 		getHandle().az(); // PAIL: rename
 		return true;
@@ -110,11 +109,8 @@ public class NoClipArmorStand extends net.minecraft.server.v1_11_R1.EntityArmorS
 	public void g(float f, float f1)
 	{
 		if (!this.isNoGravity())
-		{
 			super.g(f, f1);
-		} else
-		{
+		else
 			super.g(f, f1);
-		}
 	}
 }

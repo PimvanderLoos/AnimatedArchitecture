@@ -26,13 +26,19 @@ import com.sk89q.worldedit.bukkit.selections.*;
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
 
+/* TODO: Merge NoClipArmorStand and falling sand, cutting entities being used in half.
+ * TODO: Clean up this class.
+ * 
+ */
+
 public class BigDoors extends JavaPlugin implements Listener
 {
 	private WorldEditPlugin worldEdit;
 	private String[] allowedEngineMats = { "IRON_FENCE" };
-	private String[] allowedDoorMats = { "GOLD_BLOCK" };
+	private String[] allowedDoorMats   = { "GOLD_BLOCK" };
 	private List<Door> doors;
 	private DoorOpener doorOpener;
+	private int debugLevel = 100;
 
 	@Override
 	public void onEnable()
@@ -75,15 +81,15 @@ public class BigDoors extends JavaPlugin implements Listener
 
 				String[] strs = sCurrentLine.trim().split("\\s+");
 
-				name = strs[0];
-				isOpen = Boolean.getBoolean(strs[1]);
-				world = Bukkit.getServer().getWorld(strs[2]);
-				xMin = Integer.parseInt(strs[3]);
-				yMin = Integer.parseInt(strs[4]);
-				zMin = Integer.parseInt(strs[5]);
-				xMax = Integer.parseInt(strs[6]);
-				yMax = Integer.parseInt(strs[7]);
-				zMax = Integer.parseInt(strs[8]);
+				name    = strs[0];
+				isOpen  = Boolean.getBoolean(strs[1]);
+				world   = Bukkit.getServer().getWorld(strs[2]);
+				xMin    = Integer.parseInt(strs[3]);
+				yMin    = Integer.parseInt(strs[4]);
+				zMin    = Integer.parseInt(strs[5]);
+				xMax    = Integer.parseInt(strs[6]);
+				yMax    = Integer.parseInt(strs[7]);
+				zMax    = Integer.parseInt(strs[8]);
 				engineX = Integer.parseInt(strs[9]);
 				engineY = Integer.parseInt(strs[10]);
 				engineZ = Integer.parseInt(strs[11]);
@@ -111,14 +117,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		{
 			File dataFolder = getDataFolder();
 			if (!dataFolder.exists())
-			{
 				dataFolder.mkdir();
-			}
 			File saveTo = new File(getDataFolder(), "doors.txt");
 			if (!saveTo.exists())
-			{
 				saveTo.createNewFile();
-			} else
+			else
 			{
 				saveTo.delete();
 				saveTo.createNewFile();
@@ -126,17 +129,48 @@ public class BigDoors extends JavaPlugin implements Listener
 			FileWriter fw = new FileWriter(saveTo, true);
 			PrintWriter pw = new PrintWriter(fw);
 			for (Door door : doors)
-			{
 				pw.println(door.toString());
-			}
 			pw.flush();
 			pw.close();
 		} catch (IOException e)
 		{
 			Bukkit.getLogger().log(Level.SEVERE, "Could not save file!");
 			e.printStackTrace();
-
 		}
+	}
+	
+	// Send a message to a player in a specific color.
+	public void messagePlayer(Player player, ChatColor color, String s)
+	{
+		player.sendMessage(color + s);
+	}
+	
+	// Send a message to a player.
+	public void messagePlayer(Player player, String s)
+	{
+		messagePlayer(player, ChatColor.WHITE, s);
+	}
+	
+	// Print a string to the log.
+	public void myLogger(Level level, String str)
+	{
+		Bukkit.getLogger().log(level, "[" + this.getName() + "] " + str);
+	}
+	
+	// Send a message to whomever issued a command.
+	public void returnToSender(CommandSender sender, Level level, ChatColor color, String str)
+	{
+		if (sender instanceof Player)
+			messagePlayer((Player) sender, color + str);
+		else
+			myLogger(level, str);
+	}
+	
+	public void openDoorCommand(CommandSender sender, Door door, double speed)
+	{
+		Bukkit.broadcastMessage("speed = " + speed);
+		if (!doorOpener.openDoor(door, speed))
+			returnToSender(sender, Level.INFO, ChatColor.RED, "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
 	}
 
 	// Handle commands.
@@ -144,64 +178,38 @@ public class BigDoors extends JavaPlugin implements Listener
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 	{
 		Player player;
-
+		
+		// /shutup
+		if (cmd.getName().equalsIgnoreCase("shutup"))
+		{
+			if (args.length == 1)
+			{
+				try
+				{
+					this.debugLevel = Integer.parseInt(args[0]);
+				}
+				catch (NumberFormatException e)
+				{
+					returnToSender(sender, Level.INFO, ChatColor.RED, "expected numerical input!");
+				}
+				return true;
+			}
+		}
+			
 		// /opendoors <doorName1> <doorName2>
 		if (cmd.getName().equalsIgnoreCase("opendoors"))
 		{
 			if (args.length >= 2)
 			{
-				Door door1 = getDoor(args[0]);
-				if (door1 != null)
+				// If the last argument is not a door (so getDoor returns null), it should be the speed. If it it null, use default speed.
+				double speed = getDoor(args[args.length - 1]) == null ? Double.parseDouble(args[args.length - 1]) : 0.2;
+				for (int index = 0; index < args.length; ++index)
 				{
-					if (!doorOpener.openDoor(getDoor(args[0]),
-							(args.length == 3 ? (args[2] == null ? 0.2 : Double.parseDouble(args[2])) : 0.2)))
-					{
-						if (sender instanceof Player)
-						{
-							((Player) sender).sendMessage(ChatColor.RED
-									+ "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
-						} else
-						{
-							Bukkit.getLogger().log(Level.INFO,
-									"This door cannot be opened! Check if one side of the \\\"engine\\\" blocks is unobstructed!");
-						}
-					}
-				} else
-				{
-					if (sender instanceof Player)
-					{
-						((Player) sender).sendMessage(ChatColor.RED + "Not a valid door name!");
-					} else
-					{
-						Bukkit.getLogger().log(Level.INFO, "Not a valid door name!");
-					}
-				}
-
-				Door door2 = getDoor(args[1]);
-				if (door2 != null)
-				{
-					if (!doorOpener.openDoor(getDoor(args[1]),
-							(args.length == 3 ? (args[2] == null ? 0.2 : Double.parseDouble(args[2])) : 0.2)))
-					{
-						if (sender instanceof Player)
-						{
-							((Player) sender).sendMessage(ChatColor.RED
-									+ "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
-						} else
-						{
-							Bukkit.getLogger().log(Level.INFO,
-									"This door cannot be opened! Check if one side of the \\\"engine\\\" blocks is unobstructed!");
-						}
-					}
-				} else
-				{
-					if (sender instanceof Player)
-					{
-						((Player) sender).sendMessage(ChatColor.RED + "Not a valid door name!");
-					} else
-					{
-						Bukkit.getLogger().log(Level.INFO, "Not a valid door name!");
-					}
+					Door door = getDoor(args[index]);
+					if (door == null && index != args.length - 1)
+						returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" is not a valid door name!");
+					else if (door != null)
+						openDoorCommand(sender, door, speed);
 				}
 				return true;
 			}
@@ -227,12 +235,9 @@ public class BigDoors extends JavaPlugin implements Listener
 				{
 					Door door = getDoor(args[0]);
 					if (door != null)
-					{
 						updateDoor(player, door);
-					} else
-					{
-						player.sendMessage(ChatColor.RED + "Not a valid door name!");
-					}
+					else
+						messagePlayer(player, ChatColor.RED, "Not a valid door name!");
 					return true;
 				}
 			}
@@ -245,16 +250,11 @@ public class BigDoors extends JavaPlugin implements Listener
 					Door door = getDoor(args[0]);
 					if (door != null)
 					{
-						if (!doorOpener.openDoor(getDoor(args[0]),
-								(args.length == 2 ? (args[1] == null ? 0.2 : Double.parseDouble(args[1])) : 0.2)))
-						{
-							player.sendMessage(ChatColor.RED
-									+ "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
-						}
-					} else
-					{
-						player.sendMessage(ChatColor.RED + "Not a valid door name!");
-					}
+						double speed = args.length == 2 ? (args[1] == null ? 0.2 : Double.parseDouble(args[1])) : 0.2;
+						openDoorCommand(sender, door, speed);
+					} 
+					else
+						messagePlayer(player, ChatColor.RED, "Not a valid door name!");
 					return true;
 				}
 			}
@@ -273,12 +273,9 @@ public class BigDoors extends JavaPlugin implements Listener
 				{
 					Door door = getDoor(args[0]);
 					if (door != null)
-					{
 						verifyDoorCoords(door);
-					} else
-					{
-						player.sendMessage(ChatColor.RED + "Not a valid door name!");
-					}
+					else
+						messagePlayer(player, ChatColor.RED, "Not a valid door name!");
 					return true;
 				}
 			}
@@ -335,12 +332,8 @@ public class BigDoors extends JavaPlugin implements Listener
 	public boolean isValidEngineBlock(Block block)
 	{
 		for (String s : allowedEngineMats)
-		{
 			if (block.getType().toString() == s)
-			{
 				return true;
-			}
-		}
 		return false;
 	}
 
@@ -351,12 +344,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		{
 			if (!isValidEngineBlock(w.getBlockAt(xPos, index, zPos)))
 			{
-				Bukkit.broadcastMessage("Invalid Engine: Block at " + xPos + ", " + index + ", " + zPos + " is: "
-						+ w.getBlockAt(xPos, index, zPos).getType().toString());
+				debugMsg(Level.WARNING, "Invalid Engine: Block at " + xPos + ", " + index + ", " + zPos + " is: " + w.getBlockAt(xPos, index, zPos).getType().toString());
 				return false;
 			}
 		}
-		Bukkit.broadcastMessage("The door has a valid engine!");
+		debugMsg(Level.WARNING, "The door has a valid engine!");
 		return true;
 	}
 
@@ -366,9 +358,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		for (String s : allowedDoorMats)
 		{
 			if (block.getType().toString() == s)
-			{
 				return true;
-			}
 		}
 		return false;
 	}
@@ -384,8 +374,7 @@ public class BigDoors extends JavaPlugin implements Listener
 				{
 					if (!isValidDoorBlock(w.getBlockAt(xAxis, yAxis, zAxis)))
 					{
-						Bukkit.broadcastMessage("Invalid Door: Block at " + xAxis + ", " + yAxis + ", " + zAxis
-								+ " is: " + w.getBlockAt(xAxis, yAxis, zAxis).getType().toString());
+						debugMsg(Level.WARNING, "Invalid Door: Block at " + xAxis + ", " + yAxis + ", " + zAxis + " is: " + w.getBlockAt(xAxis, yAxis, zAxis).getType().toString());
 						return false;
 					}
 				}
@@ -418,21 +407,19 @@ public class BigDoors extends JavaPlugin implements Listener
 					loc = new Location(world, xMin, yMin, zMin);
 					// Check if the blocks (excluding the engine) are valid door blocks.
 					if (hasValidDoorBlocks(world, xMin, xMax, zMin + 1, zMax, yMin, yMax))
-					{
 						return loc;
-					}
 					// Then check the side with the highest X value.
-				} else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
+				} 
+				else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
 				{
 					loc = new Location(world, xMax, yMin, zMin);
 					// Check if the blocks (excluding the engine) are valid door blocks.
 					if (hasValidDoorBlocks(world, xMin, xMax, zMin, zMax - 1, yMin, yMax))
-					{
 						return loc;
-					}
 				}
 				// If the selection is only 1 deep in the x-direction...
-			} else if (selection.getWidth() == 1)
+			} 
+			else if (selection.getWidth() == 1)
 			{
 				// First check the side with the lowest Z value.
 				if (hasValidEngine(world, xMax, zMin, yMin, yMax))
@@ -440,18 +427,15 @@ public class BigDoors extends JavaPlugin implements Listener
 					loc = new Location(world, xMax, yMin, zMin);
 					// Check if the blocks (excluding the engine) are valid door blocks.
 					if (hasValidDoorBlocks(world, xMin, xMax, zMin + 1, zMax, yMin, yMax))
-					{
 						return loc;
-					}
 					// Then check the side with the highest Z value.
-				} else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
+				} 
+				else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
 				{
 					loc = new Location(world, xMax, yMin, zMax);
 					// Check if the blocks (excluding the engine) are valid door blocks.
 					if (hasValidDoorBlocks(world, xMin, xMax, zMin, zMax - 1, yMin, yMax))
-					{
 						return loc;
-					}
 				}
 			}
 		}
@@ -464,7 +448,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		int count = 0;
 		for (Door door : doors)
 		{
-			player.sendMessage(count + ": " + door.getName() + ":\nMinimumCoords:" + door.getMinimum().getBlockX() + ","
+			messagePlayer(player, count + ": " + door.getName() + ":\nMinimumCoords:" + door.getMinimum().getBlockX() + ","
 					+ door.getMinimum().getBlockY() + "," + door.getMinimum().getBlockZ() + ", MaximumCoords:"
 					+ door.getMaximum().getBlockX() + "," + door.getMaximum().getBlockY() + ","
 					+ door.getMaximum().getBlockZ());
@@ -482,12 +466,8 @@ public class BigDoors extends JavaPlugin implements Listener
 	public Door getDoor(String name)
 	{
 		for (Door door : doors)
-		{
 			if (door.getName().equals(name))
-			{
 				return door;
-			}
-		}
 		return null;
 	}
 
@@ -501,12 +481,8 @@ public class BigDoors extends JavaPlugin implements Listener
 	public boolean isNameAvailable(String name)
 	{
 		for (Door door : doors)
-		{
 			if (name.equals(door.getName()))
-			{
 				return false;
-			}
-		}
 		return true;
 	}
 	
@@ -530,12 +506,11 @@ public class BigDoors extends JavaPlugin implements Listener
 			door.setMaximum(newMax);
 			door.setMinimum(newMin);
 			
-			player.sendMessage("Door coordinates updated successfully!");
+			messagePlayer(player, "Door coordinates updated successfully!");
 
-		} else
-		{
-			Bukkit.broadcastMessage("This is not a valid selection!");
-		}
+		} 
+		else
+			debugMsg(Level.WARNING, "This is not a valid selection!");
 	}
 
 	// Create a new door.
@@ -557,15 +532,24 @@ public class BigDoors extends JavaPlugin implements Listener
 				Door newDoor = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineLoc.getBlockX(),
 						engineLoc.getBlockY(), engineLoc.getBlockZ(), name, false);
 				addDoor(newDoor);
-			} else
-			{
+			} 
+			else
 				player.sendMessage(ChatColor.RED + "Name \"" + name + "\" already in use!");
-			}
-			Bukkit.broadcastMessage("This is a valid selection!");
+			debugMsg(Level.WARNING, "This is a valid selection!");
 
-		} else
-		{
-			Bukkit.broadcastMessage("This is not a valid selection!");
-		}
+		} 
+		else
+			debugMsg(Level.WARNING, "This is not a valid selection!");
+	}
+	
+	public void debugMsg(int level, Level lvl, String msg)
+	{
+		if (level <= debugLevel)
+			Bukkit.broadcastMessage(""+msg);
+	}
+	
+	public void debugMsg(Level lvl, String msg)
+	{
+		debugMsg(0, lvl, msg);
 	}
 }
