@@ -43,7 +43,6 @@ import org.bukkit.craftbukkit.v1_11_R1.util.CraftMagicNumbers;
 
 public class CustomEntityFallingBlock extends net.minecraft.server.v1_11_R1.EntityFallingBlock
 {
-
 	private IBlockData block;
 	private boolean f;
 	private int fallHurtMax = 40;
@@ -55,6 +54,7 @@ public class CustomEntityFallingBlock extends net.minecraft.server.v1_11_R1.Enti
 	public CustomEntityFallingBlock(World world)
 	{
 		super((net.minecraft.server.v1_11_R1.World) world);
+		setNoGravity(true);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -62,16 +62,16 @@ public class CustomEntityFallingBlock extends net.minecraft.server.v1_11_R1.Enti
 	{
 		super(((CraftWorld) world).getHandle(), d0, d1, d2, CraftMagicNumbers.getBlock(mat).fromLegacyData(data));
 		this.block = CraftMagicNumbers.getBlock(mat).fromLegacyData(data);
-		this.i = true;
+		this.i     = true;
 		this.setSize(0.98F, 0.98F);
 		this.setPosition(d0, d1 + (double) ((1.0F - this.length) / 2.0F), d2);
-		this.motX = 0.0D;
-		this.motY = 0.0D;
-		this.motZ = 0.0D;
+		this.motX  = 0.0D;
+		this.motY  = 0.0D;
+		this.motZ  = 0.0D;
 		this.lastX = d0;
 		this.lastY = d1;
 		this.lastZ = d2;
-//		Bukkit.broadcastMessage("Material = " + mat.toString() + ", block = " + block.toString());
+		setNoGravity(true);
 	}
 	
 	public void kill()
@@ -79,39 +79,6 @@ public class CustomEntityFallingBlock extends net.minecraft.server.v1_11_R1.Enti
 		System.out.println("0: Kill");
 		this.die();
 	}
-	
-	// First attempt at getting accurate location readings
-	public Location getLocaction1()
-	{
-		return new Location(world.getWorld(), lastX, lastY, lastZ);
-	}
-	
-	// Second attempt at getting accurate location readings
-	public Location getLocaction2()
-	{
-		this.recalcPosition();
-		return new Location(world.getWorld(), lastX, lastY, lastZ);
-	}
-	
-	// Third attempt at getting accurate location readings
-	public Location getLocaction3()
-	{
-		this.recalcPosition();
-		BlockPosition blockposition = new BlockPosition(this);
-		return new Location(world.getWorld(), (double) blockposition.getX(), (double) blockposition.getY(), (double) blockposition.getZ());
-	}
-	
-	// Fourth attempt at getting accurate location readings
-	public Location getLocaction4()
-	{
-		this.recalcPosition();
-		BlockPosition blockposition = new BlockPosition(this);
-		return new Location(world.getWorld(), (double) blockposition.getX(), (double) blockposition.getY(), (double) blockposition.getZ());
-	}
-	
-	
-	
-
 
 	public boolean bd()
 	{
@@ -169,7 +136,7 @@ public class CustomEntityFallingBlock extends net.minecraft.server.v1_11_R1.Enti
 //				}
 //			}
 			
-//			// Disabling gravity.
+//			// Disabling gravity?
 //			if (!this.isNoGravity())
 //			{
 //                this.motY -= 0.03999999910593033D;
