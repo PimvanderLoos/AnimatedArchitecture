@@ -12,31 +12,44 @@ public class Door implements Serializable
 	private int xMin, yMin, zMin, xMax, yMax, zMax;
 	private int engineX, engineY, engineZ;
 	private String name;
-	private boolean isOpen;
+	private boolean isOpen, isAvailable;
 	private World world;
 
 	// Generate a new door.
 	public Door(World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
 			int engineZ, String name, boolean isOpen)
 	{
-		this.world = world;
-		this.xMin = xMin;
-		this.yMin = yMin;
-		this.zMin = zMin;
-		this.xMax = xMax;
-		this.yMax = yMax;
-		this.zMax = zMax;
-		this.engineX = engineX;
-		this.engineY = engineY;
-		this.engineZ = engineZ;
-		this.name = name;
-		this.isOpen = isOpen;
+		this.world       = world;
+		this.xMin        = xMin;
+		this.yMin        = yMin;
+		this.zMin        = zMin;
+		this.xMax        = xMax;
+		this.yMax        = yMax;
+		this.zMax        = zMax;
+		this.engineX     = engineX;
+		this.engineY     = engineY;
+		this.engineZ     = engineZ;
+		this.name        = name;
+		this.isOpen      = isOpen;
+		this.isAvailable = true;
 	}
 
 	// Return the name of this door.
 	public String getName()
 	{
 		return name;
+	}
+
+	// Change the availability-status of this door.
+	public void changeAvailability(boolean availability)
+	{
+		this.isAvailable = availability;
+	}
+
+	// Return the availability-status of this door.
+	public boolean isAvailable()
+	{
+		return isAvailable;
 	}
 
 	// Change the open-status of this door.

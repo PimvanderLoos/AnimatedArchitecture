@@ -1,16 +1,17 @@
 package nl.pim16aap2.bigDoors.util;
 
 import org.bukkit.Material;
-import org.bukkit.entity.FallingBlock;
+
+import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock;
 
 public class BlockData
 {
-	private Material    	mat;
-	private double      	radius;
-	private FallingBlock	fBlock;
-	private Byte     	blockByte;
+	private Material    			mat;
+	private double      			radius;
+	private CustomCraftFallingBlock	fBlock;
+	private Byte     			blockByte;
 	
-	public BlockData(Material mat, Byte blockByte, FallingBlock fBlock, double radius)
+	public BlockData(Material mat, Byte blockByte, CustomCraftFallingBlock fBlock, double radius)
 	{
 		this.radius    = radius;
 		this.mat       = mat;
@@ -18,9 +19,9 @@ public class BlockData
 		this.fBlock    = fBlock;
 	}
 
-	public void setFBlock(FallingBlock block) 	{	this.fBlock = block;		}
-	public FallingBlock getFBlock()				{	return this.fBlock;		}
-	public Material getMat()     				{	return this.mat;			}
-	public double getRadius()					{	return this.radius;		}
-	public Byte getBlockByte()					{	return this.blockByte;	}
+	public void setFBlock(CustomCraftFallingBlock block) 	{	this.fBlock = block;		}
+	public CustomCraftFallingBlock getFBlock()			{	return this.fBlock;		}
+	public Material getMat()     					{	return this.mat;			}
+	public double getRadius()						{	return this.radius;		}
+	public Byte getBlockByte()						{	return this.blockByte;	}
 }

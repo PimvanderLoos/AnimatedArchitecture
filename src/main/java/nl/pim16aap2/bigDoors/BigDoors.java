@@ -20,6 +20,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
 import com.sk89q.worldedit.bukkit.*;
 import com.sk89q.worldedit.bukkit.selections.*;
 
@@ -39,6 +41,8 @@ public class BigDoors extends JavaPlugin implements Listener
 	private List<Door> doors;
 	private DoorOpener doorOpener;
 	private int debugLevel = 100;
+	private boolean goOn   = true;
+	private boolean paused = false;
 
 	@Override
 	public void onEnable()
@@ -100,14 +104,49 @@ public class BigDoors extends JavaPlugin implements Listener
 			}
 			br.close();
 
-		} catch (FileNotFoundException e)
+		} 
+		catch (FileNotFoundException e)
 		{
 			Bukkit.getLogger().log(Level.INFO, "No save file found. No doors loaded!");
-		} catch (IOException e)
+		} 
+		catch (IOException e)
 		{
 			Bukkit.getLogger().log(Level.WARNING, "Could not read file!!");
 			e.printStackTrace();
 		}
+	}
+	
+	public boolean isPaused()
+	{
+		return this.paused;
+	}
+	
+	public void togglePaused()
+	{
+		this.paused = !this.paused;
+	}
+	
+	public boolean canGo()
+	{
+		return this.goOn;
+	}
+	
+	public void setCanGo(boolean bool)
+	{
+		this.goOn = bool;
+	}
+	
+	public void stopDoors()
+	{
+		this.goOn = false;
+		new BukkitRunnable()
+		{
+			@Override
+			public void run()
+			{
+				setCanGo(true);
+			}
+		}.runTaskLater(this, 5L);
 	}
 
 	// Save the list of doors.
@@ -132,7 +171,8 @@ public class BigDoors extends JavaPlugin implements Listener
 				pw.println(door.toString());
 			pw.flush();
 			pw.close();
-		} catch (IOException e)
+		} 
+		catch (IOException e)
 		{
 			Bukkit.getLogger().log(Level.SEVERE, "Could not save file!");
 			e.printStackTrace();
@@ -179,7 +219,51 @@ public class BigDoors extends JavaPlugin implements Listener
 	{
 		Player player;
 		
-		// /shutup
+		// /unlockdoor <doorName>
+		if (cmd.getName().equalsIgnoreCase("unlockdoor"))
+		{
+			if (args.length == 1)
+			{
+				Door door = getDoor(args[0]);
+				if (door != null)
+				{
+					door.changeAvailability(true);
+					returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door unlocked!");
+					return true;
+				}
+			}
+		}
+		
+		// stopdoors
+		if (cmd.getName().equalsIgnoreCase("stopdoors"))
+		{
+			stopDoors();
+			return true;
+		}
+		
+		// pausedoors
+		if (cmd.getName().equalsIgnoreCase("pausedoors"))
+		{
+			togglePaused();
+			return true;
+		}
+		
+		// deldoor <doorName>
+		if (cmd.getName().equalsIgnoreCase("deldoor"))
+		{
+			if (args.length == 1)
+			{
+				Door door = getDoor(args[0]);
+				if (door != null)
+				{
+					doors.remove(door);
+					returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
+					return true;
+				}
+			}
+		}
+			
+		// /shutup <debugLevel>
 		if (cmd.getName().equalsIgnoreCase("shutup"))
 		{
 			if (args.length == 1)
@@ -195,8 +279,15 @@ public class BigDoors extends JavaPlugin implements Listener
 				return true;
 			}
 		}
+		
+		// /listdoors
+		if (cmd.getName().equalsIgnoreCase("listdoors"))
+		{
+			listDoors(sender);
+			return true;
+		}
 			
-		// /opendoors <doorName1> <doorName2>
+		// /opendoors <doorName1> <doorName2> etc etc [speed]
 		if (cmd.getName().equalsIgnoreCase("opendoors"))
 		{
 			if (args.length >= 2)
@@ -210,6 +301,23 @@ public class BigDoors extends JavaPlugin implements Listener
 						returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" is not a valid door name!");
 					else if (door != null)
 						openDoorCommand(sender, door, speed);
+				}
+				return true;
+			}
+		}
+
+		// /opendoor <doorName>
+		if (cmd.getName().equalsIgnoreCase("opendoor"))
+		{
+			if (args.length >= 1)
+			{
+				Door door = getDoor(args[0]);
+				if (door == null)
+					returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\" is not a valid door name!");
+				else
+				{
+					double speed = args.length == 2 ? (args[1] == null ? 0.2 : Double.parseDouble(args[1])) : 0.2;
+					openDoorCommand(sender, door, speed);
 				}
 				return true;
 			}
@@ -240,30 +348,6 @@ public class BigDoors extends JavaPlugin implements Listener
 						messagePlayer(player, ChatColor.RED, "Not a valid door name!");
 					return true;
 				}
-			}
-
-			// /opendoor <doorName>
-			if (cmd.getName().equalsIgnoreCase("opendoor"))
-			{
-				if (args.length >= 1)
-				{
-					Door door = getDoor(args[0]);
-					if (door != null)
-					{
-						double speed = args.length == 2 ? (args[1] == null ? 0.2 : Double.parseDouble(args[1])) : 0.2;
-						openDoorCommand(sender, door, speed);
-					} 
-					else
-						messagePlayer(player, ChatColor.RED, "Not a valid door name!");
-					return true;
-				}
-			}
-
-			// /listdoors
-			if (cmd.getName().equalsIgnoreCase("listdoors"))
-			{
-				listDoors(player);
-				return true;
 			}
 			
 			// /fixdoor
@@ -443,15 +527,20 @@ public class BigDoors extends JavaPlugin implements Listener
 	}
 
 	// Print a list of the doors currently in the db.
-	public void listDoors(Player player)
+	public void listDoors(CommandSender sender)
 	{
 		int count = 0;
 		for (Door door : doors)
 		{
-			messagePlayer(player, count + ": " + door.getName() + ":\nMinimumCoords:" + door.getMinimum().getBlockX() + ","
+			String str = count + ": " + door.getName() + ":\nMinimumCoords:" + door.getMinimum().getBlockX() + ","
 					+ door.getMinimum().getBlockY() + "," + door.getMinimum().getBlockZ() + ", MaximumCoords:"
 					+ door.getMaximum().getBlockX() + "," + door.getMaximum().getBlockY() + ","
-					+ door.getMaximum().getBlockZ());
+					+ door.getMaximum().getBlockZ();
+			
+			if (sender instanceof Player)
+				messagePlayer((Player) sender, str);
+			else
+				myLogger(Level.INFO, str);
 			count++;
 		}
 	}

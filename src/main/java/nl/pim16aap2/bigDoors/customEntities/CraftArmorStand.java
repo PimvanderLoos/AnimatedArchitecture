@@ -6,11 +6,15 @@ import org.bukkit.craftbukkit.v1_11_R1.entity.CraftLivingEntity;
 
 public class CraftArmorStand extends CraftLivingEntity
 {
-
 	public CraftArmorStand(org.bukkit.craftbukkit.v1_11_R1.CraftServer server, EntityLiving entity)
 	{
 		super(server, entity);
 	}
+	
+    public void recalcPosition() 
+    {
+        entity.recalcPosition();
+    }
 
 	@Override
 	public void setGravity(boolean gravity)

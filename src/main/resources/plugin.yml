@@ -7,6 +7,12 @@ depend:
 commands:
   shutup:
     description: Shuts up debug messages.
+    usage: /shutup <debug level>
+  pausedoors:
+    description: Pauses all door movement until used again.
+    usage: /pausedoors
+  stopdoors:
+    description: Stops all doors.
   newdoor:
     description: Create a new door from selection with name "doorName".
     usage: /newdoor <doorName>
@@ -35,11 +41,15 @@ commands:
   fixdoor:
     description: Verify and fix (if needed) the coords of the specifief door.
     useage: /fixdoor <doorName>
-    permission: bigdoors.debug
+    permission: bigdoors.admin.debug
     permission-message: You do not have the bigdoors.listdoors permission node.
   updatedoor:
     description: Update the coords of the specified door.
     usage: /fixdoor <doorName>
-    permission: bigdoors.updatedoor
+    permission: bigdoors.admin.updatedoor
     permissions-message: You do not have the bigdoors.listdoors permission node.
+  unlockDoor:
+    description: Forcefully unlock a door.
+    usage: /unlockdoor <doorName>
+    permission: bigdoors.admin.unlockdoor
     

@@ -2,6 +2,8 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
@@ -92,10 +94,29 @@ public class DoorOpener
 				door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? DoorDirection.WEST  : null;
 	}
 	
+	public boolean loadChunks(Door door)
+	{
+		// Return true if the chunk at the max and at the min of the chunks were loaded correctly.
+		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).load();
+	}
+	
 	
 	// Open a door.
 	public boolean openDoor(Door door, double speed)
 	{
+		if (!door.isAvailable())
+		{
+			plugin.debugMsg(Level.INFO, "Door " + door.getName() + " is not available right now!");
+			return false;
+		}
+		
+		if (!loadChunks(door))
+		{
+			plugin.debugMsg(Level.WARNING, "Chunk for door " + door.getName() + " could not be loaded!");
+			return false;
+		}
+		
+		
 		DoorDirection currentDirection = getCurrentDirection(door);
 		if (currentDirection == null)
 		{
@@ -132,10 +153,13 @@ public class DoorOpener
 		
 		// Finalise the oppositePoint location.
 		Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
-		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, door.getEngine(), oppositePoint, currentDirection);
+		
+		// Change door availability to false, so it cannot be opened again.
+//		door.changeAvailability(false);
+		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, oppositePoint, currentDirection, door);
 
 		// Tell the door object it has been opened and what its new coordinates are.
-		toggleOpen(door);
+//		toggleOpen(door);
 		plugin.debugMsg(Level.INFO, "Not updating coords!");
 //		updateCoords(door, currentDirection, rotDirection);
 

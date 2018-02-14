@@ -7,12 +7,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.customEntities.CustomEntityFallingBlock;
+import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.customEntities.NoClipArmorStand;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocation;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
@@ -29,23 +32,24 @@ public class CylindricalMover
 	private World           world;
 	private RotateDirection rotDirection;
 	private List<nl.pim16aap2.bigDoors.customEntities.CraftArmorStand> entity = new ArrayList<nl.pim16aap2.bigDoors.customEntities.CraftArmorStand>();
-	private int             qCircles, xLen, zLen, dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
+	private int             qCircles, xLen, yLen, zLen, dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
 	private List<BlockData> savedBlocks = new ArrayList<BlockData>();
 	private Location        turningPoint, pointOpposite;
 	private double          speed;
 	private GetNewLocation  gnl;
-	private int xRotMul, zRotMul;
+	private Door            door;
 	
 	
 	public CylindricalMover(BigDoors plugin, World world, int qCircles, RotateDirection rotDirection, double speed,
-			Location turningPoint, Location pointOpposite, DoorDirection currentDirection)
+			Location pointOpposite, DoorDirection currentDirection, Door door)
 	{
 		this.pointOpposite    = pointOpposite;
-		this.turningPoint     = turningPoint;
+		this.turningPoint     = door.getEngine();
 		this.rotDirection     = rotDirection;
-		this.qCircles         = qCircles;
+		this.qCircles         = qCircles * 8;
 		this.plugin           = plugin;
 		this.world            = world;
+		this.door             = door;
 		
 		this.xMin    = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
 		this.yMin    = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
@@ -55,21 +59,25 @@ public class CylindricalMover
 		this.zMax    = turningPoint.getBlockZ() > pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
 		
 		int xLen     = (int) (xMax - xMin) + 1;
+		int yLen     = (int) (yMax - yMin) + 1;
 		int zLen     = (int) (zMax - zMin) + 1;
 		
 		this.xLen    = xLen;
+		this.yLen    = yLen;
 		this.zLen    = zLen;
 		this.speed   = speed;
 
 		this.dx      = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
 		this.dz      = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
-		
-		// xRotMul is positive when the door starts facing the north, negative otherwise.
-		this.xRotMul = currentDirection == DoorDirection.NORTH ? 1 : -1;
-		// zRotMul is positive for all counter clockwise movements, except for when the door starts facing the north. Then the negative and positive are swapped.
-		this.zRotMul = rotDirection == RotateDirection.CLOCKWISE && currentDirection != DoorDirection.NORTH ? -1 :
-						rotDirection == RotateDirection.COUNTERCLOCKWISE && currentDirection == DoorDirection.NORTH ? -1 : 1;
-		
+
+//		// xRotMul is positive when the door starts facing the north, negative otherwise.
+//		this.xRotMul = currentDirection == DoorDirection.NORTH ? 1 : -1;
+//		// zRotMul is positive for all counter clockwise movements, except for when the door starts facing the north. Then the negative and positive are swapped.
+//		this.zRotMul = rotDirection == RotateDirection.CLOCKWISE        && currentDirection != DoorDirection.NORTH ? -1 :
+//		               rotDirection == RotateDirection.COUNTERCLOCKWISE && currentDirection == DoorDirection.NORTH ? -1 : 1;
+
+//		this.zRotMul = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
+				
 		/*
 		 * ClockWise East : -xRot, -zRot,  mAAFG  Y
 		 * CounterCl East : -xRot,  zRot, -mAAFG  Y
@@ -90,14 +98,14 @@ public class CylindricalMover
 			{
 				// Get the radius of this pillar.
 				double radius = Math.abs(xAxis - turningPoint.getBlockX()) > Math.abs(zAxis - turningPoint.getBlockZ()) ?
-								Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
+				                Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
 								
 				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 //					Location newStandLocation  = new Location(world, xAxis + 0.5, yAxis - 0.741, zAxis + 0.5);
 //					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-					Location newStandLocation  = new Location(world, xAxis + 0.5, yAxis + 25.741, zAxis + 0.5);
-					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis + 25.020, zAxis + 0.5);
+					Location newStandLocation  = new Location(world, xAxis + 0.5, yAxis + 35.741, zAxis + 0.5);
+					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis + 35.020, zAxis + 0.5);
 					
 					Material mat = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
 					@SuppressWarnings("deprecation")
@@ -107,7 +115,7 @@ public class CylindricalMover
 					
 					nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStand = noClipArmorStandFactory(newStandLocation);
 					
-					FallingBlock fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
+					CustomCraftFallingBlock fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
 					
 					noClipArmorStand.addPassenger(fBlock);
 					entity.add(index, noClipArmorStand);
@@ -206,6 +214,9 @@ public class CylindricalMover
 		// Empty the entity arrayList.
 		savedBlocks.clear();
 		entity.clear();
+		
+		// Change door availability to true, so it can be opened again.
+		door.changeAvailability(true);
 	}
 	
 	
@@ -253,11 +264,12 @@ public class CylindricalMover
 		}.runTaskLater(plugin, 5L);
 	}
 	
-
+	
+	
+	
 	public void rotateEntities()
 	{
 		int directionMultiplier = rotDirection == RotateDirection.CLOCKWISE ? 1 : -1;
-		double additionalTurn   = 0.07;
 		Location center         = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
 		double maxRad           = xLen > zLen ? xLen : zLen;
 
@@ -268,17 +280,11 @@ public class CylindricalMover
 			final double step   = ((2 * Math.PI) / tckPrCrcle);
 			int eights          = 1;
 			boolean replace     = false;
-
+			int qCircleCount    = 0;
+			
 			@Override
 			public void run()
 			{
-				// If the angle equals or exceeds 1.5808 rad (90 degrees) multiplied by the
-				// amount of quarter circles it should turn, stop.
-				if (Math.abs(angle) >= (Math.PI / 2) * qCircles + additionalTurn + 1.5)
-				{
-					this.cancel();
-					finishBlocks();
-				}
 				int index = 0;
 				
 				// Starting at 1/8 circle, every 1/4 circle.
@@ -288,108 +294,75 @@ public class CylindricalMover
 					replace = true;
 				}
 				
-				// Loop up and down first.
-				double xAxis = turningPoint.getX();
-				do
+				if (!plugin.isPaused())
 				{
-					double zAxis = turningPoint.getZ();
+					double xAxis = turningPoint.getX();
 					do
 					{
-						double radius = savedBlocks.get(index).getRadius();
-//						Location loc2 = entity.get(index).getLocation();
-//						double dX = Math.abs((loc2.getBlockX() + 0.5) - (turningPoint.getBlockX() + 0.5));
-//						double dZ = Math.abs((loc2.getBlockZ() + 0.5) - (turningPoint.getBlockZ() + 0.5));
-//						radius = Math.sqrt(dX * dX + dZ * dZ);
-//						if (radius <= 2.0 && radius >= 1.0)
-//							Bukkit.broadcastMessage(String.format("radius=%.3f, dX=%.2f, dZ=%.2f, loc2X=%.2f, tpX=%.2f", radius, dX, dZ, loc2.getX(), turningPoint.getX()));
-						
-						for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+						angle += -(step * directionMultiplier);
+						double zAxis = turningPoint.getZ();
+						do
 						{
-							angle += -(step * directionMultiplier);
-							if (Math.abs(angle) <= (Math.PI / 2) * qCircles + additionalTurn)
-							{
-								// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
-								double realAngle = Math.atan2(center.getZ() - entity.get(index).getLocation().getZ(), center.getX() - entity.get(index).getLocation().getX());
-								// Set the gravity stat of the armor stand to true, so it can move again.
-								entity.get(index).setGravity(true);
+							double radius     = savedBlocks.get(index).getRadius();
+							
+							for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+							{	
+								double xPos   = entity.get(index).getLocation().getX();
+								double zPos   = entity.get(index).getLocation().getZ();
 								
-								double extraAngle = 0;
-								if(		xAxis >= turningPoint.getBlockX() && zAxis >= turningPoint.getBlockZ())
-									extraAngle = 0.5 * Math.PI;
-								else if(	xAxis <= turningPoint.getBlockX() && zAxis >= turningPoint.getBlockZ())
-									extraAngle = 0.5 * Math.PI;
-								else if(	xAxis >= turningPoint.getBlockX() && zAxis <= turningPoint.getBlockZ())
-									extraAngle = 1.5 * Math.PI;
-								else if(	xAxis <= turningPoint.getBlockX() && zAxis <= turningPoint.getBlockZ())
-									extraAngle = 1 * Math.PI;
-									
-								double moveAngle = (90 - Math.toDegrees(realAngle + extraAngle));
+								// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
+								double realAngle    = Math.atan2(center.getZ() - zPos, center.getX() - xPos);
+								double realAngleDeg = Math.abs((Math.toDegrees(realAngle ) + 450) % 360 - 360); // [0;360]
+								double moveAngle    = (realAngleDeg + 90) % 360;
 								
 								if (radius != 0)
-								{
-									double radiusGoal = savedBlocks.get(index).getRadius();
+								{	
+									double dX       = Math.abs(xPos - (turningPoint.getBlockX() + 0.5));
+									double dZ       = Math.abs(zPos - (turningPoint.getBlockZ() + 0.5));
+									double realRad  = Math.sqrt(dX * dX + dZ * dZ);
 									
-									// TODO: Set desired angle and punish divergent blocks with decrease/increase in speed.
-									//       Only a problem when turning doors more than 180 degrees though.
-									
-									/*
-									 * ClockWise East : -xRot, -zRot,  mAAFG  Y
-									 * CounterCl East : -xRot,  zRot, -mAAFG  Y
-									 * ClockWise West : -xRot, -zRot,  mAAFG  Y
-									 * CounterCl West : -xRot,  zRot, -mAAFG  Y
-									 * ClockWise North:  xRot,  zRot,  mAAFG  Y
-									 * CounterCl North:  xRot, -zRot, -mAAFG  Y
-									 * ClockWise South: -xRot, -zRot,  mAAFG  Y
-									 * CounterCl South: -xRot,  zRot, -mAAFG  Y
-									 */
-									
-									Location loc2 = entity.get(index).getLocation();
-									double dX = Math.abs((loc2.getBlockX() + 0.5) - (turningPoint.getBlockX() + 0.5));
-									double dZ = Math.abs((loc2.getBlockZ() + 0.5) - (turningPoint.getBlockZ() + 0.5));
-									radius = Math.sqrt(dX * dX + dZ * dZ);
-									
-									double moveAngleAddForGoal = directionMultiplier * 25 * (radiusGoal - radius);
-									
-//									Bukkit.broadcastMessage(String.format("mAng=%3.2f, rAng=%.2f, rad=%.2f, radG=%.2f, rd=%.2f", moveAngle, realAngle, radius, radiusGoal, (radiusGoal - radius)));
-									double xRot = xRotMul * 3 * (radius / maxRad) * 0.2 * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
-									double zRot = zRotMul * 3 * (radius / maxRad) * 0.2 * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
-									entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
+									double moveAngleAddForGoal = directionMultiplier * 15 * (radius - realRad + 0.3);
+
+									// Inversed zRot sign for directionMultiplier.
+									double xRot = -1 *                       (realRad / maxRad)   * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
+									double zRot = -1 * directionMultiplier * (realRad / maxRad)   * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
+									entity.get(index).setVelocity(new Vector (directionMultiplier * xRot, 0.000, zRot));
 								}
-								else
-									entity.get(index).setVelocity(new Vector(0, 0.002, 0));
-//									entity.get(index).setVelocity(new Vector(0, 0.002, 0));
+
+//								Material mat = savedBlocks.get(index).getMat();
+//								if (replace && (mat == Material.LOG || mat == Material.LOG_2))
+//								{
+//									Location loc = savedBlocks.get(index).getFBlock().getLocation();
+//									Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
+//									savedBlocks.get(index).getFBlock().remove();
+//
+//									CustomCraftFallingBlock fBlock = fallingBlockFactory(loc, mat, (byte) matData, world);
+//									savedBlocks.get(index).setFBlock(fBlock);
+//									entity.get(index).addPassenger(fBlock);
+//								} 
 								
-//								double xRot = directionMultiplier * Math.cos(realAngle) * radius / radDiv;
-//								double zRot = directionMultiplier * Math.sin(realAngle) * radius / radDiv;
-//								entity.get(index).setVelocity(new Vector(directionMultiplier * xRot, 0.002, zRot));
-
-								Material mat = savedBlocks.get(index).getMat();
-
-								if (replace && (mat == Material.LOG || mat == Material.LOG_2))
-								{
-									Location loc = savedBlocks.get(index).getFBlock().getLocation();
-									Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
-									savedBlocks.get(index).getFBlock().remove();
-
-									FallingBlock fBlock = fallingBlockFactory (loc, mat, (byte) matData, world);
-									savedBlocks.get(index).setFBlock(fBlock);
-									entity.get(index).addPassenger(fBlock);
-								} 
-								else
-									savedBlocks.get(index).getFBlock().setTicksLived(1);
+								index++;
 							}
-							index++;
+							zAxis += dz;
 						}
-						zAxis += dz;
+						while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
+						xAxis += dx;
 					}
-					while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-					xAxis += dx;
+					while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
+					replace = false;
 				}
-				while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-				replace = false;
+
+				if (qCircleCount >= 2 || !plugin.canGo())
+				{
+					Bukkit.broadcastMessage("Stop! qCirlces = " + qCircleCount);
+					this.cancel();
+					finishBlocks();
+				}
 			}
-		}.runTaskTimer(plugin, 14, 1);
+		}.runTaskTimer(plugin, 14, 5);
 	}
+	
+	
 	
 	// Rotate blocks such a logs by modifying its material data.
 	public byte rotateBlockData(Byte matData)
@@ -402,13 +375,13 @@ public class CylindricalMover
 	}
 	
 	// Make a falling block.
-	public FallingBlock fallingBlockFactory(Location loc, Material mat, byte matData, World world)
+	public CustomCraftFallingBlock fallingBlockFactory(Location loc, Material mat, byte matData, World world)
 	{
-		@SuppressWarnings("deprecation")
-		FallingBlock fBlock = world.spawnFallingBlock(loc, mat, (byte) matData);
+		CustomEntityFallingBlock fBlockNMS = new CustomEntityFallingBlock((org.bukkit.craftbukkit.v1_11_R1.CraftWorld) world, mat, loc.getX(), loc.getY(), loc.getZ(), (byte) matData);
+		((org.bukkit.craftbukkit.v1_11_R1.CraftWorld) loc.getWorld()).getHandle().addEntity(fBlockNMS, SpawnReason.CUSTOM);
+		CustomCraftFallingBlock fBlock = new CustomCraftFallingBlock(Bukkit.getServer(), fBlockNMS);
 		fBlock.setVelocity(new Vector(0, 0, 0));
 		fBlock.setDropItem(false);
-		fBlock.setGravity(false);
 		return fBlock;
 	}
 	
@@ -423,8 +396,7 @@ public class CylindricalMover
 
 		nl.pim16aap2.bigDoors.customEntities.CraftArmorStand noClipArmorStand = new nl.pim16aap2.bigDoors.customEntities.CraftArmorStand((org.bukkit.craftbukkit.v1_11_R1.CraftServer) (Bukkit.getServer()), noClipArmorStandTemp);
 
-		noClipArmorStand.setVelocity(new Vector(0, 0, 0));
-		noClipArmorStand.setGravity(false);
+		noClipArmorStand.setVelocity  (new Vector(0, 0, 0));
 		noClipArmorStand.setCollidable(false);
 		
 		return noClipArmorStand;
