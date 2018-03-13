@@ -3,10 +3,10 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
+import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
@@ -94,10 +94,18 @@ public class DoorOpener
 				door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? DoorDirection.WEST  : null;
 	}
 	
-	public boolean loadChunks(Door door)
+	// Check if the chunks at the minimum and maximum locations of the door are loaded.
+	public boolean chunksLoaded(Door door)
 	{
 		// Return true if the chunk at the max and at the min of the chunks were loaded correctly.
-		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).load();
+		if (door.getWorld() == null)
+			Bukkit.broadcastMessage("world == null!");
+		if (door.getWorld().getChunkAt(door.getMaximum()) == null)
+			Bukkit.broadcastMessage("chunkMax == null!");
+		if (door.getWorld().getChunkAt(door.getMinimum()) == null)
+			Bukkit.broadcastMessage("chunkMin == null!");
+		
+		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
 	}
 	
 	
@@ -106,16 +114,15 @@ public class DoorOpener
 	{
 		if (!door.isAvailable())
 		{
-			plugin.debugMsg(Level.INFO, "Door " + door.getName() + " is not available right now!");
-			return false;
+			plugin.debugMsg(Level.INFO, ChatColor.RED + "Door " + door.getName() + " is not available right now!");
+			return true;
 		}
 		
-		if (!loadChunks(door))
+		if (!chunksLoaded(door))
 		{
-			plugin.debugMsg(Level.WARNING, "Chunk for door " + door.getName() + " could not be loaded!");
-			return false;
+			plugin.debugMsg(Level.WARNING, ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!");
+			return true;
 		}
-		
 		
 		DoorDirection currentDirection = getCurrentDirection(door);
 		if (currentDirection == null)
@@ -155,17 +162,16 @@ public class DoorOpener
 		Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
 		
 		// Change door availability to false, so it cannot be opened again.
-//		door.changeAvailability(false);
+		door.changeAvailability(false);
 		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, oppositePoint, currentDirection, door);
 
 		// Tell the door object it has been opened and what its new coordinates are.
-//		toggleOpen(door);
-		plugin.debugMsg(Level.INFO, "Not updating coords!");
-//		updateCoords(door, currentDirection, rotDirection);
-
+		toggleOpen  (door);
+		updateCoords(door, currentDirection, rotDirection);
 		return true;
 	}
 	
+	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
 	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection)
 	{
 		int xMin = door.getMinimum().getBlockX();
@@ -178,7 +184,7 @@ public class DoorOpener
 		int zLen = zMax - zMin;
 		Location newMax = null;
 		Location newMin = null;
-
+		
 		switch (currentDirection)
 		{
 		case NORTH:
@@ -238,8 +244,12 @@ public class DoorOpener
 		}
 		door.setMaximum(newMax);
 		door.setMinimum(newMin);
+
+		int isOpen = door.getStatus() == true ? 0 : 1; // If door.getStatus() is true (1), set isOpen to 0, as it's just been toggled.
+		plugin.getRDatabase().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
 	}
 
+	// Toggle the open status of a door.
 	public void toggleOpen(Door door)
 	{
 		door.setStatus(!door.getStatus());

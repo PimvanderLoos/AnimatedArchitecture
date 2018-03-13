@@ -2,8 +2,6 @@ name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
 version: 0.0.1
 author: Pim
-depend:
- - WorldEdit
 commands:
   shutup:
     description: Shuts up debug messages.
@@ -34,8 +32,8 @@ commands:
     permission: bigdoors.opendoors
     permission-message: You do not have the bigdoors.opendoor permission node.
   listdoors:
-    description: Returns a list of all doors.
-    usage: /listdoors
+    description: Returns a list of all your doors.
+    usage: /listdoors [name]
     permission: bigdoors.listdoors
     permission-message: You do not have the bigdoors.listdoors permission node.
   fixdoor:

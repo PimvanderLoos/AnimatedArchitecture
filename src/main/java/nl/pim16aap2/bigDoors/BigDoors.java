@@ -1,118 +1,94 @@
 package nl.pim16aap2.bigDoors;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import com.sk89q.worldedit.bukkit.*;
-import com.sk89q.worldedit.bukkit.selections.*;
 
 import net.md_5.bungee.api.ChatColor;
+import nl.pim16aap2.bigDoors.handlers.CommandHandler;
+import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
-
-/* TODO: Merge NoClipArmorStand and falling sand, cutting entities being used in half.
- * TODO: Clean up this class.
- * 
- */
+import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class BigDoors extends JavaPlugin implements Listener
 {
-	private WorldEditPlugin worldEdit;
-	private String[] allowedEngineMats = { "IRON_FENCE" };
-	private String[] allowedDoorMats   = { "GOLD_BLOCK" };
-	private List<Door> doors;
 	private DoorOpener doorOpener;
+	private List<DoorCreator> dcal; 
 	private int debugLevel = 100;
 	private boolean goOn   = true;
 	private boolean paused = false;
+	private SQLiteJDBCDriverConnection db;
+	private File logFile;
 
 	@Override
 	public void onEnable()
 	{
-		doors = new ArrayList<Door>();
+		logFile    = new File(getDataFolder(), "log.txt");
+		logMessage("Startup...", false, true);
+		this.db    = new SQLiteJDBCDriverConnection(this, "doorDB");
 		doorOpener = new DoorOpener(this);
 		Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
-		worldEdit = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
-		readDoors();
+		loadLog();
+		getCommand("shutup").setExecutor(new CommandHandler(this));
+		getCommand("pausedoors").setExecutor(new CommandHandler(this));
+		getCommand("stopdoors").setExecutor(new CommandHandler(this));
+		getCommand("newdoor").setExecutor(new CommandHandler(this));
+		getCommand("deldoor").setExecutor(new CommandHandler(this));
+		getCommand("opendoor").setExecutor(new CommandHandler(this));
+		getCommand("opendoors").setExecutor(new CommandHandler(this));
+		getCommand("listdoors").setExecutor(new CommandHandler(this));
+		getCommand("fixdoor").setExecutor(new CommandHandler(this));
+//		getCommand("updatedoor").setExecutor(new CommandHandler(this));
+		getCommand("unlockDoor").setExecutor(new CommandHandler(this));
+		
+		dcal = new ArrayList<DoorCreator>();
 	}
 
 	@Override
 	public void onDisable()
+	{} // Nothing to do here for now.
+	
+	public List<DoorCreator> getDoorCreators()
 	{
-		saveDoors();
+		return this.dcal;
 	}
-
-	// Read the saved list of doors, if it exists.
-	public void readDoors()
+	
+	public DoorOpener getDoorOpener()
 	{
-		File dataFolder = getDataFolder();
-		if (!dataFolder.exists())
+		return this.doorOpener;
+	}
+	
+	public void loadLog()
+	{
+		if (!logFile.exists())
 		{
-			Bukkit.getLogger().log(Level.INFO, "No save file found. No doors loaded!");
-			return;
-		}
-		File readFrom = new File(getDataFolder(), "doors.txt");
-		try (BufferedReader br = new BufferedReader(new FileReader(readFrom)))
-		{
-			String sCurrentLine;
-			sCurrentLine = br.readLine();
-
-			while (sCurrentLine != null)
+			try
 			{
-				int xMin, yMin, zMin, xMax, yMax, zMax;
-				int engineX, engineY, engineZ;
-				String name;
-				boolean isOpen;
-				World world;
-
-				String[] strs = sCurrentLine.trim().split("\\s+");
-
-				name    = strs[0];
-				isOpen  = Boolean.getBoolean(strs[1]);
-				world   = Bukkit.getServer().getWorld(strs[2]);
-				xMin    = Integer.parseInt(strs[3]);
-				yMin    = Integer.parseInt(strs[4]);
-				zMin    = Integer.parseInt(strs[5]);
-				xMax    = Integer.parseInt(strs[6]);
-				yMax    = Integer.parseInt(strs[7]);
-				zMax    = Integer.parseInt(strs[8]);
-				engineX = Integer.parseInt(strs[9]);
-				engineY = Integer.parseInt(strs[10]);
-				engineZ = Integer.parseInt(strs[11]);
-
-				// Add the door that was just read to the list.
-				addDoor(new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen));
-				sCurrentLine = br.readLine();
+				logFile.createNewFile();
+				getLogger().log(Level.INFO, "New file created at " + logFile);
 			}
-			br.close();
-
-		} 
-		catch (FileNotFoundException e)
-		{
-			Bukkit.getLogger().log(Level.INFO, "No save file found. No doors loaded!");
-		} 
-		catch (IOException e)
-		{
-			Bukkit.getLogger().log(Level.WARNING, "Could not read file!!");
-			e.printStackTrace();
+			catch (IOException e)
+			{
+				getLogger().log(Level.SEVERE, "File write error: " + logFile);
+			}
 		}
 	}
 	
@@ -126,6 +102,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		this.paused = !this.paused;
 	}
 	
+	public void setDebugLevel(int level)
+	{
+		this.debugLevel = level;
+	}
+	
 	public boolean canGo()
 	{
 		return this.goOn;
@@ -136,60 +117,10 @@ public class BigDoors extends JavaPlugin implements Listener
 		this.goOn = bool;
 	}
 	
-	public void stopDoors()
+	public SQLiteJDBCDriverConnection getRDatabase() 
 	{
-		this.goOn = false;
-		new BukkitRunnable()
-		{
-			@Override
-			public void run()
-			{
-				setCanGo(true);
-			}
-		}.runTaskLater(this, 5L);
-	}
-
-	// Save the list of doors.
-	public void saveDoors()
-	{
-		try
-		{
-			File dataFolder = getDataFolder();
-			if (!dataFolder.exists())
-				dataFolder.mkdir();
-			File saveTo = new File(getDataFolder(), "doors.txt");
-			if (!saveTo.exists())
-				saveTo.createNewFile();
-			else
-			{
-				saveTo.delete();
-				saveTo.createNewFile();
-			}
-			FileWriter fw = new FileWriter(saveTo, true);
-			PrintWriter pw = new PrintWriter(fw);
-			for (Door door : doors)
-				pw.println(door.toString());
-			pw.flush();
-			pw.close();
-		} 
-		catch (IOException e)
-		{
-			Bukkit.getLogger().log(Level.SEVERE, "Could not save file!");
-			e.printStackTrace();
-		}
-	}
-	
-	// Send a message to a player in a specific color.
-	public void messagePlayer(Player player, ChatColor color, String s)
-	{
-		player.sendMessage(color + s);
-	}
-	
-	// Send a message to a player.
-	public void messagePlayer(Player player, String s)
-	{
-		messagePlayer(player, ChatColor.WHITE, s);
-	}
+        return this.db;
+    }
 	
 	// Print a string to the log.
 	public void myLogger(Level level, String str)
@@ -201,170 +132,9 @@ public class BigDoors extends JavaPlugin implements Listener
 	public void returnToSender(CommandSender sender, Level level, ChatColor color, String str)
 	{
 		if (sender instanceof Player)
-			messagePlayer((Player) sender, color + str);
+			Util.messagePlayer((Player) sender, color + str);
 		else
 			myLogger(level, str);
-	}
-	
-	public void openDoorCommand(CommandSender sender, Door door, double speed)
-	{
-		Bukkit.broadcastMessage("speed = " + speed);
-		if (!doorOpener.openDoor(door, speed))
-			returnToSender(sender, Level.INFO, ChatColor.RED, "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
-	}
-
-	// Handle commands.
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-	{
-		Player player;
-		
-		// /unlockdoor <doorName>
-		if (cmd.getName().equalsIgnoreCase("unlockdoor"))
-		{
-			if (args.length == 1)
-			{
-				Door door = getDoor(args[0]);
-				if (door != null)
-				{
-					door.changeAvailability(true);
-					returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door unlocked!");
-					return true;
-				}
-			}
-		}
-		
-		// stopdoors
-		if (cmd.getName().equalsIgnoreCase("stopdoors"))
-		{
-			stopDoors();
-			return true;
-		}
-		
-		// pausedoors
-		if (cmd.getName().equalsIgnoreCase("pausedoors"))
-		{
-			togglePaused();
-			return true;
-		}
-		
-		// deldoor <doorName>
-		if (cmd.getName().equalsIgnoreCase("deldoor"))
-		{
-			if (args.length == 1)
-			{
-				Door door = getDoor(args[0]);
-				if (door != null)
-				{
-					doors.remove(door);
-					returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
-					return true;
-				}
-			}
-		}
-			
-		// /shutup <debugLevel>
-		if (cmd.getName().equalsIgnoreCase("shutup"))
-		{
-			if (args.length == 1)
-			{
-				try
-				{
-					this.debugLevel = Integer.parseInt(args[0]);
-				}
-				catch (NumberFormatException e)
-				{
-					returnToSender(sender, Level.INFO, ChatColor.RED, "expected numerical input!");
-				}
-				return true;
-			}
-		}
-		
-		// /listdoors
-		if (cmd.getName().equalsIgnoreCase("listdoors"))
-		{
-			listDoors(sender);
-			return true;
-		}
-			
-		// /opendoors <doorName1> <doorName2> etc etc [speed]
-		if (cmd.getName().equalsIgnoreCase("opendoors"))
-		{
-			if (args.length >= 2)
-			{
-				// If the last argument is not a door (so getDoor returns null), it should be the speed. If it it null, use default speed.
-				double speed = getDoor(args[args.length - 1]) == null ? Double.parseDouble(args[args.length - 1]) : 0.2;
-				for (int index = 0; index < args.length; ++index)
-				{
-					Door door = getDoor(args[index]);
-					if (door == null && index != args.length - 1)
-						returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" is not a valid door name!");
-					else if (door != null)
-						openDoorCommand(sender, door, speed);
-				}
-				return true;
-			}
-		}
-
-		// /opendoor <doorName>
-		if (cmd.getName().equalsIgnoreCase("opendoor"))
-		{
-			if (args.length >= 1)
-			{
-				Door door = getDoor(args[0]);
-				if (door == null)
-					returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\" is not a valid door name!");
-				else
-				{
-					double speed = args.length == 2 ? (args[1] == null ? 0.2 : Double.parseDouble(args[1])) : 0.2;
-					openDoorCommand(sender, door, speed);
-				}
-				return true;
-			}
-		}
-
-		if (sender instanceof Player)
-		{
-			player = (Player) sender;
-			// /newdoor <doorName>
-			if (cmd.getName().equalsIgnoreCase("newdoor"))
-			{
-				if (args.length == 1)
-				{
-					makeDoor(player, args[0]);
-					return true;
-				}
-			}
-
-			// /updatedoor <doorName>
-			if (cmd.getName().equalsIgnoreCase("updatedoor"))
-			{
-				if (args.length == 1)
-				{
-					Door door = getDoor(args[0]);
-					if (door != null)
-						updateDoor(player, door);
-					else
-						messagePlayer(player, ChatColor.RED, "Not a valid door name!");
-					return true;
-				}
-			}
-			
-			// /fixdoor
-			if (cmd.getName().equalsIgnoreCase("fixdoor"))
-			{
-				if (args.length >= 1)
-				{
-					Door door = getDoor(args[0]);
-					if (door != null)
-						verifyDoorCoords(door);
-					else
-						messagePlayer(player, ChatColor.RED, "Not a valid door name!");
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 	
 	// Swap min and max values for type mode (0/1/2 -> X/Y/Z) for a specified door.
@@ -393,242 +163,110 @@ public class BigDoors extends JavaPlugin implements Listener
 		}
 	}
 	
-	// Check if min really is min and max really max.
-	public void verifyDoorCoords(Door door)
+	// Print an ArrayList of doors to a player.
+	public void printDoors(Player player, List<Door> doors)
 	{
-		int xMin, yMin, zMin;
-		int xMax, yMax, zMax;
-		xMin = door.getMinimum().getBlockX();
-		yMin = door.getMinimum().getBlockY();
-		zMin = door.getMinimum().getBlockZ();
-		xMax = door.getMaximum().getBlockX();
-		yMax = door.getMaximum().getBlockY();
-		zMax = door.getMaximum().getBlockZ();
-		if (xMin > xMax)
-			swap(door, 0);
-		if (yMin > yMax)
-			swap(door, 1);
-		if (zMin > zMax)
-			swap(door, 2);
-	}
-
-	// Check if a block is a valid engine block.
-	public boolean isValidEngineBlock(Block block)
-	{
-		for (String s : allowedEngineMats)
-			if (block.getType().toString() == s)
-				return true;
-		return false;
-	}
-
-	// Check if the selection contains a valid engine.
-	public boolean hasValidEngine(World w, int xPos, int zPos, int yMin, int yMax)
-	{
-		for (int index = yMin; index <= yMax; index++)
-		{
-			if (!isValidEngineBlock(w.getBlockAt(xPos, index, zPos)))
-			{
-				debugMsg(Level.WARNING, "Invalid Engine: Block at " + xPos + ", " + index + ", " + zPos + " is: " + w.getBlockAt(xPos, index, zPos).getType().toString());
-				return false;
-			}
-		}
-		debugMsg(Level.WARNING, "The door has a valid engine!");
-		return true;
-	}
-
-	// Check if a block is a valid door block.
-	public boolean isValidDoorBlock(Block block)
-	{
-		for (String s : allowedDoorMats)
-		{
-			if (block.getType().toString() == s)
-				return true;
-		}
-		return false;
-	}
-
-	// Check if the selection contains valid door blocks.
-	public boolean hasValidDoorBlocks(World w, int xMin, int xMax, int zMin, int zMax, int yMin, int yMax)
-	{
-		for (int xAxis = xMin; xAxis <= xMax; xAxis++)
-		{
-			for (int yAxis = yMin; yAxis <= yMax; yAxis++)
-			{
-				for (int zAxis = zMin; zAxis <= zMax; zAxis++)
-				{
-					if (!isValidDoorBlock(w.getBlockAt(xAxis, yAxis, zAxis)))
-					{
-						debugMsg(Level.WARNING, "Invalid Door: Block at " + xAxis + ", " + yAxis + ", " + zAxis + " is: " + w.getBlockAt(xAxis, yAxis, zAxis).getType().toString());
-						return false;
-					}
-				}
-			}
-		}
-		return true;
-	}
-
-	// Check if the selection contains a valid door and return the location of the
-	// engine.
-	public Location verifySelection(Player player, Selection selection)
-	{
-		Location loc = null;
-		if (selection != null)
-		{
-			int xMin = selection.getMinimumPoint().getBlockX();
-			int xMax = selection.getMaximumPoint().getBlockX();
-			int yMin = selection.getMinimumPoint().getBlockY();
-			int yMax = selection.getMaximumPoint().getBlockY();
-			int zMin = selection.getMinimumPoint().getBlockZ();
-			int zMax = selection.getMaximumPoint().getBlockZ();
-			World world = selection.getWorld();
-
-			// If the selection is only 1 deep in the z-direction...
-			if (selection.getLength() == 1)
-			{
-				// First check the side with the lowest X value.
-				if (hasValidEngine(world, xMin, zMax, yMin, yMax))
-				{
-					loc = new Location(world, xMin, yMin, zMin);
-					// Check if the blocks (excluding the engine) are valid door blocks.
-					if (hasValidDoorBlocks(world, xMin, xMax, zMin + 1, zMax, yMin, yMax))
-						return loc;
-					// Then check the side with the highest X value.
-				} 
-				else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
-				{
-					loc = new Location(world, xMax, yMin, zMin);
-					// Check if the blocks (excluding the engine) are valid door blocks.
-					if (hasValidDoorBlocks(world, xMin, xMax, zMin, zMax - 1, yMin, yMax))
-						return loc;
-				}
-				// If the selection is only 1 deep in the x-direction...
-			} 
-			else if (selection.getWidth() == 1)
-			{
-				// First check the side with the lowest Z value.
-				if (hasValidEngine(world, xMax, zMin, yMin, yMax))
-				{
-					loc = new Location(world, xMax, yMin, zMin);
-					// Check if the blocks (excluding the engine) are valid door blocks.
-					if (hasValidDoorBlocks(world, xMin, xMax, zMin + 1, zMax, yMin, yMax))
-						return loc;
-					// Then check the side with the highest Z value.
-				} 
-				else if (hasValidEngine(world, xMax, zMax, yMin, yMax))
-				{
-					loc = new Location(world, xMax, yMin, zMax);
-					// Check if the blocks (excluding the engine) are valid door blocks.
-					if (hasValidDoorBlocks(world, xMin, xMax, zMin, zMax - 1, yMin, yMax))
-						return loc;
-				}
-			}
-		}
-		return loc;
-	}
-
-	// Print a list of the doors currently in the db.
-	public void listDoors(CommandSender sender)
-	{
-		int count = 0;
 		for (Door door : doors)
+			Util.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
+	}
+
+	// Get the door from the string. Can be use with a doorUID or a doorName.
+	public Door getDoor(String doorStr, Player player)
+	{
+		// First try converting the doorStr to a doorUID.
+		try
 		{
-			String str = count + ": " + door.getName() + ":\nMinimumCoords:" + door.getMinimum().getBlockX() + ","
-					+ door.getMinimum().getBlockY() + "," + door.getMinimum().getBlockZ() + ", MaximumCoords:"
-					+ door.getMaximum().getBlockX() + "," + door.getMaximum().getBlockY() + ","
-					+ door.getMaximum().getBlockZ();
+			int doorUID = Integer.parseInt(doorStr);
 			
-			if (sender instanceof Player)
-				messagePlayer((Player) sender, str);
-			else
-				myLogger(Level.INFO, str);
-			count++;
+			Door door = getRDatabase().getDoor(doorUID);
+			
+			Bukkit.broadcastMessage("" + door.toString());
+			
+			return getRDatabase().getDoor(doorUID);
 		}
-	}
-
-	// Delete a door from the list of doors.
-	public void deleteDoor(Door oldDoor)
-	{
-		doors.remove(oldDoor);
-	}
-
-	// Get the door named "name".
-	public Door getDoor(String name)
-	{
-		for (Door door : doors)
-			if (door.getName().equals(name))
-				return door;
-		return null;
+		// If it can't convert to an int, get all doors from the player with the provided name. 
+		// If there is more than one, tell the player that they are going to have to make a choice.
+		catch (NumberFormatException e)
+		{
+			List<Door> doors = new ArrayList<Door>();
+			doors = getRDatabase().getDoors(player.getUniqueId().toString(), doorStr);
+			if (doors.size() == 1)
+				return doors.get(0);
+			else 
+			{
+				Util.messagePlayer(player, "More than 1 door with that name found! Please use its ID instead!");
+				printDoors(player, doors);
+				return null;
+			}
+		}
 	}
 
 	// Add a door to the list of doors.
 	public void addDoor(Door newDoor)
 	{
-		doors.add(newDoor);
+		System.out.println("Adding door " + newDoor.getName().toString());
+		getRDatabase().insert(newDoor);
 	}
 
 	// Check if a given name is already in use or not.
-	public boolean isNameAvailable(String name)
+	public boolean isNameAvailable(String name, Player player)
 	{
-		for (Door door : doors)
-			if (name.equals(door.getName()))
-				return false;
-		return true;
+		return getRDatabase().isNameAvailable(name, player.getUniqueId().toString());
 	}
 	
-	// Update the coords of the specified door.
-	public void updateDoor(Player player, Door door)
+//	// Update the coords of the specified door.
+//	public void updateDoor(Player player, Door door)
+//	{
+//		Selection selection = worldEdit.getSelection(player);
+//		if (selection != null)
+//		{
+//			int xMin = selection.getMinimumPoint().getBlockX();
+//			int xMax = selection.getMaximumPoint().getBlockX();
+//			int yMin = selection.getMinimumPoint().getBlockY();
+//			int yMax = selection.getMaximumPoint().getBlockY();
+//			int zMin = selection.getMinimumPoint().getBlockZ();
+//			int zMax = selection.getMaximumPoint().getBlockZ();
+//			World world = selection.getWorld();
+//
+//			Location newMax = new Location (world, xMax, yMax, zMax);
+//			Location newMin = new Location (world, xMin, yMin, zMin);
+//			
+//			door.setMaximum(newMax);
+//			door.setMinimum(newMin);
+//			
+//			Util.messagePlayer(player, "Door coordinates updated successfully!");
+//
+//		} 
+//		else
+//			debugMsg(Level.WARNING, "This is not a valid selection!");
+//	}
+	
+	public void logMessage(String msg, boolean printToConsole, boolean startSkip)
 	{
-		Selection selection = worldEdit.getSelection(player);
-		if (selection != null)
+		if (printToConsole)
+			System.out.println(msg);
+		BufferedWriter bw = null;
+		try
 		{
-			int xMin = selection.getMinimumPoint().getBlockX();
-			int xMax = selection.getMaximumPoint().getBlockX();
-			int yMin = selection.getMinimumPoint().getBlockY();
-			int yMax = selection.getMaximumPoint().getBlockY();
-			int zMin = selection.getMinimumPoint().getBlockZ();
-			int zMax = selection.getMaximumPoint().getBlockZ();
-			World world = selection.getWorld();
-
-			Location newMax = new Location (world, xMax, yMax, zMax);
-			Location newMin = new Location (world, xMin, yMin, zMin);
-			
-			door.setMaximum(newMax);
-			door.setMinimum(newMin);
-			
-			messagePlayer(player, "Door coordinates updated successfully!");
-
-		} 
-		else
-			debugMsg(Level.WARNING, "This is not a valid selection!");
-	}
-
-	// Create a new door.
-	public void makeDoor(Player player, String name)
-	{
-		Selection selection = worldEdit.getSelection(player);
-		Location engineLoc = verifySelection(player, selection);
-		if (engineLoc != null)
-		{
-			int xMin = selection.getMinimumPoint().getBlockX();
-			int xMax = selection.getMaximumPoint().getBlockX();
-			int yMin = selection.getMinimumPoint().getBlockY();
-			int yMax = selection.getMaximumPoint().getBlockY();
-			int zMin = selection.getMinimumPoint().getBlockZ();
-			int zMax = selection.getMaximumPoint().getBlockZ();
-			World world = selection.getWorld();
-			if (isNameAvailable(name))
-			{
-				Door newDoor = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineLoc.getBlockX(),
-						engineLoc.getBlockY(), engineLoc.getBlockZ(), name, false);
-				addDoor(newDoor);
-			} 
+			bw = new BufferedWriter(new FileWriter(logFile, true));
+			Date now = new Date();
+			SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+			if (startSkip)
+				bw.write("\n\n[" + format.format(now) + "] " + msg);
 			else
-				player.sendMessage(ChatColor.RED + "Name \"" + name + "\" already in use!");
-			debugMsg(Level.WARNING, "This is a valid selection!");
-
-		} 
-		else
-			debugMsg(Level.WARNING, "This is not a valid selection!");
+				bw.write("[" + format.format(now) + "] " + msg);
+			bw.newLine();
+			bw.flush();
+		}
+		catch (IOException e)
+		{
+			getLogger().log(Level.SEVERE, "Logging error! Could not log to logFile!");	
+		}
+	}
+	
+	public void logMessage(String msg)
+	{
+		logMessage(msg, false, false);
 	}
 	
 	public void debugMsg(int level, Level lvl, String msg)
