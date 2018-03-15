@@ -3,51 +3,72 @@ main: nl.pim16aap2.bigDoors.BigDoors
 version: 0.0.1
 author: Pim
 commands:
+  bigdoors:
+    description: Open the BigDoors GUI.
+    usage: /BigDoors
+    permission: bigdoors.user.gui
+  bdm:
+    description: Alias of /BigDoors, Opens the BigDoors GUI.
+    usage: /BDM
+    permission: bigdoors.user.gui
+  namedoor:
+    description: Create a new door named "doorName".
+    usage: /NameDoor <doorName>
+    permission: bigdoors.createdoor
+    permission-message: You do not have the bigdoors.createdoor permission node.
   shutup:
     description: Shuts up debug messages.
-    usage: /shutup <debug level>
+    usage: /Shutup <debug level>
+    permission: bigdoors.admin.shutup
   pausedoors:
     description: Pauses all door movement until used again.
-    usage: /pausedoors
+    usage: /PauseDoors
+    permission: bigdoors.admin.pausedoors
   stopdoors:
     description: Stops all doors.
+    usage: /StopDoors
+    permission: bigdoors.admin.stopdoors
   newdoor:
     description: Create a new door from selection with name "doorName".
-    usage: /newdoor <doorName>
+    usage: /NewDoor <doorName>
     permission: bigdoors.createdoor
     permission-message: You do not have the bigdoors.createdoor permission node.
   deldoor:
     description: Delete door with name "doorName".
-    usage: /deldoor <doorName>
+    usage: /DelDoor <doorName>
     permission: bigdoors.deletedoor
     permission-message: You do not have the bigdoors.deletedoor permission node.
   opendoor:
     description: Open the door with name "doorName".
-    usage: /opendoor <doorName> [speed]
+    usage: /OpenDoor <doorName> [speed]
     permission: bigdoors.opendoor
     permission-message: You do not have the bigdoors.opendoor permission node.
   opendoors:
     description: Open the doors with name "doorName1" and "doorName2".
-    usage: /opendoors <doorName1> <doorName2> [speed]
+    usage: /OpenDoors <doorName1> <doorName2> [speed]
     permission: bigdoors.opendoors
     permission-message: You do not have the bigdoors.opendoor permission node.
   listdoors:
     description: Returns a list of all your doors.
-    usage: /listdoors [name]
+    usage: /ListDoors [name]
     permission: bigdoors.listdoors
     permission-message: You do not have the bigdoors.listdoors permission node.
   fixdoor:
-    description: Verify and fix (if needed) the coords of the specifief door.
-    useage: /fixdoor <doorName>
+    description: Verify and fix (if needed) the coords of the specified door.
+    useage: /FixDoor <doorName>
     permission: bigdoors.admin.debug
     permission-message: You do not have the bigdoors.listdoors permission node.
   updatedoor:
     description: Update the coords of the specified door.
-    usage: /fixdoor <doorName>
+    usage: /UpdateDoor <doorName>
     permission: bigdoors.admin.updatedoor
     permissions-message: You do not have the bigdoors.listdoors permission node.
   unlockDoor:
     description: Forcefully unlock a door.
-    usage: /unlockdoor <doorName>
+    usage: /UnlockDoor <doorName>
     permission: bigdoors.admin.unlockdoor
+  doorinfo:
+    description: Display door info.
+    usage: /DoorInfo <doorName>
+    permission: bigdoors.doorinfo
     

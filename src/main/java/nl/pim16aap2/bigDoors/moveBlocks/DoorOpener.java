@@ -109,35 +109,43 @@ public class DoorOpener
 	}
 	
 	
-	// Open a door.
 	public boolean openDoor(Door door, double speed)
 	{
-		if (!door.isAvailable())
+		return openDoor(door, speed, false);
+	}
+	
+	
+	// Open a door.
+	public boolean openDoor(Door door, double speed, boolean silent)
+	{
+		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
-			plugin.debugMsg(Level.INFO, ChatColor.RED + "Door " + door.getName() + " is not available right now!");
+			if (!silent)
+				plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
 			return true;
 		}
 		
 		if (!chunksLoaded(door))
 		{
-			plugin.debugMsg(Level.WARNING, ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!");
+			plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!", true, false);
 			return true;
 		}
 		
 		DoorDirection currentDirection = getCurrentDirection(door);
 		if (currentDirection == null)
 		{
-			plugin.debugMsg(Level.WARNING, "Current direction is null!");
+			plugin.getMyLogger().logMessage("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
 			return false;
 		}
 		RotateDirection rotDirection   = getRotationDirection(door, currentDirection);
 		if (rotDirection == null)
 		{
-			plugin.debugMsg(Level.WARNING, "RotDirection is null!");
+			plugin.getMyLogger().logMessage("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
 			return false;
 		}
 		
-		plugin.debugMsg(Level.WARNING, "CurrentDirection = " + currentDirection + ", performing " + rotDirection + " rotation.");
+		if (!silent)
+			plugin.getMyLogger().myLogger(Level.INFO, "CurrentDirection = " + currentDirection + ", performing " + rotDirection + " rotation.");
 		
 		int xOpposite, yOpposite, zOpposite;
 		// If the xMax is not the same value as the engineX, then xMax is xOpposite.
@@ -161,8 +169,8 @@ public class DoorOpener
 		// Finalise the oppositePoint location.
 		Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
 		
-		// Change door availability to false, so it cannot be opened again.
-		door.changeAvailability(false);
+		// Change door availability so it cannot be opened again.
+		plugin.getCommander().setDoorBusy(door.getDoorUID());
 		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, oppositePoint, currentDirection, door);
 
 		// Tell the door object it has been opened and what its new coordinates are.
@@ -246,7 +254,7 @@ public class DoorOpener
 		door.setMinimum(newMin);
 
 		int isOpen = door.getStatus() == true ? 0 : 1; // If door.getStatus() is true (1), set isOpen to 0, as it's just been toggled.
-		plugin.getRDatabase().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
+		plugin.getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
 	}
 
 	// Toggle the open status of a door.

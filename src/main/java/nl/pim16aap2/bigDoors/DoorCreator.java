@@ -2,7 +2,6 @@ package nl.pim16aap2.bigDoors;
 
 import java.util.Arrays;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -11,6 +10,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.util.Util;
 
 /*
@@ -36,13 +36,27 @@ public class DoorCreator
 		this.one    = null;
 		this.two    = null;
 		this.engine = null;
-		
-		giveToolToPlayer();
+		Util.messagePlayer(player, ChatColor.GREEN, "Door creation process initiated! You have 60 seconds to complete it.");
+		if (name == null)
+			Util.messagePlayer(player, ChatColor.GREEN, "Please start by giving the door a name using the command: /namedoor <doorName>");
+		else
+			giveToolToPlayer();
 	}
 	
 	public Player getPlayer()
 	{
 		return this.player;
+	}
+	
+	public void setName(String newName)
+	{
+		name = newName;
+		giveToolToPlayer();
+	}
+	
+	public String getName()
+	{
+		return this.name;
 	}
 	
 	// Make sure position "one" contains the minimum values, "two" the maximum values and engine min.Y;
@@ -69,7 +83,7 @@ public class DoorCreator
 	{
 		minMaxFix();
 		Door door = new Door(player, one.getWorld(), one.getBlockX(), one.getBlockY(), one.getBlockZ(), two.getBlockX(), two.getBlockY(), two.getBlockZ(), engine.getBlockX(), engine.getBlockY(), engine.getBlockZ(), name, false);
-		plugin.getRDatabase().insert(door);
+		plugin.getCommander().addDoor(door, player);
 		takeToolFromPlayer();
 	}
 	
@@ -128,7 +142,6 @@ public class DoorCreator
 	{
 		int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
 		int zDepth = Math.abs(one.getBlockZ() - loc.getBlockZ());
-		Bukkit.broadcastMessage("xDepth = " + xDepth + ", zDepth = " + zDepth);
 		return xDepth == 0 || zDepth == 0;
 	}
 	

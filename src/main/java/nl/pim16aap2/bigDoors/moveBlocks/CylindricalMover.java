@@ -83,7 +83,6 @@ public class CylindricalMover
 				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-//					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020 + yLen + 5, zAxis + 0.5);
 					// Move the lowest blocks up a little, so the client won't predict they're going through the ground.
 					if (yAxis == yMin)
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
@@ -127,7 +126,8 @@ public class CylindricalMover
 		case WEST:
 			this.gnl = gnlw;
 			break;
-		}		
+		}
+		// TODO: Use th proper switch here.
 //		// This part should be used instead of the 21 lines above (including the definitions/declarations of gnln etc),
 //		// But this part below doesn't work for live development... sigh...
 //		switch (currentDirection)
@@ -148,7 +148,6 @@ public class CylindricalMover
 		
 		rotateEntities();
 	}
-
 	
 	// Put the door blocks back, but change their state now.
 	@SuppressWarnings("deprecation")
@@ -190,15 +189,13 @@ public class CylindricalMover
 		savedBlocks.clear();
 
 		// Change door availability to true, so it can be opened again.
-		door.changeAvailability(true);
+		plugin.getCommander().setDoorAvailable(door.getDoorUID());
 	}
-	
 	
 	// Put falling blocks into their final location (but keep them as falling blocks).
 	// This makes the transition from entity to block appear smoother.
 	public void finishBlocks()
 	{
-		Bukkit.broadcastMessage("Finishing blocks now!");
 		int index = 0;
 		double xAxis = turningPoint.getX();
 		do
@@ -237,7 +234,6 @@ public class CylindricalMover
 			}
 		}.runTaskLater(plugin, 4L);
 	}
-	
 	
 	// Method that takes care of the rotation aspect.
 	public void rotateEntities()
@@ -280,7 +276,7 @@ public class CylindricalMover
 				if (((realAngleMidDeg - 45 + 360) % 360) % 90 < 5)
 					replace = true;
 				
-				if (qCircleCount >= qCircleLimit || !plugin.canGo())
+				if (qCircleCount >= qCircleLimit || !plugin.getCommander().canGo())
 				{
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
@@ -289,7 +285,7 @@ public class CylindricalMover
 				}
 				else
 				{
-					if (!plugin.isPaused())
+					if (!plugin.getCommander().isPaused())
 					{
 						double xAxis = turningPoint.getX();
 						do
@@ -310,10 +306,13 @@ public class CylindricalMover
 										double realAngleDeg = Math.abs((Math.toDegrees(realAngle ) + 450) % 360 - 360); // [0;360]
 										double moveAngle    = (realAngleDeg + 90) % 360;
 										
+										// Get the actual radius of the block (and compare that to the radius it should have (stored in the block)) later (moveAndAddForGoal).
 										double dX           = Math.abs(xPos - (turningPoint.getBlockX() + 0.5));
 										double dZ           = Math.abs(zPos - (turningPoint.getBlockZ() + 0.5));
 										double realRadius   = Math.sqrt(dX * dX + dZ * dZ);
 										
+										// Additional angle added to the movement direction so that the radius remains correct for all blocks.
+										// TODO: Smaller total width needs lower punishment than larger doors. Presumable because of speed difference. Fix that.
 										double moveAngleAddForGoal = directionMultiplier * 15 * (radius - realRadius - 0.18);
 	
 										// Inversed zRot sign for directionMultiplier.
@@ -353,7 +352,6 @@ public class CylindricalMover
 		}.runTaskTimer(plugin, 14, 4);
 	}
 	
-	
 	// Rotate blocks such a logs by modifying its material data.
 	public byte rotateBlockData(Byte matData)
 	{
@@ -363,7 +361,6 @@ public class CylindricalMover
 			matData = (byte) (matData - 4);
 		return matData;
 	}
-	
 	
 	// Make a falling block.
 	public CustomCraftFallingBlock fallingBlockFactory(Location loc, Material mat, byte matData, World world)

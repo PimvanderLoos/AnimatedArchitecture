@@ -15,14 +15,18 @@ public class Door implements Serializable
 	private int xMin, yMin, zMin, xMax, yMax, zMax;
 	private int engineX, engineY, engineZ;
 	private String name;
-	private boolean isOpen, isAvailable;
+	private boolean isOpen;
 	private World world;
 	private UUID player;
 	private int doorUID;
+	private boolean isLocked;
 
+	// TODO: Store permission level.
+	// Player is then stored as the person who requested this door, rather than as the owner of the door.
+	
 	// Generate a new door.
 	public Door(Player player, World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
-			int engineZ, String name, boolean isOpen, int doorUID)
+			int engineZ, String name, boolean isOpen, int doorUID, boolean isLocked)
 	{
 		this.player      = player == null ? null : player.getUniqueId();
 		this.world       = world;
@@ -37,15 +41,15 @@ public class Door implements Serializable
 		this.engineZ     = engineZ;
 		this.name        = name;
 		this.isOpen      = isOpen;
-		this.isAvailable = true;
 		this.doorUID     = doorUID;
+		this.isLocked    = isLocked;
 	}
 
 	// Generate a new door without a provided doorUID.
 	public Door(Player player, World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
 			int engineZ, String name, boolean isOpen)
 	{
-		this(player,world,xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1);
+		this(player,world,xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false);
 	}
 	
 	public Door(String str)
@@ -77,22 +81,12 @@ public class Door implements Serializable
 		engineZ = Integer.parseInt(strs[12  - mod]);
 	}
 	
-	// ------------- SIMPLE GETTERS ------------------ //
-	public UUID getOwner() 		{	
-		if (player == null)
-			return UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935");
-		return player; 		}	// Get UUID of the owner of the door. Might be null!
+	// ------------------- SIMPLE GETTERS ------------------ //
+	public UUID getPlayer() 		{	return player; 		}	// Get UUID of the owner of the door. Might be null!
 	public int getDoorUID() 		{ 	return doorUID; 		}	// Get doorUID as used in the doors table in the db.
 	public String getName() 		{ 	return name; 		}	// Get the name of the door.
-	public boolean isAvailable()	{	return isAvailable;	}	// Check if this door is available for opening or not.
 	public boolean getStatus()	{	return isOpen;		}	// Check if this door is in the open or closed state.
 	public World getWorld()		{	return world;		}	// Get the world this door is in.
-
-	// Change the availability-status of this door.
-	public void changeAvailability(boolean availability)
-	{
-		this.isAvailable = availability;
-	}
 
 	// Change the open-status of this door.
 	public void setStatus(boolean bool)
@@ -141,10 +135,6 @@ public class Door implements Serializable
 	@Override
 	public String toString()
 	{
-		// String door = name+"\n isOpen: "+isOpen+"\n World:
-		// "+world.getName().toString()+"\n Coords:\n Minimum: "+xMin+" "+yMin+"
-		// "+zMin+"\n Maximum: "+xMax+" "+yMax+" "+zMax+"\n Engine: "+engineX+"
-		// "+engineY+" "+engineZ;
 		String door = name + " " 
 					+ isOpen + " " 
 					+ (world == null ? "null" : world.getUID().toString()) + " " 
@@ -160,16 +150,13 @@ public class Door implements Serializable
 		return door;
 	}
 
-//	// Return this object as a string.
-//	@Override
-//	public String toString()
-//	{
-//		// String door = name+"\n isOpen: "+isOpen+"\n World:
-//		// "+world.getName().toString()+"\n Coords:\n Minimum: "+xMin+" "+yMin+"
-//		// "+zMin+"\n Maximum: "+xMax+" "+yMax+" "+zMax+"\n Engine: "+engineX+"
-//		// "+engineY+" "+engineZ;
-//		String door = name + " " + isOpen + " " + world.getUID().toString() + " " + xMin + " " + yMin + " " + zMin
-//				+ " " + xMax + " " + yMax + " " + zMax + " " + engineX + " " + engineY + " " + engineZ;
-//		return door;
-//	}
+	public boolean isLocked()
+	{
+		return this.isLocked;
+	}
+	
+	public void setLock(boolean lock)
+	{
+		this.isLocked = lock;
+	}
 }

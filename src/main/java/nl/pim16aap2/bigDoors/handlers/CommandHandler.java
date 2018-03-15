@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigDoors.handlers;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -15,6 +15,7 @@ import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.DoorCreator;
+import nl.pim16aap2.bigDoors.GUI.GUIPage;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class CommandHandler implements CommandExecutor
@@ -28,50 +29,84 @@ public class CommandHandler implements CommandExecutor
 	
 	public void stopDoors()
 	{
-		plugin.setCanGo(false);
+		plugin.getCommander().setCanGo(false);
 		new BukkitRunnable()
 		{
 			@Override
 			public void run()
 			{
-				plugin.setCanGo(true);
+				plugin.getCommander().setCanGo(true);
 			}
 		}.runTaskLater(plugin, 5L);
 	}
 	
 	// Open the door.
+	// TODO: Check permissions.
 	public void openDoorCommand(CommandSender sender, Door door, double speed)
 	{
 		Bukkit.broadcastMessage("speed = " + speed);
 		if (!plugin.getDoorOpener().openDoor(door, speed))
-			plugin.returnToSender(sender, Level.INFO, ChatColor.RED, "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
+			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
+	}
+	
+	public void openDoorCommand(Player player, Door door, double speed)
+	{
+		openDoorCommand((CommandSender) player, door, speed);
+	}
+	
+	public void openDoorCommand(Player player, Door door)
+	{
+		openDoorCommand((CommandSender) player, door, 0.2);
 	}
 	
 	// Get the number of doors owned by player player with name doorName (or any name, if doorName == null)
 	public long countDoors(Player player, String doorName)
 	{
-		return plugin.getRDatabase().countDoors(player.getUniqueId().toString(), doorName);
+		return plugin.getCommander().countDoors(player.getUniqueId().toString(), doorName);
 	}
 
+	// TODO: Print permissions.
 	// Print a list of the doors currently in the db.
-	public void listDoors(Player player, String name)
+	public void listDoors(Player player, String doorName)
 	{
-		List<Door> doors = plugin.getRDatabase().getDoors(player.getUniqueId().toString(), name);
+		ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), doorName);
 		for (Door door : doors)
 			Util.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
 	}
 
-	// Create a new door.
-	public void makeDoor(Player player, String name)
+	// Print a list of the doors currently in the db.
+	public void listDoorInfo(Player player, String name)
+	{
+		ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
+		for (Door door : doors)
+			Util.messagePlayer(player, door.getDoorUID()    + ": " + door.getName().toString()     + 
+				", Min("    + door.getMinimum().getBlockX() + ";"  + door.getMinimum().getBlockY() + ";"+ door.getMinimum().getBlockZ() + ")" +
+				", Max("    + door.getMaximum().getBlockX() + ";"  + door.getMaximum().getBlockY() + ";"+ door.getMaximum().getBlockZ() + ")" +
+				", Engine(" + door.getEngine().getBlockX()  + ";"  + door.getEngine().getBlockY()  + ";"+ door.getEngine().getBlockZ()  + ")" +
+				", " + (door.isLocked() ? "" : "NOT ") + "locked");
+	}
+
+	public boolean isValidName(String name)
 	{
 		try
 		{
 			Integer.parseInt(name);
-			return;
+			return false;
 		}
 		catch(NumberFormatException e)
 		{
-			plugin.logMessage("Could not parse to int!", true, false);
+			return true;
+		}
+	}
+	
+	// Create a new door.
+	// TODO: Permissions
+	public void makeDoor(Player player, String name)
+	{
+		if (name != null && !isValidName(name))
+		{
+			Util.messagePlayer(player, ChatColor.RED, "Name \"" + name + "\" is not valid!");
+			return;
 		}
 		
 		DoorCreator dc = new DoorCreator(plugin, player, name);
@@ -94,14 +129,24 @@ public class CommandHandler implements CommandExecutor
 				{
 					dc.takeToolFromPlayer();
 					plugin.getDoorCreators().remove(dc);
-					plugin.returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, "Time's up! Door creation failed, please try again.");
+					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, "Time's up! Door creation failed, please try again.");
 					this.cancel();
 				}
 				++count;
 			}
 		}.runTaskTimer(plugin, 0, 10);
 	}
+
+	// Check if a provided player is a doorCreator.
+	public DoorCreator isCreatingDoor(Player player)
+	{
+		for (DoorCreator dc : plugin.getDoorCreators())
+			if (dc.getPlayer() == player)
+				return dc;
+		return null;
+	}
 	
+	// Retrieve the speed value from a string.
 	public double speedFromString(String input)
 	{
 		try
@@ -130,7 +175,7 @@ public class CommandHandler implements CommandExecutor
 		// pausedoors
 		if (cmd.getName().equalsIgnoreCase("pausedoors"))
 		{
-			plugin.togglePaused();
+			plugin.getCommander().togglePaused();
 			return true;
 		}
 			
@@ -140,11 +185,11 @@ public class CommandHandler implements CommandExecutor
 			{
 				try
 				{
-					plugin.setDebugLevel(Integer.parseInt(args[0]));
+					plugin.getMyLogger().setDebugLevel(Integer.parseInt(args[0]));
 				}
 				catch (NumberFormatException e)
 				{
-					plugin.returnToSender(sender, Level.INFO, ChatColor.RED, "Expected numerical input!");
+					plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "Expected numerical input!");
 				}
 				return true;
 			}
@@ -152,6 +197,26 @@ public class CommandHandler implements CommandExecutor
 		if (sender instanceof Player)
 		{
 			player = (Player) sender;
+
+			// /bigdoors
+			if (cmd.getName().equalsIgnoreCase("bigdoors") || cmd.getName().equalsIgnoreCase("bdm"))
+			{
+				new GUIPage(plugin, player);
+				return true;
+			}
+			
+			// /namedoor
+			if (cmd.getName().equalsIgnoreCase("namedoor"))
+			{
+				DoorCreator dc = isCreatingDoor(player);
+				if (dc != null)
+					if (args.length == 1)
+						if (isValidName(args[0]))
+						{
+							dc.setName(args[0]);
+							return true;
+						}
+			}
 			
 			// /listdoors [name]
 			if (cmd.getName().equalsIgnoreCase("listdoors"))
@@ -167,11 +232,11 @@ public class CommandHandler implements CommandExecutor
 			if (cmd.getName().equalsIgnoreCase("unlockdoor"))
 				if (args.length == 1)
 				{
-					Door door = plugin.getDoor(args[0], player);
+					Door door = plugin.getCommander().getDoor(args[0], player);
 					if (	door != null)
 					{
-						door.changeAvailability(true);
-						plugin.returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door unlocked!");
+						plugin.getCommander().setDoorAvailable(door.getDoorUID());
+						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door unlocked!");
 						return true;
 					}
 				}
@@ -180,7 +245,7 @@ public class CommandHandler implements CommandExecutor
 			if (cmd.getName().equalsIgnoreCase("deldoor"))
 				if (args.length == 1)
 				{
-					delDoor(sender, player, args[0]);
+					delDoor(player, args[0]);
 					return true;
 				}
 				
@@ -189,12 +254,12 @@ public class CommandHandler implements CommandExecutor
 				if (args.length >= 2)
 				{
 					// If the last argument is not a door (so getDoor returns null), it should be the speed. If it it null, use default speed.
-					double speed = plugin.getDoor(args[args.length - 1], player) == null ? speedFromString(args[args.length - 1]) : 0.2;
+					double speed = plugin.getCommander().getDoor(args[args.length - 1], player) == null ? speedFromString(args[args.length - 1]) : 0.2;
 					for (int index = 0; index < args.length; ++index)
 					{
-						Door door = plugin.getDoor(args[index], player);
+						Door door = plugin.getCommander().getDoor(args[index], player);
 						if (door == null && index != args.length - 1)
-							plugin.returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" is not a valid door name!");
+							plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" is not a valid door name!");
 						else if (door != null)
 							openDoorCommand(sender, door, speed);
 					}
@@ -205,9 +270,9 @@ public class CommandHandler implements CommandExecutor
 			if (cmd.getName().equalsIgnoreCase("opendoor"))
 				if (args.length >= 1)
 				{
-					Door door = plugin.getDoor(args[0], player);
+					Door door = plugin.getCommander().getDoor(args[0], player);
 					if (door == null)
-						plugin.returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\" is not a valid door name!");
+						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\" is not a valid door name!");
 					else
 					{
 						double speed = args.length == 2 ? (args[1] == null ? 0.2 : speedFromString(args[1])) : 0.2;
@@ -215,6 +280,16 @@ public class CommandHandler implements CommandExecutor
 					}
 					return true;
 				}
+	
+			// /doorinfo <doorName>
+			if (cmd.getName().equalsIgnoreCase("doorinfo"))
+			{
+				if (args.length == 1)
+				{
+					listDoorInfo(player, args[0]);
+					return true;
+				}
+			}
 				
 			// /newdoor <doorName>
 			if (cmd.getName().equalsIgnoreCase("newdoor"))
@@ -228,7 +303,7 @@ public class CommandHandler implements CommandExecutor
 			if (cmd.getName().equalsIgnoreCase("fixdoor"))
 				if (args.length >= 1)
 				{
-					Door door = plugin.getDoor(args[0], player);
+					Door door = plugin.getCommander().getDoor(args[0], player);
 					if (door != null)
 						verifyDoorCoords(door);
 					else
@@ -251,39 +326,45 @@ public class CommandHandler implements CommandExecutor
 		yMax = door.getMaximum().getBlockY();
 		zMax = door.getMaximum().getBlockZ();
 		if (xMin > xMax)
-			plugin.swap(door, 0);
+			Util.swap(door, 0);
 		if (yMin > yMax)
-			plugin.swap(door, 1);
+			Util.swap(door, 1);
 		if (zMin > zMax)
-			plugin.swap(door, 2);
+			Util.swap(door, 2);
 	}
 	
-	public void delDoor(CommandSender sender, Player player, String doorName)
+	public void delDoor(Player player, int doorUID)
 	{
+		plugin.getCommander().removeDoor(doorUID);
+	}
+	
+	public void delDoor(Player player, String doorName)
+	{
+		CommandSender sender = (CommandSender) player;
 		try
 		{
 			int doorUID  = Integer.parseInt(doorName);
-			plugin.getRDatabase().removeDoor(doorUID);
-			plugin.returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
+			plugin.getCommander().removeDoor(doorUID);
+			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
 			return;
 		}
 		catch(NumberFormatException e)
 		{
-			plugin.logMessage("Could not parse to int!", true, false);
+			plugin.getMyLogger().logMessage("Could not parse to int!", true, false);
 		}
 		
 		long doorCount = countDoors(player, null);
 		if (doorCount == 0)
-			plugin.returnToSender(sender, Level.INFO, ChatColor.RED, "No door found by that name!");
+			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "No door found by that name!");
 		else if (doorCount == 1)
 		{
-			plugin.getRDatabase().removeDoors(player.getUniqueId().toString(), doorName);
-			plugin.returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
+			plugin.getCommander().removeDoors(player.getUniqueId().toString(), doorName);
+			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
 		}
 		else
 		{
-			plugin.returnToSender(sender, Level.INFO, ChatColor.RED, "More than one door found with that name, did you mean to use /deldoors <doorNames> to delete them all? Otherwise use their ID instead:");
+			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "More than one door found with that name, did you mean to use /deldoors <doorNames> to delete them all? Otherwise use their ID instead:");
 			listDoors(player, doorName);
 		}
-	}	
+	}
 }
