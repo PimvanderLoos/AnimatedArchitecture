@@ -1,55 +1,54 @@
 package nl.pim16aap2.bigDoors;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
-public class Door implements Serializable
+public class Door
 {
-
-	private static final long serialVersionUID = 1L;
-	private int xMin, yMin, zMin, xMax, yMax, zMax;
+	private String                   name;
+	private boolean                isOpen;
+	private World                   world;
+	private UUID                   player;
+	private long                  doorUID;
+	private boolean              isLocked;
+	private int                permission;
+	private int          xMin, yMin, zMin;
+	private int          xMax, yMax, zMax;
 	private int engineX, engineY, engineZ;
-	private String name;
-	private boolean isOpen;
-	private World world;
-	private UUID player;
-	private int doorUID;
-	private boolean isLocked;
 
 	// TODO: Store permission level.
 	// Player is then stored as the person who requested this door, rather than as the owner of the door.
 	
 	// Generate a new door.
-	public Door(Player player, World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
-			int engineZ, String name, boolean isOpen, int doorUID, boolean isLocked)
+	public Door(UUID player, World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
+			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission)
 	{
-		this.player      = player == null ? null : player.getUniqueId();
-		this.world       = world;
-		this.xMin        = xMin;
-		this.yMin        = yMin;
-		this.zMin        = zMin;
-		this.xMax        = xMax;
-		this.yMax        = yMax;
-		this.zMax        = zMax;
-		this.engineX     = engineX;
-		this.engineY     = engineY;
-		this.engineZ     = engineZ;
-		this.name        = name;
-		this.isOpen      = isOpen;
-		this.doorUID     = doorUID;
-		this.isLocked    = isLocked;
+		this.player     = player;
+		this.world      = world;
+		this.xMin       = xMin;
+		this.yMin       = yMin;
+		this.zMin       = zMin;
+		this.xMax       = xMax;
+		this.yMax       = yMax;
+		this.zMax       = zMax;
+		this.engineX    = engineX;
+		this.engineY    = engineY;
+		this.engineZ    = engineZ;
+		this.name       = name;
+		this.isOpen     = isOpen;
+		this.doorUID    = doorUID;
+		this.isLocked   = isLocked;
+		this.permission = permission;
 	}
-
-	// Generate a new door without a provided doorUID.
-	public Door(Player player, World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
-			int engineZ, String name, boolean isOpen)
+	
+	// Create a door with a player UUID string instead of player Object.
+	public Door(World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
+			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission, String player)
 	{
-		this(player,world,xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false);
+		this(UUID.fromString(player), world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, doorUID, isLocked, permission);
 	}
 	
 	public Door(String str)
@@ -82,11 +81,18 @@ public class Door implements Serializable
 	}
 	
 	// ------------------- SIMPLE GETTERS ------------------ //
-	public UUID getPlayer() 		{	return player; 		}	// Get UUID of the owner of the door. Might be null!
-	public int getDoorUID() 		{ 	return doorUID; 		}	// Get doorUID as used in the doors table in the db.
+	public UUID getPlayerUUID()	{	return player; 		}	// Get UUID of the owner of the door. Might be null!
+	public long getDoorUID() 	{ 	return doorUID; 		}	// Get doorUID as used in the doors table in the db.
 	public String getName() 		{ 	return name; 		}	// Get the name of the door.
 	public boolean getStatus()	{	return isOpen;		}	// Check if this door is in the open or closed state.
 	public World getWorld()		{	return world;		}	// Get the world this door is in.
+	public boolean isLocked() 	{	return isLocked;		}	// Check if this door is locked or not.
+	public int getPermission()	{	return permission;	}	// Check permission level of current owner.
+	
+	public void setPlayerUUID(UUID playerUUID)	
+	{	
+		this.player = playerUUID;
+	}
 
 	// Change the open-status of this door.
 	public void setStatus(boolean bool)
@@ -149,14 +155,15 @@ public class Door implements Serializable
 					+ engineZ;
 		return door;
 	}
-
-	public boolean isLocked()
-	{
-		return this.isLocked;
-	}
 	
 	public void setLock(boolean lock)
 	{
 		this.isLocked = lock;
+	}
+	
+	
+	public void setPermission(int permission)
+	{
+		this.permission = permission;
 	}
 }

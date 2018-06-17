@@ -82,7 +82,8 @@ public class DoorCreator
 	public void finishUp()
 	{
 		minMaxFix();
-		Door door = new Door(player, one.getWorld(), one.getBlockX(), one.getBlockY(), one.getBlockZ(), two.getBlockX(), two.getBlockY(), two.getBlockZ(), engine.getBlockX(), engine.getBlockY(), engine.getBlockZ(), name, false);
+		Door door = new Door(player.getUniqueId(), one.getWorld(), one.getBlockX(), one.getBlockY(), one.getBlockZ(), two.getBlockX(), two.getBlockY(), two.getBlockZ(), 
+				engine.getBlockX(), engine.getBlockY(), engine.getBlockZ(), name, false, -1, false, 0);
 		plugin.getCommander().addDoor(door, player);
 		takeToolFromPlayer();
 	}

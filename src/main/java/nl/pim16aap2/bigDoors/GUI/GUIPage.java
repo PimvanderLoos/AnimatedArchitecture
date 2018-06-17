@@ -43,23 +43,20 @@ public class GUIPage implements Listener
 	private static byte     notConfirmData =  5;
 	
 	// Create a new inventory, with no owner, a size of nine, called example
-	private Inventory inv;
+	private Inventory         inv;
 	private ArrayList<Door> doors;
-	private final long pageCount;
-	@SuppressWarnings("unused")
-	private BigDoors plugin;
-	private PageType pageType; // Type 0 is door overview, type 1 is door submenu, type 2 is confirmation menu.
-	private int page;
-	private Door door;
+	private final long  pageCount;
+	private PageType     pageType; // Type 0 is door overview, type 1 is door submenu, type 2 is confirmation menu.
+	private int              page;
+	private Door             door;
 	private static final int chestSize  = 54;
 	private static final Material[] doorTypes = {	Material.DARK_OAK_DOOR_ITEM,	Material.ACACIA_DOOR_ITEM, 
 			                              			Material.BIRCH_DOOR_ITEM, 	Material.IRON_DOOR, 
 			                              			Material.JUNGLE_DOOR_ITEM, 	Material.WOOD_DOOR, 
 			                              			Material.SPRUCE_DOOR_ITEM};
 	
-	public GUIPage(BigDoors plugin, Player player, int page, PageType pageType, int doorUID, int pageCount) 
+	public GUIPage(BigDoors plugin, Player player, int page, PageType pageType, long doorUID, int pageCount) 
 	{
-		this.plugin    = plugin;
 		this.inv       = Bukkit.createInventory(player, chestSize, (pageType == PageType.DOORLIST ? GUIName : pageType == PageType.DOORINFO ? GUISubName : GUIConfirm));
 		int startIndex = page * (chestSize - 9);			// Get starting and ending indices of the door to be displayed.
 		int endIndex   = (page + 1) * (chestSize - 9);

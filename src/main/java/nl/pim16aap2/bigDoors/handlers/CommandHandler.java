@@ -3,7 +3,6 @@ package nl.pim16aap2.bigDoors.handlers;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -44,8 +43,9 @@ public class CommandHandler implements CommandExecutor
 	// TODO: Check permissions.
 	public void openDoorCommand(CommandSender sender, Door door, double speed)
 	{
-		Bukkit.broadcastMessage("speed = " + speed);
-		if (!plugin.getDoorOpener().openDoor(door, speed))
+		if (door.isLocked())
+			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "This door is locked!");
+		else if (!plugin.getDoorOpener().openDoor(door, speed))
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
 	}
 	
@@ -333,7 +333,7 @@ public class CommandHandler implements CommandExecutor
 			Util.swap(door, 2);
 	}
 	
-	public void delDoor(Player player, int doorUID)
+	public void delDoor(Player player, long doorUID)
 	{
 		plugin.getCommander().removeDoor(doorUID);
 	}
@@ -343,7 +343,7 @@ public class CommandHandler implements CommandExecutor
 		CommandSender sender = (CommandSender) player;
 		try
 		{
-			int doorUID  = Integer.parseInt(doorName);
+			long doorUID     = Long.parseLong(doorName);
 			plugin.getCommander().removeDoor(doorUID);
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
 			return;
@@ -358,12 +358,12 @@ public class CommandHandler implements CommandExecutor
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "No door found by that name!");
 		else if (doorCount == 1)
 		{
-			plugin.getCommander().removeDoors(player.getUniqueId().toString(), doorName);
+			plugin.getCommander().removeDoor(player.getUniqueId().toString(), doorName);
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
 		}
 		else
 		{
-			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "More than one door found with that name, did you mean to use /deldoors <doorNames> to delete them all? Otherwise use their ID instead:");
+			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "More than one door found with that name! Please use their ID instead:");
 			listDoors(player, doorName);
 		}
 	}

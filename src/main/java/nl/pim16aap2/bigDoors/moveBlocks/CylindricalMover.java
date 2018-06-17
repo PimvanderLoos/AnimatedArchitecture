@@ -22,6 +22,7 @@ import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocatio
 import nl.pim16aap2.bigDoors.util.BlockData;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class CylindricalMover
 {
@@ -83,15 +84,23 @@ public class CylindricalMover
 				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-					// Move the lowest blocks up a little, so the client won't predict they're going through the ground.
+					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
 					if (yAxis == yMin)
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 					
 					Material mat = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
 					@SuppressWarnings("deprecation")
 					Byte matData = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
-
-					world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
+					
+					
+					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
+					if (Util.isAllowedBlock(mat))
+						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
+					else
+					{
+						mat     = Material.AIR;
+						matData = 0;
+					}
 					
 					CustomCraftFallingBlock fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
 					
@@ -127,7 +136,8 @@ public class CylindricalMover
 			this.gnl = gnlw;
 			break;
 		}
-		// TODO: Use th proper switch here.
+		
+		// TODO: Use the proper switch here.
 //		// This part should be used instead of the 21 lines above (including the definitions/declarations of gnln etc),
 //		// But this part below doesn't work for live development... sigh...
 //		switch (currentDirection)

@@ -3,6 +3,7 @@
   	<groupId>nl.pim16aap2</groupId>
   	<artifactId>BigDoors</artifactId>
   	<version>0.0.1-SNAPSHOT</version>
+	
 	<repositories>
 		<repository>
 			<id>spigot-repo</id>
@@ -14,57 +15,23 @@
 		</repository>
 	</repositories>
 
-
-
 	<dependencies>
-		<!--Spigot API -->
-		<dependency>
-           	<groupId>org.spigotmc</groupId>
-           	<artifactId>spigot</artifactId>
-           	<version>1.10.2-R0.1-SNAPSHOT</version>
-        		<scope>provided</scope>
-    		</dependency>
-    		
-		<dependency>
+ 		<dependency>
 			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot-api</artifactId>
+			<artifactId>spigot-1.10</artifactId>
 			<version>1.10.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-		
-		<dependency>
+ 		<dependency>
 			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot-api</artifactId>
+			<artifactId>spigot-1.11</artifactId>
 			<version>1.11.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-
-		<dependency>
+ 		<dependency>
 			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot-api</artifactId>
-			<version>1.12.1-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<!--Bukkit API -->
-		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
-			<version>1.10.2-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
-			<version>1.11.2-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
-			<version>1.12-R0.1-SNAPSHOT</version>
+			<artifactId>spigot-1.12</artifactId>
+			<version>1.12.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -75,8 +42,6 @@
 			<version>1.2</version>
 		</dependency>
 	</dependencies>
-
-
 
 	<build>
 		<plugins>

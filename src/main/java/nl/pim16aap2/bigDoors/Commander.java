@@ -11,7 +11,7 @@ public class Commander
 {
 	@SuppressWarnings("unused")
 	private final BigDoors plugin;
-	private ArrayList<Integer> busyDoors;
+	private ArrayList<Long> busyDoors;
 	private boolean goOn   = true;
 	private boolean paused = false;
 	private SQLiteJDBCDriverConnection db;
@@ -20,19 +20,13 @@ public class Commander
 	{
 		this.plugin = plugin;
 		this.db     = db;
-		busyDoors   = new ArrayList<Integer>();
-	}
-	
-	// Get the database;
-	private SQLiteJDBCDriverConnection getRDatabase()
-	{
-		return db;
+		busyDoors   = new ArrayList<Long>();
 	}
 
 	// Check if a door is busy
-	public boolean isDoorBusy(int doorUID)
+	public boolean isDoorBusy(long doorUID)
 	{
-		for (int x : busyDoors)
+		for (long x : busyDoors)
 		{
 			if (x == doorUID)
 				return true;
@@ -41,15 +35,15 @@ public class Commander
 	}
 	
 	// Change the busy-status of a door.
-	public void setDoorBusy(int doorUID)
+	public void setDoorBusy(long doorUID)
 	{
 		busyDoors.add(doorUID);
 	}
 	
 	// Set the availability of the door.
-	public void setDoorAvailable(int doorUID)
+	public void setDoorAvailable(long doorUID)
 	{
-		busyDoors.remove((Integer) doorUID);
+		busyDoors.remove((Long) doorUID);
 	}
 
 	// Check if the doors are paused.
@@ -90,14 +84,14 @@ public class Commander
 		try
 		{
 			int doorUID = Integer.parseInt(doorStr);
-			return getRDatabase().getDoor(doorUID);
+			return db.getDoor(doorUID);
 		}
 		// If it can't convert to an int, get all doors from the player with the provided name. 
 		// If there is more than one, tell the player that they are going to have to make a choice.
 		catch (NumberFormatException e)
 		{
 			ArrayList<Door> doors = new ArrayList<Door>();
-			doors = getRDatabase().getDoors(player.getUniqueId().toString(), doorStr);
+			doors = db.getDoors(player.getUniqueId().toString(), doorStr);
 			if (doors.size() == 1)
 				return doors.get(0);
 			else 
@@ -109,62 +103,81 @@ public class Commander
 		}
 	}
 
-	// Add a door to the list of doors.
-	public void addDoor(Door newDoor, Player player)
+	public void addDoor(Door newDoor)
 	{
-		getRDatabase().insert(newDoor, player.getUniqueId().toString());
+		db.insert(newDoor);
+	}
+
+	public void addDoor(Door newDoor, Player player, int permission)
+	{
+		if (newDoor.getPlayerUUID() != player.getUniqueId())
+			newDoor.setPlayerUUID(player.getUniqueId());
+		if (newDoor.getPermission() != permission)
+			newDoor.setPermission(permission);
+		db.insert(newDoor);
 	}
 	
-	public void removeDoor(int doorUID)
+	// Add a door to the db of doors.
+	public void addDoor(Door newDoor, Player player)
 	{
-		getRDatabase().removeDoor(doorUID);
+		addDoor(newDoor, player, -1);
+	}
+	
+	public void removeDoor(long doorUID)
+	{
+		db.removeDoor(doorUID);
+	}
+	
+	public void removeDoor(String playerUUID, String doorName)
+	{
+		db.removeDoor(playerUUID, doorName);
 	}
 
-	// Check if a given name is already in use or not.
-	public boolean isNameAvailable(String name, Player player)
-	{
-		return getRDatabase().isNameAvailable(name, player.getUniqueId().toString());
-	}
-
-	// Remove all doors named doorName owned by player playerUUID. doorName can not be null!
-	public void removeDoors(String playerUUID, String doorName)
-	{
-		getRDatabase().removeDoors(playerUUID, doorName);
-	}
+//	// Remove all doors named doorName owned by player playerUUID. doorName can not be null!
+//	public void removeDoors(String playerUUID, String doorName)
+//	{
+//		db.removeDoors(playerUUID, doorName);		
+//	}
 
 	// Returns the number of doors owner by a player and with a specific name, if provided (can be null).
 	public long countDoors(String playerUUID, String doorName)
 	{
-		return getRDatabase().countDoors(playerUUID, doorName);
+		return db.countDoors(playerUUID, doorName);
 	}
 
 	// Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
 	public ArrayList<Door> getDoors(String playerUUID, String name)
 	{
-		return getRDatabase().getDoors(playerUUID, name);
+		return db.getDoors(playerUUID, name);
 	}
 
 	// Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
 	public ArrayList<Door> getDoorsInRange(String playerUUID, String name, int start, int end)
 	{
-		return getRDatabase().getDoors(playerUUID, name, start, end);
+		return db.getDoors(playerUUID, name, start, end);
 	}
 
 	// Get a door with a specific doorUID.
-	public Door getDoor(int doorUID)
+	public Door getDoor(long doorUID)
 	{
-		return getRDatabase().getDoor(doorUID);
+		return db.getDoor(doorUID);
 	}
 
 	// Update the coordinates of a given door.
-	public void updateDoorCoords(int doorUID, int isOpen, int blockXMin, int blockYMin, int blockZMin, int blockXMax, int blockYMax, int blockZMax)
+	public void updateDoorCoords(long doorUID, int isOpen, int blockXMin, int blockYMin, int blockZMin, int blockXMax, int blockYMax, int blockZMax)
 	{
-		getRDatabase().updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax);
+		db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax);
+	}
+	
+	// Change the "locked" status of a door.
+	public void setLock(int doorUID, boolean newLockStatus)
+	{
+		db.setLock(doorUID, newLockStatus);
 	}
 
 	// Get a door from the x,y,z coordinates of its engine block (= rotation point at lowest y).
 	public Door doorFromEngineLoc(int engineX, int engineY, int engineZ)
 	{
-		return getRDatabase().doorFromEngineLoc(engineX, engineY, engineZ);
+		return db.doorFromEngineLoc(engineX, engineY, engineZ);
 	}
 }
