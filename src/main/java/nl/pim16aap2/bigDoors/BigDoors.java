@@ -19,6 +19,7 @@ import nl.pim16aap2.bigDoors.customEntities.v1_12_R1.FallingBlockFactory_V1_12_R
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
+import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
@@ -69,8 +70,9 @@ public class BigDoors extends JavaPlugin implements Listener
 		
 		commandHandler = new CommandHandler(this);
 		commander      = new Commander(this, db);
-		Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
-		Bukkit.getPluginManager().registerEvents(new GUIHandler   (this), this);
+		Bukkit.getPluginManager().registerEvents(new EventHandlers   (this), this);
+		Bukkit.getPluginManager().registerEvents(new GUIHandler      (this), this);
+		Bukkit.getPluginManager().registerEvents(new RedstoneHandler (this), this);
 		getCommand("unlockDoor").setExecutor(new CommandHandler(this));
 		getCommand("pausedoors").setExecutor(new CommandHandler(this));
 		getCommand("opendoors" ).setExecutor(new CommandHandler(this));
@@ -88,7 +90,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		
 		liveDevelopmentLoad();
 		
-//		readDoors(); // Import doors from .txt file. Only needed for debugging! I'm the only one with the file!
+		readDoors(); // Import doors from .txt file. Only needed for debugging! I'm the only one with the file!
 	}
 	
 	// Read the saved list of doors, if it exists. ONLY for debugging purposes. Should be removed from the final export!
@@ -129,13 +131,12 @@ public class BigDoors extends JavaPlugin implements Listener
 				engineY = Integer.parseInt(strs[10]);
 				engineZ = Integer.parseInt(strs[11]);
 				
-				Door door = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false, -1, "3ba21c6f-6ad9-4310-9f82-f85f5602deef");
+				Door door = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false, -1, "27e6c556-4f30-32bf-a005-c80a46ddd935");
 				commander.addDoor(door);
 
 				sCurrentLine = br.readLine();
 			}
 			br.close();
-
 		} 
 		catch (FileNotFoundException e)
 		{
