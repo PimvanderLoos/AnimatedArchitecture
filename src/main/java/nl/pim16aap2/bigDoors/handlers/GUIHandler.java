@@ -15,16 +15,19 @@ import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.GUI.GUIPage;
+import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.PageType;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class GUIHandler implements Listener
 {
-	private final BigDoors plugin;
+	private final Messages messages;
+	private final BigDoors    plugin;
 	
 	public GUIHandler(BigDoors plugin)
 	{
-		this.plugin = plugin;
+		this.plugin   = plugin;
+		this.messages = plugin.getMessages();
 	}
 	
 	// Set the GUI page for the player to a specified page number on a specified pageType for a specified doorUID.
@@ -91,14 +94,14 @@ public class GUIHandler implements Listener
 	
 	private int getCurrentPageNum(Inventory inv)
 	{
-		if (inv.getName() == GUIPage.getGUIConfirm())
+		if (inv.getName() == messages.getString("GUI.ConfirmMenu"))
 			return getPreviousPage(inv) + 1;
 		return inv.getItem(4) != null ? inv.getItem(4).getAmount() : 0;
 	}
 	
 	private void toggleLock(Player player, Inventory inv)
 	{
-		// TODO:	 implement locking.
+		plugin.getCommandHandler().lockDoorCommand(player, getDoor(inv.getItem(4)));
 	}
 	
 	private void toggleDoor(Player player, Inventory inv)
@@ -139,9 +142,9 @@ public class GUIHandler implements Listener
 		// Type  0 = List of doors.
 		// Type  1 = Door Sub-Menu.
 		// Type  2 = Door deletion confirmation menu.
-		PageType pageType = 	invName.equals(GUIPage.getGUIName())    ? PageType.DOORLIST     : 
-							invName.equals(GUIPage.getGUISubName()) ? PageType.DOORINFO     :
-							invName.equals(GUIPage.getGUIConfirm()) ? PageType.CONFIRMATION : PageType.NOTBIGDOORS;
+		PageType pageType = 	invName.equals(messages.getString("GUI.Name"))        ? PageType.DOORLIST : 
+							invName.equals(messages.getString("GUI.SubName"))     ? PageType.DOORINFO :
+							invName.equals(messages.getString("GUI.ConfirmMenu")) ? PageType.CONFIRMATION : PageType.NOTBIGDOORS;
 		
 		if (pageType == PageType.NOTBIGDOORS)
 			return;
@@ -163,28 +166,28 @@ public class GUIHandler implements Listener
 		
 		if (pageType == PageType.CONFIRMATION)
 		{
-			if (itemName.equals(GUIPage.getConfirm()))
+			if (itemName.equals(messages.getString("GUI.Confirm")))
 				deleteDoor(player, inv);
 			else
 				openDoorSubMenu(player, inv, inv.getItem(4));
 		}
-		else if (itemName.equals(GUIPage.getPreviousPageString()))
+		else if (itemName.equals(messages.getString("GUI.PreviousPage")))
 			setPage(player, inv, getPreviousPage(inv), PageType.DOORLIST, -1, getPageCount(inv));
 		else if (pageType == PageType.DOORINFO)
 		{
-			if (itemName.equals(GUIPage.getLockDoor()) || itemName.equals(GUIPage.getUnlockDoor()))
+			if (itemName.equals(messages.getString("GUI.LockDoor")) || itemName.equals(messages.getString("GUI.UnlockDoor")))
 				toggleLock(player, inv);
-			else if (itemName.equals(GUIPage.getToggleDoor()))
+			else if (itemName.equals(messages.getString("GUI.ToggleDoor")))
 				toggleDoor(player, inv);
-			else if (itemName.equals(GUIPage.getDoorInfo()))
+			else if (itemName.equals(messages.getString("GUI.GetInfo")))
 				Util.listDoorInfo(player, getDoor(inv.getItem(4)));
-			else if (itemName.equals(GUIPage.getDelDoor()))
+			else if (itemName.equals(messages.getString("GUI.DeleteDoor")))
 				setPage(player, inv, getPreviousPage(inv) + 1, PageType.CONFIRMATION, getDoor(inv.getItem(4)).getDoorUID(), getPageCount(inv));
 			return;
 		}
-		else if (itemName.equals(GUIPage.getNewDoorString()))
+		else if (itemName.equals(messages.getString("GUI.NewDoor")))
 			startNewDoorProcess(player);
-		else if (itemName.equals(GUIPage.getNextPageString()))
+		else if (itemName.equals(messages.getString("GUI.NextPage")))
 			setPage(player, inv, inv.getItem(8).getAmount() - 1, PageType.DOORLIST, -1, getPageCount(inv));
 		else if (slot > 8)
 			openDoorSubMenu(player, inv, inv.getItem(slot));

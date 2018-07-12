@@ -11,24 +11,11 @@ import org.bukkit.inventory.Inventory;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.PageType;
 
 public class GUIPage implements Listener
 {
-	// TODO: Make language config file for this stuff.
-	private static final String GUIName    = "Door Menu";
-	private static final String GUISubName = "Door Sub-Menu";
-	private static final String GUIConfirm = "Confirmation Menu";
-	private static String   confirm        = "YES, I am certain";
-	private static String   notConfirm     = "NO!";
-	private static String   nextPage       = "Next page";
-	private static String   previousPage   = "Previous page";
-	private static String   newDoor        = "New Door";
-	private static String   lockDoor       = "Lock Door";
-	private static String   unlockDoor     = "Unlock Door";
-	private static String   toggleDoor     = "Toggle Door";
-	private static String   doorInfo       = "Get Door Info";
-	private static String   delDoor        = "Delete Door";
 	private static Material pageSwitchMat  = Material.ARROW;
 	private static Material currDoorMat    = Material.BOOK;
 	private static Material newDoorMat     = Material.BOOK_AND_QUILL;
@@ -41,6 +28,7 @@ public class GUIPage implements Listener
 	private static byte     unlockedData   =  5;
 	private static byte     confirmData    = 14;
 	private static byte     notConfirmData =  5;
+	private final Messages  messages;
 	
 	// Create a new inventory, with no owner, a size of nine, called example
 	private Inventory         inv;
@@ -50,14 +38,15 @@ public class GUIPage implements Listener
 	private int              page;
 	private Door             door;
 	private static final int chestSize  = 54;
-	private static final Material[] doorTypes = {	Material.DARK_OAK_DOOR_ITEM,	Material.ACACIA_DOOR_ITEM, 
-			                              			Material.BIRCH_DOOR_ITEM, 	Material.IRON_DOOR, 
-			                              			Material.JUNGLE_DOOR_ITEM, 	Material.WOOD_DOOR, 
-			                              			Material.SPRUCE_DOOR_ITEM};
+	private static final Material[] doorTypes = {Material.DARK_OAK_DOOR_ITEM,	Material.ACACIA_DOOR_ITEM, 
+			                              		Material.BIRCH_DOOR_ITEM, 	Material.IRON_DOOR, 
+			                              		Material.JUNGLE_DOOR_ITEM, 	Material.WOOD_DOOR, 
+			                              		Material.SPRUCE_DOOR_ITEM};
 	
 	public GUIPage(BigDoors plugin, Player player, int page, PageType pageType, long doorUID, int pageCount) 
 	{
-		this.inv       = Bukkit.createInventory(player, chestSize, (pageType == PageType.DOORLIST ? GUIName : pageType == PageType.DOORINFO ? GUISubName : GUIConfirm));
+		this.messages  = plugin.getMessages();
+		this.inv       = Bukkit.createInventory(player, chestSize, (pageType == PageType.DOORLIST ? messages.getString("GUI.Name") : pageType == PageType.DOORINFO ? messages.getString("GUI.SubName") : messages.getString("GUI.ConfirmMenu")));
 		int startIndex = page * (chestSize - 9);			// Get starting and ending indices of the door to be displayed.
 		int endIndex   = (page + 1) * (chestSize - 9);
 		this.doors     = pageType != PageType.DOORLIST ? null : plugin.getCommander().getDoorsInRange(player.getUniqueId().toString(), null, startIndex, endIndex);
@@ -79,18 +68,18 @@ public class GUIPage implements Listener
 		ArrayList<String> lore = new ArrayList<String>();
 		lore.add("Go to page " + page + " out of " + pageCount);
 		// If it's not on the first page, add an arrow to the first page.
-		inv.setItem(0, new GUIItem(pageSwitchMat, previousPage, lore, ((pageType == PageType.DOORINFO || pageType == PageType.CONFIRMATION) && page == 0 ? 1 : page)).getItemStack());
+		inv.setItem(0, new GUIItem(pageSwitchMat, messages.getString("GUI.PreviousPage"), lore, ((pageType == PageType.DOORINFO || pageType == PageType.CONFIRMATION) && page == 0 ? 1 : page)).getItemStack());
 		// If it's not on the last page, add an arrow to the next page.  If it's a sub page, there is only a single page.
 		lore.clear();
 		lore.add("Go to page " + (page + 2) + " out of " + pageCount);
 		if ((page + 1) < pageCount && pageType == PageType.DOORLIST)
-			inv.setItem(8, new GUIItem(pageSwitchMat, nextPage, lore, page + 2).getItemStack());
+			inv.setItem(8, new GUIItem(pageSwitchMat, messages.getString("GUI.NextPage"), lore, page + 2).getItemStack());
 				
 		lore.clear();
 		if (pageType == PageType.DOORLIST)
 		{
 			lore.add("Initiate door creation process");
-			inv.setItem(4, new GUIItem(newDoorMat, newDoor, lore, page + 1).getItemStack());
+			inv.setItem(4, new GUIItem(newDoorMat, messages.getString("GUI.NewDoor"), lore, page + 1).getItemStack());
 		}
 		else if (pageType == PageType.DOORINFO)
 		{
@@ -110,19 +99,22 @@ public class GUIPage implements Listener
 	{
 		ArrayList<String> lore = new ArrayList<String>();
 		if (door.isLocked())
-			inv.setItem(9, new GUIItem(lockDoorMat, unlockDoor, null, 1, unlockedData).getItemStack());
+			inv.setItem(9, new GUIItem(lockDoorMat, messages.getString("GUI.UnlockDoor"), null, 1, unlockedData).getItemStack());
 		else
-			inv.setItem(9, new GUIItem(lockDoorMat,   lockDoor, null, 1,   lockedData).getItemStack());
-		lore.add("Open / Close this door");
-		inv.setItem(10, new GUIItem(toggleDoorMat, toggleDoor, lore, 1).getItemStack());
+			inv.setItem(9, new GUIItem(lockDoorMat, messages.getString("GUI.LockDoor"), null, 1,   lockedData).getItemStack());
+		String desc = messages.getString("GUI.ToggleDoor");
+		lore.add(desc);
+		inv.setItem(10, new GUIItem(toggleDoorMat, desc, lore, 1).getItemStack());
 		lore.clear();
-		lore.add("Get more info about this door.");
-		inv.setItem(11, new GUIItem(infoMat, doorInfo, lore, 1).getItemStack());
+		desc = messages.getString("GUI.GetInfo");
+		lore.add(desc);
+		inv.setItem(11, new GUIItem(infoMat, desc, lore, 1).getItemStack());
 		lore.clear();
-		lore.add("Delete this door. Be careful, this cannot be undone!");
-		inv.setItem(12, new GUIItem(delDoorMat, delDoor, lore, 1).getItemStack());
+		desc = messages.getString("GUI.DeleteDoorLong");
+		lore.add(desc);
+		inv.setItem(12, new GUIItem(delDoorMat, desc , lore, 1).getItemStack());
 		
-		// TODO: Add more options: Add owners, remove owners, view list of owners
+		// TODO: LT: Add more options: Add owners, remove owners, view list of owners
 	}
 	
 	// Fill the entire menu with NO's, but put a single "yes" in the middle.
@@ -134,13 +126,13 @@ public class GUIPage implements Listener
 			int mid = (chestSize - 9) / 2 + 9;
 			if (idx == mid) // Middle
 			{
-				lore.add("Yes, I am absolutely sure I want to delete this door!");
-				inv.setItem(idx, new GUIItem(confirmMat, confirm, lore, 1, confirmData).getItemStack());
+				lore.add(messages.getString("GUI.ConfirmDelete"));
+				inv.setItem(idx, new GUIItem(confirmMat, messages.getString("GUI.Confirm"), lore, 1, confirmData).getItemStack());
 			}
 			else
 			{
-				lore.add("NO! I don't want to delete this door!");
-				inv.setItem(idx, new GUIItem(confirmMat, notConfirm, lore, 1, notConfirmData).getItemStack());
+				lore.add(messages.getString("GUI.NotConfirm"));
+				inv.setItem(idx, new GUIItem(confirmMat, messages.getString("GUI.No"), lore, 1, notConfirmData).getItemStack());
 			}
 		}
 	}
@@ -171,18 +163,5 @@ public class GUIPage implements Listener
 		return;
 	}
 
-	public static String getGUIName() 			{ return GUIName; 		}
-	public static String getGUISubName() 		{ return GUISubName;		}
-	public static String getGUIConfirm()	 		{ return GUIConfirm; 	}
-	public static String getConfirm()	 		{ return confirm; 		}
-	public static String getNotConfirm() 		{ return notConfirm; 	}
-	public static String getPreviousPageString()	{ return previousPage; 	}
-	public static String getNextPageString() 	{ return nextPage; 		}
-	public static String getNewDoorString() 		{ return newDoor; 		}
-	public static String getLockDoor() 			{ return lockDoor;		}
-	public static String getUnlockDoor()			{ return unlockDoor; 	}
-	public static String getToggleDoor() 		{ return toggleDoor; 	}
-	public static String getDoorInfo()	 		{ return doorInfo; 		}
-	public static String getDelDoor()	 		{ return delDoor; 		}
-	public static int    getChestSize() 			{ return chestSize; 		}
+	public static int getChestSize() { return chestSize;	}
 }

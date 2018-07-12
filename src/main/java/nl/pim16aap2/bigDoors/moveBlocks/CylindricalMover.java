@@ -3,7 +3,6 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,8 +11,8 @@ import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.customEntities.CustomEntityFallingBlock;
-import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock;
+import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock_Vall;
+import nl.pim16aap2.bigDoors.customEntities.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocation;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
@@ -28,6 +27,7 @@ public class CylindricalMover
 {
 	private BigDoors        	plugin;
 	private World           	world;
+	private FallingBlockFactory_Vall fabf;
 	private RotateDirection 	rotDirection;
 	private DoorDirection   	currentDirection;
 	@SuppressWarnings("unused")
@@ -50,6 +50,7 @@ public class CylindricalMover
 		this.plugin           = plugin;
 		this.world            = world;
 		this.door             = door;
+		this.fabf             = plugin.getFABF();
 		
 		this.xMin    = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
 		this.yMin    = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
@@ -102,7 +103,7 @@ public class CylindricalMover
 						matData = 0;
 					}
 					
-					CustomCraftFallingBlock fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
+					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
 					
 					savedBlocks.add(index, new BlockData(mat, matData, fBlock, radius));
 
@@ -114,47 +115,22 @@ public class CylindricalMover
 			xAxis += dx;
 		}
 		while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-
-		GetNewLocation  gnln = new GetNewLocationNorth(world, xMin, xMax, zMin, zMax, rotDirection);
-		GetNewLocation  gnle = new GetNewLocationEast (world, xMin, xMax, zMin, zMax, rotDirection);
-		GetNewLocation  gnls = new GetNewLocationSouth(world, xMin, xMax, zMin, zMax, rotDirection);
-		GetNewLocation  gnlw = new GetNewLocationWest (world, xMin, xMax, zMin, zMax, rotDirection);
 		
-		// Basically set a pointer to the correct GetNewLocation function.
 		switch (currentDirection)
 		{
 		case NORTH:
-			this.gnl = gnln;
+			this.gnl = new GetNewLocationNorth(world, xMin, xMax, zMin, zMax, rotDirection);
 			break;
 		case EAST:
-			this.gnl = gnle;
+			this.gnl = new GetNewLocationEast (world, xMin, xMax, zMin, zMax, rotDirection);
 			break;
 		case SOUTH:
-			this.gnl = gnls;
+			this.gnl = new GetNewLocationSouth(world, xMin, xMax, zMin, zMax, rotDirection);
 			break;
 		case WEST:
-			this.gnl = gnlw;
+			this.gnl = new GetNewLocationWest (world, xMin, xMax, zMin, zMax, rotDirection);
 			break;
 		}
-		
-		// TODO: Use the proper switch here.
-//		// This part should be used instead of the 21 lines above (including the definitions/declarations of gnln etc),
-//		// But this part below doesn't work for live development... sigh...
-//		switch (currentDirection)
-//		{
-//		case NORTH:
-//			this.gnl = new GetNewLocationNorth(world, xMin, xMax, zMin, zMax, rotDirection);
-//			break;
-//		case EAST:
-//			this.gnl = new GetNewLocationEast (world, xMin, xMax, zMin, zMax, rotDirection);
-//			break;
-//		case SOUTH:
-//			this.gnl = new GetNewLocationSouth(world, xMin, xMax, zMin, zMax, rotDirection);
-//			break;
-//		case WEST:
-//			this.gnl = new GetNewLocationWest (world, xMin, xMax, zMin, zMax, rotDirection);
-//			break;
-//		}
 		
 		rotateEntities();
 	}
@@ -218,9 +194,9 @@ public class CylindricalMover
 					// Get final position of the blocks.
 					Location newPos = gnl.getNewLocation(savedBlocks, xAxis, yAxis, zAxis, index);
 					
-					newPos.setX(newPos.getX() + 0.5  );
-					newPos.setY(newPos.getY()        );
-					newPos.setZ(newPos.getZ() + 0.5  );
+					newPos.setX(newPos.getX() + 0.5);
+					newPos.setY(newPos.getY()      );
+					newPos.setZ(newPos.getZ() + 0.5);
 					
 					// Teleport the falling blocks to their final positions.
 					savedBlocks.get(index).getFBlock().teleport(newPos);
@@ -342,7 +318,7 @@ public class CylindricalMover
 											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
 											savedBlocks.get(index).getFBlock().remove();
 		
-											CustomCraftFallingBlock fBlock = fallingBlockFactory(loc, mat, (byte) matData, world);
+											CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(loc, mat, (byte) matData, world);
 											savedBlocks.get(index).setFBlock(fBlock);
 											savedBlocks.get(index).getFBlock().setVelocity(veloc);
 										}
@@ -372,10 +348,8 @@ public class CylindricalMover
 		return matData;
 	}
 	
-	// Make a falling block.
-	public CustomCraftFallingBlock fallingBlockFactory(Location loc, Material mat, byte matData, World world)
+	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, World world)
 	{
-		CustomEntityFallingBlock fBlockNMS = new CustomEntityFallingBlock(world, mat, loc.getX(), loc.getY(), loc.getZ(), (byte) matData);
-		return new CustomCraftFallingBlock(Bukkit.getServer(), fBlockNMS);
+		return this.fabf.fallingBlockFactory(loc, mat, matData, world);
 	}
 }

@@ -40,11 +40,14 @@ public class CommandHandler implements CommandExecutor
 	}
 	
 	// Open the door.
-	// TODO: Check permissions.
 	public void openDoorCommand(CommandSender sender, Door door, double speed)
 	{
-		if (door.isLocked())
+		// Get a new instance of the door to make sure the locked / unlocked status is recent.
+		if (plugin.getCommander().getDoor(door.getDoorUID()).isLocked())
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "This door is locked!");
+		// If the sender is a Player && the player's permission level is larger than 1 for this door, the player doesn't have permission (for now).
+		else if (sender instanceof Player && plugin.getCommander().getPermission(((Player) (sender)).getUniqueId().toString(), door.getDoorUID()) > 1)
+			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "You do not have permission to open this door!");
 		else if (!plugin.getDoorOpener().openDoor(door, speed))
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
 	}
@@ -59,19 +62,23 @@ public class CommandHandler implements CommandExecutor
 		openDoorCommand((CommandSender) player, door, 0.2);
 	}
 	
+	public void lockDoorCommand(Player player, Door door)
+	{
+		plugin.getCommander().setLock(door.getDoorUID(), !door.isLocked());
+	}
+	
 	// Get the number of doors owned by player player with name doorName (or any name, if doorName == null)
 	public long countDoors(Player player, String doorName)
 	{
 		return plugin.getCommander().countDoors(player.getUniqueId().toString(), doorName);
 	}
 
-	// TODO: Print permissions.
 	// Print a list of the doors currently in the db.
 	public void listDoors(Player player, String doorName)
 	{
 		ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), doorName);
 		for (Door door : doors)
-			Util.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
+			Util.messagePlayer(player, door.getDoorUID() + " (" + door.getPermission() + ")" + ": " + door.getName().toString());
 	}
 
 	// Print a list of the doors currently in the db.
@@ -100,7 +107,6 @@ public class CommandHandler implements CommandExecutor
 	}
 	
 	// Create a new door.
-	// TODO: Permissions
 	public void makeDoor(Player player, String name)
 	{
 		if (name != null && !isValidName(name))

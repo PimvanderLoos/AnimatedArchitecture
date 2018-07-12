@@ -13,32 +13,59 @@ import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import nl.pim16aap2.bigDoors.customEntities.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigDoors.customEntities.v1_11_R1.FallingBlockFactory_V1_11_R1;
+import nl.pim16aap2.bigDoors.customEntities.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
+import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
+import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
+import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationSouth;
+import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
+import nl.pim16aap2.bigDoors.util.ConfigLoader;
+import nl.pim16aap2.bigDoors.util.Messages;
 
 // TODO: Create commandlistener that can be used to wait for command trees. Create interface and extend queued up commands from there.
-
 public class BigDoors extends JavaPlugin implements Listener
 {
+	private ToolVerifier               tf;
 	private SQLiteJDBCDriverConnection db;
+	private FallingBlockFactory_Vall fabf;
 	private Vector<DoorCreator>      dcal;
+	private ConfigLoader           config;
+	private String                 locale;
 	private MyLogger               logger;
 	private File                  logFile;
+	private Messages             messages;
 	private Commander           commander;
 	private DoorOpener         doorOpener;
 	private CommandHandler commandHandler;
+	
 
 	@Override
 	public void onEnable()
 	{
-		dcal       = new Vector<DoorCreator>(2);
-		logFile    = new File(getDataFolder(), "log.txt");
-		logger     = new MyLogger(this, logFile);
-		this.db    = new SQLiteJDBCDriverConnection(this, "doorDB");
-		doorOpener = new DoorOpener(this);
+		logFile        = new File(getDataFolder(), "log.txt");
+		logger         = new MyLogger(this, logFile);
+		
+		// Load the files for the correct version of Minecraft.
+		if (!compatibleMCVer()) 
+		{
+			logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!", true, true);
+			return;
+		}
+		
+		readConfigValues();
+				
+		this.messages  = new Messages(this);		
+		
+		dcal           = new Vector<DoorCreator>(2);
+		this.db        = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
+		this.tf        = new ToolVerifier(messages.getString("DC.StickName"));
+		doorOpener     = new DoorOpener(this);
 		
 		commandHandler = new CommandHandler(this);
 		commander      = new Commander(this, db);
@@ -58,6 +85,8 @@ public class BigDoors extends JavaPlugin implements Listener
 		getCommand("fixdoor"   ).setExecutor(new CommandHandler(this));
 		getCommand("shutup"    ).setExecutor(new CommandHandler(this));
 		getCommand("bdm"       ).setExecutor(new CommandHandler(this));
+		
+		liveDevelopmentLoad();
 		
 //		readDoors(); // Import doors from .txt file. Only needed for debugging! I'm the only one with the file!
 	}
@@ -102,9 +131,7 @@ public class BigDoors extends JavaPlugin implements Listener
 				
 				Door door = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false, -1, "3ba21c6f-6ad9-4310-9f82-f85f5602deef");
 				commander.addDoor(door);
-				
-				// Add the door that was just read to the list.
-//				addDoor(new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen));
+
 				sCurrentLine = br.readLine();
 			}
 			br.close();
@@ -131,6 +158,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		return this.dcal;
 	}
 	
+	public FallingBlockFactory_Vall getFABF()
+	{
+		return this.fabf;
+	}
+	
 	public DoorOpener getDoorOpener()
 	{
 		return this.doorOpener;
@@ -152,5 +184,68 @@ public class BigDoors extends JavaPlugin implements Listener
 	public MyLogger getMyLogger()
 	{
 		return this.logger;
+	}
+	
+	// Get the messages.
+	public Messages getMessages()
+	{
+		return this.messages;
+	}
+
+	// Returns the config handler.
+	public ConfigLoader getConfigLoader()
+	{
+		return config;
+	}
+	
+	// Get the ToolVerifier.
+	public ToolVerifier getTF()
+	{
+		return this.tf;
+	}
+	
+	public String getLocale()
+	{
+		return locale == null ? "en_US" : locale;
+	}
+	
+	public void readConfigValues()
+	{
+		// Load the settings from the config file.
+		this.config 	= new ConfigLoader(this);
+		this.locale = config.getString("languageFile");
+	}
+	
+	// This function simply loads these classes to make my life a bit less hell-ish with live development.
+	public void liveDevelopmentLoad()
+	{
+		new GetNewLocationNorth();
+		new GetNewLocationEast ();
+		new GetNewLocationSouth();
+		new GetNewLocationWest ();
+	}
+	
+	// Check + initialize for the correct version of Minecraft.
+	public boolean compatibleMCVer()
+	{
+        String version;
+
+        try 
+        {
+            version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
+        } 
+        catch (ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException) 
+        {
+            return false;
+        }
+
+        if (version.equals("v1_10_R1"))
+			this.fabf = null;
+        else if (version.equals("v1_11_R1"))
+			this.fabf = new FallingBlockFactory_V1_11_R1();
+        else if (version.equals("v1_12_R1"))
+			this.fabf = new FallingBlockFactory_V1_12_R1();
+        // Return true if compatible.
+        return fabf != null;
 	}
 }

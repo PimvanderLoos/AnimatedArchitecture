@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import net.md_5.bungee.api.ChatColor;
+import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Util;
 
 /*
@@ -19,26 +20,27 @@ import nl.pim16aap2.bigDoors.util.Util;
  * The creation process has been completed successfully or the timer ran out. In EventHandlers this class is used 
  * To check whether a user that is left-clicking is a DoorCreator && tell this class a left-click happened.
  */
-
 public class DoorCreator
 {
-	private final BigDoors plugin;
-	private Player player;
-	private String name;
+	private String               name;
+	private final BigDoors     plugin;
+	private Player             player;
+	private final Messages   messages;
+	private boolean      done = false;
 	private Location one, two, engine;
-	private boolean done = false;
 	
 	public DoorCreator(BigDoors plugin, Player player, String name)
 	{
-		this.plugin = plugin;
-		this.player = player;
-		this.name   = name;
-		this.one    = null;
-		this.two    = null;
-		this.engine = null;
-		Util.messagePlayer(player, ChatColor.GREEN, "Door creation process initiated! You have 60 seconds to complete it.");
+		this.plugin   = plugin;
+		this.messages = plugin.getMessages();
+		this.player   = player;
+		this.name     = name;
+		this.one      = null;
+		this.two      = null;
+		this.engine   = null;
+		Util.messagePlayer(player, ChatColor.GREEN, messages.getString("DC.Init"));
 		if (name == null)
-			Util.messagePlayer(player, ChatColor.GREEN, "Please start by giving the door a name using the command: /namedoor <doorName>");
+			Util.messagePlayer(player, ChatColor.GREEN, messages.getString("DC.GiveNameInstruc"));
 		else
 			giveToolToPlayer();
 	}
@@ -96,24 +98,15 @@ public class DoorCreator
 		tool.getItemMeta().addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		
         ItemMeta itemMeta = tool.getItemMeta();
-        itemMeta.setDisplayName("Big Door Creator Stick");
-        itemMeta.setLore(Arrays.asList(
-        		"This tool is used to create big doors", 
-        		"First specify the region of the door", 
-        		"Then specify the rotation point"));
+        itemMeta.setDisplayName(messages.getString("DC.StickName"));
+        String[] lore = messages.getString("DC.StickLore").split("\n");
+        itemMeta.setLore(Arrays.asList(lore));
         tool.setItemMeta(itemMeta);
         
 		player.getInventory().addItem(tool);
-		Util.messagePlayer(player, "You have been given a Big Door Creator Stick! Use it wisely!");
-	}
-	
-	// Check if the provided itemstack is a selection tool.
-	public static boolean isTool(ItemStack is)
-	{	
-		return 	is.getType() == Material.STICK 					&& 
-				is.getEnchantmentLevel(Enchantment.LUCK) == 1 	&& 
-				is.getItemMeta().getDisplayName() != null 		&& 
-				is.getItemMeta().getDisplayName().toString().equals("Big Door Creator Stick");
+		
+		String[] message = messages.getString("DC.StickReceived").split("\n");
+		Util.messagePlayer(player, message);
 	}
 	
 	// Take any selection tools in the player's inventory from them.
@@ -121,7 +114,7 @@ public class DoorCreator
 	{
 		for (ItemStack is : player.getInventory())
 			if (is != null)
-				if (isTool(is))
+				if (plugin.getTF().isTool(is))
 					is.setAmount(0);
 	}
 	
@@ -152,17 +145,19 @@ public class DoorCreator
 		if (one == null)
 		{
 			one = loc;
-			Util.messagePlayer(player, "Step 1/3: First point selected! Please select a second point!");
+			String[] message = messages.getString("DC.Step1").split("\n");
+			Util.messagePlayer(player, message);
 		}
 		else if (two == null)
 		{
 			if (isPosTwoValid(loc))
 			{
 				two = loc;
-				Util.messagePlayer(player, "Step 2/3: Second point selected! Please select a rotation point!");
+				String[] message = messages.getString("DC.Step2").split("\n");
+				Util.messagePlayer(player, message);
 			}
 			else
-				Util.messagePlayer(player, "Invalid second point selection! Try again! Note that doors can only be one block deep!");
+				Util.messagePlayer(player, messages.getString("DC.InvalidPoint"));
 
 		}
 		else if (engine == null)
@@ -170,11 +165,11 @@ public class DoorCreator
 			if (isEngineValid(loc))
 			{
 				engine = loc;
-				Util.messagePlayer(player, "Step 3/3: Rotation point selected! You should now be able to use your door!");
+				Util.messagePlayer(player, messages.getString("DC.Step3"));
 				done = true;
 			}
 			else
-				Util.messagePlayer(player, "Invalid rotation point selection! Please select a point on the outsides of the door.");
+				Util.messagePlayer(player, messages.getString("DC.InvalidRotation"));
 		}
 		else
 		{

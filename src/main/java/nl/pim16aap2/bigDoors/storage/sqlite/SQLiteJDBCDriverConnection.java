@@ -26,7 +26,7 @@ public class SQLiteJDBCDriverConnection
 	public SQLiteJDBCDriverConnection(BigDoors plugin, String dbName)
 	{
 		this.plugin     = plugin;
-		this.dataFolder = new File(plugin.getDataFolder(), dbName + ".db");
+		this.dataFolder = new File(plugin.getDataFolder(), dbName);
 		this.url        = "jdbc:sqlite:" + dataFolder;
 		init();
 	}
@@ -128,6 +128,50 @@ public class SQLiteJDBCDriverConnection
 				plugin.getMyLogger().logMessage("128: " + e.getMessage());
 			}
 		}
+	}
+	
+	// Get the permission level for a given player for a given door.
+	public int getPermission(String playerUUID, long doorUID)
+	{
+		Connection conn = null;
+		int ret = -1;
+		try
+		{
+			conn = getConnection();
+			// Get the player ID as used in the sqlUnion table.
+			PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
+			ResultSet rs1         = ps1.executeQuery();
+			while (rs1.next())
+			{
+				int playerID = rs1.getInt(1);
+				// Select all doors from the sqlUnion table that have the previously found player as owner.
+				PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND doorUID = '" + doorUID + "';");
+				ResultSet rs2         = ps2.executeQuery();
+				while (rs2.next())
+					ret = rs2.getInt(2);
+				ps2.close();
+				rs2.close();
+			}
+			ps1.close();
+			rs1.close();
+		}
+		catch (SQLException e)
+		{
+			plugin.getMyLogger().logMessage("297: " + e.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				conn.close();
+			}
+			catch (SQLException e)
+			{
+				plugin.getMyLogger().logMessage("307: " + e.getMessage());
+			}
+		}
+		
+		return ret;
 	}
 	
 	// Construct a new door from a resultset.
@@ -590,7 +634,7 @@ public class SQLiteJDBCDriverConnection
 //		}
 //		catch(SQLException e)
 //		{
-//			// TODO: Add check if the column exists before adding it.
+//			// TO DO: Add check if the column exists before adding it.
 ////			plugin.getMyLogger().logMessage("139 " + e.getMessage());
 //		}
 //		finally

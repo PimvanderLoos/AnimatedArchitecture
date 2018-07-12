@@ -1,26 +1,29 @@
-package nl.pim16aap2.bigDoors.customEntities;
+package nl.pim16aap2.bigDoors.customEntities.v1_12_R1;
 
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.Vector;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
 
-public class CustomCraftFallingBlock extends CraftEntity implements FallingBlock 
+import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock_Vall;
+
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
+
+public class CustomCraftFallingBlock_V1_12_R1 extends CraftEntity implements FallingBlock, CustomCraftFallingBlock_Vall
 {
 
-    public CustomCraftFallingBlock(Server server, CustomEntityFallingBlock entity) 
+    public CustomCraftFallingBlock_V1_12_R1(Server server, CustomEntityFallingBlock_V1_12_R1 entity) 
     {
-        super((org.bukkit.craftbukkit.v1_11_R1.CraftServer) server, entity);
+        super((org.bukkit.craftbukkit.v1_12_R1.CraftServer) server, entity);
 		this.setVelocity(new Vector(0, 0, 0));
 		this.setDropItem(false);
     }
 
     @Override
-    public CustomEntityFallingBlock getHandle() 
+    public CustomEntityFallingBlock_V1_12_R1 getHandle() 
     {
-        return (CustomEntityFallingBlock) entity;
+        return (CustomEntityFallingBlock_V1_12_R1) entity;
     }
     
     public boolean isOnGround() 

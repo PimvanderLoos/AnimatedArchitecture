@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: 0.0.1
+version: 0.1.2
 author: Pim
 commands:
   bigdoors:
@@ -14,7 +14,7 @@ commands:
   namedoor:
     description: Create a new door named "doorName".
     usage: /NameDoor <doorName>
-    permission: bigdoors.createdoor
+    permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.createdoor permission node.
   shutup:
     description: Shuts up debug messages.
@@ -31,27 +31,27 @@ commands:
   newdoor:
     description: Create a new door from selection with name "doorName".
     usage: /NewDoor <doorName>
-    permission: bigdoors.createdoor
+    permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.createdoor permission node.
   deldoor:
     description: Delete door with name "doorName".
     usage: /DelDoor <doorName>
-    permission: bigdoors.deletedoor
+    permission: bigdoors.user.deletedoor
     permission-message: You do not have the bigdoors.deletedoor permission node.
   opendoor:
     description: Open the door with name "doorName".
     usage: /OpenDoor <doorName> [speed]
-    permission: bigdoors.opendoor
+    permission: bigdoors.user.opendoor
     permission-message: You do not have the bigdoors.opendoor permission node.
   opendoors:
     description: Open the doors with name "doorName1" and "doorName2".
     usage: /OpenDoors <doorName1> <doorName2> [speed]
-    permission: bigdoors.opendoors
+    permission: bigdoors.user.opendoors
     permission-message: You do not have the bigdoors.opendoor permission node.
   listdoors:
     description: Returns a list of all your doors.
     usage: /ListDoors [name]
-    permission: bigdoors.listdoors
+    permission: bigdoors.user.listdoors
     permission-message: You do not have the bigdoors.listdoors permission node.
   fixdoor:
     description: Verify and fix (if needed) the coords of the specified door.
@@ -70,5 +70,5 @@ commands:
   doorinfo:
     description: Display door info.
     usage: /DoorInfo <doorName>
-    permission: bigdoors.doorinfo
+    permission: bigdoors.user.doorinfo
     

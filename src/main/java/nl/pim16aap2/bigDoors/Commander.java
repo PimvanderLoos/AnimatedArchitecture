@@ -83,7 +83,7 @@ public class Commander
 		// First try converting the doorStr to a doorUID.
 		try
 		{
-			int doorUID = Integer.parseInt(doorStr);
+			long doorUID = Long.parseLong(doorStr);
 			return db.getDoor(doorUID);
 		}
 		// If it can't convert to an int, get all doors from the player with the provided name. 
@@ -162,6 +162,12 @@ public class Commander
 	{
 		return db.getDoor(doorUID);
 	}
+	
+	// Get the permission of a player on a door.
+	public int getPermission(String playerUUID, long doorUID)
+	{
+		return db.getPermission(playerUUID, doorUID);
+	}
 
 	// Update the coordinates of a given door.
 	public void updateDoorCoords(long doorUID, int isOpen, int blockXMin, int blockYMin, int blockZMin, int blockXMax, int blockYMax, int blockZMax)
@@ -170,7 +176,7 @@ public class Commander
 	}
 	
 	// Change the "locked" status of a door.
-	public void setLock(int doorUID, boolean newLockStatus)
+	public void setLock(long doorUID, boolean newLockStatus)
 	{
 		db.setLock(doorUID, newLockStatus);
 	}

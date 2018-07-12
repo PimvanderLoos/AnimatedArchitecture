@@ -25,6 +25,9 @@ public class GetNewLocationSouth implements GetNewLocation
 		this.zMax   = zMax;
 	}
 
+	public GetNewLocationSouth()
+	{}
+
 	@Override
 	public Location getNewLocation(List<BlockData> savedBlocks, double xPos, double yPos, double zPos, int index)
 	{

@@ -20,6 +20,24 @@ public class Util
 	{
 		messagePlayer(player, ChatColor.WHITE, s);
 	}
+	
+	// Send an array of messages to a player.
+	public static void messagePlayer(Player player, String[] s)
+	{
+		String message = "";
+		for (String str : s)
+			message += str + "\n";
+		messagePlayer(player, message);
+	}
+	
+	// Send an array of messages to a player.
+	public static void messagePlayer(Player player, ChatColor color, String[] s)
+	{
+		String message = "";
+		for (String str : s)
+			message += str + "\n";
+		messagePlayer(player, color, message);
+	}
 
 	// Print info for a door.
 	public static void listDoorInfo(Player player, Door door)

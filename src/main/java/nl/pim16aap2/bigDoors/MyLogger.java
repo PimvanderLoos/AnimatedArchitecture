@@ -71,7 +71,7 @@ public class MyLogger
 	public void logMessage(String msg, boolean printToConsole, boolean startSkip)
 	{
 		if (printToConsole)
-			System.out.println(msg);
+			myLogger(Level.WARNING, msg);
 		BufferedWriter bw = null;
 		try
 		{
