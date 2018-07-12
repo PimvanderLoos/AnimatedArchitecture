@@ -92,6 +92,12 @@ public class BigDoors extends JavaPlugin implements Listener
 		
 		readDoors(); // Import doors from .txt file. Only needed for debugging! I'm the only one with the file!
 	}
+
+	@Override
+	public void onDisable()
+	{
+		commandHandler.stopDoors();
+	}
 	
 	// Read the saved list of doors, if it exists. ONLY for debugging purposes. Should be removed from the final export!
 	public void readDoors()
@@ -148,10 +154,6 @@ public class BigDoors extends JavaPlugin implements Listener
 			e.printStackTrace();
 		}
 	}
-
-	@Override
-	public void onDisable()
-	{} // Nothing to do here for now.
 	
 	// Get the Vector of doorcreators (= users creating a door right now).
 	public Vector<DoorCreator> getDoorCreators()
