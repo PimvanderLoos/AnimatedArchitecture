@@ -57,7 +57,7 @@ public class RedstoneHandler implements Listener
             		return;
             
             if (door != null && !door.isLocked())
-            		plugin.getDoorOpener().openDoor(door, 0.2, true);
+            		plugin.getDoorOpener(door.getType()).openDoor(door, 0.2, true);
         }
         catch (Throwable t)
         {

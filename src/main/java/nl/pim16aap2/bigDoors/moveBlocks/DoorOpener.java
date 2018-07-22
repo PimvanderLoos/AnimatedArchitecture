@@ -11,7 +11,7 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 
-public class DoorOpener
+public class DoorOpener implements Opener
 {
 	private BigDoors plugin;
 	
@@ -81,6 +81,7 @@ public class DoorOpener
 	}
 	
 	// Get the direction the door is currently facing as seen from the engine to the end of the door.
+	@Override
 	public DoorDirection getCurrentDirection(Door door)
 	{
 		// MinZ != EngineZ => North
@@ -94,6 +95,7 @@ public class DoorOpener
 	}
 	
 	// Check if the chunks at the minimum and maximum locations of the door are loaded.
+	@Override
 	public boolean chunksLoaded(Door door)
 	{
 		// Return true if the chunk at the max and at the min of the chunks were loaded correctly.
@@ -106,15 +108,15 @@ public class DoorOpener
 		
 		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
 	}
-	
-	
+
+	@Override
 	public boolean openDoor(Door door, double speed)
 	{
 		return openDoor(door, speed, false);
 	}
 	
-	
 	// Open a door.
+	@Override
 	public boolean openDoor(Door door, double speed, boolean silent)
 	{
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
@@ -168,7 +170,7 @@ public class DoorOpener
 		// Finalise the oppositePoint location.
 		Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
 		
-		// Change door availability so it cannot be opened again.
+		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, oppositePoint, currentDirection, door);
 
@@ -179,6 +181,7 @@ public class DoorOpener
 	}
 	
 	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
+	@Override
 	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection)
 	{
 		int xMin = door.getMinimum().getBlockX();
@@ -257,6 +260,8 @@ public class DoorOpener
 	}
 
 	// Toggle the open status of a door.
+	// TODO: Can probably be deprecated.
+	@Override @Deprecated
 	public void toggleOpen(Door door)
 	{
 		door.setStatus(!door.getStatus());

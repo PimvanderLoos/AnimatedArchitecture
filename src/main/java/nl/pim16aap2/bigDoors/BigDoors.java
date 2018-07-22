@@ -20,7 +20,9 @@ import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
 import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
+import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
+import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationSouth;
@@ -28,6 +30,7 @@ import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocatio
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.Messages;
+import nl.pim16aap2.bigDoors.util.Metrics;
 
 // TODO: Create commandlistener that can be used to wait for command trees. Create interface and extend queued up commands from there.
 public class BigDoors extends JavaPlugin implements Listener
@@ -43,6 +46,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	private Messages             messages;
 	private Commander           commander;
 	private DoorOpener         doorOpener;
+	private BridgeOpener     bridgeOpener;
 	private CommandHandler commandHandler;
 	
 
@@ -61,12 +65,25 @@ public class BigDoors extends JavaPlugin implements Listener
 		
 		readConfigValues();
 				
-		this.messages  = new Messages(this);		
+		this.messages  = new Messages(this);	
+		
+		// Are stats allowed?
+		if (config.getBool("allowStats"))
+		{
+			logger.myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
+			@SuppressWarnings("unused")
+			Metrics metrics = new Metrics(this);
+		} 
+		else 
+			// Y u do dis? :(
+			logger.myLogger(Level.INFO, "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
+
 		
 		dcal           = new Vector<DoorCreator>(2);
 		this.db        = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
 		this.tf        = new ToolVerifier(messages.getString("DC.StickName"));
 		doorOpener     = new DoorOpener(this);
+		bridgeOpener   = new BridgeOpener(this);
 		
 		commandHandler = new CommandHandler(this);
 		commander      = new Commander(this, db);
@@ -90,13 +107,18 @@ public class BigDoors extends JavaPlugin implements Listener
 		
 		liveDevelopmentLoad();
 		
-		readDoors(); // Import doors from .txt file. Only needed for debugging! I'm the only one with the file!
+//		readDoors(); // Import doors from .txt file. Only needed for debugging! I'm the only one with the file!
 	}
 
 	@Override
 	public void onDisable()
 	{
-		commandHandler.stopDoors();
+		// Force stop all doors. I don't know if this is needed. Do spigot stop running tasks gracefully already?
+		// Does Spigot stop them forcefully (and destroy them in the process) meaning this does exactly fuck all?
+		// So many questions, so many answers probably online. TODO: Don't be lazy and do some research.
+		this.commander.setCanGo(false);
+		// TODO: Remove all door creator sticks on disable.
+		// TODO: Do not allow dropping / moving to transfor of creator sticks.
 	}
 	
 	// Read the saved list of doors, if it exists. ONLY for debugging purposes. Should be removed from the final export!
@@ -137,7 +159,7 @@ public class BigDoors extends JavaPlugin implements Listener
 				engineY = Integer.parseInt(strs[10]);
 				engineZ = Integer.parseInt(strs[11]);
 				
-				Door door = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false, -1, "27e6c556-4f30-32bf-a005-c80a46ddd935");
+				Door door = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false, 0, "27e6c556-4f30-32bf-a005-c80a46ddd935", 0);
 				commander.addDoor(door);
 
 				sCurrentLine = br.readLine();
@@ -166,9 +188,17 @@ public class BigDoors extends JavaPlugin implements Listener
 		return this.fabf;
 	}
 	
-	public DoorOpener getDoorOpener()
+	public Opener getDoorOpener(int type)
 	{
-		return this.doorOpener;
+		Bukkit.broadcastMessage("Getting door opener for door type: " + type);
+		switch (type)
+		{
+		case 0:
+			return this.doorOpener;
+		case 1:
+			return this.bridgeOpener;
+		}
+		return null;
 	}
 	
 	// Get the command Handler.

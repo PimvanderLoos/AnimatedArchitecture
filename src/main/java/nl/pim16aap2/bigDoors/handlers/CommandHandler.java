@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.handlers;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -48,7 +49,7 @@ public class CommandHandler implements CommandExecutor
 		// If the sender is a Player && the player's permission level is larger than 1 for this door, the player doesn't have permission (for now).
 		else if (sender instanceof Player && plugin.getCommander().getPermission(((Player) (sender)).getUniqueId().toString(), door.getDoorUID()) > 1)
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "You do not have permission to open this door!");
-		else if (!plugin.getDoorOpener().openDoor(door, speed))
+		else if (!plugin.getDoorOpener(door.getType()).openDoor(door, speed))
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
 	}
 	
@@ -85,12 +86,15 @@ public class CommandHandler implements CommandExecutor
 	public void listDoorInfo(Player player, String name)
 	{
 		ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
+		
 		for (Door door : doors)
-			Util.messagePlayer(player, door.getDoorUID()    + ": " + door.getName().toString()     + 
-				", Min("    + door.getMinimum().getBlockX() + ";"  + door.getMinimum().getBlockY() + ";"+ door.getMinimum().getBlockZ() + ")" +
-				", Max("    + door.getMaximum().getBlockX() + ";"  + door.getMaximum().getBlockY() + ";"+ door.getMaximum().getBlockZ() + ")" +
-				", Engine(" + door.getEngine().getBlockX()  + ";"  + door.getEngine().getBlockY()  + ";"+ door.getEngine().getBlockZ()  + ")" +
-				", " + (door.isLocked() ? "" : "NOT ") + "locked");
+			Util.messagePlayer(player, door.getDoorUID()    + ": "  + door.getName().toString()     + 
+				", Min("    + door.getMinimum().getBlockX() + ";"   + door.getMinimum().getBlockY() + ";"+ door.getMinimum().getBlockZ() + ")" +
+				", Max("    + door.getMaximum().getBlockX() + ";"   + door.getMaximum().getBlockY() + ";"+ door.getMaximum().getBlockZ() + ")" +
+				", Engine(" + door.getEngine().getBlockX()  + ";"   + door.getEngine().getBlockY()  + ";"+ door.getEngine().getBlockZ()  + ")" +
+				", " + (door.isLocked() ? "" : "NOT ") + "locked"   + "; Type=" + door.getType()    + 
+				(door.getEngSide() == null ? "" : ("; EngineSide = " + door.getEngSide().toString()))); 
+//				("; EngineSide = " + door.getEngSide().toString()));
 	}
 
 	public boolean isValidName(String name)
@@ -292,6 +296,7 @@ public class CommandHandler implements CommandExecutor
 			{
 				if (args.length == 1)
 				{
+					Bukkit.broadcastMessage("Listing door info for " + args[0]);
 					listDoorInfo(player, args[0]);
 					return true;
 				}
@@ -356,10 +361,11 @@ public class CommandHandler implements CommandExecutor
 		}
 		catch(NumberFormatException e)
 		{
-			plugin.getMyLogger().logMessage("Could not parse to int!", true, false);
+			// Logging this makes no sense.
+//			plugin.getMyLogger().logMessage("Could not parse to long!", true, false);
 		}
 		
-		long doorCount = countDoors(player, null);
+		long doorCount = countDoors(player, doorName);
 		if (doorCount == 0)
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "No door found by that name!");
 		else if (doorCount == 1)
@@ -369,6 +375,7 @@ public class CommandHandler implements CommandExecutor
 		}
 		else
 		{
+			Bukkit.broadcastMessage("doorCount = " + doorCount);
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "More than one door found with that name! Please use their ID instead:");
 			listDoors(player, doorName);
 		}

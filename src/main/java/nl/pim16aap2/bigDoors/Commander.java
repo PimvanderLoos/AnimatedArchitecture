@@ -86,7 +86,7 @@ public class Commander
 			long doorUID = Long.parseLong(doorStr);
 			return db.getDoor(doorUID);
 		}
-		// If it can't convert to an int, get all doors from the player with the provided name. 
+		// If it can't convert to a long, get all doors from the player with the provided name. 
 		// If there is more than one, tell the player that they are going to have to make a choice.
 		catch (NumberFormatException e)
 		{
@@ -120,7 +120,7 @@ public class Commander
 	// Add a door to the db of doors.
 	public void addDoor(Door newDoor, Player player)
 	{
-		addDoor(newDoor, player, -1);
+		addDoor(newDoor, player, 0);
 	}
 	
 	public void removeDoor(long doorUID)

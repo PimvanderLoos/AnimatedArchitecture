@@ -66,7 +66,7 @@ public class Messages
 		String value = null;
 		value = this.messageMap.get(key);
 		if (value == null)
-			value = "BigDoors: NULL, contact server owner!";
+			value = "BigDoors: Translation not found! Contact server admin!";
 		return value;
 	}
 }

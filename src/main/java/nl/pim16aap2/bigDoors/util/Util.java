@@ -147,4 +147,9 @@ public class Util
 			return true;
 		}
 	}
+	
+	public static boolean between(int value, int start, int end)
+	{
+		return value <= end && value >= start;
+	}
 }

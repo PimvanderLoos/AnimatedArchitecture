@@ -15,6 +15,7 @@ import org.bukkit.Bukkit;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.DoorDirection;
 
 public class SQLiteJDBCDriverConnection
 {
@@ -29,6 +30,7 @@ public class SQLiteJDBCDriverConnection
 		this.dataFolder = new File(plugin.getDataFolder(), dbName);
 		this.url        = "jdbc:sqlite:" + dataFolder;
 		init();
+		update();
 	}
 	
 	// Establish a connection.
@@ -89,7 +91,9 @@ public class SQLiteJDBCDriverConnection
 		          			+ " engineX     INTEGER    NOT NULL, " 
 		          			+ " engineY     INTEGER    NOT NULL, " 
 		          			+ " engineZ     INTEGER    NOT NULL, " 
-		          			+ " isLocked    INTEGER    NOT NULL)";
+		          			+ " isLocked    INTEGER    NOT NULL, "
+		          			+ " type        INTEGER    NOT NULL,"
+		          			+ " engineSide  INTEGER    NOT NULL) ";
 			stmt1.executeUpdate(sql1);
 			stmt1.close();
 			
@@ -104,8 +108,8 @@ public class SQLiteJDBCDriverConnection
 			String sql3     	= "CREATE TABLE IF NOT EXISTS sqlUnion "
 					     	+ "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
 					     	+ " permission  INTEGER    NOT NULL, "
-					     	+ " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE SET NULL, "
-					     	+ " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE SET NULL)";
+					     	+ " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, "
+					     	+ " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE)";
 			stmt3.executeUpdate(sql3);
 			stmt3.close();
 		}
@@ -181,7 +185,8 @@ public class SQLiteJDBCDriverConnection
 		{
 			return new Door(null, Bukkit.getServer().getWorld(UUID.fromString(rs.getString(3))), rs.getInt(5), 
 							rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9), rs.getInt(10), rs.getInt(11), 
-							rs.getInt(12), rs.getInt(13), rs.getString(2), (rs.getInt(4) == 1 ? true : false), doorUID, (rs.getInt(14) == 1 ? true : false), permission);
+							rs.getInt(12), rs.getInt(13), rs.getString(2), (rs.getInt(4) == 1 ? true : false), 
+							doorUID, (rs.getInt(14) == 1 ? true : false), permission, 0);
 		}
 		catch (SQLException e)
 		{
@@ -197,7 +202,8 @@ public class SQLiteJDBCDriverConnection
 		{
 			return new Door(null, Bukkit.getServer().getWorld(UUID.fromString(rs.getString(3))), rs.getInt(5), 
 							rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9), rs.getInt(10), rs.getInt(11), 
-							rs.getInt(12), rs.getInt(13), rs.getString(2), (rs.getInt(4) == 1 ? true : false), doorUID, (rs.getInt(14) == 1 ? true : false), permission);
+							rs.getInt(12), rs.getInt(13), rs.getString(2), (rs.getInt(4) == 1 ? true : false), 
+							doorUID, (rs.getInt(14) == 1 ? true : false), permission, rs.getInt(15), DoorDirection.valueOf(rs.getInt(16)));
 		}
 		catch (SQLException e)
 		{
@@ -386,7 +392,7 @@ public class SQLiteJDBCDriverConnection
 				ResultSet rs3         = ps3.executeQuery();
 				while (rs3.next())
 				{
-					if ((name == null || (name != null && rs2.getString(2).equals(name))) && count >= start && count <= end)
+					if ((name == null || (name != null && rs3.getString(2).equals(name))) && count >= start && count <= end)
 						doors.add(newDoorFromRS(rs3, rs3.getLong(1), rs2.getInt(2), playerUUID));
 					++count;
 				}
@@ -514,8 +520,8 @@ public class SQLiteJDBCDriverConnection
 				stmt2.close();
 			}
 			
-			String doorInsertsql	= "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked) "
-								+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			String doorInsertsql	= "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide) "
+								+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 						
 			doorstatement.setString(1, door.getName());
@@ -531,6 +537,9 @@ public class SQLiteJDBCDriverConnection
 			doorstatement.setInt(11,   door.getEngine().getBlockY());
 			doorstatement.setInt(12,   door.getEngine().getBlockZ());
 			doorstatement.setInt(13,   door.isLocked() == true ? 1 : 0);
+			doorstatement.setInt(14,   door.getType());
+			// Get -1 if the door has no engineSide (normal doors don't use it)
+			doorstatement.setInt(15,   door.getEngSide() == null ? -1 : DoorDirection.getValue(door.getEngSide()));
 			
 			doorstatement.executeUpdate();
 			doorstatement.close();
@@ -620,33 +629,37 @@ public class SQLiteJDBCDriverConnection
 	}
 	
 	
-//	public void update()
-//	{
-//		Connection conn = null;
-//		try
-//		{
-//			conn = DriverManager.getConnection(url);
-//			String addColumn = "ALTER TABLE doors "
-//				             + "ADD COLUMN isLocked int NOT NULL DEFAULT 0";
-//			Statement stmt = conn.createStatement();
-//			stmt.execute(addColumn);
-//			stmt.close();
-//		}
-//		catch(SQLException e)
-//		{
-//			// TO DO: Add check if the column exists before adding it.
-////			plugin.getMyLogger().logMessage("139 " + e.getMessage());
-//		}
-//		finally
-//		{
-//			try
-//			{
-//				conn.close();
-//			}
-//			catch(SQLException e)
-//			{
-//				plugin.getMyLogger().logMessage("149 " + e.getMessage());
-//			}
-//		}
-//	}
+	public void update()
+	{
+		Connection conn = null;
+		try
+		{
+			conn = DriverManager.getConnection(url);
+			String addColumn = "ALTER TABLE doors "
+				             + "ADD COLUMN type int NOT NULL DEFAULT 0";
+			Statement stmt = conn.createStatement();
+			stmt.execute(addColumn);
+			addColumn = "ALTER TABLE doors "
+		              + "ADD COLUMN engineSide int NOT NULL DEFAULT -1";
+			stmt = conn.createStatement();
+			stmt.execute(addColumn);
+			stmt.close();
+		}
+		catch(SQLException e)
+		{
+			// TO DO: Add check if the column exists before adding it.
+//			plugin.getMyLogger().logMessage("139 " + e.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				conn.close();
+			}
+			catch(SQLException e)
+			{
+				plugin.getMyLogger().logMessage("149 " + e.getMessage());
+			}
+		}
+	}
 }
