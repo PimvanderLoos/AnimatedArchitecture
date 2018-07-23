@@ -29,12 +29,13 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class BridgeMover
 {
-	private FallingBlockFactory_Vall fabf;
 	private World                   world;
 	private int                    dirMul;
 	private BigDoors               plugin;
 	private int                    dx, dz;
 	private double                  speed;
+	private FallingBlockFactory_Vall fabf;
+	private boolean                    NS;
 	private GetNewLocation            gnl;
 	private Door                     door;
 	private RotateDirection        upDown;
@@ -57,10 +58,9 @@ public class BridgeMover
 		this.world         = world;
 		this.plugin        = plugin;
 		this.upDown        = upDown;
-		this.turningPoint  = door.getEngine();
-		this.pointOpposite = this.turningPoint;
 		this.openDirection = openDirection;
 		this.engineSide    = door.getEngSide();
+		this.NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
 		
 		this.speed   = speed;
 		
@@ -91,93 +91,69 @@ public class BridgeMover
 		switch (engineSide)
 		{
 		case NORTH:
+			Bukkit.broadcastMessage("NORTH");
 			// When EngineSide is North, x goes from low to high and z goes from low to high
 			this.dx     =  1;
 			this.dz     =  1;
 			this.dirMul =  1;
-			this.turningPoint.setX(xMin);
-			this.turningPoint.setY(yMin);
-			this.turningPoint.setZ(zMin);
+			this.pointOpposite = new Location(world, xMin, yMin, zMin);
+			
 			if (upDown.equals(RotateDirection.UP))
-			{
-				this.pointOpposite.setX(xMax);
-				this.pointOpposite.setY(yMin);
-				this.pointOpposite.setZ(zMax);
-			}
+				this.pointOpposite = new Location(world, xMax, yMin, zMax);
 			else
-			{
-				this.pointOpposite.setX(xMax);
-				this.pointOpposite.setY(yMax);
-				this.pointOpposite.setZ(zMin);
-			}
+				this.pointOpposite = new Location(world, xMax, yMax, zMin);
 			break;
 			
 		case SOUTH:
+			Bukkit.broadcastMessage("SOUTH");
 			// When EngineSide is South, x goes from high to low and z goes from high to low
 			this.dx     = -1;
 			this.dz     = -1;
 			this.dirMul = -1;
-			this.turningPoint.setX(xMax);
-			this.turningPoint.setY(yMin);
-			this.turningPoint.setZ(zMax);
+			this.pointOpposite = new Location(world, xMax, yMin, zMax);
+			
 			if (upDown.equals(RotateDirection.UP))
-			{
-				this.pointOpposite.setX(xMin);
-				this.pointOpposite.setY(yMin);
-				this.pointOpposite.setZ(zMin);
-			}
+				this.pointOpposite = new Location(world, xMin, yMin, zMin);
 			else
-			{
-				this.pointOpposite.setX(xMin);
-				this.pointOpposite.setY(yMax);
-				this.pointOpposite.setZ(zMax);
-			}
+				this.pointOpposite = new Location(world, xMin, yMax, zMax);
 			break;
 			
 		case EAST:
+			Bukkit.broadcastMessage("EAST");
 			// When EngineSide is East, x goes from high to low and z goes from low to high
 			this.dx     = -1;
 			this.dz     =  1;
 			this.dirMul =  1;
-			this.turningPoint.setX(xMax);
-			this.turningPoint.setY(yMin);
-			this.turningPoint.setZ(zMin);
+			this.turningPoint = new Location(world, xMax, yMin, zMin);
+			
 			if (upDown.equals(RotateDirection.UP))
-			{
-				this.pointOpposite.setX(xMin);
-				this.pointOpposite.setY(yMin);
-				this.pointOpposite.setZ(zMax);
-			}
+				this.pointOpposite = new Location(world, xMin, yMin, zMax);
 			else
-			{
-				this.pointOpposite.setX(xMax);
-				this.pointOpposite.setY(yMax);
-				this.pointOpposite.setZ(zMax);
-			}
+				this.pointOpposite = new Location(world, xMax, yMax, zMax);
 			break;
 			
 		case WEST:
+			Bukkit.broadcastMessage("WEST");
 			// When EngineSide is West, x goes from low to high and z goes from high to low
 			this.dx     =  1;
 			this.dz     = -1;
 			this.dirMul = -1;
-			this.turningPoint.setX(xMin);
-			this.turningPoint.setY(yMin);
-			this.turningPoint.setZ(zMax);
+			this.pointOpposite = new Location(world, xMin, yMin, zMax);
+			
 			if (upDown.equals(RotateDirection.UP))
-			{
-				this.pointOpposite.setX(xMax);
-				this.pointOpposite.setY(yMin);
-				this.pointOpposite.setZ(zMin);
-			}
+				this.pointOpposite = new Location(world, xMax, yMin, zMin);
 			else
-			{
-				this.pointOpposite.setX(xMin);
-				this.pointOpposite.setY(yMax);
-				this.pointOpposite.setZ(zMin);
-			}
+				this.pointOpposite = new Location(world, xMin, yMax, zMin);
 			break;
 		}
+
+		Bukkit.broadcastMessage("Min = (" + xMin + ";" + yMin + ";" + zMin + ")");
+		Bukkit.broadcastMessage("Max = (" + xMax + ";" + yMax + ";" + zMax + ")");
+		
+		Bukkit.broadcastMessage("TurningPoint  = (" + 
+				this.turningPoint.getBlockX() + ";" + this.turningPoint.getBlockY() + ";" + this.turningPoint.getBlockZ() + ")");
+		Bukkit.broadcastMessage("OppositePoint = (" + 
+					this.pointOpposite.getBlockX() + ";" + this.pointOpposite.getBlockY() + ";" + this.pointOpposite.getBlockZ() + ")");
 
 		int index = 0;
 		double xAxis = turningPoint.getX();
@@ -186,12 +162,25 @@ public class BridgeMover
 			double zAxis = turningPoint.getZ();
 			do
 			{
-				// Get the radius of this pillar.
-				double radius = Math.abs(xAxis - turningPoint.getBlockX()) > Math.abs(zAxis - turningPoint.getBlockZ()) ?
-				                Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
+				// Get the radius of this row.
+				double radius;
+				if (upDown == RotateDirection.UP)
+				{
+					if (NS)
+						radius = Math.abs(xAxis - turningPoint.getBlockX());
+					else
+						radius = Math.abs(zAxis - turningPoint.getBlockZ());
+				}
+				radius = Math.abs(xAxis - turningPoint.getBlockX()) > Math.abs(zAxis - turningPoint.getBlockZ()) ?
+				         Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
 								
 				for (double yAxis = yMin; yAxis <= yMax; ++yAxis)
 				{
+					// If it's going down, it's currently up, which means that the radius will have to be determined for every y.
+					// TODO: Make separate function for this. This is getting too messy.
+					if (upDown == RotateDirection.DOWN)
+						radius = yAxis - turningPoint.getBlockY();						
+						
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
 					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
 					if (yAxis == yMin)
@@ -201,6 +190,7 @@ public class BridgeMover
 					@SuppressWarnings("deprecation")
 					Byte matData = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
 					
+//					Bukkit.broadcastMessage("Block at ("+(int) xAxis+";"+(int) yAxis+";"+(int) zAxis+") is of type " + mat.toString());
 					
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
@@ -227,19 +217,18 @@ public class BridgeMover
 		switch (openDirection)
 		{
 		case NORTH:
-			this.gnl = new GetNewLocationNorth(world, xMin, xMax, zMin, zMax, rotDirection);
+			this.gnl = new GetNewLocationNorth(world, xMin, xMax, yMin, yMax, zMin, zMax, rotDirection, openDirection);
 			break;
 		case EAST:
-			this.gnl = new GetNewLocationEast (world, xMin, xMax, zMin, zMax, rotDirection);
+			this.gnl = new GetNewLocationEast (world, xMin, xMax, yMin, yMax, zMin, zMax, rotDirection, openDirection);
 			break;
 		case SOUTH:
-			this.gnl = new GetNewLocationSouth(world, xMin, xMax, zMin, zMax, rotDirection);
+			this.gnl = new GetNewLocationSouth(world, xMin, xMax, yMin, yMax, zMin, zMax, rotDirection, openDirection);
 			break;
 		case WEST:
-			this.gnl = new GetNewLocationWest (world, xMin, xMax, zMin, zMax, rotDirection);
+			this.gnl = new GetNewLocationWest (world, xMin, xMax, yMin, yMax, zMin, zMax, rotDirection, openDirection);
 			break;
 		}
-		
 		rotateEntities();
 	}
 
@@ -265,7 +254,7 @@ public class BridgeMover
 					Material mat = savedBlocks.get(index).getMat();
 					Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
 
-					Location newPos = gnl.getNewLocation(savedBlocks, xAxis, yAxis, zAxis, index, upDown);
+					Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis, index);
 
 					savedBlocks.get(index).getFBlock().remove();
 					
@@ -300,7 +289,7 @@ public class BridgeMover
 				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{	
 					// Get final position of the blocks.
-					Location newPos = gnl.getNewLocation(savedBlocks, xAxis, yAxis, zAxis, index, upDown);
+					Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis, index);
 					
 					newPos.setX(newPos.getX() + 0.5);
 					newPos.setY(newPos.getY()      );
@@ -338,7 +327,6 @@ public class BridgeMover
 			Location center         = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
 			double   maxRad         = xLen > zLen ? xLen : zLen;
 			boolean replace         = false;
-			boolean NS              = engineSide == DoorDirection.NORTH || engineSide   == DoorDirection.SOUTH;
 			int qCircleCount        = engineSide == DoorDirection.EAST  && rotDirection == RotateDirection.CLOCKWISE       || 
 			                          engineSide == DoorDirection.SOUTH && rotDirection == RotateDirection.COUNTERCLOCKWISE ? 0 : -1;
 			int qCircleCheck        = 0;
@@ -359,7 +347,6 @@ public class BridgeMover
 				double realAngleMid    = Math.atan2(valueA, valueB);
 				double realAngleMidDeg = Math.abs((Math.toDegrees(realAngleMid) + 450) % 360 - 360); // [0;360]
 				
-				Bukkit.broadcastMessage("RealAngle = " + realAngleMid + ", realAngleMidDeg = " + realAngleMidDeg);
 				Bukkit.broadcastMessage(String.format("AngMid = %.4f, RealAngMid = %.4f", realAngleMid, realAngleMidDeg));
 				
 				// This part keeps track of how many quarter circles the blocks have moved by checking if blocks have moved into a new quadrant.

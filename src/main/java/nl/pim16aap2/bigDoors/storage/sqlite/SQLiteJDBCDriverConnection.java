@@ -186,7 +186,7 @@ public class SQLiteJDBCDriverConnection
 			return new Door(null, Bukkit.getServer().getWorld(UUID.fromString(rs.getString(3))), rs.getInt(5), 
 							rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9), rs.getInt(10), rs.getInt(11), 
 							rs.getInt(12), rs.getInt(13), rs.getString(2), (rs.getInt(4) == 1 ? true : false), 
-							doorUID, (rs.getInt(14) == 1 ? true : false), permission, 0);
+							doorUID, (rs.getInt(14) == 1 ? true : false), permission, rs.getInt(15), DoorDirection.valueOf(rs.getInt(16)));
 		}
 		catch (SQLException e)
 		{

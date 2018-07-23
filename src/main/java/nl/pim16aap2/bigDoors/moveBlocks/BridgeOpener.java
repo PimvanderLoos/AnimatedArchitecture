@@ -143,6 +143,8 @@ public class BridgeOpener implements Opener
 				break;
 			}
 		}
+		Bukkit.broadcastMessage("Start = (" + startX + ";" + startY + ";" + startZ + ")");
+		Bukkit.broadcastMessage("Stop  = (" + stopX  + ";" + stopY  + ";" + stopZ  + ")");
 
 		int x = startX, y, z;
 		while (x <= stopX)
@@ -182,6 +184,9 @@ public class BridgeOpener implements Opener
 		RotateDirection upDown = getUpDown(door);
 		DoorDirection cDir     = getCurrentDirection(door);
 		boolean NS  = cDir    == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
+		
+		if (upDown.equals(RotateDirection.UP))
+			return isNewPosFree(door, upDown, door.getEngSide()) ? door.getEngSide() : null;
 		
 		return 	!NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
 				 NS && isNewPosFree(door, upDown, DoorDirection.EAST ) ? DoorDirection.EAST  : 
@@ -268,7 +273,7 @@ public class BridgeOpener implements Opener
 	@Override
 	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection)
 	{
-		// TODO Auto-generated method stub	
+		// TODO Update coords AND!!! update engine side!
 	}
 
 	// TODO: Can probably be deprecated.

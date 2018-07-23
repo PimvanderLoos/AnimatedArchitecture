@@ -9,5 +9,5 @@ import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public interface GetNewLocation
 {
-	public Location getNewLocation(List<BlockData> savedBlocks, double xPos, double yPos, double zPos, int index, RotateDirection upDown);
+	public Location getNewLocation(double radius, double xPos, double yPos, double zPos, int index);
 }

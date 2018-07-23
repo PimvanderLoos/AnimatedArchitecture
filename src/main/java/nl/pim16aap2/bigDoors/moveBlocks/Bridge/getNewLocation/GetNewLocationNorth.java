@@ -1,44 +1,47 @@
 package nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation;
 
-import java.util.List;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import nl.pim16aap2.bigDoors.util.BlockData;
+import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class GetNewLocationNorth implements GetNewLocation
 {
 	@SuppressWarnings("unused")
-	private int xMin, xMax, zMin, zMax;
-	private World world;
-	private RotateDirection rotDir;
+	private World                 world;
+	private RotateDirection      upDown;
+	private DoorDirection openDirection;
+	private int        xMin, yMin, zMin;
+	private int        xMax, yMax, zMax;
 	
-	public GetNewLocationNorth(World world, int xMin, int xMax, int zMin, int zMax, RotateDirection rotDir)
+	public GetNewLocationNorth(World world, int xMin, int xMax, int yMin, int yMax, int zMin, int zMax, RotateDirection upDown, DoorDirection openDirection)
 	{
-		this.rotDir = rotDir;
-		this.world  = world;
-		this.xMin   = xMin;
-		this.xMax   = xMax;
-		this.zMin   = zMin;
-		this.zMax   = zMax;
+		this.openDirection = openDirection;
+		this.upDown        = upDown;
+		this.world         = world;
+		this.xMin          = xMin;
+		this.xMax          = xMax;
+		this.yMin          = yMin;
+		this.yMax          = yMax;
+		this.zMin          = zMin;
+		this.zMax          = zMax;
 	}
 
 	public GetNewLocationNorth()
 	{}
-
+	
 	@Override
-	public Location getNewLocation(List<BlockData> savedBlocks, double xPos, double yPos, double zPos, int index, RotateDirection upDown)
+	public Location getNewLocation(double radius, double xPos, double yPos, double zPos, int index)
 	{
-		Location oldPos = new Location(world, xPos, yPos, zPos);
-		Location newPos = oldPos;
+		Location newPos = null;
 
-		double radius = savedBlocks.get(index).getRadius();
-
-		newPos.setX(oldPos.getX() + (rotDir == RotateDirection.CLOCKWISE ? radius : -radius));
-		newPos.setY(oldPos.getY());
-		newPos.setZ(zMax);
+		if (upDown == RotateDirection.UP)
+			newPos = new Location(world, xPos, radius, this.zMin);
+		else if (openDirection.equals(DoorDirection.NORTH))
+			newPos = new Location(world, xPos, yMin, zPos - radius);
+		else if (openDirection.equals(DoorDirection.SOUTH))
+			newPos = new Location(world, xPos, yMin, zPos + radius);
 		return newPos;
 	}
 }
