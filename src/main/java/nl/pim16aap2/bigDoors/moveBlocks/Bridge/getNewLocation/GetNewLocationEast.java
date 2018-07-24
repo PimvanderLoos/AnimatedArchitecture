@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -17,6 +18,7 @@ public class GetNewLocationEast implements GetNewLocation
 	
 	public GetNewLocationEast(World world, int xMin, int xMax, int yMin, int yMax, int zMin, int zMax, RotateDirection upDown, DoorDirection openDirection)
 	{
+		Bukkit.broadcastMessage("EAST: RotDir = " + upDown + ", openDir = " + openDirection);
 		this.openDirection = openDirection;
 		this.upDown        = upDown;
 		this.world         = world;
@@ -31,14 +33,13 @@ public class GetNewLocationEast implements GetNewLocation
 	public GetNewLocationEast()
 	{}
 	
-	// DONE!
 	@Override
 	public Location getNewLocation(double radius, double xPos, double yPos, double zPos, int index)
 	{
 		Location newPos = null;
 
 		if (upDown == RotateDirection.UP)
-			newPos = new Location(world, this.xMax, radius, zPos);
+			newPos = new Location(world, this.xMax, yMin + radius, zPos);
 		else if (openDirection.equals(DoorDirection.WEST))
 			newPos = new Location(world, xPos - radius, yMin, zPos);
 		else if (openDirection.equals(DoorDirection.EAST))

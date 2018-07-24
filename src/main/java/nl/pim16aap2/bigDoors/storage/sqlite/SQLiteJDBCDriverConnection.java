@@ -421,6 +421,43 @@ public class SQLiteJDBCDriverConnection
 	}
 	
 	// Update the door at doorUID with the provided coordinates and open status.
+	public void updateDoorCoords(long doorID, int isOpen, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, DoorDirection engSide)
+	{
+		Connection conn = null;
+		try
+		{
+			conn = getConnection();
+			conn.setAutoCommit(false);
+			String update = "UPDATE doors SET " 
+					+   "xMin='" 			+ xMin 
+					+ "',yMin='" 			+ yMin 
+					+ "',zMin='" 			+ zMin 
+					+ "',xMax='" 			+ xMax 
+					+ "',yMax='" 			+ yMax 
+					+ "',zMax='"	 			+ zMax 
+					+ "',engineSide='"   	+ DoorDirection.getValue(engSide)
+					+ "' WHERE id = '"	    + doorID + "';";
+			conn.prepareStatement(update).executeUpdate();
+			conn.commit();
+		}
+		catch(SQLException e)
+		{
+			plugin.getMyLogger().logMessage("394: " + e.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				conn.close();
+			}
+			catch (SQLException e)
+			{
+				plugin.getMyLogger().logMessage("404: " + e.getMessage());
+			}
+		}
+	}
+	
+	// Update the door at doorUID with the provided coordinates and open status.
 	public void updateDoorCoords(long doorID, int isOpen, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax)
 	{
 		Connection conn = null;

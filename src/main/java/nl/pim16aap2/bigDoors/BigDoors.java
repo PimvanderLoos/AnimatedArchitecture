@@ -92,6 +92,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		Bukkit.getPluginManager().registerEvents(new RedstoneHandler (this), this);
 		getCommand("unlockDoor").setExecutor(new CommandHandler(this));
 		getCommand("pausedoors").setExecutor(new CommandHandler(this));
+		getCommand("doordebug" ).setExecutor(new CommandHandler(this));
 		getCommand("opendoors" ).setExecutor(new CommandHandler(this));
 		getCommand("listdoors" ).setExecutor(new CommandHandler(this));
 		getCommand("stopdoors" ).setExecutor(new CommandHandler(this));
@@ -190,7 +191,6 @@ public class BigDoors extends JavaPlugin implements Listener
 	
 	public Opener getDoorOpener(int type)
 	{
-		Bukkit.broadcastMessage("Getting door opener for door type: " + type);
 		switch (type)
 		{
 		case 0:

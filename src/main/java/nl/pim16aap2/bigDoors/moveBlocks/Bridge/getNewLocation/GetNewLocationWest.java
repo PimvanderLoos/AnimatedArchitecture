@@ -37,7 +37,7 @@ public class GetNewLocationWest implements GetNewLocation
 		Location newPos = null;
 
 		if (upDown == RotateDirection.UP)
-			newPos = new Location(world, this.xMin, radius, zPos);
+			newPos = new Location(world, this.xMin, yMin + radius, zPos);
 		else if (openDirection.equals(DoorDirection.WEST))
 			newPos = new Location(world, xPos - radius, yMin, zPos);
 		else if (openDirection.equals(DoorDirection.EAST))

@@ -191,4 +191,9 @@ public class Door
 	{
 		this.permission = permission;
 	}
+
+	public void setEngineSide(DoorDirection newEngSide)
+	{
+		this.engineSide = newEngSide;
+	}
 }

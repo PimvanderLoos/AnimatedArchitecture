@@ -71,4 +71,7 @@ commands:
     description: Display door info.
     usage: /DoorInfo <doorName>
     permission: bigdoors.user.doorinfo
-    
+  doordebug:
+    description: Do not use this unless you are me. Huh?
+    usage: This command is not meant for mere mortals.
+    permission: bigdoors.admin.isweariampim16aap2

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 
@@ -121,7 +122,7 @@ public class BridgeOpener implements Opener
 			case EAST:
 				Bukkit.broadcastMessage("D: EAST");
 				startX = door.getMinimum().getBlockX() + 1;
-				stopX  = door.getMinimum().getBlockX() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
+				stopX  = door.getMaximum().getBlockX() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 				
 				startY = door.getMinimum().getBlockY();
 				stopY  = door.getMinimum().getBlockY();
@@ -133,7 +134,7 @@ public class BridgeOpener implements Opener
 			case WEST:
 				Bukkit.broadcastMessage("D: WEST");
 				startX = door.getMinimum().getBlockX() - 1;
-				stopX  = door.getMinimum().getBlockX() - door.getMaximum().getBlockX() + door.getMinimum().getBlockX();
+				stopX  = door.getMinimum().getBlockX() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
 				
 				startY = door.getMinimum().getBlockY();
 				stopY  = door.getMinimum().getBlockY();
@@ -182,16 +183,19 @@ public class BridgeOpener implements Opener
 	public DoorDirection getOpenDirection(Door door)
 	{
 		RotateDirection upDown = getUpDown(door);
+		Bukkit.broadcastMessage("0: UpDown for door \"" + door.getName() + "\" = " + upDown.toString());
 		DoorDirection cDir     = getCurrentDirection(door);
 		boolean NS  = cDir    == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
+		
+		Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Current Direction = " + cDir.toString());
 		
 		if (upDown.equals(RotateDirection.UP))
 			return isNewPosFree(door, upDown, door.getEngSide()) ? door.getEngSide() : null;
 		
-		return 	!NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
-				 NS && isNewPosFree(door, upDown, DoorDirection.EAST ) ? DoorDirection.EAST  : 
-				!NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH : 
-				 NS && isNewPosFree(door, upDown, DoorDirection.WEST ) ? DoorDirection.WEST  : null;
+		return 	 NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
+				!NS && isNewPosFree(door, upDown, DoorDirection.EAST ) ? DoorDirection.EAST  : 
+				 NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH : 
+				!NS && isNewPosFree(door, upDown, DoorDirection.WEST ) ? DoorDirection.WEST  : null;
 	}
 
 	// Get the "current direction". In this context this means on which side of the drawbridge the engine is.
@@ -244,6 +248,7 @@ public class BridgeOpener implements Opener
 			return false;
 		}
 		this.upDown = getUpDown(door);
+		Bukkit.broadcastMessage("1: UpDown for door \"" + door.getName() + "\" = " + upDown.toString());
 		if (upDown == null)
 		{
 			plugin.getMyLogger().logMessage("UpDown direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
@@ -271,9 +276,92 @@ public class BridgeOpener implements Opener
 	}
 
 	@Override
-	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection)
+	public void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown)
 	{
-		// TODO Update coords AND!!! update engine side!
+		int xMin = door.getMinimum().getBlockX();
+		int yMin = door.getMinimum().getBlockY();
+		int zMin = door.getMinimum().getBlockZ();
+		int xMax = door.getMaximum().getBlockX();
+		int yMax = door.getMaximum().getBlockY();
+		int zMax = door.getMaximum().getBlockZ();
+		int xLen = xMax - xMin;
+		int yLen = yMax - yMin;
+		int zLen = zMax - zMin;
+		Location newMax = null;
+		Location newMin = null;
+		DoorDirection newEngSide = door.getEngSide();
+		
+		switch (openDirection)
+		{
+		case NORTH:
+			if (upDown == RotateDirection.UP)
+			{
+				newEngSide = DoorDirection.NORTH;
+				newMin = new Location(door.getWorld(), xMin, yMin,        zMin);
+				newMax = new Location(door.getWorld(), xMax, yMin + zLen, zMin);
+			} 
+			else
+			{
+				newEngSide = DoorDirection.SOUTH;
+				newMin = new Location(door.getWorld(), xMin, yMin, zMin - yLen);
+				newMax = new Location(door.getWorld(), xMax, yMin, zMin       );
+			}
+			break;
+			
+			
+		case EAST:
+			if (upDown == RotateDirection.UP)
+			{
+				newEngSide = DoorDirection.EAST;
+				newMin = new Location(door.getWorld(), xMax, yMin,        zMin);
+				newMax = new Location(door.getWorld(), xMax, yMin + xLen, zMax);
+			} 
+			else
+			{
+				newEngSide = DoorDirection.WEST;
+				newMin = new Location(door.getWorld(), xMax,        yMin, zMin);
+				newMax = new Location(door.getWorld(), xMax + yLen, yMin, zMax);
+			}
+			break;
+			
+			
+		case SOUTH:
+			if (upDown == RotateDirection.UP)
+			{
+				newEngSide = DoorDirection.SOUTH;
+				newMin = new Location(door.getWorld(), xMin, yMin,        zMax);
+				newMax = new Location(door.getWorld(), xMax, yMin + zLen, zMax);
+			} 
+			else
+			{
+				newEngSide = DoorDirection.NORTH;
+				newMin = new Location(door.getWorld(), xMin, yMin, zMax - yLen);
+				newMax = new Location(door.getWorld(), xMax, yMin, zMax       );
+			}
+			break;
+			
+			
+		case WEST:
+			if (upDown == RotateDirection.UP)
+			{
+				newEngSide = DoorDirection.WEST;
+				newMin = new Location(door.getWorld(), xMin, yMin,        zMin);
+				newMax = new Location(door.getWorld(), xMin, yMin + xLen, zMax);
+			} 
+			else
+			{
+				newEngSide = DoorDirection.EAST;
+				newMin = new Location(door.getWorld(), xMin - yLen, yMin, zMin);
+				newMax = new Location(door.getWorld(), xMin,        yMin, zMax);
+			}
+			break;
+		}
+		door.setMaximum(newMax);
+		door.setMinimum(newMin);
+		door.setEngineSide(newEngSide);
+
+		int isOpen = door.getStatus() == true ? 0 : 1; // If door.getStatus() is true (1), set isOpen to 0, as it's just been toggled.
+		plugin.getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
 	}
 
 	// TODO: Can probably be deprecated.

@@ -182,6 +182,13 @@ public class CommandHandler implements CommandExecutor
 			return true;
 		}
 		
+		// doordebug
+		if (cmd.getName().equalsIgnoreCase("doordebug"))
+		{
+			doorDebug();
+			return true;
+		}
+		
 		// pausedoors
 		if (cmd.getName().equalsIgnoreCase("pausedoors"))
 		{
@@ -379,5 +386,11 @@ public class CommandHandler implements CommandExecutor
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "More than one door found with that name! Please use their ID instead:");
 			listDoors(player, doorName);
 		}
+	}
+	
+	// Used for various debugging purposes (you don't say!).
+	public void doorDebug()
+	{
+		Bukkit.broadcastMessage("Doors can" + (plugin.getCommander().canGo() ? " " : "not ") + "go!");
 	}
 }

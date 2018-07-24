@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
+import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class Commander
@@ -173,6 +174,12 @@ public class Commander
 	public void updateDoorCoords(long doorUID, int isOpen, int blockXMin, int blockYMin, int blockZMin, int blockXMax, int blockYMax, int blockZMax)
 	{
 		db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax);
+	}
+
+	// Update the coordinates of a given door.
+	public void updateDoorCoords(long doorUID, int isOpen, int blockXMin, int blockYMin, int blockZMin, int blockXMax, int blockYMax, int blockZMax, DoorDirection newEngSide)
+	{
+		db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax, newEngSide);
 	}
 	
 	// Change the "locked" status of a door.
