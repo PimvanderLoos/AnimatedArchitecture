@@ -200,16 +200,31 @@ public class BridgeMover
 			this.dx      =  1;
 			this.dz      = -1;
 			this.dirMulX =  1;
-			this.dirMulZ = -1;
+			this.dirMulZ =  1;
 			this.turningPoint = new Location(world, xMin, yMin, zMax);
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
-				this.pointOpposite = new Location(world, xMax, yMin, zMin);
+				directionMultiplier =  1;
+				this.pointOpposite  = new Location(world, xMax, yMin, zMin);
 			}
 			else
 			{
 				this.pointOpposite = new Location(world, xMin, yMax, zMin);
+				if (openDirection.equals(DoorDirection.EAST))
+				{
+					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING EAST");
+					directionMultiplier =  1;
+					this.dirMulX = -1;
+					this.dirMulZ = -1;
+				}
+				else if (openDirection.equals(DoorDirection.WEST))
+				{
+					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING WEST");
+					directionMultiplier = -1;
+					this.dirMulX = -1;
+					this.dirMulZ = -1;
+				}
 			}
 			break;
 		}
@@ -419,8 +434,8 @@ public class BridgeMover
 			Location center         = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
 			double   maxRad         = xLen > zLen ? xLen : zLen;
 			boolean replace         = false;
-			int qCircleCount        = engineSide == DoorDirection.EAST  && upDown == RotateDirection.CLOCKWISE       || 
-			                          engineSide == DoorDirection.SOUTH && upDown == RotateDirection.COUNTERCLOCKWISE ? 0 : -1;
+			int qCircleCount        = 	engineSide == DoorDirection.EAST ? -1 : 
+										engineSide == DoorDirection.WEST ?  0 : -1;
 			int qCircleCheck        = 0;
 			int indexMid            = savedBlocks.size() / 2;
 			int counter             = 0;
@@ -448,6 +463,7 @@ public class BridgeMover
 				{
 					// Add or subtract 5 degrees from the actual angle and put it on [0;360] again.
 					realAngleMidDeg = ((realAngleMidDeg + -directionMultiplier * 5) + 360) % 360;
+					Bukkit.broadcastMessage(String.format("realAngleMidDeg=%.3f, val=%d, check=%d, count = %d", realAngleMidDeg, ((int) (realAngleMidDeg / 90)), qCircleCheck, qCircleCount));
 					
 					// If the angle / 90 is not the same as qCircleCheck, the blocks have moved on to a new quadrant.
 					if ((int) (realAngleMidDeg / 90) != qCircleCheck)
@@ -502,6 +518,9 @@ public class BridgeMover
 										double realAngle    = Math.atan2(valueC, valueD);
 										double realAngleDeg = Math.abs((Math.toDegrees(realAngle ) + 450) % 360 - 360); // [0;360]
 										double moveAngle    = (realAngleDeg + 90) % 360;
+										
+//										if (radius == 4)
+//											Bukkit.broadcastMessage(String.format("Angle=%.3f, moveAngle=%.3f, realAngleMidDeg=%.3f", realAngleDeg, moveAngle, realAngleMidDeg));
 										
 										if (!NS)
 										{
