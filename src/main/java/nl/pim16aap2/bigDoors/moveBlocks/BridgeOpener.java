@@ -103,8 +103,8 @@ public class BridgeOpener implements Opener
 				startY = door.getMinimum().getBlockY();
 				stopY  = door.getMinimum().getBlockY();
 				
-				startZ = door.getMinimum().getBlockZ() - 1;
-				stopZ  = door.getMinimum().getBlockZ() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
+				startZ = door.getMinimum().getBlockZ() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
+				stopZ  = door.getMinimum().getBlockZ() - 1;
 				break;
 				
 			case SOUTH:
@@ -133,8 +133,8 @@ public class BridgeOpener implements Opener
 				
 			case WEST:
 				Bukkit.broadcastMessage("D: WEST");
-				startX = door.getMinimum().getBlockX() - 1;
-				stopX  = door.getMinimum().getBlockX() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
+				startX = door.getMinimum().getBlockX() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
+				stopX  = door.getMinimum().getBlockX() - 1;
 				
 				startY = door.getMinimum().getBlockY();
 				stopY  = door.getMinimum().getBlockY();
@@ -222,7 +222,7 @@ public class BridgeOpener implements Opener
 	@Override
 	public boolean openDoor(Door door, double speed)
 	{
-		return openDoor(door, speed, false);
+		return openDoor(door, speed/1.5, false);
 	}
 
 	@Override
@@ -335,8 +335,8 @@ public class BridgeOpener implements Opener
 			else
 			{
 				newEngSide = DoorDirection.NORTH;
-				newMin = new Location(door.getWorld(), xMin, yMin, zMax - yLen);
-				newMax = new Location(door.getWorld(), xMax, yMin, zMax       );
+				newMin = new Location(door.getWorld(), xMin, yMin, zMax       );
+				newMax = new Location(door.getWorld(), xMax, yMin, zMax + yLen);
 			}
 			break;
 			

@@ -104,8 +104,8 @@ public class BridgeMover
 				Bukkit.broadcastMessage(ChatColor.RED + "GOING UP");
 				directionMultiplier = -1;
 				this.pointOpposite  = new Location(world, xMax, yMin, zMax);
-				this.dirMulX =  1;
-				this.dirMulZ =  1;
+				this.dirMulX = -1;
+				this.dirMulZ = -1;
 			}
 			else
 			{
@@ -114,8 +114,8 @@ public class BridgeMover
 				{
 					Bukkit.broadcastMessage(ChatColor.RED + "GOING NORTH");
 					directionMultiplier = -1;
-					this.dirMulX =  1;
-					this.dirMulZ =  1;
+					this.dirMulX = -1;
+					this.dirMulZ = -1;
 				}
 				else if (openDirection.equals(DoorDirection.SOUTH))
 				{
@@ -132,29 +132,29 @@ public class BridgeMover
 			// When EngineSide is South, x goes from high to low and z goes from high to low
 			this.dx      = -1;
 			this.dz      = -1;
-			this.dirMulX =  1;
-			this.dirMulZ =  1;
+			this.dirMulX = -1;
+			this.dirMulZ = -1;
 			this.turningPoint = new Location(world, xMax, yMin, zMax);
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
 				directionMultiplier =  1;
-				this.pointOpposite = new Location(world, xMin, yMin, zMin);
+				this.pointOpposite  = new Location(world, xMin, yMin, zMin);
 			}
 			else
 			{
 				this.pointOpposite = new Location(world, xMin, yMax, zMax);
 				if (openDirection.equals(DoorDirection.NORTH))
 				{
-					directionMultiplier =  1;
+					directionMultiplier = -1;
 					this.dirMulX = -1;
 					this.dirMulZ = -1;
 				}
 				else if (openDirection.equals(DoorDirection.SOUTH))
 				{
-					directionMultiplier = -1;
-					this.dirMulX =  1;
-					this.dirMulZ =  1;
+					directionMultiplier =  1;
+					this.dirMulX = -1;
+					this.dirMulZ = -1;
 				}
 			}
 			break;
@@ -182,7 +182,7 @@ public class BridgeMover
 					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING EAST");
 					directionMultiplier =  1;
 					this.dirMulX = -1;
-					this.dirMulZ =  1;
+					this.dirMulZ = -1;
 				}
 				else if (openDirection.equals(DoorDirection.WEST))
 				{
@@ -411,31 +411,19 @@ public class BridgeMover
 	{
 		new BukkitRunnable()
 		{
-//			int directionMultiplier = 0;
-//			switch (openDirection)
-//			{
-//			case NORTH:
-//				
-//				break;
-//				
-//			case SOUTH:
-//				
-//				break;
-//				
-//			case EAST:
-//				
-//				break;
-//				
-//			case WEST:
-//				
-//				break;
-//			}
-//			int directionMultiplier = upDown == RotateDirection.UP ? -1 : 1;
 			Location center         = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
 			double   maxRad         = xLen > zLen ? xLen : zLen;
 			boolean replace         = false;
-			int qCircleCount        = 	engineSide == DoorDirection.EAST ? -1 : 
-										engineSide == DoorDirection.WEST ?  0 : -1;
+			int qCircleCount        = 	engineSide == DoorDirection.EAST  && upDown == RotateDirection.DOWN && openDirection == DoorDirection.EAST  ?  0 : 
+										engineSide == DoorDirection.EAST  ? -1 : 
+										engineSide == DoorDirection.WEST  && upDown == RotateDirection.DOWN && openDirection == DoorDirection.WEST  ? -1 :
+										engineSide == DoorDirection.WEST  ?  0 :
+										engineSide == DoorDirection.NORTH && upDown == RotateDirection.UP   ? -2 :
+										engineSide == DoorDirection.NORTH && upDown == RotateDirection.DOWN && openDirection == DoorDirection.NORTH ? -1 :
+										engineSide == DoorDirection.NORTH && upDown == RotateDirection.DOWN ?  0 :
+										engineSide == DoorDirection.SOUTH && upDown == RotateDirection.UP   ? -2 :
+										engineSide == DoorDirection.SOUTH && upDown == RotateDirection.DOWN && openDirection == DoorDirection.SOUTH ?  0 :
+										engineSide == DoorDirection.SOUTH && upDown == RotateDirection.DOWN ? -1 : -1;
 			int qCircleCheck        = 0;
 			int indexMid            = savedBlocks.size() / 2;
 			int counter             = 0;
@@ -449,9 +437,9 @@ public class BridgeMover
 				double valueA = center.getY() - savedBlocks.get(indexMid).getFBlock().getLocation().getY();
 				double valueB;
 				if (NS)
-					valueB = center.getZ() - savedBlocks.get(indexMid).getFBlock().getLocation().getZ();
+					valueB    = center.getZ() - savedBlocks.get(indexMid).getFBlock().getLocation().getZ();
 				else
-					valueB = center.getX() - savedBlocks.get(indexMid).getFBlock().getLocation().getX();
+					valueB    = center.getX() - savedBlocks.get(indexMid).getFBlock().getLocation().getX();
 				
 				double realAngleMid    = Math.atan2(valueA, valueB);
 				double realAngleMidDeg = Math.abs((Math.toDegrees(realAngleMid) + 450) % 360 - 360); // [0;360]
@@ -462,8 +450,7 @@ public class BridgeMover
 				if (realAngleMidDeg % 90 != 0)
 				{
 					// Add or subtract 5 degrees from the actual angle and put it on [0;360] again.
-					realAngleMidDeg = ((realAngleMidDeg + -directionMultiplier * 5) + 360) % 360;
-					Bukkit.broadcastMessage(String.format("realAngleMidDeg=%.3f, val=%d, check=%d, count = %d", realAngleMidDeg, ((int) (realAngleMidDeg / 90)), qCircleCheck, qCircleCount));
+					realAngleMidDeg = ((realAngleMidDeg + -directionMultiplier * 1) + 360) % 360;
 					
 					// If the angle / 90 is not the same as qCircleCheck, the blocks have moved on to a new quadrant.
 					if ((int) (realAngleMidDeg / 90) != qCircleCheck)
@@ -519,9 +506,7 @@ public class BridgeMover
 										double realAngleDeg = Math.abs((Math.toDegrees(realAngle ) + 450) % 360 - 360); // [0;360]
 										double moveAngle    = (realAngleDeg + 90) % 360;
 										
-//										if (radius == 4)
-//											Bukkit.broadcastMessage(String.format("Angle=%.3f, moveAngle=%.3f, realAngleMidDeg=%.3f", realAngleDeg, moveAngle, realAngleMidDeg));
-										
+//										
 										if (!NS)
 										{
 											// Get the actual radius of the block (and compare that to the radius it should have (stored in the block)) later (moveAndAddForGoal).
@@ -533,6 +518,10 @@ public class BridgeMover
 											// TODO: Smaller total height needs lower punishment than larger doors. Presumably because of speed difference. Fix that.
 											double moveAngleAddForGoal = directionMultiplier * 15 * (radius - realRadius - 0.18);
 		
+//											double speedBoost   = Math.abs(realAngleMidDeg - realAngleDeg);
+//											speedBoost *= speedBoost / 200;
+//											speedBoost += 1;
+											
 											// Inversed zRot sign for directionMultiplier.
 											double xRot = dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
 											double yRot = dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
@@ -541,37 +530,38 @@ public class BridgeMover
 										else
 										{
 											// Get the actual radius of the block (and compare that to the radius it should have (stored in the block)) later (moveAndAddForGoal).
-											double dX           = Math.abs(xPos - (turningPoint.getBlockX() + 0.5));
+											double dZ           = Math.abs(zPos - (turningPoint.getBlockZ() + 0.5));
 											double dY           = Math.abs(yPos - (turningPoint.getBlockY() + 0.5));
-											double realRadius   = Math.sqrt(dX * dX + dY * dY);
+											double realRadius   = Math.sqrt(dZ * dZ + dY * dY);
 											
 											// Additional angle added to the movement direction so that the radius remains correct for all blocks.
 											// TODO: Smaller total height needs lower punishment than larger doors. Presumably because of speed difference. Fix that.
 											double moveAngleAddForGoal = directionMultiplier * 15 * (radius - realRadius - 0.18);
 		
 											// Inversed zRot sign for directionMultiplier.
-											double xRot = dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
+											double zRot = dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
 											double yRot = dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
-											savedBlocks.get(index).getFBlock().setVelocity(new Vector (directionMultiplier * xRot, yRot, 0.000));
+											savedBlocks.get(index).getFBlock().setVelocity(new Vector (0.000, yRot, directionMultiplier * zRot));
 										}
 									}
-	
-									// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
-									if (replace)
-									{
-										Material mat     = savedBlocks.get(index).getMat();
-										if (mat == Material.LOG || mat == Material.LOG_2)
-										{
-											Location loc = savedBlocks.get(index).getFBlock().getLocation();
-											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
-											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
-											savedBlocks.get(index).getFBlock().remove();
-		
-											CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(loc, mat, (byte) matData, world);
-											savedBlocks.get(index).setFBlock(fBlock);
-											savedBlocks.get(index).getFBlock().setVelocity(veloc);
-										}
-									}
+
+									// TODO: Re-enable block rotations.
+//									// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
+//									if (replace)
+//									{
+//										Material mat     = savedBlocks.get(index).getMat();
+//										if (mat == Material.LOG || mat == Material.LOG_2)
+//										{
+//											Location loc = savedBlocks.get(index).getFBlock().getLocation();
+//											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
+//											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
+//											savedBlocks.get(index).getFBlock().remove();
+//		
+//											CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(loc, mat, (byte) matData, world);
+//											savedBlocks.get(index).setFBlock(fBlock);
+//											savedBlocks.get(index).getFBlock().setVelocity(veloc);
+//										}
+//									}
 									index++;
 								}
 								zAxis += dz;

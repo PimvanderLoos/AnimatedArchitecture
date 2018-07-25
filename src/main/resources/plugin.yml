@@ -40,12 +40,12 @@ commands:
     permission-message: You do not have the bigdoors.deletedoor permission node.
   opendoor:
     description: Open the door with name "doorName".
-    usage: /OpenDoor <doorName> [speed]
+    usage: /OpenDoor <doorName>
     permission: bigdoors.user.opendoor
     permission-message: You do not have the bigdoors.opendoor permission node.
   opendoors:
     description: Open the doors with name "doorName1" and "doorName2".
-    usage: /OpenDoors <doorName1> <doorName2> [speed]
+    usage: /OpenDoors <doorName1> <doorName2>
     permission: bigdoors.user.opendoors
     permission-message: You do not have the bigdoors.opendoor permission node.
   listdoors:
