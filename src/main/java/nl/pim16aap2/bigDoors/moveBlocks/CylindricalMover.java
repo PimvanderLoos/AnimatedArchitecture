@@ -6,6 +6,9 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -92,7 +95,8 @@ public class CylindricalMover
 					Material mat = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
 					@SuppressWarnings("deprecation")
 					Byte matData = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
-					
+					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
+					MaterialData materialData = bs.getData();
 					
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
@@ -105,7 +109,7 @@ public class CylindricalMover
 					
 					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
 					
-					savedBlocks.add(index, new BlockData(mat, matData, fBlock, radius));
+					savedBlocks.add(index, new BlockData(mat, matData, fBlock, radius, materialData));
 
 					index++;
 				}
@@ -135,6 +139,17 @@ public class CylindricalMover
 		rotateEntities();
 	}
 	
+	// Check if a block can (should) be rotated.
+	public boolean canRotate(Material mat)
+	{	// Logs, stairs and glass panes can rotate, the rest can't.
+		return 	mat.equals(Material.LOG)               || mat.equals(Material.LOG_2)              || mat.equals(Material.ACACIA_STAIRS)        ||
+				mat.equals(Material.BIRCH_WOOD_STAIRS) || mat.equals(Material.BRICK_STAIRS)       || mat.equals(Material.COBBLESTONE_STAIRS)   || 
+				mat.equals(Material.DARK_OAK_STAIRS)   || mat.equals(Material.JUNGLE_WOOD_STAIRS) || mat.equals(Material.NETHER_BRICK_STAIRS)  || 
+				mat.equals(Material.PURPUR_STAIRS)     || mat.equals(Material.QUARTZ_STAIRS)      || mat.equals(Material.RED_SANDSTONE_STAIRS) || 
+				mat.equals(Material.SANDSTONE_STAIRS)  || mat.equals(Material.SMOOTH_STAIRS)      || mat.equals(Material.SPRUCE_WOOD_STAIRS)   || 
+				mat.equals(Material.WOOD_STAIRS)       || mat.equals(Material.STAINED_GLASS_PANE) || mat.equals(Material.THIN_GLASS);
+	}
+	
 	// Put the door blocks back, but change their state now.
 	@SuppressWarnings("deprecation")
 	public void putBlocks()
@@ -155,15 +170,27 @@ public class CylindricalMover
 					 */
 
 					Material mat = savedBlocks.get(index).getMat();
-					Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
+					Byte matByte;
+					
+					if (canRotate(mat))
+						matByte = rotateBlockData(savedBlocks.get(index).getBlockByte());
+					else
+						matByte = savedBlocks.get(index).getMatData().getData();
 
 					Location newPos = gnl.getNewLocation(savedBlocks, xAxis, yAxis, zAxis, index);
 
 					savedBlocks.get(index).getFBlock().remove();
 					
-					world.getBlockAt(newPos).setType(mat);
-					world.getBlockAt(newPos).setData(matData);
-
+					Block b = world.getBlockAt(newPos);
+					
+					MaterialData matData = savedBlocks.get(index).getMatData();
+					matData.setData(matByte);
+					
+					b.setType(mat);
+					BlockState bs = b.getState();
+					bs.setData(matData);
+					bs.update();
+					
 					index++;
 				}
 				zAxis += dz;
