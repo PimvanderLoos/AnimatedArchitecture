@@ -18,7 +18,6 @@ public class GetNewLocationSouth implements GetNewLocation
 	
 	public GetNewLocationSouth(World world, int xMin, int xMax, int yMin, int yMax, int zMin, int zMax, RotateDirection upDown, DoorDirection openDirection)
 	{
-		Bukkit.broadcastMessage("SOUTH: RotDir = " + upDown + ", openDir = " + openDirection);
 		this.openDirection = openDirection;
 		this.upDown        = upDown;
 		this.world         = world;

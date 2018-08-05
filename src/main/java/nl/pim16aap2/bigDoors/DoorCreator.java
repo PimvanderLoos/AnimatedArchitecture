@@ -88,7 +88,6 @@ public class DoorCreator
 	// Final cleanup
 	public void finishUp()
 	{
-		Bukkit.broadcastMessage("Door is of type: " + this.type);
 		if (this.EngineSide != null)
 			this.player.sendMessage(ChatColor.DARK_PURPLE + "Engine side = " + this.EngineSide.toString());
 		else

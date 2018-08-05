@@ -303,7 +303,6 @@ public class CommandHandler implements CommandExecutor
 			{
 				if (args.length == 1)
 				{
-					Bukkit.broadcastMessage("Listing door info for " + args[0]);
 					listDoorInfo(player, args[0]);
 					return true;
 				}
@@ -382,7 +381,6 @@ public class CommandHandler implements CommandExecutor
 		}
 		else
 		{
-			Bukkit.broadcastMessage("doorCount = " + doorCount);
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "More than one door found with that name! Please use their ID instead:");
 			listDoors(player, doorName);
 		}

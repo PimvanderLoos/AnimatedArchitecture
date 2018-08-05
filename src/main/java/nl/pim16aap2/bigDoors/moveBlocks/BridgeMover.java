@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+//import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -93,7 +94,7 @@ public class BridgeMover
 		switch (engineSide)
 		{
 		case NORTH:
-			Bukkit.broadcastMessage(ChatColor.GREEN + "NORTH, OpenDirection = " + openDirection.toString());
+//			Bukkit.broadcastMessage(ChatColor.GREEN + "NORTH, OpenDirection = " + openDirection.toString());
 			// When EngineSide is North, x goes from low to high and z goes from low to high
 			this.dx      =  1;
 			this.dz      =  1;
@@ -101,7 +102,7 @@ public class BridgeMover
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
-				Bukkit.broadcastMessage(ChatColor.RED + "GOING UP");
+//				Bukkit.broadcastMessage(ChatColor.RED + "GOING UP");
 				directionMultiplier = -1;
 				this.pointOpposite  = new Location(world, xMax, yMin, zMax);
 				this.dirMulX = -1;
@@ -112,14 +113,14 @@ public class BridgeMover
 				this.pointOpposite  = new Location(world, xMax, yMax, zMin);
 				if (openDirection.equals(DoorDirection.NORTH))
 				{
-					Bukkit.broadcastMessage(ChatColor.RED + "GOING NORTH");
+//					Bukkit.broadcastMessage(ChatColor.RED + "GOING NORTH");
 					directionMultiplier = -1;
 					this.dirMulX = -1;
 					this.dirMulZ = -1;
 				}
 				else if (openDirection.equals(DoorDirection.SOUTH))
 				{
-					Bukkit.broadcastMessage(ChatColor.RED + "GOING SOUTH");
+//					Bukkit.broadcastMessage(ChatColor.RED + "GOING SOUTH");
 					directionMultiplier =  1;
 					this.dirMulX = -1;
 					this.dirMulZ = -1;
@@ -128,7 +129,7 @@ public class BridgeMover
 			break;
 			
 		case SOUTH:
-			Bukkit.broadcastMessage(ChatColor.GREEN + "SOUTH, OpenDirection = " + openDirection.toString());
+//			Bukkit.broadcastMessage(ChatColor.GREEN + "SOUTH, OpenDirection = " + openDirection.toString());
 			// When EngineSide is South, x goes from high to low and z goes from high to low
 			this.dx      = -1;
 			this.dz      = -1;
@@ -160,7 +161,7 @@ public class BridgeMover
 			break;
 			
 		case EAST:
-			Bukkit.broadcastMessage(ChatColor.GREEN + "EAST, OpenDirection = " + openDirection.toString());
+//			Bukkit.broadcastMessage(ChatColor.GREEN + "EAST, OpenDirection = " + openDirection.toString());
 			// When EngineSide is East, x goes from high to low and z goes from low to high
 			this.dx      = -1;
 			this.dz      =  1;
@@ -171,7 +172,7 @@ public class BridgeMover
 			if (upDown.equals(RotateDirection.UP))
 			{
 				directionMultiplier = -1;
-				Bukkit.broadcastMessage(ChatColor.RED + "GOING UP");
+//				Bukkit.broadcastMessage(ChatColor.RED + "GOING UP");
 				this.pointOpposite = new Location(world, xMin, yMin, zMax);
 			}
 			else
@@ -179,14 +180,14 @@ public class BridgeMover
 				this.pointOpposite = new Location(world, xMax, yMax, zMax);
 				if (openDirection.equals(DoorDirection.EAST))
 				{
-					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING EAST");
+//					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING EAST");
 					directionMultiplier =  1;
 					this.dirMulX = -1;
 					this.dirMulZ = -1;
 				}
 				else if (openDirection.equals(DoorDirection.WEST))
 				{
-					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING WEST");
+//					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING WEST");
 					directionMultiplier = -1;
 					this.dirMulX = -1;
 					this.dirMulZ = -1;
@@ -195,7 +196,7 @@ public class BridgeMover
 			break;
 			
 		case WEST:
-			Bukkit.broadcastMessage(ChatColor.GREEN + "WEST, OpenDirection = " + openDirection.toString());
+//			Bukkit.broadcastMessage(ChatColor.GREEN + "WEST, OpenDirection = " + openDirection.toString());
 			// When EngineSide is West, x goes from low to high and z goes from high to low
 			this.dx      =  1;
 			this.dz      = -1;
@@ -213,14 +214,14 @@ public class BridgeMover
 				this.pointOpposite = new Location(world, xMin, yMax, zMin);
 				if (openDirection.equals(DoorDirection.EAST))
 				{
-					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING EAST");
+//					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING EAST");
 					directionMultiplier =  1;
 					this.dirMulX = -1;
 					this.dirMulZ = -1;
 				}
 				else if (openDirection.equals(DoorDirection.WEST))
 				{
-					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING WEST");
+//					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING WEST");
 					directionMultiplier = -1;
 					this.dirMulX = -1;
 					this.dirMulZ = -1;
@@ -319,8 +320,6 @@ public class BridgeMover
 	@SuppressWarnings("deprecation")
 	public void putBlocks()
 	{
-		Bukkit.broadcastMessage("Putting blocks back now!");
-		
 		int index = 0;
 		double xAxis = turningPoint.getX();
 		do
@@ -464,10 +463,10 @@ public class BridgeMover
 				if (((realAngleMidDeg - 45 + 360) % 360) % 90 < 5)
 					replace = true;
 				
-				if (qCircleCount >= 1 || !plugin.getCommander().canGo() || counter > 50)
+				if (qCircleCount >= 1 || !plugin.getCommander().canGo() || counter > 800)
 				{
-					if (counter > 50)
-						Bukkit.broadcastMessage(ChatColor.AQUA + "DOOR TIMED OUT!");
+//					if (counter > 800)
+//						Bukkit.broadcastMessage(ChatColor.AQUA + "DOOR TIMED OUT!");
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
 					finishBlocks();
@@ -475,56 +474,90 @@ public class BridgeMover
 				}
 				else
 				{
+					// TODO: If paused, set all velocities to 0.
 					if (!plugin.getCommander().isPaused())
 					{
-						double xAxis = turningPoint.getX();
+//						double xAxis = turningPoint.getX();
+//						do
+//						{
+//							double zAxis = turningPoint.getZ();
+//							do
+//							{
+//								double radius     = savedBlocks.get(index).getRadius();
+////								for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+//								double yAxis = turningPoint.getY();
+//								do
+//								{
+
+						double zAxis = turningPoint.getZ();
 						do
 						{
-							double zAxis = turningPoint.getZ();
+							double yAxis = turningPoint.getY();
 							do
 							{
 								double radius     = savedBlocks.get(index).getRadius();
-								for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+//								for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+								double xAxis = turningPoint.getX();
+								do
 								{
 									if (upDown.equals(RotateDirection.DOWN))
 										radius    = savedBlocks.get(index).getRadius();
 									if (radius != 0)
 									{
+										// TODO: Fuck qCircles and shit. Just use start angle and goal angle.
+										// Then also use those two variable to determine if a block is lagging behind
+										// Or moving a bit too enthusiastically. This knowledge can then be used to
+										// Change acceleration of those blocks to make them fall in line with the rest.
+										/* Pointing:   Degrees:
+										 * UP            0 or 360
+										 * EAST         90
+										 * WEST        270
+										 * 
+										 */
+										
 										double xPos         = savedBlocks.get(index).getFBlock().getLocation().getX();
 										double yPos         = savedBlocks.get(index).getFBlock().getLocation().getY();
 										double zPos         = savedBlocks.get(index).getFBlock().getLocation().getZ();
 										
 										// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
-										double valueC = center.getY() - savedBlocks.get(indexMid).getFBlock().getLocation().getY();
+										double valueC = center.getY() - savedBlocks.get(index).getFBlock().getLocation().getY();
 										double valueD;
 										if (NS)
-											valueD = center.getZ() - savedBlocks.get(indexMid).getFBlock().getLocation().getZ();
+											valueD = center.getZ() - savedBlocks.get(index).getFBlock().getLocation().getZ();
 										else
-											valueD = center.getX() - savedBlocks.get(indexMid).getFBlock().getLocation().getX();
+											valueD = center.getX() - savedBlocks.get(index).getFBlock().getLocation().getX();
 										
 										double realAngle    = Math.atan2(valueC, valueD);
 										double realAngleDeg = Math.abs((Math.toDegrees(realAngle ) + 450) % 360 - 360); // [0;360]
 										double moveAngle    = (realAngleDeg + 90) % 360;
 										
-//										
 										if (!NS)
 										{
 											// Get the actual radius of the block (and compare that to the radius it should have (stored in the block)) later (moveAndAddForGoal).
 											double dX           = Math.abs(xPos - (turningPoint.getBlockX() + 0.5));
 											double dY           = Math.abs(yPos - (turningPoint.getBlockY() + 0.5));
 											double realRadius   = Math.sqrt(dX * dX + dY * dY);
-											
+																						
 											// Additional angle added to the movement direction so that the radius remains correct for all blocks.
 											// TODO: Smaller total height needs lower punishment than larger doors. Presumably because of speed difference. Fix that.
-											double moveAngleAddForGoal = directionMultiplier * 15 * (radius - realRadius - 0.18);
+											double moveAngleAddForGoal = -directionMultiplier * 15 * (radius - realRadius - 0.18);
 		
-//											double speedBoost   = Math.abs(realAngleMidDeg - realAngleDeg);
-//											speedBoost *= speedBoost / 200;
-//											speedBoost += 1;
+											double speedBoost   = realAngleMidDeg - realAngleDeg;
+											speedBoost *= speedBoost / 5;
+											speedBoost = speedBoost > 0.7 ? 0.7 : speedBoost;
+											
+											if (realAngleMidDeg > realAngleDeg)
+												speedBoost += 1;
+											else
+												speedBoost = 1 - speedBoost;
+//											double speedBoost = 1;
+											
+											if ((int) zPos == zMin)
+												Bukkit.broadcastMessage(String.format("r=%.2f, rr=%.2f, ang=%.2f, sb=%.2f", radius, realRadius, realAngleDeg, speedBoost));
 											
 											// Inversed zRot sign for directionMultiplier.
-											double xRot = dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
-											double yRot = dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
+											double xRot = speedBoost * dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
+											double yRot = speedBoost * dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
 											savedBlocks.get(index).getFBlock().setVelocity(new Vector (directionMultiplier * xRot, yRot, 0.000));
 										}
 										else
@@ -536,7 +569,7 @@ public class BridgeMover
 											
 											// Additional angle added to the movement direction so that the radius remains correct for all blocks.
 											// TODO: Smaller total height needs lower punishment than larger doors. Presumably because of speed difference. Fix that.
-											double moveAngleAddForGoal = directionMultiplier * 15 * (radius - realRadius - 0.18);
+											double moveAngleAddForGoal = -directionMultiplier * 15 * (radius - realRadius - 0.18);
 		
 											// Inversed zRot sign for directionMultiplier.
 											double zRot = dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
@@ -563,14 +596,27 @@ public class BridgeMover
 //										}
 //									}
 									index++;
+//									yAxis++;
+//								}
+//								while (yAxis <= pointOpposite.getBlockY());
+//								zAxis += dz;
+//							}
+//							while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
+//							xAxis += dx;
+//						}
+//						while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
+//						replace = false;
+									xAxis += 1;
 								}
-								zAxis += dz;
+								while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
+								yAxis += dz;
 							}
-							while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-							xAxis += dx;
+							while (yAxis <= pointOpposite.getBlockY());
+							zAxis += dx;
 						}
-						while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
+						while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
 						replace = false;
+//						Bukkit.broadcastMessage("\n.\n.");
 					}
 				}
 			}

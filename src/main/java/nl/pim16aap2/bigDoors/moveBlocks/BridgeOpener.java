@@ -2,7 +2,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
+//import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -39,7 +39,7 @@ public class BridgeOpener implements Opener
 			// North East = Max X, Min Z
 			// South East = Max X, Max X
 			case NORTH:
-				Bukkit.broadcastMessage("U: NORTH");
+//				Bukkit.broadcastMessage("U: NORTH");
 				startX = door.getMinimum().getBlockX();
 				stopX  = door.getMaximum().getBlockX();
 				
@@ -51,7 +51,7 @@ public class BridgeOpener implements Opener
 				break;
 				
 			case SOUTH:
-				Bukkit.broadcastMessage("U: SOUTH");
+//				Bukkit.broadcastMessage("U: SOUTH");
 				startX = door.getMinimum().getBlockX();
 				stopX  = door.getMaximum().getBlockX();
 				
@@ -63,7 +63,7 @@ public class BridgeOpener implements Opener
 				break;
 				
 			case EAST:
-				Bukkit.broadcastMessage("U: EAST");
+//				Bukkit.broadcastMessage("U: EAST");
 				startX = door.getMaximum().getBlockX();
 				stopX  = door.getMaximum().getBlockX();
 				
@@ -75,7 +75,7 @@ public class BridgeOpener implements Opener
 				break;
 				
 			case WEST:
-				Bukkit.broadcastMessage("U: WEST");
+//				Bukkit.broadcastMessage("U: WEST");
 				startX = door.getMinimum().getBlockX();
 				stopX  = door.getMinimum().getBlockX();
 				
@@ -96,7 +96,7 @@ public class BridgeOpener implements Opener
 			// North East = Max X, Min Z
 			// South East = Max X, Max X
 			case NORTH:
-				Bukkit.broadcastMessage("D: NORTH");
+//				Bukkit.broadcastMessage("D: NORTH");
 				startX = door.getMinimum().getBlockX();
 				stopX  = door.getMaximum().getBlockX();
 				
@@ -108,7 +108,7 @@ public class BridgeOpener implements Opener
 				break;
 				
 			case SOUTH:
-				Bukkit.broadcastMessage("D: SOUTH");
+//				Bukkit.broadcastMessage("D: SOUTH");
 				startX = door.getMinimum().getBlockX();
 				stopX  = door.getMaximum().getBlockX();
 				
@@ -120,7 +120,7 @@ public class BridgeOpener implements Opener
 				break;
 				
 			case EAST:
-				Bukkit.broadcastMessage("D: EAST");
+//				Bukkit.broadcastMessage("D: EAST");
 				startX = door.getMinimum().getBlockX() + 1;
 				stopX  = door.getMaximum().getBlockX() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 				
@@ -132,7 +132,7 @@ public class BridgeOpener implements Opener
 				break;
 				
 			case WEST:
-				Bukkit.broadcastMessage("D: WEST");
+//				Bukkit.broadcastMessage("D: WEST");
 				startX = door.getMinimum().getBlockX() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
 				stopX  = door.getMinimum().getBlockX() - 1;
 				
@@ -144,8 +144,8 @@ public class BridgeOpener implements Opener
 				break;
 			}
 		}
-		Bukkit.broadcastMessage("Start = (" + startX + ";" + startY + ";" + startZ + ")");
-		Bukkit.broadcastMessage("Stop  = (" + stopX  + ";" + stopY  + ";" + stopZ  + ")");
+//		Bukkit.broadcastMessage("Start = (" + startX + ";" + startY + ";" + startZ + ")");
+//		Bukkit.broadcastMessage("Stop  = (" + stopX  + ";" + stopY  + ";" + stopZ  + ")");
 
 		int x = startX, y, z;
 		while (x <= stopX)
@@ -158,7 +158,7 @@ public class BridgeOpener implements Opener
 				{			
 					if (world.getBlockAt(x, y, z).getType() != Material.AIR)
 					{
-						Bukkit.broadcastMessage(ChatColor.RED + "Found a non-air block of the type " + world.getBlockAt(x, y, z).getType().toString() + ". Stopping checks!");
+//						Bukkit.broadcastMessage(ChatColor.RED + "Found a non-air block of the type " + world.getBlockAt(x, y, z).getType().toString() + ". Stopping checks!");
 						return false;
 					}
 					++z;
@@ -183,11 +183,11 @@ public class BridgeOpener implements Opener
 	public DoorDirection getOpenDirection(Door door)
 	{
 		RotateDirection upDown = getUpDown(door);
-		Bukkit.broadcastMessage("0: UpDown for door \"" + door.getName() + "\" = " + upDown.toString());
+//		Bukkit.broadcastMessage("0: UpDown for door \"" + door.getName() + "\" = " + upDown.toString());
 		DoorDirection cDir     = getCurrentDirection(door);
 		boolean NS  = cDir    == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
 		
-		Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Current Direction = " + cDir.toString());
+//		Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Current Direction = " + cDir.toString());
 		
 		if (upDown.equals(RotateDirection.UP))
 			return isNewPosFree(door, upDown, door.getEngSide()) ? door.getEngSide() : null;
@@ -248,7 +248,7 @@ public class BridgeOpener implements Opener
 			return false;
 		}
 		this.upDown = getUpDown(door);
-		Bukkit.broadcastMessage("1: UpDown for door \"" + door.getName() + "\" = " + upDown.toString());
+//		Bukkit.broadcastMessage("1: UpDown for door \"" + door.getName() + "\" = " + upDown.toString());
 		if (upDown == null)
 		{
 			plugin.getMyLogger().logMessage("UpDown direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
