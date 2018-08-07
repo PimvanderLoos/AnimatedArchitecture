@@ -110,8 +110,9 @@ public class GUIPage implements Listener
 		lore.add(desc);
 		inv.setItem(11, new GUIItem(infoMat, desc, lore, 1).getItemStack());
 		lore.clear();
-		desc = messages.getString("GUI.DeleteDoorLong");
-		lore.add(desc);
+		desc = messages.getString("GUI.DeleteDoor");
+		String loreStr = messages.getString("GUI.DeleteDoorLong");
+		lore.add(loreStr);
 		inv.setItem(12, new GUIItem(delDoorMat, desc , lore, 1).getItemStack());
 		
 		// TODO: LT: Add more options: Add owners, remove owners, view list of owners

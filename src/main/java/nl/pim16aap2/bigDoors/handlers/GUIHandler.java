@@ -163,7 +163,7 @@ public class GUIHandler implements Listener
 		Inventory inv     = event.getInventory();
 		int slot          = event.getRawSlot();
 		String itemName   = meta.getDisplayName();
-		
+
 		if (pageType == PageType.CONFIRMATION)
 		{
 			if (itemName.equals(messages.getString("GUI.Confirm")))

@@ -8,10 +8,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock_Vall;
@@ -42,15 +44,18 @@ public class BridgeMover
 	private GetNewLocation            gnl;
 	private Door                     door;
 	private RotateDirection        upDown;
+	private int                  indexMid;
 	private RotationFormulae     formulae;
 	private DoorDirection      engineSide;
 	private Location         turningPoint;
 	private Location        pointOpposite;
 	private DoorDirection   openDirection;
+	private int           angleOffset = 2;
 	private int          xMin, yMin, zMin;
 	private int          xMax, yMax, zMax;
 	private int          xLen, yLen, zLen;
 	private int       directionMultiplier;
+	private int     finishA, startA, endA;
 	@SuppressWarnings("unused")
 	private List<BlockData> 	savedBlocks = new ArrayList<BlockData>();
 	
@@ -85,10 +90,18 @@ public class BridgeMover
 			this.formulae = new RotationNorthSouth();
 		else
 			this.formulae = new RotationEastWest();
-		
+
 		// Regarding dx, dz. These variables determine whether loops get incremented (1) or decremented (-1)
 		// When looking in the direction of the opposite point from the engine side, the blocks should get 
 		// Processed from left to right and from the engine to the opposite. 
+
+		/* Pointing:   Degrees:
+		 * UP            0 or 360
+		 * EAST         90
+		 * WEST        270
+		 * NORTH       270
+		 * SOUTH        90
+		 */
 		
 		// Calculate turningpoint and pointOpposite.
 		switch (engineSide)
@@ -99,9 +112,15 @@ public class BridgeMover
 			this.dx      =  1;
 			this.dz      =  1;
 			this.turningPoint = new Location(world, xMin, yMin, zMin);
+			this.startA  = 0;
+			this.endA    = 0;
+			this.finishA = endA - angleOffset;
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
+				this.startA  = 90;
+				this.endA    =  0;
+				this.finishA = 360 - angleOffset  * 3;
 //				Bukkit.broadcastMessage(ChatColor.RED + "GOING UP");
 				directionMultiplier = -1;
 				this.pointOpposite  = new Location(world, xMax, yMin, zMax);
@@ -113,6 +132,9 @@ public class BridgeMover
 				this.pointOpposite  = new Location(world, xMax, yMax, zMin);
 				if (openDirection.equals(DoorDirection.NORTH))
 				{
+					this.startA  = 360;
+					this.endA    = 270;
+					this.finishA = endA - angleOffset * 3;
 //					Bukkit.broadcastMessage(ChatColor.RED + "GOING NORTH");
 					directionMultiplier = -1;
 					this.dirMulX = -1;
@@ -120,6 +142,9 @@ public class BridgeMover
 				}
 				else if (openDirection.equals(DoorDirection.SOUTH))
 				{
+					this.startA  =  0;
+					this.endA    = 90;
+					this.finishA = endA + angleOffset * 3;
 //					Bukkit.broadcastMessage(ChatColor.RED + "GOING SOUTH");
 					directionMultiplier =  1;
 					this.dirMulX = -1;
@@ -136,9 +161,15 @@ public class BridgeMover
 			this.dirMulX = -1;
 			this.dirMulZ = -1;
 			this.turningPoint = new Location(world, xMax, yMin, zMax);
+			this.startA  = 0;
+			this.endA    = 0;
+			this.finishA = endA - angleOffset;
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
+				this.startA  = 270;
+				this.endA    = 360;
+				this.finishA = angleOffset * 3;
 				directionMultiplier =  1;
 				this.pointOpposite  = new Location(world, xMin, yMin, zMin);
 			}
@@ -147,12 +178,18 @@ public class BridgeMover
 				this.pointOpposite = new Location(world, xMin, yMax, zMax);
 				if (openDirection.equals(DoorDirection.NORTH))
 				{
+					this.startA  = 360;
+					this.endA    = 270;
+					this.finishA = endA - angleOffset * 3;
 					directionMultiplier = -1;
 					this.dirMulX = -1;
 					this.dirMulZ = -1;
 				}
 				else if (openDirection.equals(DoorDirection.SOUTH))
 				{
+					this.startA  =  0;
+					this.endA    = 90;
+					this.finishA = endA + angleOffset * 3;
 					directionMultiplier =  1;
 					this.dirMulX = -1;
 					this.dirMulZ = -1;
@@ -171,6 +208,9 @@ public class BridgeMover
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
+				this.startA  = 270;
+				this.endA    = 360;
+				this.finishA = angleOffset * 3;
 				directionMultiplier = -1;
 //				Bukkit.broadcastMessage(ChatColor.RED + "GOING UP");
 				this.pointOpposite = new Location(world, xMin, yMin, zMax);
@@ -180,6 +220,9 @@ public class BridgeMover
 				this.pointOpposite = new Location(world, xMax, yMax, zMax);
 				if (openDirection.equals(DoorDirection.EAST))
 				{
+					this.startA  =  0;
+					this.endA    = 90;
+					this.finishA = endA + angleOffset * 3;
 //					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING EAST");
 					directionMultiplier =  1;
 					this.dirMulX = -1;
@@ -187,6 +230,9 @@ public class BridgeMover
 				}
 				else if (openDirection.equals(DoorDirection.WEST))
 				{
+					this.startA  = 360;
+					this.endA    = 270;
+					this.finishA = endA - angleOffset * 3;
 //					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING WEST");
 					directionMultiplier = -1;
 					this.dirMulX = -1;
@@ -206,6 +252,9 @@ public class BridgeMover
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
+				this.startA  = 90;
+				this.endA    =  0;
+				this.finishA = 360 - angleOffset * 3;
 				directionMultiplier =  1;
 				this.pointOpposite  = new Location(world, xMax, yMin, zMin);
 			}
@@ -214,6 +263,9 @@ public class BridgeMover
 				this.pointOpposite = new Location(world, xMin, yMax, zMin);
 				if (openDirection.equals(DoorDirection.EAST))
 				{
+					this.startA  =  0;
+					this.endA    = 90;
+					this.finishA = endA + angleOffset * 3;
 //					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING EAST");
 					directionMultiplier =  1;
 					this.dirMulX = -1;
@@ -221,6 +273,9 @@ public class BridgeMover
 				}
 				else if (openDirection.equals(DoorDirection.WEST))
 				{
+					this.startA  = 360;
+					this.endA    = 270;
+					this.finishA = endA - angleOffset * 3;
 //					Bukkit.broadcastMessage(ChatColor.RED + "DOWN: GOING WEST");
 					directionMultiplier = -1;
 					this.dirMulX = -1;
@@ -230,14 +285,10 @@ public class BridgeMover
 			break;
 		}
 
-//		Bukkit.broadcastMessage("Min = (" + xMin + ";" + yMin + ";" + zMin + ")");
-//		Bukkit.broadcastMessage("Max = (" + xMax + ";" + yMax + ";" + zMax + ")");
-//		
-//		Bukkit.broadcastMessage("TurningPoint  = (" + 
-//				this.turningPoint.getBlockX() + ";" + this.turningPoint.getBlockY() + ";" + this.turningPoint.getBlockZ() + ")");
-//		Bukkit.broadcastMessage("OppositePoint = (" + 
-//					this.pointOpposite.getBlockX() + ";" + this.pointOpposite.getBlockY() + ";" + this.pointOpposite.getBlockZ() + ")");
-
+		int xAxisMid = (int) (xMin + (xMax - xMin) / 2);
+		int yAxisMid = (int) (yMin + (yMax - yMin) / 2);
+		int zAxisMid = (int) (zMin + (zMax - zMin) / 2);
+		
 		int index = 0;
 		double xAxis = turningPoint.getX();
 		do
@@ -261,9 +312,12 @@ public class BridgeMover
 					// TODO: Make separate function for this. This is getting too messy.
 					if (upDown == RotateDirection.DOWN)
 						radius = yAxis - turningPoint.getBlockY();
-//					Bukkit.broadcastMessage("upDown = " + upDown.toString() + ", radius = " + radius + ", pos(" + xAxis + ";" + yAxis + ";" + zAxis + ")");
 
-//					Bukkit.broadcastMessage("0: idx = " + index + ", radius = " + radius);
+					if (xAxis == xAxisMid && yAxis == yAxisMid && zAxis == zAxisMid)
+					{
+						this.indexMid = index;
+//						Bukkit.broadcastMessage("REAL indexMid = " + this.indexMid + ", radius = " + radius);
+					}
 					
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
 					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
@@ -273,8 +327,8 @@ public class BridgeMover
 					Material mat = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
 					@SuppressWarnings("deprecation")
 					Byte matData = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
-					
-//					Bukkit.broadcastMessage("Block at ("+(int) xAxis+";"+(int) yAxis+";"+(int) zAxis+") is of type " + mat.toString());
+					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
+					MaterialData materialData = bs.getData();
 					
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
@@ -287,7 +341,7 @@ public class BridgeMover
 					
 					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
 					
-					savedBlocks.add(index, new BlockData(mat, matData, fBlock, radius));
+					savedBlocks.add(index, new BlockData(mat, matData, fBlock, radius, materialData));
 										
 					index++;
 				}
@@ -297,7 +351,7 @@ public class BridgeMover
 			xAxis += dx;
 		}
 		while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-		
+
 		switch (openDirection)
 		{
 		case NORTH:
@@ -314,6 +368,17 @@ public class BridgeMover
 			break;
 		}
 		rotateEntities();
+	}
+	
+	// Check if a block can (should) be rotated.
+	public boolean canRotate(Material mat)
+	{	// Logs, stairs and glass panes can rotate, the rest can't.
+		return 	mat.equals(Material.LOG)               || mat.equals(Material.LOG_2)              || mat.equals(Material.ACACIA_STAIRS)        ||
+				mat.equals(Material.BIRCH_WOOD_STAIRS) || mat.equals(Material.BRICK_STAIRS)       || mat.equals(Material.COBBLESTONE_STAIRS)   || 
+				mat.equals(Material.DARK_OAK_STAIRS)   || mat.equals(Material.JUNGLE_WOOD_STAIRS) || mat.equals(Material.NETHER_BRICK_STAIRS)  || 
+				mat.equals(Material.PURPUR_STAIRS)     || mat.equals(Material.QUARTZ_STAIRS)      || mat.equals(Material.RED_SANDSTONE_STAIRS) || 
+				mat.equals(Material.SANDSTONE_STAIRS)  || mat.equals(Material.SMOOTH_STAIRS)      || mat.equals(Material.SPRUCE_WOOD_STAIRS)   || 
+				mat.equals(Material.WOOD_STAIRS)       || mat.equals(Material.STAINED_GLASS_PANE) || mat.equals(Material.THIN_GLASS);
 	}
 
 	// Put the door blocks back, but change their state now.
@@ -336,17 +401,25 @@ public class BridgeMover
 					 */
 
 					Material mat = savedBlocks.get(index).getMat();
-					Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
+					Byte matByte;
+					
+					if (canRotate(mat))
+						matByte = rotateBlockData(savedBlocks.get(index).getBlockByte());
+					else
+						matByte = savedBlocks.get(index).getMatData().getData();
 
 					Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis, index);
-					
-//					Bukkit.broadcastMessage("OLD = (" + (int)xAxis + ";" + (int)yAxis + ";" + (int)zAxis + ")");
-//					Bukkit.broadcastMessage("NEW = (" + newPos.getBlockX() + ";" + newPos.getBlockY() + ";" + newPos.getBlockZ() + ")\n.");
 
 					savedBlocks.get(index).getFBlock().remove();
+
+					Block b = world.getBlockAt(newPos);					
+					MaterialData matData = savedBlocks.get(index).getMatData();
+					matData.setData(matByte);
 					
-					world.getBlockAt(newPos).setType(mat);
-					world.getBlockAt(newPos).setData(matData);
+					b.setType(mat);
+					BlockState bs = b.getState();
+					bs.setData(matData);
+					bs.update();
 
 					index++;
 				}
@@ -405,15 +478,30 @@ public class BridgeMover
 		}.runTaskLater(plugin, 4L);
 	}
 	
+	double getAngleDeg(int index, Location loc)
+	{
+		double valueA = loc.getY() - savedBlocks.get(index).getFBlock().getLocation().getY();
+		double valueB;
+		if (NS)
+			valueB    = loc.getZ() - savedBlocks.get(index).getFBlock().getLocation().getZ();
+		else
+			valueB    = loc.getX() - savedBlocks.get(index).getFBlock().getLocation().getX();
+		
+		double realAngle    = Math.atan2(valueA, valueB);
+		double realAngleDeg = Math.abs((Math.toDegrees(realAngle) + 450) % 360 - 360); // [0;360]
+		return realAngleDeg;
+	}
+	
 	// Method that takes care of the rotation aspect.
 	public void rotateEntities()
 	{
 		new BukkitRunnable()
 		{
-			Location center         = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
-			double   maxRad         = xLen > zLen ? xLen : zLen;
-			boolean replace         = false;
-			int qCircleCount        = 	engineSide == DoorDirection.EAST  && upDown == RotateDirection.DOWN && openDirection == DoorDirection.EAST  ?  0 : 
+			RotateDirection angleDir = startA > endA ? RotateDirection.DOWN : RotateDirection.UP;
+			Location center          = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
+			double   maxRad          = xLen > zLen ? xLen : zLen;
+			boolean replace          = false;
+			int qCircleCount         = 	engineSide == DoorDirection.EAST  && upDown == RotateDirection.DOWN && openDirection == DoorDirection.EAST  ?  0 : 
 										engineSide == DoorDirection.EAST  ? -1 : 
 										engineSide == DoorDirection.WEST  && upDown == RotateDirection.DOWN && openDirection == DoorDirection.WEST  ? -1 :
 										engineSide == DoorDirection.WEST  ?  0 :
@@ -423,33 +511,24 @@ public class BridgeMover
 										engineSide == DoorDirection.SOUTH && upDown == RotateDirection.UP   ? -2 :
 										engineSide == DoorDirection.SOUTH && upDown == RotateDirection.DOWN && openDirection == DoorDirection.SOUTH ?  0 :
 										engineSide == DoorDirection.SOUTH && upDown == RotateDirection.DOWN ? -1 : -1;
-			int qCircleCheck        = 0;
-			int indexMid            = savedBlocks.size() / 2;
-			int counter             = 0;
+			int qCircleCheck         = 0;
+			int counter              = 0;
 			
 			@Override
 			public void run()
 			{
 				int index = 0;
 				++counter;
+				double realAngleMidDeg = getAngleDeg(indexMid, center);
+//				Bukkit.broadcastMessage("Angle = " + realAngleMidDeg);
 				
-				double valueA = center.getY() - savedBlocks.get(indexMid).getFBlock().getLocation().getY();
-				double valueB;
-				if (NS)
-					valueB    = center.getZ() - savedBlocks.get(indexMid).getFBlock().getLocation().getZ();
-				else
-					valueB    = center.getX() - savedBlocks.get(indexMid).getFBlock().getLocation().getX();
-				
-				double realAngleMid    = Math.atan2(valueA, valueB);
-				double realAngleMidDeg = Math.abs((Math.toDegrees(realAngleMid) + 450) % 360 - 360); // [0;360]
-								
 				// This part keeps track of how many quarter circles the blocks have moved by checking if blocks have moved into a new quadrant.
 				// It also adds/subtracts a little from the angle so the door is stopped just before it reaches its final position (as it moved a bit further after reaching it).
 				// If it's exactly a multiple of 90, it's at a starting position, so don't count that position towards qCircleCount.
 				if (realAngleMidDeg % 90 != 0)
 				{
 					// Add or subtract 5 degrees from the actual angle and put it on [0;360] again.
-					realAngleMidDeg = ((realAngleMidDeg + -directionMultiplier * 1) + 360) % 360;
+					realAngleMidDeg = ((realAngleMidDeg + -directionMultiplier * 0) + 360) % 360;
 					
 					// If the angle / 90 is not the same as qCircleCheck, the blocks have moved on to a new quadrant.
 					if ((int) (realAngleMidDeg / 90) != qCircleCheck)
@@ -458,12 +537,23 @@ public class BridgeMover
 						++qCircleCount;
 					}
 				}
-				
+								
 				// If the blocks are at 1/8, 3/8, 5/8 or 7/8 * 360 angle, it's time to "replace" (i.e. rotate) them.
 				if (((realAngleMidDeg - 45 + 360) % 360) % 90 < 5)
 					replace = true;
 				
-				if (qCircleCount >= 1 || !plugin.getCommander().canGo() || counter > 800)
+//				Bukkit.broadcastMessage(String.format("startA:%d, endA:%d, finishA:%d, angle=%.3f", startA, endA, finishA, realAngleMidDeg));
+				
+//				if (qCircleCount >= 1 || !plugin.getCommander().canGo() || counter > 800   || Math.abs(realAngleMidDeg - finishA) < 0.1 ||
+//						(
+//							((endA > startA && realAngleMidDeg > finishA && counter > 2)   || 
+//							 (endA < startA && realAngleMidDeg < finishA && counter > 2))  &&
+//							!(startA == 0  && realAngleMidDeg != 360)   && !(startA == 360 && realAngleMidDeg != 0)
+//						))
+				// TODO: Check if angle surpassed goal.
+				if (!plugin.getCommander().canGo() ||
+					Math.abs(realAngleMidDeg - endA)    < angleOffset     || Math.abs(realAngleMidDeg - endA)    > (360 - angleOffset  ) ||
+					Math.abs(realAngleMidDeg - finishA) < angleOffset * 4 || Math.abs(realAngleMidDeg - finishA) > (360 - angleOffset * 4))
 				{
 //					if (counter > 800)
 //						Bukkit.broadcastMessage(ChatColor.AQUA + "DOOR TIMED OUT!");
@@ -474,31 +564,20 @@ public class BridgeMover
 				}
 				else
 				{
-					// TODO: If paused, set all velocities to 0.
-					if (!plugin.getCommander().isPaused())
+					double xAxis = turningPoint.getX();
+					do
 					{
-//						double xAxis = turningPoint.getX();
-//						do
-//						{
-//							double zAxis = turningPoint.getZ();
-//							do
-//							{
-//								double radius     = savedBlocks.get(index).getRadius();
-////								for (double yAxis = yMin; yAxis <= yMax; yAxis++)
-//								double yAxis = turningPoint.getY();
-//								do
-//								{
-
 						double zAxis = turningPoint.getZ();
 						do
 						{
-							double yAxis = turningPoint.getY();
-							do
+							double radius     = savedBlocks.get(index).getRadius();
+							for (double yAxis = turningPoint.getY(); yAxis <= pointOpposite.getBlockY(); ++yAxis)
 							{
-								double radius     = savedBlocks.get(index).getRadius();
-//								for (double yAxis = yMin; yAxis <= yMax; yAxis++)
-								double xAxis = turningPoint.getX();
-								do
+								// When doors are paused, make sure all blocks stop moving.
+								// Set pausedBlocks to false, so the timer won't have to loop over all blocks until unpaused.
+								if (plugin.getCommander().isPaused())
+									savedBlocks.get(index).getFBlock().setVelocity(new Vector (0.0, 0.0, 0.0));
+								else
 								{
 									if (upDown.equals(RotateDirection.DOWN))
 										radius    = savedBlocks.get(index).getRadius();
@@ -512,23 +591,17 @@ public class BridgeMover
 										 * UP            0 or 360
 										 * EAST         90
 										 * WEST        270
-										 * 
 										 */
 										
-										double xPos         = savedBlocks.get(index).getFBlock().getLocation().getX();
-										double yPos         = savedBlocks.get(index).getFBlock().getLocation().getY();
-										double zPos         = savedBlocks.get(index).getFBlock().getLocation().getZ();
+										realAngleMidDeg = getAngleDeg(indexMid, center);
+										
+										double xPos     = savedBlocks.get(index).getFBlock().getLocation().getX();
+										double yPos     = savedBlocks.get(index).getFBlock().getLocation().getY();
+										double zPos     = savedBlocks.get(index).getFBlock().getLocation().getZ();
 										
 										// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
-										double valueC = center.getY() - savedBlocks.get(index).getFBlock().getLocation().getY();
-										double valueD;
-										if (NS)
-											valueD = center.getZ() - savedBlocks.get(index).getFBlock().getLocation().getZ();
-										else
-											valueD = center.getX() - savedBlocks.get(index).getFBlock().getLocation().getX();
+										double realAngleDeg = getAngleDeg(index, center);
 										
-										double realAngle    = Math.atan2(valueC, valueD);
-										double realAngleDeg = Math.abs((Math.toDegrees(realAngle ) + 450) % 360 - 360); // [0;360]
 										double moveAngle    = (realAngleDeg + 90) % 360;
 										
 										if (!NS)
@@ -537,23 +610,29 @@ public class BridgeMover
 											double dX           = Math.abs(xPos - (turningPoint.getBlockX() + 0.5));
 											double dY           = Math.abs(yPos - (turningPoint.getBlockY() + 0.5));
 											double realRadius   = Math.sqrt(dX * dX + dY * dY);
+											realRadius -= 0.08;
+											if (upDown.equals(RotateDirection.UP))
+												realRadius -= 0.08;
 																						
 											// Additional angle added to the movement direction so that the radius remains correct for all blocks.
-											// TODO: Smaller total height needs lower punishment than larger doors. Presumably because of speed difference. Fix that.
-											double moveAngleAddForGoal = -directionMultiplier * 15 * (radius - realRadius - 0.18);
+											// TODO: Smaller total width needs lower punishment than larger doors. Presumable because of speed difference. Fix that.
+											double moveAngleAddForGoal = -directionMultiplier * 10 * (radius - realRadius - 0.12);
 		
-											double speedBoost   = realAngleMidDeg - realAngleDeg;
-											speedBoost *= speedBoost / 5;
-											speedBoost = speedBoost > 0.7 ? 0.7 : speedBoost;
-											
-											if (realAngleMidDeg > realAngleDeg)
-												speedBoost += 1;
+											double speedBoost = 0;
+											double behind     = 0;
+											if (angleDir.equals(RotateDirection.UP))
+												behind = realAngleMidDeg - realAngleDeg;
 											else
-												speedBoost = 1 - speedBoost;
-//											double speedBoost = 1;
+												behind = realAngleDeg - realAngleMidDeg;
+											// If behind is more than (-)180 ahead, it's not that far ahead, but just behind (or the other way around).
+											behind = behind >  180 ? behind - 360 : behind;
+											behind = behind < -180 ? behind + 360 : behind;
 											
-											if ((int) zPos == zMin)
-												Bukkit.broadcastMessage(String.format("r=%.2f, rr=%.2f, ang=%.2f, sb=%.2f", radius, realRadius, realAngleDeg, speedBoost));
+											double scaled = behind / 4;
+											scaled = scaled > 1 ? 1 : scaled;
+											speedBoost = 1 + scaled;
+											
+											speedBoost = speedBoost == 0 ? 1 : speedBoost;
 											
 											// Inversed zRot sign for directionMultiplier.
 											double xRot = speedBoost * dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
@@ -566,58 +645,63 @@ public class BridgeMover
 											double dZ           = Math.abs(zPos - (turningPoint.getBlockZ() + 0.5));
 											double dY           = Math.abs(yPos - (turningPoint.getBlockY() + 0.5));
 											double realRadius   = Math.sqrt(dZ * dZ + dY * dY);
-											
+											realRadius -= 0.08;
+											if (upDown.equals(RotateDirection.UP))
+												realRadius -= 0.08;
+																						
 											// Additional angle added to the movement direction so that the radius remains correct for all blocks.
-											// TODO: Smaller total height needs lower punishment than larger doors. Presumably because of speed difference. Fix that.
-											double moveAngleAddForGoal = -directionMultiplier * 15 * (radius - realRadius - 0.18);
-		
+											// TODO: Smaller total width needs lower punishment than larger doors. Presumable because of speed difference. Fix that.
+											double moveAngleAddForGoal = -directionMultiplier * 10 * (radius - realRadius - 0.66);
+											
+											double speedBoost = 0;
+											double behind     = 0;
+											if (angleDir.equals(RotateDirection.UP))
+												behind = realAngleMidDeg - realAngleDeg;
+											else
+												behind = realAngleDeg - realAngleMidDeg;
+											// If behind is more than (-)180 ahead, it's not that far ahead, but just behind (or the other way around).
+											behind = behind >  180 ? behind - 360 : behind;
+											behind = behind < -180 ? behind + 360 : behind;
+											
+											double scaled = behind / 4;
+											scaled = scaled > 1 ? 1 : scaled;
+											speedBoost = 1 + scaled;
+											
+											speedBoost = speedBoost == 0 ? 1 : speedBoost;
+											
 											// Inversed zRot sign for directionMultiplier.
-											double zRot = dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
-											double yRot = dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
+											double zRot = speedBoost * dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
+											double yRot = speedBoost * dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
 											savedBlocks.get(index).getFBlock().setVelocity(new Vector (0.000, yRot, directionMultiplier * zRot));
 										}
 									}
-
-									// TODO: Re-enable block rotations.
-//									// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
-//									if (replace)
-//									{
-//										Material mat     = savedBlocks.get(index).getMat();
-//										if (mat == Material.LOG || mat == Material.LOG_2)
-//										{
-//											Location loc = savedBlocks.get(index).getFBlock().getLocation();
-//											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
-//											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
-//											savedBlocks.get(index).getFBlock().remove();
-//		
-//											CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(loc, mat, (byte) matData, world);
-//											savedBlocks.get(index).setFBlock(fBlock);
-//											savedBlocks.get(index).getFBlock().setVelocity(veloc);
-//										}
-//									}
+	
+									// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
+									if (replace)
+									{
+										Material mat     = savedBlocks.get(index).getMat();
+										if (mat == Material.LOG || mat == Material.LOG_2)
+										{
+											Location loc = savedBlocks.get(index).getFBlock().getLocation();
+											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
+											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
+											savedBlocks.get(index).getFBlock().remove();
+		
+											CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(loc, mat, (byte) matData, world);
+											savedBlocks.get(index).setFBlock(fBlock);
+											savedBlocks.get(index).getFBlock().setVelocity(veloc);
+										}
+									}
 									index++;
-//									yAxis++;
-//								}
-//								while (yAxis <= pointOpposite.getBlockY());
-//								zAxis += dz;
-//							}
-//							while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-//							xAxis += dx;
-//						}
-//						while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-//						replace = false;
-									xAxis += 1;
 								}
-								while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-								yAxis += dz;
 							}
-							while (yAxis <= pointOpposite.getBlockY());
-							zAxis += dx;
+							zAxis += dz;
 						}
 						while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-						replace = false;
-//						Bukkit.broadcastMessage("\n.\n.");
+						xAxis += dx;
 					}
+					while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
+					replace = false;
 				}
 			}
 		}.runTaskTimer(plugin, 14, 4);
@@ -626,11 +710,23 @@ public class BridgeMover
 	// Rotate blocks such a logs by modifying its material data.
 	public byte rotateBlockData(Byte matData)
 	{
-		if (matData >= 4 && matData <= 7)
-			matData = (byte) (matData + 4);
-		else if (matData >= 7 && matData <= 11)
-			matData = (byte) (matData - 4);
-		return matData;
+		if (!NS)
+		{
+			if (matData >= 0 && matData < 4)
+				return (byte) (matData + 4);
+			if (matData >= 4 && matData < 7)
+				return (byte) (matData - 4);
+			return matData;
+		}
+		else
+		{
+			if (matData >= 0 && matData < 4)
+				return (byte) (matData + 8);
+			if (matData >= 8 && matData < 12)
+				return (byte) (matData - 8);
+			return matData;
+		}
+
 	}
 	
 	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, World world)

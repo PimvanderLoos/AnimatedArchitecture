@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 //import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -234,13 +235,13 @@ public class BridgeOpener implements Opener
 				plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
 			return true;
 		}
-		
+
 		if (!chunksLoaded(door))
 		{
 			plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for bridge " + door.getName() + " is not loaded!", true, false);
 			return true;
 		}
-		
+
 		DoorDirection currentDirection = getCurrentDirection(door);
 		if (currentDirection == null)
 		{
@@ -267,7 +268,15 @@ public class BridgeOpener implements Opener
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-		new BridgeMover(plugin, door.getWorld(), speed, door, this.upDown, openDirection);
+		try
+		{
+			new BridgeMover(plugin, door.getWorld(), 0.13, door, this.upDown, openDirection);
+		}
+		catch (Exception e)
+		{
+			Bukkit.broadcastMessage("BridgeOpener" + e.getMessage());
+			return false;
+		}
 		
 //		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);

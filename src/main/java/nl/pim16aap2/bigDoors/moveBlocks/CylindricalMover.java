@@ -181,8 +181,7 @@ public class CylindricalMover
 
 					savedBlocks.get(index).getFBlock().remove();
 					
-					Block b = world.getBlockAt(newPos);
-					
+					Block b = world.getBlockAt(newPos);					
 					MaterialData matData = savedBlocks.get(index).getMatData();
 					matData.setData(matByte);
 					
