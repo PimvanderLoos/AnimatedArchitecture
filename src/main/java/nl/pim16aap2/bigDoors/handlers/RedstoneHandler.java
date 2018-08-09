@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigDoors.handlers;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,7 +10,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 
 public class RedstoneHandler implements Listener
 {

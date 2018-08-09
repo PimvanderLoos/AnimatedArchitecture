@@ -22,6 +22,7 @@ public class DoorOpener implements Opener
 		this.plugin = plugin;
 	}
 	
+	// TODO: check the entire area.
 	// Check if the block on the north/east/south/west side of the location is free.
 	public boolean isPosFree(Location loc, DoorDirection direction)
 	{

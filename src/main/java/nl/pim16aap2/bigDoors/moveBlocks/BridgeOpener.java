@@ -2,8 +2,6 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
-//import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -145,9 +143,7 @@ public class BridgeOpener implements Opener
 				break;
 			}
 		}
-//		Bukkit.broadcastMessage("Start = (" + startX + ";" + startY + ";" + startZ + ")");
-//		Bukkit.broadcastMessage("Stop  = (" + stopX  + ";" + stopY  + ";" + stopZ  + ")");
-
+		
 		int x = startX, y, z;
 		while (x <= stopX)
 		{
@@ -268,15 +264,7 @@ public class BridgeOpener implements Opener
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-		try
-		{
-			new BridgeMover(plugin, door.getWorld(), 0.13, door, this.upDown, openDirection);
-		}
-		catch (Exception e)
-		{
-			Bukkit.broadcastMessage("BridgeOpener" + e.getMessage());
-			return false;
-		}
+		new BridgeMover(plugin, door.getWorld(), 0.13, door, this.upDown, openDirection);
 		
 //		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);
