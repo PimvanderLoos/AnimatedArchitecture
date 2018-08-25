@@ -35,6 +35,7 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 
 // TODO: Create commandlistener that can be used to wait for command trees. Create interface and extend queued up commands from there.
 // TODO: Add option for remote power blocks.
+// TODO: Allow upright drawbridge creation.
 
 /* CHANGELOG 0.1.4-ALPHA:
  * Added drawbridges.

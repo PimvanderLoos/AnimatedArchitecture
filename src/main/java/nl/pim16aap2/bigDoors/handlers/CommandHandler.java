@@ -225,7 +225,7 @@ public class CommandHandler implements CommandExecutor
 					player = null;
 				
 				// If the last argument is not a door (so getDoor returns null), it should be the speed. If it it null, use default speed.
-				double speed = plugin.getCommander().getDoor(args[args.length - 1], (Player) sender) == null ? speedFromString(args[args.length - 1]) : 0.2;
+				double speed = 0.2;
 				
 				for (int index = 0; index < args.length; ++index)
 				{

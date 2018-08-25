@@ -177,8 +177,8 @@ public class DoorOpener implements Opener
 			return false;
 		}
 		
-		if (!silent)
-			plugin.getMyLogger().myLogger(Level.INFO, "CurrentDirection = " + currentDirection + ", performing " + rotDirection + " rotation.");
+//		if (!silent)
+//			plugin.getMyLogger().myLogger(Level.INFO, "CurrentDirection = " + currentDirection + ", performing " + rotDirection + " rotation.");
 		
 		int xOpposite, yOpposite, zOpposite;
 		// If the xMax is not the same value as the engineX, then xMax is xOpposite.

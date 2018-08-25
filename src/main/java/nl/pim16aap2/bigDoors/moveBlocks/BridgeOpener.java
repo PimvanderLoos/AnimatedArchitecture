@@ -258,8 +258,8 @@ public class BridgeOpener implements Opener
 			return false;
 		}
 		
-		if (!silent)
-			plugin.getMyLogger().myLogger(Level.INFO, "CurrentDirection = " + currentDirection + ", performing " + openDirection + "(" + upDown + ")" + " rotation.");
+//		if (!silent)
+//			plugin.getMyLogger().myLogger(Level.INFO, "CurrentDirection = " + currentDirection + ", performing " + openDirection + "(" + upDown + ")" + " rotation.");
 
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
