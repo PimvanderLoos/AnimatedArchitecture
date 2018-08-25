@@ -361,8 +361,8 @@ public class BridgeOpener implements Opener
 		plugin.getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
 	}
 
-	// TODO: Can probably be deprecated.
-	@Override @Deprecated
+	// Toggle the open status of a drawbridge.
+	@Override
 	public void toggleOpen(Door door)
 	{
 		door.setStatus(!door.getStatus());

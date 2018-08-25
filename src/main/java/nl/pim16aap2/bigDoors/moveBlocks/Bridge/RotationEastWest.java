@@ -4,9 +4,9 @@ import org.bukkit.World;
 
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 
+@SuppressWarnings("unused")
 public class RotationEastWest implements RotationFormulae
 {
-	@SuppressWarnings("unused")
 	private int xMin, xMax, zMin, zMax;
 	private RotateDirection     rotDir;
 	private World                world;

@@ -91,6 +91,8 @@ public class Commander
 		// If there is more than one, tell the player that they are going to have to make a choice.
 		catch (NumberFormatException e)
 		{
+			if (player == null)
+				return null;
 			ArrayList<Door> doors = new ArrayList<Door>();
 			doors = db.getDoors(player.getUniqueId().toString(), doorStr);
 			if (doors.size() == 1)

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigDoors;
 
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -195,5 +194,15 @@ public class Door
 	public void setEngineSide(DoorDirection newEngSide)
 	{
 		this.engineSide = newEngSide;
+	}
+
+	public int getLength()
+	{
+		int xLen = Math.abs(xMax - xMin);
+		int yLen = Math.abs(yMax - yMin);
+		int zLen = Math.abs(zMax - zMin);
+		if (this.engineSide.equals(DoorDirection.NORTH) || this.engineSide.equals(DoorDirection.SOUTH))
+			return zLen > yLen ? zLen : yLen;
+		return xLen > yLen ? xLen : yLen;
 	}
 }

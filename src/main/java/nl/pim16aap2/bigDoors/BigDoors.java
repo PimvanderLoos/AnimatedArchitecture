@@ -19,6 +19,7 @@ import nl.pim16aap2.bigDoors.customEntities.v1_12_R1.FallingBlockFactory_V1_12_R
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
+import nl.pim16aap2.bigDoors.handlers.LoginHandler;
 import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
@@ -33,6 +34,22 @@ import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
 
 // TODO: Create commandlistener that can be used to wait for command trees. Create interface and extend queued up commands from there.
+// TODO: Add option for remote power blocks.
+
+/* CHANGELOG 0.1.4-ALPHA:
+ * Added drawbridges.
+ * Added bStats.
+ * Added update checker.
+ * Added /bdcancel to stop door creation process.
+ * Added support for colors and \n in translation file.
+ * Now regenerating en_US.txt so no more missing messages on updates...
+ * Fixed blocks such as andesite turning into regular stone.
+ * Fixed stairs not rotating properly in doors.
+ * Now checking full new area where doors will be put before opening.
+ * Now removing door creation tools on shutdown.
+ * More messages moved/added to translation file.
+ */
+
 public class BigDoors extends JavaPlugin implements Listener
 {
 	private ToolVerifier               tf;
@@ -96,6 +113,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		getCommand("opendoors" ).setExecutor(new CommandHandler(this));
 		getCommand("listdoors" ).setExecutor(new CommandHandler(this));
 		getCommand("stopdoors" ).setExecutor(new CommandHandler(this));
+		getCommand("bdcancel"  ).setExecutor(new CommandHandler(this));
 		getCommand("doorinfo"  ).setExecutor(new CommandHandler(this));
 		getCommand("opendoor"  ).setExecutor(new CommandHandler(this));
 		getCommand("nameDoor"  ).setExecutor(new CommandHandler(this));
@@ -108,6 +126,34 @@ public class BigDoors extends JavaPlugin implements Listener
 		
 		liveDevelopmentLoad();
 		
+		if (config.getBool("checkForUpdates"))
+		{
+			// Check for updates in a new thread, so the server won't hang when it cannot contact the update servers.
+			Thread thread = new Thread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					BigDoors plugin = getPlugin();
+				    SpigotUpdater updater = new SpigotUpdater(plugin, 58669);
+				    try 
+				    {
+				        if (updater.checkForUpdates())
+				        {
+				            getLogger().info("An update was found! New version: " + updater.getLatestVersion() + " download: " + updater.getResourceURL());
+				            Bukkit.getPluginManager().registerEvents(new LoginHandler(plugin, "The BigDoors plugin is out of date!"), plugin);
+				        }
+				    }
+				    catch (Exception exc) 
+				    {
+				    		getMyLogger().logMessage("Could not check for updates! Send this to pim16aap2: \n" + exc.getStackTrace().toString(), true, false);
+				    }
+				}
+		
+			});
+			thread.start();
+		}
+
 //		readDoors(); // Import doors from .txt file. Only needed for debugging! I'm the only one with the file!
 	}
 
@@ -118,8 +164,9 @@ public class BigDoors extends JavaPlugin implements Listener
 		// Does Spigot stop them forcefully (and destroy them in the process) meaning this does exactly fuck all?
 		// So many questions, so many answers probably online. TODO: Don't be lazy and do some research.
 		this.commander.setCanGo(false);
-		// TODO: Remove all door creator sticks on disable.
-		// TODO: Do not allow dropping / moving to transfor of creator sticks.
+		
+		for (DoorCreator dc : this.getDoorCreators())
+			dc.takeToolFromPlayer();
 	}
 	
 	// Read the saved list of doors, if it exists. ONLY for debugging purposes. Should be removed from the final export!
@@ -189,6 +236,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		return this.fabf;
 	}
 	
+	public BigDoors getPlugin()
+	{
+		return this;
+	}
+	
 	public Opener getDoorOpener(int type)
 	{
 		switch (type)
@@ -252,10 +304,11 @@ public class BigDoors extends JavaPlugin implements Listener
 	// This function simply loads these classes to make my life a bit less hell-ish with live development.
 	public void liveDevelopmentLoad()
 	{
-		new GetNewLocationNorth();
-		new GetNewLocationEast ();
-		new GetNewLocationSouth();
-		new GetNewLocationWest ();
+		new GetNewLocationNorth ();
+		new GetNewLocationEast  ();
+		new GetNewLocationSouth ();
+		new GetNewLocationWest  ();
+		commandHandler.stopDoors();
 	}
 	
 	// Check + initialize for the correct version of Minecraft.

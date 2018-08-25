@@ -56,7 +56,6 @@ public class BridgeMover
 	private int          xLen, yLen, zLen;
 	private int       directionMultiplier;
 	private int     finishA, startA, endA;
-	@SuppressWarnings("unused")
 	private List<BlockData> 	savedBlocks = new ArrayList<BlockData>();
 	
 	public BridgeMover(BigDoors plugin, World world, double speed, Door door, RotateDirection upDown, DoorDirection openDirection)
@@ -69,6 +68,8 @@ public class BridgeMover
 		this.openDirection = openDirection;
 		this.engineSide    = door.getEngSide();
 		this.NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
+		
+//		Bukkit.broadcastMessage("EngineSide=" + door.getEngSide().toString() + ", OpenDir=" + openDirection.toString() + ", upDown=" + upDown.toString());
 		
 		this.speed   = speed;
 		
@@ -96,6 +97,11 @@ public class BridgeMover
 //			this.formulae = new RotationEastWest();
 			this.doorLen  = xLen > yLen ? xLen : yLen;
 		}
+		
+		this.speed = doorLen < 3  ? speed / 3   : 
+		             doorLen < 5  ? speed / 2   : 
+		             doorLen < 10 ? speed / 1.5 :
+		             doorLen > 20 ? speed * 1.0 : speed;
 				
 		// Regarding dx, dz. These variables determine whether loops get incremented (1) or decremented (-1)
 		// When looking in the direction of the opposite point from the engine side, the blocks should get 
@@ -289,7 +295,6 @@ public class BridgeMover
 		int yAxisEnd = yMax;
 		int zAxisEnd = pointOpposite.getBlockZ();
 		
-		
 		int index = 0;
 		double xAxis = turningPoint.getX();
 		do
@@ -314,16 +319,22 @@ public class BridgeMover
 					if (upDown == RotateDirection.DOWN)
 						radius = yAxis - turningPoint.getBlockY();
 					
-					if (xAxis == xAxisMid && yAxis == yAxisMid && zAxis == zAxisMid)
-						this.indexMid = index;
-
-					if (xAxis == xAxisEnd && yAxis == yAxisEnd && zAxis == zAxisEnd)
-						this.indexEnd = index;
-					
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
 					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
 					if (yAxis == yMin)
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
+					
+					if (xAxis == xAxisMid && yAxis == yAxisMid && zAxis == zAxisMid)
+					{
+						this.indexMid = index;
+//						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.EMERALD_BLOCK);
+					}
+
+					if (xAxis == xAxisEnd && yAxis == yAxisEnd && zAxis == zAxisEnd)
+					{
+						this.indexEnd = index;
+//						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.DIAMOND_BLOCK);
+					}
 					
 					Material mat = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
 					@SuppressWarnings("deprecation")
@@ -550,6 +561,8 @@ public class BridgeMover
 //							 (endA < startA && realAngleMidDeg < finishA && counter > 2))  &&
 //							!(startA == 0  && realAngleMidDeg != 360)   && !(startA == 360 && realAngleMidDeg != 0)
 //						))
+				
+				// TODO: Make end point dynamic. Measure the change in angle per tick, then use that for the angleOffset.
 				if (!plugin.getCommander().canGo() ||
 					Math.abs(realAngleMidDeg - endA)    < angleOffset     || Math.abs(realAngleMidDeg - endA)    > (360 - angleOffset  ) ||
 					Math.abs(realAngleMidDeg - finishA) < angleOffset * 4 || Math.abs(realAngleMidDeg - finishA) > (360 - angleOffset * 4))
@@ -561,24 +574,73 @@ public class BridgeMover
 				}
 				else
 				{
-					double realRadiusEnd;
+//					Bukkit.broadcastMessage(String.format("Distance to end = %.2f or %.2f", Math.abs(realAngleMidDeg - endA), Math.abs(realAngleMidDeg - endA)));
+					double realRadiusEnd, totRadDiff, totradDiffPunishment;
 					if (!NS)
 					{
 						double dXE    = Math.abs(savedBlocks.get(indexEnd).getFBlock().getLocation().getX() - (turningPoint.getBlockX() + 0.5));
 						double dYE    = Math.abs(savedBlocks.get(indexEnd).getFBlock().getLocation().getY() - (turningPoint.getBlockY() + 0.5));
 						realRadiusEnd = Math.sqrt(dXE * dXE + dYE * dYE);
+//						if (upDown.equals(RotateDirection.DOWN))
+//							totRadDiff    = doorLen - realRadiusEnd;
+//						else
+							totRadDiff    = realRadiusEnd - doorLen;
 					}
 					else
 					{
 						double dZE    = Math.abs(savedBlocks.get(indexEnd).getFBlock().getLocation().getZ() - (turningPoint.getBlockX() + 0.5));
 						double dYE    = Math.abs(savedBlocks.get(indexEnd).getFBlock().getLocation().getY() - (turningPoint.getBlockY() + 0.5));
 						realRadiusEnd = Math.sqrt(dZE * dZE + dYE * dYE);
+						if (upDown.equals(RotateDirection.DOWN))
+							totRadDiff    = doorLen - realRadiusEnd;
+						else
+							totRadDiff    = realRadiusEnd - doorLen;
 					}
-					double totRadDiff     = realRadiusEnd - doorLen;
-					double totradDiffPunishment = totRadDiff;
+//					double totRadDiff     = doorLen - realRadiusEnd;
+					totradDiffPunishment  = totRadDiff;
 					totradDiffPunishment *= 3.77;
 					totradDiffPunishment  = totradDiffPunishment > 2 ? 2 : totradDiffPunishment;
 					totradDiffPunishment += 1;
+//					totradDiffPunishment  = 3;
+
+					if (NS)
+						totradDiffPunishment = 3;
+//					if (!NS && upDown.equals(RotateDirection.DOWN))
+//						totradDiffPunishment = 13;
+					
+					double speedMul = 1;
+					if (Math.abs(realAngleMidDeg - endA) < 15 || 
+						doorLen < 6  && Math.abs(realAngleMidDeg - endA) < 30 ||
+						doorLen < 10 && Math.abs(realAngleMidDeg - endA) < 15)
+					{
+						speedMul = 0.70;
+						if (doorLen < 10)
+						{
+							speedMul = 0.60;
+							if (upDown.equals(RotateDirection.DOWN))
+								speedMul = 0.27;
+						}
+						totradDiffPunishment *= 1.8;
+						if (doorLen < 10)
+							totradDiffPunishment *= 4;
+						if (!NS && upDown.equals(RotateDirection.DOWN))
+						{
+//							totradDiffPunishment = 4;
+						}
+					}
+					else if (Math.abs(realAngleMidDeg - endA) > 60)
+					{
+//						if (!NS && upDown.equals(RotateDirection.DOWN))
+//							totradDiffPunishment = 3;
+					}
+					if (totRadDiff > 0 && Math.abs(realAngleMidDeg - endA) < 50)
+					{
+						if (doorLen < 10)
+							totradDiffPunishment = 14;
+					}
+					
+					totradDiffPunishment  = totradDiffPunishment < 0.2 ? 0.2 : totradDiffPunishment;
+//					Bukkit.broadcastMessage(String.format("RealRad=%.2f, Rad=%.2f, totRadDiff=%.2f, punish=%.2f", realRadiusEnd, savedBlocks.get(indexEnd).getRadius(), totRadDiff, totradDiffPunishment));
 					
 					double xAxis = turningPoint.getX();
 					do
@@ -651,8 +713,8 @@ public class BridgeMover
 											speedBoost = speedBoost == 0 ? 1 : speedBoost;
 											
 											// Inversed zRot sign for directionMultiplier.
-											double xRot = speedBoost * dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
-											double yRot = speedBoost * dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
+											double xRot = speedBoost * dirMulX * -1                   * (realRadius / maxRad) * speed * speedMul * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
+											double yRot = speedBoost * dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * speedMul * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
 											savedBlocks.get(index).getFBlock().setVelocity(new Vector (directionMultiplier * xRot, yRot, 0.000));
 										}
 										else
@@ -686,8 +748,8 @@ public class BridgeMover
 											speedBoost = speedBoost == 0 ? 1 : speedBoost;
 											
 											// Inversed zRot sign for directionMultiplier.
-											double zRot = speedBoost * dirMulX * -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
-											double yRot = speedBoost * dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
+											double zRot = speedBoost * dirMulX * -1                   * (realRadius / maxRad) * speed * speedMul * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
+											double yRot = speedBoost * dirMulZ * -directionMultiplier * (realRadius / maxRad) * speed * speedMul * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
 											savedBlocks.get(index).getFBlock().setVelocity(new Vector (0.000, yRot, directionMultiplier * zRot));
 										}
 									}

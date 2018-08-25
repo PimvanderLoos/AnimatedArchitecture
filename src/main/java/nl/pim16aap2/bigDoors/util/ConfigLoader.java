@@ -40,7 +40,7 @@ public class ConfigLoader
 		};
 	private String[] languageFileComment  	=
 		{
-			"Specify a language file to be used."
+			"Specify a language file to be used. Note that en_US.txt will get regenerated!"
 		};
 	private String[] dbFileComment 			=
 		{

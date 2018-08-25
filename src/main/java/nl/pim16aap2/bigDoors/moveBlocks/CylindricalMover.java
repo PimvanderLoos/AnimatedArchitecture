@@ -140,14 +140,19 @@ public class CylindricalMover
 	}
 	
 	// Check if a block can (should) be rotated.
-	public boolean canRotate(Material mat)
+	public int canRotate(Material mat)
 	{	// Logs, stairs and glass panes can rotate, the rest can't.
-		return 	mat.equals(Material.LOG)               || mat.equals(Material.LOG_2)              || mat.equals(Material.ACACIA_STAIRS)        ||
-				mat.equals(Material.BIRCH_WOOD_STAIRS) || mat.equals(Material.BRICK_STAIRS)       || mat.equals(Material.COBBLESTONE_STAIRS)   || 
-				mat.equals(Material.DARK_OAK_STAIRS)   || mat.equals(Material.JUNGLE_WOOD_STAIRS) || mat.equals(Material.NETHER_BRICK_STAIRS)  || 
-				mat.equals(Material.PURPUR_STAIRS)     || mat.equals(Material.QUARTZ_STAIRS)      || mat.equals(Material.RED_SANDSTONE_STAIRS) || 
-				mat.equals(Material.SANDSTONE_STAIRS)  || mat.equals(Material.SMOOTH_STAIRS)      || mat.equals(Material.SPRUCE_WOOD_STAIRS)   || 
-				mat.equals(Material.WOOD_STAIRS)       || mat.equals(Material.STAINED_GLASS_PANE) || mat.equals(Material.THIN_GLASS);
+		if (mat.equals(Material.LOG) || mat.equals(Material.LOG_2))
+			return 1;
+		if (mat.equals(Material.ACACIA_STAIRS)        || mat.equals(Material.BIRCH_WOOD_STAIRS) || mat.equals(Material.BRICK_STAIRS)       || 
+			mat.equals(Material.COBBLESTONE_STAIRS)   || mat.equals(Material.DARK_OAK_STAIRS)   || mat.equals(Material.JUNGLE_WOOD_STAIRS) || 
+			mat.equals(Material.NETHER_BRICK_STAIRS)  || mat.equals(Material.PURPUR_STAIRS)     || mat.equals(Material.QUARTZ_STAIRS)      || 
+			mat.equals(Material.RED_SANDSTONE_STAIRS) || mat.equals(Material.SANDSTONE_STAIRS)  || mat.equals(Material.SMOOTH_STAIRS)      || 
+			mat.equals(Material.SPRUCE_WOOD_STAIRS)   || mat.equals(Material.WOOD_STAIRS))
+			return 2;
+		if (mat.equals(Material.STAINED_GLASS_PANE) || mat.equals(Material.THIN_GLASS))
+			return 3;
+		return 0;
 	}
 	
 	// Put the door blocks back, but change their state now.
@@ -172,8 +177,11 @@ public class CylindricalMover
 					Material mat = savedBlocks.get(index).getMat();
 					Byte matByte;
 					
-					if (canRotate(mat))
-						matByte = rotateBlockData(savedBlocks.get(index).getBlockByte());
+					int canRot   = canRotate(mat);
+					if (canRot == 1 || canRot == 3)
+						matByte = rotateBlockDataLog(savedBlocks.get(index).getBlockByte());
+					else if (canRot == 2)
+						matByte = rotateBlockDataStairs(savedBlocks.get(index).getBlockByte());
 					else
 						matByte = savedBlocks.get(index).getMatData().getData();
 
@@ -337,10 +345,15 @@ public class CylindricalMover
 									if (replace)
 									{
 										Material mat     = savedBlocks.get(index).getMat();
-										if (mat == Material.LOG || mat == Material.LOG_2)
+										int canRot       = canRotate(mat);
+										if (canRot != 0)
 										{
 											Location loc = savedBlocks.get(index).getFBlock().getLocation();
-											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
+											Byte matData;
+											if (canRot == 1 || canRot == 3)
+												matData = rotateBlockDataLog(savedBlocks.get(index).getBlockByte());
+											else
+												matData = rotateBlockDataStairs(savedBlocks.get(index).getBlockByte());
 											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
 											savedBlocks.get(index).getFBlock().remove();
 		
@@ -364,13 +377,41 @@ public class CylindricalMover
 		}.runTaskTimer(plugin, 14, 4);
 	}
 	
-	// Rotate blocks such a logs by modifying its material data.
-	public byte rotateBlockData(Byte matData)
+	// Rotate logs by modifying its material data.
+	public byte rotateBlockDataLog(Byte matData)
 	{
 		if (matData >= 4 && matData <= 7)
 			matData = (byte) (matData + 4);
 		else if (matData >= 7 && matData <= 11)
 			matData = (byte) (matData - 4);
+		return matData;
+	}
+	
+	// Rotate stairs by modifying its material data.
+	public byte rotateBlockDataStairs(Byte matData)
+	{
+		if (this.rotDirection == RotateDirection.CLOCKWISE)
+		{
+			if (matData == 0 || matData == 4)
+				matData = (byte) (matData + 2);
+			else if (matData == 1 || matData == 5)
+				matData = (byte) (matData + 2);
+			else if (matData == 2 || matData == 6)
+				matData = (byte) (matData - 1);
+			else if (matData == 3 || matData == 7)
+				matData = (byte) (matData - 3);
+		}
+		else
+		{
+			if (matData == 0 || matData == 4)
+				matData = (byte) (matData + 3);
+			else if (matData == 1 || matData == 5)
+				matData = (byte) (matData + 1);
+			else if (matData == 2 || matData == 6)
+				matData = (byte) (matData - 2);
+			else if (matData == 3 || matData == 7)
+				matData = (byte) (matData - 2);
+		}
 		return matData;
 	}
 	

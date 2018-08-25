@@ -24,25 +24,56 @@ public class DoorOpener implements Opener
 	
 	// TODO: check the entire area.
 	// Check if the block on the north/east/south/west side of the location is free.
-	public boolean isPosFree(Location loc, DoorDirection direction)
+	public boolean isPosFree(Door door, DoorDirection direction)
 	{
-		Location newLoc = loc;
+		Location engLoc = door.getEngine();
+		int endX   = 0, endY   = 0, endZ   = 0;
+		int startX = 0, startY = 0, startZ = 0;
+		int xLen = door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
+		int zLen = door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
+		
 		switch(direction)
 		{
 		case NORTH:
-			newLoc.setZ(newLoc.getZ() - 1);
+			startX = engLoc.getBlockX();
+			startY = engLoc.getBlockY();
+			startZ = engLoc.getBlockZ() - xLen;
+			endX   = engLoc.getBlockX();
+			endY   = door.getMaximum().getBlockY();
+			endZ   = engLoc.getBlockZ() - 1;
 			break;
 		case EAST:
-			newLoc.setX(newLoc.getX() + 1);
+			startX = engLoc.getBlockX() + 1;
+			startY = engLoc.getBlockY();
+			startZ = engLoc.getBlockZ();
+			endX   = engLoc.getBlockX() + zLen;
+			endY   = door.getMaximum().getBlockY();
+			endZ   = engLoc.getBlockZ();
 			break;
 		case SOUTH:
-			newLoc.setZ(newLoc.getZ() + 1);
+			startX = engLoc.getBlockX();
+			startY = engLoc.getBlockY();
+			startZ = engLoc.getBlockZ() + 1;
+			endX   = engLoc.getBlockX();
+			endY   = door.getMaximum().getBlockY();
+			endZ   = engLoc.getBlockZ() + xLen;
 			break;
 		case WEST:
-			newLoc.setX(newLoc.getX() - 1);
+			startX = engLoc.getBlockX() - zLen;
+			startY = engLoc.getBlockY();
+			startZ = engLoc.getBlockZ();
+			endX   = engLoc.getBlockX() - 1;
+			endY   = door.getMaximum().getBlockY();
+			endZ   = engLoc.getBlockZ();
 			break;
 		}
-		return newLoc.getWorld().getBlockAt(newLoc).getType() == Material.AIR;
+
+		for (int xAxis = startX; xAxis <= endX; ++xAxis)
+			for (int yAxis = startY; yAxis <= endY; ++yAxis)
+				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
+					if (!engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType().equals(Material.AIR))
+						return false;
+		return true;
 	}
 	
 	// Determine which direction the door is going to rotate. Clockwise or counterclockwise.
@@ -51,30 +82,30 @@ public class DoorOpener implements Opener
 		switch(currentDir)
 		{		
 		case NORTH:
-			if (isPosFree(door.getEngine(), DoorDirection.EAST))
+			if (isPosFree(door, DoorDirection.EAST))
 				return RotateDirection.CLOCKWISE;
-			else if (isPosFree(door.getEngine(), DoorDirection.WEST))
+			else if (isPosFree(door, DoorDirection.WEST))
 				return RotateDirection.COUNTERCLOCKWISE;
 			break;
 			
 		case EAST:
-			if (isPosFree(door.getEngine(), DoorDirection.SOUTH))
+			if (isPosFree(door, DoorDirection.SOUTH))
 				return RotateDirection.CLOCKWISE;
-			else if (isPosFree(door.getEngine(), DoorDirection.NORTH))
+			else if (isPosFree(door, DoorDirection.NORTH))
 				return RotateDirection.COUNTERCLOCKWISE;
 			break;
 			
 		case SOUTH:
-			if (isPosFree(door.getEngine(), DoorDirection.WEST))
+			if (isPosFree(door, DoorDirection.WEST))
 				return RotateDirection.CLOCKWISE;
-			else if (isPosFree(door.getEngine(), DoorDirection.EAST))
+			else if (isPosFree(door, DoorDirection.EAST))
 				return RotateDirection.COUNTERCLOCKWISE;
 			break;
 			
 		case WEST:
-			if (isPosFree(door.getEngine(), DoorDirection.NORTH))
+			if (isPosFree(door, DoorDirection.NORTH))
 				return RotateDirection.CLOCKWISE;
-			else if (isPosFree(door.getEngine(), DoorDirection.SOUTH))
+			else if (isPosFree(door, DoorDirection.SOUTH))
 				return RotateDirection.COUNTERCLOCKWISE;
 			break;
 		}
@@ -261,8 +292,7 @@ public class DoorOpener implements Opener
 	}
 
 	// Toggle the open status of a door.
-	// TODO: Can probably be deprecated.
-	@Override @Deprecated
+	@Override
 	public void toggleOpen(Door door)
 	{
 		door.setStatus(!door.getStatus());

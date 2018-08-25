@@ -1,15 +1,14 @@
 package nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 
+@SuppressWarnings("unused")
 public class GetNewLocationSouth implements GetNewLocation
 {
-	@SuppressWarnings("unused")
 	private World                 world;
 	private RotateDirection      upDown;
 	private DoorDirection openDirection;

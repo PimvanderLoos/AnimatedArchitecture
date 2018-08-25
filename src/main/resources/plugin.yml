@@ -16,6 +16,11 @@ commands:
     usage: /NameDoor <doorName>
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.createdoor permission node.
+  bdcancel:
+    description: Cancels the door creation process.
+    usage: /bdcancel
+    permission: bigdoors.user.createdoor
+    permission-message: You do not have the bigdoors.createdoor permission node.
   shutup:
     description: Shuts up debug messages.
     usage: /Shutup <debug level>

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigDoors;
 
 import java.util.Arrays;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -88,13 +87,16 @@ public class DoorCreator
 	// Final cleanup
 	public void finishUp()
 	{
-		if (this.EngineSide != null)
-			this.player.sendMessage(ChatColor.DARK_PURPLE + "Engine side = " + this.EngineSide.toString());
-		else
-			this.player.sendMessage(ChatColor.DARK_PURPLE + "Engine side is null");
-		Door door = new Door(player.getUniqueId(), one.getWorld(), one.getBlockX(), one.getBlockY(), one.getBlockZ(), two.getBlockX(), two.getBlockY(), two.getBlockZ(), 
-				engine.getBlockX(), engine.getBlockY(), engine.getBlockZ(), name, false, -1, false, 0, type, EngineSide);
-		plugin.getCommander().addDoor(door);
+//		if (this.EngineSide != null)
+//			this.player.sendMessage(ChatColor.DARK_PURPLE + "Engine side = " + this.EngineSide.toString());
+//		else
+//			this.player.sendMessage(ChatColor.DARK_PURPLE + "Engine side is null");
+		if (one != null && two != null && engine != null && (EngineSide != null || type != 1))
+		{		
+			Door door = new Door(player.getUniqueId(), one.getWorld(), one.getBlockX(), one.getBlockY(), one.getBlockZ(), two.getBlockX(), two.getBlockY(), two.getBlockZ(), 
+					engine.getBlockX(), engine.getBlockY(), engine.getBlockZ(), name, false, -1, false, 0, type, EngineSide);
+			plugin.getCommander().addDoor(door);
+		}
 		takeToolFromPlayer();
 	}
 	
@@ -111,7 +113,11 @@ public class DoorCreator
         itemMeta.setLore(Arrays.asList(lore));
         tool.setItemMeta(itemMeta);
         
-		player.getInventory().addItem(tool);
+        int heldSlot = player.getInventory().getHeldItemSlot();
+        if (player.getInventory().getItem(heldSlot) == null)
+        		player.getInventory().setItem(heldSlot, tool);
+        else
+        		player.getInventory().addItem(tool);
 		
 		String[] message = messages.getString("DC.StickReceived").split("\n");
 		Util.messagePlayer(player, message);
@@ -357,5 +363,11 @@ public class DoorCreator
 	public boolean isDone()
 	{
 		return this.done;
+	}
+	
+	// Change isDone status.
+	public void setIsDone(boolean bool)
+	{
+		this.done = bool;
 	}
 }

@@ -29,10 +29,8 @@ public class Messages
 	// Read locale file.
 	private void readFile()
 	{
-		
-		// If the file does not exist, load the default en_US from the resources.
-		if (!this.textFile.exists())
-			plugin.saveResource("en_US.txt", false);
+		// Load the default en_US from the resources.
+		plugin.saveResource("en_US.txt", true);
 
 		try (BufferedReader br = new BufferedReader(new FileReader(this.textFile)))
 		{
@@ -43,10 +41,14 @@ public class Messages
 				String key, value;
 				String[] parts = sCurrentLine.split("=", 2);
 				key    = parts[0];
-				value  = parts[1];
-				this.messageMap.put(key, value);
+				value  = parts[1].replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+				String[] newLineSplitter = value.split("\\\\n"); // Wut? Can I haz more backslash?
+				
+				String values = "";
+				for (String str : newLineSplitter)
+					values += str + "\n";
+				this.messageMap.put(key, values);
 			}
-
 			br.close();
 		} 
 		catch (FileNotFoundException e)
@@ -66,7 +68,10 @@ public class Messages
 		String value = null;
 		value = this.messageMap.get(key);
 		if (value == null)
+		{
 			value = "BigDoors: Translation not found! Contact server admin!";
+			plugin.getMyLogger().logMessage("Failed to get translation for key " + key);
+		}
 		return value;
 	}
 }

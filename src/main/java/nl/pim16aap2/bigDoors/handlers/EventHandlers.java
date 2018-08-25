@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.handlers;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -35,10 +36,18 @@ public class EventHandlers implements Listener
 	}
 	
 	// Do not allow the player to drop the door creation tool.
-	@EventHandler @SuppressWarnings("deprecation")
+	@EventHandler
 	public void onItemDropEvent(PlayerDropItemEvent event)
 	{
-		if (plugin.getTF().isTool(event.getPlayer().getItemInHand()))
+		if (plugin.getTF().isTool(event.getItemDrop().getItemStack()))
+			event.setCancelled(true);
+	}
+	
+	// Do not allow the user to move the tool around in their inventory.
+	@EventHandler
+	public void onItemMoved(InventoryMoveItemEvent event)
+	{
+		if (plugin.getTF().isTool(event.getItem()))
 			event.setCancelled(true);
 	}
 }

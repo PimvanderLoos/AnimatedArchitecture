@@ -10,6 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.mysql.jdbc.Messages;
+
 import net.md_5.bungee.api.ChatColor;
 
 import nl.pim16aap2.bigDoors.BigDoors;
@@ -86,14 +88,15 @@ public class CommandHandler implements CommandExecutor
 	public void listDoorInfo(Player player, String name)
 	{
 		ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
-		
+				
 		for (Door door : doors)
 			Util.messagePlayer(player, door.getDoorUID()    + ": "  + door.getName().toString()     + 
 				", Min("    + door.getMinimum().getBlockX() + ";"   + door.getMinimum().getBlockY() + ";"+ door.getMinimum().getBlockZ() + ")" +
 				", Max("    + door.getMaximum().getBlockX() + ";"   + door.getMaximum().getBlockY() + ";"+ door.getMaximum().getBlockZ() + ")" +
 				", Engine(" + door.getEngine().getBlockX()  + ";"   + door.getEngine().getBlockY()  + ";"+ door.getEngine().getBlockZ()  + ")" +
 				", " + (door.isLocked() ? "" : "NOT ") + "locked"   + "; Type=" + door.getType()    + 
-				(door.getEngSide() == null ? "" : ("; EngineSide = " + door.getEngSide().toString()))); 
+				(door.getEngSide() == null ? "" : ("; EngineSide = " + door.getEngSide().toString() + "; doorLen = " +
+				 door.getLength()))); 
 //				("; EngineSide = " + door.getEngSide().toString()));
 	}
 
@@ -135,16 +138,16 @@ public class CommandHandler implements CommandExecutor
 					plugin.getDoorCreators().remove(dc);
 					this.cancel();
 				}
-				else if (count > 120) // Cancel after 1 minute.
+				else if (count > 60) // Cancel after 1 minute.
 				{
 					dc.takeToolFromPlayer();
 					plugin.getDoorCreators().remove(dc);
-					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, "Time's up! Door creation failed, please try again.");
+					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.TimeUp"));
 					this.cancel();
 				}
 				++count;
 			}
-		}.runTaskTimer(plugin, 0, 10);
+		}.runTaskTimer(plugin, 0, 20); // Once a second.
 	}
 
 	// Check if a provided player is a doorCreator.
@@ -210,7 +213,60 @@ public class CommandHandler implements CommandExecutor
 				}
 				return true;
 			}
+		
+		// /opendoors <doorName1> <doorName2> etc etc [speed]
+		if (cmd.getName().equalsIgnoreCase("opendoors"))
+		{
+			if (args.length >= 2)
+			{
+				if (sender instanceof Player)
+					player = (Player) sender;
+				else
+					player = null;
+				
+				// If the last argument is not a door (so getDoor returns null), it should be the speed. If it it null, use default speed.
+				double speed = plugin.getCommander().getDoor(args[args.length - 1], (Player) sender) == null ? speedFromString(args[args.length - 1]) : 0.2;
+				
+				for (int index = 0; index < args.length; ++index)
+				{
+					Door door = plugin.getCommander().getDoor(args[index], player);
+					if (door == null && index != args.length - 1)
+						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" is not a valid door name!");
+					else if (door != null)
+						openDoorCommand(sender, door, speed);
+				}
+				return true;
+			}
+		}
 
+		// /opendoor <doorName>
+		if (cmd.getName().equalsIgnoreCase("opendoor"))
+		{
+			if (args.length >= 1)
+			{
+				if (sender instanceof Player)
+					player = (Player) sender;
+				else
+					player = null;
+				
+				Door door = plugin.getCommander().getDoor(args[0], player);
+				// TODO: Add this shit to en_US.txt translation file.
+				if (door == null)
+				{
+					if (player != null)
+						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\" is not a valid door name!");
+					else
+						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\" is not a valid door ID!");
+				}
+				else
+				{
+					double speed = args.length == 2 ? (args[1] == null ? 0.2 : speedFromString(args[1])) : 0.2;
+					openDoorCommand(sender, door, speed);
+				}
+				return true;
+			}
+		}
+		
 		if (sender instanceof Player)
 		{
 			player = (Player) sender;
@@ -233,6 +289,18 @@ public class CommandHandler implements CommandExecutor
 							dc.setName(args[0]);
 							return true;
 						}
+			}
+			
+			// /bdcancel
+			if (cmd.getName().equalsIgnoreCase("bdcancel"))
+			{
+				DoorCreator dc = isCreatingDoor(player);
+				if (dc != null)
+				{
+					dc.setIsDone(true);
+					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.Cancelled"));
+				}
+				return true;
 			}
 			
 			// /listdoors [name]
@@ -263,38 +331,6 @@ public class CommandHandler implements CommandExecutor
 				if (args.length == 1)
 				{
 					delDoor(player, args[0]);
-					return true;
-				}
-				
-			// /opendoors <doorName1> <doorName2> etc etc [speed]
-			if (cmd.getName().equalsIgnoreCase("opendoors"))
-				if (args.length >= 2)
-				{
-					// If the last argument is not a door (so getDoor returns null), it should be the speed. If it it null, use default speed.
-					double speed = plugin.getCommander().getDoor(args[args.length - 1], player) == null ? speedFromString(args[args.length - 1]) : 0.2;
-					for (int index = 0; index < args.length; ++index)
-					{
-						Door door = plugin.getCommander().getDoor(args[index], player);
-						if (door == null && index != args.length - 1)
-							plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" is not a valid door name!");
-						else if (door != null)
-							openDoorCommand(sender, door, speed);
-					}
-					return true;
-				}
-	
-			// /opendoor <doorName>
-			if (cmd.getName().equalsIgnoreCase("opendoor"))
-				if (args.length >= 1)
-				{
-					Door door = plugin.getCommander().getDoor(args[0], player);
-					if (door == null)
-						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\" is not a valid door name!");
-					else
-					{
-						double speed = args.length == 2 ? (args[1] == null ? 0.2 : speedFromString(args[1])) : 0.2;
-						openDoorCommand(sender, door, speed);
-					}
 					return true;
 				}
 	
