@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.bukkit.Location;
 
-import nl.pim16aap2.bigDoors.util.BlockData;
+import nl.pim16aap2.bigDoors.util.MyBlockData;
 
 public interface GetNewLocation
 {
-	public Location getNewLocation(List<BlockData> savedBlocks, double xPos, double yPos, double zPos, int index);
+	public Location getNewLocation(List<MyBlockData> savedBlocks, double xPos, double yPos, double zPos, int index);
 }

@@ -1,22 +1,22 @@
-package nl.pim16aap2.bigDoors.customEntities.v1_11_R1;
+package nl.pim16aap2.bigDoors.NMS.v1_12_R1;
 
-import net.minecraft.server.v1_11_R1.Block;
-import net.minecraft.server.v1_11_R1.BlockPosition;
-import net.minecraft.server.v1_11_R1.Blocks;
-import net.minecraft.server.v1_11_R1.CrashReportSystemDetails;
-import net.minecraft.server.v1_11_R1.Entity;
-import net.minecraft.server.v1_11_R1.EnumMoveType;
-import net.minecraft.server.v1_11_R1.IBlockData;
-import net.minecraft.server.v1_11_R1.Material;
-import net.minecraft.server.v1_11_R1.MathHelper;
-import net.minecraft.server.v1_11_R1.MinecraftKey;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
-import nl.pim16aap2.bigDoors.customEntities.CustomEntityFallingBlock_Vall;
+import net.minecraft.server.v1_12_R1.Block;
+import net.minecraft.server.v1_12_R1.BlockPosition;
+import net.minecraft.server.v1_12_R1.Blocks;
+import net.minecraft.server.v1_12_R1.CrashReportSystemDetails;
+import net.minecraft.server.v1_12_R1.Entity;
+import net.minecraft.server.v1_12_R1.EnumMoveType;
+import net.minecraft.server.v1_12_R1.IBlockData;
+import net.minecraft.server.v1_12_R1.Material;
+import net.minecraft.server.v1_12_R1.MathHelper;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock_Vall;
 
 import javax.annotation.Nullable;
 
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_11_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 /*
@@ -29,7 +29,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
  * - NoClip enabled
  */
 
-public class CustomEntityFallingBlock_V1_11_R1 extends net.minecraft.server.v1_11_R1.EntityFallingBlock implements CustomEntityFallingBlock_Vall
+public class CustomEntityFallingBlock_V1_12_R1 extends net.minecraft.server.v1_12_R1.EntityFallingBlock implements CustomEntityFallingBlock_Vall
 {
 	private        IBlockData block      ;
 	private int    fallHurtMax    = 40   ;
@@ -39,9 +39,9 @@ public class CustomEntityFallingBlock_V1_11_R1 extends net.minecraft.server.v1_1
 	public NBTTagCompound tileEntityData ;
 	private org.bukkit.World  bukkitWorld;
 
-	public CustomEntityFallingBlock_V1_11_R1(org.bukkit.World world)
+	public CustomEntityFallingBlock_V1_12_R1(org.bukkit.World world)
 	{
-		super((net.minecraft.server.v1_11_R1.World) world);
+		super((net.minecraft.server.v1_12_R1.World) world);
 		setNoGravity(true);
 		this.noclip = true;
 		this.bukkitWorld  = world;
@@ -49,7 +49,7 @@ public class CustomEntityFallingBlock_V1_11_R1 extends net.minecraft.server.v1_1
 	}
 	
 	@SuppressWarnings("deprecation")
-	public CustomEntityFallingBlock_V1_11_R1(org.bukkit.World world, org.bukkit.Material mat, double d0, double d1, double d2, byte data)
+	public CustomEntityFallingBlock_V1_12_R1(org.bukkit.World world, org.bukkit.Material mat, double d0, double d1, double d2, byte data)
 	{
 		super(((CraftWorld) world).getHandle(), d0, d1, d2, CraftMagicNumbers.getBlock(mat).fromLegacyData(data));
 		this.block  = CraftMagicNumbers.getBlock(mat).fromLegacyData(data);
@@ -70,12 +70,11 @@ public class CustomEntityFallingBlock_V1_11_R1 extends net.minecraft.server.v1_1
 	
 	public void spawn()
 	{
-		((org.bukkit.craftbukkit.v1_11_R1.CraftWorld) this.bukkitWorld).getHandle().addEntity(this, SpawnReason.CUSTOM);
+		((org.bukkit.craftbukkit.v1_12_R1.CraftWorld) this.bukkitWorld).getHandle().addEntity(this, SpawnReason.CUSTOM);
 	}
 	
 	public void kill()
 	{
-		System.out.println("0: Kill");
 		this.die();
 	}
 	
@@ -130,7 +129,7 @@ public class CustomEntityFallingBlock_V1_11_R1 extends net.minecraft.server.v1_1
 	@Override
 	public void a(BlockPosition blockposition)
 	{
-		this.datawatcher.set(CustomEntityFallingBlock_V1_11_R1.d, blockposition);
+		this.datawatcher.set(CustomEntityFallingBlock_V1_12_R1.d, blockposition);
 	}
 
 	@Override
@@ -142,7 +141,7 @@ public class CustomEntityFallingBlock_V1_11_R1 extends net.minecraft.server.v1_1
 	@Override
 	protected void i()
 	{
-		this.datawatcher.register(CustomEntityFallingBlock_V1_11_R1.d, BlockPosition.ZERO);
+		this.datawatcher.register(CustomEntityFallingBlock_V1_12_R1.d, BlockPosition.ZERO);
 	}
 
 	@Override
@@ -152,7 +151,7 @@ public class CustomEntityFallingBlock_V1_11_R1 extends net.minecraft.server.v1_1
 	}
 
 	@Override
-	public void A_()
+	public void B_()
 	{
 		if (this.block.getMaterial() == Material.AIR)
 			this.die();
@@ -266,7 +265,7 @@ public class CustomEntityFallingBlock_V1_11_R1 extends net.minecraft.server.v1_1
 	}
 
 	@Override
-	public boolean bu()
+	public boolean bC()
 	{
 		return true;
 	}

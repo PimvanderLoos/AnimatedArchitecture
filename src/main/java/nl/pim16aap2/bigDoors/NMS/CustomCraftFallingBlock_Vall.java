@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors.customEntities;
+package nl.pim16aap2.bigDoors.NMS;
 
 import org.bukkit.Location;
 import org.bukkit.util.Vector;

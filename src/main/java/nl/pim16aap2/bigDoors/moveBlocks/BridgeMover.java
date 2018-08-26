@@ -14,8 +14,9 @@ import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock_Vall;
-import nl.pim16aap2.bigDoors.customEntities.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
+import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 //import nl.pim16aap2.bigDoors.moveBlocks.Bridge.RotationEastWest;
 //import nl.pim16aap2.bigDoors.moveBlocks.Bridge.RotationFormulae;
 //import nl.pim16aap2.bigDoors.moveBlocks.Bridge.RotationNorthSouth;
@@ -24,7 +25,7 @@ import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationEast
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationNorth;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationSouth;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationWest;
-import nl.pim16aap2.bigDoors.util.BlockData;
+import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -56,7 +57,7 @@ public class BridgeMover
 	private int          xLen, yLen, zLen;
 	private int       directionMultiplier;
 	private int     finishA, startA, endA;
-	private List<BlockData> 	savedBlocks = new ArrayList<BlockData>();
+	private List<MyBlockData> 	savedBlocks = new ArrayList<MyBlockData>();
 	
 	public BridgeMover(BigDoors plugin, World world, double speed, Door door, RotateDirection upDown, DoorDirection openDirection)
 	{
@@ -341,19 +342,41 @@ public class BridgeMover
 					Byte matData = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
+//					Block block = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+					NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+					NMSBlock_Vall block2 = null;
 					
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
+					{
+
+						// !!WARNING!! Dirty hack incoming!
+						// Because I can't get the blocks to rotate properly, they are rotated here
+						if (plugin.is1_13() && canRotate(mat)) 
+						{
+							Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
+
+							Byte matByte = rotateBlockData(matData);
+							Block b = world.getBlockAt(pos);					
+							materialData.setData(matByte);
+							
+							b.setType(mat);
+							BlockState bs2 = b.getState();
+							bs2.setData(materialData);
+							bs2.update();
+							block2 = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+						}
 						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
+					}
 					else
 					{
 						mat     = Material.AIR;
 						matData = 0;
 					}
 					
-					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
+					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 					
-					savedBlocks.add(index, new BlockData(mat, matData, fBlock, radius, materialData));
+					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, radius, materialData, block, block2));
 										
 					index++;
 				}
@@ -415,6 +438,7 @@ public class BridgeMover
 					Material mat = savedBlocks.get(index).getMat();
 					Byte matByte;
 					
+					// TODO: Checking this twice?!
 					if (canRotate(mat))
 						matByte = rotateBlockData(savedBlocks.get(index).getBlockByte());
 					else
@@ -424,14 +448,27 @@ public class BridgeMover
 
 					savedBlocks.get(index).getFBlock().remove();
 
-					Block b = world.getBlockAt(newPos);					
-					MaterialData matData = savedBlocks.get(index).getMatData();
-					matData.setData(matByte);
-					
-					b.setType(mat);
-					BlockState bs = b.getState();
-					bs.setData(matData);
-					bs.update();
+					if (plugin.is1_13())
+					{
+						if (canRotate(mat))
+							savedBlocks.get(index).getBlock2().putBlock(newPos);
+						else
+							savedBlocks.get(index).getBlock().putBlock(newPos);
+						Block b = world.getBlockAt(newPos);
+						BlockState bs = b.getState();
+						bs.update();
+					}
+					else
+					{
+						Block b = world.getBlockAt(newPos);					
+						MaterialData matData = savedBlocks.get(index).getMatData();
+						matData.setData(matByte);
+						
+						b.setType(mat);
+						BlockState bs = b.getState();
+						bs.setData(matData);
+						bs.update();
+					}
 
 					index++;
 				}
@@ -761,11 +798,17 @@ public class BridgeMover
 										if (mat == Material.LOG || mat == Material.LOG_2)
 										{
 											Location loc = savedBlocks.get(index).getFBlock().getLocation();
+											
 											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
+											
 											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
 											savedBlocks.get(index).getFBlock().remove();
-		
-											CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(loc, mat, (byte) matData, world);
+											
+											CustomCraftFallingBlock_Vall fBlock;
+											if (plugin.is1_13())
+												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock2());
+											else
+												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
 											savedBlocks.get(index).setFBlock(fBlock);
 											savedBlocks.get(index).getFBlock().setVelocity(veloc);
 										}
@@ -807,8 +850,8 @@ public class BridgeMover
 
 	}
 	
-	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, World world)
+	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
 	{
-		return this.fabf.fallingBlockFactory(loc, mat, matData, world);
+		return this.fabf.fallingBlockFactory(loc, block, matData, mat);
 	}
 }

@@ -157,19 +157,20 @@ public class DoorOpener implements Opener
 				plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
 			return true;
 		}
-		
+
 		if (!chunksLoaded(door))
 		{
 			plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!", true, false);
 			return true;
 		}
-		
+
 		DoorDirection currentDirection = getCurrentDirection(door);
 		if (currentDirection == null)
 		{
 			plugin.getMyLogger().logMessage("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
 			return false;
 		}
+
 		RotateDirection rotDirection   = getRotationDirection(door, currentDirection);
 		if (rotDirection == null)
 		{
@@ -198,10 +199,9 @@ public class DoorOpener implements Opener
 			yOpposite = door.getMaximum().getBlockY();
 		else
 			yOpposite = door.getMinimum().getBlockY();
-		
+
 		// Finalise the oppositePoint location.
 		Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
-		
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, oppositePoint, currentDirection, door);

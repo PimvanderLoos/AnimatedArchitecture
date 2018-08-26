@@ -5,7 +5,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import nl.pim16aap2.bigDoors.util.BlockData;
+import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class GetNewLocationNorth implements GetNewLocation
@@ -29,7 +29,7 @@ public class GetNewLocationNorth implements GetNewLocation
 	{}
 
 	@Override
-	public Location getNewLocation(List<BlockData> savedBlocks, double xPos, double yPos, double zPos, int index)
+	public Location getNewLocation(List<MyBlockData> savedBlocks, double xPos, double yPos, double zPos, int index)
 	{
 		Location oldPos = new Location(world, xPos, yPos, zPos);
 		Location newPos = oldPos;

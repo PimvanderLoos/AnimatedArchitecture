@@ -1,29 +1,31 @@
-package nl.pim16aap2.bigDoors.customEntities.v1_12_R1;
+package nl.pim16aap2.bigDoors.NMS.v1_13_R1;
 
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.Vector;
 
-import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock_Vall;
+import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_13_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_13_R1.entity.CraftEntity;
 
-public class CustomCraftFallingBlock_V1_12_R1 extends CraftEntity implements FallingBlock, CustomCraftFallingBlock_Vall
+public class CustomCraftFallingBlock_V1_13_R1 extends CraftEntity implements FallingBlock, CustomCraftFallingBlock_Vall
 {
 
-    public CustomCraftFallingBlock_V1_12_R1(Server server, CustomEntityFallingBlock_V1_12_R1 entity) 
+    public CustomCraftFallingBlock_V1_13_R1(Server server, CustomEntityFallingBlock_V1_13_R1 entity) 
     {
-        super((org.bukkit.craftbukkit.v1_12_R1.CraftServer) server, entity);
+        super((org.bukkit.craftbukkit.v1_13_R1.CraftServer) server, entity);
 		this.setVelocity(new Vector(0, 0, 0));
 		this.setDropItem(false);
     }
 
     @Override
-    public CustomEntityFallingBlock_V1_12_R1 getHandle() 
+    public CustomEntityFallingBlock_V1_13_R1 getHandle() 
     {
-        return (CustomEntityFallingBlock_V1_12_R1) entity;
+        return (CustomEntityFallingBlock_V1_13_R1) entity;
     }
     
     public boolean isOnGround() 
@@ -54,9 +56,10 @@ public class CustomCraftFallingBlock_V1_12_R1 extends CraftEntity implements Fal
     		return -1;
     }
 
-    public byte getBlockData() 
-    {
-        return (byte) getHandle().getBlock().getBlock().toLegacyData(getHandle().getBlock());
+    public byte getBlockData() {
+//        return CraftBlockData.fromData(getHandle().getBlock());
+    		System.out.println("\n\n[BigDoors] FATAL ERROR IN CUSTOMCRAFTFALLINGBLOCK 1.13\n\n");
+    		return (byte) 0;
     }
 
     public boolean getDropItem() 

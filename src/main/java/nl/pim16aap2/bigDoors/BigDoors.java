@@ -13,9 +13,11 @@ import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import nl.pim16aap2.bigDoors.customEntities.FallingBlockFactory_Vall;
-import nl.pim16aap2.bigDoors.customEntities.v1_11_R1.FallingBlockFactory_V1_11_R1;
-import nl.pim16aap2.bigDoors.customEntities.v1_12_R1.FallingBlockFactory_V1_12_R1;
+import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
+import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
@@ -37,19 +39,6 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 // TODO: Add option for remote power blocks.
 // TODO: Allow upright drawbridge creation.
 
-/* CHANGELOG 0.1.4-ALPHA:
- * Added drawbridges.
- * Added bStats.
- * Added update checker.
- * Added /bdcancel to stop door creation process.
- * Added support for colors and \n in translation file.
- * Now regenerating en_US.txt so no more missing messages on updates...
- * Fixed blocks such as andesite turning into regular stone.
- * Fixed stairs not rotating properly in doors.
- * Now checking full new area where doors will be put before opening.
- * Now removing door creation tools on shutdown.
- * More messages moved/added to translation file.
- */
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -62,10 +51,13 @@ public class BigDoors extends JavaPlugin implements Listener
 	private MyLogger               logger;
 	private File                  logFile;
 	private Messages             messages;
+	private NMSBlock_Vall        NMSBlock;
 	private Commander           commander;
 	private DoorOpener         doorOpener;
 	private BridgeOpener     bridgeOpener;
 	private CommandHandler commandHandler;
+	
+	private boolean        is1_13 = false;
 	
 
 	@Override
@@ -237,6 +229,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		return this.fabf;
 	}
 	
+	public NMSBlock_Vall getNMSBlock()
+	{
+		return this.NMSBlock;
+	}
+	
 	public BigDoors getPlugin()
 	{
 		return this;
@@ -312,6 +309,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		commandHandler.stopDoors();
 	}
 	
+	public boolean is1_13()
+	{
+		return this.is1_13;
+	}
+	
 	// Check + initialize for the correct version of Minecraft.
 	public boolean compatibleMCVer()
 	{
@@ -326,12 +328,16 @@ public class BigDoors extends JavaPlugin implements Listener
             return false;
         }
 
-        if (version.equals("v1_10_R1"))
-			this.fabf = null;
-        else if (version.equals("v1_11_R1"))
-			this.fabf = new FallingBlockFactory_V1_11_R1();
+		this.fabf = null;
+        if (version.equals("v1_11_R1"))
+			this.fabf     = new FallingBlockFactory_V1_11_R1();
         else if (version.equals("v1_12_R1"))
-			this.fabf = new FallingBlockFactory_V1_12_R1();
+        		this.fabf     = new FallingBlockFactory_V1_12_R1();
+        else if (version.equals("v1_13_R1"))
+        {
+        		this.is1_13 = true;
+			this.fabf     = new FallingBlockFactory_V1_13_R1();
+        }
         // Return true if compatible.
         return fabf != null;
 	}

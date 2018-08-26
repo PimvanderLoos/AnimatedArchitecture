@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors.customEntities.v1_11_R1;
+package nl.pim16aap2.bigDoors.NMS.v1_11_R1;
 
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -6,7 +6,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.Vector;
 
-import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock_Vall;
+import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
 

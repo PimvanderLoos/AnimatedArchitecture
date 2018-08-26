@@ -3,25 +3,28 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.customEntities.CustomCraftFallingBlock_Vall;
-import nl.pim16aap2.bigDoors.customEntities.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
+import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocation;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationSouth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
-import nl.pim16aap2.bigDoors.util.BlockData;
+import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -35,7 +38,7 @@ public class CylindricalMover
 	private DoorDirection   	currentDirection;
 	@SuppressWarnings("unused")
 	private int             	qCircleLimit, xLen, yLen, zLen, dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
-	private List<BlockData> 	savedBlocks = new ArrayList<BlockData>();
+	private List<MyBlockData> 	savedBlocks = new ArrayList<MyBlockData>();
 	private Location        	turningPoint, pointOpposite;
 	private double          	speed;
 	private GetNewLocation  	gnl;
@@ -73,7 +76,6 @@ public class CylindricalMover
 
 		this.dx      = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
 		this.dz      = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
-
 		int index = 0;
 		double xAxis = turningPoint.getX();
 		do
@@ -98,6 +100,8 @@ public class CylindricalMover
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
 					
+					NMSBlock_Vall block = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+					
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
 						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
@@ -106,11 +110,9 @@ public class CylindricalMover
 						mat     = Material.AIR;
 						matData = 0;
 					}
+					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
+					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, radius, materialData, block));
 					
-					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory (newFBlockLocation, mat, (byte) matData, world);
-					
-					savedBlocks.add(index, new BlockData(mat, matData, fBlock, radius, materialData));
-
 					index++;
 				}
 				zAxis += dz;
@@ -177,6 +179,7 @@ public class CylindricalMover
 					Material mat = savedBlocks.get(index).getMat();
 					Byte matByte;
 					
+					// TODO: IRE: Why is this done twice?! Just save it in the runnable, dummy.
 					int canRot   = canRotate(mat);
 					if (canRot == 1 || canRot == 3)
 						matByte = rotateBlockDataLog(savedBlocks.get(index).getBlockByte());
@@ -189,14 +192,24 @@ public class CylindricalMover
 
 					savedBlocks.get(index).getFBlock().remove();
 					
-					Block b = world.getBlockAt(newPos);					
-					MaterialData matData = savedBlocks.get(index).getMatData();
-					matData.setData(matByte);
-					
-					b.setType(mat);
-					BlockState bs = b.getState();
-					bs.setData(matData);
-					bs.update();
+					if (plugin.is1_13())
+					{
+						savedBlocks.get(index).getBlock().putBlock(newPos);
+						Block b = world.getBlockAt(newPos);
+						BlockState bs = b.getState();
+						bs.update();
+					}
+					else
+					{
+						Block b = world.getBlockAt(newPos);					
+						MaterialData matData = savedBlocks.get(index).getMatData();
+						matData.setData(matByte);
+						
+						b.setType(mat);
+						BlockState bs = b.getState();
+						bs.setData(matData);
+						bs.update();
+					}
 					
 					index++;
 				}
@@ -355,9 +368,13 @@ public class CylindricalMover
 											else
 												matData = rotateBlockDataStairs(savedBlocks.get(index).getBlockByte());
 											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
+											
+											if (plugin.is1_13())
+												savedBlocks.get(index).getBlock().rotateBlock(rotDirection);
+											
+											CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
+											
 											savedBlocks.get(index).getFBlock().remove();
-		
-											CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(loc, mat, (byte) matData, world);
 											savedBlocks.get(index).setFBlock(fBlock);
 											savedBlocks.get(index).getFBlock().setVelocity(veloc);
 										}
@@ -415,8 +432,8 @@ public class CylindricalMover
 		return matData;
 	}
 	
-	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, World world)
+	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
 	{
-		return this.fabf.fallingBlockFactory(loc, mat, matData, world);
+		return this.fabf.fallingBlockFactory(loc, block, matData, mat);
 	}
 }

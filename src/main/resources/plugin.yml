@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.4.1
+version: Alpha 0.1.4.2
 author: Pim
 commands:
   bigdoors:
