@@ -100,18 +100,45 @@ public class CylindricalMover
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
 					
-					NMSBlock_Vall block = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+					NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+					NMSBlock_Vall block2 = null;
 					
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
+					{
+						// !!WARNING!! Dirty hack incoming!
+						// Because I can't get the blocks to rotate properly, they are rotated here
+						int canRot = canRotate(mat);
+						if (plugin.is1_13() && canRot != 0) 
+						{
+							Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
+							
+							Byte matByte;
+							if (canRot == 1 || canRot == 3)
+								matByte = rotateBlockDataLog(matData);
+							else if (canRot == 2)
+								matByte = rotateBlockDataStairs(matData);
+							else
+								matByte = matData;
+							
+							Block b = world.getBlockAt(pos);					
+							materialData.setData(matByte);
+							
+							b.setType(mat);
+							BlockState bs2 = b.getState();
+							bs2.setData(materialData);
+							bs2.update();
+							block2 = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+						}
 						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
+					}
 					else
 					{
 						mat     = Material.AIR;
 						matData = 0;
 					}
 					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, radius, materialData, block));
+					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, radius, materialData, block, block2));
 					
 					index++;
 				}
@@ -194,7 +221,10 @@ public class CylindricalMover
 					
 					if (plugin.is1_13())
 					{
-						savedBlocks.get(index).getBlock().putBlock(newPos);
+						if (canRotate(mat) != 0)
+							savedBlocks.get(index).getBlock2().putBlock(newPos);
+						else
+							savedBlocks.get(index).getBlock().putBlock(newPos);
 						Block b = world.getBlockAt(newPos);
 						BlockState bs = b.getState();
 						bs.update();
@@ -362,18 +392,20 @@ public class CylindricalMover
 										if (canRot != 0)
 										{
 											Location loc = savedBlocks.get(index).getFBlock().getLocation();
-											Byte matData;
-											if (canRot == 1 || canRot == 3)
-												matData = rotateBlockDataLog(savedBlocks.get(index).getBlockByte());
-											else
-												matData = rotateBlockDataStairs(savedBlocks.get(index).getBlockByte());
 											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
 											
+											CustomCraftFallingBlock_Vall fBlock;
 											if (plugin.is1_13())
-												savedBlocks.get(index).getBlock().rotateBlock(rotDirection);
-											
-											CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
-											
+												fBlock = fallingBlockFactory(loc, mat, (byte) 0, savedBlocks.get(index).getBlock2());
+											else
+											{
+												Byte matData;
+												if (canRot == 1 || canRot == 3)
+													matData = rotateBlockDataLog(savedBlocks.get(index).getBlockByte());
+												else
+													matData = rotateBlockDataStairs(savedBlocks.get(index).getBlockByte());
+												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
+											}
 											savedBlocks.get(index).getFBlock().remove();
 											savedBlocks.get(index).setFBlock(fBlock);
 											savedBlocks.get(index).getFBlock().setVelocity(veloc);

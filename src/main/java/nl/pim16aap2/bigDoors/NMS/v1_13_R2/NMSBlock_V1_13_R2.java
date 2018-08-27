@@ -1,25 +1,25 @@
-package nl.pim16aap2.bigDoors.NMS.v1_13_R1;
+package nl.pim16aap2.bigDoors.NMS.v1_13_R2;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_13_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 
-import net.minecraft.server.v1_13_R1.Block;
-import net.minecraft.server.v1_13_R1.BlockPosition;
-import net.minecraft.server.v1_13_R1.EnumBlockRotation;
-import net.minecraft.server.v1_13_R1.IBlockData;
+import net.minecraft.server.v1_13_R2.Block;
+import net.minecraft.server.v1_13_R2.BlockPosition;
+import net.minecraft.server.v1_13_R2.EnumBlockRotation;
+import net.minecraft.server.v1_13_R2.IBlockData;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 
-public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block implements NMSBlock_Vall
+public class NMSBlock_V1_13_R2 extends net.minecraft.server.v1_13_R2.Block implements NMSBlock_Vall
 {
 	private Block       nmsBlock;
 	private IBlockData blockData;
 	
-	public NMSBlock_V1_13_R1(World world, int x, int y, int z)
+	public NMSBlock_V1_13_R2(World world, int x, int y, int z)
 	{
-		super(net.minecraft.server.v1_13_R1.Block.Info.a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
+		super(net.minecraft.server.v1_13_R2.Block.Info.a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
 		this.blockData = ((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z));
 		this.nmsBlock  = blockData.getBlock();
 		super.v(blockData);

@@ -337,19 +337,18 @@ public class BridgeMover
 //						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.DIAMOND_BLOCK);
 					}
 					
-					Material mat = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
+					Material mat  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
 					@SuppressWarnings("deprecation")
-					Byte matData = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
+					Byte matData  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
-//					Block block = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+//					Block block   = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
 					NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
 					NMSBlock_Vall block2 = null;
 					
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
 					{
-
 						// !!WARNING!! Dirty hack incoming!
 						// Because I can't get the blocks to rotate properly, they are rotated here
 						if (plugin.is1_13() && canRotate(mat)) 
@@ -365,8 +364,8 @@ public class BridgeMover
 							bs2.setData(materialData);
 							bs2.update();
 							block2 = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+							world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);	
 						}
-						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
 					}
 					else
 					{
@@ -375,9 +374,8 @@ public class BridgeMover
 					}
 					
 					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-					
 					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, radius, materialData, block, block2));
-										
+					
 					index++;
 				}
 				zAxis += dz;
@@ -802,13 +800,13 @@ public class BridgeMover
 											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
 											
 											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
-											savedBlocks.get(index).getFBlock().remove();
 											
 											CustomCraftFallingBlock_Vall fBlock;
 											if (plugin.is1_13())
 												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock2());
 											else
 												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
+											savedBlocks.get(index).getFBlock().remove();
 											savedBlocks.get(index).setFBlock(fBlock);
 											savedBlocks.get(index).getFBlock().setVelocity(veloc);
 										}

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.handlers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -145,7 +146,7 @@ public class GUIHandler implements Listener
 		PageType pageType = 	invName.equals(messages.getString("GUI.Name"))        ? PageType.DOORLIST : 
 							invName.equals(messages.getString("GUI.SubName"))     ? PageType.DOORINFO :
 							invName.equals(messages.getString("GUI.ConfirmMenu")) ? PageType.CONFIRMATION : PageType.NOTBIGDOORS;
-		
+				
 		if (pageType == PageType.NOTBIGDOORS)
 			return;
 

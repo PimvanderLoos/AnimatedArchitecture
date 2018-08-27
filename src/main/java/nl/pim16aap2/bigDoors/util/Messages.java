@@ -44,9 +44,11 @@ public class Messages
 				value  = parts[1].replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
 				String[] newLineSplitter = value.split("\\\\n"); // Wut? Can I haz more backslash?
 				
-				String values = "";
-				for (String str : newLineSplitter)
-					values += str + "\n";
+				String values = newLineSplitter[0];
+				
+				for (int idx = 1; idx < newLineSplitter.length; ++idx)
+					values += "\n" + newLineSplitter[idx];
+				
 				this.messageMap.put(key, values);
 			}
 			br.close();

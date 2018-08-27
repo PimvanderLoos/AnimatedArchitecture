@@ -18,6 +18,7 @@ import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
@@ -39,7 +40,6 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 // TODO: Add option for remote power blocks.
 // TODO: Allow upright drawbridge creation.
 
-
 public class BigDoors extends JavaPlugin implements Listener
 {
 	private ToolVerifier               tf;
@@ -55,6 +55,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	private Commander           commander;
 	private DoorOpener         doorOpener;
 	private BridgeOpener     bridgeOpener;
+	private boolean          validVersion;
 	private CommandHandler commandHandler;
 	
 	private boolean        is1_13 = false;
@@ -66,13 +67,14 @@ public class BigDoors extends JavaPlugin implements Listener
 		logFile        = new File(getDataFolder(), "log.txt");
 		logger         = new MyLogger(this, logFile);
 		
+
+		validVersion = compatibleMCVer();
 		// Load the files for the correct version of Minecraft.
-		if (!compatibleMCVer()) 
+		if (!validVersion) 
 		{
 			logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!", true, true);
 			return;
 		}
-		
 		readConfigValues();
 				
 		this.messages  = new Messages(this);	
@@ -156,10 +158,13 @@ public class BigDoors extends JavaPlugin implements Listener
 		// Force stop all doors. I don't know if this is needed. Do spigot stop running tasks gracefully already?
 		// Does Spigot stop them forcefully (and destroy them in the process) meaning this does exactly fuck all?
 		// So many questions, so many answers probably online. TODO: Don't be lazy and do some research.
-		this.commander.setCanGo(false);
-		
-		for (DoorCreator dc : this.getDoorCreators())
-			dc.takeToolFromPlayer();
+		if (validVersion)
+		{
+			this.commander.setCanGo(false);
+			
+			for (DoorCreator dc : this.getDoorCreators())
+				dc.takeToolFromPlayer();
+		}
 	}
 	
 	// Read the saved list of doors, if it exists. ONLY for debugging purposes. Should be removed from the final export!
@@ -335,8 +340,13 @@ public class BigDoors extends JavaPlugin implements Listener
         		this.fabf     = new FallingBlockFactory_V1_12_R1();
         else if (version.equals("v1_13_R1"))
         {
-        		this.is1_13 = true;
-			this.fabf     = new FallingBlockFactory_V1_13_R1();
+	        	this.is1_13   = true;
+	        	this.fabf     = new FallingBlockFactory_V1_13_R1();
+        }
+        else if (version.equals("v1_13_R2"))
+        {
+        		this.is1_13   = true;
+			this.fabf     = new FallingBlockFactory_V1_13_R2();
         }
         // Return true if compatible.
         return fabf != null;
