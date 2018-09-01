@@ -9,13 +9,11 @@ import java.util.Vector;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
-import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
@@ -52,7 +50,6 @@ public class BigDoors extends JavaPlugin implements Listener
 	private MyLogger               logger;
 	private File                  logFile;
 	private Messages             messages;
-	private NMSBlock_Vall        NMSBlock;
 	private Commander           commander;
 	private DoorOpener         doorOpener;
 	private BridgeOpener     bridgeOpener;
@@ -103,8 +100,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		Bukkit.getPluginManager().registerEvents(new EventHandlers   (this), this);
 		Bukkit.getPluginManager().registerEvents(new GUIHandler      (this), this);
 		Bukkit.getPluginManager().registerEvents(new RedstoneHandler (this), this);
-		getCommand("setdoorclosed").setExecutor(new CommandHandler(this));
-		getCommand("setdooropen"  ).setExecutor(new CommandHandler(this));
 		getCommand("unlockDoor"   ).setExecutor(new CommandHandler(this));
 		getCommand("pausedoors"   ).setExecutor(new CommandHandler(this));
 		getCommand("doordebug"    ).setExecutor(new CommandHandler(this));
@@ -171,7 +166,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	}
 	
 	// Read the saved list of doors, if it exists. ONLY for debugging purposes. Should be removed from the final export!
-	public void readDoors()
+	private void readDoors()
 	{
 		File dataFolder = getDataFolder();
 		if (!dataFolder.exists())
@@ -237,11 +232,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		return this.fabf;
 	}
 	
-	public NMSBlock_Vall getNMSBlock()
-	{
-		return this.NMSBlock;
-	}
-	
 	public BigDoors getPlugin()
 	{
 		return this;
@@ -300,7 +290,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		return locale == null ? "en_US" : locale;
 	}
 	
-	public void readConfigValues()
+	private void readConfigValues()
 	{
 		// Load the settings from the config file.
 		this.config 	= new ConfigLoader(this);
@@ -308,7 +298,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	}
 	
 	// This function simply loads these classes to make my life a bit less hell-ish with live development.
-	public void liveDevelopmentLoad()
+	private void liveDevelopmentLoad()
 	{
 		new GetNewLocationNorth ();
 		new GetNewLocationEast  ();
@@ -323,7 +313,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	}
 	
 	// Check + initialize for the correct version of Minecraft.
-	public boolean compatibleMCVer()
+	private boolean compatibleMCVer()
 	{
         String version;
 
@@ -365,27 +355,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		return this.getDoorOpener(door.getType()).openDoor(door, speed, instantOpen);
 	}
 	
-	// Toggle a door from a (power block) location and given a speed value.
-	public boolean toggleDoor(Location loc, double speed)
-	{
-		Door door = this.getCommander().doorFromEngineLoc(loc);
-		return toggleDoor(door, speed, false);
-	}
-	
-	// Toggle a door from a (power block) location and instantly or not.
-	public boolean toggleDoor(Location loc, boolean instantOpen)
-	{
-		Door door = this.getCommander().doorFromEngineLoc(loc);
-		return toggleDoor(door, 0.2, instantOpen);
-	}
-	
-	// Toggle a door from a (power block) location using default values.
-	public boolean toggleDoor(Location loc)
-	{
-		Door door = this.getCommander().doorFromEngineLoc(loc);
-		return toggleDoor(door, 0.2, false);
-	}
-	
 	// Toggle a door from a doorUID and instantly or not.
 	public boolean toggleDoor(long doorUID, boolean instantOpen)
 	{
@@ -413,21 +382,12 @@ public class BigDoors extends JavaPlugin implements Listener
 		return door.getStatus();
 	}
 	
-	// Check the open-status of a door from a (power block) location.
-	public boolean isOpen (Location loc)
-	{
-		Door door = this.getCommander().doorFromEngineLoc(loc);
-		return this.isOpen(door);
-	}
-	
 	// Check the open-status of a door from a doorUID.
 	public boolean isOpen (long doorUID)
 	{
 		Door door = this.getCommander().getDoor(doorUID);
 		return this.isOpen(door);
 	}
-	
-	
 	
 //	// Changes the coordinates of a door as if it had been opened.
 //	// Returns true if is has been opened, false if no changes.
