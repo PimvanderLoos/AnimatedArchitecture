@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_13_R1.CraftWorld;
 
-import net.minecraft.server.v1_13_R1.Block;
 import net.minecraft.server.v1_13_R1.BlockPosition;
 import net.minecraft.server.v1_13_R1.EnumBlockRotation;
 import net.minecraft.server.v1_13_R1.IBlockData;
@@ -14,14 +13,14 @@ import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block implements NMSBlock_Vall
 {
-	private Block       nmsBlock;
+//	private Block       nmsBlock;
 	private IBlockData blockData;
 	
 	public NMSBlock_V1_13_R1(World world, int x, int y, int z)
 	{
 		super(net.minecraft.server.v1_13_R1.Block.Info.a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
 		this.blockData = ((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z));
-		this.nmsBlock  = blockData.getBlock();
+//		this.nmsBlock  = blockData.getBlock();
 		super.v(blockData);
 	}
 	
@@ -40,7 +39,7 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
 			rot = EnumBlockRotation.NONE;
 		}
 		this.blockData = blockData.a(rot);
-		this.nmsBlock  = blockData.getBlock();
+//		this.nmsBlock  = blockData.getBlock();
 //		Bukkit.broadcastMessage("BlockData = " + blockData);
 //		BlockPosition blockPos = null;
 //		EnumBlockFaceShape face = blockData.c(blockData, blockPos, EnumDirection.UP);

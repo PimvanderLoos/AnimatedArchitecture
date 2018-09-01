@@ -126,6 +126,7 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 		return !this.dead;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void tick()
 	{
@@ -248,6 +249,7 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void c(float f, float f1)
 	{

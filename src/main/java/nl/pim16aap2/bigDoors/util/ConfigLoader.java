@@ -18,6 +18,7 @@ public class ConfigLoader
 	private String           header;
 	private String           dbFile;
 	private boolean      allowStats;
+	private int         maxDoorSize;
 	private String     languageFile;
 	private int        maxDoorCount;
 	private boolean  enableRedstone;
@@ -51,10 +52,17 @@ public class ConfigLoader
 			"Allow this plugin to check for updates on startup. It will not download new versions!"
 		};
     private String[] allowStatsComment      	= 
+    		{
+    			"Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
+    			"It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"
+    		};
+    
+    private String[] maxDoorSizeComment     	= 
 		{
-			"Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
-			"It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"
+			"Max. number of blocks allowed in a door.",
+			"If this number is exceeded, doors will open instantly and skip the animation."
 		};
+    
 	
 	private ArrayList<ConfigOption> configOptionsList;
     private BigDoors plugin;
@@ -88,6 +96,8 @@ public class ConfigLoader
 		configOptionsList.add(new ConfigOption( "checkForUpdates", checkForUpdates, checkForUpdatesComment));
 		allowStats      = config.getBoolean(    "allowStats"     , true        );
 		configOptionsList.add(new ConfigOption( "allowStats"     , allowStats     , allowStatsComment     ));
+		maxDoorSize     = config.getInt       ( "maxDoorSize"    , -1          );
+		configOptionsList.add(new ConfigOption( "maxDoorSize"    , maxDoorSize    , maxDoorSizeComment    ));
 		
 		writeConfig();
 	}

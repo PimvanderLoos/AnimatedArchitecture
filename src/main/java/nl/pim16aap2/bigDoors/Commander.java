@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors;
 
 import java.util.ArrayList;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
@@ -191,8 +192,8 @@ public class Commander
 	}
 
 	// Get a door from the x,y,z coordinates of its engine block (= rotation point at lowest y).
-	public Door doorFromEngineLoc(int engineX, int engineY, int engineZ)
+	public Door doorFromEngineLoc(Location loc)
 	{
-		return db.doorFromEngineLoc(engineX, engineY, engineZ);
+		return db.doorFromEngineLoc(loc);
 	}
 }

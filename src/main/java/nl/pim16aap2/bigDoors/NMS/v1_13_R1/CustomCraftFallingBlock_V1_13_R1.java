@@ -2,15 +2,12 @@ package nl.pim16aap2.bigDoors.NMS.v1_13_R1;
 
 import org.bukkit.Material;
 import org.bukkit.Server;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.craftbukkit.v1_13_R1.entity.CraftEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
-
-import org.bukkit.craftbukkit.v1_13_R1.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_13_R1.entity.CraftEntity;
 
 public class CustomCraftFallingBlock_V1_13_R1 extends CraftEntity implements FallingBlock, CustomCraftFallingBlock_Vall
 {

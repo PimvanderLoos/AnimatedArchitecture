@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.4.5
+version: Alpha 0.1.4.6
 author: Pim
 commands:
   bigdoors:
@@ -76,7 +76,15 @@ commands:
     description: Display door info.
     usage: /DoorInfo <doorName>
     permission: bigdoors.user.doorinfo
+#  setdooropen:
+#    description: Updates coordinates of a door as if it had been opened. Does not move the blocks!
+#    usage: /SetDoorOpen <doorName>
+#    permission: bigdoors.user.setdoor
+#  setdoorclosed:
+#    description: Updates coordinates of a door as if it had been closed. Does not move the blocks!
+#    usage: /SetDoorClosed <doorName>
+#    permission: bigdoors.user.setdoor
   doordebug:
-    description: Do not use this unless you are me. Huh?
+    description: Do not use this unless you are me... What?
     usage: This command is not meant for mere mortals.
     permission: bigdoors.admin.isweariampim16aap2

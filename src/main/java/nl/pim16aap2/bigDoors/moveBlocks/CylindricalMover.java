@@ -3,13 +3,12 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -24,8 +23,8 @@ import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocatio
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationSouth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
-import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
@@ -33,6 +32,7 @@ public class CylindricalMover
 {
 	private BigDoors        	plugin;
 	private World           	world;
+	private boolean     		instantOpen;
 	private FallingBlockFactory_Vall fabf;
 	private RotateDirection 	rotDirection;
 	private DoorDirection   	currentDirection;
@@ -45,8 +45,9 @@ public class CylindricalMover
 	private Door            	door;
 	
 	
+	@SuppressWarnings("deprecation")
 	public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double speed,
-			Location pointOpposite, DoorDirection currentDirection, Door door)
+			Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
 	{
 		this.currentDirection = currentDirection;
 		this.pointOpposite    = pointOpposite;
@@ -57,6 +58,7 @@ public class CylindricalMover
 		this.world            = world;
 		this.door             = door;
 		this.fabf             = plugin.getFABF();
+		this.instantOpen      = instantOpen;
 		
 		this.xMin    = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
 		this.yMin    = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
@@ -94,9 +96,8 @@ public class CylindricalMover
 					if (yAxis == yMin)
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 					
-					Material mat = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
-					@SuppressWarnings("deprecation")
-					Byte matData = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
+					Material mat  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
+					Byte matData  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
 					
@@ -137,7 +138,10 @@ public class CylindricalMover
 						mat     = Material.AIR;
 						matData = 0;
 					}
-					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
+					
+					CustomCraftFallingBlock_Vall fBlock = null;
+					if (!instantOpen)
+						 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, radius, materialData, block, block2));
 					
 					index++;
@@ -165,7 +169,10 @@ public class CylindricalMover
 			break;
 		}
 		
-		rotateEntities();
+		if (!instantOpen)
+			rotateEntities();
+		else
+			putBlocks();
 	}
 	
 	// Check if a block can (should) be rotated.
@@ -217,7 +224,8 @@ public class CylindricalMover
 
 					Location newPos = gnl.getNewLocation(savedBlocks, xAxis, yAxis, zAxis, index);
 
-					savedBlocks.get(index).getFBlock().remove();
+					if (!instantOpen)
+						savedBlocks.get(index).getFBlock().remove();
 					
 					if (plugin.is1_13())
 					{
@@ -252,7 +260,18 @@ public class CylindricalMover
 		savedBlocks.clear();
 
 		// Change door availability to true, so it can be opened again.
-		plugin.getCommander().setDoorAvailable(door.getDoorUID());
+		// Wait for a bit if instantOpen is enabled.
+		if (instantOpen)
+			new BukkitRunnable()
+			{
+				@Override
+				public void run()
+				{
+					plugin.getCommander().setDoorAvailable(door.getDoorUID());
+				}
+			}.runTaskLater(plugin, 40L);
+		else
+			plugin.getCommander().setDoorAvailable(door.getDoorUID());
 	}
 	
 	// Put falling blocks into their final location (but keep them as falling blocks).
@@ -465,7 +484,11 @@ public class CylindricalMover
 	}
 	
 	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
-	{
-		return this.fabf.fallingBlockFactory(loc, block, matData, mat);
+	{		
+		CustomCraftFallingBlock_Vall entity = this.fabf.fallingBlockFactory(loc, block, matData, mat);
+		Entity bukkitEntity = (Entity) entity;
+		bukkitEntity.setCustomName("BigDoorsEntity");
+		bukkitEntity.setCustomNameVisible(false);
+		return entity;
 	}
 }

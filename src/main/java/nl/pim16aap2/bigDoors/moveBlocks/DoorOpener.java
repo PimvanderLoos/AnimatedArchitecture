@@ -140,6 +140,18 @@ public class DoorOpener implements Opener
 		
 		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
 	}
+	
+	@Override
+	public int getDoorSize(Door door)
+	{
+		int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
+		int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
+		int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
+		xLen = xLen == 0 ? 1 : xLen;
+		yLen = yLen == 0 ? 1 : yLen;
+		zLen = zLen == 0 ? 1 : zLen;
+		return xLen * yLen * zLen;
+	}
 
 	@Override
 	public boolean openDoor(Door door, double speed)
@@ -149,12 +161,11 @@ public class DoorOpener implements Opener
 	
 	// Open a door.
 	@Override
-	public boolean openDoor(Door door, double speed, boolean silent)
+	public boolean openDoor(Door door, double speed, boolean instantOpen)
 	{
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
-			if (!silent)
-				plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+			plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
 			return true;
 		}
 
@@ -178,9 +189,6 @@ public class DoorOpener implements Opener
 			return false;
 		}
 		
-//		if (!silent)
-//			plugin.getMyLogger().myLogger(Level.INFO, "CurrentDirection = " + currentDirection + ", performing " + rotDirection + " rotation.");
-		
 		int xOpposite, yOpposite, zOpposite;
 		// If the xMax is not the same value as the engineX, then xMax is xOpposite.
 		if (door.getMaximum().getBlockX() != door.getEngine().getBlockX())
@@ -202,9 +210,17 @@ public class DoorOpener implements Opener
 
 		// Finalise the oppositePoint location.
 		Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
+		
+		// Make sure the doorSize does not exceed the total doorSize.
+		// If it does, open the door instantly.
+		int maxDoorSize = plugin.getConfigLoader().getInt("maxDoorSize");
+		if (maxDoorSize != -1)
+			if(getDoorSize(door) > maxDoorSize)
+				instantOpen = true;
+		
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
-		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, oppositePoint, currentDirection, door);
+		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, oppositePoint, currentDirection, door, instantOpen);
 
 		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);

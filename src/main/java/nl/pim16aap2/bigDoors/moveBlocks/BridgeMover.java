@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -25,8 +26,8 @@ import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationEast
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationNorth;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationSouth;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationWest;
-import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
@@ -46,8 +47,8 @@ public class BridgeMover
 	private int                   doorLen;
 	private int                  indexEnd;
 	private int                  indexMid;
-//	private RotationFormulae     formulae;
 	private DoorDirection      engineSide;
+	private boolean           instantOpen;
 	private Location         turningPoint;
 	private Location        pointOpposite;
 	private DoorDirection   openDirection;
@@ -59,7 +60,8 @@ public class BridgeMover
 	private int     finishA, startA, endA;
 	private List<MyBlockData> 	savedBlocks = new ArrayList<MyBlockData>();
 	
-	public BridgeMover(BigDoors plugin, World world, double speed, Door door, RotateDirection upDown, DoorDirection openDirection)
+	@SuppressWarnings("deprecation")
+	public BridgeMover(BigDoors plugin, World world, double speed, Door door, RotateDirection upDown, DoorDirection openDirection, boolean instantOpen)
 	{
 		this.door          = door;
 		this.fabf          = plugin.getFABF();
@@ -69,9 +71,8 @@ public class BridgeMover
 		this.openDirection = openDirection;
 		this.engineSide    = door.getEngSide();
 		this.NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
-		
-//		Bukkit.broadcastMessage("EngineSide=" + door.getEngSide().toString() + ", OpenDir=" + openDirection.toString() + ", upDown=" + upDown.toString());
-		
+		this.instantOpen   = instantOpen;
+				
 		this.speed   = speed;
 		
 		this.xMin    = door.getMinimum().getBlockX();
@@ -326,19 +327,12 @@ public class BridgeMover
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 					
 					if (xAxis == xAxisMid && yAxis == yAxisMid && zAxis == zAxisMid)
-					{
 						this.indexMid = index;
-//						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.EMERALD_BLOCK);
-					}
 
 					if (xAxis == xAxisEnd && yAxis == yAxisEnd && zAxis == zAxisEnd)
-					{
 						this.indexEnd = index;
-//						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.DIAMOND_BLOCK);
-					}
 					
 					Material mat  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
-					@SuppressWarnings("deprecation")
 					Byte matData  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
@@ -364,8 +358,8 @@ public class BridgeMover
 							bs2.setData(materialData);
 							bs2.update();
 							block2 = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
-							world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);	
 						}
+						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
 					}
 					else
 					{
@@ -373,7 +367,9 @@ public class BridgeMover
 						matData = 0;
 					}
 					
-					CustomCraftFallingBlock_Vall fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
+					CustomCraftFallingBlock_Vall fBlock = null;
+					if (!instantOpen)
+						 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, radius, materialData, block, block2));
 					
 					index++;
@@ -400,7 +396,11 @@ public class BridgeMover
 			this.gnl = new GetNewLocationWest (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
 			break;
 		}
-		rotateEntities();
+		
+		if (!instantOpen)
+			rotateEntities();
+		else
+			putBlocks();
 	}
 	
 	// Check if a block can (should) be rotated.
@@ -444,7 +444,8 @@ public class BridgeMover
 
 					Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis, index);
 
-					savedBlocks.get(index).getFBlock().remove();
+					if (!instantOpen)
+						savedBlocks.get(index).getFBlock().remove();
 
 					if (plugin.is1_13())
 					{
@@ -479,7 +480,18 @@ public class BridgeMover
 		savedBlocks.clear();
 
 		// Change door availability to true, so it can be opened again.
-		plugin.getCommander().setDoorAvailable(door.getDoorUID());
+		// Wait for a bit if instantOpen is enabled.
+		if (instantOpen)
+			new BukkitRunnable()
+			{
+				@Override
+				public void run()
+				{
+					plugin.getCommander().setDoorAvailable(door.getDoorUID());
+				}
+			}.runTaskLater(plugin, 40L);
+		else
+			plugin.getCommander().setDoorAvailable(door.getDoorUID());
 	}
 	
 	// Put falling blocks into their final location (but keep them as falling blocks).
@@ -806,6 +818,7 @@ public class BridgeMover
 												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock2());
 											else
 												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
+											
 											savedBlocks.get(index).getFBlock().remove();
 											savedBlocks.get(index).setFBlock(fBlock);
 											savedBlocks.get(index).getFBlock().setVelocity(veloc);
@@ -850,6 +863,10 @@ public class BridgeMover
 	
 	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
 	{
-		return this.fabf.fallingBlockFactory(loc, block, matData, mat);
+		CustomCraftFallingBlock_Vall entity = this.fabf.fallingBlockFactory(loc, block, matData, mat);
+		Entity bukkitEntity = (Entity) entity;
+		bukkitEntity.setCustomName("BigDoorsEntity");
+		bukkitEntity.setCustomNameVisible(false);
+		return entity;
 	}
 }

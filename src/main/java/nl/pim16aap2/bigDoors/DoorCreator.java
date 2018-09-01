@@ -87,10 +87,6 @@ public class DoorCreator
 	// Final cleanup
 	public void finishUp()
 	{
-//		if (this.EngineSide != null)
-//			this.player.sendMessage(ChatColor.DARK_PURPLE + "Engine side = " + this.EngineSide.toString());
-//		else
-//			this.player.sendMessage(ChatColor.DARK_PURPLE + "Engine side is null");
 		if (one != null && two != null && engine != null && (EngineSide != null || type != 1))
 		{		
 			Door door = new Door(player.getUniqueId(), one.getWorld(), one.getBlockX(), one.getBlockY(), one.getBlockZ(), two.getBlockX(), two.getBlockY(), two.getBlockZ(), 
@@ -149,7 +145,10 @@ public class DoorCreator
 		else if (type == 1)
 		{
 			// For a drawbridge, the engine should be on one of the four sides (min x || max x || min z || max z).
-			boolean validPos = loc.getBlockX() == one.getBlockX() || loc.getBlockX() == two.getBlockX() || loc.getBlockZ() == one.getBlockZ() || loc.getBlockZ() == two.getBlockZ();
+			boolean validPos = 	loc.getBlockX() == one.getBlockX() || 
+								loc.getBlockX() == two.getBlockX() || 
+								loc.getBlockZ() == one.getBlockZ() || 
+								loc.getBlockZ() == two.getBlockZ();
 			// You cannot select the same block twice.
 			if (!validPos || (this.engine != null && loc.equals(this.engine)))
 				return false;
@@ -161,12 +160,12 @@ public class DoorCreator
 				int posX = loc.getBlockX();
 				int posZ = loc.getBlockZ();
 				
-				if (loc.equals(one) || loc.equals(two) || // "bottom left" or "top right" (on 2d grid on paper)
+				if (loc.equals(one) || loc.equals(two) || // "bottom left" or "top right" (on 2d grid)
 				   (posX == one.getBlockX() && posZ == two.getBlockZ()) || // "top left"
 				   (posX == two.getBlockX() && posZ == one.getBlockZ()))   // "bottom right"
 				{
 					this.engine = loc;
-					this.player.sendMessage(ChatColor.DARK_PURPLE + "Found a corner!");
+//					this.player.sendMessage(ChatColor.DARK_PURPLE + "Found a corner!");
 				}
 				else 
 				{
@@ -178,6 +177,8 @@ public class DoorCreator
 						this.EngineSide = DoorDirection.WEST;
 					else if (posX == two.getBlockX())
 						this.EngineSide = DoorDirection.EAST;
+					
+					drawBridgeEngineFix();	
 				}
 				return true;
 			}
@@ -232,6 +233,7 @@ public class DoorCreator
 //					return false;
 //				}
 
+				// Engine axis should be on 1 axis only.
 				Vector vector = loc.toVector().subtract(this.engine.toVector());
 				vector.normalize();
 				
@@ -270,12 +272,26 @@ public class DoorCreator
 					}
 					else
 						return false;
+					drawBridgeEngineFix();
 				}
 			}
 			
 			return this.EngineSide != null;
 		}
 		return false;
+	}
+
+	// Make sure the power point is in the middle.
+	public void drawBridgeEngineFix()
+	{
+		if (this.EngineSide == null || this.engine == null)
+			return;
+		
+		// Make sure the power point is in the middle.
+		if (this.EngineSide == DoorDirection.NORTH || this.EngineSide == DoorDirection.SOUTH)
+			this.engine.setX(this.one.getX() + (this.two.getX() - this.one.getX()) / 2);
+		else
+			this.engine.setZ(this.one.getZ() + (this.two.getZ() - this.one.getZ()) / 2);
 	}
 	
 	// Check if the second position is valid (door is 1 deep).
@@ -315,7 +331,7 @@ public class DoorCreator
 				Util.messagePlayer(player, messages.getString("DC.InvalidPoint"));
 
 		}
-		// If the engine position has been determined yet
+		// If the engine position has not been determined yet
 		else if (engine == null)
 		{
 			if (isEngineValid(loc))
@@ -334,6 +350,7 @@ public class DoorCreator
 					if (this.EngineSide != null)
 					{
 						Util.messagePlayer(player, messages.getString("DC.StepDraw3a"));
+						drawBridgeEngineFix();
 						done = true;
 					}
 					// If the engine side could not be determined, branch out for additional information.
@@ -350,6 +367,7 @@ public class DoorCreator
 			if (isEngineValid(loc))
 			{
 				Util.messagePlayer(player, messages.getString("DC.StepDraw4"));
+				drawBridgeEngineFix();
 				done = true;
 			}
 			else

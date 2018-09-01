@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
@@ -289,7 +290,7 @@ public class SQLiteJDBCDriverConnection
 	}
 	
 	// Get the door that has an engine at the provided coordinates.
-	public Door doorFromEngineLoc(int engineX, int engineY, int engineZ)
+	public Door doorFromEngineLoc(Location loc)
 	{
 		// Prepare door and connection.
 		Door door       = null;
@@ -298,9 +299,10 @@ public class SQLiteJDBCDriverConnection
 		{
 			conn = getConnection();
 			// Get the door associated with the x/y/z location of the engine block (block with lowest y-pos of rotation point).
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE engineX = '" + engineX + 
-					                                                         "' AND engineY = '" + engineY + 
-					                                                         "' AND engineZ = '" + engineZ + "';");
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE engineX = '" + loc.getBlockX() + 
+					                                                         "' AND engineY = '" + loc.getBlockY() + 
+					                                                         "' AND engineZ = '" + loc.getBlockZ() +
+					                                                         "' AND world = '"   + loc.getWorld().getUID().toString() + "';");
 			ResultSet rs = ps.executeQuery();
 			while (rs.next())
 			{

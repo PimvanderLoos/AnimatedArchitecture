@@ -7,9 +7,10 @@ import nl.pim16aap2.bigDoors.util.RotateDirection;
 public interface Opener
 {
 	public DoorDirection getCurrentDirection(Door door);
-	public boolean chunksLoaded(Door door);
-	public boolean openDoor(Door door, double speed);
-	public boolean openDoor(Door door, double speed, boolean silent);
-	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection);
-	public void toggleOpen(Door door);
+	public boolean       chunksLoaded       (Door door);
+	public int           getDoorSize        (Door door);
+	public boolean       openDoor           (Door door, double speed);
+	public boolean       openDoor           (Door door, double speed, boolean instantOpen);
+	public void          updateCoords       (Door door, DoorDirection currentDirection, RotateDirection rotDirection);
+	public void          toggleOpen         (Door door);
 }

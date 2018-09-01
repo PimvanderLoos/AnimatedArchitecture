@@ -9,6 +9,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -102,22 +103,24 @@ public class BigDoors extends JavaPlugin implements Listener
 		Bukkit.getPluginManager().registerEvents(new EventHandlers   (this), this);
 		Bukkit.getPluginManager().registerEvents(new GUIHandler      (this), this);
 		Bukkit.getPluginManager().registerEvents(new RedstoneHandler (this), this);
-		getCommand("unlockDoor").setExecutor(new CommandHandler(this));
-		getCommand("pausedoors").setExecutor(new CommandHandler(this));
-		getCommand("doordebug" ).setExecutor(new CommandHandler(this));
-		getCommand("opendoors" ).setExecutor(new CommandHandler(this));
-		getCommand("listdoors" ).setExecutor(new CommandHandler(this));
-		getCommand("stopdoors" ).setExecutor(new CommandHandler(this));
-		getCommand("bdcancel"  ).setExecutor(new CommandHandler(this));
-		getCommand("doorinfo"  ).setExecutor(new CommandHandler(this));
-		getCommand("opendoor"  ).setExecutor(new CommandHandler(this));
-		getCommand("nameDoor"  ).setExecutor(new CommandHandler(this));
-		getCommand("bigdoors"  ).setExecutor(new CommandHandler(this));
-		getCommand("newdoor"   ).setExecutor(new CommandHandler(this));
-		getCommand("deldoor"   ).setExecutor(new CommandHandler(this));
-		getCommand("fixdoor"   ).setExecutor(new CommandHandler(this));
-		getCommand("shutup"    ).setExecutor(new CommandHandler(this));
-		getCommand("bdm"       ).setExecutor(new CommandHandler(this));
+		getCommand("setdoorclosed").setExecutor(new CommandHandler(this));
+		getCommand("setdooropen"  ).setExecutor(new CommandHandler(this));
+		getCommand("unlockDoor"   ).setExecutor(new CommandHandler(this));
+		getCommand("pausedoors"   ).setExecutor(new CommandHandler(this));
+		getCommand("doordebug"    ).setExecutor(new CommandHandler(this));
+		getCommand("opendoors"    ).setExecutor(new CommandHandler(this));
+		getCommand("listdoors"    ).setExecutor(new CommandHandler(this));
+		getCommand("stopdoors"    ).setExecutor(new CommandHandler(this));
+		getCommand("bdcancel"     ).setExecutor(new CommandHandler(this));
+		getCommand("doorinfo"     ).setExecutor(new CommandHandler(this));
+		getCommand("opendoor"     ).setExecutor(new CommandHandler(this));
+		getCommand("nameDoor"     ).setExecutor(new CommandHandler(this));
+		getCommand("bigdoors"     ).setExecutor(new CommandHandler(this));
+		getCommand("newdoor"      ).setExecutor(new CommandHandler(this));
+		getCommand("deldoor"      ).setExecutor(new CommandHandler(this));
+		getCommand("fixdoor"      ).setExecutor(new CommandHandler(this));
+		getCommand("shutup"       ).setExecutor(new CommandHandler(this));
+		getCommand("bdm"          ).setExecutor(new CommandHandler(this));
 		
 		liveDevelopmentLoad();
 		
@@ -351,4 +354,114 @@ public class BigDoors extends JavaPlugin implements Listener
         // Return true if compatible.
         return fabf != null;
 	}
+	
+	/* 
+	 * API (ish) Starts here.
+	 */
+	
+	// (Instantly?) Toggle a door with a given speed.
+	private boolean toggleDoor(Door door, double speed, boolean instantOpen)
+	{
+		return this.getDoorOpener(door.getType()).openDoor(door, speed, instantOpen);
+	}
+	
+	// Toggle a door from a (power block) location and given a speed value.
+	public boolean toggleDoor(Location loc, double speed)
+	{
+		Door door = this.getCommander().doorFromEngineLoc(loc);
+		return toggleDoor(door, speed, false);
+	}
+	
+	// Toggle a door from a (power block) location and instantly or not.
+	public boolean toggleDoor(Location loc, boolean instantOpen)
+	{
+		Door door = this.getCommander().doorFromEngineLoc(loc);
+		return toggleDoor(door, 0.2, instantOpen);
+	}
+	
+	// Toggle a door from a (power block) location using default values.
+	public boolean toggleDoor(Location loc)
+	{
+		Door door = this.getCommander().doorFromEngineLoc(loc);
+		return toggleDoor(door, 0.2, false);
+	}
+	
+	// Toggle a door from a doorUID and instantly or not.
+	public boolean toggleDoor(long doorUID, boolean instantOpen)
+	{
+		Door door = this.getCommander().getDoor(doorUID);
+		return toggleDoor(door, 0.2, instantOpen);
+	}
+	
+	// Toggle a door from a doorUID and a given speed.
+	public boolean toggleDoor(long doorUID, double speed)
+	{
+		Door door = this.getCommander().getDoor(doorUID);
+		return toggleDoor(door, speed, false);
+	}
+	
+	// Toggle a door from a doorUID using default values.
+	public boolean toggleDoor(long doorUID)
+	{
+		Door door = this.getCommander().getDoor(doorUID);
+		return toggleDoor(door, 0.2, false);
+	}
+	
+	// Check the open-status of a door.
+	private boolean isOpen (Door door)
+	{
+		return door.getStatus();
+	}
+	
+	// Check the open-status of a door from a (power block) location.
+	public boolean isOpen (Location loc)
+	{
+		Door door = this.getCommander().doorFromEngineLoc(loc);
+		return this.isOpen(door);
+	}
+	
+	// Check the open-status of a door from a doorUID.
+	public boolean isOpen (long doorUID)
+	{
+		Door door = this.getCommander().getDoor(doorUID);
+		return this.isOpen(door);
+	}
+	
+	
+	
+//	// Changes the coordinates of a door as if it had been opened.
+//	// Returns true if is has been opened, false if no changes.
+//	private boolean setDoorOpen(Door door)
+//	{
+//		if (this.isOpen(door))
+//			return false;
+//		
+//		// TODO: Execute command.
+//		
+//		return true;
+//	}
+//	
+//	public boolean setDoorOpen(long doorUID)
+//	{
+//		Door door = this.getCommander().getDoor(doorUID);
+//		return this.setDoorOpen(door);
+//	}
+//	
+//	// Changes the coordinates of a door as if it had been closed.
+//	// Returns true if is has been opened, false if no changes.
+//	private boolean setDoorClosed(Door door)
+//	{
+//		if (!this.isOpen(door))
+//			return false;
+//		
+//		// TODO: Execute command.
+//		
+//		return true;
+//	}
+//	
+//	public boolean setDoorClosed(long doorUID)
+//	{
+//		Door door = this.getCommander().getDoor(doorUID);
+//		return this.setDoorClosed(door);
+//	}
 }

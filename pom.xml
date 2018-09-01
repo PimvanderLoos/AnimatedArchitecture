@@ -2,13 +2,15 @@
   	<modelVersion>4.0.0</modelVersion>
   	<groupId>nl.pim16aap2</groupId>
   	<artifactId>BigDoors</artifactId>
-  	<version>0.1.4.5-ALPHA</version>
+  	<version>0.1.4.6-ALPHA</version>
 	
 	<repositories>
+		<!-- Spigot -->
 		<repository>
 			<id>spigot-repo</id>
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
+		<!-- bStats -->
 		<repository>
 			<id>bstats-repo</id>
 			<url>http://repo.bstats.org/content/repositories/releases/</url>

@@ -217,18 +217,29 @@ public class BridgeOpener implements Opener
 	}
 
 	@Override
+	public int getDoorSize(Door door)
+	{
+		int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
+		int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
+		int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
+		xLen = xLen == 0 ? 1 : xLen;
+		yLen = yLen == 0 ? 1 : yLen;
+		zLen = zLen == 0 ? 1 : zLen;
+		return xLen * yLen * zLen;
+	}
+	
+	@Override
 	public boolean openDoor(Door door, double speed)
 	{
 		return openDoor(door, speed/1.5, false);
 	}
 
 	@Override
-	public boolean openDoor(Door door, double speed, boolean silent)
+	public boolean openDoor(Door door, double speed, boolean instantOpen)
 	{
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
-			if (!silent)
-				plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
+			plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
 			return true;
 		}
 
@@ -258,13 +269,17 @@ public class BridgeOpener implements Opener
 			return false;
 		}
 		
-//		if (!silent)
-//			plugin.getMyLogger().myLogger(Level.INFO, "CurrentDirection = " + currentDirection + ", performing " + openDirection + "(" + upDown + ")" + " rotation.");
-
+		// Make sure the doorSize does not exceed the total doorSize.
+		// If it does, open the door instantly.
+		int maxDoorSize = plugin.getConfigLoader().getInt("maxDoorSize");
+		if (maxDoorSize != -1)
+			if(getDoorSize(door) > maxDoorSize)
+				instantOpen = true;
+		
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-		new BridgeMover(plugin, door.getWorld(), 0.13, door, this.upDown, openDirection);
+		new BridgeMover(plugin, door.getWorld(), 0.13, door, this.upDown, openDirection, instantOpen);
 		
 //		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);

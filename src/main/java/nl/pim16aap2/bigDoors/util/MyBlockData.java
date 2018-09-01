@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigDoors.util;
 
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.material.MaterialData;
 
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;

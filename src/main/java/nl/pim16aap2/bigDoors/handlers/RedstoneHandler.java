@@ -32,11 +32,21 @@ public class RedstoneHandler implements Listener
 		// TODO: Check interactions with switches, placing redstone torches, hitting buttons (hand / arrow), pressure plates
 	}
 	
+	public boolean checkDoor(Location loc)
+	{
+		Door door = plugin.getCommander().doorFromEngineLoc(loc);
+		
+        if (door != null && !door.isLocked())
+        		return plugin.getDoorOpener(door.getType()).openDoor(door, 0.2, false);
+		return false;
+	}
+	
 	// When redstone changes, check if there's a power block on any side of it (just not below it).
 	// If so, a door has (probably) been found, so try to open it.
     @EventHandler
     public void onBlockRedstoneChange(BlockRedstoneEvent event)
     {
+//    		Bukkit.broadcastMessage("Block name = " + event.getBlock().getType());
         try
         {
             Block block = event.getBlock();
@@ -44,23 +54,41 @@ public class RedstoneHandler implements Listener
             if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
                 return;
 
-            Door door = null;
-            int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
-            if (     location.getWorld().getBlockAt(x, y, z - 1).getType() == powerBlock) // North
-            		door = plugin.getCommander().doorFromEngineLoc(x, y + 1, z - 1);
-            else if (location.getWorld().getBlockAt(x + 1, y, z).getType() == powerBlock) // East
-            		door = plugin.getCommander().doorFromEngineLoc(x + 1, y + 1, z);
-            else if (location.getWorld().getBlockAt(x, y, z + 1).getType() == powerBlock) // South
-            		door = plugin.getCommander().doorFromEngineLoc(x, y + 1, z + 1);
-            else if (location.getWorld().getBlockAt(x - 1, y, z).getType() == powerBlock) // West
-        			door = plugin.getCommander().doorFromEngineLoc(x - 1, y + 1, z);
-            else if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Above
-            		door = plugin.getCommander().doorFromEngineLoc(x, y + 2, z);
-            else 
-            		return;
+            // TODO: Get nearby doors in a single db call.
+            // TODO: Drawbridges aren't working anymore.
             
-            if (door != null && !door.isLocked())
-            		plugin.getDoorOpener(door.getType()).openDoor(door, 0.2, true);
+//            Door door = null;
+//            int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
+//            if (     location.getWorld().getBlockAt(x, y, z - 1).getType() == powerBlock) // North
+//            		door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x,     y + 1, z - 1));
+//            if (location.getWorld().getBlockAt(x + 1, y, z).getType() == powerBlock) // East
+//            		door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x + 1, y + 1, z    ));
+//            if (location.getWorld().getBlockAt(x, y, z + 1).getType() == powerBlock) // South
+//        			door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x,     y + 1, z + 1));
+//            if (location.getWorld().getBlockAt(x - 1, y, z).getType() == powerBlock) // West
+//        			door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x - 1, y + 1, z    ));
+//            if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Above
+//        			door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x,     y + 2, z    ));
+//            
+//            if (door != null && !door.isLocked())
+//            		plugin.getDoorOpener(door.getType()).openDoor(door, 0.2, false);
+            
+			int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
+			
+			if (location.getWorld().getBlockAt(x, y, z - 1).getType() == powerBlock) // North
+				checkDoor(new Location(location.getWorld(), x,     y + 1, z - 1));
+			
+			if (location.getWorld().getBlockAt(x + 1, y, z).getType() == powerBlock) // East
+				checkDoor(new Location(location.getWorld(), x + 1, y + 1, z    ));
+			
+			if (location.getWorld().getBlockAt(x, y, z + 1).getType() == powerBlock) // South
+				checkDoor(new Location(location.getWorld(), x,     y + 1, z + 1));
+			
+			if (location.getWorld().getBlockAt(x - 1, y, z).getType() == powerBlock) // West
+				checkDoor(new Location(location.getWorld(), x - 1, y + 1, z    ));
+			
+			if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Above
+				checkDoor(new Location(location.getWorld(), x,     y + 2, z    ));
         }
         catch (Exception e)
         {
