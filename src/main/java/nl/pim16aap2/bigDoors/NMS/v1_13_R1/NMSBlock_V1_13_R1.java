@@ -56,6 +56,6 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
 	@Override
 	public void rotateBlockUpDown(DoorDirection openDirection, RotateDirection upDown)
 	{
-		// TODO Auto-generated method stub
+
 	}
 }

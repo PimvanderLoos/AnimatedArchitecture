@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigDoors.handlers;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -34,10 +33,10 @@ public class RedstoneHandler implements Listener
 	
 	public boolean checkDoor(Location loc)
 	{
-		Door door = plugin.getCommander().doorFromEngineLoc(loc);
+		Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
 		
         if (door != null && !door.isLocked())
-        		return plugin.getDoorOpener(door.getType()).openDoor(door, 0.2, false);
+        		return plugin.getDoorOpener(door.getType()).openDoor(door, 0.2, false, true);
 		return false;
 	}
 	
@@ -46,55 +45,34 @@ public class RedstoneHandler implements Listener
     @EventHandler
     public void onBlockRedstoneChange(BlockRedstoneEvent event)
     {
-//    		Bukkit.broadcastMessage("Block name = " + event.getBlock().getType());
         try
         {
             Block block = event.getBlock();
             Location location = block.getLocation();
             if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
                 return;
-
-            // TODO: Get nearby doors in a single db call.
-            // TODO: Drawbridges aren't working anymore.
-            
-//            Door door = null;
-//            int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
-//            if (     location.getWorld().getBlockAt(x, y, z - 1).getType() == powerBlock) // North
-//            		door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x,     y + 1, z - 1));
-//            if (location.getWorld().getBlockAt(x + 1, y, z).getType() == powerBlock) // East
-//            		door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x + 1, y + 1, z    ));
-//            if (location.getWorld().getBlockAt(x, y, z + 1).getType() == powerBlock) // South
-//        			door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x,     y + 1, z + 1));
-//            if (location.getWorld().getBlockAt(x - 1, y, z).getType() == powerBlock) // West
-//        			door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x - 1, y + 1, z    ));
-//            if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Above
-//        			door = plugin.getCommander().doorFromEngineLoc(new Location(location.getWorld(), x,     y + 2, z    ));
-//            
-//            if (door != null && !door.isLocked())
-//            		plugin.getDoorOpener(door.getType()).openDoor(door, 0.2, false);
             
 			int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
 			
 			if (location.getWorld().getBlockAt(x, y, z - 1).getType() == powerBlock) // North
-				checkDoor(new Location(location.getWorld(), x,     y + 1, z - 1));
+				checkDoor(new Location(location.getWorld(), x,     y,     z - 1));
 			
 			if (location.getWorld().getBlockAt(x + 1, y, z).getType() == powerBlock) // East
-				checkDoor(new Location(location.getWorld(), x + 1, y + 1, z    ));
+				checkDoor(new Location(location.getWorld(), x + 1, y,     z    ));
 			
 			if (location.getWorld().getBlockAt(x, y, z + 1).getType() == powerBlock) // South
-				checkDoor(new Location(location.getWorld(), x,     y + 1, z + 1));
+				checkDoor(new Location(location.getWorld(), x,     y,     z + 1));
 			
 			if (location.getWorld().getBlockAt(x - 1, y, z).getType() == powerBlock) // West
-				checkDoor(new Location(location.getWorld(), x - 1, y + 1, z    ));
+				checkDoor(new Location(location.getWorld(), x - 1, y,     z    ));
 			
 			if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Above
-				checkDoor(new Location(location.getWorld(), x,     y + 2, z    ));
+				checkDoor(new Location(location.getWorld(), x,     y + 1, z    ));
         }
         catch (Exception e)
         {
 			plugin.getMyLogger().logMessage("Exception thrown while handling redstone event!", true, false);
 			plugin.getMyLogger().logMessage("79 " + e.getMessage());
-			Bukkit.broadcastMessage(e.getMessage());
         }
     }
 }

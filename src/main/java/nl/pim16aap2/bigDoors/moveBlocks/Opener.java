@@ -10,7 +10,7 @@ public interface Opener
 	public boolean       chunksLoaded       (Door door);
 	public int           getDoorSize        (Door door);
 	public boolean       openDoor           (Door door, double speed);
-	public boolean       openDoor           (Door door, double speed, boolean instantOpen);
+	public boolean       openDoor           (Door door, double speed, boolean instantOpen, boolean silent);
 	public void          updateCoords       (Door door, DoorDirection currentDirection, RotateDirection rotDirection);
 	public void          toggleOpen         (Door door);
 }

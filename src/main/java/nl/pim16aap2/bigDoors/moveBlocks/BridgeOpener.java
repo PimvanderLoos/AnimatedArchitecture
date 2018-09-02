@@ -231,14 +231,15 @@ public class BridgeOpener implements Opener
 	@Override
 	public boolean openDoor(Door door, double speed)
 	{
-		return openDoor(door, speed/1.5, false);
+		return openDoor(door, speed/1.5, false, false);
 	}
 
 	@Override
-	public boolean openDoor(Door door, double speed, boolean instantOpen)
+	public boolean openDoor(Door door, double speed, boolean instantOpen, boolean silent)
 	{
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
+			if (!silent)
 			plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
 			return true;
 		}

@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.DoorCreator;
+import nl.pim16aap2.bigDoors.PowerBlockRelocator;
 
 public class EventHandlers implements Listener
 {
@@ -31,6 +32,14 @@ public class EventHandlers implements Listener
 				{
 					dc.selector(event.getClickedBlock().getLocation());
 					event.setCancelled(true);
+					return;
+				}
+				PowerBlockRelocator pbr = plugin.getCommandHandler().isRelocatingPB(event.getPlayer());
+				if (pbr != null)
+				{
+					pbr.selector(event.getClickedBlock().getLocation());
+					event.setCancelled(true);
+					return;
 				}
 			}
 	}

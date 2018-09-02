@@ -21,55 +21,64 @@ public class Door
 	private int          xMin, yMin, zMin;
 	private int          xMax, yMax, zMax;
 	private int engineX, engineY, engineZ;
+	private int  powerBlockX, powerBlockY, 
+	                          powerBlockZ;
 
 	// TODO: Store permission level.
 	// Player is then stored as the person who requested this door, rather than as the owner of the door.
 	
 	// Generate a new door.
 	public Door(UUID player, World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
-			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission, int type, DoorDirection engineSide)
+			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission, int type, DoorDirection engineSide,
+			int powerBlockX, int powerBlockY, int powerBlockZ)
 	{
-		this.player     = player;
-		this.world      = world;
-		this.xMin       = xMin;
-		this.yMin       = yMin;
-		this.zMin       = zMin;
-		this.xMax       = xMax;
-		this.yMax       = yMax;
-		this.zMax       = zMax;
-		this.engineX    = engineX;
-		this.engineY    = engineY;
-		this.engineZ    = engineZ;
-		this.name       = name;
-		this.isOpen     = isOpen;
-		this.doorUID    = doorUID;
-		this.isLocked   = isLocked;
-		this.permission = permission;
-		this.type       = type;
-		this.engineSide = engineSide;
+		this.player      = player;
+		this.world       = world;
+		this.xMin        = xMin;
+		this.yMin        = yMin;
+		this.zMin        = zMin;
+		this.xMax        = xMax;
+		this.yMax        = yMax;
+		this.zMax        = zMax;
+		this.engineX     = engineX;
+		this.engineY     = engineY;
+		this.engineZ     = engineZ;
+		this.name        = name;
+		this.isOpen      = isOpen;
+		this.doorUID     = doorUID;
+		this.isLocked    = isLocked;
+		this.permission  = permission;
+		this.type        = type;
+		this.engineSide  = engineSide;
+		this.powerBlockX = powerBlockX;
+		this.powerBlockY = powerBlockY;
+		this.powerBlockZ = powerBlockZ;
 	}
 	
 	public Door(UUID player, World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
-			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission, int type)
+			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission, int type, 
+			int powerBlockX, int powerBlockY, int powerBlockZ)
 	{
 		this(player, world, xMin, yMin, zMin, xMax, yMax, zMax, 
-				engineX, engineY, engineZ, name, isOpen, doorUID, isLocked, permission, type, null);
+				engineX, engineY, engineZ, name, isOpen, doorUID, isLocked, permission, type, null, powerBlockX, powerBlockY, powerBlockZ);
 	}
 	
 	// Create a door with a player UUID string instead of player Object.
 	public Door(World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
-			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission, String player, int type)
+			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission, String player, int type,
+			int powerBlockX, int powerBlockY, int powerBlockZ)
 	{
 		this(UUID.fromString(player), world, xMin, yMin, zMin, xMax, yMax, zMax, 
-				engineX, engineY, engineZ, name, isOpen, doorUID, isLocked, permission, type, null);
+				engineX, engineY, engineZ, name, isOpen, doorUID, isLocked, permission, type, null, powerBlockX, powerBlockY, powerBlockZ);
 	}
 	
 	// Create a door with a player UUID string instead of player Object and an engineSide (for draw bridges).
 	public Door(World world, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, int engineX, int engineY,
-			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission, String player, int type, DoorDirection engineSide)
+			int engineZ, String name, boolean isOpen, long doorUID, boolean isLocked, int permission, String player, int type, 
+			DoorDirection engineSide, int powerBlockX, int powerBlockY, int powerBlockZ)
 	{
 		this(UUID.fromString(player), world, xMin, yMin, zMin, xMax, yMax, zMax, 
-				engineX, engineY, engineZ, name, isOpen, doorUID, isLocked, permission, type, engineSide);
+				engineX, engineY, engineZ, name, isOpen, doorUID, isLocked, permission, type, engineSide, powerBlockX, powerBlockY, powerBlockZ);
 	}
 	
 //	public Door(String str)
@@ -122,26 +131,29 @@ public class Door
 	{
 		isOpen = bool;
 	}
+	
+	// Return the location of the powerblock of this door.
+	public Location getPowerBlockLoc()
+	{
+		return new Location(world, powerBlockX, powerBlockY, powerBlockZ);
+	}
 
 	// Return the location of the engine of this door.
 	public Location getEngine()
 	{
-		Location engineLoc = new Location(world, engineX, engineY, engineZ);
-		return engineLoc;
+		return new Location(world, engineX, engineY, engineZ);
 	}
 
 	// Return the minimum values of this door.
 	public Location getMinimum()
 	{
-		Location minima = new Location(world, xMin, yMin, zMin);
-		return minima;
+		return new Location(world, xMin, yMin, zMin);
 	}
 
 	// Return the maximum values of this door.
 	public Location getMaximum()
 	{
-		Location maxima = new Location(world, xMax, yMax, zMax);
-		return maxima;
+		return new Location(world, xMax, yMax, zMax);
 	}
 
 	// Change the minimum values of this door.

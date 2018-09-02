@@ -340,24 +340,28 @@ public class BridgeMover
 					NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
 					NMSBlock_Vall block2 = null;
 					
+					boolean canRotate    = false;
+					Byte matByte         = 0;
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
 					{
-						// !!WARNING!! Dirty hack incoming!
+						canRotate        = canRotate(mat);
 						// Because I can't get the blocks to rotate properly, they are rotated here
-						if (plugin.is1_13() && canRotate(mat)) 
+						if (canRotate) 
 						{
 							Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
-
-							Byte matByte = rotateBlockData(matData);
-							Block b = world.getBlockAt(pos);					
+							matByte      = rotateBlockData(matData);
+							Block b      = world.getBlockAt(pos);					
 							materialData.setData(matByte);
 							
-							b.setType(mat);
-							BlockState bs2 = b.getState();
-							bs2.setData(materialData);
-							bs2.update();
-							block2 = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+							if (plugin.is1_13())
+							{
+								b.setType(mat);
+								BlockState bs2 = b.getState();
+								bs2.setData(materialData);
+								bs2.update();
+								block2 = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+							}
 						}
 						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
 					}
@@ -370,7 +374,8 @@ public class BridgeMover
 					CustomCraftFallingBlock_Vall fBlock = null;
 					if (!instantOpen)
 						 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, radius, materialData, block, block2));
+						
+					savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, -1));
 					
 					index++;
 				}
@@ -436,11 +441,11 @@ public class BridgeMover
 					Material mat = savedBlocks.get(index).getMat();
 					Byte matByte;
 					
-					// TODO: Checking this twice?!
-					if (canRotate(mat))
-						matByte = rotateBlockData(savedBlocks.get(index).getBlockByte());
-					else
-						matByte = savedBlocks.get(index).getMatData().getData();
+//					if (canRotate(mat))
+//						matByte = rotateBlockData(savedBlocks.get(index).getBlockByte());
+//					else
+//						matByte = savedBlocks.get(index).getMatData().getData();
+					matByte = savedBlocks.get(index).getBlockByte();
 
 					Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis, index);
 
@@ -449,10 +454,12 @@ public class BridgeMover
 
 					if (plugin.is1_13())
 					{
-						if (canRotate(mat))
-							savedBlocks.get(index).getBlock2().putBlock(newPos);
-						else
-							savedBlocks.get(index).getBlock().putBlock(newPos);
+//						if (canRotate(mat))
+//							savedBlocks.get(index).getBlock2().putBlock(newPos);
+//						else
+//							savedBlocks.get(index).getBlock().putBlock(newPos);
+						
+						savedBlocks.get(index).getBlock().putBlock(newPos);
 						Block b = world.getBlockAt(newPos);
 						BlockState bs = b.getState();
 						bs.update();
@@ -708,7 +715,7 @@ public class BridgeMover
 										radius    = savedBlocks.get(index).getRadius();
 									if (radius != 0)
 									{
-										// TODO: Fuck qCircles and shit. Just use start angle and goal angle.
+										// Use start angle and goal angle.
 										// Then also use those two variable to determine if a block is lagging behind
 										// Or moving a bit too enthusiastically. This knowledge can then be used to
 										// Change acceleration of those blocks to make them fall in line with the rest.
@@ -804,20 +811,23 @@ public class BridgeMover
 									// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
 									if (replace)
 									{
-										Material mat     = savedBlocks.get(index).getMat();
-										if (mat == Material.LOG || mat == Material.LOG_2)
+										if (savedBlocks.get(index).canRot())
 										{
+											Material mat = savedBlocks.get(index).getMat();
 											Location loc = savedBlocks.get(index).getFBlock().getLocation();
 											
-											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
+//											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
+											Byte matData = savedBlocks.get(index).getBlockByte();
 											
 											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
 											
 											CustomCraftFallingBlock_Vall fBlock;
 											if (plugin.is1_13())
-												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock2());
+												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
 											else
 												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
+											// Block has already been rotated if possible, so just use block.
+//											fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
 											
 											savedBlocks.get(index).getFBlock().remove();
 											savedBlocks.get(index).setFBlock(fBlock);

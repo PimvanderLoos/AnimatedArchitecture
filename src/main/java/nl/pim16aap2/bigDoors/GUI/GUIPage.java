@@ -24,6 +24,7 @@ public class GUIPage implements Listener
 	private static Material toggleDoorMat  = Material.LEVER;
 	private static Material infoMat        = Material.BOOKSHELF;
 	private static Material delDoorMat     = Material.BARRIER;
+	private static Material relocatePBMat  = Material.LEATHER_BOOTS;
 	private static byte     lockedData     = 14;
 	private static byte     unlockedData   =  5;
 	private static byte     confirmData    = 14;
@@ -37,7 +38,7 @@ public class GUIPage implements Listener
 	private PageType     pageType; // Type 0 is door overview, type 1 is door submenu, type 2 is confirmation menu.
 	private int              page;
 	private Door             door;
-	private static final int chestSize  = 54;
+	private static final int chestSize  = 45;
 	private static final Material[] doorTypes = {Material.DARK_OAK_DOOR_ITEM,	Material.ACACIA_DOOR_ITEM, 
 			                              		Material.BIRCH_DOOR_ITEM, 	Material.IRON_DOOR, 
 			                              		Material.JUNGLE_DOOR_ITEM, 	Material.WOOD_DOOR, 
@@ -102,18 +103,26 @@ public class GUIPage implements Listener
 			inv.setItem(9, new GUIItem(lockDoorMat, messages.getString("GUI.UnlockDoor"), null, 1, unlockedData).getItemStack());
 		else
 			inv.setItem(9, new GUIItem(lockDoorMat, messages.getString("GUI.LockDoor"), null, 1,   lockedData).getItemStack());
+		
 		String desc = messages.getString("GUI.ToggleDoor");
 		lore.add(desc);
 		inv.setItem(10, new GUIItem(toggleDoorMat, desc, lore, 1).getItemStack());
 		lore.clear();
+		
 		desc = messages.getString("GUI.GetInfo");
 		lore.add(desc);
 		inv.setItem(11, new GUIItem(infoMat, desc, lore, 1).getItemStack());
 		lore.clear();
+		
 		desc = messages.getString("GUI.DeleteDoor");
 		String loreStr = messages.getString("GUI.DeleteDoorLong");
 		lore.add(loreStr);
 		inv.setItem(12, new GUIItem(delDoorMat, desc , lore, 1).getItemStack());
+		
+		desc = messages.getString("GUI.RelocatePowerBlock");
+		loreStr = messages.getString("GUI.RelocatePowerBlockLore");
+		lore.add(loreStr);
+		inv.setItem(13, new GUIItem(relocatePBMat, desc, lore, 1).getItemStack());
 		
 		// TODO: LT: Add more options: Add owners, remove owners, view list of owners
 	}

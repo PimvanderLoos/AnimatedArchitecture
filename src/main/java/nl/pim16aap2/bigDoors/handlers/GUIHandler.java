@@ -183,6 +183,11 @@ public class GUIHandler implements Listener
 				Util.listDoorInfo(player, getDoor(inv.getItem(4)));
 			else if (itemName.equals(messages.getString("GUI.DeleteDoor")))
 				setPage(player, inv, getPreviousPage(inv) + 1, PageType.CONFIRMATION, getDoor(inv.getItem(4)).getDoorUID(), getPageCount(inv));
+			else if (itemName.equals(messages.getString("GUI.RelocatePowerBlock")))
+			{
+				player.closeInventory();
+				plugin.getCommandHandler().relocatePowerBlock(player, getDoor(inv.getItem(4)).getDoorUID());
+			}
 			return;
 		}
 		else if (itemName.equals(messages.getString("GUI.NewDoor")))

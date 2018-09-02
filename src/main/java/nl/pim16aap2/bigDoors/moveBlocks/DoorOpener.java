@@ -22,7 +22,6 @@ public class DoorOpener implements Opener
 		this.plugin = plugin;
 	}
 	
-	// TODO: check the entire area.
 	// Check if the block on the north/east/south/west side of the location is free.
 	public boolean isPosFree(Door door, DoorDirection direction)
 	{
@@ -156,16 +155,17 @@ public class DoorOpener implements Opener
 	@Override
 	public boolean openDoor(Door door, double speed)
 	{
-		return openDoor(door, speed, false);
+		return openDoor(door, speed, false, false);
 	}
 	
 	// Open a door.
 	@Override
-	public boolean openDoor(Door door, double speed, boolean instantOpen)
+	public boolean openDoor(Door door, double speed, boolean instantOpen, boolean silent)
 	{
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
-			plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+			if (!silent)
+				plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
 			return true;
 		}
 

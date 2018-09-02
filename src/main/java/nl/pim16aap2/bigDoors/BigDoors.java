@@ -41,22 +41,23 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 
 public class BigDoors extends JavaPlugin implements Listener
 {
-	private ToolVerifier               tf;
-	private SQLiteJDBCDriverConnection db;
-	private FallingBlockFactory_Vall fabf;
-	private Vector<DoorCreator>      dcal;
-	private ConfigLoader           config;
-	private String                 locale;
-	private MyLogger               logger;
-	private File                  logFile;
-	private Messages             messages;
-	private Commander           commander;
-	private DoorOpener         doorOpener;
-	private BridgeOpener     bridgeOpener;
-	private boolean          validVersion;
-	private CommandHandler commandHandler;
+	private ToolVerifier                    tf;
+	private SQLiteJDBCDriverConnection      db;
+	private FallingBlockFactory_Vall      fabf;
+	private Vector<DoorCreator>           dcal;
+	private Vector<PowerBlockRelocator>  rlocs;
+	private ConfigLoader                config;
+	private String                      locale;
+	private MyLogger                    logger;
+	private File                       logFile;
+	private Messages                  messages;
+	private Commander                commander;
+	private DoorOpener              doorOpener;
+	private BridgeOpener          bridgeOpener;
+	private boolean               validVersion;
+	private CommandHandler      commandHandler;
 	
-	private boolean        is1_13 = false;
+	private boolean             is1_13 = false;
 	
 
 	@Override
@@ -65,7 +66,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		logFile        = new File(getDataFolder(), "log.txt");
 		logger         = new MyLogger(this, logFile);
 		
-
 		validVersion = compatibleMCVer();
 		// Load the files for the correct version of Minecraft.
 		if (!validVersion) 
@@ -74,7 +74,7 @@ public class BigDoors extends JavaPlugin implements Listener
 			return;
 		}
 		readConfigValues();
-				
+		
 		this.messages  = new Messages(this);	
 		
 		// Are stats allowed?
@@ -87,9 +87,9 @@ public class BigDoors extends JavaPlugin implements Listener
 		else 
 			// Y u do dis? :(
 			logger.myLogger(Level.INFO, "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
-
 		
 		dcal           = new Vector<DoorCreator>(2);
+		rlocs          = new Vector<PowerBlockRelocator>(2);
 		this.db        = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
 		this.tf        = new ToolVerifier(messages.getString("DC.StickName"));
 		doorOpener     = new DoorOpener(this);
@@ -100,22 +100,23 @@ public class BigDoors extends JavaPlugin implements Listener
 		Bukkit.getPluginManager().registerEvents(new EventHandlers   (this), this);
 		Bukkit.getPluginManager().registerEvents(new GUIHandler      (this), this);
 		Bukkit.getPluginManager().registerEvents(new RedstoneHandler (this), this);
-		getCommand("unlockDoor"   ).setExecutor(new CommandHandler(this));
-		getCommand("pausedoors"   ).setExecutor(new CommandHandler(this));
-		getCommand("doordebug"    ).setExecutor(new CommandHandler(this));
-		getCommand("opendoors"    ).setExecutor(new CommandHandler(this));
-		getCommand("listdoors"    ).setExecutor(new CommandHandler(this));
-		getCommand("stopdoors"    ).setExecutor(new CommandHandler(this));
-		getCommand("bdcancel"     ).setExecutor(new CommandHandler(this));
-		getCommand("doorinfo"     ).setExecutor(new CommandHandler(this));
-		getCommand("opendoor"     ).setExecutor(new CommandHandler(this));
-		getCommand("nameDoor"     ).setExecutor(new CommandHandler(this));
-		getCommand("bigdoors"     ).setExecutor(new CommandHandler(this));
-		getCommand("newdoor"      ).setExecutor(new CommandHandler(this));
-		getCommand("deldoor"      ).setExecutor(new CommandHandler(this));
-		getCommand("fixdoor"      ).setExecutor(new CommandHandler(this));
-		getCommand("shutup"       ).setExecutor(new CommandHandler(this));
-		getCommand("bdm"          ).setExecutor(new CommandHandler(this));
+		getCommand("changepowerblockloc").setExecutor(new CommandHandler(this));
+		getCommand("unlockDoor"         ).setExecutor(new CommandHandler(this));
+		getCommand("pausedoors"         ).setExecutor(new CommandHandler(this));
+		getCommand("doordebug"          ).setExecutor(new CommandHandler(this));
+		getCommand("opendoors"          ).setExecutor(new CommandHandler(this));
+		getCommand("listdoors"          ).setExecutor(new CommandHandler(this));
+		getCommand("stopdoors"          ).setExecutor(new CommandHandler(this));
+		getCommand("bdcancel"           ).setExecutor(new CommandHandler(this));
+		getCommand("doorinfo"           ).setExecutor(new CommandHandler(this));
+		getCommand("opendoor"           ).setExecutor(new CommandHandler(this));
+		getCommand("nameDoor"           ).setExecutor(new CommandHandler(this));
+		getCommand("bigdoors"           ).setExecutor(new CommandHandler(this));
+		getCommand("newdoor"            ).setExecutor(new CommandHandler(this));
+		getCommand("deldoor"            ).setExecutor(new CommandHandler(this));
+		getCommand("fixdoor"            ).setExecutor(new CommandHandler(this));
+		getCommand("shutup"             ).setExecutor(new CommandHandler(this));
+		getCommand("bdm"                ).setExecutor(new CommandHandler(this));
 		
 		liveDevelopmentLoad();
 		
@@ -159,13 +160,15 @@ public class BigDoors extends JavaPlugin implements Listener
 		if (validVersion)
 		{
 			this.commander.setCanGo(false);
-			
 			for (DoorCreator dc : this.getDoorCreators())
 				dc.takeToolFromPlayer();
+			for (PowerBlockRelocator pbr : this.getRelocators())
+				pbr.takeToolFromPlayer();
 		}
 	}
 	
 	// Read the saved list of doors, if it exists. ONLY for debugging purposes. Should be removed from the final export!
+	@SuppressWarnings("unused")
 	private void readDoors()
 	{
 		File dataFolder = getDataFolder();
@@ -203,7 +206,7 @@ public class BigDoors extends JavaPlugin implements Listener
 				engineY = Integer.parseInt(strs[10]);
 				engineZ = Integer.parseInt(strs[11]);
 				
-				Door door = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false, 0, "27e6c556-4f30-32bf-a005-c80a46ddd935", 0);
+				Door door = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false, 0, "27e6c556-4f30-32bf-a005-c80a46ddd935", 0, -1, -1, -1);
 				commander.addDoor(door);
 
 				sCurrentLine = br.readLine();
@@ -225,6 +228,12 @@ public class BigDoors extends JavaPlugin implements Listener
 	public Vector<DoorCreator> getDoorCreators()
 	{
 		return this.dcal;
+	}
+	
+	// Get the Vector of relocators (= users relocating the power block of a door).
+	public Vector<PowerBlockRelocator> getRelocators()
+	{
+		return this.rlocs;
 	}
 	
 	public FallingBlockFactory_Vall getFABF()
@@ -352,7 +361,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	// (Instantly?) Toggle a door with a given speed.
 	private boolean toggleDoor(Door door, double speed, boolean instantOpen)
 	{
-		return this.getDoorOpener(door.getType()).openDoor(door, speed, instantOpen);
+		return this.getDoorOpener(door.getType()).openDoor(door, speed, instantOpen, false);
 	}
 	
 	// Toggle a door from a doorUID and instantly or not.
@@ -396,8 +405,6 @@ public class BigDoors extends JavaPlugin implements Listener
 //		if (this.isOpen(door))
 //			return false;
 //		
-//		// TODO: Execute command.
-//		
 //		return true;
 //	}
 //	
@@ -413,8 +420,6 @@ public class BigDoors extends JavaPlugin implements Listener
 //	{
 //		if (!this.isOpen(door))
 //			return false;
-//		
-//		// TODO: Execute command.
 //		
 //		return true;
 //	}

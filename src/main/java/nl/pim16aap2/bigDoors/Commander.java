@@ -190,10 +190,27 @@ public class Commander
 	{
 		db.setLock(doorUID, newLockStatus);
 	}
+	
+//	// Get a door from the x,y,z coordinates of its engine block (= rotation point at lowest y).
+//	public Door doorFromEngineLoc(Location loc)
+//	{
+//		return db.doorFromEngineLoc(loc);
+//	}
 
-	// Get a door from the x,y,z coordinates of its engine block (= rotation point at lowest y).
-	public Door doorFromEngineLoc(Location loc)
+	// Get a door from the x,y,z coordinates of its power block.
+	public Door doorFromPowerBlockLoc(Location loc)
 	{
-		return db.doorFromEngineLoc(loc);
+		return db.doorFromPowerBlockLoc(loc);
+	}
+
+	// Change hte location of a powerblock.
+	public void updatePowerBlockLoc(long doorUID, Location loc)
+	{
+		db.updateDoorPowerBlockLoc(doorUID, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+	}
+
+	public boolean isPowerBlockLocationValid(Location loc)
+	{
+		return db.isPowerBlockLocationEmpty(loc);
 	}
 }

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.storage.sqlite;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -92,6 +93,9 @@ public class SQLiteJDBCDriverConnection
 		          			+ " engineX     INTEGER    NOT NULL, " 
 		          			+ " engineY     INTEGER    NOT NULL, " 
 		          			+ " engineZ     INTEGER    NOT NULL, " 
+		          			+ " powerBlockX INTEGER    NOT NULL, " 
+		          			+ " powerBlockY INTEGER    NOT NULL, " 
+		          			+ " powerBlockZ INTEGER    NOT NULL, " 
 		          			+ " isLocked    INTEGER    NOT NULL, "
 		          			+ " type        INTEGER    NOT NULL,"
 		          			+ " engineSide  INTEGER    NOT NULL) ";
@@ -187,7 +191,8 @@ public class SQLiteJDBCDriverConnection
 			return new Door(null, Bukkit.getServer().getWorld(UUID.fromString(rs.getString(3))), rs.getInt(5), 
 							rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9), rs.getInt(10), rs.getInt(11), 
 							rs.getInt(12), rs.getInt(13), rs.getString(2), (rs.getInt(4) == 1 ? true : false), 
-							doorUID, (rs.getInt(14) == 1 ? true : false), permission, rs.getInt(15), DoorDirection.valueOf(rs.getInt(16)));
+							doorUID, (rs.getInt(14) == 1 ? true : false), permission, rs.getInt(15), DoorDirection.valueOf(rs.getInt(16)), 
+							rs.getInt(17), rs.getInt(18), rs.getInt(19));
 		}
 		catch (SQLException e)
 		{
@@ -204,7 +209,8 @@ public class SQLiteJDBCDriverConnection
 			return new Door(null, Bukkit.getServer().getWorld(UUID.fromString(rs.getString(3))), rs.getInt(5), 
 							rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9), rs.getInt(10), rs.getInt(11), 
 							rs.getInt(12), rs.getInt(13), rs.getString(2), (rs.getInt(4) == 1 ? true : false), 
-							doorUID, (rs.getInt(14) == 1 ? true : false), permission, rs.getInt(15), DoorDirection.valueOf(rs.getInt(16)));
+							doorUID, (rs.getInt(14) == 1 ? true : false), permission, rs.getInt(15), DoorDirection.valueOf(rs.getInt(16)),
+							rs.getInt(17), rs.getInt(18), rs.getInt(19));
 		}
 		catch (SQLException e)
 		{
@@ -262,7 +268,7 @@ public class SQLiteJDBCDriverConnection
 				{
 					// Delete all doors with the provided name owned by the provided player.
 					PreparedStatement ps3 = conn.prepareStatement("DELETE FROM doors WHERE id = '" + rs2.getInt(4) 
-															   +"' AND name = '" + doorName + "';");
+															                    +"' AND name = '" + doorName + "';");
 					ps3.executeUpdate();
 					ps3.close();
 				}
@@ -288,9 +294,51 @@ public class SQLiteJDBCDriverConnection
 			}
 		}
 	}
+
+//	// Get the door that has an engine at the provided coordinates.
+//	public Door doorFromEngineLoc(Location loc)
+//	{
+//		// Prepare door and connection.
+//		Door door       = null;
+//		Connection conn = null;
+//		try
+//		{
+//			conn = getConnection();
+//			// TODO: In the redstone handler, don't look ABOVE powerblock locations anymore, but look at the location itself.
+//			// Get the door associated with the x/y/z location of the engine block (block with lowest y-pos of rotation point).
+//			PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE engineX = '" + loc.getBlockX() + 
+//					                                                         "' AND engineY = '" + loc.getBlockY() + 
+//					                                                         "' AND engineZ = '" + loc.getBlockZ() +
+//					                                                         "' AND world = '"       + loc.getWorld().getUID().toString() + "';");
+//			ResultSet rs = ps.executeQuery();
+//			while (rs.next())
+//			{
+//				long doorUID = rs.getLong(1);
+//				door = newDoorFromRS(rs, doorUID, -1);
+//			}
+//			ps.close();
+//			rs.close();
+//		}
+//		catch(SQLException e)
+//		{
+//			plugin.getMyLogger().logMessage("265: " + e.getMessage());
+//		}
+//		finally
+//		{
+//			try
+//			{
+//				conn.close();
+//			}
+//			catch (SQLException e)
+//			{
+//				plugin.getMyLogger().logMessage("275: " + e.getMessage());
+//			}
+//		}
+//		return door;
+//	}
 	
-	// Get the door that has an engine at the provided coordinates.
-	public Door doorFromEngineLoc(Location loc)
+	// Get the door that has a powerBlock at the provided coordinates.
+	public Door doorFromPowerBlockLoc(Location loc)
 	{
 		// Prepare door and connection.
 		Door door       = null;
@@ -298,11 +346,11 @@ public class SQLiteJDBCDriverConnection
 		try
 		{
 			conn = getConnection();
-			// Get the door associated with the x/y/z location of the engine block (block with lowest y-pos of rotation point).
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE engineX = '" + loc.getBlockX() + 
-					                                                         "' AND engineY = '" + loc.getBlockY() + 
-					                                                         "' AND engineZ = '" + loc.getBlockZ() +
-					                                                         "' AND world = '"   + loc.getWorld().getUID().toString() + "';");
+			// Get the door associated with the x/y/z location of the power block block.
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE powerBlockX = '" + loc.getBlockX()	 + 
+					                                                         "' AND powerBlockY = '" + loc.getBlockY()	 + 
+					                                                         "' AND powerBlockZ = '" + loc.getBlockZ()	 +
+					                                                         "' AND world = '"       + loc.getWorld().getUID().toString() + "';");
 			ResultSet rs = ps.executeQuery();
 			while (rs.next())
 			{
@@ -459,7 +507,7 @@ public class SQLiteJDBCDriverConnection
 		}
 	}
 	
-	// Update the door at doorUID with the provided coordinates and open status.
+	// Update the door with doorUID with the provided coordinates and open status.
 	public void updateDoorCoords(long doorID, int isOpen, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax)
 	{
 		Connection conn = null;
@@ -468,13 +516,13 @@ public class SQLiteJDBCDriverConnection
 			conn = getConnection();
 			conn.setAutoCommit(false);
 			String update = "UPDATE doors SET " 
-							+   "xMin='" 			+ xMin 
-							+ "',yMin='" 			+ yMin 
-							+ "',zMin='" 			+ zMin 
-							+ "',xMax='" 			+ xMax 
-							+ "',yMax='" 			+ yMax 
-							+ "',zMax='"	 			+ zMax 
-							+ "' WHERE id = '"	    + doorID + "';";
+					+   "xMin='" 			+ xMin 
+					+ "',yMin='" 			+ yMin 
+					+ "',zMin='" 			+ zMin 
+					+ "',xMax='" 			+ xMax 
+					+ "',yMax='" 			+ yMax 
+					+ "',zMax='"	 			+ zMax 
+					+ "' WHERE id = '"	    + doorID + "';";
 			conn.prepareStatement(update).executeUpdate();
 			conn.commit();
 		}
@@ -493,6 +541,80 @@ public class SQLiteJDBCDriverConnection
 				plugin.getMyLogger().logMessage("404: " + e.getMessage());
 			}
 		}
+	}
+	
+	// Update the door with UID doorUID's Power Block Location with the provided coordinates and open status.
+	public void updateDoorPowerBlockLoc(long doorID, int xPos, int yPos, int zPos)
+	{
+		Connection conn = null;
+		try
+		{
+			conn = getConnection();
+			conn.setAutoCommit(false);
+			String update = "UPDATE doors SET " 
+							+   "powerBlockX='" 	+ xPos 
+							+ "',powerBlockY='" 	+ yPos 
+							+ "',powerBlockZ='" 	+ zPos
+							+ "' WHERE id = '"	+ doorID + "';";
+			conn.prepareStatement(update).executeUpdate();
+			conn.commit();
+		}
+		catch(SQLException e)
+		{
+			plugin.getMyLogger().logMessage("394: " + e.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				conn.close();
+			}
+			catch (SQLException e)
+			{
+				plugin.getMyLogger().logMessage("404: " + e.getMessage());
+			}
+		}
+	}
+
+	// Check if a given location already contains a power block or not. 
+	// Returns false if it's already occupied.
+	public boolean isPowerBlockLocationEmpty(Location loc)
+	{
+		// Prepare door and connection.
+		Connection conn = null;
+		try
+		{
+			conn = getConnection();
+			// Get the door associated with the x/y/z location of the power block block.
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE powerBlockX = '" + loc.getBlockX()	 + 
+					                                                         "' AND powerBlockY = '" + loc.getBlockY()	 + 
+					                                                         "' AND powerBlockZ = '" + loc.getBlockZ()	 +
+					                                                         "' AND world = '"       + loc.getWorld().getUID().toString() + "';");
+			ResultSet rs = ps.executeQuery();
+			boolean isAvailable = true;
+			while (rs.next())
+				isAvailable = false;
+			ps.close();
+			rs.close();
+			return isAvailable;
+		}
+		catch(SQLException e)
+		{
+			plugin.getMyLogger().logMessage("265: " + e.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				conn.close();
+			}
+			catch (SQLException e)
+			{
+				plugin.getMyLogger().logMessage("275: " + e.getMessage());
+			}
+		}
+		
+		return false;
 	}
 	
 	// Update the door at doorUID with the provided new lockstatus.
@@ -559,8 +681,8 @@ public class SQLiteJDBCDriverConnection
 				stmt2.close();
 			}
 			
-			String doorInsertsql	= "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide) "
-								+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			String doorInsertsql	= "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ) "
+								+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 						
 			doorstatement.setString(1, door.getName());
@@ -579,6 +701,9 @@ public class SQLiteJDBCDriverConnection
 			doorstatement.setInt(14,   door.getType());
 			// Get -1 if the door has no engineSide (normal doors don't use it)
 			doorstatement.setInt(15,   door.getEngSide() == null ? -1 : DoorDirection.getValue(door.getEngSide()));
+			doorstatement.setInt(16,   door.getEngine().getBlockX());
+			doorstatement.setInt(17,   door.getEngine().getBlockY() - 1); // Power Block Location is 1 block below the engine, by default.
+			doorstatement.setInt(18,   door.getEngine().getBlockZ());
 			
 			doorstatement.executeUpdate();
 			doorstatement.close();
@@ -667,27 +792,74 @@ public class SQLiteJDBCDriverConnection
 		return count;
 	}
 	
-	
-	public void update()
+	// Add columns and such when needed (e.g. upgrades from older versions).
+	private void update()
 	{
 		Connection conn = null;
 		try
 		{
+			String addColumn;
 			conn = DriverManager.getConnection(url);
-			String addColumn = "ALTER TABLE doors "
-				             + "ADD COLUMN type int NOT NULL DEFAULT 0";
-			Statement stmt = conn.createStatement();
-			stmt.execute(addColumn);
-			addColumn = "ALTER TABLE doors "
-		              + "ADD COLUMN engineSide int NOT NULL DEFAULT -1";
-			stmt = conn.createStatement();
-			stmt.execute(addColumn);
+			DatabaseMetaData md 	= conn.getMetaData();
+			Statement stmt 		= conn.createStatement();
+			
+			ResultSet rs 		= md.getColumns(null, null, "doors", "type");
+			if (!rs.next())
+			{
+				plugin.getMyLogger().logMessage("Updating database! Adding type!", true, false);
+				addColumn		= "ALTER TABLE doors "
+								+ "ADD COLUMN type int NOT NULL DEFAULT 0";
+				stmt.execute(addColumn);
+			}
+
+			rs 					= md.getColumns(null, null, "doors", "engineSide");
+			if (!rs.next())
+			{
+				plugin.getMyLogger().logMessage("Updating database! Adding engineSide!", true, false);
+				addColumn     	= "ALTER TABLE doors "
+			                  	+ "ADD COLUMN engineSide int NOT NULL DEFAULT -1";
+				stmt.execute(addColumn);
+			}
+			
+			rs 					= md.getColumns(null, null, "doors", "powerBlockX");
+			if (!rs.next())
+			{
+				plugin.getMyLogger().logMessage("Updating database! Adding powerBlockLoc!", true, false);
+				addColumn      	= "ALTER TABLE doors "
+								+ "ADD COLUMN powerBlockX int NOT NULL DEFAULT -1";
+				stmt.execute(addColumn);
+				addColumn      	= "ALTER TABLE doors "
+								+ "ADD COLUMN powerBlockY int NOT NULL DEFAULT -1";
+				stmt.execute(addColumn);
+				addColumn      	= "ALTER TABLE doors "
+								+ "ADD COLUMN powerBlockZ int NOT NULL DEFAULT -1";
+				stmt.execute(addColumn);
+				PreparedStatement	ps1 = conn.prepareStatement("SELECT * FROM doors;");
+				ResultSet rs1	= 	ps1.executeQuery();
+				String update;
+				
+				while (rs1.next())
+				{
+					long UID 	= rs1.getLong(1);
+					int x    	= rs1.getInt(11);
+					int y    	= rs1.getInt(12) - 1;
+					int z    	= rs1.getInt(13);
+					update   	= "UPDATE doors SET " 
+							 	+   "powerBlockX='" + x 
+							 	+ "',powerBlockY='" + y
+							 	+ "',powerBlockZ='" + z
+							 	+ "' WHERE id = '"  + UID + "';";
+					conn.prepareStatement(update).executeUpdate();
+				}
+				ps1.close();
+				rs1.close();
+			}
 			stmt.close();
+			rs.close();
 		}
 		catch(SQLException e)
 		{
-			// TO DO: Add check if the column exists before adding it.
-//			plugin.getMyLogger().logMessage("139 " + e.getMessage());
+			plugin.getMyLogger().logMessage("724 " + e.getMessage());
 		}
 		finally
 		{
@@ -697,8 +869,52 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch(SQLException e)
 			{
-				plugin.getMyLogger().logMessage("149 " + e.getMessage());
+				plugin.getMyLogger().logMessage("734 " + e.getMessage());
 			}
 		}
 	}
+	
+//	private void addBlockLocValues()
+//	{
+//		Connection conn = null;
+//		try
+//		{
+//			conn = DriverManager.getConnection(url);
+//			PreparedStatement	ps1 = conn.prepareStatement("SELECT * FROM doors");
+//			ResultSet rs1	= 	ps1.executeQuery();
+//			String update;
+//			while (rs1.next())
+//			{
+//				long UID = rs1.getLong(1);
+//				int x    = rs1.getInt(11);
+//				int y    = rs1.getInt(12) - 1;
+//				int z    = rs1.getInt(13);
+//				
+//				update = "UPDATE doors SET " 
+//						+   "powerBlockX='" 			+ x 
+//						+ "',powerBlockY='" 			+ y
+//						+ "',powerBlockZ='" 			+ z
+//						+ "' WHERE id = '"	    + UID + "';";
+//				conn.prepareStatement(update).executeUpdate();
+//				
+//			}
+//			ps1.close();
+//			rs1.close();
+//		}
+//		catch(SQLException e)
+//		{
+//			plugin.getMyLogger().logMessage("788 " + e.getMessage());
+//		}
+//		finally
+//		{
+//			try
+//			{
+//				conn.close();
+//			}
+//			catch(SQLException e)
+//			{
+//				plugin.getMyLogger().logMessage("798 " + e.getMessage());
+//			}
+//		}
+//	}
 }

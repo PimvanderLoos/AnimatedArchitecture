@@ -90,7 +90,8 @@ public class DoorCreator
 		if (one != null && two != null && engine != null && (EngineSide != null || type != 1))
 		{		
 			Door door = new Door(player.getUniqueId(), one.getWorld(), one.getBlockX(), one.getBlockY(), one.getBlockZ(), two.getBlockX(), two.getBlockY(), two.getBlockZ(), 
-					engine.getBlockX(), engine.getBlockY(), engine.getBlockZ(), name, false, -1, false, 0, type, EngineSide);
+					engine.getBlockX(), engine.getBlockY(), engine.getBlockZ(), name, false, -1, false, 0, type, EngineSide,
+					engine.getBlockX(), engine.getBlockY() - 1, engine.getBlockZ());
 			plugin.getCommander().addDoor(door);
 		}
 		takeToolFromPlayer();

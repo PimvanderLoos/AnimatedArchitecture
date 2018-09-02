@@ -13,10 +13,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.mysql.jdbc.Messages;
 
 import net.md_5.bungee.api.ChatColor;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.DoorCreator;
+import nl.pim16aap2.bigDoors.PowerBlockRelocator;
 import nl.pim16aap2.bigDoors.GUI.GUIPage;
 import nl.pim16aap2.bigDoors.util.Util;
 
@@ -91,13 +91,13 @@ public class CommandHandler implements CommandExecutor
 				
 		for (Door door : doors)
 			Util.messagePlayer(player, door.getDoorUID()    + ": "  + door.getName().toString()     + 
-				", Min("    + door.getMinimum().getBlockX() + ";"   + door.getMinimum().getBlockY() + ";"+ door.getMinimum().getBlockZ() + ")" +
-				", Max("    + door.getMaximum().getBlockX() + ";"   + door.getMaximum().getBlockY() + ";"+ door.getMaximum().getBlockZ() + ")" +
-				", Engine(" + door.getEngine().getBlockX()  + ";"   + door.getEngine().getBlockY()  + ";"+ door.getEngine().getBlockZ()  + ")" +
+				", Min("    + door.getMinimum().getBlockX() + ";"   + door.getMinimum().getBlockY() + ";" + door.getMinimum().getBlockZ() + ")" +
+				", Max("    + door.getMaximum().getBlockX() + ";"   + door.getMaximum().getBlockY() + ";" + door.getMaximum().getBlockZ() + ")" +
+				", Engine(" + door.getEngine().getBlockX()  + ";"   + door.getEngine().getBlockY()  + ";" + door.getEngine().getBlockZ()  + ")" +
 				", " + (door.isLocked() ? "" : "NOT ") + "locked"   + "; Type=" + door.getType()    + 
 				(door.getEngSide() == null ? "" : ("; EngineSide = " + door.getEngSide().toString() + "; doorLen = " +
-				 door.getLength()))); 
-//				("; EngineSide = " + door.getEngSide().toString()));
+				 door.getLength())) + ", PowreBlockPos = (" + door.getPowerBlockLoc().getBlockX()   + ";" + 
+				 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()   + ")"); 
 	}
 
 	public boolean isValidName(String name)
@@ -124,10 +124,13 @@ public class CommandHandler implements CommandExecutor
 		
 		DoorCreator dc = new DoorCreator(plugin, player, name);
 		plugin.getDoorCreators().add(dc);
-		
+
+		int tickrate     = 4;
 		new BukkitRunnable()
 		{
-			int count = 0;
+			int count    = 0;
+			int seconds  = 60;
+			int totTicks = 20 / tickrate * seconds;
 			
 			@Override
 			public void run()
@@ -138,7 +141,7 @@ public class CommandHandler implements CommandExecutor
 					plugin.getDoorCreators().remove(dc);
 					this.cancel();
 				}
-				else if (count > 60) // Cancel after 1 minute.
+				else if (count > totTicks)
 				{
 					dc.takeToolFromPlayer();
 					plugin.getDoorCreators().remove(dc);
@@ -149,13 +152,56 @@ public class CommandHandler implements CommandExecutor
 			}
 		}.runTaskTimer(plugin, 0, 20); // Once a second.
 	}
-
+	
 	// Check if a provided player is a doorCreator.
 	public DoorCreator isCreatingDoor(Player player)
 	{
 		for (DoorCreator dc : plugin.getDoorCreators())
 			if (dc.getPlayer() == player)
 				return dc;
+		return null;
+	}
+	
+	public void relocatePowerBlock(Player player, long doorUID)
+	{
+		PowerBlockRelocator pbr = new PowerBlockRelocator(plugin, player, doorUID);
+		
+		plugin.getRelocators().add(pbr);
+		
+		int tickrate     = 4;
+		new BukkitRunnable()
+		{
+			int count    = 0;
+			int seconds  = 20;
+			int totTicks = 20 / tickrate * seconds;
+			
+			@Override
+			public void run()
+			{
+				if (pbr != null && pbr.isDone())	// Cancel and cleanup when the door creation process is doen.
+				{
+					pbr.finishUp();
+					plugin.getRelocators().remove(pbr);
+					this.cancel();
+				}
+				else if (count > totTicks) // Cancel after 20 seconds.
+				{
+					pbr.takeToolFromPlayer();
+					plugin.getRelocators().remove(pbr);
+					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.TimeUp"));
+					this.cancel();
+				}
+				++count;
+			}
+		}.runTaskTimer(plugin, 0, tickrate); // Once a second.
+	}
+
+	// Check if a provided player is a PowerBlockRelocator.
+	public PowerBlockRelocator isRelocatingPB(Player player)
+	{
+		for (PowerBlockRelocator pbr : plugin.getRelocators())
+			if (pbr.getPlayer() == player)
+				return pbr;
 		return null;
 	}
 	
@@ -289,6 +335,16 @@ public class CommandHandler implements CommandExecutor
 							dc.setName(args[0]);
 							return true;
 						}
+			}
+			
+			// /changePowerBlockLoc
+			if (cmd.getName().equalsIgnoreCase("changePowerBlockLoc"))
+			{
+				if (args.length < 1)
+					return false;
+				long doorUID = plugin.getCommander().getDoor(args[0], player).getDoorUID();
+				this.relocatePowerBlock(player, doorUID);
+				return true;
 			}
 			
 			// /bdcancel
