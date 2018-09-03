@@ -93,12 +93,12 @@ public class SQLiteJDBCDriverConnection
 		          			+ " engineX     INTEGER    NOT NULL, " 
 		          			+ " engineY     INTEGER    NOT NULL, " 
 		          			+ " engineZ     INTEGER    NOT NULL, " 
-		          			+ " powerBlockX INTEGER    NOT NULL, " 
-		          			+ " powerBlockY INTEGER    NOT NULL, " 
-		          			+ " powerBlockZ INTEGER    NOT NULL, " 
 		          			+ " isLocked    INTEGER    NOT NULL, "
 		          			+ " type        INTEGER    NOT NULL,"
-		          			+ " engineSide  INTEGER    NOT NULL) ";
+		          			+ " engineSide  INTEGER    NOT NULL, "
+				  			+ " powerBlockX INTEGER    NOT NULL, " 
+				  			+ " powerBlockY INTEGER    NOT NULL, " 
+				  			+ " powerBlockZ INTEGER    NOT NULL) "; 
 			stmt1.executeUpdate(sql1);
 			stmt1.close();
 			
