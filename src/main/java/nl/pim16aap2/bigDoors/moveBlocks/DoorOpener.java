@@ -224,13 +224,13 @@ public class DoorOpener implements Opener
 
 		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);
-		updateCoords(door, currentDirection, rotDirection);
+		updateCoords(door, currentDirection, rotDirection, -1);
 		return true;
 	}
 	
 	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
 	@Override
-	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection)
+	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
 	{
 		int xMin = door.getMinimum().getBlockX();
 		int yMin = door.getMinimum().getBlockY();

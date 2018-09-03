@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.4.7
+version: Alpha 0.1.5
 author: Pim
 commands:
   bigdoors:
@@ -36,6 +36,11 @@ commands:
   newdoor:
     description: Create a new door from selection with name "doorName".
     usage: /NewDoor <doorName>
+    permission: bigdoors.user.createdoor
+    permission-message: You do not have the bigdoors.user.createdoor permission node.
+  newportcullis:
+    description: Create a new portcullis from selection with name "portcullisName".
+    usage: /NewPortcullis <portcullisName>
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.user.createdoor permission node.
   deldoor:

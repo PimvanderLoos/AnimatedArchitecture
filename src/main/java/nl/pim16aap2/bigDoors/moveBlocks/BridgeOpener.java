@@ -284,12 +284,12 @@ public class BridgeOpener implements Opener
 		
 //		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);
-		updateCoords(door, openDirection, this.upDown);
+		updateCoords(door, openDirection, this.upDown, -1);
 		return true;
 	}
 
 	@Override
-	public void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown)
+	public void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown, int moved)
 	{
 		int xMin = door.getMinimum().getBlockX();
 		int yMin = door.getMinimum().getBlockY();

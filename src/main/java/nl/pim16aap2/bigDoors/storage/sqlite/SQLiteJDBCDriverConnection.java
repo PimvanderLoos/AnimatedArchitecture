@@ -626,7 +626,7 @@ public class SQLiteJDBCDriverConnection
 			conn = getConnection();
 			conn.setAutoCommit(false);
 			String update 	= "UPDATE doors SET " 
-							+   "lock='"     + newLockStatus
+							+   "isLocked='" + (newLockStatus == true ? 1 : 0)
 							+ "' WHERE id='" + doorID + "';";
 			conn.prepareStatement(update).executeUpdate();
 			conn.commit();

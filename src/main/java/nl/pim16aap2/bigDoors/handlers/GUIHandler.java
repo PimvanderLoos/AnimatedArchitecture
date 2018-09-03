@@ -44,25 +44,31 @@ public class GUIHandler implements Listener
 		plugin.getCommandHandler().makeDoor(player, null);
 	}
 	
+	private void startNewPortcullisProcess(Player player)
+	{
+		player.closeInventory();
+		plugin.getCommandHandler().makePortcullis(player, null);
+	}
+	
 	// Retrieve the int from the end of a string.
-	private int finalIntFromString(String str)
+	private long finalLongFromString(String str)
 	{
 		final Pattern lastIntPattern = Pattern.compile("[^0-9]+([0-9]+)$");
 		Matcher matcher = lastIntPattern.matcher(str);
 		if (matcher.find()) 
 		{
 		    String someNumberStr = matcher.group(1);
-		    return Integer.parseInt(someNumberStr);
+		    return Long.parseLong(someNumberStr);
 		}
 		return -1;
 	}
 	
 	// Retrieve the int from the end of a string.
-	private int firstIntFromString(String str)
+	private long firstLongFromString(String str)
 	{
 		Matcher matcher = Pattern.compile("\\d+").matcher(str);
 		if (matcher.find())
-			return Integer.valueOf(matcher.group());
+			return Long.valueOf(matcher.group());
 		return -1;
 	}
 	
@@ -82,14 +88,14 @@ public class GUIHandler implements Listener
 	
 	private int getPageCount(Inventory inv)
 	{
-		return inv.getItem(0) != null ? finalIntFromString(inv.getItem(0).getItemMeta().getLore().get(inv.getItem(0).getItemMeta().getLore().size() - 1)) : 
-		       inv.getItem(8) != null ? finalIntFromString(inv.getItem(8).getItemMeta().getLore().get(inv.getItem(8).getItemMeta().getLore().size() - 1)) : -1;
+		return (int) (inv.getItem(0) != null ? finalLongFromString(inv.getItem(0).getItemMeta().getLore().get(inv.getItem(0).getItemMeta().getLore().size() - 1)) : 
+		              inv.getItem(8) != null ? finalLongFromString(inv.getItem(8).getItemMeta().getLore().get(inv.getItem(8).getItemMeta().getLore().size() - 1)) : -1);
 	}
 	
 	private int getPreviousPage(Inventory inv)
 	{
-		return inv.getItem(0) != null ? firstIntFromString(inv.getItem(0).getItemMeta().getLore().get(inv.getItem(0).getItemMeta().getLore().size() - 1)) - 1: 
-		       inv.getItem(8) != null ? firstIntFromString(inv.getItem(8).getItemMeta().getLore().get(inv.getItem(8).getItemMeta().getLore().size() - 1)) - 3 : 0;
+		return (int) (inv.getItem(0) != null ? firstLongFromString(inv.getItem(0).getItemMeta().getLore().get(inv.getItem(0).getItemMeta().getLore().size() - 1)) - 1: 
+		              inv.getItem(8) != null ? firstLongFromString(inv.getItem(8).getItemMeta().getLore().get(inv.getItem(8).getItemMeta().getLore().size() - 1)) - 3 : 0);
 	}
 	
 	private int getCurrentPageNum(Inventory inv)
@@ -101,7 +107,11 @@ public class GUIHandler implements Listener
 	
 	private void toggleLock(Player player, Inventory inv)
 	{
-		plugin.getCommandHandler().lockDoorCommand(player, getDoor(inv.getItem(4)));
+		Door door = getDoor(inv.getItem(4));
+		long doorID = door.getDoorUID();
+		door.setLock(true);
+		plugin.getCommandHandler().lockDoorCommand(player, plugin.getCommander().getDoor(doorID));
+		openDoorSubMenu(player, inv, getDoor(inv.getItem(4)).getDoorUID());
 	}
 	
 	private void toggleDoor(Player player, Inventory inv)
@@ -112,7 +122,7 @@ public class GUIHandler implements Listener
 	private Door getDoor(ItemStack item)
 	{
 		String doorUIDString = item.getItemMeta().getLore().get(item.getItemMeta().getLore().size() - 1);
-		long doorUID = finalIntFromString(doorUIDString);
+		long doorUID = finalLongFromString(doorUIDString);
 		if (doorUID == -1)
 		{
 			plugin.getMyLogger().logMessage("149: Failed to retrieve door \"" + doorUIDString + "\"!", true, false);
@@ -192,6 +202,8 @@ public class GUIHandler implements Listener
 		}
 		else if (itemName.equals(messages.getString("GUI.NewDoor")))
 			startNewDoorProcess(player);
+		else if (itemName.equals(messages.getString("GUI.NewPortcullis")))
+			startNewPortcullisProcess(player);
 		else if (itemName.equals(messages.getString("GUI.NextPage")))
 			setPage(player, inv, inv.getItem(8).getAmount() - 1, PageType.DOORLIST, -1, getPageCount(inv));
 		else if (slot > 8)

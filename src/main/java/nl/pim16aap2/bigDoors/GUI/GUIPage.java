@@ -81,6 +81,8 @@ public class GUIPage implements Listener
 		{
 			lore.add("Initiate door creation process");
 			inv.setItem(4, new GUIItem(newDoorMat, messages.getString("GUI.NewDoor"), lore, page + 1).getItemStack());
+			lore.add("Initiate portcullis creation process");
+			inv.setItem(5, new GUIItem(newDoorMat, messages.getString("GUI.NewPortcullis"), lore, page + 1).getItemStack());
 		}
 		else if (pageType == PageType.DOORINFO)
 		{

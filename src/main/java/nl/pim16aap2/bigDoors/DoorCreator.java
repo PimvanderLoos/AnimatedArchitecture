@@ -11,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -43,9 +42,9 @@ public class DoorCreator
 		this.two        = null;
 		this.engine     = null;
 		this.EngineSide = null;
-		Util.messagePlayer(player, ChatColor.GREEN, messages.getString("DC.Init"));
+		Util.messagePlayer(player, messages.getString("DC.Init"));
 		if (name == null)
-			Util.messagePlayer(player, ChatColor.GREEN, messages.getString("DC.GiveNameInstruc"));
+			Util.messagePlayer(player, messages.getString("DC.GiveNameInstruc"));
 		else
 			giveToolToPlayer();
 	}
@@ -166,7 +165,6 @@ public class DoorCreator
 				   (posX == two.getBlockX() && posZ == one.getBlockZ()))   // "bottom right"
 				{
 					this.engine = loc;
-//					this.player.sendMessage(ChatColor.DARK_PURPLE + "Found a corner!");
 				}
 				else 
 				{
@@ -189,51 +187,6 @@ public class DoorCreator
 				int posXa = engine.getBlockX();
 				int posZa = engine.getBlockZ();
 				
-				// This part is commented out not because it doesn't work, but because it's more complicated and testing proved 
-				// that it was slower than the vector method as well. Keeping it in case I need it again somewhere for some reason
-				// Because it was a right bitch to build.
-//				int posXb = loc.getBlockX();
-//				int posZb = loc.getBlockZ();
-//				this.player.sendMessage(ChatColor.DARK_GREEN + "Going to figure out which engine side to use!");
-//				// First figure out which corner was selected.
-//				if      (engine.equals(one)) // NORTH / WEST Possible
-//				{
-//					this.player.sendMessage(ChatColor.RED + "Side = 0");
-//					if      (Util.between(posXb, one.getBlockX() + 1, two.getBlockX()) && posZb == two.getBlockZ()) // East side (from engine point)
-//						this.EngineSide = DoorDirection.NORTH;
-//					else if (Util.between(posZb, one.getBlockZ() + 1, two.getBlockZ()) && posXb == one.getBlockX()) // South side
-//						this.EngineSide = DoorDirection.WEST;
-//				}
-//				else if (engine.equals(two)) // EAST / SOUTH Possible
-//				{
-//					this.player.sendMessage(ChatColor.RED + "Side = 1");
-//					if      (Util.between(posZb, one.getBlockZ(), two.getBlockZ() - 1) && posXb == two.getBlockX()) // North side
-//						this.EngineSide = DoorDirection.EAST;
-//					else if (Util.between(posXb, one.getBlockX(), two.getBlockX() - 1) && posZb == two.getBlockZ()) // West side
-//						this.EngineSide = DoorDirection.SOUTH;
-//				}
-//				else if (posXa == one.getBlockX() && posZa == two.getBlockZ()) // SOUTH / WEST Possible
-//				{
-//					this.player.sendMessage(ChatColor.RED + "Side = 2");
-//					if      (Util.between(posZb, one.getBlockZ(), two.getBlockZ() - 1) && posXb == one.getBlockX()) // North side
-//						this.EngineSide = DoorDirection.WEST;
-//					else if (Util.between(posXb, one.getBlockX() + 1, two.getBlockX()) && posZb == two.getBlockZ()) // East side
-//						this.EngineSide = DoorDirection.SOUTH;
-//				}
-//				else if (posXa == two.getBlockX() && posZa == one.getBlockZ()) // NORTH / EAST Possible
-//				{
-//					this.player.sendMessage(ChatColor.RED + "Side = 3");
-//					if      (Util.between(posZb, one.getBlockZ() + 1, two.getBlockZ()) && posXb == two.getBlockX()) // South side
-//						this.EngineSide = DoorDirection.EAST;
-//					else if (Util.between(posXb, one.getBlockX(), two.getBlockX() - 1) && posZb == one.getBlockZ()) // West side
-//						this.EngineSide = DoorDirection.NORTH;
-//				}
-//				else
-//				{
-//					this.player.sendMessage(ChatColor.RED + "Side = 4");
-//					return false;
-//				}
-
 				// Engine axis should be on 1 axis only.
 				Vector vector = loc.toVector().subtract(this.engine.toVector());
 				vector.normalize();

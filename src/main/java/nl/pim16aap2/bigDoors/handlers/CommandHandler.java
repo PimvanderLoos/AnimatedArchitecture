@@ -16,6 +16,7 @@ import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.DoorCreator;
+import nl.pim16aap2.bigDoors.PortcullisCreator;
 import nl.pim16aap2.bigDoors.PowerBlockRelocator;
 import nl.pim16aap2.bigDoors.GUI.GUIPage;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -114,6 +115,46 @@ public class CommandHandler implements CommandExecutor
 	}
 	
 	// Create a new door.
+	public void makePortcullis(Player player, String name)
+	{
+		if (name != null && !isValidName(name))
+		{
+			Util.messagePlayer(player, ChatColor.RED, "Name \"" + name + "\" is not valid!");
+			return;
+		}
+		
+		PortcullisCreator pcc = new PortcullisCreator(plugin, player, name);
+		plugin.getPCCreators().add(pcc);
+		
+		int tickrate     = 4;
+		new BukkitRunnable()
+		{
+			int count    = 0;
+			int seconds  = 60;
+			int totTicks = 20 / tickrate * seconds;
+			
+			@Override
+			public void run()
+			{
+				if (pcc != null && pcc.isDone())	// Cancel and cleanup when the door creation process is doen.
+				{
+					pcc.finishUp();
+					plugin.getPCCreators().remove(pcc);
+					this.cancel();
+				}
+				else if (count > totTicks)
+				{
+					pcc.takeToolFromPlayer();
+					plugin.getPCCreators().remove(pcc);
+					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.TimeUp"));
+					this.cancel();
+				}
+				++count;
+			}
+		}.runTaskTimer(plugin, 0, 20); // Once a second.
+	}
+	
+	// Create a new door.
 	public void makeDoor(Player player, String name)
 	{
 		if (name != null && !isValidName(name))
@@ -159,6 +200,15 @@ public class CommandHandler implements CommandExecutor
 		for (DoorCreator dc : plugin.getDoorCreators())
 			if (dc.getPlayer() == player)
 				return dc;
+		return null;
+	}
+	
+	// Check if a provided player is a doorCreator.
+	public PortcullisCreator isCreatingPortcullis(Player player)
+	{
+		for (PortcullisCreator pcc : plugin.getPCCreators())
+			if (pcc.getPlayer() == player)
+				return pcc;
 		return null;
 	}
 	
@@ -335,6 +385,14 @@ public class CommandHandler implements CommandExecutor
 							dc.setName(args[0]);
 							return true;
 						}
+				PortcullisCreator pcc = isCreatingPortcullis(player);
+				if (pcc != null)
+					if (args.length == 1)
+						if (isValidName(args[0]))
+						{
+							pcc.setName(args[0]);
+							return true;
+						}
 			}
 			
 			// /changePowerBlockLoc
@@ -399,12 +457,20 @@ public class CommandHandler implements CommandExecutor
 					return true;
 				}
 			}
-				
+			
 			// /newdoor <doorName>
 			if (cmd.getName().equalsIgnoreCase("newdoor"))
 				if (args.length == 1)
 				{
 					makeDoor(player, args[0]);
+					return true;
+				}
+				
+			// /newportcullis <doorName>
+			if (cmd.getName().equalsIgnoreCase("newportcullis"))
+				if (args.length == 1)
+				{
+					makePortcullis(player, args[0]);
 					return true;
 				}
 				

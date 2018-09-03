@@ -11,6 +11,6 @@ public interface Opener
 	public int           getDoorSize        (Door door);
 	public boolean       openDoor           (Door door, double speed);
 	public boolean       openDoor           (Door door, double speed, boolean instantOpen, boolean silent);
-	public void          updateCoords       (Door door, DoorDirection currentDirection, RotateDirection rotDirection);
+	public void          updateCoords       (Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved);
 	public void          toggleOpen         (Door door);
 }

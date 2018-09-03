@@ -68,6 +68,9 @@ public class RedstoneHandler implements Listener
 			
 			if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Above
 				checkDoor(new Location(location.getWorld(), x,     y + 1, z    ));
+			
+			if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Under
+				checkDoor(new Location(location.getWorld(), x,     y - 1, z    ));
         }
         catch (Exception e)
         {

@@ -145,7 +145,7 @@ public class CylindricalMover
 					if (!instantOpen)
 						 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 						
-					savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, true, canRotate));
+					savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, true, canRotate, -1));
 					
 					index++;
 				}

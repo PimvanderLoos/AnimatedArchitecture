@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.DoorCreator;
+import nl.pim16aap2.bigDoors.PortcullisCreator;
 import nl.pim16aap2.bigDoors.PowerBlockRelocator;
 
 public class EventHandlers implements Listener
@@ -38,6 +39,13 @@ public class EventHandlers implements Listener
 				if (pbr != null)
 				{
 					pbr.selector(event.getClickedBlock().getLocation());
+					event.setCancelled(true);
+					return;
+				}
+				PortcullisCreator pcc = plugin.getCommandHandler().isCreatingPortcullis(event.getPlayer());
+				if (pcc != null)
+				{
+					pcc.selector(event.getClickedBlock().getLocation());
 					event.setCancelled(true);
 					return;
 				}

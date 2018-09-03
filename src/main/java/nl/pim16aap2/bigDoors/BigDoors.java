@@ -26,6 +26,7 @@ import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
+import nl.pim16aap2.bigDoors.moveBlocks.PortcullisOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationSouth;
@@ -38,27 +39,30 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 // TODO: Create commandlistener that can be used to wait for command trees. Create interface and extend queued up commands from there.
 // TODO: Add option for remote power blocks.
 // TODO: Allow upright drawbridge creation.
+// TODO: Make DoorInfo work for console.
+// TODO: Fix lock/unlock in BDM
 
 public class BigDoors extends JavaPlugin implements Listener
 {
-	private ToolVerifier                    tf;
-	private SQLiteJDBCDriverConnection      db;
-	private FallingBlockFactory_Vall      fabf;
-	private Vector<DoorCreator>           dcal;
-	private Vector<PowerBlockRelocator>  rlocs;
-	private ConfigLoader                config;
-	private String                      locale;
-	private MyLogger                    logger;
-	private File                       logFile;
-	private Messages                  messages;
-	private Commander                commander;
-	private DoorOpener              doorOpener;
-	private BridgeOpener          bridgeOpener;
-	private boolean               validVersion;
-	private CommandHandler      commandHandler;
+	private ToolVerifier                      tf;
+	private SQLiteJDBCDriverConnection        db;
+	private FallingBlockFactory_Vall        fabf;
+	private Vector<DoorCreator>             dcal;
+	private Vector<PowerBlockRelocator>    rlocs;
+	private ConfigLoader                  config;
+	private String                        locale;
+	private MyLogger                      logger;
+	private File                         logFile;
+	private Messages                    messages;
+	private Vector<PortcullisCreator> pcCreators;
+	private Commander                  commander;
+	private DoorOpener                doorOpener;
+	private BridgeOpener            bridgeOpener;
+	private boolean                 validVersion;
+	private CommandHandler        commandHandler;
+	private PortcullisOpener    portcullisOpener;
 	
 	private boolean             is1_13 = false;
-	
 
 	@Override
 	public void onEnable()
@@ -88,19 +92,23 @@ public class BigDoors extends JavaPlugin implements Listener
 			// Y u do dis? :(
 			logger.myLogger(Level.INFO, "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
 		
-		dcal           = new Vector<DoorCreator>(2);
-		rlocs          = new Vector<PowerBlockRelocator>(2);
-		this.db        = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
-		this.tf        = new ToolVerifier(messages.getString("DC.StickName"));
-		doorOpener     = new DoorOpener(this);
-		bridgeOpener   = new BridgeOpener(this);
+		dcal             = new Vector<DoorCreator>(2);
+		rlocs            = new Vector<PowerBlockRelocator>(2);
+		pcCreators       = new Vector<PortcullisCreator>(2);
+		this.db          = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
+		this.tf          = new ToolVerifier(messages.getString("DC.StickName"));
+		doorOpener       = new DoorOpener(this);
+		bridgeOpener     = new BridgeOpener(this);
+		bridgeOpener     = new BridgeOpener(this);
+		portcullisOpener = new PortcullisOpener(this);
 		
-		commandHandler = new CommandHandler(this);
-		commander      = new Commander(this, db);
+		commandHandler   = new CommandHandler(this);
+		commander        = new Commander(this, db);
 		Bukkit.getPluginManager().registerEvents(new EventHandlers   (this), this);
 		Bukkit.getPluginManager().registerEvents(new GUIHandler      (this), this);
 		Bukkit.getPluginManager().registerEvents(new RedstoneHandler (this), this);
 		getCommand("changepowerblockloc").setExecutor(new CommandHandler(this));
+		getCommand("newportcullis"      ).setExecutor(new CommandHandler(this));
 		getCommand("unlockDoor"         ).setExecutor(new CommandHandler(this));
 		getCommand("pausedoors"         ).setExecutor(new CommandHandler(this));
 		getCommand("doordebug"          ).setExecutor(new CommandHandler(this));
@@ -235,6 +243,11 @@ public class BigDoors extends JavaPlugin implements Listener
 	{
 		return this.rlocs;
 	}
+	// Get the Vector of relocators (= users relocating the power block of a door).
+	public Vector<PortcullisCreator> getPCCreators()
+	{
+		return this.pcCreators;
+	}
 	
 	public FallingBlockFactory_Vall getFABF()
 	{
@@ -254,6 +267,8 @@ public class BigDoors extends JavaPlugin implements Listener
 			return this.doorOpener;
 		case 1:
 			return this.bridgeOpener;
+		case 2:
+			return this.portcullisOpener;
 		}
 		return null;
 	}
@@ -353,6 +368,10 @@ public class BigDoors extends JavaPlugin implements Listener
         // Return true if compatible.
         return fabf != null;
 	}
+	
+	
+	
+	
 	
 	/* 
 	 * API (ish) Starts here.
