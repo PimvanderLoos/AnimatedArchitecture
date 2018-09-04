@@ -2,7 +2,7 @@
   	<modelVersion>4.0.0</modelVersion>
   	<groupId>nl.pim16aap2</groupId>
   	<artifactId>BigDoors</artifactId>
-  	<version>0.1.5.1-ALPHA</version>
+  	<version>0.1.5.3-ALPHA</version>
 	
 	<repositories>
 		<!-- Spigot -->
@@ -18,12 +18,6 @@
 	</repositories>
 
 	<dependencies>
- 		<dependency>
-			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot-1.10</artifactId>
-			<version>1.10.2-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
  		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-1.11</artifactId>

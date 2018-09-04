@@ -86,7 +86,7 @@ public class VerticalMover
 					CustomCraftFallingBlock_Vall fBlock = null;
 					if (!instantOpen)
 						 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, false, 0, (int) yAxis));
+					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, (int) yAxis));
 					
 					++index;
 				}

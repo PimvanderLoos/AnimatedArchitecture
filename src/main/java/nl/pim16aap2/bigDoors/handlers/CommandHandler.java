@@ -460,9 +460,12 @@ public class CommandHandler implements CommandExecutor
 			
 			// /newdoor <doorName>
 			if (cmd.getName().equalsIgnoreCase("newdoor"))
-				if (args.length == 1)
+				if (args.length >= 1)
 				{
-					makeDoor(player, args[0]);
+					if (args[0].equals("-p") && args.length == 2)
+						makePortcullis(player, args[1]);
+					else
+						makeDoor(player, args[0]);
 					return true;
 				}
 				

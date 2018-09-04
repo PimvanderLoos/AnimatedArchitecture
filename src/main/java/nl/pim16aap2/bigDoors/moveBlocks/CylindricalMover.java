@@ -100,7 +100,6 @@ public class CylindricalMover
 					Byte matData  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
-//					Block block   = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
 					NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
 					NMSBlock_Vall block2 = null;
 					
@@ -109,7 +108,7 @@ public class CylindricalMover
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
 					{
-						canRotate        = canRotate(mat);
+						canRotate        = Util.canRotate(mat);
 						// Because I can't get the blocks to rotate properly, they are rotated here
 						if (canRotate != 0) 
 						{
@@ -145,7 +144,7 @@ public class CylindricalMover
 					if (!instantOpen)
 						 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 						
-					savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, true, canRotate, -1));
+					savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, -1));
 					
 					index++;
 				}
@@ -178,22 +177,6 @@ public class CylindricalMover
 			putBlocks();
 	}
 	
-	// Check if a block can (should) be rotated.
-	public int canRotate(Material mat)
-	{	// Logs, stairs and glass panes can rotate, the rest can't.
-		if (mat.equals(Material.LOG) || mat.equals(Material.LOG_2))
-			return 1;
-		if (mat.equals(Material.ACACIA_STAIRS)        || mat.equals(Material.BIRCH_WOOD_STAIRS) || mat.equals(Material.BRICK_STAIRS)       || 
-			mat.equals(Material.COBBLESTONE_STAIRS)   || mat.equals(Material.DARK_OAK_STAIRS)   || mat.equals(Material.JUNGLE_WOOD_STAIRS) || 
-			mat.equals(Material.NETHER_BRICK_STAIRS)  || mat.equals(Material.PURPUR_STAIRS)     || mat.equals(Material.QUARTZ_STAIRS)      || 
-			mat.equals(Material.RED_SANDSTONE_STAIRS) || mat.equals(Material.SANDSTONE_STAIRS)  || mat.equals(Material.SMOOTH_STAIRS)      || 
-			mat.equals(Material.SPRUCE_WOOD_STAIRS)   || mat.equals(Material.WOOD_STAIRS))
-			return 2;
-		if (mat.equals(Material.STAINED_GLASS_PANE) || mat.equals(Material.THIN_GLASS))
-			return 3;
-		return 0;
-	}
-	
 	// Put the door blocks back, but change their state now.
 	@SuppressWarnings("deprecation")
 	public void putBlocks()
@@ -213,18 +196,9 @@ public class CylindricalMover
 					 * spruce, birch, jungle bark texture on all six faces
 					 */
 
-					Material mat = savedBlocks.get(index).getMat();
+					Material mat    = savedBlocks.get(index).getMat();
 					Byte matByte;
-					
-//					int canRot   = canRotate(mat);
-//					if (canRot == 1 || canRot == 3)
-//						matByte = rotateBlockDataLog(savedBlocks.get(index).getBlockByte());
-//					else if (canRot == 2)
-//						matByte = rotateBlockDataStairs(savedBlocks.get(index).getBlockByte());
-//					else
-//						matByte = savedBlocks.get(index).getMatData().getData();
-					matByte = savedBlocks.get(index).getBlockByte();
-
+					matByte         = savedBlocks.get(index).getBlockByte();
 					Location newPos = gnl.getNewLocation(savedBlocks, xAxis, yAxis, zAxis, index);
 
 					if (!instantOpen)
@@ -232,11 +206,6 @@ public class CylindricalMover
 
 					if (plugin.is1_13())
 					{
-//						if (canRotate(mat))
-//							savedBlocks.get(index).getBlock2().putBlock(newPos);
-//						else
-//							savedBlocks.get(index).getBlock().putBlock(newPos);
-						
 						savedBlocks.get(index).getBlock().putBlock(newPos);
 						Block b = world.getBlockAt(newPos);
 						BlockState bs = b.getState();
@@ -411,23 +380,16 @@ public class CylindricalMover
 									// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
 									if (replace)
 									{
-										if (savedBlocks.get(index).canRotType() != 0)
+										if (savedBlocks.get(index).canRot() != 0)
 										{
 											Material mat = savedBlocks.get(index).getMat();
 											Location loc = savedBlocks.get(index).getFBlock().getLocation();
-											
-//											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
 											Byte matData = savedBlocks.get(index).getBlockByte();
-											
 											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
 											
 											CustomCraftFallingBlock_Vall fBlock;
-											if (plugin.is1_13())
-												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
-											else
-												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
-											// Block has already been rotated if possible, so just use block.
-//											fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
+											// Because the block in savedBlocks is already rotated where applicable, just use that block now.
+											fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
 											
 											savedBlocks.get(index).getFBlock().remove();
 											savedBlocks.get(index).setFBlock(fBlock);

@@ -1,7 +1,8 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.5.1
+version: Alpha 0.1.5.3
 author: Pim
+api-version: 1.13
 commands:
   bigdoors:
     description: Open the BigDoors GUI.
@@ -34,8 +35,8 @@ commands:
     usage: /StopDoors
     permission: bigdoors.admin.stopdoors
   newdoor:
-    description: Create a new door from selection with name "doorName".
-    usage: /NewDoor <doorName>
+    description: Create a new door from selection with name "doorName". Defaults to door/drawbridge, but add "-p" to make a portcullis instead.
+    usage: /NewDoor [-p] <doorName>
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.user.createdoor permission node.
   newportcullis:

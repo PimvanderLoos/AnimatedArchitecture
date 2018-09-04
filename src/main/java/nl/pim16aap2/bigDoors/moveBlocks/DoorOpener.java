@@ -3,13 +3,13 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class DoorOpener implements Opener
 {
@@ -70,7 +70,7 @@ public class DoorOpener implements Opener
 		for (int xAxis = startX; xAxis <= endX; ++xAxis)
 			for (int yAxis = startY; yAxis <= endY; ++yAxis)
 				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
-					if (!engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType().equals(Material.AIR))
+					if (!Util.isAir(engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType()))
 						return false;
 		return true;
 	}

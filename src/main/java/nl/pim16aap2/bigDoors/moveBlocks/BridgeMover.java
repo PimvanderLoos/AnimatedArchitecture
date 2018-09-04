@@ -336,18 +336,17 @@ public class BridgeMover
 					Byte matData  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
-//					Block block   = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
 					NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
 					NMSBlock_Vall block2 = null;
 					
-					boolean canRotate    = false;
-					Byte matByte         = 0;
+					int canRotate = 0;
+					Byte matByte  = 0;
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
 					{
-						canRotate        = canRotate(mat);
+						canRotate        = Util.canRotate(mat);
 						// Because I can't get the blocks to rotate properly, they are rotated here
-						if (canRotate) 
+						if (canRotate != 0) 
 						{
 							Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
 							matByte      = rotateBlockData(matData);
@@ -375,7 +374,7 @@ public class BridgeMover
 					if (!instantOpen)
 						 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 						
-					savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, -1, -1));
+					savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, -1));
 					
 					index++;
 				}
@@ -407,17 +406,6 @@ public class BridgeMover
 		else
 			putBlocks();
 	}
-	
-	// Check if a block can (should) be rotated.
-	public boolean canRotate(Material mat)
-	{	// Logs, stairs and glass panes can rotate, the rest can't.
-		return 	mat.equals(Material.LOG)               || mat.equals(Material.LOG_2)              || mat.equals(Material.ACACIA_STAIRS)        ||
-				mat.equals(Material.BIRCH_WOOD_STAIRS) || mat.equals(Material.BRICK_STAIRS)       || mat.equals(Material.COBBLESTONE_STAIRS)   || 
-				mat.equals(Material.DARK_OAK_STAIRS)   || mat.equals(Material.JUNGLE_WOOD_STAIRS) || mat.equals(Material.NETHER_BRICK_STAIRS)  || 
-				mat.equals(Material.PURPUR_STAIRS)     || mat.equals(Material.QUARTZ_STAIRS)      || mat.equals(Material.RED_SANDSTONE_STAIRS) || 
-				mat.equals(Material.SANDSTONE_STAIRS)  || mat.equals(Material.SMOOTH_STAIRS)      || mat.equals(Material.SPRUCE_WOOD_STAIRS)   || 
-				mat.equals(Material.WOOD_STAIRS)       || mat.equals(Material.STAINED_GLASS_PANE) || mat.equals(Material.THIN_GLASS);
-	}
 
 	// Put the door blocks back, but change their state now.
 	@SuppressWarnings("deprecation")
@@ -441,10 +429,6 @@ public class BridgeMover
 					Material mat = savedBlocks.get(index).getMat();
 					Byte matByte;
 					
-//					if (canRotate(mat))
-//						matByte = rotateBlockData(savedBlocks.get(index).getBlockByte());
-//					else
-//						matByte = savedBlocks.get(index).getMatData().getData();
 					matByte = savedBlocks.get(index).getBlockByte();
 
 					Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis, index);
@@ -453,12 +437,7 @@ public class BridgeMover
 						savedBlocks.get(index).getFBlock().remove();
 
 					if (plugin.is1_13())
-					{
-//						if (canRotate(mat))
-//							savedBlocks.get(index).getBlock2().putBlock(newPos);
-//						else
-//							savedBlocks.get(index).getBlock().putBlock(newPos);
-						
+					{						
 						savedBlocks.get(index).getBlock().putBlock(newPos);
 						Block b = world.getBlockAt(newPos);
 						BlockState bs = b.getState();
@@ -609,13 +588,6 @@ public class BridgeMover
 				if (((realAngleMidDeg - 45 + 360) % 360) % 90 < 5)
 					replace = true;
 				
-//				if (qCircleCount >= 1 || !plugin.getCommander().canGo() || counter > 800   || Math.abs(realAngleMidDeg - finishA) < 0.1 ||
-//						(
-//							((endA > startA && realAngleMidDeg > finishA && counter > 2)   || 
-//							 (endA < startA && realAngleMidDeg < finishA && counter > 2))  &&
-//							!(startA == 0  && realAngleMidDeg != 360)   && !(startA == 360 && realAngleMidDeg != 0)
-//						))
-				
 				// TODO: Make end point dynamic. Measure the change in angle per tick, then use that for the angleOffset.
 				if (!plugin.getCommander().canGo() ||
 					Math.abs(realAngleMidDeg - endA)    < angleOffset     || Math.abs(realAngleMidDeg - endA)    > (360 - angleOffset  ) ||
@@ -628,17 +600,13 @@ public class BridgeMover
 				}
 				else
 				{
-//					Bukkit.broadcastMessage(String.format("Distance to end = %.2f or %.2f", Math.abs(realAngleMidDeg - endA), Math.abs(realAngleMidDeg - endA)));
 					double realRadiusEnd, totRadDiff, totradDiffPunishment;
 					if (!NS)
 					{
 						double dXE    = Math.abs(savedBlocks.get(indexEnd).getFBlock().getLocation().getX() - (turningPoint.getBlockX() + 0.5));
 						double dYE    = Math.abs(savedBlocks.get(indexEnd).getFBlock().getLocation().getY() - (turningPoint.getBlockY() + 0.5));
 						realRadiusEnd = Math.sqrt(dXE * dXE + dYE * dYE);
-//						if (upDown.equals(RotateDirection.DOWN))
-//							totRadDiff    = doorLen - realRadiusEnd;
-//						else
-							totRadDiff    = realRadiusEnd - doorLen;
+						totRadDiff    = realRadiusEnd - doorLen;
 					}
 					else
 					{
@@ -650,17 +618,13 @@ public class BridgeMover
 						else
 							totRadDiff    = realRadiusEnd - doorLen;
 					}
-//					double totRadDiff     = doorLen - realRadiusEnd;
 					totradDiffPunishment  = totRadDiff;
 					totradDiffPunishment *= 3.77;
 					totradDiffPunishment  = totradDiffPunishment > 2 ? 2 : totradDiffPunishment;
 					totradDiffPunishment += 1;
-//					totradDiffPunishment  = 3;
 
 					if (NS)
 						totradDiffPunishment = 3;
-//					if (!NS && upDown.equals(RotateDirection.DOWN))
-//						totradDiffPunishment = 13;
 					
 					double speedMul = 1;
 					if (Math.abs(realAngleMidDeg - endA) < 15 || 
@@ -677,15 +641,6 @@ public class BridgeMover
 						totradDiffPunishment *= 1.8;
 						if (doorLen < 10)
 							totradDiffPunishment *= 4;
-						if (!NS && upDown.equals(RotateDirection.DOWN))
-						{
-//							totradDiffPunishment = 4;
-						}
-					}
-					else if (Math.abs(realAngleMidDeg - endA) > 60)
-					{
-//						if (!NS && upDown.equals(RotateDirection.DOWN))
-//							totradDiffPunishment = 3;
 					}
 					if (totRadDiff > 0 && Math.abs(realAngleMidDeg - endA) < 50)
 					{
@@ -694,7 +649,6 @@ public class BridgeMover
 					}
 					
 					totradDiffPunishment  = totradDiffPunishment < 0.2 ? 0.2 : totradDiffPunishment;
-//					Bukkit.broadcastMessage(String.format("RealRad=%.2f, Rad=%.2f, totRadDiff=%.2f, punish=%.2f", realRadiusEnd, savedBlocks.get(indexEnd).getRadius(), totRadDiff, totradDiffPunishment));
 					
 					double xAxis = turningPoint.getX();
 					do
@@ -811,23 +765,16 @@ public class BridgeMover
 									// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
 									if (replace)
 									{
-										if (savedBlocks.get(index).canRot())
+										if (savedBlocks.get(index).canRot() != 0)
 										{
 											Material mat = savedBlocks.get(index).getMat();
 											Location loc = savedBlocks.get(index).getFBlock().getLocation();
-											
-//											Byte matData = rotateBlockData(savedBlocks.get(index).getBlockByte());
 											Byte matData = savedBlocks.get(index).getBlockByte();
-											
 											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
 											
 											CustomCraftFallingBlock_Vall fBlock;
-											if (plugin.is1_13())
-												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
-											else
-												fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
-											// Block has already been rotated if possible, so just use block.
-//											fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
+											// Because the block in savedBlocks is already rotated where applicable, just use that block now.
+											fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
 											
 											savedBlocks.get(index).getFBlock().remove();
 											savedBlocks.get(index).setFBlock(fBlock);

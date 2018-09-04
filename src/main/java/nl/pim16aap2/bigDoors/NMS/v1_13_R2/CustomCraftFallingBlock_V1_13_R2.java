@@ -41,22 +41,22 @@ public class CustomCraftFallingBlock_V1_13_R2 extends CraftEntity implements Fal
         return EntityType.FALLING_BLOCK;
     }
 
-    @SuppressWarnings("deprecation")
 	public Material getMaterial() 
     {
-        return Material.getMaterial(getBlockId());
+		System.out.println("CustomFallingBlock.getMaterial() must not be used!");
+		return null;
     }
 
     public int getBlockId() 
     {
-    		System.out.println("CustomFallingBlockGetBlockID() MUST NOT BE USED!");
+    		System.out.println("CustomFallingBlock.getBlockId() must not be used!");
     		return -1;
     }
 
-    public byte getBlockData() {
-//        return CraftBlockData.fromData(getHandle().getBlock());
-    		System.out.println("\n\n[BigDoors] FATAL ERROR IN CUSTOMCRAFTFALLINGBLOCK 1.13\n\n");
-    		return (byte) 0;
+    public byte getBlockData() 
+    {
+		System.out.println("CustomFallingBlock.getBlockData() must not be used!");
+		return 0;
     }
 
     public boolean getDropItem() 

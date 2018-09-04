@@ -3,7 +3,6 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 
 import net.md_5.bungee.api.ChatColor;
@@ -11,6 +10,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class PortcullisOpener implements Opener
 {
@@ -126,7 +126,7 @@ public class PortcullisOpener implements Opener
 		{
 			for (xAxis = xMin; xAxis <= xMax; ++xAxis)
 				for (zAxis = zMin; zAxis <= zMax; ++zAxis)
-					if (world.getBlockAt(new Location(world, xAxis, yAxis, zAxis)).getType() != Material.AIR)
+					if (!Util.isAir(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
 						return blocksUp;
 			yAxis    += delta;
 			blocksUp += delta;

@@ -3,7 +3,6 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 
 import net.md_5.bungee.api.ChatColor;
@@ -11,6 +10,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class BridgeOpener implements Opener
 {
@@ -26,7 +26,7 @@ public class BridgeOpener implements Opener
 	public boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
 	{
 		int startX = 0, startY = 0, startZ = 0;
-		int stopX  = 0, stopY  = 0, stopZ  = 0;
+		int endX  = 0, endY  = 0, endZ  = 0;
 		World world = door.getWorld();
 
 		if (upDown.equals(RotateDirection.UP))
@@ -40,49 +40,49 @@ public class BridgeOpener implements Opener
 			case NORTH:
 //				Bukkit.broadcastMessage("U: NORTH");
 				startX = door.getMinimum().getBlockX();
-				stopX  = door.getMaximum().getBlockX();
+				endX  = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY() + 1;
-				stopY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
+				endY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
 				
 				startZ = door.getMinimum().getBlockZ();
-				stopZ  = door.getMinimum().getBlockZ();
+				endZ  = door.getMinimum().getBlockZ();
 				break;
 				
 			case SOUTH:
 //				Bukkit.broadcastMessage("U: SOUTH");
 				startX = door.getMinimum().getBlockX();
-				stopX  = door.getMaximum().getBlockX();
+				endX  = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY() + 1;
-				stopY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
+				endY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
 				
 				startZ = door.getMaximum().getBlockZ();
-				stopZ  = door.getMaximum().getBlockZ();
+				endZ  = door.getMaximum().getBlockZ();
 				break;
 				
 			case EAST:
 //				Bukkit.broadcastMessage("U: EAST");
 				startX = door.getMaximum().getBlockX();
-				stopX  = door.getMaximum().getBlockX();
+				endX  = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY() + 1;
-				stopY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
+				endY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
 				
 				startZ = door.getMinimum().getBlockZ();
-				stopZ  = door.getMaximum().getBlockZ();
+				endZ  = door.getMaximum().getBlockZ();
 				break;
 				
 			case WEST:
 //				Bukkit.broadcastMessage("U: WEST");
 				startX = door.getMinimum().getBlockX();
-				stopX  = door.getMinimum().getBlockX();
+				endX  = door.getMinimum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY() + 1;
-				stopY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
+				endY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
 				
 				startZ = door.getMinimum().getBlockZ();
-				stopZ  = door.getMaximum().getBlockZ();
+				endZ  = door.getMaximum().getBlockZ();
 				break;
 			}
 		}
@@ -97,73 +97,76 @@ public class BridgeOpener implements Opener
 			case NORTH:
 //				Bukkit.broadcastMessage("D: NORTH");
 				startX = door.getMinimum().getBlockX();
-				stopX  = door.getMaximum().getBlockX();
+				endX  = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY();
-				stopY  = door.getMinimum().getBlockY();
+				endY  = door.getMinimum().getBlockY();
 				
 				startZ = door.getMinimum().getBlockZ() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
-				stopZ  = door.getMinimum().getBlockZ() - 1;
+				endZ  = door.getMinimum().getBlockZ() - 1;
 				break;
 				
 			case SOUTH:
 //				Bukkit.broadcastMessage("D: SOUTH");
 				startX = door.getMinimum().getBlockX();
-				stopX  = door.getMaximum().getBlockX();
+				endX  = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY();
-				stopY  = door.getMinimum().getBlockY();
+				endY  = door.getMinimum().getBlockY();
 				
 				startZ = door.getMinimum().getBlockZ() + 1;
-				stopZ  = door.getMinimum().getBlockZ() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
+				endZ  = door.getMinimum().getBlockZ() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 				break;
 				
 			case EAST:
 //				Bukkit.broadcastMessage("D: EAST");
 				startX = door.getMinimum().getBlockX() + 1;
-				stopX  = door.getMaximum().getBlockX() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
+				endX  = door.getMaximum().getBlockX() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 				
 				startY = door.getMinimum().getBlockY();
-				stopY  = door.getMinimum().getBlockY();
+				endY  = door.getMinimum().getBlockY();
 				
 				startZ = door.getMinimum().getBlockZ();
-				stopZ  = door.getMaximum().getBlockZ();
+				endZ  = door.getMaximum().getBlockZ();
 				break;
 				
 			case WEST:
 //				Bukkit.broadcastMessage("D: WEST");
 				startX = door.getMinimum().getBlockX() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
-				stopX  = door.getMinimum().getBlockX() - 1;
+				endX  = door.getMinimum().getBlockX() - 1;
 				
 				startY = door.getMinimum().getBlockY();
-				stopY  = door.getMinimum().getBlockY();
+				endY  = door.getMinimum().getBlockY();
 				
 				startZ = door.getMinimum().getBlockZ();
-				stopZ  = door.getMaximum().getBlockZ();
+				endZ  = door.getMaximum().getBlockZ();
 				break;
 			}
 		}
 		
-		int x = startX, y, z;
-		while (x <= stopX)
-		{
-			y = startY;
-			while (y <= stopY)
-			{
-				z = startZ;
-				while (z <= stopZ)
-				{			
-					if (world.getBlockAt(x, y, z).getType() != Material.AIR)
-					{
-//						Bukkit.broadcastMessage(ChatColor.RED + "Found a non-air block of the type " + world.getBlockAt(x, y, z).getType().toString() + ". Stopping checks!");
+		for (int xAxis = startX; xAxis <= endX; ++xAxis)
+			for (int yAxis = startY; yAxis <= endY; ++yAxis)
+				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
+					if (!Util.isAir(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
 						return false;
-					}
-					++z;
-				}
-				++y;
-			}
-			++x;
-		}
+		
+//		int x = startX, y, z;
+//		while (x <= stopX)
+//		{
+//			y = startY;
+//			while (y <= stopY)
+//			{
+//				z = startZ;
+//				while (z <= stopZ)
+//				{
+//					if (Util.isAir(world.getBlockAt(x, y, z).getType()))
+//						return false;
+//					++z;
+//				}
+//				++y;
+//			}
+//			++x;
+//		}
 		return true;
 	}
 
