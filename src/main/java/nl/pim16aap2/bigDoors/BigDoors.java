@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigDoors.NMS.AS_v1_12_R1.ArmorStandFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
@@ -37,10 +38,11 @@ import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
 
 // TODO: Create commandlistener that can be used to wait for command trees. Create interface and extend queued up commands from there.
-// TODO: Add option for remote power blocks.
 // TODO: Allow upright drawbridge creation.
 // TODO: Make DoorInfo work for console.
-// TODO: Fix lock/unlock in BDM
+// TODO: Make ListDoors explain there are no doors found when none around found.
+// TODO: Get rid of "Multiple doors with that name found" message when there are actually 0 hits.
+// TODO: Allow a "Door Info" tool, that can get door info from hitting a power block.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -48,21 +50,23 @@ public class BigDoors extends JavaPlugin implements Listener
 	private SQLiteJDBCDriverConnection        db;
 	private FallingBlockFactory_Vall        fabf;
 	private Vector<DoorCreator>             dcal;
+	private FallingBlockFactory_Vall       fabf2;
 	private Vector<PowerBlockRelocator>    rlocs;
 	private ConfigLoader                  config;
 	private String                        locale;
 	private MyLogger                      logger;
 	private File                         logFile;
 	private Messages                    messages;
-	private Vector<PortcullisCreator> pcCreators;
 	private Commander                  commander;
+	private Vector<PortcullisCreator> pcCreators;
 	private DoorOpener                doorOpener;
 	private BridgeOpener            bridgeOpener;
 	private boolean                 validVersion;
 	private CommandHandler        commandHandler;
 	private PortcullisOpener    portcullisOpener;
 	
-	private boolean             is1_13 = false;
+	private boolean               is1_13 = false;
+	private boolean            enabledAS = false;
 
 	@Override
 	public void onEnable()
@@ -108,6 +112,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		Bukkit.getPluginManager().registerEvents(new GUIHandler      (this), this);
 		Bukkit.getPluginManager().registerEvents(new RedstoneHandler (this), this);
 		getCommand("changepowerblockloc").setExecutor(new CommandHandler(this));
+		getCommand("bigdoorsenableas"   ).setExecutor(new CommandHandler(this));
 		getCommand("newportcullis"      ).setExecutor(new CommandHandler(this));
 		getCommand("unlockDoor"         ).setExecutor(new CommandHandler(this));
 		getCommand("pausedoors"         ).setExecutor(new CommandHandler(this));
@@ -123,7 +128,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		getCommand("newdoor"            ).setExecutor(new CommandHandler(this));
 		getCommand("deldoor"            ).setExecutor(new CommandHandler(this));
 		getCommand("fixdoor"            ).setExecutor(new CommandHandler(this));
-		getCommand("shutup"             ).setExecutor(new CommandHandler(this));
 		getCommand("bdm"                ).setExecutor(new CommandHandler(this));
 		
 		liveDevelopmentLoad();
@@ -254,6 +258,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		return this.fabf;
 	}
 	
+	public FallingBlockFactory_Vall getFABF2()
+	{
+		return this.fabf2;
+	}
+	
 	public BigDoors getPlugin()
 	{
 		return this;
@@ -336,6 +345,36 @@ public class BigDoors extends JavaPlugin implements Listener
 		return this.is1_13;
 	}
 	
+	public boolean bigDoorsEnableAS()
+	{
+//		if (this.fabf2 != null)
+//			this.enabledAS = true;
+		String version;
+
+        try 
+        {
+            version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
+        } 
+        catch (ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException) 
+        {
+            return false;
+        }
+
+        this.fabf2 = null;
+        if (version.equals("v1_12_R1"))
+        {
+        		this.fabf2     = new ArmorStandFactory_V1_12_R1();
+    			this.enabledAS = true;
+        }
+        // Return true if compatible.
+        return fabf2 != null;
+	}
+	
+	public boolean isASEnabled()
+	{
+		return enabledAS;
+	}
+	
 	// Check + initialize for the correct version of Minecraft.
 	private boolean compatibleMCVer()
 	{
@@ -350,11 +389,15 @@ public class BigDoors extends JavaPlugin implements Listener
             return false;
         }
 
-		this.fabf = null;
+        this.fabf  = null;
+        this.fabf2 = null;
         if (version.equals("v1_11_R1"))
 			this.fabf     = new FallingBlockFactory_V1_11_R1();
         else if (version.equals("v1_12_R1"))
+        {
         		this.fabf     = new FallingBlockFactory_V1_12_R1();
+        		this.fabf2    = new ArmorStandFactory_V1_12_R1();
+        }
         else if (version.equals("v1_13_R1"))
         {
 	        	this.is1_13   = true;

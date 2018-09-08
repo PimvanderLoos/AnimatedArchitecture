@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.5.3
+version: Alpha 0.1.5.4
 author: Pim
 api-version: 1.13
 commands:
@@ -22,10 +22,6 @@ commands:
     usage: /bdcancel
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.user.createdoor permission node.
-  shutup:
-    description: Shuts up debug messages.
-    usage: /Shutup <debug level>
-    permission: bigdoors.admin.shutup
   pausedoors:
     description: Pauses all door movement until used again.
     usage: /PauseDoors
@@ -99,3 +95,6 @@ commands:
     description: Do not use this unless you are me... What?
     usage: This command is not meant for mere mortals.
     permission: bigdoors.admin.isweariampim16aap2
+  bigdoorsenableas:
+    description: Do not use this unless you want stuff to break!
+    usage: This command is not meant for mere mortals either.

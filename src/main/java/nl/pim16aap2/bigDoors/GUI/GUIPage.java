@@ -13,14 +13,17 @@ import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.PageType;
+import nl.pim16aap2.bigDoors.util.XMaterial;
 
 public class GUIPage implements Listener
 {
 	private static Material pageSwitchMat  = Material.ARROW;
 	private static Material currDoorMat    = Material.BOOK;
-	private static Material newDoorMat     = Material.BOOK_AND_QUILL;
-	private static Material lockDoorMat    = Material.STAINED_GLASS_PANE;
-	private static Material confirmMat     = Material.STAINED_GLASS_PANE;
+	private static Material newDoorMat     = XMaterial.fromString("WRITABLE_BOOK").parseMaterial();
+	private static Material lockDoorMat    = XMaterial.fromString("GREEN_STAINED_GLASS_PANE").parseMaterial();
+	private static Material unlockDoorMat  = XMaterial.fromString("RED_STAINED_GLASS_PANE").parseMaterial();
+	private static Material confirmMat     = XMaterial.fromString("RED_STAINED_GLASS_PANE").parseMaterial();
+	private static Material noConfirmMat   = XMaterial.fromString("GREEN_STAINED_GLASS_PANE").parseMaterial();
 	private static Material toggleDoorMat  = Material.LEVER;
 	private static Material infoMat        = Material.BOOKSHELF;
 	private static Material delDoorMat     = Material.BARRIER;
@@ -39,10 +42,27 @@ public class GUIPage implements Listener
 	private int              page;
 	private Door             door;
 	private static final int chestSize  = 45;
-	private static final Material[] doorTypes = {Material.DARK_OAK_DOOR_ITEM,	Material.ACACIA_DOOR_ITEM, 
-			                              		Material.BIRCH_DOOR_ITEM, 	Material.IRON_DOOR, 
-			                              		Material.JUNGLE_DOOR_ITEM, 	Material.WOOD_DOOR, 
-			                              		Material.SPRUCE_DOOR_ITEM};
+	
+	private static final Material[] doorTypes = 
+		{	// Only these 2 are used atm, because of the 1.12 -> 1.13 mess.
+			// In 1.12, the other 5 won't load.
+			XMaterial.fromString("IRON_DOOR").parseMaterial(),
+			XMaterial.fromString("OAK_DOOR" ).parseMaterial(),
+			XMaterial.fromString("IRON_DOOR").parseMaterial(),
+			XMaterial.fromString("OAK_DOOR" ).parseMaterial(),
+			XMaterial.fromString("IRON_DOOR").parseMaterial(),
+			XMaterial.fromString("OAK_DOOR" ).parseMaterial(),
+			XMaterial.fromString("IRON_DOOR").parseMaterial(),
+			XMaterial.fromString("OAK_DOOR" ).parseMaterial()
+			
+//			XMaterial.fromString("ACACIA_DOOR"  ).parseMaterial(),
+//			XMaterial.fromString("BIRCH_DOOR"   ).parseMaterial(),
+//			XMaterial.fromString("IRON_DOOR"    ).parseMaterial(),
+//			XMaterial.fromString("OAK_DOOR"     ).parseMaterial(),
+//			XMaterial.fromString("SPRUCE_DOOR"  ).parseMaterial(),
+//			XMaterial.fromString("DARK_OAK_DOOR").parseMaterial(),
+//			XMaterial.fromString("JUNGLE_DOOR"  ).parseMaterial()
+		};	
 	
 	public GUIPage(BigDoors plugin, Player player, int page, PageType pageType, long doorUID, int pageCount) 
 	{
@@ -104,7 +124,7 @@ public class GUIPage implements Listener
 		if (door.isLocked())
 			inv.setItem(9, new GUIItem(lockDoorMat, messages.getString("GUI.UnlockDoor"), null, 1, unlockedData).getItemStack());
 		else
-			inv.setItem(9, new GUIItem(lockDoorMat, messages.getString("GUI.LockDoor"), null, 1,   lockedData).getItemStack());
+			inv.setItem(9, new GUIItem(unlockDoorMat, messages.getString("GUI.LockDoor"), null, 1, lockedData).getItemStack());
 		
 		String desc = messages.getString("GUI.ToggleDoor");
 		lore.add(desc);
@@ -132,14 +152,15 @@ public class GUIPage implements Listener
 	// Fill the entire menu with NO's, but put a single "yes" in the middle.
 	public void fillConfirmationMenu()
 	{
+//		int mida = (chestSize - 9) / 2 + 9;
+//		int midb = (chestSize - 9) / 2 + 9;
 		for (int idx = 9; idx < chestSize; ++idx)
 		{
 			ArrayList<String> lore = new ArrayList<String>();
-			int mid = (chestSize - 9) / 2 + 9;
-			if (idx == mid) // Middle
+			if (idx == 22) // Middle 2 blocks.
 			{
 				lore.add(messages.getString("GUI.ConfirmDelete"));
-				inv.setItem(idx, new GUIItem(confirmMat, messages.getString("GUI.Confirm"), lore, 1, confirmData).getItemStack());
+				inv.setItem(idx, new GUIItem(noConfirmMat, messages.getString("GUI.Confirm"), lore, 1, confirmData).getItemStack());
 			}
 			else
 			{

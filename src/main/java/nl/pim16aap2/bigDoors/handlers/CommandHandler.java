@@ -84,21 +84,26 @@ public class CommandHandler implements CommandExecutor
 		for (Door door : doors)
 			Util.messagePlayer(player, door.getDoorUID() + " (" + door.getPermission() + ")" + ": " + door.getName().toString());
 	}
-
-	// Print a list of the doors currently in the db.
-	public void listDoorInfo(Player player, String name)
+	
+	public void listDoorInfo(Player player, Door door)
 	{
-		ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
-				
-		for (Door door : doors)
-			Util.messagePlayer(player, door.getDoorUID()    + ": "  + door.getName().toString()     + 
+		Util.messagePlayer(player, door.getDoorUID()    + ": "  + door.getName().toString()     + 
 				", Min("    + door.getMinimum().getBlockX() + ";"   + door.getMinimum().getBlockY() + ";" + door.getMinimum().getBlockZ() + ")" +
 				", Max("    + door.getMaximum().getBlockX() + ";"   + door.getMaximum().getBlockY() + ";" + door.getMaximum().getBlockZ() + ")" +
 				", Engine(" + door.getEngine().getBlockX()  + ";"   + door.getEngine().getBlockY()  + ";" + door.getEngine().getBlockZ()  + ")" +
 				", " + (door.isLocked() ? "" : "NOT ") + "locked"   + "; Type=" + door.getType()    + 
 				(door.getEngSide() == null ? "" : ("; EngineSide = " + door.getEngSide().toString() + "; doorLen = " +
-				 door.getLength())) + ", PowreBlockPos = (" + door.getPowerBlockLoc().getBlockX()   + ";" + 
+				 door.getLength())) + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX()   + ";" + 
 				 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()   + ")"); 
+	}
+	
+	// Print a list of the doors currently in the db.
+	public void listDoorInfo(Player player, String name)
+	{
+		ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
+		
+		for (Door door : doors)
+			listDoorInfo(player, door);
 	}
 
 	public boolean isValidName(String name)
@@ -274,41 +279,26 @@ public class CommandHandler implements CommandExecutor
 	{
 		Player player;
 		
-		// stopdoors
+		// /stopdoors
 		if (cmd.getName().equalsIgnoreCase("stopdoors"))
 		{
 			stopDoors();
 			return true;
 		}
 		
-		// doordebug
+		// /doordebug
 		if (cmd.getName().equalsIgnoreCase("doordebug"))
 		{
 			doorDebug();
 			return true;
 		}
 		
-		// pausedoors
+		// /pausedoors
 		if (cmd.getName().equalsIgnoreCase("pausedoors"))
 		{
 			plugin.getCommander().togglePaused();
 			return true;
 		}
-			
-		// /shutup <debugLevel>
-		if (cmd.getName().equalsIgnoreCase("shutup"))
-			if (args.length == 1)
-			{
-				try
-				{
-					plugin.getMyLogger().setDebugLevel(Integer.parseInt(args[0]));
-				}
-				catch (NumberFormatException e)
-				{
-					plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "Expected numerical input!");
-				}
-				return true;
-			}
 		
 		// /opendoors <doorName1> <doorName2> etc etc [speed]
 		if (cmd.getName().equalsIgnoreCase("opendoors"))
@@ -367,6 +357,17 @@ public class CommandHandler implements CommandExecutor
 		{
 			player = (Player) sender;
 
+			// /bigdoorsenableas
+			if (cmd.getName().equalsIgnoreCase("bigdoorsenableas"))
+			{
+				// This command can only be used by pim16aap2.
+				// Why? Because no one else should want or even know to use this command!!!!
+				if (!player.getName().equals("pim16aap2"))
+					return false;
+				plugin.bigDoorsEnableAS();
+				return true;
+			}
+			
 			// /bigdoors
 			if (cmd.getName().equalsIgnoreCase("bigdoors") || cmd.getName().equalsIgnoreCase("bdm"))
 			{
@@ -412,6 +413,18 @@ public class CommandHandler implements CommandExecutor
 				if (dc != null)
 				{
 					dc.setIsDone(true);
+					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.Cancelled"));
+				}
+				PortcullisCreator pc = isCreatingPortcullis(player);
+				if (pc != null)
+				{
+					pc.setIsDone(true);
+					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.Cancelled"));
+				}
+				PowerBlockRelocator pbc = isRelocatingPB(player);
+				if (pbc != null)
+				{
+					pbc.setIsDone(true);
 					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.Cancelled"));
 				}
 				return true;

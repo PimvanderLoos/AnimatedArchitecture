@@ -190,7 +190,7 @@ public class GUIHandler implements Listener
 			else if (itemName.equals(messages.getString("GUI.ToggleDoor")))
 				toggleDoor(player, inv);
 			else if (itemName.equals(messages.getString("GUI.GetInfo")))
-				Util.listDoorInfo(player, getDoor(inv.getItem(4)));
+				plugin.getCommandHandler().listDoorInfo(player, getDoor(inv.getItem(4)));
 			else if (itemName.equals(messages.getString("GUI.DeleteDoor")))
 				setPage(player, inv, getPreviousPage(inv) + 1, PageType.CONFIRMATION, getDoor(inv.getItem(4)).getDoorUID(), getPageCount(inv));
 			else if (itemName.equals(messages.getString("GUI.RelocatePowerBlock")))

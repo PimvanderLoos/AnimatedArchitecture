@@ -1,0 +1,78 @@
+Alpha 0.1.5.4
+- Fixed GUI in 1.13.x, thank you @Achaius for the bug report!
+- Improved timings for smaller doors.
+- Fixed getting door info from GUI.
+- Fixed /BDCancel when creating portcullis or relocation power block.
+
+Alpha 0.1.5.3
+- Fixed drawbridges removing all blocks instead of putting them in the final location after opening.
+
+Alpha 0.1.5.2 (REMOVED)
+- Improved support for blocks introduced in version 1.13 of Minecraft. Thanks @Ashleyekm for the bug report and @Hex_27 for his XMaterial class, making my life a bit easier :D.
+- Added optional "-p" flag to the "/NewDoor" command, to make a portcullis instead of a drawbridge/door. The full command is now "/NewDoor [-p] <DoorName>".
+- Fixed redstone signals on top of power blocks not triggering the power block.
+
+Alpha 0.1.5.1
+- Fixed NPE thrown when attempting to open a door on fresh installs. Note that if you got this error, you will need to regenerate your database! Thanks @antiPerson for your report!
+
+Alpha 0.1.5
+- Added portcullis door type! Can be created using /NewPortcullis <PortcullisName> or via the GUI.
+- Fixed locking doors in GUI.
+- Added power block location to "/DoorInfo <DoorName>" command.
+
+Alpha 0.1.4.7
+- Added power block relocation either via /changepowerblockloc <DoorName> or simply via the GUI if you can't be bothered to spend the rest of the day typing that command.
+- Fixed GUI cutting off numbers at certain numbers.
+- Code improvements (fewer unnecessary calculations).
+
+Alpha 0.1.4.6
+- Added basic API for opening/closing doors (with varying speed or instantly).
+- Doors/Bridges exceeding a maximum number of blocks (as set in the config) will now open instantly (so no animated blocks).
+- Fixed drawbridge powerblock location determination on creation. If powerblocks don't work for a drawbridge, try recreating it.
+- Fixed some redstone related issues.
+- Corrected version number.
+
+Alpha 0.1.4.5
+- Got rid of inventory debug messages...
+
+Alpha 0.1.4.4
+- Fixed GUI not working, thanks @SamB440!
+- Fixed possible NPE, thanks @SamB440 again! :D
+
+Alpha 0.1.4.3
+- Added support for version 1.13.1 of Minecraft, thank you @SamB440 for the heads up!
+
+Alpha 0.1.4.2
+- Added support for version 1.13 of Minecraft.
+
+Alpha 0.1.4.1
+- Fixed issue with using /OpenDoors in the console.
+- Removed debug message... Whoops.
+- Hopefully fixed incorrect "There is an update" message.
+
+Alpha 0.1.4
+- Added drawbridges.
+- Added bStats.
+- Added update checker.
+- Added /bdcancel to stop door creation process.
+- Added support for colors and \n in translation file.
+- Now regenerating en_US.txt so no more missing messages on updates...
+- Fixed blocks such as andesite turning into regular stone.
+- Fixed stairs not rotating properly in doors.
+- Now checking full new area where doors will be put before opening.
+- Now removing door creation tools on shutdown.
+- More messages moved/added to translation file.
+
+Alpha 0.1.3
+- Added support for version 1.12 of Minecraft.
+- Fixed redstone activation.
+
+Alpha 0.1.2
+- New feature added! You can now actually load the plugin!
+
+Alpha 0.1.1
+- Fixed crash on startup
+
+Alpha 0.1
+- Initial release!
+

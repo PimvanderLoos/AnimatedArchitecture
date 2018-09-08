@@ -211,10 +211,21 @@ public class Door
 	public int getLength()
 	{
 		int xLen = Math.abs(xMax - xMin);
-		int yLen = Math.abs(yMax - yMin);
 		int zLen = Math.abs(zMax - zMin);
-		if (this.engineSide.equals(DoorDirection.NORTH) || this.engineSide.equals(DoorDirection.SOUTH))
-			return zLen > yLen ? zLen : yLen;
-		return xLen > yLen ? xLen : yLen;
+		
+		// Regular door
+		if (this.type == 0)
+			return xLen > zLen ? xLen : zLen;
+
+		// Drawbridge
+		if (this.type == 1 && this.engineSide != null)
+		{
+			int yLen = Math.abs(yMax - yMin);
+			if (this.engineSide.equals(DoorDirection.NORTH) || this.engineSide.equals(DoorDirection.SOUTH))
+				return zLen > yLen ? zLen : yLen;
+			else
+				return xLen > yLen ? xLen : yLen;
+		}
+		return -1;
 	}
 }

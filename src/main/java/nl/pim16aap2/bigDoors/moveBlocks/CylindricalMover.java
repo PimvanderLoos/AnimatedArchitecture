@@ -11,6 +11,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
@@ -43,6 +44,7 @@ public class CylindricalMover
 	private double          	speed;
 	private GetNewLocation  	gnl;
 	private Door            	door;
+	private boolean       	isASEnabled;
 	
 	
 	@SuppressWarnings("deprecation")
@@ -57,7 +59,8 @@ public class CylindricalMover
 		this.plugin           = plugin;
 		this.world            = world;
 		this.door             = door;
-		this.fabf             = plugin.getFABF();
+		this.isASEnabled      = plugin.isASEnabled();
+		this.fabf             = isASEnabled ? plugin.getFABF2() : plugin.getFABF();
 		this.instantOpen      = instantOpen;
 		
 		this.xMin    = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
@@ -101,6 +104,7 @@ public class CylindricalMover
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
 					NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+					
 					NMSBlock_Vall block2 = null;
 					
 					int canRotate        = 0;
@@ -329,7 +333,7 @@ public class CylindricalMover
 				}
 				
 				// If the blocks are at 1/8, 3/8, 5/8 or 7/8 * 360 angle, it's time to "replace" (i.e. rotate) them.
-				if (((realAngleMidDeg - 45 + 360) % 360) % 90 < 5)
+				if (!isASEnabled && ((realAngleMidDeg - 45 + 360) % 360) % 90 < 5)
 					replace = true;
 				
 				if (qCircleCount >= qCircleLimit || !plugin.getCommander().canGo())
@@ -352,8 +356,21 @@ public class CylindricalMover
 								double radius     = savedBlocks.get(index).getRadius();
 								for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 								{
+									if (isASEnabled)
+									{
+										Location vec;
+										if (radius != 0)
+											vec = (new Location(center.getWorld(), center.getX(), yAxis, center.getZ())).subtract(savedBlocks.get(index).getFBlock().getLocation());
+										else
+										{
+											Location midLoc = savedBlocks.get(indexMid).getFBlock().getLocation();
+											vec = (new Location(center.getWorld(), midLoc.getX(), yAxis, midLoc.getZ())).subtract(savedBlocks.get(index).getFBlock().getLocation());
+										}
+										savedBlocks.get(index).getFBlock().setHeadPose(directionToEuler(vec));
+									}
+									
 									if (radius != 0)
-									{	
+									{
 										double xPos         = savedBlocks.get(index).getFBlock().getLocation().getX();
 										double zPos         = savedBlocks.get(index).getFBlock().getLocation().getZ();
 										
@@ -419,6 +436,14 @@ public class CylindricalMover
 		else if (matData >= 7 && matData <= 11)
 			matData = (byte) (matData - 4);
 		return matData;
+	}
+	
+	private EulerAngle directionToEuler(Location dir) 
+	{
+//	    double xzLength =  Math.sqrt(dir.getX() * dir.getX()  + dir.getZ() * dir.getZ());
+//	    double pitch    =  Math.atan2(xzLength,   dir.getY()) - Math.PI / 2;
+	    double yaw      = -Math.atan2(dir.getX(), dir.getZ()) + Math.PI / 2;
+	    return new EulerAngle(0, yaw, 0);
 	}
 	
 	// Rotate stairs by modifying its material data.

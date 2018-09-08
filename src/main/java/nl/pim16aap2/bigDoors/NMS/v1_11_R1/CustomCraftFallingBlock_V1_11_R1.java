@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
@@ -94,5 +95,11 @@ public class CustomCraftFallingBlock_V1_11_R1 extends CraftEntity implements Fal
 	{
 		return null;
 	}
+
+	@Override
+	public void setHeadPose(EulerAngle pose) {}
+
+	@Override
+	public void setBodyPose(EulerAngle eulerAngle) {}
 }
 

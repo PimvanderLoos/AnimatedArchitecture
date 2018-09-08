@@ -5,10 +5,10 @@ import java.util.List;
 public class ConfigOption
 {
 	private String optionName;
-	List<String> 	listVal     	= null;
-	private Integer 	intVal  		= null;
-	private Boolean 	boolVal 		= null;
-	private String 	stringVal 	= null;
+	List<String> 	listVal   = null;
+	private Integer 	intVal    = null;
+	private Boolean 	boolVal   = null;
+	private String 	stringVal = null;
 	private String[]	comment;
 	
 	public ConfigOption(String optionName, int value, String[] comment)
