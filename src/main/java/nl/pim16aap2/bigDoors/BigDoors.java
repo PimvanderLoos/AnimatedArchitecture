@@ -22,7 +22,8 @@ import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
-import nl.pim16aap2.bigDoors.handlers.LoginHandler;
+import nl.pim16aap2.bigDoors.handlers.LoginMessageHandler;
+import nl.pim16aap2.bigDoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
@@ -43,6 +44,12 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 // TODO: Make ListDoors explain there are no doors found when none around found.
 // TODO: Get rid of "Multiple doors with that name found" message when there are actually 0 hits.
 // TODO: Allow a "Door Info" tool, that can get door info from hitting a power block.
+// TODO: Fix 9x2 drawbridges going all weird when going down.
+// TODO: Add "/BDVersion" command to display plugin vesion.
+// TODO: Improve 3 wide door timing.
+// TODO: Make sure that doors don't get fucked up when player leaves the area or when the server stops.
+// TODO: Load default resource pack on login if resource pack isn't null in config.
+// TODO: When the middle block is not allowed or air, make sure the plugin looks at another block that doesn't NOT exist (so it won't go on indefinitely).
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -129,8 +136,14 @@ public class BigDoors extends JavaPlugin implements Listener
 		getCommand("deldoor"            ).setExecutor(new CommandHandler(this));
 		getCommand("fixdoor"            ).setExecutor(new CommandHandler(this));
 		getCommand("bdm"                ).setExecutor(new CommandHandler(this));
-		
+
 		liveDevelopmentLoad();
+		
+		// If a resource pack was set for the current version of Minecraft, send that pack to the client on login.
+		if (!config.getString("resourcePack"    ).equals("NONE") && !is1_13 || 
+			!config.getString("resourcePack1_13").equals("NONE") &&  is1_13)
+			Bukkit.getPluginManager().registerEvents(new LoginResourcePackHandler(this, 
+					(is1_13 ? config.getString("resourcePack1_13") : config.getString("resourcePack"))), this);
 		
 		if (config.getBool("checkForUpdates"))
 		{
@@ -147,7 +160,7 @@ public class BigDoors extends JavaPlugin implements Listener
 				        if (updater.checkForUpdates())
 				        {
 				            getLogger().info("An update was found! New version: " + updater.getLatestVersion() + " download: " + updater.getResourceURL());
-				            Bukkit.getPluginManager().registerEvents(new LoginHandler(plugin, "The BigDoors plugin is out of date!"), plugin);
+				            Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(plugin, "The BigDoors plugin is out of date!"), plugin);
 				        }
 				    }
 				    catch (Exception exc) 
@@ -347,8 +360,13 @@ public class BigDoors extends JavaPlugin implements Listener
 	
 	public boolean bigDoorsEnableAS()
 	{
-//		if (this.fabf2 != null)
-//			this.enabledAS = true;
+		if (this.enabledAS)
+		{
+			this.enabledAS = false;
+			this.fabf2 = null;
+			return true;
+		}
+		
 		String version;
 
         try 

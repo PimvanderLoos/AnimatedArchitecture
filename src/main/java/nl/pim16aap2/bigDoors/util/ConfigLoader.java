@@ -15,15 +15,20 @@ import nl.pim16aap2.bigDoors.BigDoors;
 
 public class ConfigLoader
 {
-	private String           header;
-	private String           dbFile;
-	private boolean      allowStats;
-	private int         maxDoorSize;
-	private String     languageFile;
-	private int        maxDoorCount;
-	private boolean  enableRedstone;
-	private String   powerBlockType;
-	private boolean checkForUpdates;
+	private String            header;
+	private String            dbFile;
+	private boolean       allowStats;
+	private int          maxDoorSize;
+	private String      resourcePack;
+	private String      languageFile;
+	private int         maxDoorCount;
+	private boolean   enableRedstone;
+	private String    powerBlockType;
+	private boolean  checkForUpdates;
+	private String  resourcePack1_13;
+	
+	private String defResPackUrl     = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
+	private String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
 	
 	private String[] enableRedstoneComment 	=
 		{
@@ -56,12 +61,17 @@ public class ConfigLoader
     			"Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
     			"It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"
     		};
-    
     private String[] maxDoorSizeComment     	= 
 		{
 			"Max. number of blocks allowed in a door.",
 			"If this number is exceeded, doors will open instantly and skip the animation."
 		};
+    private String[] resourcePackComment     =
+	    	{
+	    		"This plugin uses a support resource pack for things suchs as sound.",
+	    		"You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
+	    		"Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as urls."
+	    	};
     
 	
 	private ArrayList<ConfigOption> configOptionsList;
@@ -82,22 +92,26 @@ public class ConfigLoader
 		
 		// Read all the options from the config, then put them in a configOption with their name, value and comment.
 		// Then put all configOptions into an ArrayList.
-		enableRedstone  = config.getBoolean(    "allowRedstone"  , true        );
-		configOptionsList.add(new ConfigOption( "allowRedstone"  , enableRedstone , enableRedstoneComment ));
-		powerBlockType  = config.getString(     "powerBlockType" , "GOLD_BLOCK");
-		configOptionsList.add(new ConfigOption( "powerBlockType" , powerBlockType , powerBlockTypeComment ));
-		maxDoorCount    = config.getInt(        "maxDoorCount"   , -1          );
-		configOptionsList.add(new ConfigOption( "maxDoorCount"   , maxDoorCount   , maxDoorCountComment   ));
-		languageFile    = config.getString(     "languageFile"   , "en_US"     );
-		configOptionsList.add(new ConfigOption( "languageFile"   , languageFile   , languageFileComment   ));
-		dbFile          = config.getString(     "dbFile"         , "doorDB.db" );
-		configOptionsList.add(new ConfigOption( "dbFile"         , dbFile         , dbFileComment         ));
-		checkForUpdates = config.getBoolean(    "checkForUpdates", true        );
-		configOptionsList.add(new ConfigOption( "checkForUpdates", checkForUpdates, checkForUpdatesComment));
-		allowStats      = config.getBoolean(    "allowStats"     , true        );
-		configOptionsList.add(new ConfigOption( "allowStats"     , allowStats     , allowStatsComment     ));
-		maxDoorSize     = config.getInt       ( "maxDoorSize"    , -1          );
-		configOptionsList.add(new ConfigOption( "maxDoorSize"    , maxDoorSize    , maxDoorSizeComment    ));
+		enableRedstone   = config.getBoolean(   "allowRedstone"   , true             );
+		configOptionsList.add(new ConfigOption( "allowRedstone"   , enableRedstone  , enableRedstoneComment ));
+		powerBlockType   = config.getString(    "powerBlockType"  , "GOLD_BLOCK"     );
+		configOptionsList.add(new ConfigOption( "powerBlockType"  , powerBlockType  , powerBlockTypeComment ));
+		maxDoorCount     = config.getInt(       "maxDoorCount"    , -1               );
+		configOptionsList.add(new ConfigOption( "maxDoorCount"    , maxDoorCount    , maxDoorCountComment   ));
+		languageFile     = config.getString(    "languageFile"    , "en_US"          );
+		configOptionsList.add(new ConfigOption( "languageFile"    , languageFile    , languageFileComment   ));
+		dbFile           = config.getString(    "dbFile"          , "doorDB.db"      );
+		configOptionsList.add(new ConfigOption( "dbFile"          , dbFile          , dbFileComment         ));
+		checkForUpdates  = config.getBoolean(   "checkForUpdates" , true             );
+		configOptionsList.add(new ConfigOption( "checkForUpdates" , checkForUpdates , checkForUpdatesComment));
+		allowStats       = config.getBoolean(   "allowStats"      , true             );
+		configOptionsList.add(new ConfigOption( "allowStats"      , allowStats      , allowStatsComment     ));
+		maxDoorSize      = config.getInt       ("maxDoorSize"     , -1               );
+		configOptionsList.add(new ConfigOption( "maxDoorSize"     , maxDoorSize     , maxDoorSizeComment    ));
+		resourcePack     = config.getString(    "resourcePack"    , defResPackUrl    );
+		configOptionsList.add(new ConfigOption( "resourcePack"    , resourcePack    , resourcePackComment   ));
+		resourcePack1_13 = config.getString(    "resourcePack1_13", defResPackUrl1_13);
+		configOptionsList.add(new ConfigOption( "resourcePack1_13", resourcePack1_13                        ));
 		
 		writeConfig();
 	}
@@ -126,8 +140,13 @@ public class ConfigLoader
 			if (header != null)
 				pw.println("# " + header + "\n");
 			
-			for (ConfigOption configOption : configOptionsList)
-				pw.println(configOption.toString() + "\n");
+			for (int idx = 0; idx < configOptionsList.size(); ++idx)
+				pw.println(configOptionsList.get(idx).toString() + 
+						// Only print an additional newLine if the next config option has a comment.
+						(idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? "" : "\n"));
+			
+//			for (ConfigOption configOption : configOptionsList)
+//				pw.println(configOption.toString() + "\n");
 			 
 			pw.flush();
 			pw.close();

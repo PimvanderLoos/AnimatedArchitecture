@@ -33,6 +33,7 @@ public class CommandHandler implements CommandExecutor
 	public void stopDoors()
 	{
 		plugin.getCommander().setCanGo(false);
+		plugin.getCommander().emptyBusyDoors();
 		new BukkitRunnable()
 		{
 			@Override
@@ -87,14 +88,14 @@ public class CommandHandler implements CommandExecutor
 	
 	public void listDoorInfo(Player player, Door door)
 	{
-		Util.messagePlayer(player, door.getDoorUID()    + ": "  + door.getName().toString()     + 
-				", Min("    + door.getMinimum().getBlockX() + ";"   + door.getMinimum().getBlockY() + ";" + door.getMinimum().getBlockZ() + ")" +
-				", Max("    + door.getMaximum().getBlockX() + ";"   + door.getMaximum().getBlockY() + ";" + door.getMaximum().getBlockZ() + ")" +
-				", Engine(" + door.getEngine().getBlockX()  + ";"   + door.getEngine().getBlockY()  + ";" + door.getEngine().getBlockZ()  + ")" +
-				", " + (door.isLocked() ? "" : "NOT ") + "locked"   + "; Type=" + door.getType()    + 
-				(door.getEngSide() == null ? "" : ("; EngineSide = " + door.getEngSide().toString() + "; doorLen = " +
-				 door.getLength())) + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX()   + ";" + 
-				 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()   + ")"); 
+		Util.messagePlayer(player, door.getDoorUID() 	       + ": "   + door.getName().toString()     + 
+				", Min("    + door.getMinimum().getBlockX() + ";"    + door.getMinimum().getBlockY() + ";" + door.getMinimum().getBlockZ() + ")" +
+				", Max("    + door.getMaximum().getBlockX() + ";"    + door.getMaximum().getBlockY() + ";" + door.getMaximum().getBlockZ() + ")" +
+				", Engine(" + door.getEngine().getBlockX()  + ";"    + door.getEngine().getBlockY()  + ";" + door.getEngine().getBlockZ()  + ")" +
+				", " + (door.isLocked() ? "" : "NOT ") + "locked"    + "; Type=" + door.getType()    + 
+				(door.getEngSide() == null ? "" : ("; EngineSide = " + door.getEngSide().toString()  + "; doorLen = " +
+				 door.getLength())) + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX()    + ";" + 
+				 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()    + ")"); 
 	}
 	
 	// Print a list of the doors currently in the db.
@@ -356,14 +357,10 @@ public class CommandHandler implements CommandExecutor
 		if (sender instanceof Player)
 		{
 			player = (Player) sender;
-
+			
 			// /bigdoorsenableas
 			if (cmd.getName().equalsIgnoreCase("bigdoorsenableas"))
 			{
-				// This command can only be used by pim16aap2.
-				// Why? Because no one else should want or even know to use this command!!!!
-				if (!player.getName().equals("pim16aap2"))
-					return false;
 				plugin.bigDoorsEnableAS();
 				return true;
 			}

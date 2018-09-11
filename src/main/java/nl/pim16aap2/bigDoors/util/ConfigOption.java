@@ -4,7 +4,7 @@ import java.util.List;
 
 public class ConfigOption
 {
-	private String optionName;
+	private String 	optionName;
 	List<String> 	listVal   = null;
 	private Integer 	intVal    = null;
 	private Boolean 	boolVal   = null;
@@ -80,6 +80,7 @@ public class ConfigOption
 	public int          getInt()        { return intVal    ; }
 	public boolean      getBool()       { return boolVal   ; }
 	public String       getString()     { return stringVal ; }
+	public String[]     getComment()    { return comment   ; }
 
 	public String toString()
 	{
@@ -95,10 +96,10 @@ public class ConfigOption
 		
 		// Then add the name of the option followed by its value (if it is an int/bool/String/String[]).
 		string += optionName + ": " + 
-				(intVal != null ? intVal : 
-				boolVal != null ? boolVal : 
-				stringVal != null ? "\'" + stringVal + "\'" : 
-				listVal != null ? "\n" + stringListToString() : null);
+				(intVal    != null ? intVal  : 
+				 boolVal   != null ? boolVal : 
+				 stringVal != null ? "\'" + stringVal + "\'" : 
+				 listVal   != null ? "\n" + stringListToString() : null);
 		
 		return string;
 	}

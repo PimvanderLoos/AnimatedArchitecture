@@ -122,25 +122,26 @@ public class VerticalMover
 					
 					if (!instantOpen)
 						savedBlocks.get(index).getFBlock().remove();
-					
-					if (plugin.is1_13())
-					{
-						savedBlocks.get(index).getBlock().putBlock(newPos);
-						Block b = world.getBlockAt(newPos);
-						BlockState bs = b.getState();
-						bs.update();
-					}
-					else
-					{
-						Block b = world.getBlockAt(newPos);					
-						MaterialData matData = savedBlocks.get(index).getMatData();
-						matData.setData(matByte);
-						
-						b.setType(mat);
-						BlockState bs = b.getState();
-						bs.setData(matData);
-						bs.update();
-					}
+
+					if (!savedBlocks.get(index).getMat().equals(Material.AIR))
+						if (plugin.is1_13())
+						{
+							savedBlocks.get(index).getBlock().putBlock(newPos);
+							Block b = world.getBlockAt(newPos);
+							BlockState bs = b.getState();
+							bs.update();
+						}
+						else
+						{
+							Block b = world.getBlockAt(newPos);					
+							MaterialData matData = savedBlocks.get(index).getMatData();
+							matData.setData(matByte);
+							
+							b.setType(mat);
+							BlockState bs = b.getState();
+							bs.setData(matData);
+							bs.update();
+						}
 					++index;
 				}
 				++zAxis;
@@ -221,13 +222,17 @@ public class VerticalMover
 		{
 			int directionMultiplier = blocksToMove > 0 ? 1 : -1;
 			int indexMid            = savedBlocks.size() / 2;
+			int counter             = 0;
 			
 			@Override
 			public void run()
 			{
+				if (counter % 4 == 0)
+					Util.playSound(door.getEngine(), "bd.dragging2", 0.8f, 0.6f);
 				int index = 0;
-				double blocksMoved = Math.abs(savedBlocks.get(indexMid).getStartY() - savedBlocks.get(indexMid).getFBlock().getLocation().getY());
+				++counter;
 				
+				double blocksMoved  = Math.abs(savedBlocks.get(indexMid).getStartY() - savedBlocks.get(indexMid).getFBlock().getLocation().getY());
 				double distanceLeft = Math.abs(blocksMoved - Math.abs(blocksToMove));
 				
 				if (distanceLeft < 0.8)
@@ -239,6 +244,7 @@ public class VerticalMover
 				
 				if (distanceLeft <= 0.1 || blocksMoved >= Math.abs(blocksToMove) || !plugin.getCommander().canGo())
 				{
+					Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
 					finishBlocks();

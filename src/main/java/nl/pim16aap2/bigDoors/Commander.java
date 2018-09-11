@@ -36,6 +36,11 @@ public class Commander
 		return false;
 	}
 	
+	public void emptyBusyDoors()
+	{
+		busyDoors.clear();
+	}
+	
 	// Change the busy-status of a door.
 	public void setDoorBusy(long doorUID)
 	{

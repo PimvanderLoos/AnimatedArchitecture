@@ -9,12 +9,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 
-public class LoginHandler implements Listener 
+public class LoginMessageHandler implements Listener 
 {
 	BigDoors plugin;
 	String   message;
 	
-	public LoginHandler(BigDoors plugin, String message)
+	public LoginMessageHandler(BigDoors plugin, String message)
 	{
 		this.plugin  = plugin;
 		this.message = message;

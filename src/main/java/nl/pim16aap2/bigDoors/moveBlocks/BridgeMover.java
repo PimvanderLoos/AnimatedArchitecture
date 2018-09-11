@@ -33,32 +33,32 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class BridgeMover
 {
-	private World                   world;
-	private int                   dirMulX;
-	private int                   dirMulZ;
-	private BigDoors               plugin;
-	private int                    dx, dz;
-	private double                  speed;
-	private FallingBlockFactory_Vall fabf;
-	private boolean                    NS;
-	private GetNewLocation            gnl;
-	private Door                     door;
-	private RotateDirection        upDown;
-	private int                   doorLen;
-	private int                  indexEnd;
-	private int                  indexMid;
-	private DoorDirection      engineSide;
-	private boolean           instantOpen;
-	private Location         turningPoint;
-	private Location        pointOpposite;
-	private DoorDirection   openDirection;
-	private int           angleOffset = 2;
-	private int          xMin, yMin, zMin;
-	private int          xMax, yMax, zMax;
-	private int          xLen, yLen, zLen;
-	private int       directionMultiplier;
-	private int     finishA, startA, endA;
-	private List<MyBlockData> 	savedBlocks = new ArrayList<MyBlockData>();
+	private World                    world;
+	private int                    dirMulX;
+	private int                    dirMulZ;
+	private BigDoors                plugin;
+	private int                     dx, dz;
+	private double                   speed;
+	private FallingBlockFactory_Vall  fabf;
+	private boolean                     NS;
+	private GetNewLocation             gnl;
+	private Door                      door;
+	private RotateDirection         upDown;
+	private int                    doorLen;
+	private int                   indexEnd;
+	private Integer               indexMid;
+	private DoorDirection       engineSide;
+	private boolean            instantOpen;
+	private Location          turningPoint;
+	private Location         pointOpposite;
+	private DoorDirection    openDirection;
+	private int            angleOffset = 2;
+	private int           xMin, yMin, zMin;
+	private int           xMax, yMax, zMax;
+	private int           xLen, yLen, zLen;
+	private int        directionMultiplier;
+	private int      finishA, startA, endA;
+	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 	
 	@SuppressWarnings("deprecation")
 	public BridgeMover(BigDoors plugin, World world, double speed, Door door, RotateDirection upDown, DoorDirection openDirection, boolean instantOpen)
@@ -72,7 +72,8 @@ public class BridgeMover
 		this.engineSide    = door.getEngSide();
 		this.NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
 		this.instantOpen   = instantOpen;
-				
+		this.indexMid      = null;
+			
 		this.speed   = speed;
 		
 		this.xMin    = door.getMinimum().getBlockX();
@@ -436,24 +437,25 @@ public class BridgeMover
 					if (!instantOpen)
 						savedBlocks.get(index).getFBlock().remove();
 
-					if (plugin.is1_13())
-					{						
-						savedBlocks.get(index).getBlock().putBlock(newPos);
-						Block b = world.getBlockAt(newPos);
-						BlockState bs = b.getState();
-						bs.update();
-					}
-					else
-					{
-						Block b = world.getBlockAt(newPos);					
-						MaterialData matData = savedBlocks.get(index).getMatData();
-						matData.setData(matByte);
-						
-						b.setType(mat);
-						BlockState bs = b.getState();
-						bs.setData(matData);
-						bs.update();
-					}
+					if (!savedBlocks.get(index).getMat().equals(Material.AIR))
+						if (plugin.is1_13())
+						{						
+							savedBlocks.get(index).getBlock().putBlock(newPos);
+							Block b = world.getBlockAt(newPos);
+							BlockState bs = b.getState();
+							bs.update();
+						}
+						else
+						{
+							Block b = world.getBlockAt(newPos);					
+							MaterialData matData = savedBlocks.get(index).getMatData();
+							matData.setData(matByte);
+							
+							b.setType(mat);
+							BlockState bs = b.getState();
+							bs.setData(matData);
+							bs.update();
+						}
 
 					index++;
 				}
@@ -523,6 +525,7 @@ public class BridgeMover
 		}.runTaskLater(plugin, 4L);
 	}
 	
+	// Get the angle in degrees of the block with index "index" in regards to the provided location.
 	double getAngleDeg(int index, Location loc)
 	{
 		double valueA = loc.getY() - savedBlocks.get(index).getFBlock().getLocation().getY();
@@ -532,9 +535,8 @@ public class BridgeMover
 		else
 			valueB    = loc.getX() - savedBlocks.get(index).getFBlock().getLocation().getX();
 		
-		double realAngle    = Math.atan2(valueA, valueB);
-		double realAngleDeg = Math.abs((Math.toDegrees(realAngle) + 450) % 360 - 360); // [0;360]
-		return realAngleDeg;
+		double realAngle = Math.atan2(valueA, valueB);
+		return Math.abs((Math.toDegrees(realAngle) + 450) % 360 - 360); // [0;360]
 	}
 	
 	// Method that takes care of the rotation aspect.
@@ -558,12 +560,13 @@ public class BridgeMover
 										engineSide == DoorDirection.SOUTH && upDown == RotateDirection.DOWN && openDirection == DoorDirection.SOUTH ?  0 :
 										engineSide == DoorDirection.SOUTH && upDown == RotateDirection.DOWN ? -1 : -1;
 			int qCircleCheck         = 0;
-			@SuppressWarnings("unused")
 			int counter              = 0;
 			
 			@Override
 			public void run()
 			{
+				if (counter == 0 || counter % 7 == 0)
+					Util.playSound(door.getEngine(), "bd.drawbridge-rattling", 0.8f, 0.7f);
 				int index = 0;
 				++counter;
 				double realAngleMidDeg = getAngleDeg(indexMid, center);
@@ -593,6 +596,7 @@ public class BridgeMover
 					Math.abs(realAngleMidDeg - endA)    < angleOffset     || Math.abs(realAngleMidDeg - endA)    > (360 - angleOffset  ) ||
 					Math.abs(realAngleMidDeg - finishA) < angleOffset * 4 || Math.abs(realAngleMidDeg - finishA) > (360 - angleOffset * 4))
 				{
+					Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
 					finishBlocks();

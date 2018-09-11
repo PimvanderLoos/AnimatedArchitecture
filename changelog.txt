@@ -1,3 +1,11 @@
+Alpha 0.1.6
+- Fixed materials such as andesite turning into stone in < 1.12. (again... Thank you, 1.13).
+- Fixed 9x2 sized drawbridges being weird when going down.
+- Added "/bdversion" command to display the version of this plugin.
+- Double steps no longer allowed for now, as they bug out everything.
+- Added config option for resource pack loading.
+- Added support for custom sounds via resource pack. Thank you @Achaius for all your help with this!
+
 Alpha 0.1.5.4
 - Fixed GUI in 1.13.x, thank you @Achaius for the bug report!
 - Improved timings for smaller doors.

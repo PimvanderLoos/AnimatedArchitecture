@@ -31,20 +31,20 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class CylindricalMover
 {
-	private BigDoors        	plugin;
-	private World           	world;
-	private boolean     		instantOpen;
+	private BigDoors        	 plugin;
+	private World           	 world;
+	private boolean     		 instantOpen;
 	private FallingBlockFactory_Vall fabf;
-	private RotateDirection 	rotDirection;
-	private DoorDirection   	currentDirection;
+	private RotateDirection 	 rotDirection;
+	private DoorDirection   	 currentDirection;
 	@SuppressWarnings("unused")
-	private int             	qCircleLimit, xLen, yLen, zLen, dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
-	private List<MyBlockData> 	savedBlocks = new ArrayList<MyBlockData>();
-	private Location        	turningPoint, pointOpposite;
-	private double          	speed;
-	private GetNewLocation  	gnl;
-	private Door            	door;
-	private boolean       	isASEnabled;
+	private int             	 qCircleLimit, xLen, yLen, zLen, dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
+	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
+	private Location        	 turningPoint, pointOpposite;
+	private double          	 speed;
+	private GetNewLocation  	 gnl;
+	private Door            	 door;
+	private boolean       	 isASEnabled;
 	
 	
 	@SuppressWarnings("deprecation")
@@ -108,7 +108,7 @@ public class CylindricalMover
 					NMSBlock_Vall block2 = null;
 					
 					int canRotate        = 0;
-					Byte matByte         = 0;
+					Byte matByte         = matData;
 					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 					if (Util.isAllowedBlock(mat))
 					{
@@ -121,8 +121,6 @@ public class CylindricalMover
 								matByte  = rotateBlockDataLog(matData);
 							else if (canRotate == 2)
 								matByte  = rotateBlockDataStairs(matData);
-							else
-								matByte  = matData;
 							
 							Block b      = world.getBlockAt(pos);					
 							materialData.setData(matByte);
@@ -141,7 +139,10 @@ public class CylindricalMover
 					else
 					{
 						mat     = Material.AIR;
+						matByte = 0;
 						matData = 0;
+						block   = null;
+						materialData = null;
 					}
 					
 					CustomCraftFallingBlock_Vall fBlock = null;
@@ -207,25 +208,26 @@ public class CylindricalMover
 
 					if (!instantOpen)
 						savedBlocks.get(index).getFBlock().remove();
-
-					if (plugin.is1_13())
-					{
-						savedBlocks.get(index).getBlock().putBlock(newPos);
-						Block b = world.getBlockAt(newPos);
-						BlockState bs = b.getState();
-						bs.update();
-					}
-					else
-					{
-						Block b = world.getBlockAt(newPos);					
-						MaterialData matData = savedBlocks.get(index).getMatData();
-						matData.setData(matByte);
-						
-						b.setType(mat);
-						BlockState bs = b.getState();
-						bs.setData(matData);
-						bs.update();
-					}
+										
+					if (!savedBlocks.get(index).getMat().equals(Material.AIR))
+						if (plugin.is1_13())
+						{
+							savedBlocks.get(index).getBlock().putBlock(newPos);
+							Block b = world.getBlockAt(newPos);
+							BlockState bs = b.getState();
+							bs.update();
+						}
+						else
+						{
+							Block b = world.getBlockAt(newPos);
+							MaterialData matData = savedBlocks.get(index).getMatData();
+							matData.setData(matByte);
+							
+							b.setType(mat);
+							BlockState bs = b.getState();
+							bs.setData(matData);
+							bs.update();
+						}
 
 					index++;
 				}
@@ -308,11 +310,15 @@ public class CylindricalMover
 			                          currentDirection == DoorDirection.SOUTH && rotDirection == RotateDirection.COUNTERCLOCKWISE ? 0 : -1;
 			int qCircleCheck        = 0;
 			int indexMid            = savedBlocks.size() / 2;
+			int counter             = 0;
 			
 			@Override
 			public void run()
 			{
+				if (counter % 4 == 0)
+					Util.playSound(door.getEngine(), "bd.dragging2", 0.8f, 0.6f);
 				int    index           = 0;
+				++counter;
 				double realAngleMid    = Math.atan2(center.getZ() - savedBlocks.get(indexMid).getFBlock().getLocation().getZ(), center.getX() - savedBlocks.get(indexMid).getFBlock().getLocation().getX());
 				double realAngleMidDeg = Math.abs((Math.toDegrees(realAngleMid) + 450) % 360 - 360); // [0;360]
 				
@@ -338,6 +344,7 @@ public class CylindricalMover
 				
 				if (qCircleCount >= qCircleLimit || !plugin.getCommander().canGo())
 				{
+					Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.85f, 1f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
 					finishBlocks();

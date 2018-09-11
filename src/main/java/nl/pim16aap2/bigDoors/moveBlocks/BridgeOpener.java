@@ -25,8 +25,8 @@ public class BridgeOpener implements Opener
 	// Check if the new position is free.
 	public boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
 	{
-		int startX = 0, startY = 0, startZ = 0;
-		int endX  = 0, endY  = 0, endZ  = 0;
+		int startX  = 0, startY = 0, startZ = 0;
+		int endX    = 0, endY   = 0, endZ   = 0;
 		World world = door.getWorld();
 
 		if (upDown.equals(RotateDirection.UP))
@@ -38,51 +38,47 @@ public class BridgeOpener implements Opener
 			// North East = Max X, Min Z
 			// South East = Max X, Max X
 			case NORTH:
-//				Bukkit.broadcastMessage("U: NORTH");
 				startX = door.getMinimum().getBlockX();
-				endX  = door.getMaximum().getBlockX();
+				endX   = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY() + 1;
-				endY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
+				endY   = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
 				
 				startZ = door.getMinimum().getBlockZ();
-				endZ  = door.getMinimum().getBlockZ();
+				endZ   = door.getMinimum().getBlockZ();
 				break;
 				
 			case SOUTH:
-//				Bukkit.broadcastMessage("U: SOUTH");
 				startX = door.getMinimum().getBlockX();
-				endX  = door.getMaximum().getBlockX();
+				endX   = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY() + 1;
-				endY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
+				endY   = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
 				
 				startZ = door.getMaximum().getBlockZ();
-				endZ  = door.getMaximum().getBlockZ();
+				endZ   = door.getMaximum().getBlockZ();
 				break;
 				
 			case EAST:
-//				Bukkit.broadcastMessage("U: EAST");
 				startX = door.getMaximum().getBlockX();
-				endX  = door.getMaximum().getBlockX();
+				endX   = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY() + 1;
-				endY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
+				endY   = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
 				
 				startZ = door.getMinimum().getBlockZ();
-				endZ  = door.getMaximum().getBlockZ();
+				endZ   = door.getMaximum().getBlockZ();
 				break;
 				
 			case WEST:
-//				Bukkit.broadcastMessage("U: WEST");
 				startX = door.getMinimum().getBlockX();
-				endX  = door.getMinimum().getBlockX();
+				endX   = door.getMinimum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY() + 1;
-				endY  = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
+				endY   = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
 				
 				startZ = door.getMinimum().getBlockZ();
-				endZ  = door.getMaximum().getBlockZ();
+				endZ   = door.getMaximum().getBlockZ();
 				break;
 			}
 		}
@@ -95,51 +91,47 @@ public class BridgeOpener implements Opener
 			// North East = Max X, Min Z
 			// South East = Max X, Max X
 			case NORTH:
-//				Bukkit.broadcastMessage("D: NORTH");
 				startX = door.getMinimum().getBlockX();
-				endX  = door.getMaximum().getBlockX();
+				endX   = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY();
-				endY  = door.getMinimum().getBlockY();
+				endY   = door.getMinimum().getBlockY();
 				
 				startZ = door.getMinimum().getBlockZ() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
-				endZ  = door.getMinimum().getBlockZ() - 1;
+				endZ   = door.getMinimum().getBlockZ() - 1;
 				break;
 				
 			case SOUTH:
-//				Bukkit.broadcastMessage("D: SOUTH");
 				startX = door.getMinimum().getBlockX();
-				endX  = door.getMaximum().getBlockX();
+				endX   = door.getMaximum().getBlockX();
 				
 				startY = door.getMinimum().getBlockY();
-				endY  = door.getMinimum().getBlockY();
+				endY   = door.getMinimum().getBlockY();
 				
 				startZ = door.getMinimum().getBlockZ() + 1;
-				endZ  = door.getMinimum().getBlockZ() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
+				endZ   = door.getMinimum().getBlockZ() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 				break;
 				
 			case EAST:
-//				Bukkit.broadcastMessage("D: EAST");
 				startX = door.getMinimum().getBlockX() + 1;
-				endX  = door.getMaximum().getBlockX() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
+				endX   = door.getMaximum().getBlockX() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 				
 				startY = door.getMinimum().getBlockY();
-				endY  = door.getMinimum().getBlockY();
+				endY   = door.getMinimum().getBlockY();
 				
 				startZ = door.getMinimum().getBlockZ();
-				endZ  = door.getMaximum().getBlockZ();
+				endZ   = door.getMaximum().getBlockZ();
 				break;
 				
 			case WEST:
-//				Bukkit.broadcastMessage("D: WEST");
 				startX = door.getMinimum().getBlockX() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
-				endX  = door.getMinimum().getBlockX() - 1;
+				endX   = door.getMinimum().getBlockX() - 1;
 				
 				startY = door.getMinimum().getBlockY();
-				endY  = door.getMinimum().getBlockY();
+				endY   = door.getMinimum().getBlockY();
 				
 				startZ = door.getMinimum().getBlockZ();
-				endZ  = door.getMaximum().getBlockZ();
+				endZ   = door.getMaximum().getBlockZ();
 				break;
 			}
 		}
@@ -149,24 +141,6 @@ public class BridgeOpener implements Opener
 				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
 					if (!Util.isAir(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
 						return false;
-		
-//		int x = startX, y, z;
-//		while (x <= stopX)
-//		{
-//			y = startY;
-//			while (y <= stopY)
-//			{
-//				z = startZ;
-//				while (z <= stopZ)
-//				{
-//					if (Util.isAir(world.getBlockAt(x, y, z).getType()))
-//						return false;
-//					++z;
-//				}
-//				++y;
-//			}
-//			++x;
-//		}
 		return true;
 	}
 
@@ -183,11 +157,8 @@ public class BridgeOpener implements Opener
 	public DoorDirection getOpenDirection(Door door)
 	{
 		RotateDirection upDown = getUpDown(door);
-//		Bukkit.broadcastMessage("0: UpDown for door \"" + door.getName() + "\" = " + upDown.toString());
 		DoorDirection cDir     = getCurrentDirection(door);
 		boolean NS  = cDir    == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
-		
-//		Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Current Direction = " + cDir.toString());
 		
 		if (upDown.equals(RotateDirection.UP))
 			return isNewPosFree(door, upDown, door.getEngSide()) ? door.getEngSide() : null;
@@ -260,7 +231,7 @@ public class BridgeOpener implements Opener
 			return false;
 		}
 		this.upDown = getUpDown(door);
-//		Bukkit.broadcastMessage("1: UpDown for door \"" + door.getName() + "\" = " + upDown.toString());
+
 		if (upDown == null)
 		{
 			plugin.getMyLogger().logMessage("UpDown direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
@@ -285,7 +256,7 @@ public class BridgeOpener implements Opener
 
 		new BridgeMover(plugin, door.getWorld(), 0.13, door, this.upDown, openDirection, instantOpen);
 		
-//		// Tell the door object it has been opened and what its new coordinates are.
+		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);
 		updateCoords(door, openDirection, this.upDown, -1);
 		return true;

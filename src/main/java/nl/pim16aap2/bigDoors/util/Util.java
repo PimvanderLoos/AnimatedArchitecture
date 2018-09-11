@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.util;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.ChatColor;
@@ -13,6 +14,14 @@ public final class Util
 	public static void messagePlayer(Player player, ChatColor color, String s)
 	{
 		player.sendMessage(color + s);
+	}
+	
+	// Play sound at a location.
+	public static void playSound(Location loc, String sound, float volume, float pitch)
+	{
+		for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
+			if (ent instanceof Player)
+				((Player) ent).playSound(loc, sound, volume, pitch);
 	}
 	
 	// Send a message to a player.
@@ -68,6 +77,8 @@ public final class Util
 	public static boolean isAir(Material mat)
 	{
 		XMaterial xmat = XMaterial.fromString(mat.toString());
+		if (xmat == null)
+			return false;
 		return xmat.equals(XMaterial.AIR);
 	}
 	
@@ -107,6 +118,9 @@ public final class Util
 	public static boolean isAllowedBlock(Material mat)
 	{
 		XMaterial xmat = XMaterial.fromString(mat.toString());
+//		if (xmat == null || mat.toString().equals("DOUBLE_STEP"))
+		if (xmat == null)
+			return false;
 		switch(xmat)
 		{
 		case AIR:

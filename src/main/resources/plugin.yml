@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.5.4
+version: Alpha 0.1.6
 author: Pim
 api-version: 1.13
 commands:
@@ -98,3 +98,4 @@ commands:
   bigdoorsenableas:
     description: Do not use this unless you want stuff to break!
     usage: This command is not meant for mere mortals either.
+    permission: bigdoors.admin.isweariampim16aap2
