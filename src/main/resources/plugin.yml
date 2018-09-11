@@ -91,6 +91,8 @@ commands:
 #    description: Updates coordinates of a door as if it had been closed. Does not move the blocks!
 #    usage: /SetDoorClosed <doorName>
 #    permission: bigdoors.user.setdoor
+  bdversion:
+    description: Shows you which version of this plugin is installed on this server.
   doordebug:
     description: Do not use this unless you are me... What?
     usage: This command is not meant for mere mortals.

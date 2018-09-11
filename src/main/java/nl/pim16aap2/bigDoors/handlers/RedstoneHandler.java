@@ -36,7 +36,7 @@ public class RedstoneHandler implements Listener
 		Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
 		
         if (door != null && !door.isLocked())
-        		return plugin.getDoorOpener(door.getType()).openDoor(door, 0.2, false, true);
+        		return plugin.getDoorOpener(door.getType()).openDoor(door, 5.0, false, true);
 		return false;
 	}
 	

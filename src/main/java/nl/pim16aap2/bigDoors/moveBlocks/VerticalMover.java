@@ -28,9 +28,9 @@ public class VerticalMover
 	private boolean     		instantOpen;
 	private int          	blocksToMove;
 	private FallingBlockFactory_Vall fabf;
-	@SuppressWarnings("unused")
-	private int             	qCircleLimit, xLen, yLen, zLen, dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
+	private int             	xMin, xMax, yMin, yMax, zMin, zMax;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
+	@SuppressWarnings("unused")
 	private double          	speed;
 	private Door            	door;
 	
@@ -38,24 +38,24 @@ public class VerticalMover
 	@SuppressWarnings("deprecation")
 	public VerticalMover(BigDoors plugin, World world, double speed, Door door, boolean instantOpen, int blocksToMove)
 	{
-		this.plugin       = plugin;
-		this.world        = world;
-		this.door         = door;
-		this.fabf         = plugin.getFABF();
-		this.instantOpen  = instantOpen;
-		this.blocksToMove = blocksToMove;
+		this.plugin         = plugin;
+		this.world          = world;
+		this.door           = door;
+		this.fabf           = plugin.getFABF();
+		this.instantOpen    = instantOpen;
+		this.blocksToMove   = blocksToMove;
 		
-		this.xMin    = door.getMinimum().getBlockX();
-		this.yMin    = door.getMinimum().getBlockY();
-		this.zMin    = door.getMinimum().getBlockZ();
-		this.xMax    = door.getMaximum().getBlockX();
-		this.yMax    = door.getMaximum().getBlockY();
-		this.zMax    = door.getMaximum().getBlockZ();
+		this.xMin  = door.getMinimum().getBlockX();
+		this.yMin  = door.getMinimum().getBlockY();
+		this.zMin  = door.getMinimum().getBlockZ();
+		this.xMax  = door.getMaximum().getBlockX();
+		this.yMax  = door.getMaximum().getBlockY();
+		this.zMax  = door.getMaximum().getBlockZ();
 		
-		this.speed   = speed;
+		this.speed = speed;
 
-		int index = 0;
-		int yAxis = yMin;
+		int index  = 0;
+		int yAxis  = yMin;
 		do
 		{
 			int zAxis = zMin;
@@ -220,30 +220,27 @@ public class VerticalMover
 	{
 		new BukkitRunnable()
 		{
-			int directionMultiplier = blocksToMove > 0 ? 1 : -1;
-			int indexMid            = savedBlocks.size() / 2;
-			int counter             = 0;
+			int counter       = 0;
+			int tickRate      = 4;
+			double timeToOpen = speed; // seconds.
+			int totalTicks    = (int) (20 / tickRate * timeToOpen);
+			double step       = ((double) blocksToMove) / ((double) totalTicks);
+			double stepSum    = 0;
+			int endCount      = (int) (totalTicks * 1.05);
 			
 			@Override
 			public void run()
 			{
-				if (counter % 4 == 0)
+				if (counter == 0 || (counter * tickRate < endCount * tickRate - 27 && counter % 4 == 0))
 					Util.playSound(door.getEngine(), "bd.dragging2", 0.8f, 0.6f);
 				int index = 0;
-				++counter;
 				
-				double blocksMoved  = Math.abs(savedBlocks.get(indexMid).getStartY() - savedBlocks.get(indexMid).getFBlock().getLocation().getY());
-				double distanceLeft = Math.abs(blocksMoved - Math.abs(blocksToMove));
-				
-				if (distanceLeft < 0.8)
-					speed = 0.09;
-				else if (distanceLeft < 1.0)
-					speed = speed > 0.25 ? 0.25 : speed;
-				else if (distanceLeft < 1.2)
-					speed = speed > 0.30 ? 0.30 : speed;
-				
-				if (distanceLeft <= 0.1 || blocksMoved >= Math.abs(blocksToMove) || !plugin.getCommander().canGo())
-				{
+				if (!plugin.getCommander().isPaused())
+					++counter;
+				stepSum = step * counter;
+								
+				if (!plugin.getCommander().canGo() || counter > endCount)
+				{					
 					Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
@@ -252,27 +249,26 @@ public class VerticalMover
 				}
 				else
 				{
-					if (!plugin.getCommander().isPaused())
+					int yAxis = yMin;
+					do
 					{
-						int yAxis = yMin;
+						int zAxis = zMin;
 						do
 						{
-							int zAxis = zMin;
-							do
+							for (int xAxis = xMin; xAxis <= xMax; xAxis++)
 							{
-								for (int xAxis = xMin; xAxis <= xMax; xAxis++)
-								{
-									double ySpeed = speed * directionMultiplier * 0.2;
-									savedBlocks.get(index).getFBlock().setVelocity(new Vector (0.000, ySpeed, 0.000));
-									++index;
-								}
-								++zAxis;
+								Location loc = new Location(null, xAxis + 0.5, yAxis + stepSum, zAxis + 0.5);
+								Vector vec = loc.toVector().subtract(savedBlocks.get(index).getFBlock().getLocation().toVector());
+								vec.multiply(0.101);
+								savedBlocks.get(index).getFBlock().setVelocity(vec);
+								++index;
 							}
-							while (zAxis <= zMax);
-							++yAxis;
+							++zAxis;
 						}
-						while (yAxis <= yMax);
+						while (zAxis <= zMax);
+						++yAxis;
 					}
+					while (yAxis <= yMax);
 				}
 			}
 		}.runTaskTimer(plugin, 14, 4);

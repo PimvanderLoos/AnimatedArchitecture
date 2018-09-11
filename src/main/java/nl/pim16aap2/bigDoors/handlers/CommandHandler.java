@@ -64,7 +64,7 @@ public class CommandHandler implements CommandExecutor
 	
 	public void openDoorCommand(Player player, Door door)
 	{
-		openDoorCommand((CommandSender) player, door, 0.2);
+		openDoorCommand((CommandSender) player, door, 5.0);
 	}
 	
 	public void lockDoorCommand(Player player, Door door)
@@ -301,6 +301,14 @@ public class CommandHandler implements CommandExecutor
 			return true;
 		}
 		
+		// /bdversion
+		if (cmd.getName().equalsIgnoreCase("bdversion"))
+		{
+			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " + 
+											plugin.getDescription().getVersion() + " of this plugin!");
+			return true;
+		}
+		
 		// /opendoors <doorName1> <doorName2> etc etc [speed]
 		if (cmd.getName().equalsIgnoreCase("opendoors"))
 		{
@@ -312,7 +320,7 @@ public class CommandHandler implements CommandExecutor
 					player = null;
 				
 				// If the last argument is not a door (so getDoor returns null), it should be the speed. If it it null, use default speed.
-				double speed = 0.2;
+				double speed = 5.0;
 				
 				for (int index = 0; index < args.length; ++index)
 				{

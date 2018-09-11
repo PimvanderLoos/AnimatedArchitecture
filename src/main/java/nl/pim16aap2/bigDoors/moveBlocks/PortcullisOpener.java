@@ -27,7 +27,7 @@ public class PortcullisOpener implements Opener
 	@Override
 	public DoorDirection getCurrentDirection(Door door)
 	{
-		return 	null;
+		return null;
 	}
 	
 	// Check if the chunks at the minimum and maximum locations of the door are loaded.
@@ -93,8 +93,6 @@ public class PortcullisOpener implements Opener
 		{
 			// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 			plugin.getCommander().setDoorBusy(door.getDoorUID());
-			
-			speed = blocksToMove > 0 ? speed : speed * 1.8;
 			
 			new VerticalMover(plugin, door.getWorld(), speed, door, instantOpen, blocksToMove);
 

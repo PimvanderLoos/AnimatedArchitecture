@@ -221,20 +221,6 @@ public class DoorOpener implements Opener
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 		
-		int length = door.getLength();
-		if      (length == 1)
-			speed /= 2.5;
-		else if (length == 2)
-			speed /= 2.5;
-		else if (length == 3)
-			speed /= 2.5;
-		else if (length == 4)
-			speed /= 1.8;
-		else if (length == 5)
-			speed /= 1.5;
-		else if (length == 6)
-			speed /= 1.2;
-		
 		new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, speed, oppositePoint, currentDirection, door, instantOpen);
 
 		// Tell the door object it has been opened and what its new coordinates are.

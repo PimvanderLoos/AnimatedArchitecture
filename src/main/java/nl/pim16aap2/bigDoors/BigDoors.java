@@ -38,18 +38,13 @@ import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
 
-// TODO: Create commandlistener that can be used to wait for command trees. Create interface and extend queued up commands from there.
 // TODO: Allow upright drawbridge creation.
 // TODO: Make DoorInfo work for console.
 // TODO: Make ListDoors explain there are no doors found when none around found.
 // TODO: Get rid of "Multiple doors with that name found" message when there are actually 0 hits.
 // TODO: Allow a "Door Info" tool, that can get door info from hitting a power block.
-// TODO: Fix 9x2 drawbridges going all weird when going down.
-// TODO: Add "/BDVersion" command to display plugin vesion.
-// TODO: Improve 3 wide door timing.
 // TODO: Make sure that doors don't get fucked up when player leaves the area or when the server stops.
 // TODO: Load default resource pack on login if resource pack isn't null in config.
-// TODO: When the middle block is not allowed or air, make sure the plugin looks at another block that doesn't NOT exist (so it won't go on indefinitely).
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -124,6 +119,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		getCommand("unlockDoor"         ).setExecutor(new CommandHandler(this));
 		getCommand("pausedoors"         ).setExecutor(new CommandHandler(this));
 		getCommand("doordebug"          ).setExecutor(new CommandHandler(this));
+		getCommand("bdversion"          ).setExecutor(new CommandHandler(this));
 		getCommand("opendoors"          ).setExecutor(new CommandHandler(this));
 		getCommand("listdoors"          ).setExecutor(new CommandHandler(this));
 		getCommand("stopdoors"          ).setExecutor(new CommandHandler(this));
@@ -448,7 +444,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	public boolean toggleDoor(long doorUID, boolean instantOpen)
 	{
 		Door door = this.getCommander().getDoor(doorUID);
-		return toggleDoor(door, 0.2, instantOpen);
+		return toggleDoor(door, 5.0, instantOpen);
 	}
 	
 	// Toggle a door from a doorUID and a given speed.
@@ -462,7 +458,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	public boolean toggleDoor(long doorUID)
 	{
 		Door door = this.getCommander().getDoor(doorUID);
-		return toggleDoor(door, 0.2, false);
+		return toggleDoor(door, 5.0, false);
 	}
 	
 	// Check the open-status of a door.
@@ -477,36 +473,4 @@ public class BigDoors extends JavaPlugin implements Listener
 		Door door = this.getCommander().getDoor(doorUID);
 		return this.isOpen(door);
 	}
-	
-//	// Changes the coordinates of a door as if it had been opened.
-//	// Returns true if is has been opened, false if no changes.
-//	private boolean setDoorOpen(Door door)
-//	{
-//		if (this.isOpen(door))
-//			return false;
-//		
-//		return true;
-//	}
-//	
-//	public boolean setDoorOpen(long doorUID)
-//	{
-//		Door door = this.getCommander().getDoor(doorUID);
-//		return this.setDoorOpen(door);
-//	}
-//	
-//	// Changes the coordinates of a door as if it had been closed.
-//	// Returns true if is has been opened, false if no changes.
-//	private boolean setDoorClosed(Door door)
-//	{
-//		if (!this.isOpen(door))
-//			return false;
-//		
-//		return true;
-//	}
-//	
-//	public boolean setDoorClosed(long doorUID)
-//	{
-//		Door door = this.getCommander().getDoor(doorUID);
-//		return this.setDoorClosed(door);
-//	}
 }

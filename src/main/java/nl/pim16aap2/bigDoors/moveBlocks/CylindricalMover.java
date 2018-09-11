@@ -36,32 +36,32 @@ public class CylindricalMover
 	private boolean     		 instantOpen;
 	private FallingBlockFactory_Vall fabf;
 	private RotateDirection 	 rotDirection;
-	private DoorDirection   	 currentDirection;
-	@SuppressWarnings("unused")
-	private int             	 qCircleLimit, xLen, yLen, zLen, dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
+	private int             	 dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 	private Location        	 turningPoint, pointOpposite;
+	@SuppressWarnings("unused")
 	private double          	 speed;
 	private GetNewLocation  	 gnl;
 	private Door            	 door;
 	private boolean       	 isASEnabled;
+	private double       	 startStepSum;
+	private int            	 stepMultiplier;
 	
 	
 	@SuppressWarnings("deprecation")
 	public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double speed,
 			Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
 	{
-		this.currentDirection = currentDirection;
 		this.pointOpposite    = pointOpposite;
 		this.turningPoint     = door.getEngine();
 		this.rotDirection     = rotDirection;
-		this.qCircleLimit     = qCircleLimit;
 		this.plugin           = plugin;
 		this.world            = world;
 		this.door             = door;
 		this.isASEnabled      = plugin.isASEnabled();
 		this.fabf             = isASEnabled ? plugin.getFABF2() : plugin.getFABF();
 		this.instantOpen      = instantOpen;
+		this.stepMultiplier   = rotDirection == RotateDirection.CLOCKWISE   ? -1 : 1;
 		
 		this.xMin    = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
 		this.yMin    = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
@@ -70,13 +70,6 @@ public class CylindricalMover
 		this.yMax    = turningPoint.getBlockY() > pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
 		this.zMax    = turningPoint.getBlockZ() > pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
 		
-		int xLen     = (int) (xMax - xMin) + 1;
-		int yLen     = (int) (yMax - yMin) + 1;
-		int zLen     = (int) (zMax - zMin) + 1;
-		
-		this.xLen    = xLen;
-		this.yLen    = yLen;
-		this.zLen    = zLen;
 		this.speed   = speed;
 
 		this.dx      = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
@@ -104,7 +97,6 @@ public class CylindricalMover
 					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
 					MaterialData materialData = bs.getData();
 					NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
-					
 					NMSBlock_Vall block2 = null;
 					
 					int canRotate        = 0;
@@ -163,16 +155,20 @@ public class CylindricalMover
 		switch (currentDirection)
 		{
 		case NORTH:
-			this.gnl = new GetNewLocationNorth(world, xMin, xMax, zMin, zMax, rotDirection);
+			this.gnl     = new GetNewLocationNorth(world, xMin, xMax, zMin, zMax, rotDirection);
+			startStepSum = Math.PI;
 			break;
 		case EAST:
-			this.gnl = new GetNewLocationEast (world, xMin, xMax, zMin, zMax, rotDirection);
+			this.gnl     = new GetNewLocationEast (world, xMin, xMax, zMin, zMax, rotDirection);
+			startStepSum = Math.PI / 2;
 			break;
 		case SOUTH:
-			this.gnl = new GetNewLocationSouth(world, xMin, xMax, zMin, zMax, rotDirection);
+			this.gnl     = new GetNewLocationSouth(world, xMin, xMax, zMin, zMax, rotDirection);
+			startStepSum = 0;
 			break;
 		case WEST:
-			this.gnl = new GetNewLocationWest (world, xMin, xMax, zMin, zMax, rotDirection);
+			this.gnl     = new GetNewLocationWest (world, xMin, xMax, zMin, zMax, rotDirection);
+			startStepSum = 3 * Math.PI / 2;
 			break;
 		}
 		
@@ -302,48 +298,35 @@ public class CylindricalMover
 	{
 		new BukkitRunnable()
 		{
-			int directionMultiplier = rotDirection == RotateDirection.CLOCKWISE ? 1 : -1;
-			Location center         = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
-			double   maxRad         = xLen > zLen ? xLen : zLen;
-			boolean replace         = false;
-			int qCircleCount        = currentDirection == DoorDirection.EAST  && rotDirection == RotateDirection.CLOCKWISE       || 
-			                          currentDirection == DoorDirection.SOUTH && rotDirection == RotateDirection.COUNTERCLOCKWISE ? 0 : -1;
-			int qCircleCheck        = 0;
-			int indexMid            = savedBlocks.size() / 2;
-			int counter             = 0;
+			Location center   = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
+			boolean replace   = false;
+			int indexMid      = savedBlocks.size() / 2;
+			int counter       = 0;
+			int tickRate      = 4;
+			double timeToOpen = speed; // seconds.
+			int totalTicks    = (int) (20 / tickRate * timeToOpen);
+			double step       = (Math.PI / 2) / totalTicks;
+			double stepSum    = startStepSum;
+			int endCount      = (int) (totalTicks * 1.05);
+			int replaceCount  = (int) (endCount / 2);
 			
 			@Override
 			public void run()
 			{
-				if (counter % 4 == 0)
+				if (counter == 0 || (counter * tickRate < endCount * tickRate - 27 && counter % 4 == 0))
 					Util.playSound(door.getEngine(), "bd.dragging2", 0.8f, 0.6f);
-				int    index           = 0;
-				++counter;
-				double realAngleMid    = Math.atan2(center.getZ() - savedBlocks.get(indexMid).getFBlock().getLocation().getZ(), center.getX() - savedBlocks.get(indexMid).getFBlock().getLocation().getX());
-				double realAngleMidDeg = Math.abs((Math.toDegrees(realAngleMid) + 450) % 360 - 360); // [0;360]
+				int index = 0;
 				
-				// This part keeps track of how many quarter circles the blocks have moved by checking if blocks have moved into a new quadrant.
-				// It also adds/subtracts a little from the angle so the door is stopped just before it reaches its final position (as it moved a bit further after reaching it).
-				// If it's exactly a multiple of 90, it's at a starting position, so don't count that position towards qCircleCount.
-				if (realAngleMidDeg % 90 != 0)
-				{
-					// Add or subtract 5 degrees from the actual angle and put it on [0;360] again.
-					realAngleMidDeg = ((realAngleMidDeg + -directionMultiplier * 5) + 360) % 360;
-					
-					// If the angle / 90 is not the same as qCircleCheck, the blocks have moved on to a new quadrant.
-					if ((int) (realAngleMidDeg / 90) != qCircleCheck)
-					{
-						qCircleCheck = (int) (realAngleMidDeg / 90);
-						++qCircleCount;
-					}
-				}
-				
-				// If the blocks are at 1/8, 3/8, 5/8 or 7/8 * 360 angle, it's time to "replace" (i.e. rotate) them.
-				if (!isASEnabled && ((realAngleMidDeg - 45 + 360) % 360) % 90 < 5)
+				if (!plugin.getCommander().isPaused())
+					++counter;
+				stepSum = startStepSum + step * stepMultiplier * counter;
+
+				replace = false;
+				if (counter == replaceCount)
 					replace = true;
 				
-				if (qCircleCount >= qCircleLimit || !plugin.getCommander().canGo())
-				{
+				if (!plugin.getCommander().canGo() || counter > endCount)
+				{					
 					Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.85f, 1f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
@@ -352,84 +335,73 @@ public class CylindricalMover
 				}
 				else
 				{
-					if (!plugin.getCommander().isPaused())
+					double xAxis = turningPoint.getX();
+					do
 					{
-						double xAxis = turningPoint.getX();
+						double zAxis = turningPoint.getZ();
 						do
 						{
-							double zAxis = turningPoint.getZ();
-							do
+							double radius     = savedBlocks.get(index).getRadius();
+							for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 							{
-								double radius     = savedBlocks.get(index).getRadius();
-								for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+								// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
+								if (replace)
 								{
-									if (isASEnabled)
+									if (savedBlocks.get(index).canRot() != 0)
 									{
-										Location vec;
-										if (radius != 0)
-											vec = (new Location(center.getWorld(), center.getX(), yAxis, center.getZ())).subtract(savedBlocks.get(index).getFBlock().getLocation());
-										else
-										{
-											Location midLoc = savedBlocks.get(indexMid).getFBlock().getLocation();
-											vec = (new Location(center.getWorld(), midLoc.getX(), yAxis, midLoc.getZ())).subtract(savedBlocks.get(index).getFBlock().getLocation());
-										}
-										savedBlocks.get(index).getFBlock().setHeadPose(directionToEuler(vec));
-									}
-									
-									if (radius != 0)
-									{
-										double xPos         = savedBlocks.get(index).getFBlock().getLocation().getX();
-										double zPos         = savedBlocks.get(index).getFBlock().getLocation().getZ();
+										Material mat = savedBlocks.get(index).getMat();
+										Location loc = savedBlocks.get(index).getFBlock().getLocation();
+										Byte matData = savedBlocks.get(index).getBlockByte();
+										Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
+										if (yAxis != yMin)
+											loc.setY(loc.getY() - .010001);
+										CustomCraftFallingBlock_Vall fBlock;
+										// Because the block in savedBlocks is already rotated where applicable, just use that block now.
+										fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
 										
-										// Get the real angle the door has opened so far. Subtract angle offset, as the angle should start at 0 for these calculations to work.
-										double realAngle    = Math.atan2(center.getZ() - zPos, center.getX() - xPos);
-										double realAngleDeg = Math.abs((Math.toDegrees(realAngle ) + 450) % 360 - 360); // [0;360]
-										double moveAngle    = (realAngleDeg + 90) % 360;
-										
-										// Get the actual radius of the block (and compare that to the radius it should have (stored in the block)) later (moveAndAddForGoal).
-										double dX           = Math.abs(xPos - (turningPoint.getBlockX() + 0.5));
-										double dZ           = Math.abs(zPos - (turningPoint.getBlockZ() + 0.5));
-										double realRadius   = Math.sqrt(dX * dX + dZ * dZ);
-										
-										// Additional angle added to the movement direction so that the radius remains correct for all blocks.
-										// TODO: Smaller total width needs lower punishment than larger doors. Presumable because of speed difference. Fix that.
-										double moveAngleAddForGoal = directionMultiplier * 15 * (radius - realRadius - 0.18);
-	
-										// Inversed zRot sign for directionMultiplier.
-										double xRot = -1                   * (realRadius / maxRad) * speed * Math.sin(Math.toRadians(moveAngle + moveAngleAddForGoal));
-										double zRot = -directionMultiplier * (realRadius / maxRad) * speed * Math.cos(Math.toRadians(moveAngle + moveAngleAddForGoal));
-										savedBlocks.get(index).getFBlock().setVelocity(new Vector (directionMultiplier * xRot, 0.000, zRot));
+										savedBlocks.get(index).getFBlock().remove();
+										savedBlocks.get(index).setFBlock(fBlock);
+										savedBlocks.get(index).getFBlock().setVelocity(veloc);
 									}
-	
-									// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
-									if (replace)
-									{
-										if (savedBlocks.get(index).canRot() != 0)
-										{
-											Material mat = savedBlocks.get(index).getMat();
-											Location loc = savedBlocks.get(index).getFBlock().getLocation();
-											Byte matData = savedBlocks.get(index).getBlockByte();
-											Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
-											
-											CustomCraftFallingBlock_Vall fBlock;
-											// Because the block in savedBlocks is already rotated where applicable, just use that block now.
-											fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
-											
-											savedBlocks.get(index).getFBlock().remove();
-											savedBlocks.get(index).setFBlock(fBlock);
-											savedBlocks.get(index).getFBlock().setVelocity(veloc);
-										}
-									}
-									index++;
 								}
-								zAxis += dz;
+								
+								if (isASEnabled)
+								{
+									Location vec;
+									if (radius != 0)
+										vec = (new Location(center.getWorld(), center.getX(), yAxis, center.getZ())).subtract(savedBlocks.get(index).getFBlock().getLocation());
+									else
+									{
+										Location midLoc = savedBlocks.get(indexMid).getFBlock().getLocation();
+										vec = (new Location(center.getWorld(), midLoc.getX(), yAxis, midLoc.getZ())).subtract(savedBlocks.get(index).getFBlock().getLocation());
+									}
+									savedBlocks.get(index).getFBlock().setHeadPose(directionToEuler(vec));
+								}
+								
+								if (radius != 0)
+								{
+									Location loc;
+									double addX = radius * Math.sin(stepSum);
+									double addY = 0;
+									double addZ = radius * Math.cos(stepSum);
+									
+									loc = new Location(null, center.getX() + addX,
+											                 yAxis         + addY, 
+											                 center.getZ() + addZ);
+								
+									Vector vec = loc.toVector().subtract(savedBlocks.get(index).getFBlock().getLocation().toVector());
+									vec.multiply(0.101);
+									savedBlocks.get(index).getFBlock().setVelocity(vec);
+								}
+								index++;
 							}
-							while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-							xAxis += dx;
+							zAxis += dz;
 						}
-						while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-						replace = false;
+						while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
+						xAxis += dx;
 					}
+					while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
+					replace = false;
 				}
 			}
 		}.runTaskTimer(plugin, 14, 4);
