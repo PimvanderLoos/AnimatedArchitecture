@@ -33,13 +33,11 @@ public class BridgeMover
 	private World                    world;
 	private BigDoors                plugin;
 	private int                     dx, dz;
-	@SuppressWarnings("unused")
 	private double                   speed;
 	private FallingBlockFactory_Vall  fabf;
 	private boolean                     NS;
 	private GetNewLocation             gnl;
 	private Door                      door;
-	private RotateDirection         upDown;
 	private DoorDirection       engineSide;
 	private boolean            instantOpen;
 	private Location          turningPoint;
@@ -59,13 +57,12 @@ public class BridgeMover
 		this.fabf          = plugin.getFABF();
 		this.world         = world;
 		this.plugin        = plugin;
-		this.upDown        = upDown;
 		this.engineSide    = door.getEngSide();
 		this.NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
 		this.instantOpen   = instantOpen;
 			
 		this.speed   = speed;
-		
+				
 		this.xMin    = door.getMinimum().getBlockX();
 		this.yMin    = door.getMinimum().getBlockY();
 		this.zMin    = door.getMinimum().getBlockZ();
@@ -415,21 +412,20 @@ public class BridgeMover
 			int tickRate      = 4;
 			double timeToOpen = speed; // seconds.
 			int totalTicks    = (int) (20 / tickRate * timeToOpen);
-			double step       = (Math.PI / 2) / totalTicks;
+			double step       = (Math.PI / 2) / totalTicks * stepMultiplier;
 			double stepSum    = startStepSum;
 			int endCount      = (int) (totalTicks * 1.05);
 			int replaceCount  = (int) (endCount / 2);
 			
 			@Override
 			public void run()
-			{	
-				if (counter == 0 || (counter * tickRate < endCount * tickRate - 45 && counter % 7 == 0))
+			{
+				if (counter == 0 || (counter < endCount - 45 / tickRate && counter % 7 == 0))
 					Util.playSound(door.getEngine(), "bd.drawbridge-rattling", 0.8f, 0.7f);
-				int index = 0;
 				
 				if (!plugin.getCommander().isPaused())
 					++counter;
-				stepSum = startStepSum + step * stepMultiplier * counter;
+				stepSum = startStepSum + step * counter;
 
 				replace = false;
 				if (counter == replaceCount)
@@ -445,69 +441,47 @@ public class BridgeMover
 				}
 				else
 				{
-					double xAxis = turningPoint.getX();
-					do
+					for (MyBlockData block : savedBlocks)
 					{
-						double zAxis = turningPoint.getZ();
-						do
+						double radius = block.getRadius();
+						if (replace)
 						{
-							double radius     = savedBlocks.get(index).getRadius();
-							for (double yAxis = turningPoint.getY(); yAxis <= pointOpposite.getBlockY(); ++yAxis)
+							if (block.canRot() != 0)
 							{
-								if (upDown.equals(RotateDirection.DOWN))
-									radius    = savedBlocks.get(index).getRadius();
-								// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
-								if (replace)
-								{
-									if (savedBlocks.get(index).canRot() != 0)
-									{
-										Material mat = savedBlocks.get(index).getMat();
-										Location loc = savedBlocks.get(index).getFBlock().getLocation();
-										Byte matData = savedBlocks.get(index).getBlockByte();
-										Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
-										
-										CustomCraftFallingBlock_Vall fBlock;
-										// Because the block in savedBlocks is already rotated where applicable, just use that block now.
-										fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
-										
-										savedBlocks.get(index).getFBlock().remove();
-										savedBlocks.get(index).setFBlock(fBlock);
-										savedBlocks.get(index).getFBlock().setVelocity(veloc);
-									}
-								}
+								Material mat = block.getMat();
+								Location loc = block.getFBlock().getLocation();
+								Byte matData = block.getBlockByte();
+								Vector veloc = block.getFBlock().getVelocity();
 								
-								if (radius != 0)
-								{
-									Location loc;
-									double addY = radius * Math.cos(stepSum);
-									if (!NS)
-									{
-										double addX = radius * Math.sin(stepSum);
-										double addZ = 0;
-										loc = new Location(null, center.getX() + addX,
-												                 center.getY() + addY, 
-												                 zAxis         + addZ + 0.5);
-									}
-									else
-									{
-										double addX = 0;
-										double addZ = radius * Math.sin(stepSum);
-										loc = new Location(null, xAxis         + addX + 0.5,
-												                 center.getY() + addY, 
-												                 center.getZ() + addZ);
-									}
-									Vector vec = loc.toVector().subtract(savedBlocks.get(index).getFBlock().getLocation().toVector());
-									vec.multiply(0.101);
-									savedBlocks.get(index).getFBlock().setVelocity(vec);
-								}
-								index++;
+								CustomCraftFallingBlock_Vall fBlock;
+								// Because the block in savedBlocks is already rotated where applicable, just use that block now.
+								fBlock = fallingBlockFactory(loc, mat, (byte) matData, block.getBlock());
+								
+								block.getFBlock().remove();
+								block.setFBlock(fBlock);
+								block.getFBlock().setVelocity(veloc);
 							}
-							zAxis += dz;
 						}
-						while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-						xAxis += dx;
+						if (radius != 0)
+						{
+							double posX, posY, posZ;
+							posY = center.getY() + radius * Math.cos(stepSum);
+							if (!NS)
+							{
+								posX = center.getX() + radius * Math.sin(stepSum);
+								posZ = block.getFBlock().getLocation().getZ();
+							}
+							else
+							{
+								posX = block.getFBlock().getLocation().getX();
+								posZ = center.getZ() + radius * Math.sin(stepSum);
+							}
+							Location loc = new Location(null, posX, posY, posZ);
+							Vector vec   = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
+							vec.multiply(0.101);
+							block.getFBlock().setVelocity(vec);
+						}
 					}
-					while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
 				}
 			}
 		}.runTaskTimer(plugin, 14, 4);

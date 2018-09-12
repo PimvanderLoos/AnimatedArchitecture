@@ -206,7 +206,7 @@ public class SQLiteJDBCDriverConnection
 	{
 		try
 		{
-			return new Door(null, Bukkit.getServer().getWorld(UUID.fromString(rs.getString(3))), rs.getInt(5), 
+			return new Door(UUID.fromString(playerUUID), Bukkit.getServer().getWorld(UUID.fromString(rs.getString(3))), rs.getInt(5), 
 							rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9), rs.getInt(10), rs.getInt(11), 
 							rs.getInt(12), rs.getInt(13), rs.getString(2), (rs.getInt(4) == 1 ? true : false), 
 							doorUID, (rs.getInt(14) == 1 ? true : false), permission, rs.getInt(15), DoorDirection.valueOf(rs.getInt(16)),
@@ -268,7 +268,7 @@ public class SQLiteJDBCDriverConnection
 				{
 					// Delete all doors with the provided name owned by the provided player.
 					PreparedStatement ps3 = conn.prepareStatement("DELETE FROM doors WHERE id = '" + rs2.getInt(4) 
-															                    +"' AND name = '" + doorName + "';");
+															                + "' AND name = '" + doorName + "';");
 					ps3.executeUpdate();
 					ps3.close();
 				}
@@ -295,48 +295,6 @@ public class SQLiteJDBCDriverConnection
 		}
 	}
 
-//	// Get the door that has an engine at the provided coordinates.
-//	public Door doorFromEngineLoc(Location loc)
-//	{
-//		// Prepare door and connection.
-//		Door door       = null;
-//		Connection conn = null;
-//		try
-//		{
-//			conn = getConnection();
-//			// TODO: In the redstone handler, don't look ABOVE powerblock locations anymore, but look at the location itself.
-//			// Get the door associated with the x/y/z location of the engine block (block with lowest y-pos of rotation point).
-//			PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE engineX = '" + loc.getBlockX() + 
-//					                                                         "' AND engineY = '" + loc.getBlockY() + 
-//					                                                         "' AND engineZ = '" + loc.getBlockZ() +
-//					                                                         "' AND world = '"       + loc.getWorld().getUID().toString() + "';");
-//			ResultSet rs = ps.executeQuery();
-//			while (rs.next())
-//			{
-//				long doorUID = rs.getLong(1);
-//				door = newDoorFromRS(rs, doorUID, -1);
-//			}
-//			ps.close();
-//			rs.close();
-//		}
-//		catch(SQLException e)
-//		{
-//			plugin.getMyLogger().logMessage("265: " + e.getMessage());
-//		}
-//		finally
-//		{
-//			try
-//			{
-//				conn.close();
-//			}
-//			catch (SQLException e)
-//			{
-//				plugin.getMyLogger().logMessage("275: " + e.getMessage());
-//			}
-//		}
-//		return door;
-//	}
-	
 	// Get the door that has a powerBlock at the provided coordinates.
 	public Door doorFromPowerBlockLoc(Location loc)
 	{
@@ -378,7 +336,7 @@ public class SQLiteJDBCDriverConnection
 		return door;
 	}
 	
-	// Get Door from a doorID. Permission will be set to -1 and player to null (for now!).
+	// Get Door from a doorID.
 	public Door getDoor(long doorID)
 	{
 		Door door = null;
@@ -390,7 +348,25 @@ public class SQLiteJDBCDriverConnection
 			PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + doorID + "';");
 			ResultSet rs1         = ps1.executeQuery();
 			while (rs1.next())
-				door = newDoorFromRS(rs1, doorID, -1);
+			{
+				String foundPlayerUUID = null;
+				PreparedStatement ps2  = conn.prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + rs1.getLong(1)
+																                     + "' AND permission = '" + 0 + "';");
+				ResultSet rs2          = ps2.executeQuery();
+				while (rs2.next())
+				{
+					PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM players WHERE id = '" + rs2.getInt(3) + "';");
+					ResultSet rs3         = ps3.executeQuery();
+					while (rs3.next())
+						foundPlayerUUID   = rs3.getString(2);
+					ps3.close();
+					rs3.close();
+				}
+				ps2.close();
+				rs2.close();
+				
+				door = this.newDoorFromRS(rs1, rs1.getLong(1), 0, foundPlayerUUID);
+			}
 		}
 		catch (SQLException e)
 		{
@@ -416,6 +392,61 @@ public class SQLiteJDBCDriverConnection
 		return getDoors(playerUUID, name, 0, Long.MAX_VALUE);
 	}
 	
+	// Get all doors with a given name.
+	public ArrayList<Door> getDoors(String name)
+	{
+		ArrayList<Door> doors = new ArrayList<Door>();
+		
+		Connection conn = null;
+		try
+		{
+			conn = getConnection();
+			
+			PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors WHERE name = '" + name + "';");
+			ResultSet rs1         = ps1.executeQuery();
+			
+			while (rs1.next())
+			{
+				String foundPlayerUUID = null;
+				int    permission      = -1;
+				PreparedStatement ps2  = conn.prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + rs1.getLong(1) + "';");
+				ResultSet rs2          = ps2.executeQuery();
+				while (rs2.next())
+				{
+					permission            = rs2.getInt(2);
+					PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM players WHERE id = '" + rs2.getInt(3) + "';");
+					ResultSet rs3         = ps3.executeQuery();
+					while (rs3.next())
+						foundPlayerUUID   = rs3.getString(2);
+					ps3.close();
+					rs3.close();
+				}
+				ps2.close();
+				rs2.close();
+				
+				doors.add(this.newDoorFromRS(rs1, rs1.getLong(1), permission, foundPlayerUUID));
+			}
+			ps1.close();
+			rs1.close();
+		}
+		catch (SQLException e)
+		{
+			plugin.getMyLogger().logMessage("357: " + e.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				conn.close();
+			}
+			catch (SQLException e)
+			{
+				plugin.getMyLogger().logMessage("367: " + e.getMessage());
+			}
+		}
+		return doors;
+	}
+	
 	// Get all doors associated with this player in a given range. Name can be null
 	public ArrayList<Door> getDoors(String playerUUID, String name, long start, long end)
 	{
@@ -431,7 +462,6 @@ public class SQLiteJDBCDriverConnection
 			ResultSet rs1         = ps1.executeQuery();
 			while (rs1.next())
 				playerID = rs1.getInt(1);
-			
 			
 			PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
 			ResultSet rs2         = ps2.executeQuery();

@@ -15,17 +15,16 @@ import nl.pim16aap2.bigDoors.BigDoors;
 
 public class ConfigLoader
 {
-	private String            header;
-	private String            dbFile;
-	private boolean       allowStats;
-	private int          maxDoorSize;
-	private String      resourcePack;
-	private String      languageFile;
-	private int         maxDoorCount;
-	private boolean   enableRedstone;
-	private String    powerBlockType;
-	private boolean  checkForUpdates;
-	private String  resourcePack1_13;
+	private String           header;
+	private String           dbFile;
+	private boolean      allowStats;
+	private int         maxDoorSize;
+	private String     resourcePack;
+	private String     languageFile;
+	private int        maxDoorCount;
+	private boolean  enableRedstone;
+	private String   powerBlockType;
+	private boolean checkForUpdates;
 	
 	private String defResPackUrl     = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
 	private String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
@@ -70,7 +69,9 @@ public class ConfigLoader
 	    	{
 	    		"This plugin uses a support resource pack for things suchs as sound.",
 	    		"You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
-	    		"Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as urls."
+	    		"Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
+	    		"The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl + "'",
+	    		"The default resource pack for 1.13.x is: \'" + defResPackUrl1_13 + "\'"
 	    	};
     
 	
@@ -110,8 +111,6 @@ public class ConfigLoader
 		configOptionsList.add(new ConfigOption( "maxDoorSize"     , maxDoorSize     , maxDoorSizeComment    ));
 		resourcePack     = config.getString(    "resourcePack"    , defResPackUrl    );
 		configOptionsList.add(new ConfigOption( "resourcePack"    , resourcePack    , resourcePackComment   ));
-		resourcePack1_13 = config.getString(    "resourcePack1_13", defResPackUrl1_13);
-		configOptionsList.add(new ConfigOption( "resourcePack1_13", resourcePack1_13                        ));
 		
 		writeConfig();
 	}

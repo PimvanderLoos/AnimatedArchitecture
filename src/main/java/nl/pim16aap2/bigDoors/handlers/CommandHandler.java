@@ -1,9 +1,11 @@
 package nl.pim16aap2.bigDoors.handlers;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -83,28 +85,113 @@ public class CommandHandler implements CommandExecutor
 	{
 		ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), doorName);
 		for (Door door : doors)
-			Util.messagePlayer(player, door.getDoorUID() + " (" + door.getPermission() + ")" + ": " + door.getName().toString());
+			Util.messagePlayer(player, getBasicDoorInfo(door));
+	}
+	
+	// Print a list of the doors currently in the db.
+	public void listDoorInfo(Player player, String name)
+	{
+		long doorUID = longFromString(name);
+		if (doorUID != -1)
+			Util.messagePlayer(player, getFullDoorInfo(plugin.getCommander().getDoor(doorUID)));
+		else
+		{
+			ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
+			for (Door door : doors)
+				Util.messagePlayer(player, getFullDoorInfo(door));
+		}
 	}
 	
 	public void listDoorInfo(Player player, Door door)
 	{
-		Util.messagePlayer(player, door.getDoorUID() 	       + ": "   + door.getName().toString()     + 
+		Util.messagePlayer(player, getFullDoorInfo(door));
+	}
+	
+	public void listDoorInfoFromConsole(String str)
+	{
+		long doorUID = longFromString(str);
+		if (doorUID == -1)
+		{
+			plugin.getMyLogger().myLogger(Level.INFO, "Door not found! Please remember to use doorUIDs! "
+					              + "Find them using /ListDoors <DoorName || PlayerName || PlayerUUID>");
+			return;
+		}
+		Door door = plugin.getCommander().getDoor(doorUID);
+		if (door == null)
+			return;
+		plugin.getMyLogger().myLogger(Level.INFO, nameFromUUID(door.getPlayerUUID()) + ": " + getFullDoorInfo(door));
+	}
+	
+	private void listDoorsFromConsole(String playerUID, String name)
+	{
+		ArrayList<Door> doors = plugin.getCommander().getDoors(playerUID, name);
+		for (Door door : doors)
+		{
+			String playerName = nameFromUUID(door.getPlayerUUID());
+			plugin.getMyLogger().myLogger(Level.INFO, 
+					(playerName == null ? "" : playerName + ": ") + getBasicDoorInfo(door));
+		}
+	}
+	
+	public void listDoorsFromConsole(String str)
+	{
+		String playerUUID = playerUUIDFromString(str);
+		if (playerUUID != null)
+			listDoorsFromConsole(playerUUID, null);
+		else
+			listDoorsFromConsole(null, str);
+	}
+	
+	private String nameFromUUID(UUID playerUUID)
+	{
+		if (playerUUID == null)
+			return null;
+		String output = null;
+		Player player = Bukkit.getPlayer(playerUUID);
+		if (player != null)
+			output = player.getName();
+		else
+			output = Bukkit.getOfflinePlayer(playerUUID).getName();
+		return output;
+	}
+	
+	private String playerUUIDFromString(String input)
+	{
+		Player player = null;
+		player = Bukkit.getPlayer(input);
+		if (player == null)
+			try { player = Bukkit.getPlayer(UUID.fromString(input)); }
+			// Not doing anything with catch because I really couldn't care less if it didn't work.
+			catch (Exception e)	{}
+		if (player != null)
+			return player.getUniqueId().toString();
+
+		OfflinePlayer offPlayer = null;
+		try { offPlayer = Bukkit.getOfflinePlayer(UUID.fromString(input)); }
+		// Not doing anything with catch because I really couldn't care less if it didn't work.
+		catch (Exception e)	{}
+		if (offPlayer != null)
+			return offPlayer.getUniqueId().toString();
+		return null;
+	}
+	
+	private String getBasicDoorInfo(Door door)
+	{
+		return door.getDoorUID() + " (" + door.getPermission() + ")" + ": " + door.getName().toString();
+	}
+	
+	private String getFullDoorInfo(Door door)
+	{
+		
+		return 	door == null ? "Door not found!" :
+				door.getDoorUID() + ": " + door.getName().toString() + 
 				", Min("    + door.getMinimum().getBlockX() + ";"    + door.getMinimum().getBlockY() + ";" + door.getMinimum().getBlockZ() + ")" +
 				", Max("    + door.getMaximum().getBlockX() + ";"    + door.getMaximum().getBlockY() + ";" + door.getMaximum().getBlockZ() + ")" +
 				", Engine(" + door.getEngine().getBlockX()  + ";"    + door.getEngine().getBlockY()  + ";" + door.getEngine().getBlockZ()  + ")" +
 				", " + (door.isLocked() ? "" : "NOT ") + "locked"    + "; Type=" + door.getType()    + 
 				(door.getEngSide() == null ? "" : ("; EngineSide = " + door.getEngSide().toString()  + "; doorLen = " +
 				 door.getLength())) + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX()    + ";" + 
-				 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()    + ")"); 
-	}
-	
-	// Print a list of the doors currently in the db.
-	public void listDoorInfo(Player player, String name)
-	{
-		ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
-		
-		for (Door door : doors)
-			listDoorInfo(player, door);
+				 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()    + ")"; 
 	}
 
 	public boolean isValidName(String name)
@@ -270,7 +357,19 @@ public class CommandHandler implements CommandExecutor
 		}
 		catch (NumberFormatException e)
 		{
-			return 0.2;
+			return 5.0D;
+		}
+	}
+	
+	public long longFromString(String input)
+	{
+		try
+		{
+			return Long.parseLong(input);
+		}
+		catch (NumberFormatException e)
+		{
+			return -1L;
 		}
 	}
 	
@@ -355,8 +454,50 @@ public class CommandHandler implements CommandExecutor
 				}
 				else
 				{
-					double speed = args.length == 2 ? (args[1] == null ? 0.2 : speedFromString(args[1])) : 0.2;
+					double speed = args.length == 2 ? (args[1] == null ? 5 : speedFromString(args[1])) : 5;
 					openDoorCommand(sender, door, speed);
+				}
+				return true;
+			}
+		}
+
+		// /listdoors [name]
+		// /listdoors <doorName || playerName>
+		if (cmd.getName().equalsIgnoreCase("listdoors"))
+		{
+			if (sender instanceof Player)
+			{
+				player = (Player) sender;
+				if (args.length == 0)
+					listDoors(player, null);
+				else if (args.length == 1)
+					listDoors(player, args[0]);
+			}
+			else
+			{
+				if (args.length == 0)
+					return false;
+				else if (args.length == 1)
+					listDoorsFromConsole(args[0]);
+			}
+
+			return true;
+		}
+		
+		// /doorinfo <doorName>
+		// /doorinfo <doorUID>
+		if (cmd.getName().equalsIgnoreCase("doorinfo"))
+		{
+			if (args.length == 1)
+			{
+				if (sender instanceof Player)
+				{
+					player = (Player) sender;
+					listDoorInfo(player, args[0]);
+				}
+				else
+				{
+					listDoorInfoFromConsole(args[0]);
 				}
 				return true;
 			}
@@ -435,16 +576,6 @@ public class CommandHandler implements CommandExecutor
 				return true;
 			}
 			
-			// /listdoors [name]
-			if (cmd.getName().equalsIgnoreCase("listdoors"))
-			{
-				if (args.length == 0)
-					listDoors(player, null);
-				else if (args.length == 1)
-					listDoors(player, args[0]);
-				return true;
-			}
-			
 			// /unlockdoor <doorName>
 			if (cmd.getName().equalsIgnoreCase("unlockdoor"))
 				if (args.length == 1)
@@ -465,16 +596,6 @@ public class CommandHandler implements CommandExecutor
 					delDoor(player, args[0]);
 					return true;
 				}
-	
-			// /doorinfo <doorName>
-			if (cmd.getName().equalsIgnoreCase("doorinfo"))
-			{
-				if (args.length == 1)
-				{
-					listDoorInfo(player, args[0]);
-					return true;
-				}
-			}
 			
 			// /newdoor <doorName>
 			if (cmd.getName().equalsIgnoreCase("newdoor"))

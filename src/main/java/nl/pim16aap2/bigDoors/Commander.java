@@ -142,22 +142,22 @@ public class Commander
 		db.removeDoor(playerUUID, doorName);
 	}
 
-//	// Remove all doors named doorName owned by player playerUUID. doorName can not be null!
-//	public void removeDoors(String playerUUID, String doorName)
-//	{
-//		db.removeDoors(playerUUID, doorName);		
-//	}
-
 	// Returns the number of doors owner by a player and with a specific name, if provided (can be null).
 	public long countDoors(String playerUUID, String doorName)
 	{
 		return db.countDoors(playerUUID, doorName);
 	}
-
+	
 	// Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
 	public ArrayList<Door> getDoors(String playerUUID, String name)
 	{
-		return db.getDoors(playerUUID, name);
+		return playerUUID == null ? getDoors(name) : db.getDoors(playerUUID, name);
+	}
+
+	// Returns an ArrayList of doors with a specific name.
+	private ArrayList<Door> getDoors(String name)
+	{
+		return db.getDoors(name);
 	}
 
 	// Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).

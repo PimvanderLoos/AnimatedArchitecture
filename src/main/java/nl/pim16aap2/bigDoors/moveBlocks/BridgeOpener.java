@@ -205,7 +205,7 @@ public class BridgeOpener implements Opener
 	@Override
 	public boolean openDoor(Door door, double speed)
 	{
-		return openDoor(door, speed/1.5, false, false);
+		return openDoor(door, speed, false, false);
 	}
 
 	@Override
@@ -254,7 +254,7 @@ public class BridgeOpener implements Opener
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-		new BridgeMover(plugin, door.getWorld(), 0.13, door, this.upDown, openDirection, instantOpen);
+		new BridgeMover(plugin, door.getWorld(), speed, door, this.upDown, openDirection, instantOpen);
 		
 		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);

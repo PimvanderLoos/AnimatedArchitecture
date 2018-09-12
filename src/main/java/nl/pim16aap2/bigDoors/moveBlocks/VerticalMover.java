@@ -30,7 +30,6 @@ public class VerticalMover
 	private FallingBlockFactory_Vall fabf;
 	private int             	xMin, xMax, yMin, yMax, zMin, zMax;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
-	@SuppressWarnings("unused")
 	private double          	speed;
 	private Door            	door;
 	

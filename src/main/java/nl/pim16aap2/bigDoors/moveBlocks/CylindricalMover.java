@@ -39,7 +39,6 @@ public class CylindricalMover
 	private int             	 dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 	private Location        	 turningPoint, pointOpposite;
-	@SuppressWarnings("unused")
 	private double          	 speed;
 	private GetNewLocation  	 gnl;
 	private Door            	 door;
@@ -141,7 +140,7 @@ public class CylindricalMover
 					if (!instantOpen)
 						 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 						
-					savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, -1));
+					savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, (int) yAxis));
 					
 					index++;
 				}
@@ -315,7 +314,6 @@ public class CylindricalMover
 			{
 				if (counter == 0 || (counter * tickRate < endCount * tickRate - 27 && counter % 4 == 0))
 					Util.playSound(door.getEngine(), "bd.dragging2", 0.8f, 0.6f);
-				int index = 0;
 				
 				if (!plugin.getCommander().isPaused())
 					++counter;
@@ -335,73 +333,58 @@ public class CylindricalMover
 				}
 				else
 				{
-					double xAxis = turningPoint.getX();
-					do
+					for (MyBlockData block : savedBlocks)
 					{
-						double zAxis = turningPoint.getZ();
-						do
+						double radius = block.getRadius();
+						int yPos      = block.getStartY();
+						// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
+						if (replace)
 						{
-							double radius     = savedBlocks.get(index).getRadius();
-							for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+							if (block.canRot() != 0)
 							{
-								// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
-								if (replace)
-								{
-									if (savedBlocks.get(index).canRot() != 0)
-									{
-										Material mat = savedBlocks.get(index).getMat();
-										Location loc = savedBlocks.get(index).getFBlock().getLocation();
-										Byte matData = savedBlocks.get(index).getBlockByte();
-										Vector veloc = savedBlocks.get(index).getFBlock().getVelocity();
-										if (yAxis != yMin)
-											loc.setY(loc.getY() - .010001);
-										CustomCraftFallingBlock_Vall fBlock;
-										// Because the block in savedBlocks is already rotated where applicable, just use that block now.
-										fBlock = fallingBlockFactory(loc, mat, (byte) matData, savedBlocks.get(index).getBlock());
-										
-										savedBlocks.get(index).getFBlock().remove();
-										savedBlocks.get(index).setFBlock(fBlock);
-										savedBlocks.get(index).getFBlock().setVelocity(veloc);
-									}
-								}
+								Material mat = block.getMat();
+								Location loc = block.getFBlock().getLocation();
+								Byte matData = block.getBlockByte();
+								Vector veloc = block.getFBlock().getVelocity();
+								// For some reason respawning fblocks puts them higher than they were, which has to be counteracted.
+								if (yPos != yMin)
+									loc.setY(loc.getY() - .010001);
+								CustomCraftFallingBlock_Vall fBlock;
+								// Because the block in savedBlocks is already rotated where applicable, just use that block now.
+								fBlock = fallingBlockFactory(loc, mat, (byte) matData, block.getBlock());
 								
-								if (isASEnabled)
-								{
-									Location vec;
-									if (radius != 0)
-										vec = (new Location(center.getWorld(), center.getX(), yAxis, center.getZ())).subtract(savedBlocks.get(index).getFBlock().getLocation());
-									else
-									{
-										Location midLoc = savedBlocks.get(indexMid).getFBlock().getLocation();
-										vec = (new Location(center.getWorld(), midLoc.getX(), yAxis, midLoc.getZ())).subtract(savedBlocks.get(index).getFBlock().getLocation());
-									}
-									savedBlocks.get(index).getFBlock().setHeadPose(directionToEuler(vec));
-								}
-								
-								if (radius != 0)
-								{
-									Location loc;
-									double addX = radius * Math.sin(stepSum);
-									double addY = 0;
-									double addZ = radius * Math.cos(stepSum);
-									
-									loc = new Location(null, center.getX() + addX,
-											                 yAxis         + addY, 
-											                 center.getZ() + addZ);
-								
-									Vector vec = loc.toVector().subtract(savedBlocks.get(index).getFBlock().getLocation().toVector());
-									vec.multiply(0.101);
-									savedBlocks.get(index).getFBlock().setVelocity(vec);
-								}
-								index++;
+								block.getFBlock().remove();
+								block.setFBlock(fBlock);
+								block.getFBlock().setVelocity(veloc);
 							}
-							zAxis += dz;
 						}
-						while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-						xAxis += dx;
+						
+						if (isASEnabled)
+						{
+							Location vec;
+							if (radius != 0)
+								vec = (new Location(center.getWorld(), center.getX(), yPos, center.getZ())).subtract(block.getFBlock().getLocation());
+							else
+							{
+								Location midLoc = savedBlocks.get(indexMid).getFBlock().getLocation();
+								vec = (new Location(center.getWorld(), midLoc.getX(), yPos, midLoc.getZ())).subtract(block.getFBlock().getLocation());
+							}
+							block.getFBlock().setHeadPose(directionToEuler(vec));
+						}
+						
+						if (radius != 0)
+						{
+							Location loc;
+							double addX = radius * Math.sin(stepSum);
+							double addZ = radius * Math.cos(stepSum);
+							
+							loc = new Location(null, center.getX() + addX, yPos, center.getZ() + addZ);
+						
+							Vector vec = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
+							vec.multiply(0.101);
+							block.getFBlock().setVelocity(vec);
+						}
 					}
-					while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-					replace = false;
 				}
 			}
 		}.runTaskTimer(plugin, 14, 4);
@@ -419,8 +402,6 @@ public class CylindricalMover
 	
 	private EulerAngle directionToEuler(Location dir) 
 	{
-//	    double xzLength =  Math.sqrt(dir.getX() * dir.getX()  + dir.getZ() * dir.getZ());
-//	    double pitch    =  Math.atan2(xzLength,   dir.getY()) - Math.PI / 2;
 	    double yaw      = -Math.atan2(dir.getX(), dir.getZ()) + Math.PI / 2;
 	    return new EulerAngle(0, yaw, 0);
 	}

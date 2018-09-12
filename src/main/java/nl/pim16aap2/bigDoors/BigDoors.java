@@ -44,7 +44,7 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 // TODO: Get rid of "Multiple doors with that name found" message when there are actually 0 hits.
 // TODO: Allow a "Door Info" tool, that can get door info from hitting a power block.
 // TODO: Make sure that doors don't get fucked up when player leaves the area or when the server stops.
-// TODO: Load default resource pack on login if resource pack isn't null in config.
+// TODO: Have only 1 option for resource pack in the config.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -136,10 +136,8 @@ public class BigDoors extends JavaPlugin implements Listener
 		liveDevelopmentLoad();
 		
 		// If a resource pack was set for the current version of Minecraft, send that pack to the client on login.
-		if (!config.getString("resourcePack"    ).equals("NONE") && !is1_13 || 
-			!config.getString("resourcePack1_13").equals("NONE") &&  is1_13)
-			Bukkit.getPluginManager().registerEvents(new LoginResourcePackHandler(this, 
-					(is1_13 ? config.getString("resourcePack1_13") : config.getString("resourcePack"))), this);
+		if (!config.getString("resourcePack").equals("NONE"))
+			Bukkit.getPluginManager().registerEvents(new LoginResourcePackHandler(this, config.getString("resourcePack")), this);
 		
 		if (config.getBool("checkForUpdates"))
 		{
