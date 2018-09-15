@@ -30,12 +30,13 @@ public class VerticalMover
 	private FallingBlockFactory_Vall fabf;
 	private int             	xMin, xMax, yMin, yMax, zMin, zMax;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
-	private double          	speed;
+	private double          	time;
+	private int    	        tickRate;
 	private Door            	door;
 	
 	
 	@SuppressWarnings("deprecation")
-	public VerticalMover(BigDoors plugin, World world, double speed, Door door, boolean instantOpen, int blocksToMove)
+	public VerticalMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove)
 	{
 		this.plugin         = plugin;
 		this.world          = world;
@@ -51,8 +52,17 @@ public class VerticalMover
 		this.yMax  = door.getMaximum().getBlockY();
 		this.zMax  = door.getMaximum().getBlockZ();
 		
-		this.speed = speed;
-
+		double speed;
+		int maxSpeed = 8;
+		if (time == 0.0 || Math.abs(blocksToMove) / time > maxSpeed)
+		{
+			speed = 2 * blocksToMove < 0 ? 1.8 : 1;
+			this.time = Math.abs(blocksToMove) / speed;
+		}
+		else
+			speed = Math.abs(blocksToMove) / time;
+		this.tickRate = Util.tickRateFromSpeed(speed);
+				
 		int index  = 0;
 		int yAxis  = yMin;
 		do
@@ -220,25 +230,26 @@ public class VerticalMover
 		new BukkitRunnable()
 		{
 			int counter       = 0;
-			int tickRate      = 4;
-			double timeToOpen = speed; // seconds.
-			int totalTicks    = (int) (20 / tickRate * timeToOpen);
-			double step       = ((double) blocksToMove) / ((double) totalTicks);
+			int endCount      = (int) (20 / tickRate * time);
+			double step       = ((double) blocksToMove) / ((double) endCount);
 			double stepSum    = 0;
-			int endCount      = (int) (totalTicks * 1.05);
+			int totalTicks    = (int) (endCount * 1.1);
 			
 			@Override
 			public void run()
 			{
-				if (counter == 0 || (counter * tickRate < endCount * tickRate - 27 && counter % 4 == 0))
+				if (counter == 0 || (counter < endCount - 27 && counter % 4 == 0))
 					Util.playSound(door.getEngine(), "bd.dragging2", 0.8f, 0.6f);
 				int index = 0;
 				
 				if (!plugin.getCommander().isPaused())
 					++counter;
-				stepSum = step * counter;
+				if (counter < endCount - 1)
+					stepSum = step * counter;
+				else 
+					stepSum = blocksToMove;
 								
-				if (!plugin.getCommander().canGo() || counter > endCount)
+				if (!plugin.getCommander().canGo() || counter > totalTicks)
 				{					
 					Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
@@ -270,7 +281,7 @@ public class VerticalMover
 					while (yAxis <= yMax);
 				}
 			}
-		}.runTaskTimer(plugin, 14, 4);
+		}.runTaskTimer(plugin, 14, tickRate);
 	}
 	
 	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)

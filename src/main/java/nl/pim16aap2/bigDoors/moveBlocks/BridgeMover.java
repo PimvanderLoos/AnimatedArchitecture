@@ -32,13 +32,15 @@ public class BridgeMover
 {
 	private World                    world;
 	private BigDoors                plugin;
+	private int                   tickRate;
 	private int                     dx, dz;
-	private double                   speed;
+	private double                    time;
 	private FallingBlockFactory_Vall  fabf;
 	private boolean                     NS;
 	private GetNewLocation             gnl;
 	private Door                      door;
 	private DoorDirection       engineSide;
+	private double              endStepSum;
 	private boolean            instantOpen;
 	private Location          turningPoint;
 	private double            startStepSum;
@@ -47,11 +49,12 @@ public class BridgeMover
 	private int           xMin, yMin, zMin;
 	private int           xMax, yMax, zMax;
 	
+	double multiplier;
 	
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 	
 	@SuppressWarnings("deprecation")
-	public BridgeMover(BigDoors plugin, World world, double speed, Door door, RotateDirection upDown, DoorDirection openDirection, boolean instantOpen)
+	public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown, DoorDirection openDirection, boolean instantOpen)
 	{
 		this.door          = door;
 		this.fabf          = plugin.getFABF();
@@ -60,22 +63,30 @@ public class BridgeMover
 		this.engineSide    = door.getEngSide();
 		this.NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
 		this.instantOpen   = instantOpen;
-			
-		this.speed   = speed;
 				
-		this.xMin    = door.getMinimum().getBlockX();
-		this.yMin    = door.getMinimum().getBlockY();
-		this.zMin    = door.getMinimum().getBlockZ();
+		this.xMin     = door.getMinimum().getBlockX();
+		this.yMin     = door.getMinimum().getBlockY();
+		this.zMin     = door.getMinimum().getBlockZ();
 		
-		this.xMax    = door.getMaximum().getBlockX();
-		this.yMax    = door.getMaximum().getBlockY();
-		this.zMax    = door.getMaximum().getBlockZ();
+		this.xMax     = door.getMaximum().getBlockX();
+		this.yMax     = door.getMaximum().getBlockY();
+		this.zMax     = door.getMaximum().getBlockZ();
 		
-				
+		int xLen      = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
+		int yLen      = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
+		int zLen      = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
+		int doorSize  = Math.max(xLen, Math.max(yLen, zLen)) + 1;
+		
+		double vars[] = Util.calculateTimeAndTickRate(doorSize, time, 0.0);
+		this.time     = vars[0];
+		this.tickRate = (int) vars[1];
+		
+		this.multiplier = doorSize < 6  ? 1.4 : 
+		                  doorSize < 10 ? 1.3 : 1.1;		
+		
 		// Regarding dx, dz. These variables determine whether loops get incremented (1) or decremented (-1)
 		// When looking in the direction of the opposite point from the engine side, the blocks should get 
 		// Processed from left to right and from the engine to the opposite. 
-
 		/* Pointing:   Degrees:
 		 * UP            0 or 360
 		 * EAST         90
@@ -83,6 +94,7 @@ public class BridgeMover
 		 * NORTH       270
 		 * SOUTH        90
 		 */
+		this.endStepSum     = -1;
 		this.startStepSum   = -1;
 		this.stepMultiplier = -1;
 		
@@ -98,12 +110,14 @@ public class BridgeMover
 			if (upDown.equals(RotateDirection.UP))
 			{
 				this.pointOpposite  = new Location(world, xMax, yMin, zMax);
+				this.endStepSum     =  0;
 				this.startStepSum   =  Math.PI / 2;
 				this.stepMultiplier = -1;
 			}
 			else
 			{
-				this.startStepSum   = 0;
+				this.startStepSum   =  0;
+				this.endStepSum     =  Math.PI / 2;
 				this.pointOpposite  = new Location(world, xMax, yMax, zMin);
 				if (openDirection.equals(DoorDirection.NORTH))
 					this.stepMultiplier = -1;
@@ -122,11 +136,13 @@ public class BridgeMover
 			{
 				this.pointOpposite  = new Location(world, xMin, yMin, zMin);
 				this.startStepSum   = -Math.PI / 2;
+				this.endStepSum     =  0;
 				this.stepMultiplier =  1;
 			}
 			else
 			{
-				this.startStepSum   = 0;
+				this.startStepSum   =  0;
+				this.endStepSum     = -Math.PI / 2;
 				this.pointOpposite  = new Location(world, xMin, yMax, zMax);
 				if (openDirection.equals(DoorDirection.NORTH))
 					this.stepMultiplier = -1;
@@ -145,11 +161,13 @@ public class BridgeMover
 			{
 				this.pointOpposite  = new Location(world, xMin, yMin, zMax);
 				this.startStepSum   = -Math.PI / 2;
+				this.endStepSum     =  0;
 				this.stepMultiplier =  1;
 			}
 			else
 			{
-				this.startStepSum   = 0;
+				this.startStepSum   =  0;
+				this.endStepSum     = -Math.PI / 2;
 				this.pointOpposite  = new Location(world, xMax, yMax, zMax);
 				if (openDirection.equals(DoorDirection.EAST))
 					this.stepMultiplier =  1;
@@ -168,11 +186,13 @@ public class BridgeMover
 			{	
 				this.pointOpposite  = new Location(world, xMax, yMin, zMin);
 				this.startStepSum   =  Math.PI / 2;
+				this.endStepSum     =  0;
 				this.stepMultiplier = -1;
 			}
 			else
 			{
-				this.startStepSum   = 0;
+				this.startStepSum   =  0;
+				this.endStepSum     =  Math.PI / 2;
 				this.pointOpposite  = new Location(world, xMin, yMax, zMin);
 				if (openDirection.equals(DoorDirection.EAST))
 					this.stepMultiplier =  1;
@@ -409,12 +429,10 @@ public class BridgeMover
 			Location center   = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
 			boolean replace   = false;
 			int counter       = 0;
-			int tickRate      = 4;
-			double timeToOpen = speed; // seconds.
-			int totalTicks    = (int) (20 / tickRate * timeToOpen);
-			double step       = (Math.PI / 2) / totalTicks * stepMultiplier;
+			int endCount      = (int) (20 / tickRate * time);
+			double step       = (Math.PI / 2) / endCount * stepMultiplier;
 			double stepSum    = startStepSum;
-			int endCount      = (int) (totalTicks * 1.05);
+			int totalTicks    = (int) (endCount * multiplier);
 			int replaceCount  = (int) (endCount / 2);
 			
 			@Override
@@ -425,13 +443,17 @@ public class BridgeMover
 				
 				if (!plugin.getCommander().isPaused())
 					++counter;
-				stepSum = startStepSum + step * counter;
-
+				
+				if (counter < endCount - 1)
+					stepSum = startStepSum + step * counter;
+				else 
+					stepSum = endStepSum;
+				
 				replace = false;
 				if (counter == replaceCount)
 					replace = true;
 				
-				if (!plugin.getCommander().canGo() || counter > endCount)
+				if (!plugin.getCommander().canGo() || counter > totalTicks)
 				{					
 					Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
@@ -484,7 +506,7 @@ public class BridgeMover
 					}
 				}
 			}
-		}.runTaskTimer(plugin, 14, 4);
+		}.runTaskTimer(plugin, 14, tickRate);
 	}
 	
 	// Rotate blocks such a logs by modifying its material data.

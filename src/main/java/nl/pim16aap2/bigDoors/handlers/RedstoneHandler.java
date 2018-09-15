@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigDoors.handlers;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -36,7 +39,7 @@ public class RedstoneHandler implements Listener
 		Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
 		
         if (door != null && !door.isLocked())
-        		return plugin.getDoorOpener(door.getType()).openDoor(door, 5.0, false, true);
+        		return plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, true);
 		return false;
 	}
 	
@@ -75,7 +78,9 @@ public class RedstoneHandler implements Listener
         catch (Exception e)
         {
 			plugin.getMyLogger().logMessage("Exception thrown while handling redstone event!", true, false);
-			plugin.getMyLogger().logMessage("79 " + e.getMessage());
+            StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			plugin.getMyLogger().logMessage("79 " + sw.toString());
         }
     }
 }

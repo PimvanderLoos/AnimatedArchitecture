@@ -24,6 +24,66 @@ public final class Util
 				((Player) ent).playSound(loc, sound, volume, pitch);
 	}
 	
+	public static int tickRateFromSpeed(double speed)
+	{
+		int tickRate;
+		if (speed > 9)
+			tickRate = 1;
+		else if (speed > 7)
+			tickRate = 2;
+		else if (speed > 6)
+			tickRate = 3;
+		else
+			tickRate = 4;
+		return tickRate;
+	}
+	
+	// Return {time, tickRate} for a given door size.
+	public static double[] calculateTimeAndTickRate(int doorSize, double time, double multiplier)
+	{
+		double ret[]    = new double[2];
+		double distance = Math.PI * doorSize / 2;
+		if (time == 0.0)
+			time = 3 + doorSize / 3.5;
+		double speed = distance / time;
+		if (multiplier != 0.0)
+			speed *= multiplier;
+		
+		// Too fast or too slow!
+		double maxSpeed = 11;
+		if (speed > maxSpeed || speed <= 0)
+			time = distance / maxSpeed;
+		
+		ret[0] = time;
+		ret[1] = tickRateFromSpeed(speed);
+		
+		return ret;
+	}
+
+	public static double doubleFromString(String input, double defaultVal)
+	{
+		try
+		{
+			return input == null ? defaultVal : Double.parseDouble(input);
+		}
+		catch (NumberFormatException e)
+		{
+			return defaultVal;
+		}
+	}
+	
+	public static long longFromString(String input, long defaultVal)
+	{
+		try
+		{
+			return input == null ? defaultVal : Long.parseLong(input);
+		}
+		catch (NumberFormatException e)
+		{
+			return defaultVal;
+		}
+	}
+	
 	// Send a message to a player.
 	public static void messagePlayer(Player player, String s)
 	{

@@ -42,9 +42,9 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 // TODO: Make DoorInfo work for console.
 // TODO: Make ListDoors explain there are no doors found when none around found.
 // TODO: Get rid of "Multiple doors with that name found" message when there are actually 0 hits.
-// TODO: Allow a "Door Info" tool, that can get door info from hitting a power block.
+// TODO: Add a "Door Info" tool, that can get door info from hitting a power block.
 // TODO: Make sure that doors don't get fucked up when player leaves the area or when the server stops.
-// TODO: Have only 1 option for resource pack in the config.
+// TODO: Make additional movement in animation algorithms depend on speed rather than size.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -432,31 +432,31 @@ public class BigDoors extends JavaPlugin implements Listener
 	 * API (ish) Starts here.
 	 */
 	
-	// (Instantly?) Toggle a door with a given speed.
-	private boolean toggleDoor(Door door, double speed, boolean instantOpen)
+	// (Instantly?) Toggle a door with a given time.
+	private boolean toggleDoor(Door door, double time, boolean instantOpen)
 	{
-		return this.getDoorOpener(door.getType()).openDoor(door, speed, instantOpen, false);
+		return this.getDoorOpener(door.getType()).openDoor(door, time, instantOpen, false);
 	}
 	
 	// Toggle a door from a doorUID and instantly or not.
 	public boolean toggleDoor(long doorUID, boolean instantOpen)
 	{
 		Door door = this.getCommander().getDoor(doorUID);
-		return toggleDoor(door, 5.0, instantOpen);
+		return toggleDoor(door, 0.0, instantOpen);
 	}
 	
-	// Toggle a door from a doorUID and a given speed.
-	public boolean toggleDoor(long doorUID, double speed)
+	// Toggle a door from a doorUID and a given time.
+	public boolean toggleDoor(long doorUID, double time)
 	{
 		Door door = this.getCommander().getDoor(doorUID);
-		return toggleDoor(door, speed, false);
+		return toggleDoor(door, time, false);
 	}
 	
 	// Toggle a door from a doorUID using default values.
 	public boolean toggleDoor(long doorUID)
 	{
 		Door door = this.getCommander().getDoor(doorUID);
-		return toggleDoor(door, 5.0, false);
+		return toggleDoor(door, 0.0, false);
 	}
 	
 	// Check the open-status of a door.

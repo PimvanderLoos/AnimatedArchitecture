@@ -39,11 +39,6 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
 			rot = EnumBlockRotation.NONE;
 		}
 		this.blockData = blockData.a(rot);
-//		this.nmsBlock  = blockData.getBlock();
-//		Bukkit.broadcastMessage("BlockData = " + blockData);
-//		BlockPosition blockPos = null;
-//		EnumBlockFaceShape face = blockData.c(blockData, blockPos, EnumDirection.UP);
-//		return this.nmsBlock;
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -37,9 +38,12 @@ public class CylindricalMover
 	private FallingBlockFactory_Vall fabf;
 	private RotateDirection 	 rotDirection;
 	private int             	 dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
+	private double       	 endStepSum;
+	private int        	     tickRate;
+	private double  	         multiplier;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 	private Location        	 turningPoint, pointOpposite;
-	private double          	 speed;
+	private double          	 time;
 	private GetNewLocation  	 gnl;
 	private Door            	 door;
 	private boolean       	 isASEnabled;
@@ -48,7 +52,7 @@ public class CylindricalMover
 	
 	
 	@SuppressWarnings("deprecation")
-	public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double speed,
+	public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
 			Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
 	{
 		this.pointOpposite    = pointOpposite;
@@ -62,17 +66,24 @@ public class CylindricalMover
 		this.instantOpen      = instantOpen;
 		this.stepMultiplier   = rotDirection == RotateDirection.CLOCKWISE   ? -1 : 1;
 		
-		this.xMin    = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
-		this.yMin    = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
-		this.zMin    = turningPoint.getBlockZ() < pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
-		this.xMax    = turningPoint.getBlockX() > pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
-		this.yMax    = turningPoint.getBlockY() > pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
-		this.zMax    = turningPoint.getBlockZ() > pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
+		this.xMin     = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
+		this.yMin     = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
+		this.zMin     = turningPoint.getBlockZ() < pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
+		this.xMax     = turningPoint.getBlockX() > pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
+		this.yMax     = turningPoint.getBlockY() > pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
+		this.zMax     = turningPoint.getBlockZ() > pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
 		
-		this.speed   = speed;
-
-		this.dx      = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
-		this.dz      = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
+		int xLen        = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
+		int zLen        = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
+		int doorSize    = Math.max(xLen, zLen) + 1;
+		this.multiplier = doorSize < 6  ? 1.4 : 
+		                  doorSize < 10 ? 1.3 : 1.1;
+		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, 0.0);
+		this.time       = vars[0];
+		this.tickRate   = (int) vars[1];
+		
+		this.dx   = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
+		this.dz   = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
 		int index = 0;
 		double xAxis = turningPoint.getX();
 		do
@@ -156,18 +167,22 @@ public class CylindricalMover
 		case NORTH:
 			this.gnl     = new GetNewLocationNorth(world, xMin, xMax, zMin, zMax, rotDirection);
 			startStepSum = Math.PI;
+			endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 : 3 * Math.PI / 2;
 			break;
 		case EAST:
 			this.gnl     = new GetNewLocationEast (world, xMin, xMax, zMin, zMax, rotDirection);
 			startStepSum = Math.PI / 2;
+			endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? 0 : Math.PI;
 			break;
 		case SOUTH:
 			this.gnl     = new GetNewLocationSouth(world, xMin, xMax, zMin, zMax, rotDirection);
 			startStepSum = 0;
+			endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? 3 * Math.PI / 2 : Math.PI / 2;
 			break;
 		case WEST:
 			this.gnl     = new GetNewLocationWest (world, xMin, xMax, zMin, zMax, rotDirection);
 			startStepSum = 3 * Math.PI / 2;
+			endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? Math.PI : 0;
 			break;
 		}
 		
@@ -297,33 +312,34 @@ public class CylindricalMover
 	{
 		new BukkitRunnable()
 		{
+			int indexMid      = savedBlocks.size() / 2;
 			Location center   = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
 			boolean replace   = false;
-			int indexMid      = savedBlocks.size() / 2;
 			int counter       = 0;
-			int tickRate      = 4;
-			double timeToOpen = speed; // seconds.
-			int totalTicks    = (int) (20 / tickRate * timeToOpen);
-			double step       = (Math.PI / 2) / totalTicks;
+			int endCount      = (int) (20 / tickRate * time);
+			double step       = (Math.PI / 2) / endCount * stepMultiplier;
 			double stepSum    = startStepSum;
-			int endCount      = (int) (totalTicks * 1.05);
+			int totalTicks    = (int) (endCount * multiplier);
 			int replaceCount  = (int) (endCount / 2);
 			
 			@Override
 			public void run()
 			{
-				if (counter == 0 || (counter * tickRate < endCount * tickRate - 27 && counter % 4 == 0))
+				if (counter == 0 || (counter < endCount - 27 / tickRate && counter % 7 == 0))
 					Util.playSound(door.getEngine(), "bd.dragging2", 0.8f, 0.6f);
 				
 				if (!plugin.getCommander().isPaused())
 					++counter;
-				stepSum = startStepSum + step * stepMultiplier * counter;
+				if (counter < endCount - 1)
+					stepSum = startStepSum + step * counter;
+				else 
+					stepSum = endStepSum;
 
 				replace = false;
 				if (counter == replaceCount)
 					replace = true;
 				
-				if (!plugin.getCommander().canGo() || counter > endCount)
+				if (!plugin.getCommander().canGo() || counter > totalTicks)
 				{					
 					Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.85f, 1f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)

@@ -47,7 +47,7 @@ public class CommandHandler implements CommandExecutor
 	}
 	
 	// Open the door.
-	public void openDoorCommand(CommandSender sender, Door door, double speed)
+	public void openDoorCommand(CommandSender sender, Door door, double time)
 	{
 		// Get a new instance of the door to make sure the locked / unlocked status is recent.
 		if (plugin.getCommander().getDoor(door.getDoorUID()).isLocked())
@@ -55,18 +55,18 @@ public class CommandHandler implements CommandExecutor
 		// If the sender is a Player && the player's permission level is larger than 1 for this door, the player doesn't have permission (for now).
 		else if (sender instanceof Player && plugin.getCommander().getPermission(((Player) (sender)).getUniqueId().toString(), door.getDoorUID()) > 1)
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "You do not have permission to open this door!");
-		else if (!plugin.getDoorOpener(door.getType()).openDoor(door, speed))
+		else if (!plugin.getDoorOpener(door.getType()).openDoor(door, time))
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "This door cannot be opened! Check if one side of the \"engine\" blocks is unobstructed!");
 	}
 	
-	public void openDoorCommand(Player player, Door door, double speed)
+	public void openDoorCommand(Player player, Door door, double time)
 	{
-		openDoorCommand((CommandSender) player, door, speed);
+		openDoorCommand((CommandSender) player, door, time);
 	}
 	
 	public void openDoorCommand(Player player, Door door)
 	{
-		openDoorCommand((CommandSender) player, door, 5.0);
+		openDoorCommand((CommandSender) player, door, 0.0);
 	}
 	
 	public void lockDoorCommand(Player player, Door door)
@@ -91,7 +91,7 @@ public class CommandHandler implements CommandExecutor
 	// Print a list of the doors currently in the db.
 	public void listDoorInfo(Player player, String name)
 	{
-		long doorUID = longFromString(name);
+		long doorUID = Util.longFromString(name, -1L);
 		if (doorUID != -1)
 			Util.messagePlayer(player, getFullDoorInfo(plugin.getCommander().getDoor(doorUID)));
 		else
@@ -109,7 +109,7 @@ public class CommandHandler implements CommandExecutor
 	
 	public void listDoorInfoFromConsole(String str)
 	{
-		long doorUID = longFromString(str);
+		long doorUID = Util.longFromString(str, -1L);
 		if (doorUID == -1)
 		{
 			plugin.getMyLogger().myLogger(Level.INFO, "Door not found! Please remember to use doorUIDs! "
@@ -348,31 +348,6 @@ public class CommandHandler implements CommandExecutor
 		return null;
 	}
 	
-	// Retrieve the speed value from a string.
-	public double speedFromString(String input)
-	{
-		try
-		{
-			return Double.parseDouble(input);
-		}
-		catch (NumberFormatException e)
-		{
-			return 5.0D;
-		}
-	}
-	
-	public long longFromString(String input)
-	{
-		try
-		{
-			return Long.parseLong(input);
-		}
-		catch (NumberFormatException e)
-		{
-			return -1L;
-		}
-	}
-	
 	// Handle commands.
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
@@ -408,7 +383,7 @@ public class CommandHandler implements CommandExecutor
 			return true;
 		}
 		
-		// /opendoors <doorName1> <doorName2> etc etc [speed]
+		// /opendoors <doorName1> <doorName2> etc etc [time]
 		if (cmd.getName().equalsIgnoreCase("opendoors"))
 		{
 			if (args.length >= 2)
@@ -418,8 +393,9 @@ public class CommandHandler implements CommandExecutor
 				else
 					player = null;
 				
-				// If the last argument is not a door (so getDoor returns null), it should be the speed. If it it null, use default speed.
-				double speed = 5.0;
+				String lastStr = args[args.length - 1];
+				// Last argument sets speed if it's a double.
+				double time = Util.longFromString(lastStr, -1L) == -1L ? Util.doubleFromString(lastStr, 0.0D) : 0.0D;
 				
 				for (int index = 0; index < args.length; ++index)
 				{
@@ -427,7 +403,7 @@ public class CommandHandler implements CommandExecutor
 					if (door == null && index != args.length - 1)
 						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" is not a valid door name!");
 					else if (door != null)
-						openDoorCommand(sender, door, speed);
+						openDoorCommand(sender, door, time);
 				}
 				return true;
 			}
@@ -454,8 +430,8 @@ public class CommandHandler implements CommandExecutor
 				}
 				else
 				{
-					double speed = args.length == 2 ? (args[1] == null ? 5 : speedFromString(args[1])) : 5;
-					openDoorCommand(sender, door, speed);
+					double time = args.length == 2 ? Util.doubleFromString(args[1], 0.0D) : 0.0;
+					openDoorCommand(sender, door, time);
 				}
 				return true;
 			}
@@ -547,7 +523,10 @@ public class CommandHandler implements CommandExecutor
 			{
 				if (args.length < 1)
 					return false;
-				long doorUID = plugin.getCommander().getDoor(args[0], player).getDoorUID();
+				Door door = plugin.getCommander().getDoor(args[0], player);
+				if (door == null)
+					return true;
+				long doorUID = door.getDoorUID();
 				this.relocatePowerBlock(player, doorUID);
 				return true;
 			}

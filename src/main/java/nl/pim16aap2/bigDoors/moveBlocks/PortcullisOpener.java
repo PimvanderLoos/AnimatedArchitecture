@@ -58,14 +58,14 @@ public class PortcullisOpener implements Opener
 	}
 
 	@Override
-	public boolean openDoor(Door door, double speed)
+	public boolean openDoor(Door door, double time)
 	{
-		return openDoor(door, speed, false, false);
+		return openDoor(door, time, false, false);
 	}
 	
 	// Open a door.
 	@Override
-	public boolean openDoor(Door door, double speed, boolean instantOpen, boolean silent)
+	public boolean openDoor(Door door, double time, boolean instantOpen, boolean silent)
 	{
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
@@ -94,7 +94,7 @@ public class PortcullisOpener implements Opener
 			// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 			plugin.getCommander().setDoorBusy(door.getDoorUID());
 			
-			new VerticalMover(plugin, door.getWorld(), speed, door, instantOpen, blocksToMove);
+			new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove);
 
 			// Tell the door object it has been opened and what its new coordinates are.
 			toggleOpen  (door);
