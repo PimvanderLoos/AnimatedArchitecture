@@ -396,8 +396,11 @@ public class CommandHandler implements CommandExecutor
 				String lastStr = args[args.length - 1];
 				// Last argument sets speed if it's a double.
 				double time = Util.longFromString(lastStr, -1L) == -1L ? Util.doubleFromString(lastStr, 0.0D) : 0.0D;
+				int endIDX = args.length;
+				if (time != 0.0D)
+					--endIDX;
 				
-				for (int index = 0; index < args.length; ++index)
+				for (int index = 0; index < endIDX; ++index)
 				{
 					Door door = plugin.getCommander().getDoor(args[index], player);
 					if (door == null && index != args.length - 1)

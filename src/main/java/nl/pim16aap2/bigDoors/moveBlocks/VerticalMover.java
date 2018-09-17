@@ -23,48 +23,58 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class VerticalMover
 {
-	private BigDoors        	plugin;
-	private World           	world;
-	private boolean     		instantOpen;
-	private int          	blocksToMove;
-	private FallingBlockFactory_Vall fabf;
-	private int             	xMin, xMax, yMin, yMax, zMin, zMax;
+	private FallingBlockFactory_Vall  fabf;
+	private Door                      door;
+	private double                    time;
+	private World                    world;
+	private BigDoors                plugin;
+	private int                   tickRate;
+	private boolean            instantOpen;
+	private int               blocksToMove;
+	private int           xMin, xMax, yMin;
+	private int           yMax, zMin, zMax;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
-	private double          	time;
-	private int    	        tickRate;
-	private Door            	door;
-	
 	
 	@SuppressWarnings("deprecation")
 	public VerticalMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove)
 	{
-		this.plugin         = plugin;
-		this.world          = world;
-		this.door           = door;
-		this.fabf           = plugin.getFABF();
-		this.instantOpen    = instantOpen;
-		this.blocksToMove   = blocksToMove;
+		this.plugin       = plugin;
+		this.world        = world;
+		this.door         = door;
+		this.fabf         = plugin.getFABF();
+		this.instantOpen  = instantOpen;
+		this.blocksToMove = blocksToMove;
 		
-		this.xMin  = door.getMinimum().getBlockX();
-		this.yMin  = door.getMinimum().getBlockY();
-		this.zMin  = door.getMinimum().getBlockZ();
-		this.xMax  = door.getMaximum().getBlockX();
-		this.yMax  = door.getMaximum().getBlockY();
-		this.zMax  = door.getMaximum().getBlockZ();
+		this.xMin = door.getMinimum().getBlockX();
+		this.yMin = door.getMinimum().getBlockY();
+		this.zMin = door.getMinimum().getBlockZ();
+		this.xMax = door.getMaximum().getBlockX();
+		this.yMax = door.getMaximum().getBlockY();
+		this.zMax = door.getMaximum().getBlockZ();
 		
-		double speed;
-		int maxSpeed = 8;
+		double speed  = 1;
+		double pcMult = plugin.getConfigLoader().getDouble("pcMultiplier");
+		pcMult = pcMult == 0.0 ? 1.0 : pcMult;
+		int maxSpeed  = 6;
+		// If the time isn't default, calculate speed.
+		if (time != 0.0)
+		{
+			speed     = Math.abs(blocksToMove) / time * pcMult;
+			this.time = time;
+		};
+		
+		// If the non-default exceeds the max-speed or isn't set, calculate default speed.
 		if (time == 0.0 || Math.abs(blocksToMove) / time > maxSpeed)
 		{
-			speed = 2 * blocksToMove < 0 ? 1.8 : 1;
+			speed     = blocksToMove < 0 ? 1.7 : 0.8 * pcMult;
+			speed     = speed > maxSpeed ? maxSpeed : speed;
 			this.time = Math.abs(blocksToMove) / speed;
 		}
-		else
-			speed = Math.abs(blocksToMove) / time;
+		
 		this.tickRate = Util.tickRateFromSpeed(speed);
-				
-		int index  = 0;
-		int yAxis  = yMin;
+		
+		int index = 0;
+		int yAxis = yMin;
 		do
 		{
 			int zAxis = zMin;

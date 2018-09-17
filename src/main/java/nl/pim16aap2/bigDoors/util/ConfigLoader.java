@@ -19,6 +19,9 @@ public class ConfigLoader
 	private String           dbFile;
 	private boolean      allowStats;
 	private int         maxDoorSize;
+	private double     pcMultiplier = 1.0;
+	private double     dbMultiplier = 1.0;
+	private double     bdMultiplier = 1.0;
 	private String     resourcePack;
 	private String     languageFile;
 	private int        maxDoorCount;
@@ -73,6 +76,13 @@ public class ConfigLoader
 	    		"The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl + "'",
 	    		"The default resource pack for 1.13.x is: \'" + defResPackUrl1_13 + "\'"
 	    	};
+    private String[] multiplierComment       =
+	    	{
+	    		"These multipliers affect the opening/closing speed of their respective door types.",
+	    		"Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
+	    		"To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
+	    		"bd = Big Door, pc = Portcullis, db = Drawbridge."
+	    	};
     
 	
 	private ArrayList<ConfigOption> configOptionsList;
@@ -111,6 +121,12 @@ public class ConfigLoader
 		configOptionsList.add(new ConfigOption( "maxDoorSize"     , maxDoorSize     , maxDoorSizeComment    ));
 		resourcePack     = config.getString(    "resourcePack"    , defResPackUrl    );
 		configOptionsList.add(new ConfigOption( "resourcePack"    , resourcePack    , resourcePackComment   ));
+		bdMultiplier     = config.getDouble(    "bdMultiplier"    , 0.0D             );
+		configOptionsList.add(new ConfigOption( "bdMultiplier"    , bdMultiplier    , multiplierComment     ));
+		pcMultiplier     = config.getDouble(    "pcMultiplier"    , 0.0D             );
+		configOptionsList.add(new ConfigOption( "pcMultiplier"    , pcMultiplier    , null                  ));
+		dbMultiplier     = config.getDouble(    "dbMultiplier"    , 0.0D             );
+		configOptionsList.add(new ConfigOption( "dbMultiplier"    , dbMultiplier    , null                  ));
 		
 		writeConfig();
 	}
@@ -143,9 +159,6 @@ public class ConfigLoader
 				pw.println(configOptionsList.get(idx).toString() + 
 						// Only print an additional newLine if the next config option has a comment.
 						(idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? "" : "\n"));
-			
-//			for (ConfigOption configOption : configOptionsList)
-//				pw.println(configOption.toString() + "\n");
 			 
 			pw.flush();
 			pw.close();
@@ -186,6 +199,14 @@ public class ConfigLoader
 		for (ConfigOption configOption : configOptionsList)
 			if (configOption.getName().equals(path))
 				return configOption.getStringList();
+		return null;
+	}
+	
+	public Double getDouble(String path)
+	{
+		for (ConfigOption configOption : configOptionsList)
+			if (configOption.getName().equals(path))
+				return configOption.getDouble();
 		return null;
 	}
 }

@@ -44,7 +44,6 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 // TODO: Get rid of "Multiple doors with that name found" message when there are actually 0 hits.
 // TODO: Add a "Door Info" tool, that can get door info from hitting a power block.
 // TODO: Make sure that doors don't get fucked up when player leaves the area or when the server stops.
-// TODO: Make additional movement in animation algorithms depend on speed rather than size.
 
 public class BigDoors extends JavaPlugin implements Listener
 {

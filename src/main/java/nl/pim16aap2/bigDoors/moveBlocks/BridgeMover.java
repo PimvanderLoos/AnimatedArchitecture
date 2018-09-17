@@ -32,7 +32,8 @@ public class BridgeMover
 {
 	private World                    world;
 	private BigDoors                plugin;
-	private int                   tickRate;
+	private int                   tickRate;	
+	private double              multiplier;
 	private int                     dx, dz;
 	private double                    time;
 	private FallingBlockFactory_Vall  fabf;
@@ -48,41 +49,33 @@ public class BridgeMover
 	private int             stepMultiplier;
 	private int           xMin, yMin, zMin;
 	private int           xMax, yMax, zMax;
-	
-	double multiplier;
-	
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 	
 	@SuppressWarnings("deprecation")
 	public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown, DoorDirection openDirection, boolean instantOpen)
 	{
-		this.door          = door;
-		this.fabf          = plugin.getFABF();
-		this.world         = world;
-		this.plugin        = plugin;
-		this.engineSide    = door.getEngSide();
-		this.NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
-		this.instantOpen   = instantOpen;
+		this.door        = door;
+		this.fabf        = plugin.getFABF();
+		this.world       = world;
+		this.plugin      = plugin;
+		this.engineSide  = door.getEngSide();
+		this.NS          = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
+		this.instantOpen = instantOpen;
 				
-		this.xMin     = door.getMinimum().getBlockX();
-		this.yMin     = door.getMinimum().getBlockY();
-		this.zMin     = door.getMinimum().getBlockZ();
-		
-		this.xMax     = door.getMaximum().getBlockX();
-		this.yMax     = door.getMaximum().getBlockY();
-		this.zMax     = door.getMaximum().getBlockZ();
-		
-		int xLen      = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
-		int yLen      = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
-		int zLen      = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
-		int doorSize  = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-		
-		double vars[] = Util.calculateTimeAndTickRate(doorSize, time, 0.0);
-		this.time     = vars[0];
-		this.tickRate = (int) vars[1];
-		
-		this.multiplier = doorSize < 6  ? 1.4 : 
-		                  doorSize < 10 ? 1.3 : 1.1;		
+		this.xMin       = door.getMinimum().getBlockX();
+		this.yMin       = door.getMinimum().getBlockY();
+		this.zMin       = door.getMinimum().getBlockZ();
+		this.xMax       = door.getMaximum().getBlockX();
+		this.yMax       = door.getMaximum().getBlockY();
+		this.zMax       = door.getMaximum().getBlockZ();
+		int xLen        = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
+		int yLen        = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
+		int zLen        = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
+		int doorSize    = Math.max(xLen, Math.max(yLen, zLen)) + 1;
+		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().getDouble("dbMultiplier"), 5.2);
+		this.time       = vars[0];
+		this.tickRate   = (int) vars[1];
+		this.multiplier = vars[2];
 		
 		// Regarding dx, dz. These variables determine whether loops get incremented (1) or decremented (-1)
 		// When looking in the direction of the opposite point from the engine side, the blocks should get 
@@ -104,8 +97,8 @@ public class BridgeMover
 		case NORTH:
 			// When EngineSide is North, x goes from low to high and z goes from low to high
 			this.turningPoint = new Location(world, xMin, yMin, zMin);
-			this.dx      =  1;
-			this.dz      =  1;
+			this.dx =  1;
+			this.dz =  1;
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
@@ -129,8 +122,8 @@ public class BridgeMover
 		case SOUTH:
 			// When EngineSide is South, x goes from high to low and z goes from high to low
 			this.turningPoint = new Location(world, xMax, yMin, zMax);
-			this.dx      = -1;
-			this.dz      = -1;
+			this.dx = -1;
+			this.dz = -1;
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
@@ -154,8 +147,8 @@ public class BridgeMover
 		case EAST:
 			// When EngineSide is East, x goes from high to low and z goes from low to high
 			this.turningPoint = new Location(world, xMax, yMin, zMin);
-			this.dx      = -1;
-			this.dz      =  1;
+			this.dx = -1;
+			this.dz =  1;
 			
 			if (upDown.equals(RotateDirection.UP))
 			{
@@ -179,8 +172,8 @@ public class BridgeMover
 		case WEST:
 			// When EngineSide is West, x goes from low to high and z goes from high to low
 			this.turningPoint = new Location(world, xMin, yMin, zMax);
-			this.dx      =  1;
-			this.dz      = -1;
+			this.dx =  1;
+			this.dz = -1;
 			
 			if (upDown.equals(RotateDirection.UP))
 			{	
@@ -243,7 +236,7 @@ public class BridgeMover
 					{
 						canRotate        = Util.canRotate(mat);
 						// Because I can't get the blocks to rotate properly, they are rotated here
-						if (canRotate != 0) 
+						if (canRotate != 0 && canRotate != 4) 
 						{
 							Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
 							matByte      = rotateBlockData(matData);
@@ -468,7 +461,7 @@ public class BridgeMover
 						double radius = block.getRadius();
 						if (replace)
 						{
-							if (block.canRot() != 0)
+							if (block.canRot() != 0 && block.canRot() != 4)
 							{
 								Material mat = block.getMat();
 								Location loc = block.getFBlock().getLocation();

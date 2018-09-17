@@ -7,6 +7,7 @@ public class ConfigOption
 	private String 	optionName;
 	List<String> 	listVal   = null;
 	private Integer 	intVal    = null;
+	private Double 	doubleVal = null;
 	private Boolean 	boolVal   = null;
 	private String 	stringVal = null;
 	private String[]	comment;
@@ -67,6 +68,20 @@ public class ConfigOption
 		this.comment      = null;
 	}
 	
+	public ConfigOption(String optionName, double value, String[] comment)
+	{
+		this.optionName   = optionName;
+		this.doubleVal    = value;
+		this.comment      = comment;
+	}
+	
+	public ConfigOption(String optionName, double value)
+	{
+		this.optionName   = optionName;
+		this.doubleVal    = value;
+		this.comment      = null;
+	}
+
 	public String stringListToString()
 	{
 		String string = "";
@@ -78,6 +93,7 @@ public class ConfigOption
 	public String       getName()       { return optionName; }
 	public List<String> getStringList() { return listVal   ; }
 	public int          getInt()        { return intVal    ; }
+	public double       getDouble()     { return doubleVal ; }
 	public boolean      getBool()       { return boolVal   ; }
 	public String       getString()     { return stringVal ; }
 	public String[]     getComment()    { return comment   ; }
@@ -96,8 +112,9 @@ public class ConfigOption
 		
 		// Then add the name of the option followed by its value (if it is an int/bool/String/String[]).
 		string += optionName + ": " + 
-				(intVal    != null ? intVal  : 
-				 boolVal   != null ? boolVal : 
+				(intVal    != null ? intVal    : 
+				 doubleVal != null ? doubleVal : 
+				 boolVal   != null ? boolVal   : 
 				 stringVal != null ? "\'" + stringVal + "\'" : 
 				 listVal   != null ? "\n" + stringListToString() : null);
 		

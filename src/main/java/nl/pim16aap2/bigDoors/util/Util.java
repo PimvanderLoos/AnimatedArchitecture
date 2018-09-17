@@ -38,25 +38,38 @@ public final class Util
 		return tickRate;
 	}
 	
-	// Return {time, tickRate} for a given door size.
-	public static double[] calculateTimeAndTickRate(int doorSize, double time, double multiplier)
+	// Return {time, tickRate, distanceMultiplier} for a given door size.
+	public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
 	{
-		double ret[]    = new double[2];
+		double ret[]    = new double[3];
 		double distance = Math.PI * doorSize / 2;
 		if (time == 0.0)
-			time = 3 + doorSize / 3.5;
+			time = baseSpeed + doorSize / 3.5;
 		double speed = distance / time;
-		if (multiplier != 0.0)
-			speed *= multiplier;
+		if (speedMultiplier != 1.0 && speedMultiplier != 0.0)
+		{
+			speed *= speedMultiplier;
+			time = distance / speed;
+		}
 		
 		// Too fast or too slow!
 		double maxSpeed = 11;
 		if (speed > maxSpeed || speed <= 0)
 			time = distance / maxSpeed;
 		
+		double distanceMultiplier = speed > 4     ? 1.01 :
+			                        speed > 3.918 ? 1.08 :
+			                        speed > 3.916 ? 1.10 :
+			                        speed > 2.812 ? 1.12 :
+			                        speed > 2.537 ? 1.19 : 
+			                        speed > 2.2   ? 1.22 : 
+			                        speed > 2.0   ? 1.23 : 
+			                        speed > 1.770 ? 1.25 :	
+			                        speed > 1.570 ? 1.28 : 1.30;	
+		
 		ret[0] = time;
 		ret[1] = tickRateFromSpeed(speed);
-		
+		ret[2] = distanceMultiplier;
 		return ret;
 	}
 
@@ -171,6 +184,8 @@ public final class Util
 			xmat.equals(XMaterial.BLUE_STAINED_GLASS_PANE)   || xmat.equals(XMaterial.BROWN_STAINED_GLASS_PANE)      || 
 			xmat.equals(XMaterial.CYAN_STAINED_GLASS_PANE)   || xmat.equals(XMaterial.RED_STAINED_GLASS_PANE))
 			return 3;
+		if (xmat.equals(XMaterial.ANVIL))
+			return 4;
 		return 0;
 	}
 	
@@ -178,11 +193,13 @@ public final class Util
 	public static boolean isAllowedBlock(Material mat)
 	{
 		XMaterial xmat = XMaterial.fromString(mat.toString());
-//		if (xmat == null || mat.toString().equals("DOUBLE_STEP"))
 		if (xmat == null)
 			return false;
+		
 		switch(xmat)
 		{
+		case COBBLESTONE_WALL:
+		
 		case AIR:
 		case WATER:
 		case LAVA:

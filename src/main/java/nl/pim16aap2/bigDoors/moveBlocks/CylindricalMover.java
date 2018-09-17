@@ -3,7 +3,6 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -32,55 +31,56 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class CylindricalMover
 {
-	private BigDoors        	 plugin;
-	private World           	 world;
-	private boolean     		 instantOpen;
-	private FallingBlockFactory_Vall fabf;
-	private RotateDirection 	 rotDirection;
-	private int             	 dx, dz, xMin, xMax, yMin, yMax, zMin, zMax;
-	private double       	 endStepSum;
-	private int        	     tickRate;
-	private double  	         multiplier;
+	private GetNewLocation             gnl;
+	private FallingBlockFactory_Vall  fabf;
+	private double                    time;
+	private Door                      door;
+	private World                    world;
+	private int                     dx, dz;
+	private BigDoors                plugin;
+	private int                   tickRate;
+	private double              endStepSum;
+	private double              multiplier;
+	private boolean            instantOpen;
+	private boolean            isASEnabled;
+	private double            startStepSum;
+	private RotateDirection   rotDirection;
+	private int             stepMultiplier;
+	private int           xMin, xMax, yMin;
+	private int           yMax, zMin, zMax;
+	private Location         pointOpposite;
+	private Location          turningPoint;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
-	private Location        	 turningPoint, pointOpposite;
-	private double          	 time;
-	private GetNewLocation  	 gnl;
-	private Door            	 door;
-	private boolean       	 isASEnabled;
-	private double       	 startStepSum;
-	private int            	 stepMultiplier;
 	
 	
 	@SuppressWarnings("deprecation")
 	public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
 			Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
 	{
-		this.pointOpposite    = pointOpposite;
-		this.turningPoint     = door.getEngine();
-		this.rotDirection     = rotDirection;
-		this.plugin           = plugin;
-		this.world            = world;
-		this.door             = door;
-		this.isASEnabled      = plugin.isASEnabled();
-		this.fabf             = isASEnabled ? plugin.getFABF2() : plugin.getFABF();
-		this.instantOpen      = instantOpen;
-		this.stepMultiplier   = rotDirection == RotateDirection.CLOCKWISE   ? -1 : 1;
+		this.pointOpposite  = pointOpposite;
+		this.turningPoint   = door.getEngine();
+		this.rotDirection   = rotDirection;
+		this.plugin         = plugin;
+		this.world          = world;
+		this.door           = door;
+		this.isASEnabled    = plugin.isASEnabled();
+		this.fabf           = isASEnabled ? plugin.getFABF2() : plugin.getFABF();
+		this.instantOpen    = instantOpen;
+		this.stepMultiplier = rotDirection == RotateDirection.CLOCKWISE   ? -1 : 1;
 		
-		this.xMin     = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
-		this.yMin     = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
-		this.zMin     = turningPoint.getBlockZ() < pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
-		this.xMax     = turningPoint.getBlockX() > pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
-		this.yMax     = turningPoint.getBlockY() > pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
-		this.zMax     = turningPoint.getBlockZ() > pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
-		
+		this.xMin       = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
+		this.yMin       = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
+		this.zMin       = turningPoint.getBlockZ() < pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
+		this.xMax       = turningPoint.getBlockX() > pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
+		this.yMax       = turningPoint.getBlockY() > pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
+		this.zMax       = turningPoint.getBlockZ() > pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
 		int xLen        = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
 		int zLen        = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
 		int doorSize    = Math.max(xLen, zLen) + 1;
-		this.multiplier = doorSize < 6  ? 1.4 : 
-		                  doorSize < 10 ? 1.3 : 1.1;
-		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, 0.0);
+		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().getDouble("bdMultiplier"), 3.7);
 		this.time       = vars[0];
 		this.tickRate   = (int) vars[1];
+		this.multiplier = vars[2];
 		
 		this.dx   = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
 		this.dz   = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
@@ -123,6 +123,8 @@ public class CylindricalMover
 								matByte  = rotateBlockDataLog(matData);
 							else if (canRotate == 2)
 								matByte  = rotateBlockDataStairs(matData);
+							else if (canRotate == 4)
+								matByte  = rotateBlockDataAnvil(matData);
 							
 							Block b      = world.getBlockAt(pos);					
 							materialData.setData(matByte);
@@ -406,6 +408,12 @@ public class CylindricalMover
 		}.runTaskTimer(plugin, 14, 4);
 	}
 	
+	private EulerAngle directionToEuler(Location dir) 
+	{
+	    double yaw      = -Math.atan2(dir.getX(), dir.getZ()) + Math.PI / 2;
+	    return new EulerAngle(0, yaw, 0);
+	}
+	
 	// Rotate logs by modifying its material data.
 	public byte rotateBlockDataLog(Byte matData)
 	{
@@ -416,10 +424,31 @@ public class CylindricalMover
 		return matData;
 	}
 	
-	private EulerAngle directionToEuler(Location dir) 
+	public byte rotateBlockDataAnvil(Byte matData)
 	{
-	    double yaw      = -Math.atan2(dir.getX(), dir.getZ()) + Math.PI / 2;
-	    return new EulerAngle(0, yaw, 0);
+		if (this.rotDirection == RotateDirection.CLOCKWISE)
+		{
+			if (matData == 0)
+				matData = (byte) (1);
+			else if (matData == 1)
+				matData = (byte) (3);
+			else if (matData == 2)
+				matData = (byte) (3);
+			else if (matData == 3)
+				matData = (byte) (0);
+		}
+		else
+		{
+			if (matData == 0)
+				matData = (byte) (3);
+			else if (matData == 1)
+				matData = (byte) (0);
+			else if (matData == 2)
+				matData = (byte) (1);
+			else if (matData == 3)
+				matData = (byte) (2);
+		}
+		return matData;
 	}
 	
 	// Rotate stairs by modifying its material data.
