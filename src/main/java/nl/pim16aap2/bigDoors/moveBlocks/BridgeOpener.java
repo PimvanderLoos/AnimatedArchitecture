@@ -2,7 +2,6 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
-import org.bukkit.Location;
 import org.bukkit.World;
 
 import net.md_5.bungee.api.ChatColor;
@@ -254,107 +253,8 @@ public class BridgeOpener implements Opener
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-		new BridgeMover(plugin, door.getWorld(), time, door, this.upDown, openDirection, instantOpen);
-		
-		// Tell the door object it has been opened and what its new coordinates are.
-		toggleOpen  (door);
-		updateCoords(door, openDirection, this.upDown, -1);
+		plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, this.upDown, openDirection, instantOpen));
+	
 		return true;
-	}
-
-	@Override
-	public void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown, int moved)
-	{
-		int xMin = door.getMinimum().getBlockX();
-		int yMin = door.getMinimum().getBlockY();
-		int zMin = door.getMinimum().getBlockZ();
-		int xMax = door.getMaximum().getBlockX();
-		int yMax = door.getMaximum().getBlockY();
-		int zMax = door.getMaximum().getBlockZ();
-		int xLen = xMax - xMin;
-		int yLen = yMax - yMin;
-		int zLen = zMax - zMin;
-		Location newMax = null;
-		Location newMin = null;
-		DoorDirection newEngSide = door.getEngSide();
-		
-		switch (openDirection)
-		{
-		case NORTH:
-			if (upDown == RotateDirection.UP)
-			{
-				newEngSide = DoorDirection.NORTH;
-				newMin = new Location(door.getWorld(), xMin, yMin,        zMin);
-				newMax = new Location(door.getWorld(), xMax, yMin + zLen, zMin);
-			} 
-			else
-			{
-				newEngSide = DoorDirection.SOUTH;
-				newMin = new Location(door.getWorld(), xMin, yMin, zMin - yLen);
-				newMax = new Location(door.getWorld(), xMax, yMin, zMin       );
-			}
-			break;
-			
-			
-		case EAST:
-			if (upDown == RotateDirection.UP)
-			{
-				newEngSide = DoorDirection.EAST;
-				newMin = new Location(door.getWorld(), xMax, yMin,        zMin);
-				newMax = new Location(door.getWorld(), xMax, yMin + xLen, zMax);
-			} 
-			else
-			{
-				newEngSide = DoorDirection.WEST;
-				newMin = new Location(door.getWorld(), xMax,        yMin, zMin);
-				newMax = new Location(door.getWorld(), xMax + yLen, yMin, zMax);
-			}
-			break;
-			
-			
-		case SOUTH:
-			if (upDown == RotateDirection.UP)
-			{
-				newEngSide = DoorDirection.SOUTH;
-				newMin = new Location(door.getWorld(), xMin, yMin,        zMax);
-				newMax = new Location(door.getWorld(), xMax, yMin + zLen, zMax);
-			} 
-			else
-			{
-				newEngSide = DoorDirection.NORTH;
-				newMin = new Location(door.getWorld(), xMin, yMin, zMax       );
-				newMax = new Location(door.getWorld(), xMax, yMin, zMax + yLen);
-			}
-			break;
-			
-			
-		case WEST:
-			if (upDown == RotateDirection.UP)
-			{
-				newEngSide = DoorDirection.WEST;
-				newMin = new Location(door.getWorld(), xMin, yMin,        zMin);
-				newMax = new Location(door.getWorld(), xMin, yMin + xLen, zMax);
-			} 
-			else
-			{
-				newEngSide = DoorDirection.EAST;
-				newMin = new Location(door.getWorld(), xMin - yLen, yMin, zMin);
-				newMax = new Location(door.getWorld(), xMin,        yMin, zMax);
-			}
-			break;
-		}
-		door.setMaximum(newMax);
-		door.setMinimum(newMin);
-		door.setEngineSide(newEngSide);
-
-		int isOpen = door.getStatus() == true ? 0 : 1; // If door.getStatus() is true (1), set isOpen to 0, as it's just been toggled.
-		plugin.getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
-	}
-
-	// Toggle the open status of a drawbridge.
-	@Override
-	public void toggleOpen(Door door)
-	{
-		door.setStatus(!door.getStatus());
 	}
 }

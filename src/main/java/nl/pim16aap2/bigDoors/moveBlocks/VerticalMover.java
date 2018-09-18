@@ -18,10 +18,12 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
+import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.MyBlockData;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
-public class VerticalMover
+public class VerticalMover implements BlockMover
 {
 	private FallingBlockFactory_Vall  fabf;
 	private Door                      door;
@@ -119,12 +121,13 @@ public class VerticalMover
 		if (!instantOpen)
 			rotateEntities();
 		else
-			putBlocks();
+			putBlocks(false);
 	}
 	
 	// Put the door blocks back, but change their state now.
 	@SuppressWarnings("deprecation")
-	public void putBlocks()
+	@Override
+	public void putBlocks(boolean onDisable)
 	{
 		int index = 0;
 		double yAxis = this.yMin;
@@ -171,9 +174,17 @@ public class VerticalMover
 		while (yAxis <= this.yMax);
 		savedBlocks.clear();
 
+		// Tell the door object it has been opened and what its new coordinates are.
+		toggleOpen  (door);
+		updateCoords(this.door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, this.blocksToMove);
+		
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
-		if (instantOpen)
+		int timer = onDisable   ?  0 : 
+			        instantOpen ? 40 : plugin.getConfigLoader().getInt("timeOut") * 20;
+		
+		if (timer > 0)
+		{
 			new BukkitRunnable()
 			{
 				@Override
@@ -181,9 +192,13 @@ public class VerticalMover
 				{
 					plugin.getCommander().setDoorAvailable(door.getDoorUID());
 				}
-			}.runTaskLater(plugin, 40L);
+			}.runTaskLater(plugin, timer);
+		}
 		else
 			plugin.getCommander().setDoorAvailable(door.getDoorUID());
+		
+		if (!onDisable)
+			plugin.removeBlockMover(this);
 	}
 	
 	private Location getNewLocation(double xAxis, double yAxis, double zAxis)
@@ -229,7 +244,7 @@ public class VerticalMover
 			@Override
 			public void run()
 			{
-				putBlocks();
+				putBlocks(false);
 			}
 		}.runTaskLater(plugin, 4L);
 	}
@@ -294,6 +309,32 @@ public class VerticalMover
 		}.runTaskTimer(plugin, 14, tickRate);
 	}
 	
+	// Toggle the open status of a drawbridge.
+	public void toggleOpen(Door door)
+	{
+		door.setStatus(!door.getStatus());
+	}
+
+	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.	
+	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
+	{
+		int xMin = door.getMinimum().getBlockX();
+		int yMin = door.getMinimum().getBlockY();
+		int zMin = door.getMinimum().getBlockZ();
+		int xMax = door.getMaximum().getBlockX();
+		int yMax = door.getMaximum().getBlockY();
+		int zMax = door.getMaximum().getBlockZ();
+				
+		Location newMax = new Location(door.getWorld(), xMax, yMax + moved, zMax);
+		Location newMin = new Location(door.getWorld(), xMin, yMin + moved, zMin);
+		
+		door.setMaximum(newMax);
+		door.setMinimum(newMin);
+
+		int isOpen = door.getStatus() == true ? 0 : 1; // If door.getStatus() is true (1), set isOpen to 0, as it's just been toggled.
+		plugin.getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
+	}
+	
 	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
 	{		
 		CustomCraftFallingBlock_Vall entity = this.fabf.fallingBlockFactory(loc, block, matData, mat);
@@ -301,5 +342,11 @@ public class VerticalMover
 		bukkitEntity.setCustomName("BigDoorsEntity");
 		bukkitEntity.setCustomNameVisible(false);
 		return entity;
+	}
+	
+	@Override
+	public long getDoorUID()
+	{
+		return this.door.getDoorUID();
 	}
 }

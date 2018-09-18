@@ -15,8 +15,9 @@ import nl.pim16aap2.bigDoors.BigDoors;
 
 public class ConfigLoader
 {
-	private String           header;
 	private String           dbFile;
+	private String           header;
+	private int             timeOut;
 	private boolean      allowStats;
 	private int         maxDoorSize;
 	private double     pcMultiplier = 1.0;
@@ -28,62 +29,6 @@ public class ConfigLoader
 	private boolean  enableRedstone;
 	private String   powerBlockType;
 	private boolean checkForUpdates;
-	
-	private String defResPackUrl     = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
-	private String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
-	
-	private String[] enableRedstoneComment 	=
-		{
-			"Allow doors to be opened using redstone signals."
-		};
-	private String[] powerBlockTypeComment 	=
-		{
-			"Choose the type of the power block that is used to open doors using redstone.",
-			"A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
-			"This is the block that will open doors placed on top of it when it receives a redstone signal."	
-		};
-	private String[] maxDoorCountComment   	=
-		{
-			"Maximum number of doors a player can own. -1 = infinite."
-		};
-	private String[] languageFileComment  	=
-		{
-			"Specify a language file to be used. Note that en_US.txt will get regenerated!"
-		};
-	private String[] dbFileComment 			=
-		{
-			"Pick the name (and location if you want) of the database."	
-		};
-    private String[] checkForUpdatesComment 	= 
-		{
-			"Allow this plugin to check for updates on startup. It will not download new versions!"
-		};
-    private String[] allowStatsComment      	= 
-    		{
-    			"Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
-    			"It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"
-    		};
-    private String[] maxDoorSizeComment     	= 
-		{
-			"Max. number of blocks allowed in a door.",
-			"If this number is exceeded, doors will open instantly and skip the animation."
-		};
-    private String[] resourcePackComment     =
-	    	{
-	    		"This plugin uses a support resource pack for things suchs as sound.",
-	    		"You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
-	    		"Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
-	    		"The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl + "'",
-	    		"The default resource pack for 1.13.x is: \'" + defResPackUrl1_13 + "\'"
-	    	};
-    private String[] multiplierComment       =
-	    	{
-	    		"These multipliers affect the opening/closing speed of their respective door types.",
-	    		"Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
-	    		"To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
-	    		"bd = Big Door, pc = Portcullis, db = Drawbridge."
-	    	};
-    
 	
 	private ArrayList<ConfigOption> configOptionsList;
     private BigDoors plugin;
@@ -99,6 +44,65 @@ public class ConfigLoader
 	// Read the current config, the make a new one based on the old one or default values, whichever is applicable.
 	public void makeConfig()
 	{
+		String defResPackUrl     = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
+		String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
+		
+		String[] enableRedstoneComment 	=
+			{
+				"Allow doors to be opened using redstone signals."
+			};
+		String[] powerBlockTypeComment 	=
+			{
+				"Choose the type of the power block that is used to open doors using redstone.",
+				"A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
+				"This is the block that will open doors placed on top of it when it receives a redstone signal."	
+			};
+		String[] maxDoorCountComment   	=
+			{
+				"Maximum number of doors a player can own. -1 = infinite."
+			};
+		String[] languageFileComment  	=
+			{
+				"Specify a language file to be used. Note that en_US.txt will get regenerated!"
+			};
+		String[] dbFileComment 			=
+			{
+				"Pick the name (and location if you want) of the database."	
+			};
+	    String[] checkForUpdatesComment 	= 
+			{
+				"Allow this plugin to check for updates on startup. It will not download new versions!"
+			};
+	    String[] allowStatsComment      	= 
+	    		{
+	    			"Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
+	    			"It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"
+	    		};
+	    String[] maxDoorSizeComment     	= 
+			{
+				"Max. number of blocks allowed in a door.",
+				"If this number is exceeded, doors will open instantly and skip the animation."
+			};
+	    String[] resourcePackComment     =
+		    	{
+		    		"This plugin uses a support resource pack for things suchs as sound.",
+		    		"You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
+		    		"Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
+		    		"The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl + "'",
+		    		"The default resource pack for 1.13.x is: \'" + defResPackUrl1_13 + "\'"
+		    	};
+	    String[] multiplierComment       =
+		    	{
+		    		"These multipliers affect the opening/closing speed of their respective door types.",
+		    		"Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
+		    		"To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
+		    		"bd = Big Door, pc = Portcullis, db = Drawbridge."
+		    	};
+	    String[] timeOutComment          =
+		    	{
+		    		"Cooldown on using doors. Time is measured in seconds."
+		    	};
+		
 		FileConfiguration config = plugin.getConfig();
 		
 		// Read all the options from the config, then put them in a configOption with their name, value and comment.
@@ -127,6 +131,8 @@ public class ConfigLoader
 		configOptionsList.add(new ConfigOption( "pcMultiplier"    , pcMultiplier    , null                  ));
 		dbMultiplier     = config.getDouble(    "dbMultiplier"    , 0.0D             );
 		configOptionsList.add(new ConfigOption( "dbMultiplier"    , dbMultiplier    , null                  ));
+		timeOut          = config.getInt(       "timeOut"         , 0                );
+		configOptionsList.add(new ConfigOption( "timeOut"         , timeOut         , timeOutComment        ));
 		
 		writeConfig();
 	}

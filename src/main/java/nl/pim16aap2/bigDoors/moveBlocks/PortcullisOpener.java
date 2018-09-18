@@ -2,7 +2,6 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
-import org.bukkit.Location;
 import org.bukkit.World;
 
 import net.md_5.bungee.api.ChatColor;
@@ -94,11 +93,7 @@ public class PortcullisOpener implements Opener
 			// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 			plugin.getCommander().setDoorBusy(door.getDoorUID());
 			
-			new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove);
-
-			// Tell the door object it has been opened and what its new coordinates are.
-			toggleOpen  (door);
-			updateCoords(door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, blocksToMove);
+			plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove));
 		}
 		return true;
 	}
@@ -137,33 +132,5 @@ public class PortcullisOpener implements Opener
 		int blocksUp    = getBlocksInDir(door, RotateDirection.UP  );
 		int blocksDown  = getBlocksInDir(door, RotateDirection.DOWN);
 		return blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
-	}
-	
-	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
-	@Override
-	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
-	{
-		int xMin = door.getMinimum().getBlockX();
-		int yMin = door.getMinimum().getBlockY();
-		int zMin = door.getMinimum().getBlockZ();
-		int xMax = door.getMaximum().getBlockX();
-		int yMax = door.getMaximum().getBlockY();
-		int zMax = door.getMaximum().getBlockZ();
-				
-		Location newMax = new Location(door.getWorld(), xMax, yMax + moved, zMax);
-		Location newMin = new Location(door.getWorld(), xMin, yMin + moved, zMin);
-		
-		door.setMaximum(newMax);
-		door.setMinimum(newMin);
-
-		int isOpen = door.getStatus() == true ? 0 : 1; // If door.getStatus() is true (1), set isOpen to 0, as it's just been toggled.
-		plugin.getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
-	}
-
-	// Toggle the open status of a door.
-	@Override
-	public void toggleOpen(Door door)
-	{
-		door.setStatus(!door.getStatus());
 	}
 }

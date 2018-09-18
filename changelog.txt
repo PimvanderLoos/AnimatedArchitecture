@@ -1,3 +1,6 @@
+Alpha 0.1.6.1
+- Stopping the server while opening doors no longer results in disappearing doorblocks.
+
 Alpha 0.1.6
 - New animation algorithms! Prettier, much less error-prone, smaller, and ~30% faster!
 - Added support for custom sounds via a resource pack. Thank you @Achaius for all your help with this!

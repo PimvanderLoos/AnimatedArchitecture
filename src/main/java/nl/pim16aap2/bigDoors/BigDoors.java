@@ -25,6 +25,7 @@ import nl.pim16aap2.bigDoors.handlers.GUIHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
+import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
@@ -43,7 +44,9 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 // TODO: Make ListDoors explain there are no doors found when none around found.
 // TODO: Get rid of "Multiple doors with that name found" message when there are actually 0 hits.
 // TODO: Add a "Door Info" tool, that can get door info from hitting a power block.
-// TODO: Make sure that doors don't get fucked up when player leaves the area or when the server stops.
+// TODO: Make sure that doors don't get fucked up when player leaves the area.
+//       Use the same system used to force finish doors when stopping servers.
+// TODO: Is finishBlocks() still needed? 
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -61,6 +64,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	private Commander                  commander;
 	private Vector<PortcullisCreator> pcCreators;
 	private DoorOpener                doorOpener;
+	private Vector<BlockMover>       blockMovers;
 	private BridgeOpener            bridgeOpener;
 	private boolean                 validVersion;
 	private CommandHandler        commandHandler;
@@ -100,6 +104,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		dcal             = new Vector<DoorCreator>(2);
 		rlocs            = new Vector<PowerBlockRelocator>(2);
 		pcCreators       = new Vector<PortcullisCreator>(2);
+		blockMovers       = new Vector<BlockMover>(2);
 		this.db          = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
 		this.tf          = new ToolVerifier(messages.getString("DC.StickName"));
 		doorOpener       = new DoorOpener(this);
@@ -174,14 +179,16 @@ public class BigDoors extends JavaPlugin implements Listener
 	{
 		// Force stop all doors. I don't know if this is needed. Do spigot stop running tasks gracefully already?
 		// Does Spigot stop them forcefully (and destroy them in the process) meaning this does exactly fuck all?
-		// So many questions, so many answers probably online. TODO: Don't be lazy and do some research.
+		// So many questions, so many answers probably online. TODO: Don't be lazy and do some research.		
 		if (validVersion)
 		{
 			this.commander.setCanGo(false);
 			for (DoorCreator dc : this.getDoorCreators())
 				dc.takeToolFromPlayer();
 			for (PowerBlockRelocator pbr : this.getRelocators())
-				pbr.takeToolFromPlayer();
+				pbr.takeToolFromPlayer();			
+			for (BlockMover bm : this.blockMovers)
+				bm.putBlocks(true);
 		}
 	}
 	
@@ -286,6 +293,16 @@ public class BigDoors extends JavaPlugin implements Listener
 			return this.portcullisOpener;
 		}
 		return null;
+	}
+	
+	public void addBlockMover(BlockMover blockMover)
+	{
+		this.blockMovers.add(blockMover);
+	}
+	
+	public void removeBlockMover(BlockMover blockMover)
+	{
+		this.blockMovers.remove(blockMover);
 	}
 	
 	// Get the command Handler.
