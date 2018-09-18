@@ -177,6 +177,8 @@ public class VerticalMover implements BlockMover
 		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);
 		updateCoords(this.door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, this.blocksToMove);
+		if (!onDisable)
+			plugin.removeBlockMover(this);
 		
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
@@ -196,9 +198,6 @@ public class VerticalMover implements BlockMover
 		}
 		else
 			plugin.getCommander().setDoorAvailable(door.getDoorUID());
-		
-		if (!onDisable)
-			plugin.removeBlockMover(this);
 	}
 	
 	private Location getNewLocation(double xAxis, double yAxis, double zAxis)

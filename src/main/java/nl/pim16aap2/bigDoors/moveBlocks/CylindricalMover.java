@@ -257,6 +257,8 @@ public class CylindricalMover implements BlockMover
 		// Tell the door object it has been opened and what its new coordinates are.
 		toggleOpen  (door);
 		updateCoords(this.door, this.currentDirection, this.rotDirection, -1);
+		if (!onDisable)
+			plugin.removeBlockMover(this);
 		
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
@@ -276,9 +278,6 @@ public class CylindricalMover implements BlockMover
 		}
 		else
 			plugin.getCommander().setDoorAvailable(door.getDoorUID());
-		
-		if (!onDisable)
-			plugin.removeBlockMover(this);
 	}
 	
 	// Put falling blocks into their final location (but keep them as falling blocks).
