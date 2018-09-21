@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.GUI;
 import java.util.ArrayList;
 
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -26,6 +27,7 @@ public class GUIItem
 		ItemMeta meta = is.getItemMeta();
 		meta.setDisplayName(name);
 		meta.setLore(lore);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		is.setItemMeta(meta);
 	}
 	

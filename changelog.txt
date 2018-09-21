@@ -1,5 +1,16 @@
-Alpha 0.1.6.1
+Alpha 0.1.7
 - Stopping the server while opening doors no longer results in disappearing doorblocks.
+- Unloading chunks containing animated doors no longer results in disappearing doorblocks.
+- Added coolDown option in the config file.
+- Fixed case where not all doors would show up in the GUI.
+- Fixed doors that were deleted still showing up in the GUI.
+- Changed /NewDoor command to take these flags: -bd, -db, -pc.
+- Fixed drawbridges finishing on the other side than they should in certain situations.
+- Added bigdoors.own.x permission node to limit number of doors a user can own to x.
+- Fixed anvils not rotating correctly in certain positions and added support for slightly/badly damaged anvils.
+- Added "/InspectPowerBlockLoc" to get door info from a power block.
+- Door/Drawbridge creation process is now more strict. Rotation point must be in min/max y range.
+- Added more text to translation file.
 
 Alpha 0.1.6
 - New animation algorithms! Prettier, much less error-prone, smaller, and ~30% faster!

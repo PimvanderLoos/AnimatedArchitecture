@@ -11,28 +11,32 @@ import org.bukkit.inventory.Inventory;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.PageType;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.XMaterial;
 
 public class GUIPage implements Listener
 {
 	private static Material pageSwitchMat  = Material.ARROW;
 	private static Material currDoorMat    = Material.BOOK;
-	private static Material newDoorMat     = XMaterial.fromString("WRITABLE_BOOK").parseMaterial();
-	private static Material lockDoorMat    = XMaterial.fromString("GREEN_STAINED_GLASS_PANE").parseMaterial();
-	private static Material unlockDoorMat  = XMaterial.fromString("RED_STAINED_GLASS_PANE").parseMaterial();
-	private static Material confirmMat     = XMaterial.fromString("RED_STAINED_GLASS_PANE").parseMaterial();
-	private static Material noConfirmMat   = XMaterial.fromString("GREEN_STAINED_GLASS_PANE").parseMaterial();
+	private static Material newDoorMat     = XMaterial.WRITABLE_BOOK.parseMaterial();
+	private static Material lockDoorMat    = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
+	private static Material unlockDoorMat  = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
+	private static Material confirmMat     = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
+	private static Material noConfirmMat   = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
 	private static Material toggleDoorMat  = Material.LEVER;
 	private static Material infoMat        = Material.BOOKSHELF;
 	private static Material delDoorMat     = Material.BARRIER;
 	private static Material relocatePBMat  = Material.LEATHER_BOOTS;
+	private static Material setOpenDirMat  = Material.COMPASS;
 	private static byte     lockedData     = 14;
 	private static byte     unlockedData   =  5;
 	private static byte     confirmData    = 14;
 	private static byte     notConfirmData =  5;
-	private final Messages  messages;
+	private final  Messages messages;
 	
 	// Create a new inventory, with no owner, a size of nine, called example
 	private Inventory         inv;
@@ -71,7 +75,7 @@ public class GUIPage implements Listener
 		int startIndex = page * (chestSize - 9);			// Get starting and ending indices of the door to be displayed.
 		int endIndex   = (page + 1) * (chestSize - 9);
 		this.doors     = pageType != PageType.DOORLIST ? null : plugin.getCommander().getDoorsInRange(player.getUniqueId().toString(), null, startIndex, endIndex);
-        	this.pageCount = pageCount == -1 ? Math.round(plugin.getCommander().countDoors(player.getUniqueId().toString(), null) / (chestSize - 9.0)) : pageCount; // If pageCount hasn't been set, calculate it.
+        	this.pageCount = (long) (pageCount == -1 ? Math.ceil(plugin.getCommander().countDoors(player.getUniqueId().toString(), null) / (chestSize - 9.0)) : pageCount); // If pageCount hasn't been set, calculate it.
         	this.pageType  = pageType;
         	this.page      = page;
         	this.door      = doorUID != -1 ? plugin.getCommander().getDoor(doorUID) : null;
@@ -92,15 +96,22 @@ public class GUIPage implements Listener
 		inv.setItem(0, new GUIItem(pageSwitchMat, messages.getString("GUI.PreviousPage"), lore, ((pageType == PageType.DOORINFO || pageType == PageType.CONFIRMATION) && page == 0 ? 1 : page)).getItemStack());
 		// If it's not on the last page, add an arrow to the next page.  If it's a sub page, there is only a single page.
 		lore.clear();
+		
 		lore.add("Go to page " + (page + 2) + " out of " + pageCount);
 		if ((page + 1) < pageCount && pageType == PageType.DOORLIST)
 			inv.setItem(8, new GUIItem(pageSwitchMat, messages.getString("GUI.NextPage"), lore, page + 2).getItemStack());
-				
 		lore.clear();
+		
 		if (pageType == PageType.DOORLIST)
 		{
+			lore.add("Initiate drawbridge creation process");
+			inv.setItem(3, new GUIItem(newDoorMat, messages.getString("GUI.NewDrawbridge"), lore, page + 1).getItemStack());
+			lore.clear();
+			
 			lore.add("Initiate door creation process");
 			inv.setItem(4, new GUIItem(newDoorMat, messages.getString("GUI.NewDoor"), lore, page + 1).getItemStack());
+			lore.clear();
+			
 			lore.add("Initiate portcullis creation process");
 			inv.setItem(5, new GUIItem(newDoorMat, messages.getString("GUI.NewPortcullis"), lore, page + 1).getItemStack());
 		}
@@ -116,6 +127,7 @@ public class GUIPage implements Listener
 			lore.add("This door has ID " + door.getDoorUID());
 			inv.setItem(4, new GUIItem(currDoorMat, door.getName() + ": " + door.getDoorUID(), lore, 1).getItemStack());
 		}
+		lore.clear();
 	}
 	
 	public void createDoorSubMenu()
@@ -140,24 +152,39 @@ public class GUIPage implements Listener
 		String loreStr = messages.getString("GUI.DeleteDoorLong");
 		lore.add(loreStr);
 		inv.setItem(12, new GUIItem(delDoorMat, desc , lore, 1).getItemStack());
+		lore.clear();
 		
 		desc = messages.getString("GUI.RelocatePowerBlock");
 		loreStr = messages.getString("GUI.RelocatePowerBlockLore");
 		lore.add(loreStr);
 		inv.setItem(13, new GUIItem(relocatePBMat, desc, lore, 1).getItemStack());
+		lore.clear();
 		
-		// TODO: LT: Add more options: Add owners, remove owners, view list of owners
+		if (door.getType() != DoorType.PORTCULLIS)
+		{
+			desc = messages.getString("GUI.Direction.Name");
+			RotateDirection doorsOpenDir = door.getOpenDir();
+			loreStr = doorsOpenDir == RotateDirection.NONE               ? messages.getString("GUI.Direction.Any")     :
+			          doorsOpenDir == RotateDirection.CLOCKWISE          ? messages.getString("GUI.Direction.Clock")   :
+			          doorsOpenDir == RotateDirection.COUNTERCLOCKWISE   ? messages.getString("GUI.Direction.Counter") : "Error";
+			lore.add(loreStr);
+			lore.add(messages.getString("GUI.Direction.Looking") +
+			        (door.getType()       == DoorType.DOOR       ? messages.getString("GUI.Direction.Down")  :
+			         door.getLookingDir() == DoorDirection.NORTH ? messages.getString("GUI.Direction.East") :
+			         messages.getString("GUI.Direction.North")));
+			inv.setItem(14, new GUIItem(setOpenDirMat, desc, lore, 1).getItemStack());
+			lore.clear();
+		}
 	}
 	
 	// Fill the entire menu with NO's, but put a single "yes" in the middle.
 	public void fillConfirmationMenu()
 	{
-//		int mida = (chestSize - 9) / 2 + 9;
-//		int midb = (chestSize - 9) / 2 + 9;
+		int mid = (int) ((chestSize - 9) / 2) + 4;
 		for (int idx = 9; idx < chestSize; ++idx)
 		{
 			ArrayList<String> lore = new ArrayList<String>();
-			if (idx == 22) // Middle 2 blocks.
+			if (idx == mid) // Middle block.
 			{
 				lore.add(messages.getString("GUI.ConfirmDelete"));
 				inv.setItem(idx, new GUIItem(noConfirmMat, messages.getString("GUI.Confirm"), lore, 1, confirmData).getItemStack());

@@ -92,9 +92,14 @@ public class MyLogger
 	}
 	
 	// Log a message to the logfile. Does not print to console or add newlines in front of the actual message.
-	public void logMessage(String msg)
+	public void logMessageToLogFile(String msg)
 	{
 		logMessage(msg, false, false);
+	}
+	
+	public void logMessageToConsole(String msg)
+	{
+		logMessage(msg, true, false);
 	}
 	
 	// Prints a debugmessage. Deprecated because there are much better systems now.
@@ -102,7 +107,7 @@ public class MyLogger
 	public void debugMsg(int level, Level lvl, String msg)
 	{
 		if (level <= debugLevel)
-			Bukkit.broadcastMessage(""+msg);
+			Bukkit.broadcastMessage("" + msg);
 	}
 	
 	@Deprecated // Do not use this. Use the proper logging tools instead.

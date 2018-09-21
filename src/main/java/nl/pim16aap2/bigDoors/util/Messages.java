@@ -72,7 +72,7 @@ public class Messages
 		if (value == null)
 		{
 			value = "BigDoors: Translation not found! Contact server admin!";
-			plugin.getMyLogger().logMessage("Failed to get translation for key " + key);
+			plugin.getMyLogger().logMessageToConsole("Failed to get translation for key " + key);
 		}
 		return value;
 	}

@@ -11,18 +11,18 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.GUI.GUIPage;
+import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.PageType;
-import nl.pim16aap2.bigDoors.util.Util;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class GUIHandler implements Listener
 {
 	private final Messages messages;
-	private final BigDoors    plugin;
+	private final BigDoors   plugin;
 	
 	public GUIHandler(BigDoors plugin)
 	{
@@ -41,13 +41,31 @@ public class GUIHandler implements Listener
 	private void startNewDoorProcess(Player player)
 	{
 		player.closeInventory();
-		plugin.getCommandHandler().makeDoor(player, null);
+		plugin.getCommandHandler().startCreator(player, null, DoorType.DOOR);
 	}
 	
 	private void startNewPortcullisProcess(Player player)
 	{
 		player.closeInventory();
-		plugin.getCommandHandler().makePortcullis(player, null);
+		plugin.getCommandHandler().startCreator(player, null, DoorType.PORTCULLIS);
+	}
+	
+	private void startNewDrawbridgeProcess(Player player)
+	{
+		player.closeInventory();
+		plugin.getCommandHandler().startCreator(player, null, DoorType.DRAWBRIDGE);
+	}
+	
+	// Changes the opening direction for a door.
+	// NONE -> CLOCKWISE -> COUNTERCLOCKWISE
+	private void changeOpenDir(Player player, Door door, Inventory inv)
+	{
+		RotateDirection curOpenDir = door.getOpenDir();
+		RotateDirection newOpenDir = curOpenDir == RotateDirection.NONE      ? RotateDirection.CLOCKWISE :
+		                             curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
+		                                                                       RotateDirection.NONE;
+		plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
+		setPage(player, inv, getPreviousPage(inv) + 1, PageType.DOORINFO, door.getDoorUID(), getPageCount(inv));
 	}
 	
 	// Retrieve the int from the end of a string.
@@ -63,7 +81,7 @@ public class GUIHandler implements Listener
 		return -1;
 	}
 	
-	// Retrieve the int from the end of a string.
+	// Retrieve the long from the end of a string.
 	private long firstLongFromString(String str)
 	{
 		Matcher matcher = Pattern.compile("\\d+").matcher(str);
@@ -135,9 +153,8 @@ public class GUIHandler implements Listener
 	private void deleteDoor(Player player, Inventory inv)
 	{
 		long doorUID = getDoor(inv.getItem(4)).getDoorUID();
-		setPage(player, inv, 0, PageType.DOORLIST, -1, getPageCount(inv));
 		plugin.getCommandHandler().delDoor(player, doorUID);
-		Util.messagePlayer(player, ChatColor.RED, "The door has been deleted!");
+		setPage(player, inv, 0, PageType.DOORLIST, -1, getPageCount(inv));
 	}
     
 	// Check for clicks on items
@@ -185,25 +202,30 @@ public class GUIHandler implements Listener
 			setPage(player, inv, getPreviousPage(inv), PageType.DOORLIST, -1, getPageCount(inv));
 		else if (pageType == PageType.DOORINFO)
 		{
+			Door door = getDoor(inv.getItem(4));
 			if (itemName.equals(messages.getString("GUI.LockDoor")) || itemName.equals(messages.getString("GUI.UnlockDoor")))
 				toggleLock(player, inv);
 			else if (itemName.equals(messages.getString("GUI.ToggleDoor")))
 				toggleDoor(player, inv);
 			else if (itemName.equals(messages.getString("GUI.GetInfo")))
-				plugin.getCommandHandler().listDoorInfo(player, getDoor(inv.getItem(4)));
+				plugin.getCommandHandler().listDoorInfo(player, door);
 			else if (itemName.equals(messages.getString("GUI.DeleteDoor")))
-				setPage(player, inv, getPreviousPage(inv) + 1, PageType.CONFIRMATION, getDoor(inv.getItem(4)).getDoorUID(), getPageCount(inv));
+				setPage(player, inv, getPreviousPage(inv) + 1, PageType.CONFIRMATION, door.getDoorUID(), getPageCount(inv));
 			else if (itemName.equals(messages.getString("GUI.RelocatePowerBlock")))
 			{
 				player.closeInventory();
-				plugin.getCommandHandler().relocatePowerBlock(player, getDoor(inv.getItem(4)).getDoorUID());
+				plugin.getCommandHandler().relocatePowerBlock(player, door.getDoorUID());
 			}
+			else if (itemName.equals(messages.getString("GUI.Direction.Name")))
+				this.changeOpenDir(player, door, inv);
 			return;
 		}
 		else if (itemName.equals(messages.getString("GUI.NewDoor")))
 			startNewDoorProcess(player);
 		else if (itemName.equals(messages.getString("GUI.NewPortcullis")))
 			startNewPortcullisProcess(player);
+		else if (itemName.equals(messages.getString("GUI.NewDrawbridge")))
+			startNewDrawbridgeProcess(player);
 		else if (itemName.equals(messages.getString("GUI.NextPage")))
 			setPage(player, inv, inv.getItem(8).getAmount() - 1, PageType.DOORLIST, -1, getPageCount(inv));
 		else if (slot > 8)

@@ -66,7 +66,7 @@ public class DoorOpener implements Opener
 			endZ   = engLoc.getBlockZ();
 			break;
 		}
-
+		
 		for (int xAxis = startX; xAxis <= endX; ++xAxis)
 			for (int yAxis = startY; yAxis <= endY; ++yAxis)
 				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
@@ -78,33 +78,36 @@ public class DoorOpener implements Opener
 	// Determine which direction the door is going to rotate. Clockwise or counterclockwise.
 	public RotateDirection getRotationDirection(Door door, DoorDirection currentDir)
 	{
+		RotateDirection openDir = door.getOpenDir();
+		openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE : 
+		          openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE : openDir;
 		switch(currentDir)
 		{		
 		case NORTH:
-			if (isPosFree(door, DoorDirection.EAST))
+			if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.EAST))
 				return RotateDirection.CLOCKWISE;
-			else if (isPosFree(door, DoorDirection.WEST))
+			else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, DoorDirection.WEST))
 				return RotateDirection.COUNTERCLOCKWISE;
 			break;
 			
 		case EAST:
-			if (isPosFree(door, DoorDirection.SOUTH))
+			if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.SOUTH))
 				return RotateDirection.CLOCKWISE;
-			else if (isPosFree(door, DoorDirection.NORTH))
+			else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, DoorDirection.NORTH))
 				return RotateDirection.COUNTERCLOCKWISE;
 			break;
 			
 		case SOUTH:
-			if (isPosFree(door, DoorDirection.WEST))
+			if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.WEST))
 				return RotateDirection.CLOCKWISE;
-			else if (isPosFree(door, DoorDirection.EAST))
+			else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, DoorDirection.EAST))
 				return RotateDirection.COUNTERCLOCKWISE;
 			break;
 			
 		case WEST:
-			if (isPosFree(door, DoorDirection.NORTH))
+			if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.NORTH))
 				return RotateDirection.CLOCKWISE;
-			else if (isPosFree(door, DoorDirection.SOUTH))
+			else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, DoorDirection.SOUTH))
 				return RotateDirection.COUNTERCLOCKWISE;
 			break;
 		}

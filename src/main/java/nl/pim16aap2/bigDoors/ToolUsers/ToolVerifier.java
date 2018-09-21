@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors;
+package nl.pim16aap2.bigDoors.ToolUsers;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;

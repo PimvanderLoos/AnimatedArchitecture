@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.6.1
+version: Alpha 0.1.7
 author: Pim
 api-version: 1.13
 commands:
@@ -14,7 +14,12 @@ commands:
     permission: bigdoors.user.gui
   namedoor:
     description: Create a new door named "doorName".
-    usage: /NameDoor <doorName>
+    usage: /NameDoor <doorName || doorID> 
+    permission: bigdoors.user.createdoor
+    permission-message: You do not have the bigdoors.user.createdoor permission node.
+  setdoorrotation:
+    description: Change door rotation of a given door.
+    usage: /SetDoorRotation <doorName || doorID> <CLOCK || COUNTER || ANY>
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.user.createdoor permission node.
   bdcancel:
@@ -32,7 +37,7 @@ commands:
     permission: bigdoors.admin.stopdoors
   newdoor:
     description: Create a new door from selection with name "doorName". Defaults to door/drawbridge, but add "-p" to make a portcullis instead.
-    usage: /NewDoor [-p] <doorName>
+    usage: /NewDoor [-pc || -db || -bd] <doorName> 
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.user.createdoor permission node.
   newportcullis:
@@ -40,19 +45,24 @@ commands:
     usage: /NewPortcullis <portcullisName>
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.user.createdoor permission node.
+  newdrawbridge:
+    description: Create a new portcullis from selection with name "portcullisName".
+    usage: /NewDrawbridge <drawbridgeName>
+    permission: bigdoors.user.createdoor
+    permission-message: You do not have the bigdoors.user.createdoor permission node.
   deldoor:
     description: Delete door with name "doorName".
-    usage: /DelDoor <doorName>
+    usage: /DelDoor <doorName || doorID> 
     permission: bigdoors.user.deletedoor
     permission-message: You do not have the bigdoors.user.deletedoor permission node.
   opendoor:
     description: Open the door with name "doorName".
-    usage: /OpenDoor <doorName>
+    usage: /OpenDoor <doorName || doorID> [time to open (decimal!)]
     permission: bigdoors.user.opendoor
     permission-message: You do not have the bigdoors.user.opendoor permission node.
   opendoors:
     description: Open the doors with name "doorName1" and "doorName2".
-    usage: /OpenDoors <doorName1> <doorName2>
+    usage: /OpenDoors <doorName1 || doorID1> <doorName2 || doorID2> ... [time to open (decimal!)]
     permission: bigdoors.user.opendoors
     permission-message: You do not have the bigdoors.user.opendoor permission node.
   listdoors:
@@ -62,34 +72,39 @@ commands:
     permission-message: You do not have the bigdoors.user.listdoors permission node.
   changepowerblockloc:
     description: Relocate the Power Block for a given door.
-    usage: /ChangePowerBlockLoc <DoorName>
+    usage: /ChangePowerBlockLoc <doorName || doorID> 
     permission: bigdoors.user.relocatepowerblock
     permission-message: You do not have the bigdoors.user.relocatepowerblock permission node.
+  inspectpowerblockloc:
+    description: Inspect a powerblockloc.
+    usage: /InspectPowerBlockLoc
+    permission: bigdoors.user.inspectpowerblock
+    permission-message: You do not have the bigdoors.user.inspectpowerblock permission node.
   fixdoor:
     description: Verify and fix (if needed) the coords of the specified door.
-    usage: /FixDoor <doorName>
+    usage: /FixDoor <doorName || doorID> 
     permission: bigdoors.admin.debug
     permission-message: You do not have the bigdoors.listdoors permission node.
-  updatedoor:
-    description: Update the coords of the specified door.
-    usage: /UpdateDoor <doorName>
-    permission: bigdoors.admin.updatedoor
-    permissions-message: You do not have the bigdoors.listdoors permission node.
+#  updatedoor:
+#    description: Update the coords of the specified door.
+#    usage: /UpdateDoor <doorName || doorID> 
+#    permission: bigdoors.admin.updatedoor
+#    permissions-message: You do not have the bigdoors.listdoors permission node.
   unlockDoor:
     description: Forcefully unlock a door.
-    usage: /UnlockDoor <doorName>
+    usage: /UnlockDoor <doorName || doorID> 
     permission: bigdoors.admin.unlockdoor
   doorinfo:
     description: Display door info.
-    usage: /DoorInfo <doorName>
+    usage: /DoorInfo <doorName || doorID> 
     permission: bigdoors.user.doorinfo
 #  setdooropen:
 #    description: Updates coordinates of a door as if it had been opened. Does not move the blocks!
-#    usage: /SetDoorOpen <doorName>
+#    usage: /SetDoorOpen <doorName || doorID> 
 #    permission: bigdoors.user.setdoor
 #  setdoorclosed:
 #    description: Updates coordinates of a door as if it had been closed. Does not move the blocks!
-#    usage: /SetDoorClosed <doorName>
+#    usage: /SetDoorClosed <doorName || doorID> 
 #    permission: bigdoors.user.setdoor
   bdversion:
     description: Shows you which version of this plugin is installed on this server.

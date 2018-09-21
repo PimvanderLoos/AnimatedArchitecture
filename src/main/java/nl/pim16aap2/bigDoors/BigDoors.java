@@ -1,15 +1,10 @@
 package nl.pim16aap2.bigDoors;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Vector;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,6 +14,8 @@ import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
+import nl.pim16aap2.bigDoors.ToolUsers.ToolUser;
+import nl.pim16aap2.bigDoors.ToolUsers.ToolVerifier;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
@@ -36,48 +33,49 @@ import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocatio
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.util.ConfigLoader;
+import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
 
-// TODO: Allow upright drawbridge creation.
-// TODO: Make DoorInfo work for console.
 // TODO: Make ListDoors explain there are no doors found when none around found.
 // TODO: Get rid of "Multiple doors with that name found" message when there are actually 0 hits.
-// TODO: Add a "Door Info" tool, that can get door info from hitting a power block.
-// TODO: Make sure that doors don't get fucked up when player leaves the area.
-//       Use the same system used to force finish doors when stopping servers.
-// TODO: Is finishBlocks() still needed? 
+// TODO: Add all strings to translation file.
+// TODO: Look into cobble stone walls.
+// TODO: Add timer for auto closing doors (Clock item in GUI).
+// TODO: Add auto closing status to /DoorInfo.
+// TODO: Allow /DoorInfo <Name> from console.
+// TODO: Store playername in DB, so you can look for players from console when they're offline.
+// TODO: Add /ToggleDoor(s), /OpenDoor(s) and /CloseDoor(s).
+// TODO: Don't calculate endStepSum for bridgeMover using if/else. 0 = up, 1/2 pi = down. Just use multiplier.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
-	private ToolVerifier                      tf;
-	private SQLiteJDBCDriverConnection        db;
-	private FallingBlockFactory_Vall        fabf;
-	private Vector<DoorCreator>             dcal;
-	private FallingBlockFactory_Vall       fabf2;
-	private Vector<PowerBlockRelocator>    rlocs;
-	private ConfigLoader                  config;
-	private String                        locale;
-	private MyLogger                      logger;
-	private File                         logFile;
-	private Messages                    messages;
-	private Commander                  commander;
-	private Vector<PortcullisCreator> pcCreators;
-	private DoorOpener                doorOpener;
-	private Vector<BlockMover>       blockMovers;
-	private BridgeOpener            bridgeOpener;
-	private boolean                 validVersion;
-	private CommandHandler        commandHandler;
-	private PortcullisOpener    portcullisOpener;
+	private ToolVerifier                   tf;
+	private SQLiteJDBCDriverConnection     db;
+	private FallingBlockFactory_Vall     fabf;
+	private FallingBlockFactory_Vall    fabf2;
+	private ConfigLoader               config;
+	private String                     locale;
+	private MyLogger                   logger;
+	private File                      logFile;
+	private Messages                 messages;
+	private Vector<ToolUser>        toolUsers;
+	private Commander               commander;
+	private DoorOpener             doorOpener;
+	private Vector<BlockMover>    blockMovers;
+	private BridgeOpener         bridgeOpener;
+	private boolean              validVersion;
+	private CommandHandler     commandHandler;
+	private PortcullisOpener portcullisOpener;
 	
-	private boolean               is1_13 = false;
-	private boolean            enabledAS = false;
+	private boolean            is1_13 = false;
+	private boolean         enabledAS = false;
 
 	@Override
 	public void onEnable()
 	{
-		logFile        = new File(getDataFolder(), "log.txt");
-		logger         = new MyLogger(this, logFile);
+		logFile = new File(getDataFolder(), "log.txt");
+		logger  = new MyLogger(this, logFile);
 		
 		validVersion = compatibleMCVer();
 		// Load the files for the correct version of Minecraft.
@@ -101,10 +99,8 @@ public class BigDoors extends JavaPlugin implements Listener
 			// Y u do dis? :(
 			logger.myLogger(Level.INFO, "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
 		
-		dcal             = new Vector<DoorCreator>(2);
-		rlocs            = new Vector<PowerBlockRelocator>(2);
-		pcCreators       = new Vector<PortcullisCreator>(2);
-		blockMovers       = new Vector<BlockMover>(2);
+		toolUsers        = new Vector<ToolUser>(2);
+		blockMovers      = new Vector<BlockMover>(2);
 		this.db          = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
 		this.tf          = new ToolVerifier(messages.getString("DC.StickName"));
 		doorOpener       = new DoorOpener(this);
@@ -117,25 +113,27 @@ public class BigDoors extends JavaPlugin implements Listener
 		Bukkit.getPluginManager().registerEvents(new EventHandlers   (this), this);
 		Bukkit.getPluginManager().registerEvents(new GUIHandler      (this), this);
 		Bukkit.getPluginManager().registerEvents(new RedstoneHandler (this), this);
-		getCommand("changepowerblockloc").setExecutor(new CommandHandler(this));
-		getCommand("bigdoorsenableas"   ).setExecutor(new CommandHandler(this));
-		getCommand("newportcullis"      ).setExecutor(new CommandHandler(this));
-		getCommand("unlockDoor"         ).setExecutor(new CommandHandler(this));
-		getCommand("pausedoors"         ).setExecutor(new CommandHandler(this));
-		getCommand("doordebug"          ).setExecutor(new CommandHandler(this));
-		getCommand("bdversion"          ).setExecutor(new CommandHandler(this));
-		getCommand("opendoors"          ).setExecutor(new CommandHandler(this));
-		getCommand("listdoors"          ).setExecutor(new CommandHandler(this));
-		getCommand("stopdoors"          ).setExecutor(new CommandHandler(this));
-		getCommand("bdcancel"           ).setExecutor(new CommandHandler(this));
-		getCommand("doorinfo"           ).setExecutor(new CommandHandler(this));
-		getCommand("opendoor"           ).setExecutor(new CommandHandler(this));
-		getCommand("nameDoor"           ).setExecutor(new CommandHandler(this));
-		getCommand("bigdoors"           ).setExecutor(new CommandHandler(this));
-		getCommand("newdoor"            ).setExecutor(new CommandHandler(this));
-		getCommand("deldoor"            ).setExecutor(new CommandHandler(this));
-		getCommand("fixdoor"            ).setExecutor(new CommandHandler(this));
-		getCommand("bdm"                ).setExecutor(new CommandHandler(this));
+		getCommand("inspectpowerblockloc").setExecutor(new CommandHandler(this));
+		getCommand("changepowerblockloc" ).setExecutor(new CommandHandler(this));
+		getCommand("bigdoorsenableas"    ).setExecutor(new CommandHandler(this));
+		getCommand("setdoorrotation"     ).setExecutor(new CommandHandler(this));
+		getCommand("newportcullis"       ).setExecutor(new CommandHandler(this));
+		getCommand("unlockDoor"          ).setExecutor(new CommandHandler(this));
+		getCommand("pausedoors"          ).setExecutor(new CommandHandler(this));
+		getCommand("doordebug"           ).setExecutor(new CommandHandler(this));
+		getCommand("bdversion"           ).setExecutor(new CommandHandler(this));
+		getCommand("opendoors"           ).setExecutor(new CommandHandler(this));
+		getCommand("listdoors"           ).setExecutor(new CommandHandler(this));
+		getCommand("stopdoors"           ).setExecutor(new CommandHandler(this));
+		getCommand("bdcancel"            ).setExecutor(new CommandHandler(this));
+		getCommand("doorinfo"            ).setExecutor(new CommandHandler(this));
+		getCommand("opendoor"            ).setExecutor(new CommandHandler(this));
+		getCommand("nameDoor"            ).setExecutor(new CommandHandler(this));
+		getCommand("bigdoors"            ).setExecutor(new CommandHandler(this));
+		getCommand("newdoor"             ).setExecutor(new CommandHandler(this));
+		getCommand("deldoor"             ).setExecutor(new CommandHandler(this));
+		getCommand("fixdoor"             ).setExecutor(new CommandHandler(this));
+		getCommand("bdm"                 ).setExecutor(new CommandHandler(this));
 
 		liveDevelopmentLoad();
 		
@@ -170,8 +168,6 @@ public class BigDoors extends JavaPlugin implements Listener
 			});
 			thread.start();
 		}
-
-//		readDoors(); // Import doors from .txt file. Only needed for debugging! I'm the only one with the file!
 	}
 
 	@Override
@@ -183,87 +179,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		if (validVersion)
 		{
 			this.commander.setCanGo(false);
-			for (DoorCreator dc : this.getDoorCreators())
-				dc.takeToolFromPlayer();
-			for (PowerBlockRelocator pbr : this.getRelocators())
-				pbr.takeToolFromPlayer();			
+			for (ToolUser tu : this.toolUsers)
+				tu.setIsDone(true);
 			for (BlockMover bm : this.blockMovers)
 				bm.putBlocks(true);
 		}
-	}
-	
-	// Read the saved list of doors, if it exists. ONLY for debugging purposes. Should be removed from the final export!
-	@SuppressWarnings("unused")
-	private void readDoors()
-	{
-		File dataFolder = getDataFolder();
-		if (!dataFolder.exists())
-		{
-			Bukkit.getLogger().log(Level.INFO, "No save file found. No doors loaded!");
-			return;
-		}
-		File readFrom = new File(getDataFolder(), "doors.txt");
-		try (BufferedReader br = new BufferedReader(new FileReader(readFrom)))
-		{
-			String sCurrentLine;
-			sCurrentLine = br.readLine();
-
-			while (sCurrentLine != null)
-			{
-				int xMin, yMin, zMin, xMax, yMax, zMax;
-				int engineX, engineY, engineZ;
-				String name;
-				boolean isOpen;
-				World world;
-
-				String[] strs = sCurrentLine.trim().split("\\s+");
-
-				name    = strs[0];
-				isOpen  = Boolean.getBoolean(strs[1]);
-				world   = Bukkit.getServer().getWorld(strs[2]);
-				xMin    = Integer.parseInt(strs[3]);
-				yMin    = Integer.parseInt(strs[4]);
-				zMin    = Integer.parseInt(strs[5]);
-				xMax    = Integer.parseInt(strs[6]);
-				yMax    = Integer.parseInt(strs[7]);
-				zMax    = Integer.parseInt(strs[8]);
-				engineX = Integer.parseInt(strs[9]);
-				engineY = Integer.parseInt(strs[10]);
-				engineZ = Integer.parseInt(strs[11]);
-				
-				Door door = new Door(world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, name, isOpen, -1, false, 0, "27e6c556-4f30-32bf-a005-c80a46ddd935", 0, -1, -1, -1);
-				commander.addDoor(door);
-
-				sCurrentLine = br.readLine();
-			}
-			br.close();
-		} 
-		catch (FileNotFoundException e)
-		{
-			Bukkit.getLogger().log(Level.INFO, "No save file found. No doors loaded!");
-		} 
-		catch (IOException e)
-		{
-			Bukkit.getLogger().log(Level.WARNING, "Could not read file!!");
-			e.printStackTrace();
-		}
-	}
-	
-	// Get the Vector of doorcreators (= users creating a door right now).
-	public Vector<DoorCreator> getDoorCreators()
-	{
-		return this.dcal;
-	}
-	
-	// Get the Vector of relocators (= users relocating the power block of a door).
-	public Vector<PowerBlockRelocator> getRelocators()
-	{
-		return this.rlocs;
-	}
-	// Get the Vector of relocators (= users relocating the power block of a door).
-	public Vector<PortcullisCreator> getPCCreators()
-	{
-		return this.pcCreators;
 	}
 	
 	public FallingBlockFactory_Vall getFABF()
@@ -281,15 +201,15 @@ public class BigDoors extends JavaPlugin implements Listener
 		return this;
 	}
 	
-	public Opener getDoorOpener(int type)
+	public Opener getDoorOpener(DoorType type)
 	{
 		switch (type)
 		{
-		case 0:
+		case DOOR:
 			return this.doorOpener;
-		case 1:
+		case DRAWBRIDGE:
 			return this.bridgeOpener;
-		case 2:
+		case PORTCULLIS:
 			return this.portcullisOpener;
 		}
 		return null;
@@ -303,6 +223,27 @@ public class BigDoors extends JavaPlugin implements Listener
 	public void removeBlockMover(BlockMover blockMover)
 	{
 		this.blockMovers.remove(blockMover);
+	}
+	
+	public Vector<BlockMover> getBlockMovers()
+	{
+		return this.blockMovers;
+	}
+	
+	// Get the Vector of ToolUsers.
+	public Vector<ToolUser> getToolUsers()
+	{
+		return this.toolUsers;
+	}
+	
+	public void addToolUser(ToolUser toolUser)
+	{
+		this.toolUsers.add(toolUser);
+	}
+	
+	public void removeToolUser(ToolUser toolUser)
+	{
+		this.toolUsers.remove(toolUser);
 	}
 	
 	// Get the command Handler.
@@ -478,7 +419,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	// Check the open-status of a door.
 	private boolean isOpen (Door door)
 	{
-		return door.getStatus();
+		return door.isOpen();
 	}
 	
 	// Check the open-status of a door from a doorUID.

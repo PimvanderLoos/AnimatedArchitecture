@@ -1,16 +1,18 @@
 package nl.pim16aap2.bigDoors.handlers;
 
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.DoorCreator;
-import nl.pim16aap2.bigDoors.PortcullisCreator;
-import nl.pim16aap2.bigDoors.PowerBlockRelocator;
+import nl.pim16aap2.bigDoors.ToolUsers.ToolUser;
+import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 
 public class EventHandlers implements Listener
 {
@@ -28,24 +30,10 @@ public class EventHandlers implements Listener
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK)
 			if (plugin.getTF().isTool(event.getPlayer().getItemInHand()))
 			{
-				DoorCreator dc = plugin.getCommandHandler().isCreatingDoor(event.getPlayer());
-				if (dc != null && dc.getName() != null)
+				ToolUser tu = plugin.getCommandHandler().isToolUser(event.getPlayer());
+				if (tu != null)
 				{
-					dc.selector(event.getClickedBlock().getLocation());
-					event.setCancelled(true);
-					return;
-				}
-				PowerBlockRelocator pbr = plugin.getCommandHandler().isRelocatingPB(event.getPlayer());
-				if (pbr != null)
-				{
-					pbr.selector(event.getClickedBlock().getLocation());
-					event.setCancelled(true);
-					return;
-				}
-				PortcullisCreator pcc = plugin.getCommandHandler().isCreatingPortcullis(event.getPlayer());
-				if (pcc != null)
-				{
-					pcc.selector(event.getClickedBlock().getLocation());
+					tu.selector(event.getClickedBlock().getLocation());
 					event.setCancelled(true);
 					return;
 				}
@@ -66,5 +54,28 @@ public class EventHandlers implements Listener
 	{
 		if (plugin.getTF().isTool(event.getItem()))
 			event.setCancelled(true);
+	}
+	
+	// Make sure any chunks that are unloaded don't contain any moving doors.
+	// In the case it does happen, cancel the event, stop the door and uncancel the event a bit later.
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onChunkUnload(ChunkUnloadEvent event)
+	{
+		for (BlockMover bm : plugin.getBlockMovers())
+		{
+			if (bm.getDoor().chunkInRange(event.getChunk()))
+			{
+				bm.getDoor().setCanGo(false);
+				event.setCancelled(true);
+				new BukkitRunnable()
+				{
+					@Override
+					public void run()
+					{
+						event.getChunk().unload(true);
+					}
+				}.runTaskLater(plugin, 10);
+			}
+		}
 	}
 }

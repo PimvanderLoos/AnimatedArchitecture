@@ -17,10 +17,15 @@ import com.mysql.jdbc.Messages;
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.DoorCreator;
-import nl.pim16aap2.bigDoors.PortcullisCreator;
-import nl.pim16aap2.bigDoors.PowerBlockRelocator;
 import nl.pim16aap2.bigDoors.GUI.GUIPage;
+import nl.pim16aap2.bigDoors.ToolUsers.DoorCreator;
+import nl.pim16aap2.bigDoors.ToolUsers.DrawbridgeCreator;
+import nl.pim16aap2.bigDoors.ToolUsers.PortcullisCreator;
+import nl.pim16aap2.bigDoors.ToolUsers.PowerBlockInspector;
+import nl.pim16aap2.bigDoors.ToolUsers.PowerBlockRelocator;
+import nl.pim16aap2.bigDoors.ToolUsers.ToolUser;
+import nl.pim16aap2.bigDoors.util.DoorType;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class CommandHandler implements CommandExecutor
@@ -184,14 +189,16 @@ public class CommandHandler implements CommandExecutor
 	{
 		
 		return 	door == null ? "Door not found!" :
-				door.getDoorUID() + ": " + door.getName().toString() + 
-				", Min("    + door.getMinimum().getBlockX() + ";"    + door.getMinimum().getBlockY() + ";" + door.getMinimum().getBlockZ() + ")" +
-				", Max("    + door.getMaximum().getBlockX() + ";"    + door.getMaximum().getBlockY() + ";" + door.getMaximum().getBlockZ() + ")" +
-				", Engine(" + door.getEngine().getBlockX()  + ";"    + door.getEngine().getBlockY()  + ";" + door.getEngine().getBlockZ()  + ")" +
-				", " + (door.isLocked() ? "" : "NOT ") + "locked"    + "; Type=" + door.getType()    + 
-				(door.getEngSide() == null ? "" : ("; EngineSide = " + door.getEngSide().toString()  + "; doorLen = " +
-				 door.getLength())) + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX()    + ";" + 
-				 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()    + ")"; 
+				door.getDoorUID() + ": " + door.getName().toString()  + 
+				", Min("     + door.getMinimum().getBlockX() + ";"    + door.getMinimum().getBlockY() + ";"   + door.getMinimum().getBlockZ() + ")" +
+				", Max("     + door.getMaximum().getBlockX() + ";"    + door.getMaximum().getBlockY() + ";"   + door.getMaximum().getBlockZ() + ")" +
+				", Engine("  + door.getEngine().getBlockX()  + ";"    + door.getEngine().getBlockY()  + ";"   + door.getEngine().getBlockZ()  + ")" +
+				", " + (door.isLocked() ? "" : "NOT ") + "locked"     + "; Type=" + door.getType()    + 
+				(door.getEngSide() == null ? "" : ("; EngineSide = "  + door.getEngSide().toString()  + "; doorLen = " +
+				 door.getLength())) + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX()     + ";"   + 
+				 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()     + ")"   +
+				". It is "   + (door.isOpen() ? "OPEN." : "CLOSED.") + " OpenDir = " + door.getOpenDir().toString() + 
+				", Looking " + door.getLookingDir().toString(); 
 	}
 
 	public boolean isValidName(String name)
@@ -208,144 +215,94 @@ public class CommandHandler implements CommandExecutor
 	}
 	
 	// Create a new door.
-	public void makePortcullis(Player player, String name)
+	public void startCreator(Player player, String name, DoorType type)
 	{
+		long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
+		int maxCount   = Util.getMaxDoorsForPlayer(player);
+		if (maxCount  >= 0 && doorCount >= maxCount)
+		{
+			Util.messagePlayer(player, ChatColor.RED, Messages.getString("GENERAL.TooManyDoors"));
+			return;
+		}
+		
 		if (name != null && !isValidName(name))
 		{
 			Util.messagePlayer(player, ChatColor.RED, "Name \"" + name + "\" is not valid!");
 			return;
 		}
 		
-		PortcullisCreator pcc = new PortcullisCreator(plugin, player, name);
-		plugin.getPCCreators().add(pcc);
-		
-		int tickrate     = 4;
-		new BukkitRunnable()
-		{
-			int count    = 0;
-			int seconds  = 60;
-			int totTicks = 20 / tickrate * seconds;
-			
-			@Override
-			public void run()
-			{
-				if (pcc != null && pcc.isDone())	// Cancel and cleanup when the door creation process is doen.
-				{
-					pcc.finishUp();
-					plugin.getPCCreators().remove(pcc);
-					this.cancel();
-				}
-				else if (count > totTicks)
-				{
-					pcc.takeToolFromPlayer();
-					plugin.getPCCreators().remove(pcc);
-					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.TimeUp"));
-					this.cancel();
-				}
-				++count;
-			}
-		}.runTaskTimer(plugin, 0, 20); // Once a second.
-	}
-	
-	// Create a new door.
-	public void makeDoor(Player player, String name)
-	{
-		if (name != null && !isValidName(name))
-		{
-			Util.messagePlayer(player, ChatColor.RED, "Name \"" + name + "\" is not valid!");
-			return;
-		}
-		
-		DoorCreator dc = new DoorCreator(plugin, player, name);
-		plugin.getDoorCreators().add(dc);
+		ToolUser tu = type == DoorType.DOOR       ? new DoorCreator      (plugin, player, name) :
+		              type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
+		              type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) : null;
+				      
+		plugin.addToolUser(tu);
 
-		int tickrate     = 4;
+		int time = 60 * 20; // 60 seconds.
 		new BukkitRunnable()
 		{
-			int count    = 0;
-			int seconds  = 60;
-			int totTicks = 20 / tickrate * seconds;
-			
 			@Override
 			public void run()
 			{
-				if (dc != null && dc.isDone())	// Cancel and cleanup when the door creation process is doen.
+				if (!tu.isDone())
 				{
-					dc.finishUp();
-					plugin.getDoorCreators().remove(dc);
-					this.cancel();
-				}
-				else if (count > totTicks)
-				{
-					dc.takeToolFromPlayer();
-					plugin.getDoorCreators().remove(dc);
+					tu.takeToolFromPlayer();
+					plugin.getToolUsers().remove(tu);
 					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.TimeUp"));
-					this.cancel();
 				}
-				++count;
 			}
-		}.runTaskTimer(plugin, 0, 20); // Once a second.
+		}.runTaskLater(plugin, time);
 	}
 	
-	// Check if a provided player is a doorCreator.
-	public DoorCreator isCreatingDoor(Player player)
+	public ToolUser isToolUser(Player player) 
 	{
-		for (DoorCreator dc : plugin.getDoorCreators())
-			if (dc.getPlayer() == player)
-				return dc;
-		return null;
-	}
-	
-	// Check if a provided player is a doorCreator.
-	public PortcullisCreator isCreatingPortcullis(Player player)
-	{
-		for (PortcullisCreator pcc : plugin.getPCCreators())
-			if (pcc.getPlayer() == player)
-				return pcc;
+		for (ToolUser tu : plugin.getToolUsers())
+			if (tu.getPlayer() == player)
+				return tu;
 		return null;
 	}
 	
 	public void relocatePowerBlock(Player player, long doorUID)
 	{
-		PowerBlockRelocator pbr = new PowerBlockRelocator(plugin, player, doorUID);
+		ToolUser tu = new PowerBlockRelocator(plugin, player, doorUID);
 		
-		plugin.getRelocators().add(pbr);
+		plugin.addToolUser(tu);
 		
-		int tickrate     = 4;
+		int time = 20 * 20; // 20 seconds.
 		new BukkitRunnable()
 		{
-			int count    = 0;
-			int seconds  = 20;
-			int totTicks = 20 / tickrate * seconds;
-			
 			@Override
 			public void run()
 			{
-				if (pbr != null && pbr.isDone())	// Cancel and cleanup when the door creation process is doen.
+				if (!tu.isDone())
 				{
-					pbr.finishUp();
-					plugin.getRelocators().remove(pbr);
-					this.cancel();
-				}
-				else if (count > totTicks) // Cancel after 20 seconds.
-				{
-					pbr.takeToolFromPlayer();
-					plugin.getRelocators().remove(pbr);
+					tu.takeToolFromPlayer();
+					plugin.getToolUsers().remove(tu);
 					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.TimeUp"));
-					this.cancel();
 				}
-				++count;
 			}
-		}.runTaskTimer(plugin, 0, tickrate); // Once a second.
+		}.runTaskLater(plugin, time);
 	}
-
-	// Check if a provided player is a PowerBlockRelocator.
-	public PowerBlockRelocator isRelocatingPB(Player player)
+	
+	public void inspectPowerBlock(Player player)
 	{
-		for (PowerBlockRelocator pbr : plugin.getRelocators())
-			if (pbr.getPlayer() == player)
-				return pbr;
-		return null;
+		ToolUser tu = new PowerBlockInspector(plugin, player, -1);
+		
+		plugin.addToolUser(tu);
+		
+		int time = 20 * 20; // 20 seconds.
+		new BukkitRunnable()
+		{
+			@Override
+			public void run()
+			{
+				if (!tu.isDone())
+				{
+					tu.takeToolFromPlayer();
+					plugin.getToolUsers().remove(tu);
+					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.TimeUp"));
+				}
+			}
+		}.runTaskLater(plugin, time);
 	}
 	
 	// Handle commands.
@@ -364,7 +321,36 @@ public class CommandHandler implements CommandExecutor
 		// /doordebug
 		if (cmd.getName().equalsIgnoreCase("doordebug"))
 		{
-			doorDebug();
+			player = null;
+			if (sender instanceof Player)
+				player = (Player) sender;
+			doorDebug(player);
+			return true;
+		}
+		
+		// /setdoorrotation <doorName> <CLOCK || COUNTER || ANY>
+		if (cmd.getName().equalsIgnoreCase("setdoorrotation"))
+		{
+			if (args.length != 2)
+				return false;
+			player = null;
+			if (sender instanceof Player)
+				player = (Player) sender;
+			Door door = plugin.getCommander().getDoor(args[0], player);
+			if (door == null)
+				return false;
+			
+			RotateDirection openDir = null;
+			if (args[1].equalsIgnoreCase("CLOCK") || args[1].equalsIgnoreCase("CLOCKWISE"))
+				openDir = RotateDirection.CLOCKWISE;
+			else if (args[1].equalsIgnoreCase("COUNTER") || args[1].equalsIgnoreCase("COUNTERCLOCKWISE"))
+				openDir = RotateDirection.COUNTERCLOCKWISE;
+			else if (args[1].equalsIgnoreCase("NONE") || args[1].equalsIgnoreCase("ANY"))
+				openDir = RotateDirection.NONE;
+			else
+				return false;
+			
+			plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), openDir);
 			return true;
 		}
 		
@@ -379,7 +365,7 @@ public class CommandHandler implements CommandExecutor
 		if (cmd.getName().equalsIgnoreCase("bdversion"))
 		{
 			plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " + 
-											plugin.getDescription().getVersion() + " of this plugin!");
+											   plugin.getDescription().getVersion() + " of this plugin!");
 			return true;
 		}
 		
@@ -423,13 +409,12 @@ public class CommandHandler implements CommandExecutor
 					player = null;
 				
 				Door door = plugin.getCommander().getDoor(args[0], player);
-				// TODO: Add this shit to en_US.txt translation file.
 				if (door == null)
 				{
 					if (player != null)
-						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\" is not a valid door name!");
+						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\"" + Messages.getString("GENERAL.InvalidDoorName"));
 					else
-						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\" is not a valid door ID!");
+						plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[0] + "\"" + Messages.getString("GENERAL.InvalidDoorID"));
 				}
 				else
 				{
@@ -493,6 +478,13 @@ public class CommandHandler implements CommandExecutor
 				return true;
 			}
 			
+			// /inspectpowerblockloc
+			if (cmd.getName().equalsIgnoreCase("inspectpowerblockloc"))
+			{
+				inspectPowerBlock(player);
+				return true;
+			}
+			
 			// /bigdoors
 			if (cmd.getName().equalsIgnoreCase("bigdoors") || cmd.getName().equalsIgnoreCase("bdm"))
 			{
@@ -503,20 +495,12 @@ public class CommandHandler implements CommandExecutor
 			// /namedoor
 			if (cmd.getName().equalsIgnoreCase("namedoor"))
 			{
-				DoorCreator dc = isCreatingDoor(player);
-				if (dc != null)
+				ToolUser tu = isToolUser(player);
+				if (tu != null)
 					if (args.length == 1)
 						if (isValidName(args[0]))
 						{
-							dc.setName(args[0]);
-							return true;
-						}
-				PortcullisCreator pcc = isCreatingPortcullis(player);
-				if (pcc != null)
-					if (args.length == 1)
-						if (isValidName(args[0]))
-						{
-							pcc.setName(args[0]);
+							tu.setName(args[0]);
 							return true;
 						}
 			}
@@ -537,22 +521,10 @@ public class CommandHandler implements CommandExecutor
 			// /bdcancel
 			if (cmd.getName().equalsIgnoreCase("bdcancel"))
 			{
-				DoorCreator dc = isCreatingDoor(player);
-				if (dc != null)
+				ToolUser tu = isToolUser(player);
+				if (tu != null)
 				{
-					dc.setIsDone(true);
-					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.Cancelled"));
-				}
-				PortcullisCreator pc = isCreatingPortcullis(player);
-				if (pc != null)
-				{
-					pc.setIsDone(true);
-					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.Cancelled"));
-				}
-				PowerBlockRelocator pbc = isRelocatingPB(player);
-				if (pbc != null)
-				{
-					pbc.setIsDone(true);
+					tu.setIsDone(true);
 					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, Messages.getString("DC.Cancelled"));
 				}
 				return true;
@@ -583,18 +555,40 @@ public class CommandHandler implements CommandExecutor
 			if (cmd.getName().equalsIgnoreCase("newdoor"))
 				if (args.length >= 1)
 				{
-					if (args[0].equals("-p") && args.length == 2)
-						makePortcullis(player, args[1]);
+					DoorType type = DoorType.DOOR;
+					String name;
+					if (args.length == 2)
+					{
+						if      (args[0].equalsIgnoreCase("-pc"))
+							type = DoorType.PORTCULLIS;
+						else if (args[0].equalsIgnoreCase("-db"))
+							type = DoorType.DRAWBRIDGE;
+						else if (args[0].equalsIgnoreCase("-bd"))
+							type = DoorType.DOOR;
+						else
+							return false;
+						name = args[1];
+					}
 					else
-						makeDoor(player, args[0]);
+						name = args[0];
+					
+					startCreator(player, name, type);
 					return true;
 				}
-				
+			
 			// /newportcullis <doorName>
 			if (cmd.getName().equalsIgnoreCase("newportcullis"))
 				if (args.length == 1)
 				{
-					makePortcullis(player, args[0]);
+					startCreator(player, args[0], DoorType.PORTCULLIS);
+					return true;
+				}
+				
+			// /newdrawbridge <doorName>
+			if (cmd.getName().equalsIgnoreCase("newdrawbridge"))
+				if (args.length == 1)
+				{
+					startCreator(player, args[0], DoorType.DRAWBRIDGE);
 					return true;
 				}
 				
@@ -648,10 +642,7 @@ public class CommandHandler implements CommandExecutor
 			return;
 		}
 		catch(NumberFormatException e)
-		{
-			// Logging this makes no sense.
-//			plugin.getMyLogger().logMessage("Could not parse to long!", true, false);
-		}
+		{}
 		
 		long doorCount = countDoors(player, doorName);
 		if (doorCount == 0)
@@ -669,8 +660,9 @@ public class CommandHandler implements CommandExecutor
 	}
 	
 	// Used for various debugging purposes (you don't say!).
-	public void doorDebug()
+	public void doorDebug(Player player)
 	{
-		Bukkit.broadcastMessage("Doors can" + (plugin.getCommander().canGo() ? " " : "not ") + "go!");
+		if (player != null)
+			Bukkit.broadcastMessage("Player " + player.getName() + " can own " + Util.getMaxDoorsForPlayer(player) + " doors!");
 	}
 }

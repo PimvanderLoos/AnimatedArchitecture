@@ -255,15 +255,15 @@ public class CylindricalMover implements BlockMover
 		savedBlocks.clear();
 
 		// Tell the door object it has been opened and what its new coordinates are.
-		toggleOpen  (door);
 		updateCoords(this.door, this.currentDirection, this.rotDirection, -1);
+		toggleOpen  (door);
 		if (!onDisable)
 			plugin.removeBlockMover(this);
 		
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
 		int timer = onDisable   ?  0 : 
-			        instantOpen ? 40 : plugin.getConfigLoader().getInt("timeOut") * 20;
+			        instantOpen ? 40 : plugin.getConfigLoader().getInt("coolDown") * 20;
 		
 		if (timer > 0)
 		{
@@ -278,49 +278,6 @@ public class CylindricalMover implements BlockMover
 		}
 		else
 			plugin.getCommander().setDoorAvailable(door.getDoorUID());
-	}
-	
-	// Put falling blocks into their final location (but keep them as falling blocks).
-	// This makes the transition from entity to block appear smoother.
-	public void finishBlocks()
-	{
-		int index = 0;
-		double xAxis = turningPoint.getX();
-		do
-		{
-			double zAxis = turningPoint.getZ();
-			do
-			{
-				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
-				{	
-					// Get final position of the blocks.
-					Location newPos = gnl.getNewLocation(savedBlocks, xAxis, yAxis, zAxis, index);
-					
-					newPos.setX(newPos.getX() + 0.5);
-					newPos.setY(newPos.getY()      );
-					newPos.setZ(newPos.getZ() + 0.5);
-					
-					// Teleport the falling blocks to their final positions.
-					savedBlocks.get(index).getFBlock().teleport(newPos);
-					savedBlocks.get(index).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
-					
-					++index;
-				}
-				zAxis += dz;
-			}
-			while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-			xAxis += dx;
-		}
-		while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-		
-		new BukkitRunnable()
-		{
-			@Override
-			public void run()
-			{
-				putBlocks(false);
-			}
-		}.runTaskLater(plugin, 4L);
 	}
 	
 	// Method that takes care of the rotation aspect.
@@ -355,12 +312,12 @@ public class CylindricalMover implements BlockMover
 				if (counter == replaceCount)
 					replace = true;
 				
-				if (!plugin.getCommander().canGo() || counter > totalTicks)
+				if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
 				{					
 					Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.85f, 1f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
-					finishBlocks();
+					putBlocks(false);
 					this.cancel();
 				}
 				else
@@ -442,25 +399,25 @@ public class CylindricalMover implements BlockMover
 	{
 		if (this.rotDirection == RotateDirection.CLOCKWISE)
 		{
-			if (matData == 0)
-				matData = (byte) (1);
-			else if (matData == 1)
-				matData = (byte) (3);
-			else if (matData == 2)
-				matData = (byte) (3);
-			else if (matData == 3)
-				matData = (byte) (0);
+			if (     matData == 0 || matData == 4 || matData ==  8)
+				matData = (byte) (matData + 1);
+			else if (matData == 1 || matData == 5 || matData ==  9)
+				matData = (byte) (matData + 1);
+			else if (matData == 2 || matData == 6 || matData == 10)
+				matData = (byte) (matData + 1);
+			else if (matData == 3 || matData == 7 || matData == 11)
+				matData = (byte) (matData - 3);
 		}
 		else
 		{
-			if (matData == 0)
-				matData = (byte) (3);
-			else if (matData == 1)
-				matData = (byte) (0);
-			else if (matData == 2)
-				matData = (byte) (1);
-			else if (matData == 3)
-				matData = (byte) (2);
+			if (     matData == 0 || matData == 4 || matData ==  8)
+				matData = (byte) (matData + 3);
+			else if (matData == 1 || matData == 5 || matData ==  9)
+				matData = (byte) (matData - 1);
+			else if (matData == 2 || matData == 6 || matData == 10)
+				matData = (byte) (matData - 1);
+			else if (matData == 3 || matData == 7 || matData == 11)
+				matData = (byte) (matData - 1);
 		}
 		return matData;
 	}
@@ -496,7 +453,7 @@ public class CylindricalMover implements BlockMover
 	// Toggle the open status of a drawbridge.
 	public void toggleOpen(Door door)
 	{
-		door.setStatus(!door.getStatus());
+		door.setOpenStatus(!door.isOpen());
 	}
 	
 	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
@@ -573,8 +530,7 @@ public class CylindricalMover implements BlockMover
 		door.setMaximum(newMax);
 		door.setMinimum(newMin);
 
-		int isOpen = door.getStatus() == true ? 0 : 1; // If door.getStatus() is true (1), set isOpen to 0, as it's just been toggled.
-		plugin.getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
+		plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
 	}
 	
 	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
@@ -590,5 +546,12 @@ public class CylindricalMover implements BlockMover
 	public long getDoorUID()
 	{
 		return this.door.getDoorUID();
+	}
+
+	
+	@Override
+	public Door getDoor()
+	{
+		return this.door;
 	}
 }

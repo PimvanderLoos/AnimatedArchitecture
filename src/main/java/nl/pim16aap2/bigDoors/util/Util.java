@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.Door;
@@ -16,12 +17,36 @@ public final class Util
 		player.sendMessage(color + s);
 	}
 	
+	public static String locIntToString(Location loc)
+	{
+		return String.format("(%d;%d;%d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+	}
+	
+	public static String locDoubleToString(Location loc)
+	{
+		return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
+	}
+	
 	// Play sound at a location.
 	public static void playSound(Location loc, String sound, float volume, float pitch)
 	{
 		for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
 			if (ent instanceof Player)
 				((Player) ent).playSound(loc, sound, volume, pitch);
+	}
+	
+	public static int getMaxDoorsForPlayer(Player player)
+	{
+		String permissionNode = "bigdoors.own.";
+		int ret = -1;
+		for (PermissionAttachmentInfo perms : player.getEffectivePermissions())
+			if (perms.getPermission().startsWith(permissionNode))
+				try
+				{
+					ret = Math.max(ret, Integer.valueOf(perms.getPermission().split(permissionNode)[1]));
+				}
+				catch (Exception e) {}
+		return ret;
 	}
 	
 	public static int tickRateFromSpeed(double speed)

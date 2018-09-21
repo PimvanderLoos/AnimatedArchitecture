@@ -3,7 +3,6 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -115,12 +114,17 @@ public class BridgeMover implements BlockMover
 			else
 			{
 				this.startStepSum   =  0;
-				this.endStepSum     =  Math.PI / 2;
 				this.pointOpposite  = new Location(world, xMax, yMax, zMin);
 				if (openDirection.equals(DoorDirection.NORTH))
+				{
+					this.endStepSum     = -Math.PI / 2;
 					this.stepMultiplier = -1;
+				}
 				else if (openDirection.equals(DoorDirection.SOUTH))
+				{
+					this.endStepSum     =  Math.PI / 2;
 					this.stepMultiplier =  1;
+				}
 			}
 			break;
 			
@@ -140,12 +144,17 @@ public class BridgeMover implements BlockMover
 			else
 			{
 				this.startStepSum   =  0;
-				this.endStepSum     = -Math.PI / 2;
 				this.pointOpposite  = new Location(world, xMin, yMax, zMax);
 				if (openDirection.equals(DoorDirection.NORTH))
+				{
+					this.endStepSum     = -Math.PI / 2;
 					this.stepMultiplier = -1;
+				}
 				else if (openDirection.equals(DoorDirection.SOUTH))
+				{
+					this.endStepSum     =  Math.PI / 2;
 					this.stepMultiplier =  1;
+				}
 			}
 			break;
 			
@@ -165,12 +174,17 @@ public class BridgeMover implements BlockMover
 			else
 			{
 				this.startStepSum   =  0;
-				this.endStepSum     = -Math.PI / 2;
 				this.pointOpposite  = new Location(world, xMax, yMax, zMax);
 				if (openDirection.equals(DoorDirection.EAST))
+				{
+					this.endStepSum     =  Math.PI / 2;
 					this.stepMultiplier =  1;
+				}
 				else if (openDirection.equals(DoorDirection.WEST))
+				{
+					this.endStepSum     = -Math.PI / 2;
 					this.stepMultiplier = -1;
+				}
 			}
 			break;
 			
@@ -190,12 +204,17 @@ public class BridgeMover implements BlockMover
 			else
 			{
 				this.startStepSum   =  0;
-				this.endStepSum     =  Math.PI / 2;
 				this.pointOpposite  = new Location(world, xMin, yMax, zMin);
 				if (openDirection.equals(DoorDirection.EAST))
+				{
+					this.endStepSum     =  Math.PI / 2;
 					this.stepMultiplier =  1;
+				}
 				else if (openDirection.equals(DoorDirection.WEST))
+				{
+					this.endStepSum     = -Math.PI / 2;
 					this.stepMultiplier = -1;
+				}
 			}
 			break;
 		}
@@ -333,6 +352,7 @@ public class BridgeMover implements BlockMover
 						savedBlocks.get(index).getFBlock().remove();
 
 					if (!savedBlocks.get(index).getMat().equals(Material.AIR))
+					{
 						if (plugin.is1_13())
 						{						
 							savedBlocks.get(index).getBlock().putBlock(newPos);
@@ -351,7 +371,7 @@ public class BridgeMover implements BlockMover
 							bs.setData(matData);
 							bs.update();
 						}
-
+					}
 					index++;
 				}
 				zAxis += dz;
@@ -363,15 +383,15 @@ public class BridgeMover implements BlockMover
 		savedBlocks.clear();
 
 		// Tell the door object it has been opened and what its new coordinates are.
-		toggleOpen  (door);
 		updateCoords(door, this.openDirection, this.upDown, -1);
+		toggleOpen  (door);
 		if (!onDisable)
 			plugin.removeBlockMover(this);
 		
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
 		int timer = onDisable   ?  0 : 
-			        instantOpen ? 40 : plugin.getConfigLoader().getInt("timeOut") * 20;
+			        instantOpen ? 40 : plugin.getConfigLoader().getInt("coolDown") * 20;
 		
 		if (timer > 0)
 		{
@@ -386,50 +406,6 @@ public class BridgeMover implements BlockMover
 		}
 		else
 			plugin.getCommander().setDoorAvailable(door.getDoorUID());
-		
-	}
-	
-	// Put falling blocks into their final location (but keep them as falling blocks).
-	// This makes the transition from entity to block appear smoother.
-	public void finishBlocks()
-	{
-		int index = 0;
-		double xAxis = turningPoint.getX();
-		do
-		{
-			double zAxis = turningPoint.getZ();
-			do
-			{
-				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
-				{	
-					// Get final position of the blocks.
-					Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis, index);
-					
-					newPos.setX(newPos.getX() + 0.5);
-					newPos.setY(newPos.getY()      );
-					newPos.setZ(newPos.getZ() + 0.5);
-					
-					// Teleport the falling blocks to their final positions.
-					savedBlocks.get(index).getFBlock().teleport(newPos);
-					savedBlocks.get(index).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
-					
-					++index;
-				}
-				zAxis += dz;
-			}
-			while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-			xAxis += dx;
-		}
-		while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-		
-		new BukkitRunnable()
-		{
-			@Override
-			public void run()
-			{
-				putBlocks(false);
-			}
-		}.runTaskLater(plugin, 4L);
 	}
 	
 	// Method that takes care of the rotation aspect.
@@ -459,17 +435,17 @@ public class BridgeMover implements BlockMover
 					stepSum = startStepSum + step * counter;
 				else 
 					stepSum = endStepSum;
-				
+								
 				replace = false;
 				if (counter == replaceCount)
 					replace = true;
 				
-				if (!plugin.getCommander().canGo() || counter > totalTicks)
+				if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
 				{					
 					Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
-					finishBlocks();
+					putBlocks(false);
 					this.cancel();
 				}
 				else
@@ -544,7 +520,7 @@ public class BridgeMover implements BlockMover
 	// Toggle the open status of a drawbridge.
 	public void toggleOpen(Door door)
 	{
-		door.setStatus(!door.getStatus());
+		door.setOpenStatus(!door.isOpen());
 	}
 
 	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
@@ -632,8 +608,7 @@ public class BridgeMover implements BlockMover
 		door.setMinimum(newMin);
 		door.setEngineSide(newEngSide);
 
-		int isOpen = door.getStatus() == true ? 0 : 1; // If door.getStatus() is true (1), set isOpen to 0, as it's just been toggled.
-		plugin.getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
+		plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
 	}
 
 	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
@@ -650,5 +625,11 @@ public class BridgeMover implements BlockMover
 	public long getDoorUID()
 	{
 		return this.door.getDoorUID();
+	}
+
+	@Override
+	public Door getDoor()
+	{
+		return this.door;
 	}
 }

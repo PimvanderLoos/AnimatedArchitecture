@@ -17,7 +17,7 @@ public class ConfigLoader
 {
 	private String           dbFile;
 	private String           header;
-	private int             timeOut;
+	private int            coolDown;
 	private boolean      allowStats;
 	private int         maxDoorSize;
 	private double     pcMultiplier = 1.0;
@@ -98,7 +98,7 @@ public class ConfigLoader
 		    		"To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
 		    		"bd = Big Door, pc = Portcullis, db = Drawbridge."
 		    	};
-	    String[] timeOutComment          =
+	    String[] coolDownComment         =
 		    	{
 		    		"Cooldown on using doors. Time is measured in seconds."
 		    	};
@@ -131,8 +131,8 @@ public class ConfigLoader
 		configOptionsList.add(new ConfigOption( "pcMultiplier"    , pcMultiplier    , null                  ));
 		dbMultiplier     = config.getDouble(    "dbMultiplier"    , 0.0D             );
 		configOptionsList.add(new ConfigOption( "dbMultiplier"    , dbMultiplier    , null                  ));
-		timeOut          = config.getInt(       "timeOut"         , 0                );
-		configOptionsList.add(new ConfigOption( "timeOut"         , timeOut         , timeOutComment        ));
+		coolDown         = config.getInt(       "coolDown"        , 0                );
+		configOptionsList.add(new ConfigOption( "coolDown"        , coolDown        , coolDownComment       ));
 		
 		writeConfig();
 	}

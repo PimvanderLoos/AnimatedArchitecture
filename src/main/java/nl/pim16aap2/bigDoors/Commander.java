@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class Commander
@@ -179,15 +180,20 @@ public class Commander
 	}
 
 	// Update the coordinates of a given door.
-	public void updateDoorCoords(long doorUID, int isOpen, int blockXMin, int blockYMin, int blockZMin, int blockXMax, int blockYMax, int blockZMax)
+	public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin, int blockZMin, int blockXMax, int blockYMax, int blockZMax)
 	{
-		db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax);
+		db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax, null);
 	}
 
 	// Update the coordinates of a given door.
-	public void updateDoorCoords(long doorUID, int isOpen, int blockXMin, int blockYMin, int blockZMin, int blockXMax, int blockYMax, int blockZMax, DoorDirection newEngSide)
+	public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin, int blockZMin, int blockXMax, int blockYMax, int blockZMax, DoorDirection newEngSide)
 	{
 		db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax, newEngSide);
+	}
+	
+	public void updateDoorOpenDirection(long doorUID, RotateDirection openDir)
+	{
+		db.updateDoorOpenDirection(doorUID, openDir == null ? RotateDirection.NONE : openDir);
 	}
 	
 	// Change the "locked" status of a door.
@@ -195,12 +201,6 @@ public class Commander
 	{
 		db.setLock(doorUID, newLockStatus);
 	}
-	
-//	// Get a door from the x,y,z coordinates of its engine block (= rotation point at lowest y).
-//	public Door doorFromEngineLoc(Location loc)
-//	{
-//		return db.doorFromEngineLoc(loc);
-//	}
 
 	// Get a door from the x,y,z coordinates of its power block.
 	public Door doorFromPowerBlockLoc(Location loc)

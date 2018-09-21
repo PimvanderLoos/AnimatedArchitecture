@@ -9,7 +9,6 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
@@ -29,10 +28,10 @@ public class RedstoneHandler implements Listener
 	// Then, if a door is found, check for nearby players that triggered a redstone signal recently.
 	// Use this information to check for permissions to open doors. Store it in an arraylist or something.
 //	@EventHandler
-	public void onRedStoneToggled(PlayerInteractEvent event)
-	{
-		// TODO: Check interactions with switches, placing redstone torches, hitting buttons (hand / arrow), pressure plates
-	}
+//	public void onRedStoneToggled(PlayerInteractEvent event)
+//	{
+//		// TODO: Check interactions with switches, placing redstone torches, hitting buttons (hand / arrow), pressure plates
+//	}
 	
 	public boolean checkDoor(Location loc)
 	{
@@ -80,7 +79,7 @@ public class RedstoneHandler implements Listener
 			plugin.getMyLogger().logMessage("Exception thrown while handling redstone event!", true, false);
             StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
-			plugin.getMyLogger().logMessage("79 " + sw.toString());
+			plugin.getMyLogger().logMessageToLogFile("79 " + sw.toString());
         }
     }
 }

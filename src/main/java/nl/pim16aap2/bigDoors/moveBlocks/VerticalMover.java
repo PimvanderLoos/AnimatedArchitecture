@@ -175,15 +175,15 @@ public class VerticalMover implements BlockMover
 		savedBlocks.clear();
 
 		// Tell the door object it has been opened and what its new coordinates are.
-		toggleOpen  (door);
 		updateCoords(this.door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, this.blocksToMove);
+		toggleOpen  (door);
 		if (!onDisable)
 			plugin.removeBlockMover(this);
 		
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
 		int timer = onDisable   ?  0 : 
-			        instantOpen ? 40 : plugin.getConfigLoader().getInt("timeOut") * 20;
+			        instantOpen ? 40 : plugin.getConfigLoader().getInt("coolDown") * 20;
 		
 		if (timer > 0)
 		{
@@ -203,49 +203,6 @@ public class VerticalMover implements BlockMover
 	private Location getNewLocation(double xAxis, double yAxis, double zAxis)
 	{
 		return new Location(this.world, xAxis, yAxis + this.blocksToMove, zAxis);
-	}
-
-	// Put falling blocks into their final location (but keep them as falling blocks).
-	// This makes the transition from entity to block appear smoother.
-	public void finishBlocks()
-	{
-		int index = 0;
-		int yAxis = this.yMin;
-		do
-		{
-			int zAxis = this.zMin;
-			do
-			{
-				for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
-				{	
-					// Get final position of the blocks.
-					Location newPos = this.getNewLocation(xAxis, yAxis, zAxis);
-					
-					newPos.setX(newPos.getX() + 0.5);
-					newPos.setY(newPos.getY()      );
-					newPos.setZ(newPos.getZ() + 0.5);
-					
-					// Teleport the falling blocks to their final positions.
-					savedBlocks.get(index).getFBlock().teleport(newPos);
-					savedBlocks.get(index).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
-					
-					++index;
-				}
-				++zAxis;
-			}
-			while (zAxis <= this.zMax);
-			++yAxis;
-		}
-		while (yAxis <= this.yMax);
-		
-		new BukkitRunnable()
-		{
-			@Override
-			public void run()
-			{
-				putBlocks(false);
-			}
-		}.runTaskLater(plugin, 4L);
 	}
 	
 	// Method that takes care of the rotation aspect.
@@ -273,12 +230,12 @@ public class VerticalMover implements BlockMover
 				else 
 					stepSum = blocksToMove;
 								
-				if (!plugin.getCommander().canGo() || counter > totalTicks)
+				if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
 				{					
 					Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
-					finishBlocks();
+					putBlocks(false);
 					this.cancel();
 				}
 				else
@@ -311,7 +268,7 @@ public class VerticalMover implements BlockMover
 	// Toggle the open status of a drawbridge.
 	public void toggleOpen(Door door)
 	{
-		door.setStatus(!door.getStatus());
+		door.setOpenStatus(!door.isOpen());
 	}
 
 	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.	
@@ -330,8 +287,7 @@ public class VerticalMover implements BlockMover
 		door.setMaximum(newMax);
 		door.setMinimum(newMin);
 
-		int isOpen = door.getStatus() == true ? 0 : 1; // If door.getStatus() is true (1), set isOpen to 0, as it's just been toggled.
-		plugin.getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
+		plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
 	}
 	
 	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
@@ -347,5 +303,11 @@ public class VerticalMover implements BlockMover
 	public long getDoorUID()
 	{
 		return this.door.getDoorUID();
+	}
+
+	@Override
+	public Door getDoor()
+	{
+		return this.door;
 	}
 }

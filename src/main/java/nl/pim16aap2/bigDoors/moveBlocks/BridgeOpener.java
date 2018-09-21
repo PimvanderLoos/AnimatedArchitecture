@@ -162,6 +162,15 @@ public class BridgeOpener implements Opener
 		if (upDown.equals(RotateDirection.UP))
 			return isNewPosFree(door, upDown, door.getEngSide()) ? door.getEngSide() : null;
 		
+		if (door.getOpenDir().equals(RotateDirection.CLOCKWISE       ) && !door.isOpen() ||
+			door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) &&  door.isOpen())
+			return  NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH :
+				   !NS && isNewPosFree(door, upDown, DoorDirection.EAST ) ? DoorDirection.EAST  : null;
+		if (door.getOpenDir().equals(RotateDirection.CLOCKWISE       ) &&  door.isOpen() ||
+			door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
+			return  NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
+				   !NS && isNewPosFree(door, upDown, DoorDirection.WEST ) ? DoorDirection.WEST  : null;
+		
 		return 	 NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
 				!NS && isNewPosFree(door, upDown, DoorDirection.EAST ) ? DoorDirection.EAST  : 
 				 NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH : 
