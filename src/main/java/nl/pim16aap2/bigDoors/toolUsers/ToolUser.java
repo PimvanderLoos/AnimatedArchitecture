@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors.ToolUsers;
+package nl.pim16aap2.bigDoors.toolUsers;
 
 import java.util.Arrays;
 
@@ -42,6 +42,7 @@ public abstract class ToolUser
 		this.engine     = null;
 		this.engineSide = null;
 		this.type       = type;
+		plugin.addToolUser(this);
 	}
 	
 	// Handle location input (player hitting a block).
@@ -65,7 +66,7 @@ public abstract class ToolUser
 			Location powerB = new Location(world, this.engine.getBlockX(), this.engine.getBlockY() - 1, this.engine.getBlockZ());
 			
 			Door door = new Door(player.getUniqueId(), world, min, max, engine, name, isOpen, -1, false, 
-					0, this.type, engineSide, powerB, null);
+					0, this.type, engineSide, powerB, null, -1);
 			plugin.getCommander().addDoor(door);
 			
 			Util.messagePlayer(player, message);
@@ -80,7 +81,7 @@ public abstract class ToolUser
 		tool.getItemMeta().addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		
         ItemMeta itemMeta = tool.getItemMeta();
-        itemMeta.setDisplayName(messages.getString("DC.StickName"));
+        itemMeta.setDisplayName(messages.getString("CREATOR.GENERAL.StickName"));
         itemMeta.setLore(Arrays.asList(lore));
         tool.setItemMeta(itemMeta);
         

@@ -14,8 +14,6 @@ import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
-import nl.pim16aap2.bigDoors.ToolUsers.ToolUser;
-import nl.pim16aap2.bigDoors.ToolUsers.ToolVerifier;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
@@ -32,21 +30,15 @@ import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocatio
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationSouth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
+import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
+import nl.pim16aap2.bigDoors.toolUsers.ToolVerifier;
 import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
+import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
-// TODO: Make ListDoors explain there are no doors found when none around found.
-// TODO: Get rid of "Multiple doors with that name found" message when there are actually 0 hits.
-// TODO: Add all strings to translation file.
-// TODO: Look into cobble stone walls.
-// TODO: Add timer for auto closing doors (Clock item in GUI).
-// TODO: Add auto closing status to /DoorInfo.
-// TODO: Allow /DoorInfo <Name> from console.
-// TODO: Store playername in DB, so you can look for players from console when they're offline.
-// TODO: Add /ToggleDoor(s), /OpenDoor(s) and /CloseDoor(s).
-// TODO: Don't calculate endStepSum for bridgeMover using if/else. 0 = up, 1/2 pi = down. Just use multiplier.
+// TODO: Use the good old armor stand + falling block riding it technique for cobblestone walls in 1.12
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -61,6 +53,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	private Messages                 messages;
 	private Vector<ToolUser>        toolUsers;
 	private Commander               commander;
+	private Vector<WaitForCommand> cmdWaiters;
 	private DoorOpener             doorOpener;
 	private Vector<BlockMover>    blockMovers;
 	private BridgeOpener         bridgeOpener;
@@ -101,8 +94,9 @@ public class BigDoors extends JavaPlugin implements Listener
 		
 		toolUsers        = new Vector<ToolUser>(2);
 		blockMovers      = new Vector<BlockMover>(2);
+		cmdWaiters       = new Vector<WaitForCommand>(2);
 		this.db          = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
-		this.tf          = new ToolVerifier(messages.getString("DC.StickName"));
+		this.tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
 		doorOpener       = new DoorOpener(this);
 		bridgeOpener     = new BridgeOpener(this);
 		bridgeOpener     = new BridgeOpener(this);
@@ -116,13 +110,14 @@ public class BigDoors extends JavaPlugin implements Listener
 		getCommand("inspectpowerblockloc").setExecutor(new CommandHandler(this));
 		getCommand("changepowerblockloc" ).setExecutor(new CommandHandler(this));
 		getCommand("bigdoorsenableas"    ).setExecutor(new CommandHandler(this));
+		getCommand("setautoclosetime"    ).setExecutor(new CommandHandler(this));
 		getCommand("setdoorrotation"     ).setExecutor(new CommandHandler(this));
 		getCommand("newportcullis"       ).setExecutor(new CommandHandler(this));
-		getCommand("unlockDoor"          ).setExecutor(new CommandHandler(this));
+		getCommand("toggledoor"          ).setExecutor(new CommandHandler(this));
 		getCommand("pausedoors"          ).setExecutor(new CommandHandler(this));
+		getCommand("closedoor"           ).setExecutor(new CommandHandler(this));
 		getCommand("doordebug"           ).setExecutor(new CommandHandler(this));
 		getCommand("bdversion"           ).setExecutor(new CommandHandler(this));
-		getCommand("opendoors"           ).setExecutor(new CommandHandler(this));
 		getCommand("listdoors"           ).setExecutor(new CommandHandler(this));
 		getCommand("stopdoors"           ).setExecutor(new CommandHandler(this));
 		getCommand("bdcancel"            ).setExecutor(new CommandHandler(this));
@@ -132,7 +127,6 @@ public class BigDoors extends JavaPlugin implements Listener
 		getCommand("bigdoors"            ).setExecutor(new CommandHandler(this));
 		getCommand("newdoor"             ).setExecutor(new CommandHandler(this));
 		getCommand("deldoor"             ).setExecutor(new CommandHandler(this));
-		getCommand("fixdoor"             ).setExecutor(new CommandHandler(this));
 		getCommand("bdm"                 ).setExecutor(new CommandHandler(this));
 
 		liveDevelopmentLoad();
@@ -244,6 +238,22 @@ public class BigDoors extends JavaPlugin implements Listener
 	public void removeToolUser(ToolUser toolUser)
 	{
 		this.toolUsers.remove(toolUser);
+	}
+	
+	// Get the Vector of WaitForCommand.
+	public Vector<WaitForCommand> getCommandWaiters()
+	{
+		return this.cmdWaiters;
+	}
+	
+	public void addCommandWaiter(WaitForCommand cmdWaiter)
+	{
+		this.cmdWaiters.add(cmdWaiter);
+	}
+	
+	public void removeCommandWaiter(WaitForCommand cmdWaiter)
+	{
+		this.cmdWaiters.remove(cmdWaiter);
 	}
 	
 	// Get the command Handler.

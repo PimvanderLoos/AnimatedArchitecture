@@ -1,9 +1,14 @@
-package nl.pim16aap2.bigDoors.ToolUsers;
+package nl.pim16aap2.bigDoors.toolUsers;
+
+import java.util.logging.Level;
 
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Util;
 
@@ -13,14 +18,14 @@ import nl.pim16aap2.bigDoors.util.Util;
  * The creation process has been completed successfully or the timer ran out. In EventHandlers this class is used 
  * To check whether a user that is left-clicking is a DoorCreator && tell this class a left-click happened.
  */
-public class DoorCreator extends ToolUser
+public class DoorCreator extends ToolUser implements Abortable
 {	
 	public DoorCreator(BigDoors plugin, Player player, String name) 
 	{
 		super(plugin, player, name, DoorType.DOOR);
-		Util.messagePlayer(player, messages.getString("DC.Init"));
+		Util.messagePlayer(player, messages.getString("CREATOR.DOOR.Init"));
 		if (name == null)
-			Util.messagePlayer(player, messages.getString("DC.GiveNameInstruc"));
+			Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
 		else
 			triggerGiveTool();
 	}
@@ -28,14 +33,14 @@ public class DoorCreator extends ToolUser
 	@Override
 	protected void triggerGiveTool()
 	{
-		giveToolToPlayer(messages.getString("BD.StickLore"    ).split("\n"), 
-		                 messages.getString("BD.StickReceived").split("\n"));
+		giveToolToPlayer(messages.getString("CREATOR.DOOR.StickLore"    ).split("\n"), 
+		                 messages.getString("CREATOR.DOOR.StickReceived").split("\n"));
 	}
 	
 	@Override
 	protected void triggerFinishUp()
 	{
-		finishUp(messages.getString("BD.Success"));
+		finishUp(messages.getString("CREATOR.DOOR.Success"));
 	}
 	
 	@Override
@@ -83,7 +88,7 @@ public class DoorCreator extends ToolUser
 		if (one == null)
 		{
 			one = loc;
-			String[] message = messages.getString("DC.Step1").split("\n");
+			String[] message = messages.getString("CREATOR.DOOR.Step1").split("\n");
 			Util.messagePlayer(player, message);
 		}
 		else if (two == null)
@@ -91,12 +96,12 @@ public class DoorCreator extends ToolUser
 			if (isPosTwoValid(loc) && one != loc)
 			{
 				two = loc;
-				String[] message = messages.getString("DC.Step2").split("\n");
+				String[] message = messages.getString("CREATOR.DOOR.Step2").split("\n");
 				Util.messagePlayer(player, message);
 				minMaxFix();
 			}
 			else
-				Util.messagePlayer(player, messages.getString("DC.InvalidPoint"));
+				Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
 
 		}
 		// If the engine position has not been determined yet
@@ -106,14 +111,22 @@ public class DoorCreator extends ToolUser
 			{
 				engine = loc;
 				engine.setY(one.getY());
-				Util.messagePlayer(player, messages.getString("DC.StepDoor3"));
+//				Util.messagePlayer(player, messages.getString("CREATOR.DOOR.StepDoor3"));
 				setIsDone(true);
 				engine.setY(one.getBlockY());
 			}
 			else
-				Util.messagePlayer(player, messages.getString("DC.InvalidRotation"));
+				Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
 		}
 		else
 			setIsDone(true);
+	}
+	
+	@Override
+	public void abort()
+	{
+		this.takeToolFromPlayer();
+		plugin.removeToolUser(this);
+		plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
 	}
 }

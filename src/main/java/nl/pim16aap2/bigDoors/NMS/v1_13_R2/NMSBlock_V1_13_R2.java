@@ -10,17 +10,19 @@ import net.minecraft.server.v1_13_R2.IBlockData;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
+import nl.pim16aap2.bigDoors.util.Util;
+import nl.pim16aap2.bigDoors.util.XMaterial;
 
 public class NMSBlock_V1_13_R2 extends net.minecraft.server.v1_13_R2.Block implements NMSBlock_Vall
 {
-//	private Block       nmsBlock;
 	private IBlockData blockData;
+	private XMaterial  xmat;
 	
 	public NMSBlock_V1_13_R2(World world, int x, int y, int z)
 	{
 		super(net.minecraft.server.v1_13_R2.Block.Info.a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
 		this.blockData = ((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z));
-//		this.nmsBlock  = blockData.getBlock();
+		this.xmat      = XMaterial.fromString(world.getBlockAt(new Location(world, x, y, z)).getType().toString());
 		super.v(blockData);
 	}
 	
@@ -46,11 +48,16 @@ public class NMSBlock_V1_13_R2 extends net.minecraft.server.v1_13_R2.Block imple
 	{
 		((CraftWorld) loc.getWorld()).getHandle().setTypeAndData(
 				new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), this.blockData, 1);
+		if (Util.needsRefresh(this.xmat))
+		{
+			loc.getWorld().getBlockAt(loc).setType(XMaterial.AIR.parseMaterial());
+			loc.getWorld().getBlockAt(loc).setType(xmat.parseMaterial());
+		}
 	}
 
 	@Override
 	public void rotateBlockUpDown(DoorDirection openDirection, RotateDirection upDown)
 	{
-
+		
 	}
 }

@@ -127,6 +127,13 @@ public class CylindricalMover implements BlockMover
 								matByte  = rotateBlockDataStairs(matData);
 							else if (canRotate == 4)
 								matByte  = rotateBlockDataAnvil(matData);
+//							else if (canRotate == 5)
+//							{
+//								Random ran = new Random();
+//								int x = ran.nextInt(8) + 1;
+//								Bukkit.broadcastMessage("matByte = " + x);
+//								matByte  = (byte) x;
+//							}
 							
 							Block b      = world.getBlockAt(pos);					
 							materialData.setData(matByte);
@@ -278,10 +285,29 @@ public class CylindricalMover implements BlockMover
 		}
 		else
 			plugin.getCommander().setDoorAvailable(door.getDoorUID());
+		
+		if (!onDisable)
+			goAgain();
+	}
+	
+	private void goAgain()
+	{
+		int autoCloseTimer = door.getAutoClose();
+		if (autoCloseTimer < 0 || !door.isOpen())
+			return;
+		
+		new BukkitRunnable()
+		{
+			@Override
+			public void run()
+			{
+				plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(door.getDoorUID()), time, instantOpen, false);
+			}
+		}.runTaskLater(plugin, autoCloseTimer * 20);
 	}
 	
 	// Method that takes care of the rotation aspect.
-	public void rotateEntities()
+	private void rotateEntities()
 	{
 		new BukkitRunnable()
 		{
@@ -298,8 +324,8 @@ public class CylindricalMover implements BlockMover
 			@Override
 			public void run()
 			{
-				if (counter == 0 || (counter < endCount - 27 / tickRate && counter % 7 == 0))
-					Util.playSound(door.getEngine(), "bd.dragging2", 0.8f, 0.6f);
+				if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
+					Util.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
 				
 				if (!plugin.getCommander().isPaused())
 					++counter;
@@ -314,7 +340,7 @@ public class CylindricalMover implements BlockMover
 				
 				if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
 				{					
-					Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.85f, 1f);
+					Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
 					putBlocks(false);
@@ -329,7 +355,7 @@ public class CylindricalMover implements BlockMover
 						// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated. 
 						if (replace)
 						{
-							if (block.canRot() != 0)
+							if (block.canRot() != 0 && block.canRot() != 5)
 							{
 								Material mat = block.getMat();
 								Location loc = block.getFBlock().getLocation();
@@ -386,7 +412,7 @@ public class CylindricalMover implements BlockMover
 	}
 	
 	// Rotate logs by modifying its material data.
-	public byte rotateBlockDataLog(Byte matData)
+	private byte rotateBlockDataLog(Byte matData)
 	{
 		if (matData >= 4 && matData <= 7)
 			matData = (byte) (matData + 4);
@@ -395,7 +421,7 @@ public class CylindricalMover implements BlockMover
 		return matData;
 	}
 	
-	public byte rotateBlockDataAnvil(Byte matData)
+	private byte rotateBlockDataAnvil(Byte matData)
 	{
 		if (this.rotDirection == RotateDirection.CLOCKWISE)
 		{
@@ -423,7 +449,7 @@ public class CylindricalMover implements BlockMover
 	}
 	
 	// Rotate stairs by modifying its material data.
-	public byte rotateBlockDataStairs(Byte matData)
+	private byte rotateBlockDataStairs(Byte matData)
 	{
 		if (this.rotDirection == RotateDirection.CLOCKWISE)
 		{
@@ -451,13 +477,13 @@ public class CylindricalMover implements BlockMover
 	}
 	
 	// Toggle the open status of a drawbridge.
-	public void toggleOpen(Door door)
+	private void toggleOpen(Door door)
 	{
 		door.setOpenStatus(!door.isOpen());
 	}
 	
 	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
-	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
+	private void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
 	{
 		int xMin = door.getMinimum().getBlockX();
 		int yMin = door.getMinimum().getBlockY();
@@ -533,7 +559,7 @@ public class CylindricalMover implements BlockMover
 		plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
 	}
 	
-	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
+	private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
 	{		
 		CustomCraftFallingBlock_Vall entity = this.fabf.fallingBlockFactory(loc, block, matData, mat);
 		Entity bukkitEntity = (Entity) entity;

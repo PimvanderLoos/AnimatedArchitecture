@@ -54,7 +54,8 @@ public class BridgeMover implements BlockMover
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 	
 	@SuppressWarnings("deprecation")
-	public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown, DoorDirection openDirection, boolean instantOpen)
+	public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown, 
+			DoorDirection openDirection, boolean instantOpen)
 	{
 		this.door          = door;
 		this.fabf          = plugin.getFABF();
@@ -91,7 +92,6 @@ public class BridgeMover implements BlockMover
 		 * NORTH       270
 		 * SOUTH        90
 		 */
-		this.endStepSum     = -1;
 		this.startStepSum   = -1;
 		this.stepMultiplier = -1;
 		
@@ -107,24 +107,16 @@ public class BridgeMover implements BlockMover
 			if (upDown.equals(RotateDirection.UP))
 			{
 				this.pointOpposite  = new Location(world, xMax, yMin, zMax);
-				this.endStepSum     =  0;
 				this.startStepSum   =  Math.PI / 2;
 				this.stepMultiplier = -1;
 			}
 			else
 			{
-				this.startStepSum   =  0;
 				this.pointOpposite  = new Location(world, xMax, yMax, zMin);
 				if (openDirection.equals(DoorDirection.NORTH))
-				{
-					this.endStepSum     = -Math.PI / 2;
 					this.stepMultiplier = -1;
-				}
 				else if (openDirection.equals(DoorDirection.SOUTH))
-				{
-					this.endStepSum     =  Math.PI / 2;
 					this.stepMultiplier =  1;
-				}
 			}
 			break;
 			
@@ -138,23 +130,15 @@ public class BridgeMover implements BlockMover
 			{
 				this.pointOpposite  = new Location(world, xMin, yMin, zMin);
 				this.startStepSum   = -Math.PI / 2;
-				this.endStepSum     =  0;
 				this.stepMultiplier =  1;
 			}
 			else
 			{
-				this.startStepSum   =  0;
 				this.pointOpposite  = new Location(world, xMin, yMax, zMax);
 				if (openDirection.equals(DoorDirection.NORTH))
-				{
-					this.endStepSum     = -Math.PI / 2;
 					this.stepMultiplier = -1;
-				}
 				else if (openDirection.equals(DoorDirection.SOUTH))
-				{
-					this.endStepSum     =  Math.PI / 2;
 					this.stepMultiplier =  1;
-				}
 			}
 			break;
 			
@@ -168,23 +152,15 @@ public class BridgeMover implements BlockMover
 			{
 				this.pointOpposite  = new Location(world, xMin, yMin, zMax);
 				this.startStepSum   = -Math.PI / 2;
-				this.endStepSum     =  0;
 				this.stepMultiplier =  1;
 			}
 			else
 			{
-				this.startStepSum   =  0;
 				this.pointOpposite  = new Location(world, xMax, yMax, zMax);
 				if (openDirection.equals(DoorDirection.EAST))
-				{
-					this.endStepSum     =  Math.PI / 2;
 					this.stepMultiplier =  1;
-				}
 				else if (openDirection.equals(DoorDirection.WEST))
-				{
-					this.endStepSum     = -Math.PI / 2;
 					this.stepMultiplier = -1;
-				}
 			}
 			break;
 			
@@ -198,26 +174,21 @@ public class BridgeMover implements BlockMover
 			{	
 				this.pointOpposite  = new Location(world, xMax, yMin, zMin);
 				this.startStepSum   =  Math.PI / 2;
-				this.endStepSum     =  0;
 				this.stepMultiplier = -1;
 			}
 			else
 			{
-				this.startStepSum   =  0;
 				this.pointOpposite  = new Location(world, xMin, yMax, zMin);
 				if (openDirection.equals(DoorDirection.EAST))
-				{
-					this.endStepSum     =  Math.PI / 2;
 					this.stepMultiplier =  1;
-				}
 				else if (openDirection.equals(DoorDirection.WEST))
-				{
-					this.endStepSum     = -Math.PI / 2;
 					this.stepMultiplier = -1;
-				}
 			}
 			break;
 		}
+
+		this.endStepSum   = upDown.equals(RotateDirection.UP)   ? 0 : Math.PI / 2 * this.stepMultiplier;
+		this.startStepSum = upDown.equals(RotateDirection.DOWN) ? 0 : this.startStepSum;
 		
 		int index = 0;
 		double xAxis = turningPoint.getX();
@@ -242,7 +213,8 @@ public class BridgeMover implements BlockMover
 						radius = yAxis - turningPoint.getBlockY();
 					
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
+					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground, 
+					// which would make them slower than the rest.
 					if (yAxis == yMin)
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 					
@@ -260,7 +232,7 @@ public class BridgeMover implements BlockMover
 					{
 						canRotate        = Util.canRotate(mat);
 						// Because I can't get the blocks to rotate properly, they are rotated here
-						if (canRotate != 0 && canRotate != 4) 
+						if (canRotate == 1 || canRotate == 2 || canRotate == 3)
 						{
 							Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
 							matByte      = rotateBlockData(matData);
@@ -406,10 +378,29 @@ public class BridgeMover implements BlockMover
 		}
 		else
 			plugin.getCommander().setDoorAvailable(door.getDoorUID());
+		
+		if (!onDisable)
+			goAgain();
+	}
+	
+	private void goAgain()
+	{
+		int autoCloseTimer = door.getAutoClose();
+		if (autoCloseTimer < 0 || !door.isOpen())
+			return;
+		
+		new BukkitRunnable()
+		{
+			@Override
+			public void run()
+			{
+				plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(door.getDoorUID()), time, instantOpen, false);
+			}
+		}.runTaskLater(plugin, autoCloseTimer * 20);
 	}
 	
 	// Method that takes care of the rotation aspect.
-	public void rotateEntities()
+	private void rotateEntities()
 	{
 		new BukkitRunnable()
 		{
@@ -425,7 +416,7 @@ public class BridgeMover implements BlockMover
 			@Override
 			public void run()
 			{
-				if (counter == 0 || (counter < endCount - 45 / tickRate && counter % 7 == 0))
+				if (counter == 0 || (counter < endCount - 45 / tickRate && counter % (6 * tickRate / 4) == 0))
 					Util.playSound(door.getEngine(), "bd.drawbridge-rattling", 0.8f, 0.7f);
 				
 				if (!plugin.getCommander().isPaused())
@@ -497,7 +488,7 @@ public class BridgeMover implements BlockMover
 	}
 	
 	// Rotate blocks such a logs by modifying its material data.
-	public byte rotateBlockData(Byte matData)
+	private byte rotateBlockData(Byte matData)
 	{
 		if (!NS)
 		{
@@ -518,13 +509,13 @@ public class BridgeMover implements BlockMover
 	}
 
 	// Toggle the open status of a drawbridge.
-	public void toggleOpen(Door door)
+	private void toggleOpen(Door door)
 	{
 		door.setOpenStatus(!door.isOpen());
 	}
 
 	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
-	public void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown, int moved)
+	private void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown, int moved)
 	{
 		int xMin = door.getMinimum().getBlockX();
 		int yMin = door.getMinimum().getBlockY();
@@ -611,7 +602,7 @@ public class BridgeMover implements BlockMover
 		plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
 	}
 
-	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
+	private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
 	{
 		CustomCraftFallingBlock_Vall entity = this.fabf.fallingBlockFactory(loc, block, matData, mat);
 		Entity bukkitEntity = (Entity) entity;

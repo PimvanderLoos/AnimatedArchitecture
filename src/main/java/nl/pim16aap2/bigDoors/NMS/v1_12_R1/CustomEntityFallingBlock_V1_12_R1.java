@@ -73,11 +73,6 @@ public class CustomEntityFallingBlock_V1_12_R1 extends net.minecraft.server.v1_1
 		((org.bukkit.craftbukkit.v1_12_R1.CraftWorld) this.bukkitWorld).getHandle().addEntity(this, SpawnReason.CUSTOM);
 	}
 	
-	public void kill()
-	{
-		this.die();
-	}
-	
 	@Override
     public boolean inBlock() 
 	{

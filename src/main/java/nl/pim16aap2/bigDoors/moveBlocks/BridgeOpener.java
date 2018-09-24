@@ -22,7 +22,7 @@ public class BridgeOpener implements Opener
 	}
 	
 	// Check if the new position is free.
-	public boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
+	private boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
 	{
 		int startX  = 0, startY = 0, startZ = 0;
 		int endX    = 0, endY   = 0, endZ   = 0;
@@ -153,7 +153,7 @@ public class BridgeOpener implements Opener
 	}
 	
 	// Figure out which way the bridge should go.
-	public DoorDirection getOpenDirection(Door door)
+	private DoorDirection getOpenDirection(Door door)
 	{
 		RotateDirection upDown = getUpDown(door);
 		DoorDirection cDir     = getCurrentDirection(door);
@@ -178,14 +178,12 @@ public class BridgeOpener implements Opener
 	}
 
 	// Get the "current direction". In this context this means on which side of the drawbridge the engine is.
-	@Override
-	public DoorDirection getCurrentDirection(Door door)
+	private DoorDirection getCurrentDirection(Door door)
 	{	
 		return door.getEngSide();
 	}
 
-	@Override
-	public boolean chunksLoaded(Door door)
+	private boolean chunksLoaded(Door door)
 	{
 		// Return true if the chunk at the max and at the min of the chunks were loaded correctly.
 		if (door.getWorld() == null)
@@ -198,8 +196,7 @@ public class BridgeOpener implements Opener
 		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
 	}
 
-	@Override
-	public int getDoorSize(Door door)
+	private int getDoorSize(Door door)
 	{
 		int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
 		int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
@@ -222,7 +219,7 @@ public class BridgeOpener implements Opener
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
 			if (!silent)
-			plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
+				plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
 			return true;
 		}
 
@@ -263,7 +260,7 @@ public class BridgeOpener implements Opener
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 
 		plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, this.upDown, openDirection, instantOpen));
-	
+		
 		return true;
 	}
 }

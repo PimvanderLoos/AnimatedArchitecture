@@ -17,6 +17,11 @@ commands:
     usage: /NameDoor <doorName || doorID> 
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.user.createdoor permission node.
+  setautoclosetime:
+    description: Changes/Sets time (in s) for doors to automatically close. -1 to disable.
+    usage: /SetAutoCloseTime <doorName || doorID> <time>
+    permission: bigdoors.user.setclosetime
+    permission-message: You do not have the bigdoors.user.setclosetime permission node.
   setdoorrotation:
     description: Change door rotation of a given door.
     usage: /SetDoorRotation <doorName || doorID> <CLOCK || COUNTER || ANY>
@@ -36,7 +41,7 @@ commands:
     usage: /StopDoors
     permission: bigdoors.admin.stopdoors
   newdoor:
-    description: Create a new door from selection with name "doorName". Defaults to door/drawbridge, but add "-p" to make a portcullis instead.
+    description: Create a new door from selection with name "doorName". Defaults to door. Use flags to make other types.
     usage: /NewDoor [-pc || -db || -bd] <doorName> 
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.user.createdoor permission node.
@@ -55,11 +60,21 @@ commands:
     usage: /DelDoor <doorName || doorID> 
     permission: bigdoors.user.deletedoor
     permission-message: You do not have the bigdoors.user.deletedoor permission node.
+  toggledoor:
+    description: Toggles the door with name "doorName".
+    usage: /ToggleDoor <doorName || doorID> [time to open (decimal!)]
+    permission: bigdoors.user.toggledoor
+    permission-message: You do not have the bigdoors.user.toggledoor permission node.
+  closedoor:
+    description: Close the door with name "doorName".
+    usage: /CloseDoor <doorName || doorID> [time to open (decimal!)]
+    permission: bigdoors.user.toggledoor
+    permission-message: You do not have the bigdoors.user.toggledoor permission node.
   opendoor:
     description: Open the door with name "doorName".
     usage: /OpenDoor <doorName || doorID> [time to open (decimal!)]
-    permission: bigdoors.user.opendoor
-    permission-message: You do not have the bigdoors.user.opendoor permission node.
+    permission: bigdoors.user.toggledoor
+    permission-message: You do not have the bigdoors.user.toggledoor permission node.
   opendoors:
     description: Open the doors with name "doorName1" and "doorName2".
     usage: /OpenDoors <doorName1 || doorID1> <doorName2 || doorID2> ... [time to open (decimal!)]
@@ -80,32 +95,10 @@ commands:
     usage: /InspectPowerBlockLoc
     permission: bigdoors.user.inspectpowerblock
     permission-message: You do not have the bigdoors.user.inspectpowerblock permission node.
-  fixdoor:
-    description: Verify and fix (if needed) the coords of the specified door.
-    usage: /FixDoor <doorName || doorID> 
-    permission: bigdoors.admin.debug
-    permission-message: You do not have the bigdoors.listdoors permission node.
-#  updatedoor:
-#    description: Update the coords of the specified door.
-#    usage: /UpdateDoor <doorName || doorID> 
-#    permission: bigdoors.admin.updatedoor
-#    permissions-message: You do not have the bigdoors.listdoors permission node.
-  unlockDoor:
-    description: Forcefully unlock a door.
-    usage: /UnlockDoor <doorName || doorID> 
-    permission: bigdoors.admin.unlockdoor
   doorinfo:
     description: Display door info.
     usage: /DoorInfo <doorName || doorID> 
     permission: bigdoors.user.doorinfo
-#  setdooropen:
-#    description: Updates coordinates of a door as if it had been opened. Does not move the blocks!
-#    usage: /SetDoorOpen <doorName || doorID> 
-#    permission: bigdoors.user.setdoor
-#  setdoorclosed:
-#    description: Updates coordinates of a door as if it had been closed. Does not move the blocks!
-#    usage: /SetDoorClosed <doorName || doorID> 
-#    permission: bigdoors.user.setdoor
   bdversion:
     description: Shows you which version of this plugin is installed on this server.
   doordebug:

@@ -32,7 +32,7 @@ public class CraftArmorStand_V1_12_R1 extends CraftLivingEntity implements Armor
 		super.setGravity(gravity);
 		getHandle().noclip = gravity;
 	}
-	
+
 	@Override
     public String toString() {
         return "CraftArmorStand";

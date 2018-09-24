@@ -22,6 +22,7 @@ public class GUIPage implements Listener
 {
 	private static Material pageSwitchMat  = Material.ARROW;
 	private static Material currDoorMat    = Material.BOOK;
+	private static Material changeTimeMat  = XMaterial.CLOCK.parseMaterial();
 	private static Material newDoorMat     = XMaterial.WRITABLE_BOOK.parseMaterial();
 	private static Material lockDoorMat    = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
 	private static Material unlockDoorMat  = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
@@ -160,21 +161,32 @@ public class GUIPage implements Listener
 		inv.setItem(13, new GUIItem(relocatePBMat, desc, lore, 1).getItemStack());
 		lore.clear();
 		
+		// TODO: Add these Strings to en_US.
+		desc = messages.getString("GUI.ChangeTimer");
+		loreStr = door.getAutoClose() > -1 ? messages.getString("GUI.ChangeTimerLore") + door.getAutoClose() + "s." :
+			messages.getString("GUI.ChangeTimerLoreDisabled");
+		lore.add(loreStr);
+		int count = door.getAutoClose() < 1 ? 1 : door.getAutoClose();
+		inv.setItem(14, new GUIItem(changeTimeMat, desc, lore, count).getItemStack());
+		lore.clear();
+		
 		if (door.getType() != DoorType.PORTCULLIS)
 		{
 			desc = messages.getString("GUI.Direction.Name");
 			RotateDirection doorsOpenDir = door.getOpenDir();
-			loreStr = doorsOpenDir == RotateDirection.NONE               ? messages.getString("GUI.Direction.Any")     :
+			loreStr = messages.getString("GUI.Direction.ThisDoorOpens")  +
+			         (doorsOpenDir == RotateDirection.NONE               ? messages.getString("GUI.Direction.Any")     :
 			          doorsOpenDir == RotateDirection.CLOCKWISE          ? messages.getString("GUI.Direction.Clock")   :
-			          doorsOpenDir == RotateDirection.COUNTERCLOCKWISE   ? messages.getString("GUI.Direction.Counter") : "Error";
+			          doorsOpenDir == RotateDirection.COUNTERCLOCKWISE   ? messages.getString("GUI.Direction.Counter") : "Error");
 			lore.add(loreStr);
 			lore.add(messages.getString("GUI.Direction.Looking") +
 			        (door.getType()       == DoorType.DOOR       ? messages.getString("GUI.Direction.Down")  :
 			         door.getLookingDir() == DoorDirection.NORTH ? messages.getString("GUI.Direction.East") :
 			         messages.getString("GUI.Direction.North")));
-			inv.setItem(14, new GUIItem(setOpenDirMat, desc, lore, 1).getItemStack());
+			inv.setItem(15, new GUIItem(setOpenDirMat, desc, lore, 1).getItemStack());
 			lore.clear();
 		}
+		
 	}
 	
 	// Fill the entire menu with NO's, but put a single "yes" in the middle.

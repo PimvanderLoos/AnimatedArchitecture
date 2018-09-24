@@ -1,7 +1,11 @@
 package nl.pim16aap2.bigDoors.util;
 
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -25,6 +29,63 @@ public final class Util
 	public static String locDoubleToString(Location loc)
 	{
 		return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
+	}
+	
+
+	
+	public static String nameFromUUID(UUID playerUUID)
+	{
+		if (playerUUID == null)
+			return null;
+		String output = null;
+		Player player = Bukkit.getPlayer(playerUUID);
+		if (player != null)
+			output = player.getName();
+		else
+			output = Bukkit.getOfflinePlayer(playerUUID).getName();
+		return output;
+	}
+	
+	public static String playerUUIDFromString(String input)
+	{
+		Player player = null;
+		player = Bukkit.getPlayer(input);
+		if (player == null)
+			try { player = Bukkit.getPlayer(UUID.fromString(input)); }
+			// Not doing anything with catch because I really couldn't care less if it didn't work.
+			catch (Exception e)	{}
+		if (player != null)
+			return player.getUniqueId().toString();
+
+		OfflinePlayer offPlayer = null;
+		try { offPlayer = Bukkit.getOfflinePlayer(UUID.fromString(input)); }
+		// Not doing anything with catch because I really couldn't care less if it didn't work.
+		catch (Exception e)	{}
+		if (offPlayer != null)
+			return offPlayer.getUniqueId().toString();
+		return null;
+	}
+	
+	public static String getBasicDoorInfo(Door door)
+	{
+		return door.getDoorUID() + " (" + door.getPermission() + ")" + ": " + door.getName().toString();
+	}
+	
+	public static String getFullDoorInfo(Door door)
+	{
+		
+		return 	door == null ? "Door not found!" :
+				door.getDoorUID() + ": " + door.getName().toString()  + 
+				", Min("     + door.getMinimum().getBlockX() + ";"    + door.getMinimum().getBlockY() + ";"   + door.getMinimum().getBlockZ() + ")" +
+				", Max("     + door.getMaximum().getBlockX() + ";"    + door.getMaximum().getBlockY() + ";"   + door.getMaximum().getBlockZ() + ")" +
+				", Engine("  + door.getEngine().getBlockX()  + ";"    + door.getEngine().getBlockY()  + ";"   + door.getEngine().getBlockZ()  + ")" +
+				", " + (door.isLocked() ? "" : "NOT ") + "locked"     + "; Type=" + door.getType()    + 
+				(door.getEngSide() == null ? "" : ("; EngineSide = "  + door.getEngSide().toString()  + "; doorLen = " +
+				 door.getLength())) + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX()     + ";"   + 
+				 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()     + ")"   +
+				". It is "   + (door.isOpen() ? "OPEN." : "CLOSED.")  + " OpenDir = " + door.getOpenDir().toString() + 
+				", Looking " + door.getLookingDir().toString()        + ". It " +
+				(door.getAutoClose() == -1 ? "does not auto close."   : ("auto closes after " + door.getAutoClose() + " seconds.")); 
 	}
 	
 	// Play sound at a location.
@@ -202,16 +263,60 @@ public final class Util
 			xmat.equals(XMaterial.BLACK_STAINED_GLASS)       || xmat.equals(XMaterial.LIME_STAINED_GLASS)            || 
 			xmat.equals(XMaterial.BLUE_STAINED_GLASS)        || xmat.equals(XMaterial.BROWN_STAINED_GLASS)           || 
 			xmat.equals(XMaterial.CYAN_STAINED_GLASS)        || xmat.equals(XMaterial.RED_STAINED_GLASS)             ||
+			xmat.equals(XMaterial.MAGENTA_STAINED_GLASS)     ||
 			xmat.equals(XMaterial.WHITE_STAINED_GLASS_PANE)  || xmat.equals(XMaterial.YELLOW_STAINED_GLASS_PANE)     || 
 			xmat.equals(XMaterial.PURPLE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE) || 
 			xmat.equals(XMaterial.GRAY_STAINED_GLASS_PANE)   || xmat.equals(XMaterial.GREEN_STAINED_GLASS_PANE)      || 
 			xmat.equals(XMaterial.BLACK_STAINED_GLASS_PANE)  || xmat.equals(XMaterial.LIME_STAINED_GLASS_PANE)       || 
 			xmat.equals(XMaterial.BLUE_STAINED_GLASS_PANE)   || xmat.equals(XMaterial.BROWN_STAINED_GLASS_PANE)      || 
-			xmat.equals(XMaterial.CYAN_STAINED_GLASS_PANE)   || xmat.equals(XMaterial.RED_STAINED_GLASS_PANE))
+			xmat.equals(XMaterial.CYAN_STAINED_GLASS_PANE)   || xmat.equals(XMaterial.RED_STAINED_GLASS_PANE)        ||
+			xmat.equals(XMaterial.MAGENTA_STAINED_GLASS_PANE))
 			return 3;
 		if (xmat.equals(XMaterial.ANVIL))
 			return 4;
+		if (xmat.equals(XMaterial.COBBLESTONE_WALL))
+			return 5;
 		return 0;
+	}
+	
+	public static boolean needsRefresh(XMaterial xmat)
+	{
+		switch(xmat)
+		{
+		case ACACIA_FENCE:
+		case ACACIA_FENCE_GATE:
+		case BIRCH_FENCE:
+		case BIRCH_FENCE_GATE:
+		case DARK_OAK_FENCE:
+		case DARK_OAK_FENCE_GATE:
+		case JUNGLE_FENCE:
+		case JUNGLE_FENCE_GATE:
+		case OAK_FENCE:
+		case OAK_FENCE_GATE:
+		case SPRUCE_FENCE:
+		case SPRUCE_FENCE_GATE:
+		case NETHER_BRICK_FENCE:
+		
+		case COBBLESTONE_WALL:
+		case IRON_BARS:
+		
+		case WHITE_STAINED_GLASS_PANE:
+		case YELLOW_STAINED_GLASS_PANE:
+		case PURPLE_STAINED_GLASS_PANE:
+		case LIGHT_BLUE_STAINED_GLASS_PANE:
+		case MAGENTA_STAINED_GLASS_PANE:
+		case GRAY_STAINED_GLASS_PANE:
+		case GREEN_STAINED_GLASS_PANE:
+		case BLACK_STAINED_GLASS_PANE:
+		case LIME_STAINED_GLASS_PANE:
+		case BLUE_STAINED_GLASS_PANE:
+		case BROWN_STAINED_GLASS_PANE:
+		case CYAN_STAINED_GLASS_PANE:
+		case RED_STAINED_GLASS_PANE:
+ 			return true;
+ 		default:
+ 			return false;
+		}
 	}
 	
 	// Certain blocks don't work in doors, so don't allow their usage.
@@ -223,7 +328,7 @@ public final class Util
 		
 		switch(xmat)
 		{
-		case COBBLESTONE_WALL:
+//		case COBBLESTONE_WALL:
 		
 		case AIR:
 		case WATER:

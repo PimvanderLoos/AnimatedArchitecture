@@ -196,6 +196,11 @@ public class Commander
 		db.updateDoorOpenDirection(doorUID, openDir == null ? RotateDirection.NONE : openDir);
 	}
 	
+	public void updateDoorAutoClose(long doorUID, int autoClose)
+	{
+		db.updateDoorAutoClose(doorUID, autoClose);
+	}
+	
 	// Change the "locked" status of a door.
 	public void setLock(long doorUID, boolean newLockStatus)
 	{

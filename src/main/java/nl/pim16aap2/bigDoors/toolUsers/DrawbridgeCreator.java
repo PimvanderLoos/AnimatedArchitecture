@@ -1,10 +1,15 @@
-package nl.pim16aap2.bigDoors.ToolUsers;
+package nl.pim16aap2.bigDoors.toolUsers;
+
+import java.util.logging.Level;
 
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -15,14 +20,14 @@ import nl.pim16aap2.bigDoors.util.Util;
  * The creation process has been completed successfully or the timer ran out. In EventHandlers this class is used 
  * To check whether a user that is left-clicking is a DoorCreator && tell this class a left-click happened.
  */
-public class DrawbridgeCreator extends ToolUser
+public class DrawbridgeCreator extends ToolUser implements Abortable
 {	
 	public DrawbridgeCreator(BigDoors plugin, Player player, String name) 
 	{
 		super(plugin, player, name, DoorType.DRAWBRIDGE);
-		Util.messagePlayer(player, messages.getString("DC.Init"));
+		Util.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Init"));
 		if (name == null)
-			Util.messagePlayer(player, messages.getString("DC.GiveNameInstruc"));
+			Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
 		else
 			triggerGiveTool();
 	}
@@ -30,14 +35,14 @@ public class DrawbridgeCreator extends ToolUser
 	@Override
 	protected void triggerGiveTool()
 	{
-		giveToolToPlayer(messages.getString("DB.StickLore"    ).split("\n"), 
-		                 messages.getString("DB.StickReceived").split("\n"));
+		giveToolToPlayer(messages.getString("CREATOR.DRAWBRIDGE.StickLore"    ).split("\n"), 
+		                 messages.getString("CREATOR.DRAWBRIDGE.StickReceived").split("\n"));
 	}
 	
 	@Override
 	protected void triggerFinishUp()
 	{
-		finishUp(messages.getString("DB.Success"));
+		finishUp(messages.getString("CREATOR.DRAWBRIDGE.Success"));
 	}
 	
 	@Override
@@ -177,7 +182,7 @@ public class DrawbridgeCreator extends ToolUser
 		if (one == null)
 		{
 			one = loc;
-			String[] message = messages.getString("DC.Step1").split("\n");
+			String[] message = messages.getString("CREATOR.DRAWBRIDGE.Step1").split("\n");
 			Util.messagePlayer(player, message);
 		}
 		else if (two == null)
@@ -191,12 +196,12 @@ public class DrawbridgeCreator extends ToolUser
 				else
 					this.isOpen = true;
 				
-				String[] message = messages.getString("DC.Step2").split("\n");
+				String[] message = messages.getString("CREATOR.DRAWBRIDGE.Step2").split("\n");
 				Util.messagePlayer(player, message);
 				minMaxFix();
 			}
 			else
-				Util.messagePlayer(player, messages.getString("DC.InvalidPoint"));
+				Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
 
 		}
 		// If the engine position has not been determined yet
@@ -208,30 +213,38 @@ public class DrawbridgeCreator extends ToolUser
 				// If the engine side was found, print finish message.
 				if (this.engineSide != null)
 				{
-					Util.messagePlayer(player, messages.getString("DC.StepDraw3a"));
+//					Util.messagePlayer(player, messages.getString("DC.StepDraw3a"));
 					drawBridgeEngineFix();
 					setIsDone(true);
 				}
 				// If the engine side could not be determined, branch out for additional information.
 				else
-					Util.messagePlayer(player, messages.getString("DC.StepDraw3b"));
+					Util.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Step3"));
 			}
 			else
-				Util.messagePlayer(player, messages.getString("DC.InvalidRotation"));
+				Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
 		}
 		// If it's a draw bridge and the engine side wasn't determined yet.
 		else if (this.engineSide == null)
 		{
 			if (isEngineValid(loc))
 			{
-				Util.messagePlayer(player, messages.getString("DC.StepDraw4"));
+//				Util.messagePlayer(player, messages.getString("DC.StepDraw4"));
 				drawBridgeEngineFix();
 				setIsDone(true);
 			}
 			else
-				Util.messagePlayer(player, messages.getString("DC.InvalidRotation"));
+				Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
 		}
 		else
 			setIsDone(true);
+	}
+	
+	@Override
+	public void abort()
+	{
+		this.takeToolFromPlayer();
+		plugin.removeToolUser(this);
+		plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
 	}
 }

@@ -1,21 +1,25 @@
-package nl.pim16aap2.bigDoors.ToolUsers;
+package nl.pim16aap2.bigDoors.toolUsers;
+
+import java.util.logging.Level;
 
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Util;
 
-public class PortcullisCreator extends ToolUser
+public class PortcullisCreator extends ToolUser implements Abortable
 {	
 	public PortcullisCreator(BigDoors plugin, Player player, String name)
 	{
 		super(plugin, player, name, DoorType.PORTCULLIS);
-		Util.messagePlayer(player, messages.getString("PCC.Init"));
+		Util.messagePlayer(player, messages.getString("CREATOR.PORTCULLIS.Init"));
 		if (name == null)
-			Util.messagePlayer(player, ChatColor.GREEN, messages.getString("DC.GiveNameInstruc"));
+			Util.messagePlayer(player, ChatColor.GREEN, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
 		else
 			triggerGiveTool();
 	}
@@ -23,8 +27,8 @@ public class PortcullisCreator extends ToolUser
 	@Override
 	protected void triggerGiveTool()
 	{
-		giveToolToPlayer(messages.getString("PC.StickLore"    ).split("\n"), 
-		                 messages.getString("PC.StickReceived").split("\n"));
+		giveToolToPlayer(messages.getString("CREATOR.PORTCULLIS.StickLore"    ).split("\n"), 
+		                 messages.getString("CREATOR.PORTCULLIS.StickReceived").split("\n"));
 	}
 	
 	@Override
@@ -36,7 +40,7 @@ public class PortcullisCreator extends ToolUser
 	@Override
 	protected void triggerFinishUp()
 	{
-		finishUp(messages.getString("PC.Success"));
+		finishUp(messages.getString("CREATOR.PORTCULLIS.Success"));
 	}
 	
 	// Make sure the power point is in the middle.
@@ -75,7 +79,7 @@ public class PortcullisCreator extends ToolUser
 		if (this.one == null)
 		{
 			this.one = loc;
-			Util.messagePlayer(player, messages.getString("PCC.Step1"));
+			Util.messagePlayer(player, messages.getString("CREATOR.PORTCULLIS.Step1"));
 		}
 		else
 			this.two = loc;
@@ -86,5 +90,13 @@ public class PortcullisCreator extends ToolUser
 			setEngine();
 			setIsDone(true);
 		}
+	}
+	
+	@Override
+	public void abort()
+	{
+		this.takeToolFromPlayer();
+		plugin.removeToolUser(this);
+		plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
 	}
 }

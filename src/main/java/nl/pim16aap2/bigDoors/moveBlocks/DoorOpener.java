@@ -23,7 +23,7 @@ public class DoorOpener implements Opener
 	}
 	
 	// Check if the block on the north/east/south/west side of the location is free.
-	public boolean isPosFree(Door door, DoorDirection direction)
+	private boolean isPosFree(Door door, DoorDirection direction)
 	{
 		Location engLoc = door.getEngine();
 		int endX   = 0, endY   = 0, endZ   = 0;
@@ -76,7 +76,7 @@ public class DoorOpener implements Opener
 	}
 	
 	// Determine which direction the door is going to rotate. Clockwise or counterclockwise.
-	public RotateDirection getRotationDirection(Door door, DoorDirection currentDir)
+	private RotateDirection getRotationDirection(Door door, DoorDirection currentDir)
 	{
 		RotateDirection openDir = door.getOpenDir();
 		openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE : 
@@ -115,8 +115,7 @@ public class DoorOpener implements Opener
 	}
 	
 	// Get the direction the door is currently facing as seen from the engine to the end of the door.
-	@Override
-	public DoorDirection getCurrentDirection(Door door)
+	private DoorDirection getCurrentDirection(Door door)
 	{
 		// MinZ != EngineZ => North
 		// MaxX != EngineX => East
@@ -129,8 +128,7 @@ public class DoorOpener implements Opener
 	}
 	
 	// Check if the chunks at the minimum and maximum locations of the door are loaded.
-	@Override
-	public boolean chunksLoaded(Door door)
+	private boolean chunksLoaded(Door door)
 	{
 		// Return true if the chunk at the max and at the min of the chunks were loaded correctly.
 		if (door.getWorld() == null)
@@ -143,8 +141,7 @@ public class DoorOpener implements Opener
 		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
 	}
 	
-	@Override
-	public int getDoorSize(Door door)
+	private int getDoorSize(Door door)
 	{
 		int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
 		int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());

@@ -214,10 +214,15 @@ public class GUIHandler implements Listener
 			else if (itemName.equals(messages.getString("GUI.RelocatePowerBlock")))
 			{
 				player.closeInventory();
-				plugin.getCommandHandler().relocatePowerBlock(player, door.getDoorUID());
+				plugin.getCommandHandler().startPowerBlockRelocator(player, door.getDoorUID());
 			}
 			else if (itemName.equals(messages.getString("GUI.Direction.Name")))
 				this.changeOpenDir(player, door, inv);
+			else if (itemName.equals(messages.getString("GUI.ChangeTimer")))
+			{
+				plugin.getCommandHandler().startTimerSetter(player, door.getDoorUID());
+				player.closeInventory();
+			}
 			return;
 		}
 		else if (itemName.equals(messages.getString("GUI.NewDoor")))

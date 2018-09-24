@@ -149,6 +149,7 @@ public class VerticalMover implements BlockMover
 						if (plugin.is1_13())
 						{
 							savedBlocks.get(index).getBlock().putBlock(newPos);
+							
 							Block b = world.getBlockAt(newPos);
 							BlockState bs = b.getState();
 							bs.update();
@@ -198,6 +199,25 @@ public class VerticalMover implements BlockMover
 		}
 		else
 			plugin.getCommander().setDoorAvailable(door.getDoorUID());
+		
+		if (!onDisable)
+			goAgain();
+	}
+	
+	private void goAgain()
+	{
+		int autoCloseTimer = door.getAutoClose();
+		if (autoCloseTimer < 0 || !door.isOpen())
+			return;
+		
+		new BukkitRunnable()
+		{
+			@Override
+			public void run()
+			{
+				plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(door.getDoorUID()), time, instantOpen, false);
+			}
+		}.runTaskLater(plugin, autoCloseTimer * 20);
 	}
 	
 	private Location getNewLocation(double xAxis, double yAxis, double zAxis)
@@ -206,7 +226,7 @@ public class VerticalMover implements BlockMover
 	}
 	
 	// Method that takes care of the rotation aspect.
-	public void rotateEntities()
+	private void rotateEntities()
 	{
 		new BukkitRunnable()
 		{
@@ -219,8 +239,8 @@ public class VerticalMover implements BlockMover
 			@Override
 			public void run()
 			{
-				if (counter == 0 || (counter < endCount - 27 && counter % 4 == 0))
-					Util.playSound(door.getEngine(), "bd.dragging2", 0.8f, 0.6f);
+				if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
+					Util.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
 				int index = 0;
 				
 				if (!plugin.getCommander().isPaused())
@@ -266,13 +286,13 @@ public class VerticalMover implements BlockMover
 	}
 	
 	// Toggle the open status of a drawbridge.
-	public void toggleOpen(Door door)
+	private void toggleOpen(Door door)
 	{
 		door.setOpenStatus(!door.isOpen());
 	}
 
 	// Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.	
-	public void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
+	private void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
 	{
 		int xMin = door.getMinimum().getBlockX();
 		int yMin = door.getMinimum().getBlockY();
@@ -290,7 +310,7 @@ public class VerticalMover implements BlockMover
 		plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
 	}
 	
-	public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
+	private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
 	{		
 		CustomCraftFallingBlock_Vall entity = this.fabf.fallingBlockFactory(loc, block, matData, mat);
 		Entity bukkitEntity = (Entity) entity;

@@ -88,15 +88,16 @@ public class ConfigLoader
 		    		"This plugin uses a support resource pack for things suchs as sound.",
 		    		"You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
 		    		"Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
-		    		"The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl + "'",
-		    		"The default resource pack for 1.13.x is: \'" + defResPackUrl1_13 + "\'"
+		    		"The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl     + "'",
+		    		"The default resource pack for 1.13.x is: \'"        + defResPackUrl1_13 + "\'"
 		    	};
 	    String[] multiplierComment       =
 		    	{
 		    		"These multipliers affect the opening/closing speed of their respective door types.",
 		    		"Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
 		    		"To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
-		    		"bd = Big Door, pc = Portcullis, db = Drawbridge."
+		    		"bd = Big Door, pc = Portcullis, db = Drawbridge.",
+		    		"Note that everything is optimized for default values, so it's recommended to leave this setting as-is."
 		    	};
 	    String[] coolDownComment         =
 		    	{
@@ -123,7 +124,7 @@ public class ConfigLoader
 		configOptionsList.add(new ConfigOption( "allowStats"      , allowStats      , allowStatsComment     ));
 		maxDoorSize      = config.getInt       ("maxDoorSize"     , -1               );
 		configOptionsList.add(new ConfigOption( "maxDoorSize"     , maxDoorSize     , maxDoorSizeComment    ));
-		resourcePack     = config.getString(    "resourcePack"    , defResPackUrl    );
+		resourcePack     = config.getString(    "resourcePack"    , plugin.is1_13() ? defResPackUrl1_13 : defResPackUrl);
 		configOptionsList.add(new ConfigOption( "resourcePack"    , resourcePack    , resourcePackComment   ));
 		bdMultiplier     = config.getDouble(    "bdMultiplier"    , 0.0D             );
 		configOptionsList.add(new ConfigOption( "bdMultiplier"    , bdMultiplier    , multiplierComment     ));

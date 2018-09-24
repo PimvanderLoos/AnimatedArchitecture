@@ -60,14 +60,6 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 	protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class, DataWatcherRegistry.l);
 	private org.bukkit.World bukkitWorld;
 
-	//    public CustomEntityFallingBlock_V1_13_R2(net.minecraft.server.v1_13_R2.World world) {
-	//        super(EntityTypes.FALLING_BLOCK, world);
-	//        this.block = Blocks.SAND.getBlockData();
-	//        this.dropItem = true;
-	//        this.fallHurtMax = 40;
-	//        this.fallHurtAmount = 2.0F;
-	//    }
-
 	public CustomEntityFallingBlock_V1_13_R2(org.bukkit.World world, double d0, double d1, double d2, IBlockData iblockdata)
 	{
 		super(((CraftWorld) world).getHandle());
@@ -90,7 +82,7 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 		this.a(new BlockPosition(this));
 		spawn();
 	}
-
+	
 	public void spawn()
 	{
 		((org.bukkit.craftbukkit.v1_13_R2.CraftWorld) this.bukkitWorld).getHandle().addEntity(this, SpawnReason.CUSTOM);

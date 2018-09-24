@@ -22,16 +22,8 @@ public class PortcullisOpener implements Opener
 		this.plugin = plugin;
 	}
 	
-	// Get the direction the door is currently facing as seen from the engine to the end of the door.
-	@Override
-	public DoorDirection getCurrentDirection(Door door)
-	{
-		return null;
-	}
-	
 	// Check if the chunks at the minimum and maximum locations of the door are loaded.
-	@Override
-	public boolean chunksLoaded(Door door)
+	private boolean chunksLoaded(Door door)
 	{
 		// Return true if the chunk at the max and at the min of the chunks were loaded correctly.
 		if (door.getWorld() == null)
@@ -44,8 +36,7 @@ public class PortcullisOpener implements Opener
 		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
 	}
 	
-	@Override
-	public int getDoorSize(Door door)
+	private int getDoorSize(Door door)
 	{
 		int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
 		int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
@@ -98,7 +89,7 @@ public class PortcullisOpener implements Opener
 		return true;
 	}
 	
-	public int getBlocksInDir(Door door, RotateDirection upDown)
+	private int getBlocksInDir(Door door, RotateDirection upDown)
 	{
 		int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksUp = 0, delta;
 		xMin = door.getMinimum().getBlockX();
@@ -127,7 +118,7 @@ public class PortcullisOpener implements Opener
 		return blocksUp;
 	}
 	
-	public int getBlocksToMove(Door door)
+	private int getBlocksToMove(Door door)
 	{
 		int blocksUp    = getBlocksInDir(door, RotateDirection.UP  );
 		int blocksDown  = getBlocksInDir(door, RotateDirection.DOWN);

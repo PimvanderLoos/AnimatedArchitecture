@@ -50,11 +50,11 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch (SQLException ex)
 		{
-			plugin.getMyLogger().logMessage("46: Failed to open connection!", true, false);
+			plugin.getMyLogger().logMessage("53: Failed to open connection!", true, false);
 		}
 		catch (ClassNotFoundException e)
 		{
-			plugin.getMyLogger().logMessage("50: Failed to open connection: CLass not found!!", true, false);
+			plugin.getMyLogger().logMessage("57: Failed to open connection: CLass not found!!", true, false);
 		}
 		return conn;
 	}
@@ -97,12 +97,13 @@ public class SQLiteJDBCDriverConnection
 		          			+ " engineY       INTEGER    NOT NULL, " 
 		          			+ " engineZ       INTEGER    NOT NULL, " 
 		          			+ " isLocked      INTEGER    NOT NULL, "
-		          			+ " type          INTEGER    NOT NULL,"
+		          			+ " type          INTEGER    NOT NULL, "
 		          			+ " engineSide    INTEGER    NOT NULL, "
 				  			+ " powerBlockX   INTEGER    NOT NULL, " 
 				  			+ " powerBlockY   INTEGER    NOT NULL, " 
 				  			+ " powerBlockZ   INTEGER    NOT NULL, " 
-				  			+ " openDirection INTEGER    NOT NULL) "; 
+				  			+ " openDirection INTEGER    NOT NULL, "
+				  			+ " autoClose     INTEGER    NOT NULL) "; 
 			stmt1.executeUpdate(sql1);
 			stmt1.close();
 			
@@ -124,7 +125,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch (SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("114: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("128: " + e.getMessage());
 		}
 		finally
 		{
@@ -134,11 +135,11 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("124: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("138: " + e.getMessage());
 			}
 			catch (Exception e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("128: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("142: " + e.getMessage());
 			}
 		}
 	}
@@ -170,7 +171,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch (SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("297: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("174: " + e.getMessage());
 		}
 		finally
 		{
@@ -180,7 +181,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("307: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("184: " + e.getMessage());
 			}
 		}
 		
@@ -200,11 +201,11 @@ public class SQLiteJDBCDriverConnection
 			
 			return new Door(null, world, min, max, engine, rs.getString(2), (rs.getInt(4) == 1 ? true : false), 
 							doorUID, (rs.getInt(14) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(15)), 
-							DoorDirection.valueOf(rs.getInt(16)), powerB, RotateDirection.valueOf(rs.getInt(20)));
+							DoorDirection.valueOf(rs.getInt(16)), powerB, RotateDirection.valueOf(rs.getInt(20)), rs.getInt(21));
 		}
 		catch (SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("144: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("208: " + e.getMessage());
 			return null;
 		}
 	}
@@ -223,11 +224,11 @@ public class SQLiteJDBCDriverConnection
 			return new Door(UUID.fromString(playerUUID), world, min, max, engine, rs.getString(2), 
 							(rs.getInt(4) == 1 ? true : false), doorUID, (rs.getInt(14) == 1 ? true : false), 
 							permission, DoorType.valueOf(rs.getInt(15)), 	DoorDirection.valueOf(rs.getInt(16)), 
-							powerB, RotateDirection.valueOf(rs.getInt(20)));
+							powerB, RotateDirection.valueOf(rs.getInt(20)), rs.getInt(21));
 		}
 		catch (SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("160: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("231: " + e.getMessage());
 			return null;
 		}
 	}
@@ -246,7 +247,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("179: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("250: " + e.getMessage());
 		}
 		finally
 		{
@@ -256,7 +257,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("189: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("260: " + e.getMessage());
 			}
 		}
 	}
@@ -293,7 +294,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("226: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("297: " + e.getMessage());
 		}
 		finally
 		{
@@ -303,7 +304,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("236: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("307: " + e.getMessage());
 			}
 		}
 	}
@@ -333,7 +334,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("265: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("337: " + e.getMessage());
 		}
 		finally
 		{
@@ -343,7 +344,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("275: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("347: " + e.getMessage());
 			}
 		}
 		return door;
@@ -383,7 +384,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch (SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("297: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("387: " + e.getMessage());
 		}
 		finally
 		{
@@ -393,7 +394,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("307: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("397: " + e.getMessage());
 			}
 		}
 		return door;
@@ -444,7 +445,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch (SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("357: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("448: " + e.getMessage());
 		}
 		finally
 		{
@@ -454,7 +455,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("367: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("458: " + e.getMessage());
 			}
 		}
 		return doors;
@@ -497,7 +498,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch (SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("357: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("501: " + e.getMessage());
 		}
 		finally
 		{
@@ -507,7 +508,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("367: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("511: " + e.getMessage());
 			}
 		}
 		return doors;
@@ -536,7 +537,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("394: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("540: " + e.getMessage());
 		}
 		finally
 		{
@@ -546,11 +547,41 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("404: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("550: " + e.getMessage());
 			}
 		}
 	}
 	
+	// Update the door with UID doorUID's Power Block Location with the provided coordinates and open status.
+	public void updateDoorAutoClose(long doorID, int autoClose)
+	{
+		Connection conn = null;
+		try
+		{
+			conn = getConnection();
+			conn.setAutoCommit(false);
+			String update = "UPDATE doors SET " 
+					+   "autoClose='"  + autoClose
+					+ "' WHERE id = '" + doorID  + "';";
+			conn.prepareStatement(update).executeUpdate();
+			conn.commit();
+		}
+		catch(SQLException e)
+		{
+			plugin.getMyLogger().logMessageToLogFile("571: " + e.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				conn.close();
+			}
+			catch (SQLException e)
+			{
+				plugin.getMyLogger().logMessageToLogFile("581: " + e.getMessage());
+			}
+		}
+	}
 	// Update the door with UID doorUID's Power Block Location with the provided coordinates and open status.
 	public void updateDoorOpenDirection(long doorID, RotateDirection openDir)
 	{
@@ -567,7 +598,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("394: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("601: " + e.getMessage());
 		}
 		finally
 		{
@@ -577,7 +608,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("404: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("611: " + e.getMessage());
 			}
 		}
 	}
@@ -600,7 +631,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("394: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("634: " + e.getMessage());
 		}
 		finally
 		{
@@ -610,7 +641,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("404: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("644: " + e.getMessage());
 			}
 		}
 	}
@@ -639,7 +670,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("265: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("673: " + e.getMessage());
 		}
 		finally
 		{
@@ -649,7 +680,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("275: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("683: " + e.getMessage());
 			}
 		}
 		
@@ -672,7 +703,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("425: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("706: " + e.getMessage());
 		}
 		finally
 		{
@@ -682,7 +713,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("435: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("716: " + e.getMessage());
 			}
 		}
 	}
@@ -721,7 +752,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			
 			String doorInsertsql	= "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,openDirection) "
-								+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+								+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 						
 			doorstatement.setString(1, door.getName());
@@ -744,6 +775,7 @@ public class SQLiteJDBCDriverConnection
 			doorstatement.setInt(17,   door.getEngine().getBlockY() - 1); // Power Block Location is 1 block below the engine, by default.
 			doorstatement.setInt(18,   door.getEngine().getBlockZ());
 			doorstatement.setInt(19,   RotateDirection.getValue(door.getOpenDir()));
+			doorstatement.setInt(20,   door.getAutoClose());
 			
 			doorstatement.executeUpdate();
 			doorstatement.close();
@@ -763,7 +795,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch (SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("509: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("798: " + e.getMessage());
 		}
 		finally
 		{
@@ -773,7 +805,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("519: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("808: " + e.getMessage());
 			}
 		}
 	}
@@ -816,7 +848,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("562: " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("851: " + e.getMessage());
 		}
 		finally
 		{
@@ -826,7 +858,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch (SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("572: " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("861: " + e.getMessage());
 			}
 		}
 		return count;
@@ -906,17 +938,26 @@ public class SQLiteJDBCDriverConnection
 				
 				plugin.getMyLogger().logMessage("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!", true, true);
 				String update = "UPDATE doors SET " 
-						      + "isOpen='" + 2
-						      + "' WHERE isOpen = '" + 0 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
+				              + "isOpen='" + 2
+				              + "' WHERE isOpen = '" + 0 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
 				stmt.execute(update);
 				update = "UPDATE doors SET " 
-						+   "isOpen='" + 0
-						+ "' WHERE isOpen = '" + 1 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
+				       + "isOpen='" + 0
+				       + "' WHERE isOpen = '" + 1 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
 				stmt.execute(update);
 				update = "UPDATE doors SET " 
-						+   "isOpen='" + 1
-						+ "' WHERE isOpen = '" + 2 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
+				       + "isOpen='" + 1
+			           + "' WHERE isOpen = '" + 2 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
 				stmt.execute(update);
+			}
+			
+			rs 					= md.getColumns(null, null, "doors", "autoClose");
+			if (!rs.next())
+			{
+				plugin.getMyLogger().logMessage("Upgrading database! Adding autoClose!", true, true);
+				addColumn     	= "ALTER TABLE doors "
+						        + "ADD COLUMN autoClose int NOT NULL DEFAULT -1";
+				stmt.execute(addColumn);
 			}
 			
 			stmt.close();
@@ -924,7 +965,7 @@ public class SQLiteJDBCDriverConnection
 		}
 		catch(SQLException e)
 		{
-			plugin.getMyLogger().logMessageToLogFile("724 " + e.getMessage());
+			plugin.getMyLogger().logMessageToLogFile("968 " + e.getMessage());
 		}
 		finally
 		{
@@ -934,7 +975,7 @@ public class SQLiteJDBCDriverConnection
 			}
 			catch(SQLException e)
 			{
-				plugin.getMyLogger().logMessageToLogFile("734 " + e.getMessage());
+				plugin.getMyLogger().logMessageToLogFile("978 " + e.getMessage());
 			}
 		}
 	}

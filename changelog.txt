@@ -2,15 +2,28 @@ Alpha 0.1.7
 - Stopping the server while opening doors no longer results in disappearing doorblocks.
 - Unloading chunks containing animated doors no longer results in disappearing doorblocks.
 - Added coolDown option in the config file.
+- Added bigdoors.own.x permission node to limit number of doors a user can own to x.
+- Added "/InspectPowerBlockLoc" to get door info from a power block.
+- Added more text to translation file and reorganized it a bit.
+- Added "/CloseDoor" and "/ToggleDoor". Open, Toggle and Close commands all toggle a door when no opendirection was set. When a door does have an opendirection, they do exactly what you'd expect.
+- Added more info to /DoorInfo
+- Added "/SetAutoCloseTime <Door ID/Name> <Time>".
+- Added specific drawbridge creator button in GUI.
+- Added button to change opening direction for doors to GUI.
+- Added button to change auto close timer for doors to GUI.
 - Fixed case where not all doors would show up in the GUI.
 - Fixed doors that were deleted still showing up in the GUI.
-- Changed /NewDoor command to take these flags: -bd, -db, -pc.
 - Fixed drawbridges finishing on the other side than they should in certain situations.
-- Added bigdoors.own.x permission node to limit number of doors a user can own to x.
 - Fixed anvils not rotating correctly in certain positions and added support for slightly/badly damaged anvils.
-- Added "/InspectPowerBlockLoc" to get door info from a power block.
-- Door/Drawbridge creation process is now more strict. Rotation point must be in min/max y range.
-- Added more text to translation file.
+- Fixed !BDCancel! message when using /BDCancel.
+- Fixed connected blocks in 1.13.
+- Changed "/NewDoor" command to take these flags: -bd, -db, -pc.
+- Changed door creation process. Door and drawbridge creation are now completely separated.
+- Changed Door/Drawbridge creation process to be more strict. Rotation point must be in min/max y range.
+- Now loading correct default resource pack based on MC version (in config, can still be disabled, don't worry).
+- Removed "/OpenDoors". You can now just use /OpenDoor.
+- Removed cobbelstone walls from blacklist again.
+- General code improvements.
 
 Alpha 0.1.6
 - New animation algorithms! Prettier, much less error-prone, smaller, and ~30% faster!

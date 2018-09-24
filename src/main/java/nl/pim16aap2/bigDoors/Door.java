@@ -24,6 +24,7 @@ public class Door
 	private long              doorUID;
 	private RotateDirection   openDir;
 	private boolean          isLocked;
+	private int             autoClose;
 	private DoorDirection  engineSide;
 	private Location       powerBlock;
 	private Integer     roundedLength;
@@ -33,7 +34,8 @@ public class Door
 
 	// Generate a new door.
 	public Door(UUID player, World world, Location min, Location max, Location engine, String name, boolean isOpen, long doorUID, 
-			boolean isLocked, int permission, DoorType type, DoorDirection engineSide, Location powerBlock, RotateDirection openDir)
+			boolean isLocked, int permission, DoorType type, DoorDirection engineSide, Location powerBlock, 
+			RotateDirection openDir, int autoClose)
 	{
 		this.player        = player;
 		this.world         = world;
@@ -53,29 +55,31 @@ public class Door
 		this.roundedLength = null;
 		this.canGo         = true;
 		this.openDir       = openDir == null ? RotateDirection.NONE : openDir;
+		this.autoClose     = autoClose;
 	}
 	
 	public Door(UUID player, World world, Location min, Location max, Location engine, String name, boolean isOpen, long doorUID, 
-			boolean isLocked, int permission, DoorType type, 	Location powerBlock, RotateDirection openDir)
+			boolean isLocked, int permission, DoorType type, 	Location powerBlock, RotateDirection openDir, int autoClose)
 	{
-		this(player, world, min, max, engine, name, isOpen, doorUID, isLocked, permission, type, null, powerBlock, openDir);
+		this(player, world, min, max, engine, name, isOpen, doorUID, isLocked, permission, type, null, powerBlock, openDir, autoClose);
 	}
 	
 	// Create a door with a player UUID string instead of player Object.
 	public Door(World world, Location min, Location max, Location engine, String name, boolean isOpen, long doorUID, 
-			boolean isLocked, int permission, String player, DoorType type, Location powerBlock, RotateDirection openDir)
+			boolean isLocked, int permission, String player, DoorType type, Location powerBlock, 
+			RotateDirection openDir, int autoClose)
 	{
 		this(UUID.fromString(player), world, min, max, engine, name, isOpen, 
-				doorUID, isLocked, permission, type, null, powerBlock, openDir);
+				doorUID, isLocked, permission, type, null, powerBlock, openDir, autoClose);
 	}
 	
 	// Create a door with a player UUID string instead of player Object and an engineSide (for draw bridges).
 	public Door(World world, Location min, Location max, Location engine, String name, boolean isOpen, long doorUID,
 			boolean isLocked, int permission, String player, DoorType type, DoorDirection engineSide, Location powerBlock, 
-			RotateDirection openDir)
+			RotateDirection openDir, int autoClose)
 	{
 		this(UUID.fromString(player), world, min, max, engine, name, isOpen, doorUID, isLocked, permission, 
-				type, engineSide, powerBlock, openDir);
+				type, engineSide, powerBlock, openDir, autoClose);
 	}
 	
 	// ----------------------- SIMPLE GETTERS -----------------------	//
@@ -90,6 +94,7 @@ public class Door
 	public DoorDirection getEngSide()	{	return engineSide;	}	// Get this door's (or drawbridge's, in this case) engine side.
 	public boolean canGo()				{	return canGo;		}	// Check if this door can still be opened or not.
 	public RotateDirection getOpenDir()	{	return openDir;		}	// Get the open direction of this door.
+	public int getAutoClose()			{	return autoClose;	}	// Get the auto close time.
 	
 	public void setPlayerUUID(UUID playerUUID)	
 	{	

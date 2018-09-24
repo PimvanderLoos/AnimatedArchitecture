@@ -11,8 +11,8 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.ToolUsers.ToolUser;
 import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
+import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 
 public class EventHandlers implements Listener
 {
@@ -47,7 +47,7 @@ public class EventHandlers implements Listener
 		if (plugin.getTF().isTool(event.getItemDrop().getItemStack()))
 			event.setCancelled(true);
 	}
-	
+
 	// Do not allow the user to move the tool around in their inventory.
 	@EventHandler
 	public void onItemMoved(InventoryMoveItemEvent event)

@@ -311,7 +311,6 @@ public class NoClipArmorStand_V1_12_R1 extends net.minecraft.server.v1_12_R1.Ent
 		this.aG += (f10 - this.aG) * 0.4F;
 		this.aH += this.aG;
 	}
-
 }
 
 	
