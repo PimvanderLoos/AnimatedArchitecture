@@ -215,6 +215,7 @@ public class VerticalMover implements BlockMover
 			@Override
 			public void run()
 			{
+				plugin.getCommander().setDoorAvailable(door.getDoorUID());
 				plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(door.getDoorUID()), time, instantOpen, false);
 			}
 		}.runTaskLater(plugin, autoCloseTimer * 20);

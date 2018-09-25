@@ -93,13 +93,20 @@ public class GUIHandler implements Listener
 	// Open a new menu dedicated to a door listed in the itemstack's lore.
 	private void openDoorSubMenu(Player player, Inventory inv, ItemStack item)
 	{
-		long doorUID = getDoor(item).getDoorUID();
+		if (player == null || inv == null || item == null)
+			return;
+		Door door = getDoor(item);
+		if (door == null)
+			return;
+		long doorUID = door.getDoorUID();
 		openDoorSubMenu(player, inv, doorUID);
 	}
 	
 	// Open a new menu dedicated to this door (passed as doorUID).
 	private void openDoorSubMenu(Player player, Inventory inv, long doorUID)
 	{
+		if (player == null || inv == null)
+			return;
 		// Set the page to the submenu for this door. Provide previous page number as page number, so the menu remembers where to go back to.
 		setPage(player, inv, getCurrentPageNum(inv), PageType.DOORINFO, doorUID, getPageCount(inv));
 	}
@@ -184,12 +191,12 @@ public class GUIHandler implements Listener
 		if (clickedItem == null || !clickedItem.hasItemMeta())
 			return;
 
-		ItemMeta meta     = clickedItem.getItemMeta();
+		ItemMeta meta   = clickedItem.getItemMeta();
 		if (!meta.hasDisplayName())
 			return;
-		Inventory inv     = event.getInventory();
-		int slot          = event.getRawSlot();
-		String itemName   = meta.getDisplayName();
+		Inventory inv   = event.getInventory();
+		int slot        = event.getRawSlot();
+		String itemName = meta.getDisplayName();
 
 		if (pageType == PageType.CONFIRMATION)
 		{

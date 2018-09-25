@@ -9,7 +9,6 @@ import org.bukkit.util.Vector;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -20,7 +19,7 @@ import nl.pim16aap2.bigDoors.util.Util;
  * The creation process has been completed successfully or the timer ran out. In EventHandlers this class is used 
  * To check whether a user that is left-clicking is a DoorCreator && tell this class a left-click happened.
  */
-public class DrawbridgeCreator extends ToolUser implements Abortable
+public class DrawbridgeCreator extends ToolUser
 {	
 	public DrawbridgeCreator(BigDoors plugin, Player player, String name) 
 	{
@@ -243,8 +242,11 @@ public class DrawbridgeCreator extends ToolUser implements Abortable
 	@Override
 	public void abort()
 	{
-		this.takeToolFromPlayer();
-		plugin.removeToolUser(this);
-		plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
+		if (!this.done)
+		{
+			this.takeToolFromPlayer();
+			plugin.removeToolUser(this);
+			plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
+		}
 	}
 }

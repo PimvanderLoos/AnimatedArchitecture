@@ -47,6 +47,10 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 				int time = Integer.parseInt(args[0]);
 				plugin.getCommandHandler().setDoorOpenTime(this.player, this.doorUID, time);
 				plugin.removeCommandWaiter(this);
+				if (time != -1)
+					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetCloseTimerSuccess") + time + "s.");
+				else
+					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.DisableCloseTimerSuccess") + time + "s.");
 				return true;
 			}
 			catch (Exception e) 

@@ -191,10 +191,12 @@ public class CommandHandler implements CommandExecutor
 			return;
 		}
 		
+		if (isPlayerBusy(player))
+			return;
 		ToolUser tu = type == DoorType.DOOR       ? new DoorCreator      (plugin, player, name) :
 		              type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
 		              type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) : null;
-				   
+				
 		startTimerForAbortable((Abortable) tu, player, 60 * 20);
 	}
 	
@@ -233,7 +235,17 @@ public class CommandHandler implements CommandExecutor
 	
 	public void startTimerSetter(Player player, long doorUID)
 	{
+		if (isPlayerBusy(player))
+			return;
 		startTimerForAbortable((Abortable) (new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), player, 20 * 20);
+	}
+	
+	private boolean isPlayerBusy(Player player)
+	{
+		boolean isBusy = (this.isToolUser(player) != null || this.isCommandWaiter(player) != null);
+		if (isBusy)
+			Util.messagePlayer(player, messages.getString("GENERAL.IsBusy"));
+		return isBusy;
 	}
 	
 	public void startPowerBlockRelocator(Player player, long doorUID)
@@ -451,6 +463,8 @@ public class CommandHandler implements CommandExecutor
 			// /inspectpowerblockloc
 			if (cmd.getName().equalsIgnoreCase("inspectpowerblockloc"))
 			{
+				if (isPlayerBusy(player))
+					return false;
 				startTimerForAbortable((Abortable) new PowerBlockInspector(plugin, player, -1), player, 20 * 20);
 				return true;
 			}
@@ -467,12 +481,16 @@ public class CommandHandler implements CommandExecutor
 			{
 				ToolUser tu = isToolUser(player);
 				if (tu != null)
+				{
 					if (args.length == 1)
 						if (isValidName(args[0]))
 						{
 							tu.setName(args[0]);
 							return true;
 						}
+				}
+				else
+					Util.messagePlayer(player, messages.getString("GENERAL.NotBusy"));
 			}
 			
 			// /changePowerBlockLoc
@@ -495,7 +513,7 @@ public class CommandHandler implements CommandExecutor
 				if (tu != null)
 				{
 					tu.setIsDone(true);
-					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("DC.Cancelled"));
+					plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("GENERAL.Cancelled"));
 				}
 				return true;
 			}

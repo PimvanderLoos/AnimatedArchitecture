@@ -127,13 +127,6 @@ public class CylindricalMover implements BlockMover
 								matByte  = rotateBlockDataStairs(matData);
 							else if (canRotate == 4)
 								matByte  = rotateBlockDataAnvil(matData);
-//							else if (canRotate == 5)
-//							{
-//								Random ran = new Random();
-//								int x = ran.nextInt(8) + 1;
-//								Bukkit.broadcastMessage("matByte = " + x);
-//								matByte  = (byte) x;
-//							}
 							
 							Block b      = world.getBlockAt(pos);					
 							materialData.setData(matByte);
@@ -301,6 +294,7 @@ public class CylindricalMover implements BlockMover
 			@Override
 			public void run()
 			{
+				plugin.getCommander().setDoorAvailable(door.getDoorUID());
 				plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(door.getDoorUID()), time, instantOpen, false);
 			}
 		}.runTaskLater(plugin, autoCloseTimer * 20);

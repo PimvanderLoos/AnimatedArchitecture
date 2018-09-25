@@ -9,10 +9,9 @@ import org.bukkit.entity.Player;
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.Util;
 
-public class PowerBlockInspector extends ToolUser implements Abortable
+public class PowerBlockInspector extends ToolUser
 {
 	public PowerBlockInspector(BigDoors plugin, Player player, long doorUID)
 	{
@@ -57,8 +56,11 @@ public class PowerBlockInspector extends ToolUser implements Abortable
 	@Override
 	public void abort()
 	{
-		this.takeToolFromPlayer();
-		plugin.removeToolUser(this);
-		plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
+		if (!this.done)
+		{
+			this.takeToolFromPlayer();
+			plugin.removeToolUser(this);
+			plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
+		}
 	}
 }

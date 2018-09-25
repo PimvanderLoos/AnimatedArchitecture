@@ -751,7 +751,7 @@ public class SQLiteJDBCDriverConnection
 				stmt2.close();
 			}
 			
-			String doorInsertsql	= "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,openDirection) "
+			String doorInsertsql	= "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,openDirection,autoClose) "
 								+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 						

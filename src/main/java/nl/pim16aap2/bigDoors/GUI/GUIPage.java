@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigDoors.GUI;
 
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -49,25 +48,11 @@ public class GUIPage implements Listener
 	private static final int chestSize  = 45;
 	
 	private static final Material[] doorTypes = 
-		{	// Only these 2 are used atm, because of the 1.12 -> 1.13 mess.
-			// In 1.12, the other 5 won't load.
-			XMaterial.fromString("IRON_DOOR").parseMaterial(),
-			XMaterial.fromString("OAK_DOOR" ).parseMaterial(),
-			XMaterial.fromString("IRON_DOOR").parseMaterial(),
-			XMaterial.fromString("OAK_DOOR" ).parseMaterial(),
-			XMaterial.fromString("IRON_DOOR").parseMaterial(),
-			XMaterial.fromString("OAK_DOOR" ).parseMaterial(),
-			XMaterial.fromString("IRON_DOOR").parseMaterial(),
-			XMaterial.fromString("OAK_DOOR" ).parseMaterial()
-			
-//			XMaterial.fromString("ACACIA_DOOR"  ).parseMaterial(),
-//			XMaterial.fromString("BIRCH_DOOR"   ).parseMaterial(),
-//			XMaterial.fromString("IRON_DOOR"    ).parseMaterial(),
-//			XMaterial.fromString("OAK_DOOR"     ).parseMaterial(),
-//			XMaterial.fromString("SPRUCE_DOOR"  ).parseMaterial(),
-//			XMaterial.fromString("DARK_OAK_DOOR").parseMaterial(),
-//			XMaterial.fromString("JUNGLE_DOOR"  ).parseMaterial()
-		};	
+		{
+			XMaterial.OAK_DOOR.parseMaterial(),
+			XMaterial.OAK_TRAPDOOR.parseMaterial(),
+			XMaterial.IRON_DOOR.parseMaterial()
+		};
 	
 	public GUIPage(BigDoors plugin, Player player, int page, PageType pageType, long doorUID, int pageCount) 
 	{
@@ -215,11 +200,12 @@ public class GUIPage implements Listener
 		if (pageType == PageType.DOORLIST)
 			for (int idx = 9; idx - 9 != doors.size() && idx < chestSize; ++idx)
 			{
-				int realIdx = idx - 9;
-				int randomNum = ThreadLocalRandom.current().nextInt(0, 7);
+				int realIdx  = idx - 9;
+				int doorType = DoorType.getValue(doors.get(realIdx).getType());
+//				int randomNum = ThreadLocalRandom.current().nextInt(0, 7);
 				ArrayList<String> lore = new ArrayList<String>();
 				lore.add("This door has ID " + doors.get(realIdx).getDoorUID());
-				inv.setItem(idx, new GUIItem(doorTypes[randomNum], doors.get(realIdx).getName(), lore, 1).getItemStack());
+				inv.setItem(idx, new GUIItem(doorTypes[doorType], doors.get(realIdx).getName(), lore, 1).getItemStack());
 			}
 		else if (pageType == PageType.DOORINFO)
 			createDoorSubMenu();

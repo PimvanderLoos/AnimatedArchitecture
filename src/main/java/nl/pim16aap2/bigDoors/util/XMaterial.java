@@ -1,9 +1,28 @@
 package nl.pim16aap2.bigDoors.util;
 
-import java.util.HashMap;
-
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
+/** 
+* The MIT License (MIT)
+* 
+* Copyright (c) 2018 Hex_27
+* 
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation 
+* the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+* and/or sell copies of the Software, and to permit persons to whom the 
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included 
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+* OF * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+* DEALINGS IN THE SOFTWARE.
+**/
 
 /* Created by user Hex_27 on the Spigot forums.
  * Downloaded from:
@@ -11,11 +30,16 @@ import org.bukkit.inventory.ItemStack;
  * Direct: https://pastebin.com/9SYDeKXB
  */
 
-public enum XMaterial 
-{
+import java.util.HashMap;
+
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+public enum XMaterial {
+	
 	ACACIA_BOAT("BOAT_ACACIA", 0),
 	ACACIA_BUTTON("WOOD_BUTTON", 0),
-	ACACIA_DOOR("ACACIA_DOOR", 0),
+	ACACIA_DOOR("ACACIA_DOOR_ITEM", 0),
 	ACACIA_FENCE("ACACIA_FENCE", 0),
 	ACACIA_FENCE_GATE("ACACIA_FENCE_GATE", 0),
 	ACACIA_LEAVES("LEAVES_2", 0),
@@ -50,7 +74,7 @@ public enum XMaterial
 	BEETROOT_SOUP("BEETROOT_SOUP", 0),
 	BIRCH_BOAT("BOAT_BIRCH", 0),
 	BIRCH_BUTTON("WOOD_BUTTON", 0),
-	BIRCH_DOOR("BIRCH_DOOR", 0),
+	BIRCH_DOOR("BIRCH_DOOR_ITEM", 0),
 	BIRCH_FENCE("BIRCH_FENCE", 0),
 	BIRCH_FENCE_GATE("BIRCH_FENCE_GATE", 0),
 	BIRCH_LEAVES("LEAVES", 2),
@@ -210,7 +234,7 @@ public enum XMaterial
 	DANDELION_YELLOW("INK_SACK", 11),
 	DARK_OAK_BOAT("BOAT_DARK_OAK", 0),
 	DARK_OAK_BUTTON("WOOD_BUTTON", 0),
-	DARK_OAK_DOOR("DARK_OAK_DOOR", 0),
+	DARK_OAK_DOOR("DARK_OAK_DOOR_ITEM", 0),
 	DARK_OAK_FENCE("DARK_OAK_FENCE", 0),
 	DARK_OAK_FENCE_GATE("DARK_OAK_FENCE_GATE", 0),
 	DARK_OAK_LEAVES("LEAVES_2", 1),
@@ -339,11 +363,11 @@ public enum XMaterial
 	GRAY_DYE("INK_SACK", 8),
 	GRAY_GLAZED_TERRACOTTA("GRAY_GLAZED_TERRACOTTA", 0),
 	GRAY_SHULKER_BOX("GRAY_SHULKER_BOX", 0),
-	GRAY_STAINED_GLASS("STAINED_GLASS", 8),
-	GRAY_STAINED_GLASS_PANE("STAINED_GLASS_PANE", 8),
-	GRAY_TERRACOTTA("STAINED_CLAY", 8),
+	GRAY_STAINED_GLASS("STAINED_GLASS", 7),
+	GRAY_STAINED_GLASS_PANE("STAINED_GLASS_PANE", 7),
+	GRAY_TERRACOTTA("STAINED_CLAY", 7),
 	GRAY_WALL_BANNER("WALL_BANNER", 0),
-	GRAY_WOOL("WOOL", 8),
+	GRAY_WOOL("WOOL", 7),
 	GREEN_BANNER("BANNER", 2),
 	GREEN_BED("BED", 13),
 	GREEN_CARPET("CARPET", 13),
@@ -398,7 +422,7 @@ public enum XMaterial
 	JUKEBOX("JUKEBOX", 0),
 	JUNGLE_BOAT("BOAT_JUNGLE", 0),
 	JUNGLE_BUTTON("WOOD_BUTTON", 0),
-	JUNGLE_DOOR("JUNGLE_DOOR", 0),
+	JUNGLE_DOOR("JUNGLE_DOOR_DOOR", 0),
 	JUNGLE_FENCE("JUNGLE_FENCE", 0),
 	JUNGLE_FENCE_GATE("JUNGLE_FENCE_GATE", 0),
 	JUNGLE_LEAVES("LEAVES", 3),
@@ -741,7 +765,7 @@ public enum XMaterial
 	SPONGE("SPONGE", 0),
 	SPRUCE_BOAT("BOAT_SPRUCE", 0),
 	SPRUCE_BUTTON("WOOD_BUTTON", 0),
-	SPRUCE_DOOR("SPRUCE_DOOR", 0),
+	SPRUCE_DOOR("SPRUCE_DOOR_ITEM", 0),
 	SPRUCE_FENCE("SPRUCE_FENCE", 0),
 	SPRUCE_FENCE_GATE("SPRUCE_FENCE_GATE", 0),
 	SPRUCE_LEAVES("LEAVES", 1),
@@ -867,30 +891,25 @@ public enum XMaterial
 	String m;
 	int data;
 	
-	XMaterial(String m, int data )
-	{
+	XMaterial(String m, int data ){
 		this.m = m;
 		this.data = data;
 	}
 	
-	public ItemStack parseItem()
-	{
+	public ItemStack parseItem(){
 		Material mat = parseMaterial();
-		if(isNewVersion())
+		if(isNewVersion()){
 			return new ItemStack(mat);
+		}
 		return new ItemStack(mat,1,(byte) data);
 	}
-	
 	static int newV = -1;
-	
-	public static boolean isNewVersion()
-	{
+	public static boolean isNewVersion(){
 		if(newV == 0) return false;
 		if(newV == 1) return true;
         Material mat = Material.matchMaterial("RED_WOOL");
-        if(mat != null)
-        {
-        		newV = 1;
+        if(mat != null){
+        	newV = 1;
             return true;
         }
         newV = 0;
@@ -898,15 +917,12 @@ public enum XMaterial
 	}
 	
 	private static HashMap<String, XMaterial> cachedSearch = new HashMap<>();
-	
-	public static XMaterial requestXMaterial(String name, byte data)
-	{
-		if(cachedSearch.containsKey(name.toUpperCase()+","+data))
+	public static XMaterial requestXMaterial(String name, byte data){
+		if(cachedSearch.containsKey(name.toUpperCase()+","+data)){
 			return cachedSearch.get(name.toUpperCase()+","+data);
-		for(XMaterial mat:XMaterial.values())
-		{
-			if(name.toUpperCase().equals(mat.m) && ((byte)mat.data) == data)
-			{
+		}
+		for(XMaterial mat:XMaterial.values()){
+			if(name.toUpperCase().equals(mat.m) && ((byte)mat.data) == data){
 				cachedSearch.put(mat.m+","+data,mat);
 				return mat;
 			}
@@ -915,58 +931,57 @@ public enum XMaterial
 	}
 	
 	@SuppressWarnings("deprecation")
-	public boolean isSameMaterial(ItemStack comp)
-	{
-		if(isNewVersion())
+	public boolean isSameMaterial(ItemStack comp){
+		if(isNewVersion()){
 			return comp.getType() == this.parseMaterial();
-		if(comp.getType() == this.parseMaterial() && (int) comp.getData().getData() == (int) this.data)
+		}
+		if(comp.getType() == this.parseMaterial() &&
+				(int) comp.getData().getData() == (int) this.data){
 			return true;
+		}
 		XMaterial xmat = fromMaterial(comp.getType());
-		if(isDamageable(xmat))
-			if(this.parseMaterial() == comp.getType())
+		if(isDamageable(xmat)){
+			if(this.parseMaterial() == comp.getType()){
 				return true;
+			}
+		}
 		return false;
 	}
 	
-	public XMaterial fromMaterial(Material mat)
-	{
-		try
-		{
+	public XMaterial fromMaterial(Material mat){
+		try{
 			return XMaterial.valueOf(mat.toString());
-		}
-		catch(IllegalArgumentException e)
-		{
-			for(XMaterial xmat:XMaterial.values())
-				if(xmat.m.equals(mat.toString()))
+		}catch(IllegalArgumentException e){
+			for(XMaterial xmat:XMaterial.values()){
+				if(xmat.m.equals(mat.toString())){
 					return xmat;
+				}
+			}
 		}
 		return null;
 	}
 	
-	public static XMaterial fromString(String key)
-	{
+	public static XMaterial fromString(String key){
 		XMaterial xmat = null;
-		try
-		{
+		try{
 			xmat = XMaterial.valueOf(key);
 			return xmat;
-		}
-		catch(IllegalArgumentException e)
-		{
+		}catch(IllegalArgumentException e){
 			String[] split = key.split(":");
-			if(split.length == 1)
+			if(split.length == 1){
 				xmat = requestXMaterial(key,(byte) 0);
-			else
+			}else{
 				xmat = requestXMaterial(split[0],(byte) Integer.parseInt(split[1]));
+			}
 			return xmat;
 		}
 		
 	}
 	
-	public boolean isDamageable(XMaterial type)
-	{
-		switch(type.toString())
-		{
+	public boolean isDamageable(XMaterial type){
+        String[] split = type.toString().split("_");
+        int length = split.length;
+		switch(split[length-1]){
 		case "HELMET":
 			return true;
 		case "CHESTPLATE":
@@ -1000,11 +1015,11 @@ public enum XMaterial
 		}
 	}
 	
-	public Material parseMaterial()
-	{
+	public Material parseMaterial(){
         Material mat = Material.matchMaterial(this.toString());
-        if(mat != null)
+        if(mat != null){
             return mat;
+        }
         return Material.matchMaterial(m);
     }
 	

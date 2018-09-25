@@ -13,12 +13,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Util;
 
-public abstract class ToolUser
+public abstract class ToolUser implements Abortable
 {
 	protected DoorType             type;
 	protected String               name;

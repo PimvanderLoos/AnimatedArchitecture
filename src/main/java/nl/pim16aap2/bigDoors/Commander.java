@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import com.mysql.jdbc.Messages;
+
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -106,7 +108,10 @@ public class Commander
 				return doors.get(0);
 			else 
 			{
-				Util.messagePlayer(player, "More than 1 door with that name found! Please use its ID instead!");
+				if (doors.size() == 0)
+					Util.messagePlayer(player, Messages.getString("GENERAL.NoDoorsFound"));
+				else
+					Util.messagePlayer(player, Messages.getString("GENERAL.MoreThan1DoorFound"));
 				printDoors(player, doors);
 				return null;
 			}

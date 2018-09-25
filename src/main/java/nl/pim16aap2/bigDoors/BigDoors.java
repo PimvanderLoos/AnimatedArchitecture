@@ -38,7 +38,8 @@ import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
-// TODO: Use the good old armor stand + falling block riding it technique for cobblestone walls in 1.12
+// TODO: Store starting x,z values in savedBlocks, then make putblocks etc part of abstact class.
+// TODO: change "abort()" to "abort(boolean onDisable)" and use that function in onDisable.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -173,8 +174,15 @@ public class BigDoors extends JavaPlugin implements Listener
 		if (validVersion)
 		{
 			this.commander.setCanGo(false);
+			try
+			{
 			for (ToolUser tu : this.toolUsers)
 				tu.setIsDone(true);
+			}
+			catch (Exception e)
+			{
+				
+			}
 			for (BlockMover bm : this.blockMovers)
 				bm.putBlocks(true);
 		}

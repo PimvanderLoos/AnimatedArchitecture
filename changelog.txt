@@ -1,4 +1,12 @@
-Alpha 0.1.7
+Alpha 0.1.7.1
+- Fixed Door creation process (all types). Thanks @WHiZSTA for helping me figure out what was going on!
+- Doors can now be added to the database again.
+- Each door type now has its own door item type in GUI. No longer randomly assigned. Thanks @WHiZSTA for the suggestion!
+- Added success messages for changing auto close timer. Thanks @WHiZSTA, again :D
+- Definitely fixed NPE thrown from GUI. Probably. Maybe.
+- Doors can be added to the database again. Might be useful, eh?
+
+Alpha 0.1.7 (REMOVED)
 - Stopping the server while opening doors no longer results in disappearing doorblocks.
 - Unloading chunks containing animated doors no longer results in disappearing doorblocks.
 - Added coolDown option in the config file.

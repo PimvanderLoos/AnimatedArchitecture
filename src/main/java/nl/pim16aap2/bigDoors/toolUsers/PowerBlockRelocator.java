@@ -11,7 +11,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.Util;
 
-public class PowerBlockRelocator extends ToolUser implements Abortable
+public class PowerBlockRelocator extends ToolUser
 {
 	public PowerBlockRelocator(BigDoors plugin, Player player, long doorUID)
 	{
@@ -62,8 +62,11 @@ public class PowerBlockRelocator extends ToolUser implements Abortable
 	@Override
 	public void abort()
 	{
-		this.takeToolFromPlayer();
-		plugin.removeToolUser(this);
-		plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
+		if (!this.done)
+		{
+			this.takeToolFromPlayer();
+			plugin.removeToolUser(this);
+			plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
+		}
 	}
 }
