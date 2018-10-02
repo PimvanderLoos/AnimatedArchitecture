@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import com.mysql.jdbc.Messages;
-
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
@@ -20,12 +19,14 @@ public class Commander
 	private boolean goOn   = true;
 	private boolean paused = false;
 	private SQLiteJDBCDriverConnection db;
+	private Messages messages;
 	
 	public Commander(BigDoors plugin, SQLiteJDBCDriverConnection db)
 	{
-		this.plugin = plugin;
-		this.db     = db;
-		busyDoors   = new ArrayList<Long>();
+		this.plugin   = plugin;
+		this.db       = db;
+		busyDoors     = new ArrayList<Long>();
+		this.messages = plugin.getMessages();
 	}
 
 	// Check if a door is busy
@@ -109,9 +110,9 @@ public class Commander
 			else 
 			{
 				if (doors.size() == 0)
-					Util.messagePlayer(player, Messages.getString("GENERAL.NoDoorsFound"));
+					Util.messagePlayer(player, messages.getString("GENERAL.NoDoorsFound"));
 				else
-					Util.messagePlayer(player, Messages.getString("GENERAL.MoreThan1DoorFound"));
+					Util.messagePlayer(player, messages.getString("GENERAL.MoreThan1DoorFound"));
 				printDoors(player, doors);
 				return null;
 			}

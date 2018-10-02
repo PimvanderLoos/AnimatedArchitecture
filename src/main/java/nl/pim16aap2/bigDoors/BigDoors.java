@@ -5,11 +5,14 @@ import java.util.Vector;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.AS_v1_12_R1.ArmorStandFactory_V1_12_R1;
+import nl.pim16aap2.bigDoors.NMS.AS_v1_13_R2.ArmorStandFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
@@ -39,7 +42,25 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 // TODO: Store starting x,z values in savedBlocks, then make putblocks etc part of abstact class.
-// TODO: change "abort()" to "abort(boolean onDisable)" and use that function in onDisable.
+// TODO: Add success message for changing door opendirection.
+// TODO: Add delay to update found message, so it's at the bottom of the console on startup.
+// TODO: 
+
+/* TODO: Look into this interesting method in NMS.Block:
+ 
+ 	public void fallOn(World world, BlockPosition blockposition, Entity entity, float f) 
+ 	{
+		entity.c(f, 1.0F);
+	}
+	
+ * Specifically look into the Call hierarchy.
+ * in fallOn(World, BlockPosition, Entity, float)   from BlockSlime
+ * to a(double, boolean, iBlockData, BlockPosition) from EntityLiving
+ * to a(double, boolean)                            from EntityPlayer
+ * 
+ * It looks like you might be able to possibly register a blockposition as solid there. Maybe.
+ */
+
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -61,6 +82,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	private boolean              validVersion;
 	private CommandHandler     commandHandler;
 	private PortcullisOpener portcullisOpener;
+	private Vector<Player>   playersOnFBlocks;
 	
 	private boolean            is1_13 = false;
 	private boolean         enabledAS = false;
@@ -96,6 +118,11 @@ public class BigDoors extends JavaPlugin implements Listener
 		toolUsers        = new Vector<ToolUser>(2);
 		blockMovers      = new Vector<BlockMover>(2);
 		cmdWaiters       = new Vector<WaitForCommand>(2);
+
+		
+		playersOnFBlocks = new Vector<Player>(2);
+		
+		
 		this.db          = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
 		this.tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
 		doorOpener       = new DoorOpener(this);
@@ -149,9 +176,18 @@ public class BigDoors extends JavaPlugin implements Listener
 				    try 
 				    {
 				        if (updater.checkForUpdates())
-				        {
-				            getLogger().info("An update was found! New version: " + updater.getLatestVersion() + " download: " + updater.getResourceURL());
-				            Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(plugin, "The BigDoors plugin is out of date!"), plugin);
+				        {				            
+				        	Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(plugin, "The BigDoors plugin is out of date. Found: "  + 
+				        									updater.getLatestVersion() + ", Currently running: " + plugin.getDescription().getVersion()), plugin);
+							new BukkitRunnable()
+							{
+								@Override
+								public void run()
+								{
+						            getLogger().info("An update was found! New version: " + updater.getLatestVersion() + " download: " + updater.getResourceURL() +
+						            					", Currently running: " + plugin.getDescription().getVersion());
+								}
+							}.runTaskLater(getPlugin(), 100);
 				        }
 				    }
 				    catch (Exception exc) 
@@ -164,27 +200,33 @@ public class BigDoors extends JavaPlugin implements Listener
 			thread.start();
 		}
 	}
+	
+	public Vector<Player> getWalkingPlayers()
+	{
+		return this.playersOnFBlocks;
+	}
+	
+	public void setWalkingPlayers(Vector<Player> players)
+	{
+		this.playersOnFBlocks.clear();
+		this.playersOnFBlocks = players;
+	}
 
 	@Override
 	public void onDisable()
 	{
-		// Force stop all doors. I don't know if this is needed. Do spigot stop running tasks gracefully already?
-		// Does Spigot stop them forcefully (and destroy them in the process) meaning this does exactly fuck all?
-		// So many questions, so many answers probably online. TODO: Don't be lazy and do some research.		
+		// Stop all toolUsers and take all BigDoor tools from players.
 		if (validVersion)
 		{
 			this.commander.setCanGo(false);
-			try
-			{
 			for (ToolUser tu : this.toolUsers)
 				tu.setIsDone(true);
-			}
-			catch (Exception e)
-			{
-				
-			}
 			for (BlockMover bm : this.blockMovers)
 				bm.putBlocks(true);
+			
+			this.toolUsers.clear();
+			this.cmdWaiters.clear();
+			this.blockMovers.clear();
 		}
 	}
 	
@@ -353,6 +395,11 @@ public class BigDoors extends JavaPlugin implements Listener
         		this.fabf2     = new ArmorStandFactory_V1_12_R1();
     			this.enabledAS = true;
         }
+        if (version.equals("v1_13_R2"))
+        {
+    			this.fabf2     = new ArmorStandFactory_V1_13_R2();
+			this.enabledAS = true;
+        }
         // Return true if compatible.
         return fabf2 != null;
 	}
@@ -404,7 +451,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	
 	
 	/* 
-	 * API (ish) Starts here.
+	 * API Starts here.
 	 */
 	
 	// (Instantly?) Toggle a door with a given time.

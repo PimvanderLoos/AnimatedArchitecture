@@ -88,27 +88,31 @@ public class VerticalMover implements BlockMover
 					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
 					if (yAxis == yMin)
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
-					
-					Material mat  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getType();
-					Byte matData  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getData();
-					BlockState bs = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).getState();
-					MaterialData materialData = bs.getData();
-					NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
-					
-					// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
-					if (Util.isAllowedBlock(mat))
-						world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis).setType(Material.AIR);
-					else
+					Block vBlock  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+					Material mat  = vBlock.getType();
+					if (!mat.equals(Material.AIR))
 					{
-						mat     = Material.AIR;
-						matData = 0;
+						Byte matData  = vBlock.getData();
+						BlockState bs = vBlock.getState();
+						MaterialData materialData = bs.getData();
+						NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+						
+						// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
+						if (Util.isAllowedBlock(mat))
+							vBlock.setType(Material.AIR);
+						else
+						{
+							mat     = Material.AIR;
+							matData = 0;
+						}
+						
+						CustomCraftFallingBlock_Vall fBlock = null;
+						if (!instantOpen)
+							 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
+						savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, (int) yAxis));
 					}
-					
-					CustomCraftFallingBlock_Vall fBlock = null;
-					if (!instantOpen)
-						 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-					savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, (int) yAxis));
-					
+					else
+						savedBlocks.add(index, new MyBlockData(Material.AIR));
 					++index;
 				}
 				++zAxis;
@@ -139,32 +143,35 @@ public class VerticalMover implements BlockMover
 				for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
 				{
 					Material mat    = savedBlocks.get(index).getMat();
-					Byte matByte    = savedBlocks.get(index).getBlockByte();
-					Location newPos = this.getNewLocation(xAxis, yAxis, zAxis);
-					
-					if (!instantOpen)
-						savedBlocks.get(index).getFBlock().remove();
-
-					if (!savedBlocks.get(index).getMat().equals(Material.AIR))
-						if (plugin.is1_13())
-						{
-							savedBlocks.get(index).getBlock().putBlock(newPos);
-							
-							Block b = world.getBlockAt(newPos);
-							BlockState bs = b.getState();
-							bs.update();
-						}
-						else
-						{
-							Block b = world.getBlockAt(newPos);					
-							MaterialData matData = savedBlocks.get(index).getMatData();
-							matData.setData(matByte);
-							
-							b.setType(mat);
-							BlockState bs = b.getState();
-							bs.setData(matData);
-							bs.update();
-						}
+					if (!mat.equals(Material.AIR))
+					{
+						Byte matByte    = savedBlocks.get(index).getBlockByte();
+						Location newPos = this.getNewLocation(xAxis, yAxis, zAxis);
+						
+						if (!instantOpen)
+							savedBlocks.get(index).getFBlock().remove();
+	
+						if (!savedBlocks.get(index).getMat().equals(Material.AIR))
+							if (plugin.is1_13())
+							{
+								savedBlocks.get(index).getBlock().putBlock(newPos);
+								
+								Block b = world.getBlockAt(newPos);
+								BlockState bs = b.getState();
+								bs.update();
+							}
+							else
+							{
+								Block b = world.getBlockAt(newPos);					
+								MaterialData matData = savedBlocks.get(index).getMatData();
+								matData.setData(matByte);
+								
+								b.setType(mat);
+								BlockState bs = b.getState();
+								bs.setData(matData);
+								bs.update();
+							}
+					}
 					++index;
 				}
 				++zAxis;
@@ -255,7 +262,8 @@ public class VerticalMover implements BlockMover
 				{					
 					Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
-						savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
+						if (!savedBlocks.get(idx).getMat().equals(Material.AIR))
+							savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
 					putBlocks(false);
 					this.cancel();
 				}
@@ -269,10 +277,13 @@ public class VerticalMover implements BlockMover
 						{
 							for (int xAxis = xMin; xAxis <= xMax; xAxis++)
 							{
-								Location loc = new Location(null, xAxis + 0.5, yAxis + stepSum, zAxis + 0.5);
-								Vector vec = loc.toVector().subtract(savedBlocks.get(index).getFBlock().getLocation().toVector());
-								vec.multiply(0.101);
-								savedBlocks.get(index).getFBlock().setVelocity(vec);
+								if (!savedBlocks.get(index).getMat().equals(Material.AIR))
+								{
+									Location loc = new Location(null, xAxis + 0.5, yAxis + stepSum, zAxis + 0.5);
+									Vector vec = loc.toVector().subtract(savedBlocks.get(index).getFBlock().getLocation().toVector());
+									vec.multiply(0.101);
+									savedBlocks.get(index).getFBlock().setVelocity(vec);
+								}
 								++index;
 							}
 							++zAxis;
@@ -313,7 +324,7 @@ public class VerticalMover implements BlockMover
 	
 	private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
 	{		
-		CustomCraftFallingBlock_Vall entity = this.fabf.fallingBlockFactory(loc, block, matData, mat);
+		CustomCraftFallingBlock_Vall entity = this.fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
 		Entity bukkitEntity = (Entity) entity;
 		bukkitEntity.setCustomName("BigDoorsEntity");
 		bukkitEntity.setCustomNameVisible(false);

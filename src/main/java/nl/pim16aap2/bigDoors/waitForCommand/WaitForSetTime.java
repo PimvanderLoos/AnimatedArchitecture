@@ -55,15 +55,16 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 			}
 			catch (Exception e) 
 			{
-				Util.messagePlayer(player, Messages.getString("GUI.InvalidCloseTimerValue"));
+				Util.messagePlayer(player, plugin.getMessages().getString("GUI.InvalidCloseTimerValue"));
 			}
 		}
 		return false;
 	}
 	
 	@Override
-	public void abort()
+	public void abort(boolean onDisable)
 	{
-		plugin.removeCommandWaiter(this);
+		if (!onDisable)
+			plugin.removeCommandWaiter(this);
 	}
 }

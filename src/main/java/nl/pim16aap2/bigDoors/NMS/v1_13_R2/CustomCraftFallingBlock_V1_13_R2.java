@@ -62,24 +62,24 @@ public class CustomCraftFallingBlock_V1_13_R2 extends CraftEntity implements Fal
 
     public boolean getDropItem() 
     {
-        return getHandle().dropItem;
+        return false;
     }
 
     public void setDropItem(boolean drop) 
     {
-        getHandle().dropItem = drop;
+        getHandle().dropItem = false;
     }
 
     @Override
     public boolean canHurtEntities() 
     {
-        return getHandle().hurtEntities;
+        return false;
     }
 
     @Override
     public void setHurtEntities(boolean hurtEntities) 
     {
-        getHandle().hurtEntities = hurtEntities;
+        getHandle().hurtEntities = false;
     }
 
     @Override

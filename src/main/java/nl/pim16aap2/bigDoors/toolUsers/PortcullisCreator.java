@@ -1,9 +1,6 @@
 package nl.pim16aap2.bigDoors.toolUsers;
 
-import java.util.logging.Level;
-
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.ChatColor;
@@ -88,17 +85,6 @@ public class PortcullisCreator extends ToolUser
 			minMaxFix();
 			setEngine();
 			setIsDone(true);
-		}
-	}
-	
-	@Override
-	public void abort()
-	{
-		if (!this.done)
-		{
-			this.takeToolFromPlayer();
-			plugin.removeToolUser(this);
-			plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
 		}
 	}
 }

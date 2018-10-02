@@ -1,16 +1,19 @@
 package nl.pim16aap2.bigDoors.toolUsers;
 
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.Abortable;
@@ -152,6 +155,19 @@ public abstract class ToolUser implements Abortable
 		{
 			triggerFinishUp();
 			plugin.getToolUsers().remove(this);
+		}
+	}
+
+	@Override
+	public void abort(boolean onDisable)
+	{
+		this.takeToolFromPlayer();
+		if (onDisable)
+			return;
+		if (!this.done)
+		{
+			plugin.removeToolUser(this);
+			plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
 		}
 	}
 }

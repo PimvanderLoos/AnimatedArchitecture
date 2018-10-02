@@ -2,12 +2,17 @@ package nl.pim16aap2.bigDoors.NMS.v1_13_R2;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.google.common.collect.Lists;
 
+import net.minecraft.server.v1_13_R2.AxisAlignedBB;
 import net.minecraft.server.v1_13_R2.Block;
 import net.minecraft.server.v1_13_R2.BlockAnvil;
 import net.minecraft.server.v1_13_R2.BlockConcretePowder;
@@ -21,6 +26,8 @@ import net.minecraft.server.v1_13_R2.DataWatcherObject;
 import net.minecraft.server.v1_13_R2.DataWatcherRegistry;
 import net.minecraft.server.v1_13_R2.Entity;
 import net.minecraft.server.v1_13_R2.EntityFallingBlock;
+import net.minecraft.server.v1_13_R2.EntityPlayer;
+import net.minecraft.server.v1_13_R2.EnumDirection;
 import net.minecraft.server.v1_13_R2.EnumMoveType;
 import net.minecraft.server.v1_13_R2.FluidCollisionOption;
 import net.minecraft.server.v1_13_R2.GameProfileSerializer;
@@ -35,6 +42,7 @@ import net.minecraft.server.v1_13_R2.TagsBlock;
 import net.minecraft.server.v1_13_R2.TagsFluid;
 import net.minecraft.server.v1_13_R2.TileEntity;
 import net.minecraft.server.v1_13_R2.Vec3D;
+import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock_Vall;
 
 /*
@@ -59,10 +67,12 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 	public NBTTagCompound tileEntityData;
 	protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class, DataWatcherRegistry.l);
 	private org.bukkit.World bukkitWorld;
+	private BigDoors plugin;
 
-	public CustomEntityFallingBlock_V1_13_R2(org.bukkit.World world, double d0, double d1, double d2, IBlockData iblockdata)
+	public CustomEntityFallingBlock_V1_13_R2(BigDoors plugin, org.bukkit.World world, double d0, double d1, double d2, IBlockData iblockdata)
 	{
 		super(((CraftWorld) world).getHandle());
+		this.plugin = plugin;
 		this.bukkitWorld = world;
 		this.block = iblockdata;
 		this.j = true;
@@ -81,6 +91,40 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 		this.lastZ = d2;
 		this.a(new BlockPosition(this));
 		spawn();
+	}
+	
+	@Override
+	public void die()
+	{
+		// This part doesn't really work as well as I'd hoped.
+		// The added velocity needs to depend on block speed.
+		AxisAlignedBB Oldbb = this.getBoundingBox();
+		AxisAlignedBB bb = new AxisAlignedBB(Oldbb.a, Oldbb.b, Oldbb.c, Oldbb.d, Oldbb.e + 0.2, Oldbb.f);
+		
+		List<Entity> list = this.world.getEntities(this, bb);
+		if (!list.isEmpty())
+		{
+			Iterator<Entity> iterator = list.iterator();
+			while (iterator.hasNext())
+			{
+				Entity entity = (Entity) iterator.next();
+				if (entity instanceof EntityPlayer)
+				{
+//					entity.getBukkitEntity().teleport(new Location(bukkitWorld, entity.locX, (int) (bb.e + 0.1) + 1, entity.locZ));
+					Bukkit.broadcastMessage("FBMoty = " + this.motY + ", playerMotY = " + 
+							entity.motY + ", new motY = " + (entity.motY + Math.abs(this.motY) * 1.1));
+					entity.motY += Math.abs(this.motY) * 1.1;
+					entity.velocityChanged = true;
+				}
+			}
+		}
+		
+		for (Entity ent : this.passengers)
+		{
+			ent.dead = true;
+		}
+		
+		this.dead = true;
 	}
 	
 	public void spawn()
@@ -117,6 +161,80 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 	{
 		return !this.dead;
 	}
+	
+	private List<Entity> getFallingBlocksOnSide(AxisAlignedBB bb, EnumDirection dir)
+	{
+		/** AxisAlignedBB:
+		 *  a/d = min/max x
+		 *  b/e = min/max y
+		 *  c/f = min/max z
+		**/
+		double minX = bb.a;
+		double minY = bb.b;
+		double minZ = bb.c;
+		double maxX = bb.d;
+		double maxY = bb.e;
+		double maxZ = bb.f;
+		switch(dir)
+		{
+		case DOWN:
+            minY -= 1;
+            maxY -= 1;
+            break;
+
+        case UP:
+            minY += 1;
+            maxY += 1;
+            break;
+
+        case NORTH:
+            minZ -= 1;
+            maxZ -= 1;
+            break;
+
+        case SOUTH:
+            minZ += 1;
+            maxZ += 1;
+            break;
+
+        case WEST:
+            minX -= 1;
+            maxX -= 1;
+            break;
+
+        case EAST:
+            minX += 1;
+            maxX += 1;
+		}
+
+		AxisAlignedBB newBB = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+		List<Entity> list   = this.world.getEntities(this, newBB);
+		List<Entity> ret    = Lists.newArrayList();
+		if (!list.isEmpty())
+		{
+			Iterator<Entity> iterator = list.iterator();
+			while (iterator.hasNext())
+			{
+				Entity entity = (Entity) iterator.next();
+				if (entity instanceof CustomEntityFallingBlock_V1_13_R2)
+					ret.add(entity);
+			}
+		}
+		return ret;
+	}
+	
+	private void disableGravity(CraftPlayer player)
+	{
+		player.setGravity(false);
+		new BukkitRunnable()
+		{
+			@Override
+			public void run()
+			{
+				player.setGravity(true);
+			}
+		}.runTaskLater(plugin, 20);
+	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
@@ -148,11 +266,12 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 			if (!this.world.isClientSide)
 			{
 				blockposition = new BlockPosition(this);
-				boolean flag = this.block.getBlock() instanceof BlockConcretePowder;
-				boolean flag1 = flag && this.world.b(blockposition).a(TagsFluid.WATER);
+				boolean isConcretePowder = this.block.getBlock() instanceof BlockConcretePowder;
+				// TODO: Look into this. Is this really needed? Might it interfere??
+				boolean flag1 = isConcretePowder && this.world.b(blockposition).a(TagsFluid.WATER); // Concrete in powder?
 				double d0 = this.motX * this.motX + this.motY * this.motY + this.motZ * this.motZ;
 
-				if (flag && d0 > 1.0D)
+				if (isConcretePowder && d0 > 1.0D)
 				{
 					MovingObjectPosition movingobjectposition = this.world.rayTrace(new Vec3D(this.lastX, this.lastY, this.lastZ), new Vec3D(this.locX, this.locY, this.locZ), FluidCollisionOption.SOURCE_ONLY);
 					if (movingobjectposition != null && this.world.b(movingobjectposition.a()).a(TagsFluid.WATER))
@@ -239,6 +358,161 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 //			this.motY  = 1.0D;
 			this.motZ *= 0.9800000190734863D;
 		}
+		
+//		{
+//			AxisAlignedBB Oldbb = this.getBoundingBox();
+//			AxisAlignedBB bb = new AxisAlignedBB(Oldbb.a, Oldbb.b, Oldbb.c, Oldbb.d, Oldbb.e + 0.2, Oldbb.f);
+//			
+//			List list = this.world.getEntities(this, bb);
+//			if (!list.isEmpty())
+//			{
+//				Iterator iterator = list.iterator();
+//				while (iterator.hasNext())
+//				{
+//					Entity entity = (Entity) iterator.next();
+//					
+//					if (entity instanceof EntityPlayer)
+//					{
+//						EntityPlayer player = (EntityPlayer) entity;
+//						
+//						// 0.5D Should not be added here, as the BoundingBox does not include those either, it seems.
+//						double elocX = entity.locX;
+//						double elocY = entity.locY;
+//						double elocZ = entity.locZ; 
+//						
+//						double bbMinX = bb.a;
+//						double bbMinY = bb.b;
+//						double bbMinZ = bb.c;
+//						double bbMaxX = bb.d;
+//						double bbMaxY = bb.e;
+//						double bbMaxZ = bb.f;
+//						
+//						double d0 = 0, d1 = 0, d2 = 0;
+//						
+//						boolean inX = elocX < bbMaxX && elocX > bbMinX;
+//						boolean inY = elocX < bbMaxX && elocX > bbMinX;
+//						boolean inZ = elocZ < bbMaxZ && elocZ > bbMinZ;
+//						
+//						// TODO: Give this thing a sense of unity.
+//						// Check for nearby blocks and their position, so players aren't pushed into other blocks.
+//						// Or maybe use a single (custom) bounding box for the entire door?
+//						// Maybe make the player ride an armorstand and make that move properly?
+//						if (getFallingBlocksOnSide(bb, EnumDirection.UP).size() == 0 || 1 == 1)
+//						{
+//							disableGravity(player.getBukkitEntity());
+//							
+//							double diff    = bb.e - (elocY - 0.1);
+//							diff = diff > 0 ? diff : 0;
+//							diff /= 10;
+//							double matchFB = (this.motY > 0 ? this.motY : -0.05) * 1.01;
+//							double currVel = entity.motY > 0 ? entity.motY : 0;
+//	
+//							double yVelocity = (diff + matchFB + currVel);
+//							
+//							if (Math.abs(yVelocity) > Math.abs(this.motY) * 1.1)
+//								yVelocity = this.motY * 1.1;
+//							
+//							player.setAirTicks(0);
+//							player.fallDistance = 0;
+//							player.onGround = true;
+//							d1 = yVelocity;
+//						}
+//	//					else
+//	//					{
+//	//						if (inX)
+//	//							d0 = Math.abs(elocX - bbMaxX) > Math.abs(elocX - bbMinX) ?
+//	//									elocX - bbMaxX : elocX - bbMinX;
+//	//						if (inZ)
+//	//							d2 = Math.abs(elocZ - bbMaxZ) > Math.abs(elocZ - bbMinZ) ?
+//	//									elocZ - bbMaxZ : elocZ - bbMinZ;
+//	//					}
+//						player.motX += d0/10;
+//						player.motY  = d1;
+//						player.motZ += d2/10;
+//						player.velocityChanged = true;
+//					}
+//				}
+//			}
+//		}
+		
+		
+//		{
+//		AxisAlignedBB Oldbb = this.getBoundingBox();
+//		AxisAlignedBB bb = new AxisAlignedBB(Oldbb.a, Oldbb.b, Oldbb.c, Oldbb.d, Oldbb.e + 0.2, Oldbb.f);
+//		
+//		List list = this.world.getEntities(this, bb);
+//		if (!list.isEmpty())
+//		{
+//			Iterator iterator = list.iterator();
+//			while (iterator.hasNext())
+//			{
+//				Entity entity = (Entity) iterator.next();
+//				
+//				if (entity instanceof EntityPlayer)
+//				{
+//					EntityPlayer player = (EntityPlayer) entity;
+//					// 0.5D Should not be added here, as the BoundingBox does not include those either, it seems.
+//					double elocX = entity.locX;
+//					double elocY = entity.locY;
+//					double elocZ = entity.locZ; 
+//					
+//					double bbMinX = bb.a;
+//					double bbMinY = bb.b;
+//					double bbMinZ = bb.c;
+//					double bbMaxX = bb.d;
+//					double bbMaxY = bb.e;
+//					double bbMaxZ = bb.f;
+//					
+//					double d0 = 0, d1 = 0, d2 = 0;
+//					
+//					boolean inX = elocX < bbMaxX && elocX > bbMinX;
+//					boolean inY = elocX < bbMaxX && elocX > bbMinX;
+//					boolean inZ = elocZ < bbMaxZ && elocZ > bbMinZ;
+//					
+//					// TODO: Give this thing a sense of unity.
+//					// Check for nearby blocks and their position, so players aren't pushed into other blocks.
+//					// Or maybe use a single (custom) bounding box for the entire door?
+//					// Maybe make the player ride an armorstand and make that move properly?
+//					if (getFallingBlocksOnSide(bb, EnumDirection.UP).size() == 0)
+//					{
+//						disableGravity(player.getBukkitEntity());
+//						
+//						double diff    = bb.e - (elocY - 0.1);
+//						diff = diff > 0 ? diff : 0;
+//						diff /= 10;
+//						double matchFB = (this.motY > 0 ? this.motY : -0.05) * 1.01;
+//						double currVel = entity.motY > 0 ? entity.motY : 0;
+//
+//						double yVelocity = (diff + matchFB + currVel);
+//						
+//						if (Math.abs(yVelocity) > Math.abs(this.motY) * 1.1)
+//							yVelocity = this.motY * 1.1;
+//						
+//						player.setAirTicks(0);
+//						player.fallDistance = 0;
+//						player.onGround = true;
+////						player.motY = yVelocity;
+////						player.velocityChanged = true;
+//						d1 = yVelocity;
+//					}
+////					else
+////					{
+////						if (inX)
+////							d0 = Math.abs(elocX - bbMaxX) > Math.abs(elocX - bbMinX) ?
+////									elocX - bbMaxX : elocX - bbMinX;
+////						if (inZ)
+////							d2 = Math.abs(elocZ - bbMaxZ) > Math.abs(elocZ - bbMinZ) ?
+////									elocZ - bbMaxZ : elocZ - bbMinZ;
+////					}
+//					player.motX += d0/10;
+//					player.motY  = d1;
+//					player.motZ += d2/10;
+//					player.velocityChanged = true;
+//				}
+//			}
+//		}
+//	}
+		
 	}
 
 	@SuppressWarnings("rawtypes")

@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.7.1
+version: Alpha 0.1.7.2
 author: Pim
 api-version: 1.13
 commands:
@@ -75,11 +75,6 @@ commands:
     usage: /OpenDoor <doorName || doorID> [time to open (decimal!)]
     permission: bigdoors.user.toggledoor
     permission-message: You do not have the bigdoors.user.toggledoor permission node.
-  opendoors:
-    description: Open the doors with name "doorName1" and "doorName2".
-    usage: /OpenDoors <doorName1 || doorID1> <doorName2 || doorID2> ... [time to open (decimal!)]
-    permission: bigdoors.user.opendoors
-    permission-message: You do not have the bigdoors.user.opendoor permission node.
   listdoors:
     description: Returns a list of all your doors.
     usage: /ListDoors [name]

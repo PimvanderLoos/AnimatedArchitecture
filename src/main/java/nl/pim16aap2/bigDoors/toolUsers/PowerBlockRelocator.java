@@ -1,14 +1,9 @@
 package nl.pim16aap2.bigDoors.toolUsers;
 
-import java.util.logging.Level;
-
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class PowerBlockRelocator extends ToolUser
@@ -57,16 +52,5 @@ public class PowerBlockRelocator extends ToolUser
 	protected boolean isReadyToCreateDoor()
 	{
 		return false;
-	}
-	
-	@Override
-	public void abort()
-	{
-		if (!this.done)
-		{
-			this.takeToolFromPlayer();
-			plugin.removeToolUser(this);
-			plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
-		}
 	}
 }

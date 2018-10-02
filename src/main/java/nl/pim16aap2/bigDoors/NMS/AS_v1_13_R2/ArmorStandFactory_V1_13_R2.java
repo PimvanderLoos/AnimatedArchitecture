@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors.NMS.AS_v1_12_R1;
+package nl.pim16aap2.bigDoors.NMS.AS_v1_13_R2;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,20 +13,20 @@ import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 
-public class ArmorStandFactory_V1_12_R1 implements FallingBlockFactory_Vall
+public class ArmorStandFactory_V1_13_R2 implements FallingBlockFactory_Vall
 {
 
 	@Override
 	public CustomCraftFallingBlock_Vall fallingBlockFactory(BigDoors plugin, Location loc, NMSBlock_Vall block, byte matData, Material mat)
 	{
 		loc.setY(loc.getY() - 1);
-		NoClipArmorStand_V1_12_R1 noClipArmorStandTemp = new NoClipArmorStand_V1_12_R1((org.bukkit.craftbukkit.v1_12_R1.CraftWorld) loc.getWorld(), loc);
-		((org.bukkit.craftbukkit.v1_12_R1.CraftWorld) loc.getWorld()).getHandle().addEntity(noClipArmorStandTemp, SpawnReason.CUSTOM);
+		NoClipArmorStand_V1_13_R2 noClipArmorStandTemp = new NoClipArmorStand_V1_13_R2((org.bukkit.craftbukkit.v1_13_R2.CraftWorld) loc.getWorld(), loc);
+		((org.bukkit.craftbukkit.v1_13_R2.CraftWorld) loc.getWorld()).getHandle().addEntity(noClipArmorStandTemp, SpawnReason.CUSTOM);
 
 		noClipArmorStandTemp.setInvisible(true);
 		noClipArmorStandTemp.setSmall(false);
 
-		CraftArmorStand_V1_12_R1 noClipArmorStand = new CraftArmorStand_V1_12_R1((org.bukkit.craftbukkit.v1_12_R1.CraftServer) (Bukkit.getServer()), noClipArmorStandTemp);
+		CraftArmorStand_V1_13_R2 noClipArmorStand = new CraftArmorStand_V1_13_R2((org.bukkit.craftbukkit.v1_13_R2.CraftServer) (Bukkit.getServer()), noClipArmorStandTemp);
 
 		noClipArmorStand.setVelocity  (new Vector(0, 0, 0));
 		noClipArmorStand.setCollidable(false);

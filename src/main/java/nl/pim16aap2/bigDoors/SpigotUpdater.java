@@ -17,9 +17,9 @@ public class SpigotUpdater
 
 	public SpigotUpdater(JavaPlugin plugin, int projectID)
 	{
-		this.plugin = plugin;
+		this.plugin     = plugin;
 		this.newVersion = plugin.getDescription().getVersion();
-		this.project = projectID;
+		this.project    = projectID;
 		try
 		{
 			this.checkURL = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + projectID);

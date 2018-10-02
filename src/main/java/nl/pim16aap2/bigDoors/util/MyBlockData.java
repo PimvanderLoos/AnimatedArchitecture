@@ -28,6 +28,12 @@ public class MyBlockData
 		this.matData   = matData;
 		this.blockByte = blockByte;
 	}
+	
+	public MyBlockData(Material mat)
+	{
+		this.mat  = mat;
+		this.canRot = 0;
+	}
 
 	public void setFBlock(CustomCraftFallingBlock_Vall block)	{	this.fBlock = block;			}
 	public CustomCraftFallingBlock_Vall getFBlock()    		{	return this.fBlock;			}

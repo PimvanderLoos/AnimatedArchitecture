@@ -1,13 +1,9 @@
 package nl.pim16aap2.bigDoors.toolUsers;
 
-import java.util.logging.Level;
-
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorType;
@@ -212,7 +208,6 @@ public class DrawbridgeCreator extends ToolUser
 				// If the engine side was found, print finish message.
 				if (this.engineSide != null)
 				{
-//					Util.messagePlayer(player, messages.getString("DC.StepDraw3a"));
 					drawBridgeEngineFix();
 					setIsDone(true);
 				}
@@ -228,7 +223,6 @@ public class DrawbridgeCreator extends ToolUser
 		{
 			if (isEngineValid(loc))
 			{
-//				Util.messagePlayer(player, messages.getString("DC.StepDraw4"));
 				drawBridgeEngineFix();
 				setIsDone(true);
 			}
@@ -237,16 +231,5 @@ public class DrawbridgeCreator extends ToolUser
 		}
 		else
 			setIsDone(true);
-	}
-	
-	@Override
-	public void abort()
-	{
-		if (!this.done)
-		{
-			this.takeToolFromPlayer();
-			plugin.removeToolUser(this);
-			plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
-		}
 	}
 }

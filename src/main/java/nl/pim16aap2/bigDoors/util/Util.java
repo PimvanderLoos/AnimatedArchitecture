@@ -31,8 +31,6 @@ public final class Util
 		return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
 	}
 	
-
-	
 	public static String nameFromUUID(UUID playerUUID)
 	{
 		if (playerUUID == null)
@@ -246,9 +244,7 @@ public final class Util
 	{
 		XMaterial xmat = XMaterial.fromString(mat.toString());
 		if (xmat.equals(XMaterial.ACACIA_LOG)             || xmat.equals(XMaterial.BIRCH_LOG)           || xmat.equals(XMaterial.DARK_OAK_LOG)       || 
-			xmat.equals(XMaterial.JUNGLE_LOG)             || xmat.equals(XMaterial.OAK_LOG)             || xmat.equals(XMaterial.SPRUCE_LOG)         || 
-			xmat.equals(XMaterial.STRIPPED_ACACIA_LOG)    || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG)  || xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG)|| 
-			xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG)  || xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG))
+			xmat.equals(XMaterial.JUNGLE_LOG)             || xmat.equals(XMaterial.OAK_LOG)             || xmat.equals(XMaterial.SPRUCE_LOG))
 			return 1;
 		if (xmat.equals(XMaterial.ACACIA_STAIRS)          || xmat.equals(XMaterial.BIRCH_STAIRS)        || xmat.equals(XMaterial.BRICK_STAIRS)       || 
 			xmat.equals(XMaterial.COBBLESTONE_STAIRS)     || xmat.equals(XMaterial.DARK_OAK_STAIRS)     || xmat.equals(XMaterial.JUNGLE_STAIRS)      || 
@@ -276,6 +272,9 @@ public final class Util
 			return 4;
 		if (xmat.equals(XMaterial.COBBLESTONE_WALL))
 			return 5;
+		if (	xmat.equals(XMaterial.STRIPPED_ACACIA_LOG)    || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG)  || xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG)|| 
+			xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG)  || xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG))
+			return 6;
 		return 0;
 	}
 	

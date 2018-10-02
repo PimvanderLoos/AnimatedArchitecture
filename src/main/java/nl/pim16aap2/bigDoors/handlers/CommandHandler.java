@@ -215,7 +215,7 @@ public class CommandHandler implements CommandExecutor
 			@Override
 			public void run()
 			{
-				abortable.abort();
+				abortable.abort(false);
 			}
 		}.runTaskLater(plugin, time);
 	}

@@ -1,22 +1,18 @@
 package nl.pim16aap2.bigDoors.toolUsers;
 
-import java.util.logging.Level;
-
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Util;
 
-/*
+/**
  * This class represents players in the process of creating doors.
  * Objects of this class are instantiated when the createdoor command is used and they are destroyed after
  * The creation process has been completed successfully or the timer ran out. In EventHandlers this class is used 
  * To check whether a user that is left-clicking is a DoorCreator && tell this class a left-click happened.
- */
+ **/
 public class DoorCreator extends ToolUser
 {
 	public DoorCreator(BigDoors plugin, Player player, String name) 
@@ -110,7 +106,6 @@ public class DoorCreator extends ToolUser
 			{
 				engine = loc;
 				engine.setY(one.getY());
-//				Util.messagePlayer(player, messages.getString("CREATOR.DOOR.StepDoor3"));
 				setIsDone(true);
 				engine.setY(one.getBlockY());
 			}
@@ -119,16 +114,5 @@ public class DoorCreator extends ToolUser
 		}
 		else
 			setIsDone(true);
-	}
-	
-	@Override
-	public void abort()
-	{
-		if (!this.done)
-		{
-			this.takeToolFromPlayer();
-			plugin.removeToolUser(this);
-			plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));
-		}
 	}
 }
