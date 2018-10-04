@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.AS_v1_12_R1.ArmorStandFactory_V1_12_R1;
@@ -20,7 +19,6 @@ import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
-import nl.pim16aap2.bigDoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
 import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
@@ -44,8 +42,8 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Store starting x,z values in savedBlocks, then make putblocks etc part of abstact class.
 // TODO: Add success message for changing door opendirection.
 // TODO: Add delay to update found message, so it's at the bottom of the console on startup.
-// TODO: 
 
+// TODO: Maybe use custom ticker for player related stuff. Override their ticking stuff and nullify all the regular values.
 /* TODO: Look into this interesting method in NMS.Block:
  
  	public void fallOn(World world, BlockPosition blockposition, Entity entity, float f) 
@@ -60,7 +58,6 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
  * 
  * It looks like you might be able to possibly register a blockposition as solid there. Maybe.
  */
-
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -119,9 +116,7 @@ public class BigDoors extends JavaPlugin implements Listener
 		blockMovers      = new Vector<BlockMover>(2);
 		cmdWaiters       = new Vector<WaitForCommand>(2);
 
-		
 		playersOnFBlocks = new Vector<Player>(2);
-		
 		
 		this.db          = new SQLiteJDBCDriverConnection(this, config.getString("dbFile"));
 		this.tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
@@ -165,39 +160,8 @@ public class BigDoors extends JavaPlugin implements Listener
 		
 		if (config.getBool("checkForUpdates"))
 		{
-			// Check for updates in a new thread, so the server won't hang when it cannot contact the update servers.
-			Thread thread = new Thread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					BigDoors plugin = getPlugin();
-				    SpigotUpdater updater = new SpigotUpdater(plugin, 58669);
-				    try 
-				    {
-				        if (updater.checkForUpdates())
-				        {				            
-				        	Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(plugin, "The BigDoors plugin is out of date. Found: "  + 
-				        									updater.getLatestVersion() + ", Currently running: " + plugin.getDescription().getVersion()), plugin);
-							new BukkitRunnable()
-							{
-								@Override
-								public void run()
-								{
-						            getLogger().info("An update was found! New version: " + updater.getLatestVersion() + " download: " + updater.getResourceURL() +
-						            					", Currently running: " + plugin.getDescription().getVersion());
-								}
-							}.runTaskLater(getPlugin(), 100);
-				        }
-				    }
-				    catch (Exception exc) 
-				    {
-				    		getMyLogger().logMessage("Could not check for updates! Send this to pim16aap2: \n" + exc.getStackTrace().toString(), true, false);
-				    }
-				}
-		
-			});
-			thread.start();
+			BigDoors plugin = getPlugin();
+		    new SpigotUpdater(plugin, 58669);
 		}
 	}
 	

@@ -2,8 +2,6 @@ package nl.pim16aap2.bigDoors.waitForCommand;
 
 import org.bukkit.entity.Player;
 
-import com.mysql.jdbc.Messages;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.Util;

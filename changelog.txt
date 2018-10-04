@@ -1,3 +1,5 @@
+Alpha 0.1.7.3
+
 Alpha 0.1.7.2
 - Fixed NPE when air blocks are used in a door of any type. Thanks, @MrEMan for the bug report!
 - Fixed stripped logs in 1.13.* not being rotated when placed. They still won't rotate mid-animation, though. Thanks, @MrEMan for the bug report!
@@ -5,7 +7,6 @@ Alpha 0.1.7.2
 
 Alpha 0.1.7.1
 - Fixed Door creation process (all types). Thanks, @WHiZSTA for helping me figure out what was going on!
-- Doors can now be added to the database again.
 - Each door type now has its own door item type in GUI. No longer randomly assigned. Thanks, @WHiZSTA for the suggestion!
 - Added success messages for changing auto close timer. Thanks, @WHiZSTA, again :D
 - Auto-close timer now overrides door availability status (cooldown). Again, thanks @WHiZSTA. :D

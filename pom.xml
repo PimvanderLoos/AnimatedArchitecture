@@ -2,8 +2,8 @@
   	<modelVersion>4.0.0</modelVersion>
   	<groupId>nl.pim16aap2</groupId>
   	<artifactId>BigDoors</artifactId>
-  	<version>0.1.7.2-ALPHA</version>
-	
+  	<version>0.1.7.3-ALPHA</version>
+  	
 	<repositories>
 		<!-- Spigot -->
 		<repository>
@@ -43,14 +43,14 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!--bStats -->
+		<!-- bStats -->
 		<dependency>
 			<groupId>org.bstats</groupId>
 			<artifactId>bstats-bukkit</artifactId>
 			<version>1.2</version>
 		</dependency>
 	</dependencies>
-
+	
 	<build>
 		<plugins>
 			<plugin>

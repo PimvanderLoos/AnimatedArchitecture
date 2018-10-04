@@ -26,6 +26,7 @@ public class ConfigLoader
 	private String     resourcePack;
 	private String     languageFile;
 	private int        maxDoorCount;
+	private boolean    autoDLUpdate;
 	private boolean  enableRedstone;
 	private String   powerBlockType;
 	private boolean checkForUpdates;
@@ -69,9 +70,13 @@ public class ConfigLoader
 			{
 				"Pick the name (and location if you want) of the database."	
 			};
-	    String[] checkForUpdatesComment 	= 
+		String[] checkForUpdatesComment 	= 
 			{
-				"Allow this plugin to check for updates on startup. It will not download new versions!"
+					"Allow this plugin to check for updates on startup. It will not download new versions!"
+			};
+	    String[] autoDLUpdateComment 	= 
+			{
+				"Allow this plugin to automatically download new updates. They will be applied on restart."
 			};
 	    String[] allowStatsComment      	= 
 	    		{
@@ -120,6 +125,8 @@ public class ConfigLoader
 		configOptionsList.add(new ConfigOption( "dbFile"          , dbFile          , dbFileComment         ));
 		checkForUpdates  = config.getBoolean(   "checkForUpdates" , true             );
 		configOptionsList.add(new ConfigOption( "checkForUpdates" , checkForUpdates , checkForUpdatesComment));
+		autoDLUpdate     = config.getBoolean(   "auto-update"     , true             );
+		configOptionsList.add(new ConfigOption( "auto-update"     , autoDLUpdate    , autoDLUpdateComment   ));
 		allowStats       = config.getBoolean(   "allowStats"      , true             );
 		configOptionsList.add(new ConfigOption( "allowStats"      , allowStats      , allowStatsComment     ));
 		maxDoorSize      = config.getInt       ("maxDoorSize"     , -1               );

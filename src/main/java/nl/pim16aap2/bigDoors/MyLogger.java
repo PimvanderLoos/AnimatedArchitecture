@@ -115,4 +115,14 @@ public class MyLogger
 	{
 		debugMsg(0, lvl, msg);
 	}
+
+	public void info(String str)
+	{
+		this.myLogger(Level.INFO, str);
+	}
+	
+	public void warn(String str)
+	{
+		this.myLogger(Level.WARNING, str);
+	}
 }
