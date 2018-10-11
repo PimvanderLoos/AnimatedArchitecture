@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
 
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
@@ -18,15 +19,18 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
-import nl.pim16aap2.bigDoors.handlers.LoginMessageHandler;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class SpigotUpdater
 {
-    final static String VERSION_URL = "https://api.spiget.org/v2/resources/58669/versions?size=" + Integer.MAX_VALUE + "&spiget__ua=SpigetDocs";
-    final static String INFO_URL    = "https://api.spiget.org/v2/resources/58669";
-	private int project             = 0;
-	private String newVersion       = "";
-	private boolean alreadyChecked  = false;
+    final static String DOWNLOAD_URL = "https://api.spiget.org/v2/resources/58669/versions/";
+	final static String VERSIONS_URL = "https://api.spiget.org/v2/resources/58669/versions?size=" + Integer.MAX_VALUE + "&spiget__ua=SpigetDocs";
+	final static String INFO_URL     = "https://api.spiget.org/v2/resources/58669";
+	private int project              = 0;
+	private int versionsAgo          = 0;
+	private String newVersion        = "";
+	private int newVersionID         = -1;
+	private boolean success          = false;
 	private BigDoors plugin;
 
 	public SpigotUpdater(BigDoors plugin, int projectID)
@@ -34,30 +38,35 @@ public class SpigotUpdater
 		this.plugin     = plugin;
 		this.newVersion = plugin.getDescription().getVersion();
 		this.project    = projectID;
-		
+
 		new BukkitRunnable()
 		{
 			@Override
 			public void run()
 			{
 				try 
-			    {	// Check for updates, download them if allowed, otherwise inform where to dl it manually.
-			        if (!alreadyChecked && checkForUpdates())
+			    {
+					// Check for updates, download them if allowed, otherwise inform where to dl it manually.
+			        if (newerVersionAvailable())
 			        {
-			        		alreadyChecked = true;
-			        		Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(plugin, "The BigDoors plugin is out of date. Found: "  + 
-		        			getLatestVersion() + ", Currently running: " + plugin.getDescription().getVersion()), plugin);
-			        		if (!plugin.getConfigLoader().getBool("auto-update"))
+			        		if (!plugin.getConfigLoader().getBool("auto-update") || versionsAgo > 1)
+			        		{
 			        			 plugin.getLogger().info("An update was found! New version: " + getLatestVersion() + " download: " + getResourceURL() +
-			        	                                 ", Currently running: " + plugin.getDescription().getVersion());
+			        					 ", Currently running: " + plugin.getDescription().getVersion());
+			        			 plugin.setLoginString("The BigDoors plugin is out of date. Found: " + 
+			        					 getLatestVersion() + ", Currently running: " + plugin.getDescription().getVersion());
+			        		}
+			        		else if (success)
+			        			plugin.setLoginString("Update for BigDoors has been downloaded! Restart to apply it!");
 			        }
 			    }
 			    catch (Exception exc) 
 			    {
-			    		plugin.getMyLogger().logMessage("Could not check for updates! Send this to pim16aap2: \n" + exc.getStackTrace().toString(), true, false);
+			    		plugin.getMyLogger().logMessage("Could not check for updates! Send this to pim16aap2: \n" + Util.exceptionToString(exc), true, false);
+			    		exc.printStackTrace();
 			    }
 			}
-		}.runTaskTimer(plugin, 100, 12000);
+		}.runTaskTimerAsynchronously(plugin, 50, 36000);
 	}
 
 	public int getProjectID()
@@ -79,61 +88,126 @@ public class SpigotUpdater
 	{
 		return "https://www.spigotmc.org/resources/" + project;
 	}
-
-	public boolean checkForUpdates() throws Exception
+	
+	private int getAge(long updateTime)
 	{
-		this.newVersion = getNewVersion();
-		boolean isLatestVersion = plugin.getDescription().getVersion().equals(newVersion);
+		long currentTime   = Instant.now().getEpochSecond();
+		return (int) (currentTime - updateTime);
+	}
+	
+	// Get update history. Then go through all of them until on is found that is both newer than the current version
+	// And old enough that it's allowed to be downloaded (as set in the config file).
+	private boolean getNewVersion() throws MalformedURLException, ParseException, IOException
+	{
+		int MIN_AGE = plugin.getConfigLoader().getInt("downloadDelay") * 60;
+		int age = -1000; // Default 1 second, so 0 or negative seconds = don't wait.
+		JSONArray versionsArray = (JSONArray) JSONValue.parseWithException(IOUtils.toString(new URL(String.valueOf(VERSIONS_URL))));
+		int count = 0;
+		this.newVersion   = "";
+		this.newVersionID = -1;
+		this.versionsAgo  = 0;
+		if (MIN_AGE > 0)
+		{
+			while (age < MIN_AGE && count < versionsArray.size())
+			{
+				++count;
+				String versionName = ((JSONObject) versionsArray.get(versionsArray.size() - count)).get("name").toString();
+				if (plugin.getDescription().getVersion().equals(versionName))
+					return false;
+				age = getAge(Long.parseLong(((JSONObject) versionsArray.get(versionsArray.size() - count)).get("releaseDate").toString()));
+			}
+		}
+		else
+			++count;
+		if (versionsArray.size() != count)
+		{
+			this.versionsAgo  = count;
+			this.newVersion   = ((JSONObject) versionsArray.get(versionsArray.size() - count)).get("name").toString();
+			this.newVersionID = Integer.parseInt(((JSONObject) versionsArray.get(versionsArray.size() - count)).get("id").toString());
+		}
+		return true;
+	}
+	
+	public boolean newerVersionAvailable() throws Exception
+	{
+		if (!getNewVersion())
+			return false;
+		boolean isLatestVersion = plugin.getDescription().getVersion().equals(this.newVersion);
 		if (!isLatestVersion && plugin.getConfigLoader().getBool("auto-update"))
 			runUpdate();
 		return !isLatestVersion;
 	}
 	
-	private String getNewVersion() throws MalformedURLException, ParseException, IOException
+	private URL getLatestAllowedURL() throws MalformedURLException
 	{
-		JSONArray versionsArray = (JSONArray) JSONValue.parseWithException(IOUtils.toString(new URL(String.valueOf(VERSION_URL))));
-		return ((JSONObject) versionsArray.get(versionsArray.size() - 1)).get("name").toString();
+//		return new URL(DOWNLOAD_URL + this.newVersionID + "/download");
+//		return this.versionsAgo == 1 ? new URL(SpigotUpdater.INFO_URL + "/download") : null;
+		return new URL(SpigotUpdater.INFO_URL + "/download");
 	}
 	
 	private void runUpdate()
 	{
-		plugin.getMyLogger().info("Attempting to download update now!");
 		try
 		{
-			URL dlURL = new URL(INFO_URL + "/download");
+			URL dlURL = getLatestAllowedURL();
+			if (this.versionsAgo > 1)
+			{
+				this.success = false;
+				plugin.getMyLogger().logMessage("Update available! (" + this.newVersion + ", current version = " + plugin.getDescription().getVersion() + ")\n"
+						+ "Cannot be downloaded automatically, as it is not the most recent version (the config doesn't allow me to download that!).\n"
+						+ "You can download it manually at: " + (SpigotUpdater.DOWNLOAD_URL + this.newVersionID + "/download"), true, false);
+				return;
+			}
 			File updateFolder = Bukkit.getUpdateFolderFile();
 			if (!updateFolder.exists()) 
 				if (!updateFolder.mkdirs()) 
-					return; // TODO: Use a proper solution;
-
+					throw new RuntimeException("Failed to create update folder!");
 			
-            HttpURLConnection httpConnection = (HttpURLConnection) dlURL.openConnection();
-            httpConnection.setRequestProperty("User-Agent", "SpigetResourceUpdater");
+			String fileName = plugin.getName() + ".jar";
+			File updateFile = new File(updateFolder + "/" + fileName);
+			
+			HttpURLConnection httpConnection = (HttpURLConnection) dlURL.openConnection();
+			httpConnection.setRequestProperty("User-Agent", "SpigetResourceUpdater");
+			if (httpConnection.getResponseCode() != 200)
+				throw new RuntimeException("Download returned status #" + httpConnection.getResponseCode());
+			
+			// CloudFlare blocks direct access to spigotmc. Getting a specific version using Spiget,
+			// You get a redirect to that specific version. Might be useful as a return message,
+			// but it can't be used to download it automatically.
+//			httpConnection.setInstanceFollowRedirects(false);
+//			while ((responseCode / 100) == 3) 
+//			{ /* codes 3XX are redirections */
+//			   String newLocationHeader = httpConnection.getHeaderField("Location");
+//			   httpConnection.disconnect();
+//			   httpConnection = (HttpURLConnection) (new URL(newLocationHeader)).openConnection();
+//			   httpConnection.setInstanceFollowRedirects(false);
+//			   httpConnection.setRequestProperty("User-Agent", "SpigetResourceUpdater");
+//			   responseCode = httpConnection.getResponseCode();
+//			}
+			
+			int grabSize = 512;
+			BufferedInputStream  in   = new BufferedInputStream(httpConnection.getInputStream());
+			FileOutputStream     fos  = new FileOutputStream(updateFile);
+			BufferedOutputStream bout = new BufferedOutputStream(fos, grabSize);
 
-            int grabSize = 2048;
-
-            String fileName = plugin.getName() + ".jar";
-            File updateFile = new File(updateFolder + "/" + fileName);
-            
-            BufferedInputStream in    = new BufferedInputStream(httpConnection.getInputStream());
-            FileOutputStream fos      = new FileOutputStream(updateFile);
-            BufferedOutputStream bout = new BufferedOutputStream(fos, grabSize);
-
-            byte[] data = new byte[grabSize];
-            int grab;
-            while ((grab = in.read(data, 0, grabSize)) >= 0) 
-            {
-                bout.write(data, 0, grab);
-            }
-
-            bout.close();
-            in.close();
-            fos.close();
-            plugin.getMyLogger().info("Update downloaded! Restart to apply it!");
+			byte[] data = new byte[grabSize];
+			int grab;
+			while ((grab = in.read(data, 0, grabSize)) >= 0) 
+				bout.write(data, 0, grab);
+			
+			bout.flush();
+			bout.close();
+			in.close();
+			fos.flush();
+			fos.close();
+			this.success = true;
+			plugin.getMyLogger().info("Update downloaded! Restart to apply it! New version is " + 
+					this.newVersion + ", Currently running " + plugin.getDescription().getVersion());
 		}
-		catch (Exception e)
+		catch (Exception exc)
 		{
-			e.printStackTrace();
+			plugin.getMyLogger().logMessage("Could not check for updates! Send this to pim16aap2: \n" + Util.exceptionToString(exc), true, false);
+			exc.printStackTrace();
 		}
 	}
 }

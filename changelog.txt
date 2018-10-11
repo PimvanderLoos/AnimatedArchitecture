@@ -1,4 +1,11 @@
+Alpha 0.1.7.4
+- 
+
 Alpha 0.1.7.3
+- Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!
+- Fixed end rod rotation in drawbridges. Thanks, @Achaius for the report!
+- Got rid of a debug message. Thanks, @KevUndead for the report!
+- Added auto-update option.
 
 Alpha 0.1.7.2
 - Fixed NPE when air blocks are used in a door of any type. Thanks, @MrEMan for the bug report!

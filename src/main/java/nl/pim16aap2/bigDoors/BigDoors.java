@@ -19,6 +19,7 @@ import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
+import nl.pim16aap2.bigDoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
 import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
@@ -41,7 +42,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 // TODO: Store starting x,z values in savedBlocks, then make putblocks etc part of abstact class.
 // TODO: Add success message for changing door opendirection.
-// TODO: Add delay to update found message, so it's at the bottom of the console on startup.
+
 
 // TODO: Maybe use custom ticker for player related stuff. Override their ticking stuff and nullify all the regular values.
 /* TODO: Look into this interesting method in NMS.Block:
@@ -80,6 +81,7 @@ public class BigDoors extends JavaPlugin implements Listener
 	private CommandHandler     commandHandler;
 	private PortcullisOpener portcullisOpener;
 	private Vector<Player>   playersOnFBlocks;
+	private String           loginString = "";
 	
 	private boolean            is1_13 = false;
 	private boolean         enabledAS = false;
@@ -127,9 +129,10 @@ public class BigDoors extends JavaPlugin implements Listener
 		
 		commandHandler   = new CommandHandler(this);
 		commander        = new Commander(this, db);
-		Bukkit.getPluginManager().registerEvents(new EventHandlers   (this), this);
-		Bukkit.getPluginManager().registerEvents(new GUIHandler      (this), this);
-		Bukkit.getPluginManager().registerEvents(new RedstoneHandler (this), this);
+		Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
+		Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
+		Bukkit.getPluginManager().registerEvents(new RedstoneHandler    (this), this);
+		Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
 		getCommand("inspectpowerblockloc").setExecutor(new CommandHandler(this));
 		getCommand("changepowerblockloc" ).setExecutor(new CommandHandler(this));
 		getCommand("bigdoorsenableas"    ).setExecutor(new CommandHandler(this));
@@ -410,7 +413,15 @@ public class BigDoors extends JavaPlugin implements Listener
         return fabf != null;
 	}
 	
+	public String getLoginString()
+	{
+		return this.loginString;
+	}
 	
+	public void setLoginString(String str)
+	{
+		this.loginString = str;
+	}
 	
 	
 	

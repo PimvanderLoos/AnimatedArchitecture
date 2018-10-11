@@ -14,10 +14,9 @@ public class LoginMessageHandler implements Listener
 	BigDoors plugin;
 	String   message;
 	
-	public LoginMessageHandler(BigDoors plugin, String message)
+	public LoginMessageHandler(BigDoors plugin)
 	{
 		this.plugin  = plugin;
-		this.message = message;
 	}
 	
 	@EventHandler
@@ -32,7 +31,9 @@ public class LoginMessageHandler implements Listener
 	            @Override
                 public void run() 
 	            {
-	            		player.sendMessage(ChatColor.AQUA + message);
+	            		String loginString = plugin.getLoginString();
+	            		if (loginString != "")
+	            			player.sendMessage(ChatColor.AQUA + plugin.getLoginString());
 	            }
 			}.runTaskLater(this.plugin, 10);
 		}

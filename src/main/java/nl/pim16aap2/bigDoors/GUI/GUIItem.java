@@ -22,6 +22,13 @@ public class GUIItem
 		construct(name, lore);
 	}
 	
+	public GUIItem(ItemStack is, String name, ArrayList<String> lore, int count)
+	{
+		this.is = is;
+		is.setAmount(count);
+		construct(name, lore);
+	}
+	
 	private void construct(String name, ArrayList<String> lore)
 	{
 		ItemMeta meta = is.getItemMeta();

@@ -96,28 +96,28 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 	@Override
 	public void die()
 	{
-		// This part doesn't really work as well as I'd hoped.
-		// The added velocity needs to depend on block speed.
-		AxisAlignedBB Oldbb = this.getBoundingBox();
-		AxisAlignedBB bb = new AxisAlignedBB(Oldbb.a, Oldbb.b, Oldbb.c, Oldbb.d, Oldbb.e + 0.2, Oldbb.f);
-		
-		List<Entity> list = this.world.getEntities(this, bb);
-		if (!list.isEmpty())
-		{
-			Iterator<Entity> iterator = list.iterator();
-			while (iterator.hasNext())
-			{
-				Entity entity = (Entity) iterator.next();
-				if (entity instanceof EntityPlayer)
-				{
-//					entity.getBukkitEntity().teleport(new Location(bukkitWorld, entity.locX, (int) (bb.e + 0.1) + 1, entity.locZ));
-					Bukkit.broadcastMessage("FBMoty = " + this.motY + ", playerMotY = " + 
-							entity.motY + ", new motY = " + (entity.motY + Math.abs(this.motY) * 1.1));
-					entity.motY += Math.abs(this.motY) * 1.1;
-					entity.velocityChanged = true;
-				}
-			}
-		}
+//		// This part doesn't really work as well as I'd hoped.
+//		// The added velocity needs to depend on block speed.
+//		AxisAlignedBB Oldbb = this.getBoundingBox();
+//		AxisAlignedBB bb = new AxisAlignedBB(Oldbb.a, Oldbb.b, Oldbb.c, Oldbb.d, Oldbb.e + 0.2, Oldbb.f);
+//		
+//		List<Entity> list = this.world.getEntities(this, bb);
+//		if (!list.isEmpty())
+//		{
+//			Iterator<Entity> iterator = list.iterator();
+//			while (iterator.hasNext())
+//			{
+//				Entity entity = (Entity) iterator.next();
+//				if (entity instanceof EntityPlayer)
+//				{
+////					entity.getBukkitEntity().teleport(new Location(bukkitWorld, entity.locX, (int) (bb.e + 0.1) + 1, entity.locZ));
+////					Bukkit.broadcastMessage("FBMoty = " + this.motY + ", playerMotY = " + 
+////							entity.motY + ", new motY = " + (entity.motY + Math.abs(this.motY) * 1.1));
+//					entity.motY += Math.abs(this.motY) * 1.1;
+//					entity.velocityChanged = true;
+//				}
+//			}
+//		}
 		
 		for (Entity ent : this.passengers)
 		{
@@ -162,6 +162,7 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 		return !this.dead;
 	}
 	
+	@SuppressWarnings("unused")
 	private List<Entity> getFallingBlocksOnSide(AxisAlignedBB bb, EnumDirection dir)
 	{
 		/** AxisAlignedBB:
@@ -223,6 +224,7 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
 		return ret;
 	}
 	
+	@SuppressWarnings("unused")
 	private void disableGravity(CraftPlayer player)
 	{
 		player.setGravity(false);

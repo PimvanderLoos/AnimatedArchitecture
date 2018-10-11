@@ -27,6 +27,7 @@ public class ConfigLoader
 	private String     languageFile;
 	private int        maxDoorCount;
 	private boolean    autoDLUpdate;
+	private int       downloadDelay;
 	private boolean  enableRedstone;
 	private String   powerBlockType;
 	private boolean checkForUpdates;
@@ -73,6 +74,13 @@ public class ConfigLoader
 		String[] checkForUpdatesComment 	= 
 			{
 					"Allow this plugin to check for updates on startup. It will not download new versions!"
+			};
+		String[] downloadDelayComment 	= 
+			{
+				"Time (in minutes) to delay auto downloading updates after their release.",
+				"Setting it to 1440 means that updates will be downloaded 24h after their release.",
+				"This is useful, as it will mean that the update won't get downloaded if I decide to pull it for some reason",
+				"(within the specified timeframe, of course)."
 			};
 	    String[] autoDLUpdateComment 	= 
 			{
@@ -127,6 +135,8 @@ public class ConfigLoader
 		configOptionsList.add(new ConfigOption( "checkForUpdates" , checkForUpdates , checkForUpdatesComment));
 		autoDLUpdate     = config.getBoolean(   "auto-update"     , true             );
 		configOptionsList.add(new ConfigOption( "auto-update"     , autoDLUpdate    , autoDLUpdateComment   ));
+		downloadDelay    = config.getInt    (   "downloadDelay"   , 1440             );
+		configOptionsList.add(new ConfigOption( "downloadDelay"   , downloadDelay   , downloadDelayComment  ));
 		allowStats       = config.getBoolean(   "allowStats"      , true             );
 		configOptionsList.add(new ConfigOption( "allowStats"      , allowStats      , allowStatsComment     ));
 		maxDoorSize      = config.getInt       ("maxDoorSize"     , -1               );

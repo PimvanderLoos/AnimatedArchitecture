@@ -236,11 +236,11 @@ public class BridgeMover implements BlockMover
 						{
 							canRotate        = Util.canRotate(mat);
 							// Rotate blocks here so they don't interrupt the rotation animation.
-							if (canRotate == 1 || canRotate == 2 || canRotate == 3 || canRotate == 6)
+							if (canRotate == 1 || canRotate == 2 || canRotate == 3 || canRotate == 6 || canRotate == 7)
 							{
 								Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
-								matByte      = rotateBlockData(matData);
-								Block b      = world.getBlockAt(pos);					
+								matByte      = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
+								Block b      = world.getBlockAt(pos);
 								materialData.setData(matByte);
 								
 								if (plugin.is1_13())
@@ -526,6 +526,42 @@ public class BridgeMover implements BlockMover
 				return (byte) (matData + 8);
 			if (matData >= 8 && matData < 12)
 				return (byte) (matData - 8);
+			return matData;
+		}
+	}
+	
+	// Rotate blocks such a logs by modifying its material data.
+	private byte rotateEndRotBlockData(Byte matData)
+	{
+		/* 0: Pointing Down     (upside down (purple on top))
+		 * 1: Pointing Up       (normal)
+		 * 2: Pointing North
+		 * 3: Pointing South
+		 * 4: Pointing West
+		 * 5: Pointing East
+		 */
+		if (!NS)
+		{
+			if (matData == 0)
+				return (byte) (this.openDirection.equals(DoorDirection.EAST) ? 4 : 5);
+			if (matData == 1)
+				return (byte) (this.openDirection.equals(DoorDirection.EAST) ? 5 : 4);
+			if (matData == 4)
+				return (byte) (this.openDirection.equals(DoorDirection.EAST) ? 1 : 0);
+			if (matData == 5)
+				return (byte) (this.openDirection.equals(DoorDirection.EAST) ? 0 : 1);
+			return matData;
+		}
+		else
+		{	
+			if (matData == 0)
+				return (byte) (this.openDirection.equals(DoorDirection.NORTH) ? 3 : 2);
+			if (matData == 1)
+				return (byte) (this.openDirection.equals(DoorDirection.NORTH) ? 2 : 3);
+			if (matData == 2)
+				return (byte) (this.openDirection.equals(DoorDirection.NORTH) ? 0 : 1);
+			if (matData == 3)
+				return (byte) (this.openDirection.equals(DoorDirection.NORTH) ? 1 : 0);
 			return matData;
 		}
 	}

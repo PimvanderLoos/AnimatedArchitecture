@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigDoors.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -19,6 +21,13 @@ public final class Util
 	public static void messagePlayer(Player player, ChatColor color, String s)
 	{
 		player.sendMessage(color + s);
+	}
+	
+	public static String exceptionToString(Exception e)
+	{
+        StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
 	}
 	
 	public static String locIntToString(Location loc)
@@ -150,7 +159,6 @@ public final class Util
 			                        speed > 2.0   ? 1.23 : 
 			                        speed > 1.770 ? 1.25 :	
 			                        speed > 1.570 ? 1.28 : 1.30;	
-		
 		ret[0] = time;
 		ret[1] = tickRateFromSpeed(speed);
 		ret[2] = distanceMultiplier;
@@ -275,6 +283,8 @@ public final class Util
 		if (	xmat.equals(XMaterial.STRIPPED_ACACIA_LOG)    || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG)  || xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG)|| 
 			xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG)  || xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG))
 			return 6;
+		if (xmat.equals(XMaterial.END_ROD))
+			return 7;
 		return 0;
 	}
 	

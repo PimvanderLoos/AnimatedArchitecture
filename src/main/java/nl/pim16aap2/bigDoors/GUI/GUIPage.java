@@ -42,7 +42,7 @@ public class GUIPage implements Listener
 	private Inventory         inv;
 	private ArrayList<Door> doors;
 	private final long  pageCount;
-	private PageType     pageType; // Type 0 is door overview, type 1 is door submenu, type 2 is confirmation menu.
+	private PageType     pageType;
 	private int              page;
 	private Door             door;
 	private static final int chestSize  = 45;
@@ -202,7 +202,6 @@ public class GUIPage implements Listener
 			{
 				int realIdx  = idx - 9;
 				int doorType = DoorType.getValue(doors.get(realIdx).getType());
-//				int randomNum = ThreadLocalRandom.current().nextInt(0, 7);
 				ArrayList<String> lore = new ArrayList<String>();
 				lore.add("This door has ID " + doors.get(realIdx).getDoorUID());
 				inv.setItem(idx, new GUIItem(doorTypes[doorType], doors.get(realIdx).getName(), lore, 1).getItemStack());

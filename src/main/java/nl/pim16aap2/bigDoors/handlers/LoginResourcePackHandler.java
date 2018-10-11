@@ -27,7 +27,8 @@ public class LoginResourcePackHandler implements Listener
             @Override
             public void run() 
             {
-        			event.getPlayer().setResourcePack(url);
+            		if (event.getPlayer() != null)
+            			event.getPlayer().setResourcePack(url);
             }
 		}.runTaskLater(this.plugin, 10);
 	}
