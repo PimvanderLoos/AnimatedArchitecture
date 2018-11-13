@@ -1,3 +1,8 @@
+# This file contains all the (partial) sentences used in this plugin.
+# If you want to modify anything, make sure to do so in a copy, as this file will be regenerated on startup!
+# You can change which file will be used in the config.yml. 
+# The format is "key=value" (without quotation marks). You can modify the values, but not the keys. 
+# Order doesn't matter and you can use comments if you so desire.
 GENERAL.TooManyDoors=You already reached your maximum number of doors!
 GENERAL.InvalidDoorName=is not a valid door name!
 GENERAL.InvalidDoorID=is not a valid door ID!
@@ -11,7 +16,7 @@ GENERAL.NoDoorsFound=No door found with this name/ID!
 GENERAL.MoreThan1DoorFound=More than 1 door with that name found! Please use its ID instead!
 GENERAL.IsBusy=You are already in a creation / relocation / inspector process.
 GENERAL.NotBusy=You are not creating any doors right now! Please initiate the creation process in the GUI! /BDM
-GENERAL.SetCloseTimerSuccess=§2The door will now open after 
+GENERAL.SetCloseTimerSuccess=§2The door will now close after 
 GENERAL.DisableCloseTimerSuccess=§2The door will no longer close automatically.
 GUI.Name=Door Menu
 GUI.SubName=Door Sub-Menu
@@ -64,7 +69,7 @@ CREATOR.PBRELOCATOR.Init=&aPower Block Relocation process initiated! You have 20
 CREATOR.PBRELOCATOR.StickLore=This tool is used to change the location of a power block.\nSimply hit a new block and you can use that as the location.
 CREATOR.PBRELOCATOR.StickReceived=§2You have been given a Big Door Relocator stick! You can use this tool to change the location of a powerblock. Just hit a new block!
 CREATOR.PBRELOCATOR.LocationInUse=§cInvalid Power Block Location selected! Location already in use by another door!
-CREATOR.PBRELOCATOR.Success=§2Power Block Relocation successful!
+CREATOR.PBRELOCATOR.Success=§2Power Block Relocation successful! Don't forget to put a powerblock (default: Gold block) here! Otherwise, it won't work!
 CREATOR.PBINSPECTOR.Init=&aPower Block Inspection process initiated! You have 20 seconds to complete it.\nType /BDCancel to cancel the process.
 CREATOR.PBINSPECTOR.StickLore=This tool is used to inspect a power block.\nSimply hit a block and you will get the info of the door attached to it.
 CREATOR.PBINSPECTOR.StickReceived=§2You have been given a Big Door Power Block Inspector Stick! You can use this tool to inspect a powerblock. Just hit a block!

@@ -77,7 +77,7 @@ public class BridgeMover implements BlockMover
 		int yLen        = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
 		int zLen        = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
 		int doorSize    = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().getDouble("dbMultiplier"), 5.2);
+		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().dbMultiplier(), 5.2);
 		this.time       = vars[0];
 		this.tickRate   = (int) vars[1];
 		this.multiplier = vars[2];
@@ -238,9 +238,8 @@ public class BridgeMover implements BlockMover
 							// Rotate blocks here so they don't interrupt the rotation animation.
 							if (canRotate == 1 || canRotate == 2 || canRotate == 3 || canRotate == 6 || canRotate == 7)
 							{
-								Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
 								matByte      = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
-								Block b      = world.getBlockAt(pos);
+								Block b      = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
 								materialData.setData(matByte);
 								
 								if (plugin.is1_13())
@@ -379,7 +378,7 @@ public class BridgeMover implements BlockMover
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
 		int timer = onDisable   ?  0 : 
-			        instantOpen ? 40 : plugin.getConfigLoader().getInt("coolDown") * 20;
+			        instantOpen ? 40 : plugin.getConfigLoader().coolDown() * 20;
 		
 		if (timer > 0)
 		{

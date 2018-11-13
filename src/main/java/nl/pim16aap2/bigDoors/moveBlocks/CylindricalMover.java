@@ -79,7 +79,7 @@ public class CylindricalMover implements BlockMover
 		int xLen        = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
 		int zLen        = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
 		int doorSize    = Math.max(xLen, zLen) + 1;
-		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().getDouble("bdMultiplier"), 3.7);
+		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().bdMultiplier(), 3.7);
 		this.time       = vars[0];
 		this.tickRate   = (int) vars[1];
 		this.multiplier = vars[2];
@@ -204,7 +204,7 @@ public class CylindricalMover implements BlockMover
 			endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? Math.PI : 0;
 			break;
 		}
-		
+
 		if (!instantOpen)
 			rotateEntities();
 		else
@@ -280,7 +280,7 @@ public class CylindricalMover implements BlockMover
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
 		int timer = onDisable   ?  0 : 
-			        instantOpen ? 40 : plugin.getConfigLoader().getInt("coolDown") * 20;
+			        instantOpen ? 40 : plugin.getConfigLoader().coolDown() * 20;
 		
 		if (timer > 0)
 		{
@@ -350,7 +350,7 @@ public class CylindricalMover implements BlockMover
 					replace = true;
 				
 				if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
-				{					
+				{
 					Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						if (!savedBlocks.get(idx).getMat().equals(Material.AIR))

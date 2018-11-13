@@ -72,7 +72,7 @@ public class PortcullisOpener implements Opener
 
 		// Make sure the doorSize does not exceed the total doorSize.
 		// If it does, open the door instantly.
-		int maxDoorSize = plugin.getConfigLoader().getInt("maxDoorSize");
+		int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
 		if (maxDoorSize != -1)
 			if(getDoorSize(door) > maxDoorSize)
 				instantOpen = true;
@@ -105,12 +105,12 @@ public class PortcullisOpener implements Opener
 		delta = upDown == RotateDirection.DOWN ? -1 : 1;
 		yAxis = upDown == RotateDirection.DOWN ? yMin - 1 : yMax + 1;
 		yGoal = upDown == RotateDirection.DOWN ? yMin - yLen - 1 : yMax + yLen + 1;
-			
+		
 		while (yAxis != yGoal)
 		{
 			for (xAxis = xMin; xAxis <= xMax; ++xAxis)
 				for (zAxis = zMin; zAxis <= zMax; ++zAxis)
-					if (!Util.isAir(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+					if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
 						return blocksUp;
 			yAxis    += delta;
 			blocksUp += delta;

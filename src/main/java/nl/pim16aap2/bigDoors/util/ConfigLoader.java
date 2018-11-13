@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -33,6 +32,7 @@ public class ConfigLoader
 	private boolean checkForUpdates;
 	
 	private ArrayList<ConfigOption> configOptionsList;
+	public static boolean DEBUG = false;
     private BigDoors plugin;
 	
 	public ConfigLoader(BigDoors plugin) 
@@ -46,8 +46,8 @@ public class ConfigLoader
 	// Read the current config, the make a new one based on the old one or default values, whichever is applicable.
 	public void makeConfig()
 	{
-		String defResPackUrl     = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
-		String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
+		String defResPackUrl            = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
+		String defResPackUrl1_13        = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
 		
 		String[] enableRedstoneComment 	=
 			{
@@ -87,35 +87,39 @@ public class ConfigLoader
 				"Allow this plugin to automatically download new updates. They will be applied on restart."
 			};
 	    String[] allowStatsComment      	= 
-	    		{
-	    			"Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
-	    			"It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"
-	    		};
+    		{
+    			"Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
+    			"It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"
+    		};
 	    String[] maxDoorSizeComment     	= 
 			{
 				"Max. number of blocks allowed in a door.",
 				"If this number is exceeded, doors will open instantly and skip the animation."
 			};
 	    String[] resourcePackComment     =
-		    	{
-		    		"This plugin uses a support resource pack for things suchs as sound.",
-		    		"You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
-		    		"Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
-		    		"The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl     + "'",
-		    		"The default resource pack for 1.13.x is: \'"        + defResPackUrl1_13 + "\'"
-		    	};
+	    	{
+	    		"This plugin uses a support resource pack for things suchs as sound.",
+	    		"You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
+	    		"Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
+	    		"The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl     + "'",
+	    		"The default resource pack for 1.13.x is: \'"        + defResPackUrl1_13 + "\'"
+	    	};
 	    String[] multiplierComment       =
-		    	{
-		    		"These multipliers affect the opening/closing speed of their respective door types.",
-		    		"Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
-		    		"To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
-		    		"bd = Big Door, pc = Portcullis, db = Drawbridge.",
-		    		"Note that everything is optimized for default values, so it's recommended to leave this setting as-is."
-		    	};
+	    	{
+	    		"These multipliers affect the opening/closing speed of their respective door types.",
+	    		"Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
+	    		"To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
+	    		"bd = Big Door, pc = Portcullis, db = Drawbridge.",
+	    		"Note that everything is optimized for default values, so it's recommended to leave this setting as-is."
+	    	};
 	    String[] coolDownComment         =
-		    	{
-		    		"Cooldown on using doors. Time is measured in seconds."
-		    	};
+	        {
+	            "Cooldown on using doors. Time is measured in seconds."
+	        };
+	    String[] debugComment            =
+	    	{
+	    		"Don't use this. Just leave it on false."
+	    	};
 		
 		FileConfiguration config = plugin.getConfig();
 		
@@ -151,6 +155,10 @@ public class ConfigLoader
 		configOptionsList.add(new ConfigOption( "dbMultiplier"    , dbMultiplier    , null                  ));
 		coolDown         = config.getInt(       "coolDown"        , 0                );
 		configOptionsList.add(new ConfigOption( "coolDown"        , coolDown        , coolDownComment       ));
+		
+		// This is a bit special, as it's public static (for util debug messages).
+        ConfigLoader.DEBUG = config.getBoolean( "DEBUG"           , false             );
+        configOptionsList.add(new ConfigOption( "DEBUG"           , ConfigLoader.DEBUG, debugComment ));
 		
 		writeConfig();
 	}
@@ -194,43 +202,19 @@ public class ConfigLoader
 		}
 	}
 	
-	public Integer getInt(String path)
-	{
-		for (ConfigOption configOption : configOptionsList)
-			if (configOption.getName().equals(path))
-				return configOption.getInt();
-		return null;
-	}
-	
-	public Boolean getBool(String path)
-	{
-		for (ConfigOption configOption : configOptionsList)
-			if (configOption.getName().equals(path))
-				return configOption.getBool();
-		return null;
-	}
-	
-	public String getString(String path)
-	{
-		for (ConfigOption configOption : configOptionsList)
-			if (configOption.getName().equals(path))
-				return configOption.getString();
-		return null;
-	}
-	
-	public List<String> getStringList(String path)
-	{
-		for (ConfigOption configOption : configOptionsList)
-			if (configOption.getName().equals(path))
-				return configOption.getStringList();
-		return null;
-	}
-	
-	public Double getDouble(String path)
-	{
-		for (ConfigOption configOption : configOptionsList)
-			if (configOption.getName().equals(path))
-				return configOption.getDouble();
-		return null;
-	}
+	public String  dbFile()          {    return this.dbFile;             }
+	public int     coolDown()        {    return this.coolDown;           }
+	public boolean allowStats()      {    return this.allowStats;         }
+	public int     maxDoorSize()     {    return this.maxDoorSize;        }
+	public double  pcMultiplier()    {    return this.pcMultiplier;       }
+	public double  dbMultiplier()    {    return this.dbMultiplier;       }
+	public double  bdMultiplier()    {    return this.bdMultiplier;       }
+	public String  resourcePack()    {    return this.resourcePack;       }
+	public String  languageFile()    {    return this.languageFile;       }
+	public int     maxdoorCount()    {    return this.maxDoorCount;       }
+	public boolean autoDLUpdate()    {    return this.autoDLUpdate;       }
+	public int     downloadDelay()   {    return this.downloadDelay;      }
+	public boolean enableRedstone()  {    return this.enableRedstone;     }
+	public String  powerBlockType()  {    return this.powerBlockType;     }
+	public boolean checkForUpdates() {    return this.checkForUpdates;    }
 }

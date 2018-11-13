@@ -1,5 +1,9 @@
 Alpha 0.1.7.4
-- 
+- Added /BDRestart to reload the config and the translation file and generally reinitialize everything.
+- Fixed translation for setting close timer. Thanks, @WHiZSTA.
+- Doors can now go through water and lava.
+- Added DEBUG option in config that you should not use. Just leave it on false.
+- Made update checking a little less frequent (once every 4h now (and on startup) instead of every 30 mins)
 
 Alpha 0.1.7.3
 - Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!

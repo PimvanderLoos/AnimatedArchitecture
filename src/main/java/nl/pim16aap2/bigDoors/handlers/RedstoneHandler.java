@@ -21,7 +21,7 @@ public class RedstoneHandler implements Listener
 	public RedstoneHandler(BigDoors plugin)
 	{
 		this.plugin = plugin;
-		this.powerBlock = Material.getMaterial(plugin.getConfigLoader().getString("powerBlockType"));
+		this.powerBlock = Material.getMaterial(plugin.getConfigLoader().powerBlockType());
 	}
 
 	// Log players interacting with redstone source and log the time and location at which it happened.

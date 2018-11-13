@@ -2,7 +2,10 @@ package nl.pim16aap2.bigDoors.NMS.v1_13_R1;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.craftbukkit.v1_13_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R1.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_13_R1.block.data.CraftBlockData;
 
 import net.minecraft.server.v1_13_R1.BlockPosition;
 import net.minecraft.server.v1_13_R1.BlockRotatable;
@@ -21,10 +24,17 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
 	
 	public NMSBlock_V1_13_R1(World world, int x, int y, int z)
 	{
-		super(net.minecraft.server.v1_13_R1.Block.Info.a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
-		this.blockData = ((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z));
-		super.v(blockData);
-		this.xmat = XMaterial.fromString(world.getBlockAt(new Location(world, x, y, z)).getType().toString());
+        super(net.minecraft.server.v1_13_R1.Block.Info.a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
+        
+        // If the block is waterlogged (i.e. it has water inside), unwaterlog it.
+        CraftBlockData cbd = (CraftBlockData) ((CraftBlock) world.getBlockAt(x, y, z)).getBlockData();
+        if (cbd instanceof Waterlogged)
+            ((Waterlogged) cbd).setWaterlogged(false);
+        this.blockData = cbd.getState();
+        
+        this.xmat      = XMaterial.fromString(world.getBlockAt(x, y, z).getType().toString());
+        // Update iBlockData in NMS Block.
+        super.v(blockData);
 	}
 	
 	public void rotateBlock(RotateDirection rotDir)

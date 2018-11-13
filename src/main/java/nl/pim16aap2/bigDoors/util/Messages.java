@@ -20,9 +20,9 @@ public class Messages
     
 	public Messages(BigDoors plugin)
 	{
-		this.plugin     = plugin;
-		this.locale     = plugin.getLocale();
-		textFile        = new File(plugin.getDataFolder(), locale + ".txt");
+		this.plugin = plugin;
+		this.locale = plugin.getLocale();
+		textFile    = new File(plugin.getDataFolder(), locale + ".txt");
 		readFile();
 	}
 	
@@ -38,6 +38,9 @@ public class Messages
 
 			while ((sCurrentLine = br.readLine()) != null)
 			{
+			    // Ignore comments.
+			    if (sCurrentLine.startsWith("#"))
+			        continue;
 				String key, value;
 				String[] parts = sCurrentLine.split("=", 2);
 				key    = parts[0];

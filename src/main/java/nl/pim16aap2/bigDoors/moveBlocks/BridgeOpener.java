@@ -138,7 +138,7 @@ public class BridgeOpener implements Opener
 		for (int xAxis = startX; xAxis <= endX; ++xAxis)
 			for (int yAxis = startY; yAxis <= endY; ++yAxis)
 				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
-					if (!Util.isAir(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+					if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
 						return false;
 		return true;
 	}
@@ -251,7 +251,7 @@ public class BridgeOpener implements Opener
 		
 		// Make sure the doorSize does not exceed the total doorSize.
 		// If it does, open the door instantly.
-		int maxDoorSize = plugin.getConfigLoader().getInt("maxDoorSize");
+		int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
 		if (maxDoorSize != -1)
 			if(getDoorSize(door) > maxDoorSize)
 				instantOpen = true;

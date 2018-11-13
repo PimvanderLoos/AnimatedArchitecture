@@ -30,6 +30,12 @@ public final class Util
 		return sw.toString();
 	}
 	
+	public static void broadcastMessage(String message)
+	{
+	    if (ConfigLoader.DEBUG)
+	        Bukkit.broadcastMessage(message);
+	}
+	
 	public static String locIntToString(Location loc)
 	{
 		return String.format("(%d;%d;%d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
@@ -239,12 +245,12 @@ public final class Util
 		}
 	}
 
-	public static boolean isAir(Material mat)
+	public static boolean isAirOrWater(Material mat)
 	{
 		XMaterial xmat = XMaterial.fromString(mat.toString());
 		if (xmat == null)
 			return false;
-		return xmat.equals(XMaterial.AIR);
+		return xmat.equals(XMaterial.AIR) || xmat.equals(XMaterial.WATER) || xmat.equals(XMaterial.LAVA);
 	}
 	
 	// Logs, stairs and glass panes can rotate, but they don't rotate in exactly the same way.

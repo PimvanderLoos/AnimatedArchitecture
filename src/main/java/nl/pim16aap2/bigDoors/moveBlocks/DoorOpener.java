@@ -70,7 +70,7 @@ public class DoorOpener implements Opener
 		for (int xAxis = startX; xAxis <= endX; ++xAxis)
 			for (int yAxis = startY; yAxis <= endY; ++yAxis)
 				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
-					if (!Util.isAir(engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType()))
+					if (!Util.isAirOrWater(engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType()))
 						return false;
 		return true;
 	}
@@ -188,7 +188,7 @@ public class DoorOpener implements Opener
 			plugin.getMyLogger().logMessage("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
 			return false;
 		}
-		
+
 		int xOpposite, yOpposite, zOpposite;
 		// If the xMax is not the same value as the engineX, then xMax is xOpposite.
 		if (door.getMaximum().getBlockX() != door.getEngine().getBlockX())
@@ -210,17 +210,18 @@ public class DoorOpener implements Opener
 
 		// Finalise the oppositePoint location.
 		Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
-		
+
 		// Make sure the doorSize does not exceed the total doorSize.
 		// If it does, open the door instantly.
-		int maxDoorSize = plugin.getConfigLoader().getInt("maxDoorSize");
+		int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
+		Util.broadcastMessage("MaxDoorSize = " + maxDoorSize);
 		if (maxDoorSize != -1)
 			if(getDoorSize(door) > maxDoorSize)
 				instantOpen = true;
-		
+
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
-		
+
 		plugin.addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint, currentDirection, door, instantOpen));
 
 		return true;

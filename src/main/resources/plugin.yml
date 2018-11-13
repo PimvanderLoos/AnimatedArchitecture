@@ -12,6 +12,10 @@ commands:
     description: Alias of /BigDoors, Opens the BigDoors GUI.
     usage: /BDM
     permission: bigdoors.user.gui
+  bdrestart:
+    description: Restarts this plugin. Reloads config and translation files and reinitializes everything.
+    usage: /BDRestart
+    permission: bigdoors.admin.restart
   namedoor:
     description: Create a new door named "doorName".
     usage: /NameDoor <doorName || doorID> 

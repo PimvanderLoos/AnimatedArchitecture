@@ -55,7 +55,7 @@ public class VerticalMover implements BlockMover
 		this.zMax = door.getMaximum().getBlockZ();
 		
 		double speed  = 1;
-		double pcMult = plugin.getConfigLoader().getDouble("pcMultiplier");
+		double pcMult = plugin.getConfigLoader().pcMultiplier();
 		pcMult = pcMult == 0.0 ? 1.0 : pcMult;
 		int maxSpeed  = 6;
 		// If the time isn't default, calculate speed.
@@ -90,7 +90,8 @@ public class VerticalMover implements BlockMover
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 					Block vBlock  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
 					Material mat  = vBlock.getType();
-					if (!mat.equals(Material.AIR))
+//					if (!mat.equals(Material.AIR))
+					if (!Util.isAirOrWater(mat))
 					{
 						Byte matData  = vBlock.getData();
 						BlockState bs = vBlock.getState();
@@ -191,7 +192,7 @@ public class VerticalMover implements BlockMover
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
 		int timer = onDisable   ?  0 : 
-			        instantOpen ? 40 : plugin.getConfigLoader().getInt("coolDown") * 20;
+			        instantOpen ? 40 : plugin.getConfigLoader().coolDown() * 20;
 		
 		if (timer > 0)
 		{
@@ -238,11 +239,11 @@ public class VerticalMover implements BlockMover
 	{
 		new BukkitRunnable()
 		{
-			int counter       = 0;
-			int endCount      = (int) (20 / tickRate * time);
-			double step       = ((double) blocksToMove) / ((double) endCount);
-			double stepSum    = 0;
-			int totalTicks    = (int) (endCount * 1.1);
+			int counter    = 0;
+			int endCount   = (int) (20 / tickRate * time);
+			double step    = ((double) blocksToMove) / ((double) endCount);
+			double stepSum = 0;
+			int totalTicks = (int) (endCount * 1.1);
 			
 			@Override
 			public void run()
