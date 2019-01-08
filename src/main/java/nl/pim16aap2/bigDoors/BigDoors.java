@@ -48,6 +48,8 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Store playernames as well as UUID in database (verify on login).
 // TODO: Add command: /OpenDoor [Player (when online) || PlayerUUID || Server] <DoorName (when owner is specified) || DoorUID>(repeat 1:inf) [Speed (double]
 // TODO: Change config so you no longer request specific values via a String.
+// TODO: Add permissions per door-type.
+// TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -87,21 +89,21 @@ public class BigDoors extends JavaPlugin implements Listener
 
         validVersion = compatibleMCVer();
         // Load the files for the correct version of Minecraft.
-        if (!validVersion) 
+        if (!validVersion)
         {
             logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!", true, true);
             return;
         }
 
-        this.init(true);
+        init(true);
 
-        this.db               = new SQLiteJDBCDriverConnection(this, config.dbFile());
-        this.commander        = new Commander(this, this.db);
-        this.doorOpener       = new DoorOpener(this);
-        this.bridgeOpener     = new BridgeOpener(this);
-        this.bridgeOpener     = new BridgeOpener(this);
-        this.commandHandler   = new CommandHandler(this);
-        this.portcullisOpener = new PortcullisOpener(this);
+        db               = new SQLiteJDBCDriverConnection(this, config.dbFile());
+        commander        = new Commander(this, db);
+        doorOpener       = new DoorOpener(this);
+        bridgeOpener     = new BridgeOpener(this);
+        bridgeOpener     = new BridgeOpener(this);
+        commandHandler   = new CommandHandler(this);
+        portcullisOpener = new PortcullisOpener(this);
 
         getCommand("inspectpowerblockloc").setExecutor(new CommandHandler(this));
         getCommand("changepowerblockloc" ).setExecutor(new CommandHandler(this));
@@ -118,6 +120,7 @@ public class BigDoors extends JavaPlugin implements Listener
         getCommand("listdoors"           ).setExecutor(new CommandHandler(this));
         getCommand("stopdoors"           ).setExecutor(new CommandHandler(this));
         getCommand("bdcancel"            ).setExecutor(new CommandHandler(this));
+        getCommand("filldoor"            ).setExecutor(new CommandHandler(this));
         getCommand("doorinfo"            ).setExecutor(new CommandHandler(this));
         getCommand("opendoor"            ).setExecutor(new CommandHandler(this));
         getCommand("nameDoor"            ).setExecutor(new CommandHandler(this));
@@ -131,43 +134,43 @@ public class BigDoors extends JavaPlugin implements Listener
 
     private void init(boolean firstRun)
     {
-        if (!this.validVersion)
+        if (!validVersion)
             return;
 
-        this.readConfigValues();
-        this.messages    = new Messages(this);
-        this.toolUsers   = new Vector<ToolUser>(2);
-        this.blockMovers = new Vector<BlockMover>(2);
-        this.cmdWaiters  = new Vector<WaitForCommand>(2);
-        this.tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
-        this.loginString = "";
+        readConfigValues();
+        messages    = new Messages(this);
+        toolUsers   = new Vector<ToolUser>(2);
+        blockMovers = new Vector<BlockMover>(2);
+        cmdWaiters  = new Vector<WaitForCommand>(2);
+        tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
+        loginString = "";
 
         if (config.enableRedstone())
         {
-            if (this.redstoneHandler == null)
+            if (redstoneHandler == null)
             {
-                this.redstoneHandler = new RedstoneHandler(this);
-                Bukkit.getPluginManager().registerEvents(this.redstoneHandler, this);
+                redstoneHandler = new RedstoneHandler(this);
+                Bukkit.getPluginManager().registerEvents(redstoneHandler, this);
             }
         }
         else if (!firstRun)
         {
-            HandlerList.unregisterAll(this.redstoneHandler);
-            this.redstoneHandler = null;
+            HandlerList.unregisterAll(redstoneHandler);
+            redstoneHandler = null;
         }
 
         // If it's not the first run, unregister the resource pack handler. It might not be needed anymore.
         if (!firstRun)
         {
-            HandlerList.unregisterAll(this.rPackHandler);
-            this.rPackHandler = null;
+            HandlerList.unregisterAll(rPackHandler);
+            rPackHandler = null;
         }
         // If the resourcepack is set to "NONE", don't load it.
         if (!config.resourcePack().equals("NONE"))
         {
             // If a resource pack was set for the current version of Minecraft, send that pack to the client on login.
-            this.rPackHandler = new LoginResourcePackHandler(this, config.resourcePack());
-            Bukkit.getPluginManager().registerEvents(this.rPackHandler,  this);
+            rPackHandler = new LoginResourcePackHandler(this, config.resourcePack());
+            Bukkit.getPluginManager().registerEvents(rPackHandler,  this);
         }
         Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
         Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
@@ -177,68 +180,68 @@ public class BigDoors extends JavaPlugin implements Listener
         if (config.allowStats())
         {
             logger.myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
-            if (this.metrics == null)
-                this.metrics = new Metrics(this);
-        } 
+            if (metrics == null)
+                metrics = new Metrics(this);
+        }
         else
         {
             // Y u do dis? :(
-            this.metrics = null;
+            metrics = null;
             logger.myLogger(Level.INFO, "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
         }
 
         // Load update checker if allowed, otherwise unload it if needed or simply don't load it in the first place.
         if (config.checkForUpdates())
         {
-            if (this.updater == null)
-                this.updater = new SpigotUpdater(this, 58669);
+            if (updater == null)
+                updater = new SpigotUpdater(this, 58669);
         }
         else
-            this.updater = null;
+            updater = null;
 
         if (!firstRun)
-            this.commander.setCanGo(true);
+            commander.setCanGo(true);
     }
 
     public void restart()
     {
-        if (!this.validVersion)
+        if (!validVersion)
             return;
-        this.reloadConfig();
+        reloadConfig();
         // Stop all tool users, end all blockmovers, and clear all command waiter.
-        this.onDisable();
-        this.toolUsers = null;
-        this.cmdWaiters = null;
-        this.blockMovers = null;
-        this.init(false);
+        onDisable();
+        toolUsers = null;
+        cmdWaiters = null;
+        blockMovers = null;
+        init(false);
     }
 
     @Override
     public void onDisable()
     {
-        if (!this.validVersion)
+        if (!validVersion)
             return;
 
         // Stop all toolUsers and take all BigDoor tools from players.
-        this.commander.setCanGo(false);
-        for (ToolUser tu : this.toolUsers)
+        commander.setCanGo(false);
+        for (ToolUser tu : toolUsers)
             tu.setIsDone(true);
-        for (BlockMover bm : this.blockMovers)
+        for (BlockMover bm : blockMovers)
             bm.putBlocks(true);
 
-        this.toolUsers.clear();
-        this.cmdWaiters.clear();
-        this.blockMovers.clear();
+        toolUsers.clear();
+        cmdWaiters.clear();
+        blockMovers.clear();
     }
 
     public FallingBlockFactory_Vall getFABF()
     {
-        return this.fabf;
+        return fabf;
     }
 
     public FallingBlockFactory_Vall getFABF2()
     {
-        return this.fabf2;
+        return fabf2;
     }
 
     public BigDoors getPlugin()
@@ -251,84 +254,84 @@ public class BigDoors extends JavaPlugin implements Listener
         switch (type)
         {
         case DOOR:
-            return this.doorOpener;
+            return doorOpener;
         case DRAWBRIDGE:
-            return this.bridgeOpener;
+            return bridgeOpener;
         case PORTCULLIS:
-            return this.portcullisOpener;
+            return portcullisOpener;
         }
         return null;
     }
 
     public void addBlockMover(BlockMover blockMover)
     {
-        this.blockMovers.add(blockMover);
+        blockMovers.add(blockMover);
     }
 
     public void removeBlockMover(BlockMover blockMover)
     {
-        this.blockMovers.remove(blockMover);
+        blockMovers.remove(blockMover);
     }
 
     public Vector<BlockMover> getBlockMovers()
     {
-        return this.blockMovers;
+        return blockMovers;
     }
 
     // Get the Vector of ToolUsers.
     public Vector<ToolUser> getToolUsers()
     {
-        return this.toolUsers;
+        return toolUsers;
     }
 
     public void addToolUser(ToolUser toolUser)
     {
-        this.toolUsers.add(toolUser);
+        toolUsers.add(toolUser);
     }
 
     public void removeToolUser(ToolUser toolUser)
     {
-        this.toolUsers.remove(toolUser);
+        toolUsers.remove(toolUser);
     }
 
     // Get the Vector of WaitForCommand.
     public Vector<WaitForCommand> getCommandWaiters()
     {
-        return this.cmdWaiters;
+        return cmdWaiters;
     }
 
     public void addCommandWaiter(WaitForCommand cmdWaiter)
     {
-        this.cmdWaiters.add(cmdWaiter);
+        cmdWaiters.add(cmdWaiter);
     }
 
     public void removeCommandWaiter(WaitForCommand cmdWaiter)
     {
-        this.cmdWaiters.remove(cmdWaiter);
+        cmdWaiters.remove(cmdWaiter);
     }
 
     // Get the command Handler.
     public CommandHandler getCommandHandler()
     {
-        return this.commandHandler;
+        return commandHandler;
     }
 
     // Get the commander (class executing commands).
     public Commander getCommander()
     {
-        return this.commander;
+        return commander;
     }
 
     // Get the logger.
     public MyLogger getMyLogger()
     {
-        return this.logger;
+        return logger;
     }
 
     // Get the messages.
     public Messages getMessages()
     {
-        return this.messages;
+        return messages;
     }
 
     // Returns the config handler.
@@ -340,7 +343,7 @@ public class BigDoors extends JavaPlugin implements Listener
     // Get the ToolVerifier.
     public ToolVerifier getTF()
     {
-        return this.tf;
+        return tf;
     }
 
     public String getLocale()
@@ -351,8 +354,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private void readConfigValues()
     {
         // Load the settings from the config file.
-        this.config = new ConfigLoader(this);
-        this.locale = config.languageFile();
+        config = new ConfigLoader(this);
+        locale = config.languageFile();
     }
 
     // This function simply loads these classes to make my life a bit less hell-ish with live development.
@@ -367,39 +370,39 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public boolean is1_13()
     {
-        return this.is1_13;
+        return is1_13;
     }
 
     public boolean bigDoorsEnableAS()
     {
-        if (this.enabledAS)
+        if (enabledAS)
         {
-            this.enabledAS = false;
-            this.fabf2 = null;
+            enabledAS = false;
+            fabf2 = null;
             return true;
         }
 
         String version;
 
-        try 
+        try
         {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
-        } 
-        catch (ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException) 
+        }
+        catch (ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
             return false;
         }
 
-        this.fabf2 = null;
+        fabf2 = null;
         if (version.equals("v1_12_R1"))
         {
-            this.fabf2     = new ArmorStandFactory_V1_12_R1();
-            this.enabledAS = true;
+            fabf2     = new ArmorStandFactory_V1_12_R1();
+            enabledAS = true;
         }
         if (version.equals("v1_13_R2"))
         {
-            this.fabf2     = new ArmorStandFactory_V1_13_R2();
-            this.enabledAS = true;
+            fabf2     = new ArmorStandFactory_V1_13_R2();
+            enabledAS = true;
         }
         // Return true if compatible.
         return fabf2 != null;
@@ -415,33 +418,33 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         String version;
 
-        try 
+        try
         {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
-        } 
-        catch (ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException) 
+        }
+        catch (ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
             return false;
         }
 
-        this.fabf  = null;
-        this.fabf2 = null;
+        fabf  = null;
+        fabf2 = null;
         if (version.equals("v1_11_R1"))
-            this.fabf     = new FallingBlockFactory_V1_11_R1();
+            fabf     = new FallingBlockFactory_V1_11_R1();
         else if (version.equals("v1_12_R1"))
         {
-            this.fabf     = new FallingBlockFactory_V1_12_R1();
-            this.fabf2    = new ArmorStandFactory_V1_12_R1();
+            fabf     = new FallingBlockFactory_V1_12_R1();
+            fabf2    = new ArmorStandFactory_V1_12_R1();
         }
         else if (version.equals("v1_13_R1"))
         {
-            this.is1_13   = true;
-            this.fabf     = new FallingBlockFactory_V1_13_R1();
+            is1_13   = true;
+            fabf     = new FallingBlockFactory_V1_13_R1();
         }
         else if (version.equals("v1_13_R2"))
         {
-            this.is1_13   = true;
-            this.fabf     = new FallingBlockFactory_V1_13_R2();
+            is1_13   = true;
+            fabf     = new FallingBlockFactory_V1_13_R2();
         }
         // Return true if compatible.
         return fabf != null;
@@ -449,44 +452,44 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public String getLoginString()
     {
-        return this.loginString;
+        return loginString;
     }
 
     public void setLoginString(String str)
     {
-        this.loginString = str;
+        loginString = str;
     }
 
 
 
-    /* 
+    /*
      * API Starts here.
      */
 
     // (Instantly?) Toggle a door with a given time.
     private boolean toggleDoor(Door door, double time, boolean instantOpen)
     {
-        return this.getDoorOpener(door.getType()).openDoor(door, time, instantOpen, false);
+        return getDoorOpener(door.getType()).openDoor(door, time, instantOpen, false);
     }
 
     // Toggle a door from a doorUID and instantly or not.
     public boolean toggleDoor(long doorUID, boolean instantOpen)
     {
-        Door door = this.getCommander().getDoor(doorUID);
+        Door door = getCommander().getDoor(doorUID);
         return toggleDoor(door, 0.0, instantOpen);
     }
 
     // Toggle a door from a doorUID and a given time.
     public boolean toggleDoor(long doorUID, double time)
     {
-        Door door = this.getCommander().getDoor(doorUID);
+        Door door = getCommander().getDoor(doorUID);
         return toggleDoor(door, time, false);
     }
 
     // Toggle a door from a doorUID using default values.
     public boolean toggleDoor(long doorUID)
     {
-        Door door = this.getCommander().getDoor(doorUID);
+        Door door = getCommander().getDoor(doorUID);
         return toggleDoor(door, 0.0, false);
     }
 
@@ -499,7 +502,7 @@ public class BigDoors extends JavaPlugin implements Listener
     // Check the open-status of a door from a doorUID.
     public boolean isOpen (long doorUID)
     {
-        Door door = this.getCommander().getDoor(doorUID);
+        Door door = getCommander().getDoor(doorUID);
         return this.isOpen(door);
     }
 }

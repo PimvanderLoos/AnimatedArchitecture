@@ -32,7 +32,7 @@ public class BridgeMover implements BlockMover
 {
 	private World                    world;
 	private BigDoors                plugin;
-	private int                   tickRate;	
+	private int                   tickRate;
 	private double              multiplier;
 	private int                     dx, dz;
 	private double                    time;
@@ -52,39 +52,39 @@ public class BridgeMover implements BlockMover
 	private int           xMin, yMin, zMin;
 	private int           xMax, yMax, zMax;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
-	
+
 	@SuppressWarnings("deprecation")
-	public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown, 
+	public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
 			DoorDirection openDirection, boolean instantOpen)
 	{
 		this.door          = door;
-		this.fabf          = plugin.getFABF();
+		fabf          = plugin.getFABF();
 		this.world         = world;
 		this.plugin        = plugin;
-		this.engineSide    = door.getEngSide();
-		this.NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
+		engineSide    = door.getEngSide();
+		NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
 		this.instantOpen   = instantOpen;
 		this.openDirection = openDirection;
 		this.upDown        = upDown;
-				
-		this.xMin       = door.getMinimum().getBlockX();
-		this.yMin       = door.getMinimum().getBlockY();
-		this.zMin       = door.getMinimum().getBlockZ();
-		this.xMax       = door.getMaximum().getBlockX();
-		this.yMax       = door.getMaximum().getBlockY();
-		this.zMax       = door.getMaximum().getBlockZ();
+
+		xMin       = door.getMinimum().getBlockX();
+		yMin       = door.getMinimum().getBlockY();
+		zMin       = door.getMinimum().getBlockZ();
+		xMax       = door.getMaximum().getBlockX();
+		yMax       = door.getMaximum().getBlockY();
+		zMax       = door.getMaximum().getBlockZ();
 		int xLen        = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
 		int yLen        = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
 		int zLen        = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
 		int doorSize    = Math.max(xLen, Math.max(yLen, zLen)) + 1;
 		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().dbMultiplier(), 5.2);
 		this.time       = vars[0];
-		this.tickRate   = (int) vars[1];
-		this.multiplier = vars[2];
-		
+		tickRate   = (int) vars[1];
+		multiplier = vars[2];
+
 		// Regarding dx, dz. These variables determine whether loops get incremented (1) or decremented (-1)
-		// When looking in the direction of the opposite point from the engine side, the blocks should get 
-		// Processed from left to right and from the engine to the opposite. 
+		// When looking in the direction of the opposite point from the engine side, the blocks should get
+		// Processed from left to right and from the engine to the opposite.
 		/* Pointing:   Degrees:
 		 * UP            0 or 360
 		 * EAST         90
@@ -92,104 +92,104 @@ public class BridgeMover implements BlockMover
 		 * NORTH       270
 		 * SOUTH        90
 		 */
-		this.startStepSum   = -1;
-		this.stepMultiplier = -1;
-		
+		startStepSum   = -1;
+		stepMultiplier = -1;
+
 		// Calculate turningpoint and pointOpposite.
 		switch (engineSide)
 		{
 		case NORTH:
 			// When EngineSide is North, x goes from low to high and z goes from low to high
-			this.turningPoint = new Location(world, xMin, yMin, zMin);
-			this.dx =  1;
-			this.dz =  1;
-			
+			turningPoint = new Location(world, xMin, yMin, zMin);
+			dx =  1;
+			dz =  1;
+
 			if (upDown.equals(RotateDirection.UP))
 			{
-				this.pointOpposite  = new Location(world, xMax, yMin, zMax);
-				this.startStepSum   =  Math.PI / 2;
-				this.stepMultiplier = -1;
+				pointOpposite  = new Location(world, xMax, yMin, zMax);
+				startStepSum   =  Math.PI / 2;
+				stepMultiplier = -1;
 			}
 			else
 			{
-				this.pointOpposite  = new Location(world, xMax, yMax, zMin);
+				pointOpposite  = new Location(world, xMax, yMax, zMin);
 				if (openDirection.equals(DoorDirection.NORTH))
-					this.stepMultiplier = -1;
+					stepMultiplier = -1;
 				else if (openDirection.equals(DoorDirection.SOUTH))
-					this.stepMultiplier =  1;
+					stepMultiplier =  1;
 			}
 			break;
-			
+
 		case SOUTH:
 			// When EngineSide is South, x goes from high to low and z goes from high to low
-			this.turningPoint = new Location(world, xMax, yMin, zMax);
-			this.dx = -1;
-			this.dz = -1;
-			
+			turningPoint = new Location(world, xMax, yMin, zMax);
+			dx = -1;
+			dz = -1;
+
 			if (upDown.equals(RotateDirection.UP))
 			{
-				this.pointOpposite  = new Location(world, xMin, yMin, zMin);
-				this.startStepSum   = -Math.PI / 2;
-				this.stepMultiplier =  1;
+				pointOpposite  = new Location(world, xMin, yMin, zMin);
+				startStepSum   = -Math.PI / 2;
+				stepMultiplier =  1;
 			}
 			else
 			{
-				this.pointOpposite  = new Location(world, xMin, yMax, zMax);
+				pointOpposite  = new Location(world, xMin, yMax, zMax);
 				if (openDirection.equals(DoorDirection.NORTH))
-					this.stepMultiplier = -1;
+					stepMultiplier = -1;
 				else if (openDirection.equals(DoorDirection.SOUTH))
-					this.stepMultiplier =  1;
+					stepMultiplier =  1;
 			}
 			break;
-			
+
 		case EAST:
 			// When EngineSide is East, x goes from high to low and z goes from low to high
-			this.turningPoint = new Location(world, xMax, yMin, zMin);
-			this.dx = -1;
-			this.dz =  1;
-			
+			turningPoint = new Location(world, xMax, yMin, zMin);
+			dx = -1;
+			dz =  1;
+
 			if (upDown.equals(RotateDirection.UP))
 			{
-				this.pointOpposite  = new Location(world, xMin, yMin, zMax);
-				this.startStepSum   = -Math.PI / 2;
-				this.stepMultiplier =  1;
+				pointOpposite  = new Location(world, xMin, yMin, zMax);
+				startStepSum   = -Math.PI / 2;
+				stepMultiplier =  1;
 			}
 			else
 			{
-				this.pointOpposite  = new Location(world, xMax, yMax, zMax);
+				pointOpposite  = new Location(world, xMax, yMax, zMax);
 				if (openDirection.equals(DoorDirection.EAST))
-					this.stepMultiplier =  1;
+					stepMultiplier =  1;
 				else if (openDirection.equals(DoorDirection.WEST))
-					this.stepMultiplier = -1;
+					stepMultiplier = -1;
 			}
 			break;
-			
+
 		case WEST:
 			// When EngineSide is West, x goes from low to high and z goes from high to low
-			this.turningPoint = new Location(world, xMin, yMin, zMax);
-			this.dx =  1;
-			this.dz = -1;
-			
+			turningPoint = new Location(world, xMin, yMin, zMax);
+			dx =  1;
+			dz = -1;
+
 			if (upDown.equals(RotateDirection.UP))
-			{	
-				this.pointOpposite  = new Location(world, xMax, yMin, zMin);
-				this.startStepSum   =  Math.PI / 2;
-				this.stepMultiplier = -1;
+			{
+				pointOpposite  = new Location(world, xMax, yMin, zMin);
+				startStepSum   =  Math.PI / 2;
+				stepMultiplier = -1;
 			}
 			else
 			{
-				this.pointOpposite  = new Location(world, xMin, yMax, zMin);
+				pointOpposite  = new Location(world, xMin, yMax, zMin);
 				if (openDirection.equals(DoorDirection.EAST))
-					this.stepMultiplier =  1;
+					stepMultiplier =  1;
 				else if (openDirection.equals(DoorDirection.WEST))
-					this.stepMultiplier = -1;
+					stepMultiplier = -1;
 			}
 			break;
 		}
 
-		this.endStepSum   = upDown.equals(RotateDirection.UP)   ? 0 : Math.PI / 2 * this.stepMultiplier;
-		this.startStepSum = upDown.equals(RotateDirection.DOWN) ? 0 : this.startStepSum;
-		
+		endStepSum   = upDown.equals(RotateDirection.UP)   ? 0 : Math.PI / 2 * stepMultiplier;
+		startStepSum = upDown.equals(RotateDirection.DOWN) ? 0 : startStepSum;
+
 		int index = 0;
 		double xAxis = turningPoint.getX();
 		do
@@ -206,14 +206,14 @@ public class BridgeMover implements BlockMover
 					else
 						radius = Math.abs(xAxis - turningPoint.getBlockX());
 				}
-		         
+
 				for (double yAxis = yMin; yAxis <= yMax; ++yAxis)
 				{
 					if (upDown == RotateDirection.DOWN)
 						radius = yAxis - turningPoint.getBlockY();
-					
+
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground, 
+					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground,
 					// which would make them slower than the rest.
 					if (yAxis == yMin)
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
@@ -225,10 +225,10 @@ public class BridgeMover implements BlockMover
 						Byte matData  = vBlock.getData();
 						BlockState bs = vBlock.getState();
 						MaterialData materialData = bs.getData();
-						
-						NMSBlock_Vall block  = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+
+						NMSBlock_Vall block  = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
 						NMSBlock_Vall block2 = null;
-						
+
 						int canRotate = 0;
 						Byte matByte  = matData;
 						// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
@@ -241,13 +241,13 @@ public class BridgeMover implements BlockMover
 								matByte      = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
 								Block b      = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
 								materialData.setData(matByte);
-								
+
 								if (plugin.is1_13())
 								{
 									if (canRotate == 6)
 									{
-										block2 = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
-										block2.rotateBlockUpDown(this.NS);
+										block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+										block2.rotateBlockUpDown(NS);
 									}
 									else
 									{
@@ -255,7 +255,7 @@ public class BridgeMover implements BlockMover
 										BlockState bs2 = b.getState();
 										bs2.setData(materialData);
 										bs2.update();
-										block2 = this.fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+										block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
 									}
 								}
 							}
@@ -266,11 +266,11 @@ public class BridgeMover implements BlockMover
 							mat     = Material.AIR;
 							matData = 0;
 						}
-						
+
 						CustomCraftFallingBlock_Vall fBlock = null;
 						if (!instantOpen)
 							 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-							
+
 						savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, -1));
 					}
 					else
@@ -287,19 +287,19 @@ public class BridgeMover implements BlockMover
 		switch (openDirection)
 		{
 		case NORTH:
-			this.gnl = new GetNewLocationNorth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+			gnl = new GetNewLocationNorth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
 			break;
 		case EAST:
-			this.gnl = new GetNewLocationEast (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+			gnl = new GetNewLocationEast (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
 			break;
 		case SOUTH:
-			this.gnl = new GetNewLocationSouth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+			gnl = new GetNewLocationSouth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
 			break;
 		case WEST:
-			this.gnl = new GetNewLocationWest (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+			gnl = new GetNewLocationWest (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
 			break;
 		}
-		
+
 		if (!instantOpen)
 			rotateEntities();
 		else
@@ -333,14 +333,14 @@ public class BridgeMover implements BlockMover
 						Byte matByte;
 						matByte = savedBlocks.get(index).getBlockByte();
 						Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis, index);
-	
+
 						if (!instantOpen)
 							savedBlocks.get(index).getFBlock().remove();
-	
+
 						if (!savedBlocks.get(index).getMat().equals(Material.AIR))
 						{
 							if (plugin.is1_13())
-							{						
+							{
 								savedBlocks.get(index).getBlock().putBlock(newPos);
 								Block b = world.getBlockAt(newPos);
 								BlockState bs = b.getState();
@@ -348,10 +348,10 @@ public class BridgeMover implements BlockMover
 							}
 							else
 							{
-								Block b = world.getBlockAt(newPos);					
+								Block b = world.getBlockAt(newPos);
 								MaterialData matData = savedBlocks.get(index).getMatData();
 								matData.setData(matByte);
-								
+
 								b.setType(mat);
 								BlockState bs = b.getState();
 								bs.setData(matData);
@@ -370,16 +370,16 @@ public class BridgeMover implements BlockMover
 		savedBlocks.clear();
 
 		// Tell the door object it has been opened and what its new coordinates are.
-		updateCoords(door, this.openDirection, this.upDown, -1);
+		updateCoords(door, openDirection, upDown, -1);
 		toggleOpen  (door);
 		if (!onDisable)
 			plugin.removeBlockMover(this);
-		
+
 		// Change door availability to true, so it can be opened again.
 		// Wait for a bit if instantOpen is enabled.
-		int timer = onDisable   ?  0 : 
+		int timer = onDisable   ?  0 :
 			        instantOpen ? 40 : plugin.getConfigLoader().coolDown() * 20;
-		
+
 		if (timer > 0)
 		{
 			new BukkitRunnable()
@@ -393,17 +393,17 @@ public class BridgeMover implements BlockMover
 		}
 		else
 			plugin.getCommander().setDoorAvailable(door.getDoorUID());
-		
+
 		if (!onDisable)
 			goAgain();
 	}
-	
+
 	private void goAgain()
 	{
 		int autoCloseTimer = door.getAutoClose();
 		if (autoCloseTimer < 0 || !door.isOpen())
 			return;
-		
+
 		new BukkitRunnable()
 		{
 			@Override
@@ -414,7 +414,7 @@ public class BridgeMover implements BlockMover
 			}
 		}.runTaskLater(plugin, autoCloseTimer * 20);
 	}
-	
+
 	// Method that takes care of the rotation aspect.
 	private void rotateEntities()
 	{
@@ -428,33 +428,33 @@ public class BridgeMover implements BlockMover
 			double stepSum    = startStepSum;
 			int totalTicks    = (int) (endCount * multiplier);
 			int replaceCount  = (int) (endCount / 2);
-			
+
 			@Override
 			public void run()
 			{
 				if (counter == 0 || (counter < endCount - 45 / tickRate && counter % (6 * tickRate / 4) == 0))
 					Util.playSound(door.getEngine(), "bd.drawbridge-rattling", 0.8f, 0.7f);
-				
+
 				if (!plugin.getCommander().isPaused())
 					++counter;
-				
+
 				if (counter < endCount - 1)
 					stepSum = startStepSum + step * counter;
-				else 
+				else
 					stepSum = endStepSum;
-								
+
 				replace = false;
 				if (counter == replaceCount)
 					replace = true;
-				
+
 				if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
-				{					
+				{
 					Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						if (!savedBlocks.get(idx).getMat().equals(Material.AIR))
 							savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
 					putBlocks(false);
-					this.cancel();
+					cancel();
 				}
 				else
 				{
@@ -471,14 +471,14 @@ public class BridgeMover implements BlockMover
 									Location loc = block.getFBlock().getLocation();
 									Byte matData = block.getBlockByte();
 									Vector veloc = block.getFBlock().getVelocity();
-									
+
 									CustomCraftFallingBlock_Vall fBlock;
 									// Because the block in savedBlocks is already rotated where applicable, just use that block now.
 									fBlock = fallingBlockFactory(loc, mat, (byte) matData, block.getBlock());
-									
+
 									block.getFBlock().remove();
 									block.setFBlock(fBlock);
-									
+
 									block.getFBlock().setVelocity(veloc);
 								}
 							}
@@ -507,7 +507,7 @@ public class BridgeMover implements BlockMover
 			}
 		}.runTaskTimer(plugin, 14, tickRate);
 	}
-	
+
 	// Rotate blocks such a logs by modifying its material data.
 	private byte rotateBlockData(Byte matData)
 	{
@@ -528,7 +528,7 @@ public class BridgeMover implements BlockMover
 			return matData;
 		}
 	}
-	
+
 	// Rotate blocks such a logs by modifying its material data.
 	private byte rotateEndRotBlockData(Byte matData)
 	{
@@ -542,25 +542,25 @@ public class BridgeMover implements BlockMover
 		if (!NS)
 		{
 			if (matData == 0)
-				return (byte) (this.openDirection.equals(DoorDirection.EAST) ? 4 : 5);
+				return (byte) (openDirection.equals(DoorDirection.EAST) ? 4 : 5);
 			if (matData == 1)
-				return (byte) (this.openDirection.equals(DoorDirection.EAST) ? 5 : 4);
+				return (byte) (openDirection.equals(DoorDirection.EAST) ? 5 : 4);
 			if (matData == 4)
-				return (byte) (this.openDirection.equals(DoorDirection.EAST) ? 1 : 0);
+				return (byte) (openDirection.equals(DoorDirection.EAST) ? 1 : 0);
 			if (matData == 5)
-				return (byte) (this.openDirection.equals(DoorDirection.EAST) ? 0 : 1);
+				return (byte) (openDirection.equals(DoorDirection.EAST) ? 0 : 1);
 			return matData;
 		}
 		else
-		{	
+		{
 			if (matData == 0)
-				return (byte) (this.openDirection.equals(DoorDirection.NORTH) ? 3 : 2);
+				return (byte) (openDirection.equals(DoorDirection.NORTH) ? 3 : 2);
 			if (matData == 1)
-				return (byte) (this.openDirection.equals(DoorDirection.NORTH) ? 2 : 3);
+				return (byte) (openDirection.equals(DoorDirection.NORTH) ? 2 : 3);
 			if (matData == 2)
-				return (byte) (this.openDirection.equals(DoorDirection.NORTH) ? 0 : 1);
+				return (byte) (openDirection.equals(DoorDirection.NORTH) ? 0 : 1);
 			if (matData == 3)
-				return (byte) (this.openDirection.equals(DoorDirection.NORTH) ? 1 : 0);
+				return (byte) (openDirection.equals(DoorDirection.NORTH) ? 1 : 0);
 			return matData;
 		}
 	}
@@ -586,7 +586,7 @@ public class BridgeMover implements BlockMover
 		Location newMax = null;
 		Location newMin = null;
 		DoorDirection newEngSide = door.getEngSide();
-		
+
 		switch (openDirection)
 		{
 		case NORTH:
@@ -595,7 +595,7 @@ public class BridgeMover implements BlockMover
 				newEngSide = DoorDirection.NORTH;
 				newMin = new Location(door.getWorld(), xMin, yMin,        zMin);
 				newMax = new Location(door.getWorld(), xMax, yMin + zLen, zMin);
-			} 
+			}
 			else
 			{
 				newEngSide = DoorDirection.SOUTH;
@@ -603,15 +603,15 @@ public class BridgeMover implements BlockMover
 				newMax = new Location(door.getWorld(), xMax, yMin, zMin       );
 			}
 			break;
-			
-			
+
+
 		case EAST:
 			if (upDown == RotateDirection.UP)
 			{
 				newEngSide = DoorDirection.EAST;
 				newMin = new Location(door.getWorld(), xMax, yMin,        zMin);
 				newMax = new Location(door.getWorld(), xMax, yMin + xLen, zMax);
-			} 
+			}
 			else
 			{
 				newEngSide = DoorDirection.WEST;
@@ -619,15 +619,15 @@ public class BridgeMover implements BlockMover
 				newMax = new Location(door.getWorld(), xMax + yLen, yMin, zMax);
 			}
 			break;
-			
-			
+
+
 		case SOUTH:
 			if (upDown == RotateDirection.UP)
 			{
 				newEngSide = DoorDirection.SOUTH;
 				newMin = new Location(door.getWorld(), xMin, yMin,        zMax);
 				newMax = new Location(door.getWorld(), xMax, yMin + zLen, zMax);
-			} 
+			}
 			else
 			{
 				newEngSide = DoorDirection.NORTH;
@@ -635,15 +635,15 @@ public class BridgeMover implements BlockMover
 				newMax = new Location(door.getWorld(), xMax, yMin, zMax + yLen);
 			}
 			break;
-			
-			
+
+
 		case WEST:
 			if (upDown == RotateDirection.UP)
 			{
 				newEngSide = DoorDirection.WEST;
 				newMin = new Location(door.getWorld(), xMin, yMin,        zMin);
 				newMax = new Location(door.getWorld(), xMin, yMin + xLen, zMax);
-			} 
+			}
 			else
 			{
 				newEngSide = DoorDirection.EAST;
@@ -661,23 +661,23 @@ public class BridgeMover implements BlockMover
 
 	private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
 	{
-		CustomCraftFallingBlock_Vall entity = this.fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
+		CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
 		Entity bukkitEntity = (Entity) entity;
 		bukkitEntity.setCustomName("BigDoorsEntity");
 		bukkitEntity.setCustomNameVisible(false);
 		return entity;
 	}
 
-	
+
 	@Override
 	public long getDoorUID()
 	{
-		return this.door.getDoorUID();
+		return door.getDoorUID();
 	}
 
 	@Override
 	public Door getDoor()
 	{
-		return this.door;
+		return door;
 	}
 }

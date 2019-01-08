@@ -3,7 +3,10 @@ Alpha 0.1.7.4
 - Fixed translation for setting close timer. Thanks, @WHiZSTA.
 - Doors can now go through water and lava.
 - Added DEBUG option in config that you should not use. Just leave it on false.
-- Made update checking a little less frequent (once every 4h now (and on startup) instead of every 30 mins)
+- Made update checking a little less frequent (once every 4h now (and on startup) instead of every 30 mins).
+- Fixed incompatibility with Wireless Redstone. Thanks, @DaniRadio for the bug report!
+- Fixed terracotta accidentally being blacklisted in <1.13.*. Thanks, @Minestick for the bug report! 
+- Added filldoor command to quickly generate doors.
 
 Alpha 0.1.7.3
 - Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!

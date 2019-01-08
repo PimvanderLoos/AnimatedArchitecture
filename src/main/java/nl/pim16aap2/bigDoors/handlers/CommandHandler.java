@@ -23,6 +23,7 @@ import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
+import nl.pim16aap2.bigDoors.util.XMaterial;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForSetTime;
 
@@ -141,7 +142,7 @@ public class CommandHandler implements CommandExecutor
         for (Door door : doors)
         {
             String playerName = Util.nameFromUUID(door.getPlayerUUID());
-            plugin.getMyLogger().myLogger(Level.INFO, 
+            plugin.getMyLogger().myLogger(Level.INFO,
                                           (playerName == null ? "" : playerName + ": ") + Util.getBasicDoorInfo(door));
         }
         if (doors.size() == 0)
@@ -196,7 +197,7 @@ public class CommandHandler implements CommandExecutor
                 startTimerForAbortable((Abortable) tu, player, 60 * 20);
     }
 
-    public ToolUser isToolUser(Player player) 
+    public ToolUser isToolUser(Player player)
     {
         for (ToolUser tu : plugin.getToolUsers())
             if (tu.getPlayer() == player)
@@ -238,7 +239,7 @@ public class CommandHandler implements CommandExecutor
 
     private boolean isPlayerBusy(Player player)
     {
-        boolean isBusy = (this.isToolUser(player) != null || this.isCommandWaiter(player) != null);
+        boolean isBusy = (isToolUser(player) != null || isCommandWaiter(player) != null);
         if (isBusy)
             Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
         return isBusy;
@@ -246,7 +247,7 @@ public class CommandHandler implements CommandExecutor
 
     public void startPowerBlockRelocator(Player player, long doorUID)
     {
-        startTimerForAbortable((Abortable) new PowerBlockRelocator(plugin, player, doorUID), player, 20 * 20);    
+        startTimerForAbortable((Abortable) new PowerBlockRelocator(plugin, player, doorUID), player, 20 * 20);
     }
 
     // Handle commands.
@@ -258,7 +259,7 @@ public class CommandHandler implements CommandExecutor
         // /bdrestart
         if (cmd.getName().equalsIgnoreCase("bdrestart"))
         {
-            this.plugin.restart();
+            plugin.restart();
             return true;
         }
 
@@ -304,7 +305,7 @@ public class CommandHandler implements CommandExecutor
                     setDoorOpenTime(player, door.getDoorUID(), time);
                     return true;
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
                     return false;
                 }
@@ -338,6 +339,24 @@ public class CommandHandler implements CommandExecutor
             return true;
         }
 
+        if (cmd.getName().equalsIgnoreCase("filldoor"))
+        {
+            if (args.length != 1)
+                return false;
+            player = null;
+            if (sender instanceof Player)
+                player = (Player) sender;
+            Door door = plugin.getCommander().getDoor(args[0], player);
+            if (door == null)
+                return false;
+
+            for (int i = door.getMinimum().getBlockX(); i <= door.getMaximum().getBlockX(); ++i)
+                for (int j = door.getMinimum().getBlockY(); j <= door.getMaximum().getBlockY(); ++j)
+                    for (int k = door.getMinimum().getBlockZ(); k <= door.getMaximum().getBlockZ(); ++k)
+                        door.getWorld().getBlockAt(i, j, k).setType(XMaterial.STONE.parseMaterial());
+            return true;
+        }
+
         // /pausedoors
         if (cmd.getName().equalsIgnoreCase("pausedoors"))
         {
@@ -348,7 +367,7 @@ public class CommandHandler implements CommandExecutor
         // /bdversion
         if (cmd.getName().equalsIgnoreCase("bdversion"))
         {
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " + 
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " +
                     plugin.getDescription().getVersion() + " of this plugin!");
             return true;
         }
@@ -385,12 +404,12 @@ public class CommandHandler implements CommandExecutor
                     // Is a valid door, but if it was the time, it shouldn't get here anyway!
                     if (door == null && index != args.length - 1)
                     {
-                        plugin.getMyLogger().returnToSender(sender, Level.INFO, 
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
                                                             ChatColor.RED, "\"" + args[index] + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
                         // If player is null, the console or a command block is being used.
                         // If that's the case, kindly remind them (in the console) that they should be using DoorUIDs.
                         if (player == null)
-                            plugin.getMyLogger().returnToSender(sender, Level.INFO, 
+                            plugin.getMyLogger().returnToSender(sender, Level.INFO,
                                                                 ChatColor.RED, "Don't forget that you should use the DoorUID in the console/command blocks! DoorName won't work here!");
                     }
                     else if (door != null)
@@ -402,17 +421,17 @@ public class CommandHandler implements CommandExecutor
                             if (door.isOpen())
                                 openDoorCommand(sender, door, time);
                             else
-                                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, 
-                                                                    plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] + 
+                                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                                    plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] +
                                                                     "\" " + plugin.getMessages().getString("GENERAL.CannotClose"));
                         }
-                        else if (type == 0)    
+                        else if (type == 0)
                         {
                             if (!door.isOpen())
                                 openDoorCommand(sender, door, time);
                             else
-                                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, 
-                                                                    plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] + 
+                                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                                    plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] +
                                                                     "\" " + plugin.getMessages().getString("GENERAL.CannotOpen"));
                         }
                     }

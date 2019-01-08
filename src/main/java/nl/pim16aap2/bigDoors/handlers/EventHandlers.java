@@ -20,14 +20,15 @@ public class EventHandlers implements Listener
 
 	public EventHandlers(BigDoors plugin)
 	{
-		this.plugin     = plugin;
+		this.plugin = plugin;
 	}
-	
+
 	// Selection event.
-	@EventHandler @SuppressWarnings("deprecation")
+	@EventHandler
 	public void onLeftClick(PlayerInteractEvent event)
 	{
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK)
+		{
 			if (plugin.getTF().isTool(event.getPlayer().getItemInHand()))
 			{
 				ToolUser tu = plugin.getCommandHandler().isToolUser(event.getPlayer());
@@ -38,8 +39,9 @@ public class EventHandlers implements Listener
 					return;
 				}
 			}
+		}
 	}
-	
+
 	// Do not allow the player to drop the door creation tool.
 	@EventHandler
 	public void onItemDropEvent(PlayerDropItemEvent event)
@@ -55,12 +57,14 @@ public class EventHandlers implements Listener
 		if (plugin.getTF().isTool(event.getItem()))
 			event.setCancelled(true);
 	}
-	
+
 	// Make sure any chunks that are unloaded don't contain any moving doors.
 	// In the case it does happen, cancel the event, stop the door and uncancel the event a bit later.
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onChunkUnload(ChunkUnloadEvent event)
 	{
+	    if (event.isCancelled())
+	        return;
 		for (BlockMover bm : plugin.getBlockMovers())
 		{
 			if (bm.getDoor().chunkInRange(event.getChunk()))
@@ -72,7 +76,8 @@ public class EventHandlers implements Listener
 					@Override
 					public void run()
 					{
-						event.getChunk().unload(true);
+				       if (!event.isCancelled())
+				           event.getChunk().unload(true);
 					}
 				}.runTaskLater(plugin, 10);
 			}

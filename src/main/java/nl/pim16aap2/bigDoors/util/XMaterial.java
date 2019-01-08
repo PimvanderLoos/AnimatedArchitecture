@@ -1,24 +1,24 @@
 package nl.pim16aap2.bigDoors.util;
 
-/** 
+/**
 * The MIT License (MIT)
-* 
+*
 * Copyright (c) 2018 Hex_27
-* 
+*
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"),
-* to deal in the Software without restriction, including without limitation 
-* the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-* and/or sell copies of the Software, and to permit persons to whom the 
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
 * Software is furnished to do so, subject to the following conditions:
 *
-* The above copyright notice and this permission notice shall be included 
+* The above copyright notice and this permission notice shall be included
 * in all copies or substantial portions of the Software.
 *
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-* OF * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 * DEALINGS IN THE SOFTWARE.
@@ -36,7 +36,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public enum XMaterial {
-	
+	ANY_STAINED_CLAY("STAINED_CLAY", 0),
+
 	ACACIA_BOAT("BOAT_ACACIA", 0),
 	ACACIA_BUTTON("WOOD_BUTTON", 0),
 	ACACIA_DOOR("ACACIA_DOOR_ITEM", 0),
@@ -890,12 +891,12 @@ public enum XMaterial {
 	;
 	String m;
 	int data;
-	
+
 	XMaterial(String m, int data ){
 		this.m = m;
 		this.data = data;
 	}
-	
+
 	public ItemStack parseItem(){
 		Material mat = parseMaterial();
 		if(isNewVersion()){
@@ -915,7 +916,7 @@ public enum XMaterial {
         newV = 0;
         return false;
 	}
-	
+
 	private static HashMap<String, XMaterial> cachedSearch = new HashMap<>();
 	public static XMaterial requestXMaterial(String name, byte data){
 		if(cachedSearch.containsKey(name.toUpperCase()+","+data)){
@@ -929,25 +930,25 @@ public enum XMaterial {
 		}
 		return null;
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public boolean isSameMaterial(ItemStack comp){
 		if(isNewVersion()){
-			return comp.getType() == this.parseMaterial();
+			return comp.getType() == parseMaterial();
 		}
-		if(comp.getType() == this.parseMaterial() &&
-				(int) comp.getData().getData() == (int) this.data){
+		if(comp.getType() == parseMaterial() &&
+				(int) comp.getData().getData() == (int) data){
 			return true;
 		}
 		XMaterial xmat = fromMaterial(comp.getType());
 		if(isDamageable(xmat)){
-			if(this.parseMaterial() == comp.getType()){
+			if(parseMaterial() == comp.getType()){
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	public XMaterial fromMaterial(Material mat){
 		try{
 			return XMaterial.valueOf(mat.toString());
@@ -960,7 +961,7 @@ public enum XMaterial {
 		}
 		return null;
 	}
-	
+
 	public static XMaterial fromString(String key){
 		XMaterial xmat = null;
 		try{
@@ -975,9 +976,9 @@ public enum XMaterial {
 			}
 			return xmat;
 		}
-		
+
 	}
-	
+
 	public boolean isDamageable(XMaterial type){
         String[] split = type.toString().split("_");
         int length = split.length;
@@ -1014,13 +1015,13 @@ public enum XMaterial {
 			return false;
 		}
 	}
-	
+
 	public Material parseMaterial()
 	{
-        	Material mat = Material.matchMaterial(this.toString());
+        	Material mat = Material.matchMaterial(toString());
         	if(mat != null)
         		return mat;
         	return Material.matchMaterial(m);
     }
-	
+
 }
