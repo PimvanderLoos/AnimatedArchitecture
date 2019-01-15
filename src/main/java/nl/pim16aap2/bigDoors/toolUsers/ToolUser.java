@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.toolUsers;
 import java.util.Arrays;
 import java.util.logging.Level;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,7 +14,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.Abortable;
@@ -34,21 +34,21 @@ public abstract class ToolUser implements Abortable
 	protected boolean      done = false;
 	protected boolean    isOpen = false;
 	protected Location one, two, engine;
-	
+
 	public ToolUser(BigDoors plugin, Player player, String name, DoorType type)
 	{
 		this.plugin     = plugin;
-		this.messages   = plugin.getMessages();
+		messages   = plugin.getMessages();
 		this.player     = player;
 		this.name       = name;
-		this.one        = null;
-		this.two        = null;
-		this.engine     = null;
-		this.engineSide = null;
+		one        = null;
+		two        = null;
+		engine     = null;
+		engineSide = null;
 		this.type       = type;
 		plugin.addToolUser(this);
 	}
-	
+
 	// Handle location input (player hitting a block).
 	public    abstract void    selector(Location loc);
 	// Give a tool to a player (but get correct strings etc from translation file first).
@@ -57,7 +57,7 @@ public abstract class ToolUser implements Abortable
 	protected abstract void    triggerFinishUp();
 	// Check if all the variables that cannot be null are not null.
 	protected abstract boolean isReadyToCreateDoor();
-	
+
 	// Final cleanup
 	protected void finishUp(String message)
 	{
@@ -68,39 +68,39 @@ public abstract class ToolUser implements Abortable
 			Location max    = new Location(world, two.getBlockX(), two.getBlockY(), two.getBlockZ());
 			Location engine = new Location(world, this.engine.getBlockX(), this.engine.getBlockY(), this.engine.getBlockZ());
 			Location powerB = new Location(world, this.engine.getBlockX(), this.engine.getBlockY() - 1, this.engine.getBlockZ());
-			
-			Door door = new Door(player.getUniqueId(), world, min, max, engine, name, isOpen, -1, false, 
-					0, this.type, engineSide, powerB, null, -1);
+
+			Door door = new Door(player.getUniqueId(), world, min, max, engine, name, isOpen, -1, false,
+					0, type, engineSide, powerB, null, -1);
 			plugin.getCommander().addDoor(door);
-			
+
 			Util.messagePlayer(player, message);
 		}
 		takeToolFromPlayer();
 	}
-	
+
 	protected void giveToolToPlayer(String[] lore, String[] message)
 	{
 		ItemStack tool = new ItemStack(Material.STICK, 1);
 		tool.addUnsafeEnchantment(Enchantment.LUCK, 1);
 		tool.getItemMeta().addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		
+
         ItemMeta itemMeta = tool.getItemMeta();
         itemMeta.setDisplayName(messages.getString("CREATOR.GENERAL.StickName"));
         itemMeta.setLore(Arrays.asList(lore));
         tool.setItemMeta(itemMeta);
-        
+
         int heldSlot = player.getInventory().getHeldItemSlot();
         if (player.getInventory().getItem(heldSlot) == null)
         		player.getInventory().setItem(heldSlot, tool);
         else
         		player.getInventory().addItem(tool);
-		
+
 		Util.messagePlayer(player, message);
 	}
-	
+
 	public Player getPlayer()
 	{
-		return this.player;
+		return player;
 	}
 
 	public void setName(String newName)
@@ -108,7 +108,7 @@ public abstract class ToolUser implements Abortable
 		name = newName;
 		triggerGiveTool();
 	}
-	
+
 	// Take any selection tools in the player's inventory from them.
 	public void takeToolFromPlayer()
 	{
@@ -117,12 +117,12 @@ public abstract class ToolUser implements Abortable
 				if (plugin.getTF().isTool(is))
 					is.setAmount(0);
 	}
-	
+
 	public String getName()
 	{
-		return this.name;
+		return name;
 	}
-	
+
 	// Make sure position "one" contains the minimum values, "two" the maximum values and engine min.Y;
 	protected void minMaxFix()
 	{
@@ -140,17 +140,17 @@ public abstract class ToolUser implements Abortable
 		two.setY(minY < maxY ? maxY : minY);
 		two.setZ(minZ < maxZ ? maxZ : minZ);
 	}
-	
+
 	// See if this class is done.
 	public boolean isDone()
 	{
-		return this.done;
+		return done;
 	}
-	
-	// Change isDone status and 
+
+	// Change isDone status and
 	public void setIsDone(boolean bool)
 	{
-		this.done = bool;
+		done = bool;
 		if (bool)
 		{
 			triggerFinishUp();
@@ -161,10 +161,10 @@ public abstract class ToolUser implements Abortable
 	@Override
 	public void abort(boolean onDisable)
 	{
-		this.takeToolFromPlayer();
+		takeToolFromPlayer();
 		if (onDisable)
 			return;
-		if (!this.done)
+		if (!done)
 		{
 			plugin.removeToolUser(this);
 			plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, messages.getString("CREATOR.GENERAL.TimeUp"));

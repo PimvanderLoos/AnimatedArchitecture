@@ -50,6 +50,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Change config so you no longer request specific values via a String.
 // TODO: Add permissions per door-type.
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
+// TODO: Use bukkit colors.
 
 public class BigDoors extends JavaPlugin implements Listener
 {

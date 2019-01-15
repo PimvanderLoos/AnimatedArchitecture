@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -12,7 +13,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.Door;
 
 public final class Util

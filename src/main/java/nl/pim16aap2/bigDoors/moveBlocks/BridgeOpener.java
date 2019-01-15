@@ -2,9 +2,9 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
@@ -20,7 +20,7 @@ public class BridgeOpener implements Opener
 	{
 		this.plugin = plugin;
 	}
-	
+
 	// Check if the new position is free.
 	private boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
 	{
@@ -39,43 +39,43 @@ public class BridgeOpener implements Opener
 			case NORTH:
 				startX = door.getMinimum().getBlockX();
 				endX   = door.getMaximum().getBlockX();
-				
+
 				startY = door.getMinimum().getBlockY() + 1;
 				endY   = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
-				
+
 				startZ = door.getMinimum().getBlockZ();
 				endZ   = door.getMinimum().getBlockZ();
 				break;
-				
+
 			case SOUTH:
 				startX = door.getMinimum().getBlockX();
 				endX   = door.getMaximum().getBlockX();
-				
+
 				startY = door.getMinimum().getBlockY() + 1;
 				endY   = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
-				
+
 				startZ = door.getMaximum().getBlockZ();
 				endZ   = door.getMaximum().getBlockZ();
 				break;
-				
+
 			case EAST:
 				startX = door.getMaximum().getBlockX();
 				endX   = door.getMaximum().getBlockX();
-				
+
 				startY = door.getMinimum().getBlockY() + 1;
 				endY   = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
-				
+
 				startZ = door.getMinimum().getBlockZ();
 				endZ   = door.getMaximum().getBlockZ();
 				break;
-				
+
 			case WEST:
 				startX = door.getMinimum().getBlockX();
 				endX   = door.getMinimum().getBlockX();
-				
+
 				startY = door.getMinimum().getBlockY() + 1;
 				endY   = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
-				
+
 				startZ = door.getMinimum().getBlockZ();
 				endZ   = door.getMaximum().getBlockZ();
 				break;
@@ -92,49 +92,49 @@ public class BridgeOpener implements Opener
 			case NORTH:
 				startX = door.getMinimum().getBlockX();
 				endX   = door.getMaximum().getBlockX();
-				
+
 				startY = door.getMinimum().getBlockY();
 				endY   = door.getMinimum().getBlockY();
-				
+
 				startZ = door.getMinimum().getBlockZ() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
 				endZ   = door.getMinimum().getBlockZ() - 1;
 				break;
-				
+
 			case SOUTH:
 				startX = door.getMinimum().getBlockX();
 				endX   = door.getMaximum().getBlockX();
-				
+
 				startY = door.getMinimum().getBlockY();
 				endY   = door.getMinimum().getBlockY();
-				
+
 				startZ = door.getMinimum().getBlockZ() + 1;
 				endZ   = door.getMinimum().getBlockZ() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 				break;
-				
+
 			case EAST:
 				startX = door.getMinimum().getBlockX() + 1;
 				endX   = door.getMaximum().getBlockX() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
-				
+
 				startY = door.getMinimum().getBlockY();
 				endY   = door.getMinimum().getBlockY();
-				
+
 				startZ = door.getMinimum().getBlockZ();
 				endZ   = door.getMaximum().getBlockZ();
 				break;
-				
+
 			case WEST:
 				startX = door.getMinimum().getBlockX() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
 				endX   = door.getMinimum().getBlockX() - 1;
-				
+
 				startY = door.getMinimum().getBlockY();
 				endY   = door.getMinimum().getBlockY();
-				
+
 				startZ = door.getMinimum().getBlockZ();
 				endZ   = door.getMaximum().getBlockZ();
 				break;
 			}
 		}
-		
+
 		for (int xAxis = startX; xAxis <= endX; ++xAxis)
 			for (int yAxis = startY; yAxis <= endY; ++yAxis)
 				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
@@ -151,17 +151,17 @@ public class BridgeOpener implements Opener
 			return RotateDirection.DOWN;
 		return RotateDirection.UP;
 	}
-	
+
 	// Figure out which way the bridge should go.
 	private DoorDirection getOpenDirection(Door door)
 	{
 		RotateDirection upDown = getUpDown(door);
 		DoorDirection cDir     = getCurrentDirection(door);
 		boolean NS  = cDir    == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
-		
+
 		if (upDown.equals(RotateDirection.UP))
 			return isNewPosFree(door, upDown, door.getEngSide()) ? door.getEngSide() : null;
-		
+
 		if (door.getOpenDir().equals(RotateDirection.CLOCKWISE       ) && !door.isOpen() ||
 			door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) &&  door.isOpen())
 			return  NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH :
@@ -170,16 +170,16 @@ public class BridgeOpener implements Opener
 			door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
 			return  NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
 				   !NS && isNewPosFree(door, upDown, DoorDirection.WEST ) ? DoorDirection.WEST  : null;
-		
+
 		return 	 NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
-				!NS && isNewPosFree(door, upDown, DoorDirection.EAST ) ? DoorDirection.EAST  : 
-				 NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH : 
+				!NS && isNewPosFree(door, upDown, DoorDirection.EAST ) ? DoorDirection.EAST  :
+				 NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH :
 				!NS && isNewPosFree(door, upDown, DoorDirection.WEST ) ? DoorDirection.WEST  : null;
 	}
 
 	// Get the "current direction". In this context this means on which side of the drawbridge the engine is.
 	private DoorDirection getCurrentDirection(Door door)
-	{	
+	{
 		return door.getEngSide();
 	}
 
@@ -192,7 +192,7 @@ public class BridgeOpener implements Opener
 			plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
 		if (door.getWorld().getChunkAt(door.getMinimum()) == null)
 			plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
-		
+
 		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
 	}
 
@@ -206,7 +206,7 @@ public class BridgeOpener implements Opener
 		zLen = zLen == 0 ? 1 : zLen;
 		return xLen * yLen * zLen;
 	}
-	
+
 	@Override
 	public boolean openDoor(Door door, double time)
 	{
@@ -235,7 +235,7 @@ public class BridgeOpener implements Opener
 			plugin.getMyLogger().logMessage("Current direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
 			return false;
 		}
-		this.upDown = getUpDown(door);
+		upDown = getUpDown(door);
 
 		if (upDown == null)
 		{
@@ -248,19 +248,19 @@ public class BridgeOpener implements Opener
 			plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
 			return false;
 		}
-		
+
 		// Make sure the doorSize does not exceed the total doorSize.
 		// If it does, open the door instantly.
 		int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
 		if (maxDoorSize != -1)
 			if(getDoorSize(door) > maxDoorSize)
 				instantOpen = true;
-		
+
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-		plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, this.upDown, openDirection, instantOpen));
-		
+		plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen));
+
 		return true;
 	}
 }
