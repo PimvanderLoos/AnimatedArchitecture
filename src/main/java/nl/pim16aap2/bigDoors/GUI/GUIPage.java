@@ -15,7 +15,6 @@ import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.PageType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
-import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.XMaterial;
 
 public class GUIPage implements Listener
@@ -49,29 +48,31 @@ public class GUIPage implements Listener
     private static final int chestSize  = 45;
 
     private static final Material[] doorTypes =
-        {
-            XMaterial.OAK_DOOR.parseMaterial(),
-            XMaterial.OAK_TRAPDOOR.parseMaterial(),
-            XMaterial.IRON_DOOR.parseMaterial()
-        };
+    {
+        XMaterial.OAK_DOOR.parseMaterial(),
+        XMaterial.OAK_TRAPDOOR.parseMaterial(),
+        XMaterial.IRON_DOOR.parseMaterial()
+    };
 
     public GUIPage(BigDoors plugin, Player player, int page, PageType pageType, long doorUID, int pageCount)
     {
-        messages  = plugin.getMessages();
-        inv       = Bukkit.createInventory(player, chestSize,
-                        (pageType == PageType.DOORLIST ? messages.getString("GUI.Name") :
-                            pageType == PageType.DOORINFO ? messages.getString("GUI.SubName") :
-                                messages.getString("GUI.ConfirmMenu")));
-        int startIndex = page * (chestSize - 9);            // Get starting and ending indices of the door to be displayed.
+        messages = plugin.getMessages();
+        inv = Bukkit.createInventory(player, chestSize,
+                  (pageType == PageType.DOORLIST ? messages.getString("GUI.Name") :
+                   pageType == PageType.DOORINFO ? messages.getString("GUI.SubName") :
+                   messages.getString("GUI.ConfirmMenu")));
+        int startIndex =  page * (chestSize - 9);            // Get starting and ending indices of the door to be displayed.
         int endIndex   = (page + 1) * (chestSize - 9);
-        doors     = pageType != PageType.DOORLIST ? null :
+
+        doors = pageType != PageType.DOORLIST ? null :
             plugin.getCommander().getDoorsInRange(player.getUniqueId().toString(), null, startIndex, endIndex);
+
         this.pageCount = (long) (pageCount == -1 ?
                           Math.ceil(plugin.getCommander().countDoors(player.getUniqueId().toString(), null) /
                                     (chestSize - 9.0)) : pageCount); // If pageCount hasn't been set, calculate it.
         this.pageType  = pageType;
         this.page      = page;
-        door      = doorUID != -1 ? plugin.getCommander().getDoor(doorUID) : null;
+        door = doorUID != -1 ? plugin.getCommander().getDoor(doorUID) : null;
         fillInventory(player);
     }
 
@@ -228,7 +229,8 @@ public class GUIPage implements Listener
                 }
                 catch (Exception e)
                 {
-                    Util.broadcastMessage("DoorType = " + doors.get(realIdx).getType());
+//                    Util.broadcastMessage("Failed to put door \"" + doors.get(realIdx) + "\" (" + doors.get(realIdx) +
+//                                          ") in the GUI. Type = " + doors.get(realIdx).getType());
                     // No need to catch it. This is thrown because newer versions have more door types.
                 }
             }

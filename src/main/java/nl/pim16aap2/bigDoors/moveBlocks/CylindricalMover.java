@@ -57,7 +57,7 @@ public class CylindricalMover implements BlockMover
 	public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
 			Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
 	{
-	    plugin.getMyLogger().logMessage("\n\nCylindricalMover initiation!", false, false);
+//	    plugin.getMyLogger().logMessage("\n\nCylindricalMover initiation!", false, false);
 		this.pointOpposite    = pointOpposite;
 		turningPoint          = door.getEngine();
 		this.rotDirection     = rotDirection;
@@ -70,7 +70,8 @@ public class CylindricalMover implements BlockMover
 		this.instantOpen = instantOpen;
 		stepMultiplier   = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
 
-		String logStr = "CylindricalMover will move door " + door.getName() + "\n";
+		// Debug string
+//		String logStr = "CylindricalMover will move door " + door.getName() + "\n";
 
 		xMin = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
 		yMin = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
@@ -86,17 +87,19 @@ public class CylindricalMover implements BlockMover
 		tickRate   = (int) vars[1];
 		multiplier = vars[2];
 
-		logStr += "xLen = " + xLen + "\nyLen = " + Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY()) +
-		          "\nzLen = " + zLen + "\nDoorSize = " + doorSize + "\ntime = " + this.time +
-		          "\ntickRate = " + tickRate + "\nmultiplier = " + multiplier + "\nInstantOpen = " + instantOpen;
+        // Debug string
+//		logStr += "xLen = " + xLen + "\nyLen = " + Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY()) +
+//		          "\nzLen = " + zLen + "\nDoorSize = " + doorSize + "\ntime = " + this.time +
+//		          "\ntickRate = " + tickRate + "\nmultiplier = " + multiplier + "\nInstantOpen = " + instantOpen;
 
 		dx   = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
 		dz   = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
 
-		logStr += "min (x;y;z) = (" + xMin + " ; " + yMin + " ; " + zMin + ")\n";
-		logStr += "max (x;y;z) = (" + xMax + " ; " + yMax + " ; " + zMax + ")\n";
-		logStr += "dx = " + dx + ", dz = " + dz + "\n";
-		logStr += "Adding blocks now:\n";
+        // Debug string
+//		logStr += "min (x;y;z) = (" + xMin + " ; " + yMin + " ; " + zMin + ")\n";
+//		logStr += "max (x;y;z) = (" + xMax + " ; " + yMax + " ; " + zMax + ")\n";
+//		logStr += "dx = " + dx + ", dz = " + dz + "\n";
+//		logStr += "Adding blocks now:\n";
 
 		int index = 0;
 		double xAxis = turningPoint.getX();
@@ -111,7 +114,8 @@ public class CylindricalMover implements BlockMover
 
 				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
-				    logStr += "\n";
+			        // Debug string
+//				    logStr += "\n";
 				    String canRot = "";
 				    String block_NMS = "";
 				    String block_NMS2 = "";
@@ -218,11 +222,11 @@ public class CylindricalMover implements BlockMover
 						savedBlocks.add(index, new MyBlockData(Material.AIR));
 
 
-                    logStr += "(" + index + ") " + "radius: " + radius + ", isAllowed = " + isAllowed + ", canRot = " + canRot;
-                    logStr += "\nvBlock = " + vBlockStr.toString() + "\n";
-                    logStr += "block_NMS = " + block_NMS + "\n";
-                    logStr += "block_NMS2 = " + block_NMS2 + "\n";
-                    logStr += "savedBlocks[idx] = \n" + savedBlocks.get(index).toString() + "\n";
+//                    logStr += "(" + index + ") " + "radius: " + radius + ", isAllowed = " + isAllowed + ", canRot = " + canRot;
+//                    logStr += "\nvBlock = " + vBlockStr.toString() + "\n";
+//                    logStr += "block_NMS = " + block_NMS + "\n";
+//                    logStr += "block_NMS2 = " + block_NMS2 + "\n";
+//                    logStr += "savedBlocks[idx] = \n" + savedBlocks.get(index).toString() + "\n";
 
 					index++;
 				}
@@ -257,19 +261,15 @@ public class CylindricalMover implements BlockMover
 			break;
 		}
 
+//		// Stuff used for debugging purposes:
 //		plugin.getMyLogger().logMessage("cDir: " + currentDirection + ", startSum = " + startStepSum + ", endSum = " + endStepSum, false, false);
-		logStr += "cDir: " + currentDirection + ", startSum = " + startStepSum + ", endSum = " + endStepSum + "\n";
-
-
-		String output = "";
-		for (MyBlockData sb : savedBlocks)
-		    output += (sb.getMat() + " " + sb.getFBlock() + "\n");
-
+//		logStr += "cDir: " + currentDirection + ", startSum = " + startStepSum + ", endSum = " + endStepSum + "\n";
+//		String output = "";
+//		for (MyBlockData sb : savedBlocks)
+//		    output += (sb.getMat() + " " + sb.getFBlock() + "\n");
 //		plugin.getMyLogger().logMessage("savedBlocks size = " + savedBlocks.size() + ":\n" + output + "InstantOpen: " + instantOpen, false, false);
-        logStr += "savedBlocks size = " + savedBlocks.size() + ":\n" + output + "InstantOpen: " + instantOpen + "\n";
-
-        plugin.getMyLogger().logMessage(logStr, false, false);
-
+//        logStr += "savedBlocks size = " + savedBlocks.size() + ":\n" + output + "InstantOpen: " + instantOpen + "\n";
+//        plugin.getMyLogger().logMessage(logStr, false, false);
 
 		if (!instantOpen)
 			rotateEntities();
@@ -282,7 +282,7 @@ public class CylindricalMover implements BlockMover
 	@Override
 	public void putBlocks(boolean onDisable)
 	{
-	    plugin.getMyLogger().logMessage("Putting blocks. onDisable = " + onDisable, false, false);
+//	    plugin.getMyLogger().logMessage("Putting blocks. onDisable = " + onDisable, false, false);
 		int index = 0;
 		double xAxis = turningPoint.getX();
 		do
@@ -307,7 +307,7 @@ public class CylindricalMover implements BlockMover
 						Location newPos = gnl.getNewLocation(savedBlocks, xAxis, yAxis, zAxis, index);
 						if (!instantOpen)
 							savedBlocks.get(index).getFBlock().remove();
-						plugin.getMyLogger().logMessage("Material = " + savedBlocks.get(index).getMat(), false, false);
+//						plugin.getMyLogger().logMessage("Material = " + savedBlocks.get(index).getMat(), false, false);
 						if (!savedBlocks.get(index).getMat().equals(Material.AIR))
 							if (plugin.is1_13())
 							{
@@ -337,7 +337,7 @@ public class CylindricalMover implements BlockMover
 		}
 		while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
 		savedBlocks.clear();
-		plugin.getMyLogger().logMessage("Going to update coords now!", false, false);
+//		plugin.getMyLogger().logMessage("Going to update coords now!", false, false);
 		// Tell the door object it has been opened and what its new coordinates are.
 		updateCoords(door, currentDirection, rotDirection, -1);
 		toggleOpen  (door);
@@ -369,7 +369,7 @@ public class CylindricalMover implements BlockMover
 
 	private void goAgain()
 	{
-	    plugin.getMyLogger().logMessage("Going again!", false, false);
+//	    plugin.getMyLogger().logMessage("Going again!", false, false);
 		int autoCloseTimer = door.getAutoClose();
 		if (autoCloseTimer < 0 || !door.isOpen())
 			return;
@@ -388,7 +388,7 @@ public class CylindricalMover implements BlockMover
 	// Method that takes care of the rotation aspect.
 	private void rotateEntities()
 	{
-	    plugin.getMyLogger().logMessage("Rotation intiation!", false, false);
+//	    plugin.getMyLogger().logMessage("Rotation intiation!", false, false);
 		new BukkitRunnable()
 		{
 			int indexMid      = savedBlocks.size() / 2;
@@ -404,7 +404,7 @@ public class CylindricalMover implements BlockMover
 			@Override
 			public void run()
 			{
-			    plugin.getMyLogger().logMessage("Running", false, false);
+//			    plugin.getMyLogger().logMessage("Running", false, false);
 				if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
 					Util.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
 
@@ -421,10 +421,10 @@ public class CylindricalMover implements BlockMover
 
 				if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
 				{
-				    plugin.getMyLogger().logMessage("plugin.canGo = " + plugin.getCommander().canGo() +
-				                                    ", door.canGo = " + door.canGo() +
-				                                    ", counter = " + counter + ", totalTicks = " + totalTicks +
-				                                    ", step = " + step + ", tickrate = " + tickRate + ", time = " + time, false, false);
+//				    plugin.getMyLogger().logMessage("plugin.canGo = " + plugin.getCommander().canGo() +
+//				                                    ", door.canGo = " + door.canGo() +
+//				                                    ", counter = " + counter + ", totalTicks = " + totalTicks +
+//				                                    ", step = " + step + ", tickrate = " + tickRate + ", time = " + time, false, false);
 					Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						if (!savedBlocks.get(idx).getMat().equals(Material.AIR))
