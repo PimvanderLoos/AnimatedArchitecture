@@ -24,3 +24,8 @@ hs_err_pid*
 
 # MacOS Files #
 *.DS_Store
+
+# General stuff #
+*.idea/*
+*.iml
+Servers/*
