@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigDoors;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Vector;
 import java.util.logging.Level;
 
@@ -38,6 +39,7 @@ import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
+import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 // TODO: Store starting x,z values in savedBlocks, then make putblocks etc part of abstact class.
@@ -50,7 +52,9 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Change config so you no longer request specific values via a String.
 // TODO: Add permissions per door-type.
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
-// TODO: Use bukkit colors.
+// TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
+// TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
+// TODO: Fix /BDRestart
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -76,6 +80,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private RedstoneHandler   redstoneHandler;
     private PortcullisOpener portcullisOpener;
     private String                loginString;
+    //                 Chunk         Location DoorUID
+    private TimedCache<Long, HashMap<Long,    Long>> pbCache; // Powerblock cache.
 
     private boolean            is1_13 = false;
     private boolean         enabledAS = false;
@@ -146,30 +152,29 @@ public class BigDoors extends JavaPlugin implements Listener
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
         loginString = "";
 
-        if (config.enableRedstone())
-        {
-            if (redstoneHandler == null)
-            {
-                redstoneHandler = new RedstoneHandler(this);
-                Bukkit.getPluginManager().registerEvents(redstoneHandler, this);
-            }
-        }
-        else if (!firstRun)
+        if (!firstRun)
         {
             HandlerList.unregisterAll(redstoneHandler);
             redstoneHandler = null;
-        }
 
-        // If it's not the first run, unregister the resource pack handler. It might not be needed anymore.
-        if (!firstRun)
-        {
             HandlerList.unregisterAll(rPackHandler);
             rPackHandler = null;
+
+            pbCache.reinit(config.cacheTimeout());
         }
-        // If the resourcepack is set to "NONE", don't load it.
+        else
+        {
+            pbCache = new TimedCache<Long, HashMap<Long, Long>>(this, config.cacheTimeout());
+        }
+
+        if (config.enableRedstone())
+        {
+            redstoneHandler = new RedstoneHandler(this);
+            Bukkit.getPluginManager().registerEvents(redstoneHandler, this);
+        }
+
         if (!config.resourcePack().equals("NONE"))
         {
-            // If a resource pack was set for the current version of Minecraft, send that pack to the client on login.
             rPackHandler = new LoginResourcePackHandler(this, config.resourcePack());
             Bukkit.getPluginManager().registerEvents(rPackHandler,  this);
         }
@@ -177,7 +182,6 @@ public class BigDoors extends JavaPlugin implements Listener
         Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
         Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
 
-        // Load stats collector if allowed, otherwise unload it if needed or simply don't load it in the first place.
         if (config.allowStats())
         {
             logger.myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
@@ -233,6 +237,11 @@ public class BigDoors extends JavaPlugin implements Listener
         toolUsers.clear();
         cmdWaiters.clear();
         blockMovers.clear();
+    }
+
+    public TimedCache<Long, HashMap<Long, Long>> getPBCache()
+    {
+        return pbCache;
     }
 
     public FallingBlockFactory_Vall getFABF()

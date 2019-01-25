@@ -46,6 +46,36 @@ public final class Util
         return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
     }
 
+    public static long chunkHashFromLocation(Location loc)
+    {
+        return chunkHashFromLocation(loc.getBlockX(), loc.getBlockZ(), loc.getWorld().getUID());
+    }
+
+    public static long chunkHashFromLocation(int x, int z, UUID worldUUID)
+    {
+        int chunk_X = x << 4;
+        int chunk_Z = z << 4;
+        long hash = 3;
+        hash = 19 * hash + worldUUID.hashCode();
+        hash = 19 * hash + (int) (Double.doubleToLongBits(chunk_X) ^ (Double.doubleToLongBits(chunk_X) >>> 32));
+        hash = 19 * hash + (int) (Double.doubleToLongBits(chunk_Z) ^ (Double.doubleToLongBits(chunk_Z) >>> 32));
+        return hash;
+    }
+
+    public static long locationHash(Location loc)
+    {
+        return locationHash(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getUID());
+    }
+
+    public static long locationHash(int x, int y, int z, UUID worldUUID)
+    {
+        long hash = 3;
+        hash = 19 * hash + (int) (Double.doubleToLongBits(x) ^ (Double.doubleToLongBits(x) >>> 32));
+        hash = 19 * hash + (int) (Double.doubleToLongBits(y) ^ (Double.doubleToLongBits(y) >>> 32));
+        hash = 19 * hash + (int) (Double.doubleToLongBits(z) ^ (Double.doubleToLongBits(z) >>> 32));
+        return 0;
+    }
+
     public static String nameFromUUID(UUID playerUUID)
     {
         if (playerUUID == null)
