@@ -30,39 +30,39 @@ public class SQLiteJDBCDriverConnection
     private File     dataFolder;
     private String   url;
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION =  1;
 
-    private static final int DOOR_ID         = 1;
-    private static final int DOOR_NAME       = 2;
-    private static final int DOOR_WORLD      = 3;
-    private static final int DOOR_OPEN       = 4;
-    private static final int DOOR_MIN_X      = 5;
-    private static final int DOOR_MIN_Y      = 6;
-    private static final int DOOR_MIN_Z      = 7;
-    private static final int DOOR_MAX_X      = 8;
-    private static final int DOOR_MAX_Y      = 9;
-    private static final int DOOR_MAX_Z      = 10;
-    private static final int DOOR_ENG_X      = 11;
-    private static final int DOOR_ENG_Y      = 12;
-    private static final int DOOR_ENG_Z      = 13;
-    private static final int DOOR_LOCKED     = 14;
-    private static final int DOOR_TYPE       = 15;
-    private static final int DOOR_ENG_SIDE   = 16;
-    private static final int DOOR_POWER_X    = 17;
-    private static final int DOOR_POWER_Y    = 18;
-    private static final int DOOR_POWER_Z    = 19;
-    private static final int DOOR_OPEN_DIR   = 20;
-    private static final int DOOR_AUTO_CLOSE = 21;
-    private static final int DOOR_CHUNK_HASH = 22;
+    private static final int DOOR_ID          =  1;
+    private static final int DOOR_NAME        =  2;
+    private static final int DOOR_WORLD       =  3;
+    private static final int DOOR_OPEN        =  4;
+    private static final int DOOR_MIN_X       =  5;
+    private static final int DOOR_MIN_Y       =  6;
+    private static final int DOOR_MIN_Z       =  7;
+    private static final int DOOR_MAX_X       =  8;
+    private static final int DOOR_MAX_Y       =  9;
+    private static final int DOOR_MAX_Z       = 10;
+    private static final int DOOR_ENG_X       = 11;
+    private static final int DOOR_ENG_Y       = 12;
+    private static final int DOOR_ENG_Z       = 13;
+    private static final int DOOR_LOCKED      = 14;
+    private static final int DOOR_TYPE        = 15;
+    private static final int DOOR_ENG_SIDE    = 16;
+    private static final int DOOR_POWER_X     = 17;
+    private static final int DOOR_POWER_Y     = 18;
+    private static final int DOOR_POWER_Z     = 19;
+    private static final int DOOR_OPEN_DIR    = 20;
+    private static final int DOOR_AUTO_CLOSE  = 21;
+    private static final int DOOR_CHUNK_HASH  = 22;
 
-    private static final int PLAYERS_ID      = 1;
-    private static final int PLAYERS_UUID    = 2;
+    private static final int PLAYERS_ID       =  1;
+    private static final int PLAYERS_UUID     =  2;
 
     @SuppressWarnings("unused")
-    private static final int UNION_ID        = 1;
-    private static final int UNION_PERM      = 2;
-    private static final int UNION_PLAYER_ID = 3;
-    private static final int UNION_DOOR_ID   = 4;
+    private static final int UNION_ID         =  1;
+    private static final int UNION_PERM       =  2;
+    private static final int UNION_PLAYER_ID  =  3;
+    private static final int UNION_DOOR_ID    =  4;
 
     public SQLiteJDBCDriverConnection(BigDoors plugin, String dbName)
     {

@@ -54,7 +54,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
 // TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
-// TODO: Fix /BDRestart
+// TODO: Fix /BDRestart (if broken).
 
 public class BigDoors extends JavaPlugin implements Listener
 {
