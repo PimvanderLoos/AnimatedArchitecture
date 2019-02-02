@@ -1,10 +1,13 @@
 package nl.pim16aap2.bigDoors;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,6 +19,10 @@ import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
+import nl.pim16aap2.bigDoors.compatiblity.PlotSquaredNewProtectionCompat;
+import nl.pim16aap2.bigDoors.compatiblity.PlotSquaredOldProtectionCompat;
+import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
+import nl.pim16aap2.bigDoors.compatiblity.WorldGuardProtectionCompat;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
@@ -35,6 +42,7 @@ import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 import nl.pim16aap2.bigDoors.toolUsers.ToolVerifier;
 import nl.pim16aap2.bigDoors.util.ConfigLoader;
+import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
@@ -51,6 +59,11 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Add permissions per door-type.
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
 // TODO: Use bukkit colors.
+// TODO: Make release and debug build modes.
+// TODO: Make default language file read-only.
+// TODO: Add version number to language file. Only regen for version mismatch.
+// TODO: Rewrite Openers to get rid of code duplication.
+// TODO: Add config options for compatibility hooks.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -76,6 +89,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private RedstoneHandler   redstoneHandler;
     private PortcullisOpener portcullisOpener;
     private String                loginString;
+    private ArrayList<ProtectionCompat> protectionCompats;
 
     private boolean            is1_13 = false;
     private boolean         enabledAS = false;
@@ -98,13 +112,33 @@ public class BigDoors extends JavaPlugin implements Listener
 
         init(true);
 
-        db               = new SQLiteJDBCDriverConnection(this, config.dbFile());
-        commander        = new Commander(this, db);
-        doorOpener       = new DoorOpener(this);
-        bridgeOpener     = new BridgeOpener(this);
-        bridgeOpener     = new BridgeOpener(this);
-        commandHandler   = new CommandHandler(this);
-        portcullisOpener = new PortcullisOpener(this);
+        db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
+        commander         = new Commander(this, db);
+        doorOpener        = new DoorOpener(this);
+        bridgeOpener      = new BridgeOpener(this);
+        bridgeOpener      = new BridgeOpener(this);
+        commandHandler    = new CommandHandler(this);
+        portcullisOpener  = new PortcullisOpener(this);
+        protectionCompats = new ArrayList<ProtectionCompat>();
+
+        if (getServer().getPluginManager().getPlugin("PlotSquared") != null)
+        {
+            ProtectionCompat plotSquaredCompat;
+            if (getServer().getPluginManager().getPlugin("PlotSquared").getDescription().getVersion().equals("19.01.26-460583e-687"))
+            {
+                logger.logMessageToConsole("Old PlotSquared version detected!");
+                plotSquaredCompat = new PlotSquaredOldProtectionCompat(this);
+            }
+            else
+            {
+                logger.logMessageToConsole("New PlotSquared version detected! Note that this hook is not yet implemented!");
+                plotSquaredCompat = new PlotSquaredNewProtectionCompat(this);
+            }
+            addProtectionCompat(plotSquaredCompat);
+        }
+
+        if (getServer().getPluginManager().getPlugin("WorldGuard") != null)
+            addProtectionCompat(new WorldGuardProtectionCompat(this));
 
         getCommand("inspectpowerblockloc").setExecutor(new CommandHandler(this));
         getCommand("changepowerblockloc" ).setExecutor(new CommandHandler(this));
@@ -131,6 +165,17 @@ public class BigDoors extends JavaPlugin implements Listener
         getCommand("bdm"                 ).setExecutor(new CommandHandler(this));
 
         liveDevelopmentLoad();
+    }
+
+    private void addProtectionCompat(ProtectionCompat hook)
+    {
+        if (hook.success())
+        {
+            protectionCompats.add(hook);
+            logger.logMessageToConsole("Successfully hooked into \"" + hook.getPlugin().getName() + "\"!");
+        }
+        else
+            logger.logMessageToConsole("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
     }
 
     private void init(boolean firstRun)
@@ -202,6 +247,22 @@ public class BigDoors extends JavaPlugin implements Listener
 
         if (!firstRun)
             commander.setCanGo(true);
+    }
+
+    public boolean canBreakBlock(Player player, Location loc)
+    {
+        for (ProtectionCompat compat : protectionCompats)
+            if (!compat.canBreakBlock(player, loc))
+                return false;
+        return true;
+    }
+
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    {
+        for (ProtectionCompat compat : protectionCompats)
+            if (!compat.canBreakBlocksBetweenLocs(player, loc1, loc2))
+                return false;
+        return true;
     }
 
     public void restart()
@@ -468,7 +529,7 @@ public class BigDoors extends JavaPlugin implements Listener
      */
 
     // (Instantly?) Toggle a door with a given time.
-    private boolean toggleDoor(Door door, double time, boolean instantOpen)
+    private DoorOpenResult toggleDoor(Door door, double time, boolean instantOpen)
     {
         return getDoorOpener(door.getType()).openDoor(door, time, instantOpen, false);
     }
@@ -477,21 +538,21 @@ public class BigDoors extends JavaPlugin implements Listener
     public boolean toggleDoor(long doorUID, boolean instantOpen)
     {
         Door door = getCommander().getDoor(doorUID);
-        return toggleDoor(door, 0.0, instantOpen);
+        return toggleDoor(door, 0.0, instantOpen) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID and a given time.
     public boolean toggleDoor(long doorUID, double time)
     {
         Door door = getCommander().getDoor(doorUID);
-        return toggleDoor(door, time, false);
+        return toggleDoor(door, time, false) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID using default values.
     public boolean toggleDoor(long doorUID)
     {
         Door door = getCommander().getDoor(doorUID);
-        return toggleDoor(door, 0.0, false);
+        return toggleDoor(door, 0.0, false) == DoorOpenResult.SUCCESS;
     }
 
     // Check the open-status of a door.

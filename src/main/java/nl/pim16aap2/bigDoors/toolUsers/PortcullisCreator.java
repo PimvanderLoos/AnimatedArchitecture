@@ -65,11 +65,20 @@ public class PortcullisCreator extends ToolUser
 	}
 
 	// Take care of the selection points.
-	@Override
-	public void selector(Location loc)
-	{
-		if (name == null)
-			return;
+    @Override
+    public void selector(Location loc)
+    {
+        if (name == null)
+        {
+            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+            return;
+        }
+        if (!plugin.canBreakBlock(player, loc))
+        {
+            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere"));
+            return;
+        }
+
 		if (!isPositionValid(loc))
 			return;
 		if (one == null)

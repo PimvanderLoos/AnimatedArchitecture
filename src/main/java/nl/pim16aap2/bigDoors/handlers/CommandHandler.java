@@ -20,6 +20,7 @@ import nl.pim16aap2.bigDoors.toolUsers.PowerBlockInspector;
 import nl.pim16aap2.bigDoors.toolUsers.PowerBlockRelocator;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 import nl.pim16aap2.bigDoors.util.Abortable;
+import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -58,9 +59,15 @@ public class CommandHandler implements CommandExecutor
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.DoorIsLocked"));
         // If the sender is a Player && the player's permission level is larger than 1 for this door, the player doesn't have permission (for now).
         else if (sender instanceof Player && plugin.getCommander().getPermission(((Player) (sender)).getUniqueId().toString(), door.getDoorUID()) > 1)
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.NoPermission"));
-        else if (!plugin.getDoorOpener(door.getType()).openDoor(door, time))
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.ToggleFailure"));
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.NoPermissionToOpen"));
+//        else if (!plugin.getDoorOpener(door.getType()).openDoor(door, time))
+//            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.ToggleFailure"));
+        else
+        {
+            DoorOpenResult result = plugin.getDoorOpener(door.getType()).openDoor(door, time);
+            if (result != DoorOpenResult.SUCCESS)
+                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString(DoorOpenResult.getMessage(result)));
+        }
     }
 
     public void openDoorCommand(Player player, Door door, double time)
@@ -174,6 +181,14 @@ public class CommandHandler implements CommandExecutor
     // Create a new door.
     public void startCreator(Player player, String name, DoorType type)
     {
+    	if (type == DoorType.DOOR       && !player.hasPermission("bigdoors.user.createdoor.door")       ||
+			type == DoorType.DRAWBRIDGE && !player.hasPermission("bigdoors.user.createdoor.drawbridge") ||
+			type == DoorType.PORTCULLIS && !player.hasPermission("bigdoors.user.createdoor.portcullis"))
+    	{
+            Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
+            return;
+    	}
+
         long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
         int maxCount   = Util.getMaxDoorsForPlayer(player);
         if (maxCount  >= 0 && doorCount >= maxCount)
@@ -190,11 +205,12 @@ public class CommandHandler implements CommandExecutor
 
         if (isPlayerBusy(player))
             return;
-        ToolUser tu = type == DoorType.DOOR       ? new DoorCreator      (plugin, player, name) :
-            type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
-                type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) : null;
 
-                startTimerForAbortable((Abortable) tu, player, 60 * 20);
+        ToolUser tu = type == DoorType.DOOR       ? new DoorCreator      (plugin, player, name) :
+                      type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
+                      type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) : null;
+
+        startTimerForAbortable(tu, player, 60 * 20);
     }
 
     public ToolUser isToolUser(Player player)
@@ -234,7 +250,7 @@ public class CommandHandler implements CommandExecutor
     {
         if (isPlayerBusy(player))
             return;
-        startTimerForAbortable((Abortable) (new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), player, 20 * 20);
+        startTimerForAbortable((new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), player, 20 * 20);
     }
 
     private boolean isPlayerBusy(Player player)
@@ -247,7 +263,7 @@ public class CommandHandler implements CommandExecutor
 
     public void startPowerBlockRelocator(Player player, long doorUID)
     {
-        startTimerForAbortable((Abortable) new PowerBlockRelocator(plugin, player, doorUID), player, 20 * 20);
+        startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID), player, 20 * 20);
     }
 
     // Handle commands.
@@ -423,7 +439,7 @@ public class CommandHandler implements CommandExecutor
                             else
                                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
                                                                     plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] +
-                                                                    "\" " + plugin.getMessages().getString("GENERAL.CannotClose"));
+                                                                    "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyClosed"));
                         }
                         else if (type == 0)
                         {
@@ -432,7 +448,7 @@ public class CommandHandler implements CommandExecutor
                             else
                                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
                                                                     plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] +
-                                                                    "\" " + plugin.getMessages().getString("GENERAL.CannotOpen"));
+                                                                    "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
                         }
                     }
                 }
@@ -498,7 +514,7 @@ public class CommandHandler implements CommandExecutor
             {
                 if (isPlayerBusy(player))
                     return false;
-                startTimerForAbortable((Abortable) new PowerBlockInspector(plugin, player, -1), player, 20 * 20);
+                startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), player, 20 * 20);
                 return true;
             }
 
@@ -546,7 +562,7 @@ public class CommandHandler implements CommandExecutor
                 if (tu != null)
                 {
                     tu.setIsDone(true);
-                    plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, plugin.getMessages().getString("CREATOR.GENERAL.Cancelled"));
+                    plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED, plugin.getMessages().getString("CREATOR.GENERAL.Cancelled"));
                 }
                 return true;
             }
@@ -610,7 +626,7 @@ public class CommandHandler implements CommandExecutor
 
     public void delDoor(Player player, String doorName)
     {
-        CommandSender sender = (CommandSender) player;
+        CommandSender sender = player;
         try
         {
             long doorUID     = Long.parseLong(doorName);

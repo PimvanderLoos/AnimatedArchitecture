@@ -2,20 +2,20 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class DoorOpener implements Opener
 {
-	private BigDoors plugin;
-
-	DoorDirection ddirection;
+	private final BigDoors plugin;
 
 	public DoorOpener(BigDoors plugin)
 	{
@@ -72,6 +72,9 @@ public class DoorOpener implements Opener
 				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
 					if (!Util.isAirOrWater(engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType()))
 						return false;
+	    door.setNewMin(new Location(door.getWorld(), startX, startY, startZ));
+	    door.setNewMax(new Location(door.getWorld(), endX,   endY,   endZ));
+
 		return true;
 	}
 
@@ -153,40 +156,40 @@ public class DoorOpener implements Opener
 	}
 
 	@Override
-	public boolean openDoor(Door door, double time)
+	public DoorOpenResult openDoor(Door door, double time)
 	{
 		return openDoor(door, time, false, false);
 	}
 
 	// Open a door.
 	@Override
-	public boolean openDoor(Door door, double time, boolean instantOpen, boolean silent)
+	public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
 	{
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
 			if (!silent)
 			    plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-			return false;
+			return DoorOpenResult.BUSY;
 		}
 
 		if (!chunksLoaded(door))
 		{
 			plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!", true, false);
-			return false;
+			return DoorOpenResult.ERROR;
 		}
 
 		DoorDirection currentDirection = getCurrentDirection(door);
 		if (currentDirection == null)
 		{
 			plugin.getMyLogger().logMessage("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
-			return false;
+			return DoorOpenResult.ERROR;
 		}
 
-		RotateDirection rotDirection   = getRotationDirection(door, currentDirection);
+		RotateDirection rotDirection = getRotationDirection(door, currentDirection);
 		if (rotDirection == null)
 		{
 			plugin.getMyLogger().logMessage("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
-			return false;
+			return DoorOpenResult.NODIRECTION;
 		}
 
 		int xOpposite, yOpposite, zOpposite;
@@ -219,11 +222,16 @@ public class DoorOpener implements Opener
 			if(getDoorSize(door) > maxDoorSize)
 				instantOpen = true;
 
+        // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
+        if (!plugin.canBreakBlocksBetweenLocs(Bukkit.getPlayer(door.getPlayerUUID()), door.getNewMin(), door.getNewMax()))
+            return DoorOpenResult.NOPERMISSION;
+        Util.broadcastMessage("newMin:" + door.getNewMin().toString() + ", newMax:" + door.getNewMax().toString());
+
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 
 		plugin.addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint, currentDirection, door, instantOpen));
 
-		return true;
+		return DoorOpenResult.SUCCESS;
 	}
 }

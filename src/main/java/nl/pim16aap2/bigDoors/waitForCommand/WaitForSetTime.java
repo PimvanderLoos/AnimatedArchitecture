@@ -12,7 +12,7 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 	private Player   player;
 	private String  command;
 	private long    doorUID;
-	
+
 	public WaitForSetTime(BigDoors plugin, Player player, String command, long doorUID)
 	{
 		this.player  = player;
@@ -22,19 +22,19 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 		Util.messagePlayer(player, plugin.getMessages().getString("GUI.SetTimeInit"));
 		plugin.addCommandWaiter(this);
 	}
-	
+
 	@Override
 	public String getCommand()
 	{
-		return this.command;
+		return command;
 	}
-	
+
 	@Override
 	public Player getPlayer()
 	{
-		return this.player;
+		return player;
 	}
-	
+
 	@Override
 	public boolean executeCommand(String[] args)
 	{
@@ -43,7 +43,7 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 			try
 			{
 				int time = Integer.parseInt(args[0]);
-				plugin.getCommandHandler().setDoorOpenTime(this.player, this.doorUID, time);
+				plugin.getCommandHandler().setDoorOpenTime(player, doorUID, time);
 				plugin.removeCommandWaiter(this);
 				if (time != -1)
 					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetCloseTimerSuccess") + time + "s.");
@@ -51,18 +51,24 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.DisableCloseTimerSuccess") + time + "s.");
 				return true;
 			}
-			catch (Exception e) 
+			catch (Exception e)
 			{
 				Util.messagePlayer(player, plugin.getMessages().getString("GUI.InvalidCloseTimerValue"));
 			}
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void abort(boolean onDisable)
 	{
 		if (!onDisable)
 			plugin.removeCommandWaiter(this);
 	}
+
+    @Override
+    public void abort()
+    {
+        abort(false);
+    }
 }

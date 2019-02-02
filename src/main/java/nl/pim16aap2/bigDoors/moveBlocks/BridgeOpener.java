@@ -2,19 +2,21 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class BridgeOpener implements Opener
 {
-	private BigDoors        plugin;
-	private RotateDirection upDown;
+	private final BigDoors plugin;
 
 	public BridgeOpener(BigDoors plugin)
 	{
@@ -140,6 +142,10 @@ public class BridgeOpener implements Opener
 				for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
 					if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
 						return false;
+
+		door.setNewMin(new Location(door.getWorld(), startX, startY, startZ));
+		door.setNewMax(new Location(door.getWorld(), endX,   endY,   endZ));
+
 		return true;
 	}
 
@@ -208,45 +214,46 @@ public class BridgeOpener implements Opener
 	}
 
 	@Override
-	public boolean openDoor(Door door, double time)
+	public DoorOpenResult openDoor(Door door, double time)
 	{
 		return openDoor(door, time, false, false);
 	}
 
 	@Override
-	public boolean openDoor(Door door, double time, boolean instantOpen, boolean silent)
+	public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
 	{
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
 			if (!silent)
 				plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
-			return true;
+			return DoorOpenResult.BUSY;
 		}
 
 		if (!chunksLoaded(door))
 		{
 			plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for bridge " + door.getName() + " is not loaded!", true, false);
-			return true;
+			return DoorOpenResult.ERROR;
 		}
 
 		DoorDirection currentDirection = getCurrentDirection(door);
 		if (currentDirection == null)
 		{
 			plugin.getMyLogger().logMessage("Current direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
-			return false;
+			return DoorOpenResult.ERROR;
 		}
-		upDown = getUpDown(door);
 
+		RotateDirection upDown = getUpDown(door);
 		if (upDown == null)
 		{
 			plugin.getMyLogger().logMessage("UpDown direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
-			return false;
+			return DoorOpenResult.ERROR;
 		}
+
 		DoorDirection openDirection = getOpenDirection(door);
 		if (openDirection == null)
 		{
 			plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
-			return false;
+			return DoorOpenResult.NODIRECTION;
 		}
 
 		// Make sure the doorSize does not exceed the total doorSize.
@@ -256,11 +263,15 @@ public class BridgeOpener implements Opener
 			if(getDoorSize(door) > maxDoorSize)
 				instantOpen = true;
 
+		// The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
+        if (!plugin.canBreakBlocksBetweenLocs(Bukkit.getPlayer(door.getPlayerUUID()), door.getNewMin(), door.getNewMax()))
+            return DoorOpenResult.NOPERMISSION;
+
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());
 
 		plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen));
 
-		return true;
+		return DoorOpenResult.SUCCESS;
 	}
 }

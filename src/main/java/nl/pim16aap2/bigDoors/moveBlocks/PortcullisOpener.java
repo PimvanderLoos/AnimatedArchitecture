@@ -2,20 +2,20 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class PortcullisOpener implements Opener
 {
-	private BigDoors plugin;
-
-	DoorDirection ddirection;
+	private final BigDoors plugin;
 
 	public PortcullisOpener(BigDoors plugin)
 	{
@@ -48,26 +48,26 @@ public class PortcullisOpener implements Opener
 	}
 
 	@Override
-	public boolean openDoor(Door door, double time)
+	public DoorOpenResult openDoor(Door door, double time)
 	{
 		return openDoor(door, time, false, false);
 	}
 
 	// Open a door.
 	@Override
-	public boolean openDoor(Door door, double time, boolean instantOpen, boolean silent)
+	public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
 	{
 		if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
 		{
 			if (!silent)
 				plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-			return true;
+			return DoorOpenResult.BUSY;
 		}
 
 		if (!chunksLoaded(door))
 		{
 			plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!", true, false);
-			return true;
+			return DoorOpenResult.ERROR;
 		}
 
 		// Make sure the doorSize does not exceed the total doorSize.
@@ -79,6 +79,10 @@ public class PortcullisOpener implements Opener
 
 		int blocksToMove = getBlocksToMove(door);
 
+        // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
+        if (!plugin.canBreakBlocksBetweenLocs(Bukkit.getPlayer(door.getPlayerUUID()), door.getNewMin(), door.getNewMax()))
+            return DoorOpenResult.NOPERMISSION;
+
 		if (blocksToMove != 0)
 		{
 			// Change door availability so it cannot be opened again (just temporarily, don't worry!).
@@ -86,7 +90,7 @@ public class PortcullisOpener implements Opener
 
 			plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove));
 		}
-		return true;
+		return DoorOpenResult.SUCCESS;
 	}
 
 	private int getBlocksInDir(Door door, RotateDirection upDown)
@@ -120,8 +124,11 @@ public class PortcullisOpener implements Opener
 
 	private int getBlocksToMove(Door door)
 	{
-		int blocksUp    = getBlocksInDir(door, RotateDirection.UP  );
-		int blocksDown  = getBlocksInDir(door, RotateDirection.DOWN);
-		return blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
+		int blocksUp     = getBlocksInDir(door, RotateDirection.UP  );
+		int blocksDown   = getBlocksInDir(door, RotateDirection.DOWN);
+		int blocksToMove = blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
+	    door.setNewMin(new Location(door.getWorld(), door.getMinimum().getBlockX(), door.getMinimum().getBlockY() + blocksToMove, door.getMinimum().getBlockZ()));
+	    door.setNewMax(new Location(door.getWorld(), door.getMaximum().getBlockX(), door.getMaximum().getBlockY() + blocksToMove, door.getMaximum().getBlockZ()));
+		return blocksToMove;
 	}
 }

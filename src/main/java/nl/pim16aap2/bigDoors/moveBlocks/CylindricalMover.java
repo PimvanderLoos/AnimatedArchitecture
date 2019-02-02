@@ -53,7 +53,7 @@ public class CylindricalMover implements BlockMover
 	private Location          turningPoint;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "unused" })
 	public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
 			Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
 	{
@@ -399,7 +399,7 @@ public class CylindricalMover implements BlockMover
 			double step       = (Math.PI / 2) / endCount * stepMultiplier;
 			double stepSum    = startStepSum;
 			int totalTicks    = (int) (endCount * multiplier);
-			int replaceCount  = (int) (endCount / 2);
+			int replaceCount  = endCount / 2;
 
 			@Override
 			public void run()
@@ -454,7 +454,7 @@ public class CylindricalMover implements BlockMover
 										loc.setY(loc.getY() - .010001);
 									CustomCraftFallingBlock_Vall fBlock;
 									// Because the block in savedBlocks is already rotated where applicable, just use that block now.
-									fBlock = fallingBlockFactory(loc, mat, (byte) matData, block.getBlock());
+									fBlock = fallingBlockFactory(loc, mat, matData, block.getBlock());
 
 									block.getFBlock().remove();
 									block.setFBlock(fBlock);

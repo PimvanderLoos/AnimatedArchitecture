@@ -28,4 +28,10 @@ hs_err_pid*
 # General stuff #
 *.idea/*
 *.iml
-Servers/*
+/Servers/*
+/bin/*
+/lib/*
+.classpath
+.externalToolBuilders/*
+.project
+.settings/*

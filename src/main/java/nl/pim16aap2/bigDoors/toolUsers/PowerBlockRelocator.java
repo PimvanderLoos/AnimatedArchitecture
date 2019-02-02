@@ -14,37 +14,37 @@ public class PowerBlockRelocator extends ToolUser
 		this.doorUID = doorUID;
         Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Init"));
         triggerGiveTool();
-	}	
-	
+	}
+
 	@Override
 	protected void triggerGiveTool()
 	{
-		giveToolToPlayer(messages.getString("CREATOR.PBRELOCATOR.StickLore"    ).split("\n"), 
+		giveToolToPlayer(messages.getString("CREATOR.PBRELOCATOR.StickLore"    ).split("\n"),
 		                 messages.getString("CREATOR.PBRELOCATOR.StickReceived").split("\n"));
 	}
-	
+
 	@Override
 	protected void triggerFinishUp()
 	{
-		if (this.one != null)
+		if (one != null)
 		{
-			plugin.getCommander().updatePowerBlockLoc(this.doorUID, this.one);
+			plugin.getCommander().updatePowerBlockLoc(doorUID, one);
 			Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Success"));
 		}
 		takeToolFromPlayer();
 	}
-	
+
 	// Take care of the selection points.
 	@Override
 	public void selector(Location loc)
 	{
-		if (plugin.getCommander().isPowerBlockLocationValid(loc))	
+		if (plugin.getCommander().isPowerBlockLocationValid(loc))
 		{
-			this.done = true;
-			this.one  = loc;
+			done = true;
+			one  = loc;
 			setIsDone(true);
 		}
-		else 
+		else
 			Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.LocationInUse"));
 	}
 

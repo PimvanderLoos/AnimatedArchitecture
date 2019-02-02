@@ -17,8 +17,8 @@ public class CraftArmorStand_V1_12_R1 extends CraftLivingEntity implements Armor
 	{
 		super(server, entity);
 	}
-	
-    public void recalcPosition() 
+
+    public void recalcPosition()
     {
         entity.recalcPosition();
     }
@@ -48,13 +48,11 @@ public class CraftArmorStand_V1_12_R1 extends CraftLivingEntity implements Armor
         return (EntityArmorStand) super.getHandle();
     }
 
-    @SuppressWarnings("deprecation")
 	@Override
     public ItemStack getItemInHand() {
         return getEquipment().getItemInHand();
     }
 
-    @SuppressWarnings("deprecation")
 	@Override
     public void setItemInHand(ItemStack item) {
         getEquipment().setItemInHand(item);

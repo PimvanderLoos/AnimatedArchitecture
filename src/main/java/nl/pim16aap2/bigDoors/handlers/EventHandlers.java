@@ -42,6 +42,17 @@ public class EventHandlers implements Listener
 		}
 	}
 
+//	@EventHandler
+//	public void onBlockBreakEvent(BlockBreakEvent event)
+//	{
+//	    Block block = event.getBlock();
+//	    if (block.hasMetadata("BDBreakTest"))
+//	    {
+//	        event.setCancelled(true);
+//	        block.removeMetadata("BDBreakTest", plugin);
+//	    }
+//	}
+
 	// Do not allow the player to drop the door creation tool.
 	@EventHandler
 	public void onItemDropEvent(PlayerDropItemEvent event)

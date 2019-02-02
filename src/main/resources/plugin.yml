@@ -3,6 +3,7 @@ main: nl.pim16aap2.bigDoors.BigDoors
 version: Alpha 0.1.7.4
 author: Pim
 api-version: 1.13
+softdepend: [PlotSquared, WorldGuard]
 commands:
   bigdoors:
     description: Open the BigDoors GUI.

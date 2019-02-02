@@ -31,10 +31,12 @@ public class Door
     private int            permission;
     private Location         chunkLoc;
     private Integer            length;
+    private Location           newMin;
+    private Location           newMax;
 
     // Generate a new door.
-    public Door(UUID player, World world, Location min, Location max, Location engine, String name, boolean isOpen, long doorUID, 
-                boolean isLocked, int permission, DoorType type, DoorDirection engineSide, Location powerBlock, 
+    public Door(UUID player, World world, Location min, Location max, Location engine, String name, boolean isOpen, long doorUID,
+                boolean isLocked, int permission, DoorType type, DoorDirection engineSide, Location powerBlock,
                 RotateDirection openDir, int autoClose)
     {
         this.player        = player;
@@ -50,37 +52,37 @@ public class Door
         this.permission    = permission;
         this.type          = type;
         this.engineSide    = engineSide;
-        this.chunkLoc      = null;
-        this.length        = null;
-        this.roundedLength = null;
-        this.canGo         = true;
+        chunkLoc      = null;
+        length        = null;
+        roundedLength = null;
+        canGo         = true;
         this.openDir       = openDir == null ? RotateDirection.NONE : openDir;
         this.autoClose     = autoClose;
     }
 
-    public Door(UUID player, World world, Location min, Location max, Location engine, String name, 
+    public Door(UUID player, World world, Location min, Location max, Location engine, String name,
                 boolean isOpen, long doorUID, boolean isLocked, int permission, DoorType type,
                 Location powerBlock, RotateDirection openDir, int autoClose)
     {
-        this(player, world, min, max, engine, name, isOpen, doorUID, isLocked, permission, type, null, 
+        this(player, world, min, max, engine, name, isOpen, doorUID, isLocked, permission, type, null,
              powerBlock, openDir, autoClose);
     }
 
     // Create a door with a player UUID string instead of player Object.
-    public Door(World world, Location min, Location max, Location engine, String name, boolean isOpen, 
-                long doorUID, boolean isLocked, int permission, String player, DoorType type, Location powerBlock, 
+    public Door(World world, Location min, Location max, Location engine, String name, boolean isOpen,
+                long doorUID, boolean isLocked, int permission, String player, DoorType type, Location powerBlock,
                 RotateDirection openDir, int autoClose)
     {
-        this(UUID.fromString(player), world, min, max, engine, name, isOpen, 
+        this(UUID.fromString(player), world, min, max, engine, name, isOpen,
              doorUID, isLocked, permission, type, null, powerBlock, openDir, autoClose);
     }
 
     // Create a door with a player UUID string instead of player Object and an engineSide (for draw bridges).
-    public Door(World world, Location min, Location max, Location engine, String name, boolean isOpen, 
-                long doorUID, boolean isLocked, int permission, String player, DoorType type, 
+    public Door(World world, Location min, Location max, Location engine, String name, boolean isOpen,
+                long doorUID, boolean isLocked, int permission, String player, DoorType type,
                 DoorDirection engineSide, Location powerBlock, RotateDirection openDir, int autoClose)
     {
-        this(UUID.fromString(player), world, min, max, engine, name, isOpen, doorUID, isLocked, permission, 
+        this(UUID.fromString(player), world, min, max, engine, name, isOpen, doorUID, isLocked, permission,
              type, engineSide, powerBlock, openDir, autoClose);
     }
 
@@ -98,9 +100,9 @@ public class Door
     public RotateDirection getOpenDir() {  return openDir;     }  // Get the open direction of this door.
     public int getAutoClose()           {  return autoClose;   }  // Get the auto close time.
 
-    public void setPlayerUUID(UUID playerUUID)    
-    {    
-        this.player = playerUUID;
+    public void setPlayerUUID(UUID playerUUID)
+    {
+        player = playerUUID;
     }
 
     // Change the open-status of this door.
@@ -111,7 +113,7 @@ public class Door
 
     public void setCanGo(boolean bool)
     {
-        this.canGo = bool;
+        canGo = bool;
     }
 
     // Return the location of the powerblock of this door.
@@ -141,22 +143,22 @@ public class Door
     // Change the minimum values of this door.
     public void setMinimum(Location loc)
     {
-        this.min.setX(loc.getX());
-        this.min.setY(loc.getY());
-        this.min.setZ(loc.getZ());
+        min.setX(loc.getX());
+        min.setY(loc.getY());
+        min.setZ(loc.getZ());
     }
 
     // Change the maximum values of this door.
     public void setMaximum(Location loc)
     {
-        this.max.setX(loc.getX());
-        this.max.setY(loc.getY());
-        this.max.setZ(loc.getZ());
+        max.setX(loc.getX());
+        max.setY(loc.getY());
+        max.setZ(loc.getZ());
     }
 
     public void setLock(boolean lock)
     {
-        this.isLocked = lock;
+        isLocked = lock;
     }
 
     public void setPermission(int permission)
@@ -166,17 +168,17 @@ public class Door
 
     public void setEngineSide(DoorDirection newEngSide)
     {
-        this.engineSide = newEngSide;
+        engineSide = newEngSide;
     }
 
     public Location getChunkCoords()
     {
-        if (this.chunkLoc != null)
-            return this.chunkLoc;
+        if (chunkLoc != null)
+            return chunkLoc;
 
-        Chunk chunk   = this.world.getBlockAt((int) engine.getX(), (int) engine.getY(), 
+        Chunk chunk   = world.getBlockAt((int) engine.getX(), (int) engine.getY(),
                                               (int) engine.getZ()).getChunk();
-        this.chunkLoc = new Location(this.world, chunk.getX(), 0, chunk.getZ());
+        chunkLoc = new Location(world, chunk.getX(), 0, chunk.getZ());
 
         return chunkLoc;
     }
@@ -186,52 +188,72 @@ public class Door
         getChunkCoords();
         getLength();
 
-        int difX = Math.abs(chunk.getX() - this.chunkLoc.getBlockX());
-        int difZ = Math.abs(chunk.getZ() - this.chunkLoc.getBlockZ());
+        int difX = Math.abs(chunk.getX() - chunkLoc.getBlockX());
+        int difZ = Math.abs(chunk.getZ() - chunkLoc.getBlockZ());
 
-        return difX <= this.roundedLength && difZ <= this.roundedLength;
+        return difX <= roundedLength && difZ <= roundedLength;
     }
 
     public int getLength()
     {
-        if (this.length != null)
-            return this.length;
-        int xLen = Math.abs(this.max.getBlockX() - this.min.getBlockX());
-        int zLen = Math.abs(this.max.getBlockZ() - this.min.getBlockZ());
+        if (length != null)
+            return length;
+        int xLen = Math.abs(max.getBlockX() - min.getBlockX());
+        int zLen = Math.abs(max.getBlockZ() - min.getBlockZ());
 
-        this.length = 1;
+        length = 1;
         // Regular door or Portcullis
-        if (this.type.equals(DoorType.DOOR) || this.type.equals(DoorType.PORTCULLIS))
-            this.length = xLen > zLen ? xLen : zLen;
+        if (type.equals(DoorType.DOOR) || type.equals(DoorType.PORTCULLIS))
+            length = xLen > zLen ? xLen : zLen;
 
             // Drawbridge
-            else if (this.type.equals(DoorType.DRAWBRIDGE) && this.engineSide != null)
+            else if (type.equals(DoorType.DRAWBRIDGE) && engineSide != null)
             {
-                int yLen = Math.abs(this.max.getBlockY() - this.min.getBlockY());
-                if (this.engineSide.equals(DoorDirection.NORTH) || this.engineSide.equals(DoorDirection.SOUTH))
-                    this.length = zLen > yLen ? zLen : yLen;
+                int yLen = Math.abs(max.getBlockY() - min.getBlockY());
+                if (engineSide.equals(DoorDirection.NORTH) || engineSide.equals(DoorDirection.SOUTH))
+                    length = zLen > yLen ? zLen : yLen;
                 else
-                    this.length = xLen > yLen ? xLen : yLen;
+                    length = xLen > yLen ? xLen : yLen;
             }
 
         // Portcullis engine is in the middle and doesn't rotate.
-        if (this.type.equals(DoorType.PORTCULLIS))
-            this.length /= 2;
+        if (type.equals(DoorType.PORTCULLIS))
+            length /= 2;
 
-        this.roundedLength = this.length / 16 + 1; 
+        roundedLength = length / 16 + 1;
 
-        return this.length;
+        return length;
     }
 
     public DoorDirection getLookingDir()
     {
-        if (this.type.equals(DoorType.DRAWBRIDGE)    || this.type.equals(DoorType.PORTCULLIS))
-            return engineSide == DoorDirection.NORTH || 
+        if (type.equals(DoorType.DRAWBRIDGE)    || type.equals(DoorType.PORTCULLIS))
+            return engineSide == DoorDirection.NORTH ||
                    engineSide == DoorDirection.SOUTH ? DoorDirection.NORTH : DoorDirection.EAST;
 
         return  engine.getBlockZ() != min.getBlockZ() ? DoorDirection.NORTH :
                 engine.getBlockX() != max.getBlockX() ? DoorDirection.EAST  :
                 engine.getBlockZ() != max.getBlockZ() ? DoorDirection.SOUTH :
                 engine.getBlockX() != min.getBlockX() ? DoorDirection.WEST  : null;
+    }
+
+    public Location getNewMin()
+    {
+        return newMin;
+    }
+
+    public Location getNewMax()
+    {
+        return newMax;
+    }
+
+    public void setNewMin(Location loc)
+    {
+        newMin = loc;
+    }
+
+    public void setNewMax(Location loc)
+    {
+        newMax = loc;
     }
 }
