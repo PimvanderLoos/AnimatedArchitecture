@@ -1,9 +1,7 @@
 package nl.pim16aap2.bigDoors.NMS.AS_v1_13_R2;
 
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
@@ -12,9 +10,6 @@ import net.minecraft.server.v1_13_R2.EntityArmorStand;
 import net.minecraft.server.v1_13_R2.EntityLiving;
 import net.minecraft.server.v1_13_R2.Vector3f;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
-
-import java.util.HashSet;
-import java.util.List;
 
 public class CraftArmorStand_V1_13_R2 extends CraftLivingEntity implements ArmorStand, CustomCraftFallingBlock_Vall
 {
@@ -264,73 +259,5 @@ public class CraftArmorStand_V1_13_R2 extends CraftLivingEntity implements Armor
     public void setMarker(boolean marker)
     {
         getHandle().setMarker(marker);
-    }
-
-
-    /*------------ Some Intellij BS ---------------*/
-    @Override
-    public List<Block> getLineOfSight(HashSet<Byte> hashSet, int i)
-    {
-        return null;
-    }
-
-    @Override
-    public Block getTargetBlock(HashSet<Byte> hashSet, int i)
-    {
-        return null;
-    }
-
-    @Override
-    public List<Block> getLastTwoTargetBlocks(HashSet<Byte> hashSet, int i)
-    {
-        return null;
-    }
-
-    @Override
-    public int _INVALID_getLastDamage()
-    {
-        return 0;
-    }
-
-    @Override
-    public void _INVALID_setLastDamage(int i)
-    {
-
-    }
-
-    @Override
-    public void _INVALID_damage(int i)
-    {
-
-    }
-
-    @Override
-    public void _INVALID_damage(int i, Entity entity)
-    {
-
-    }
-
-    @Override
-    public int _INVALID_getHealth()
-    {
-        return 0;
-    }
-
-    @Override
-    public void _INVALID_setHealth(int i)
-    {
-
-    }
-
-    @Override
-    public int _INVALID_getMaxHealth()
-    {
-        return 0;
-    }
-
-    @Override
-    public void _INVALID_setMaxHealth(int i)
-    {
-
     }
 }

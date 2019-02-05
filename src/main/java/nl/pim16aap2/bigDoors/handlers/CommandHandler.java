@@ -1,6 +1,9 @@
 package nl.pim16aap2.bigDoors.handlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
@@ -639,6 +642,28 @@ public class CommandHandler implements CommandExecutor
     // Used for various debugging purposes (you don't say!).
     public void doorDebug(Player player)
     {
-        plugin.restart();
+        Util.broadcastMessage("Going to display cache stats now!");
+        long doorCount = 0;
+
+        ArrayList<Long> chunks = plugin.getPBCache().getKeys();
+        for (Long chunkHash : chunks)
+            doorCount += plugin.getPBCache().get(chunkHash).size();
+
+        Util.broadcastMessage("# of doors in cache: " + doorCount + " in " + plugin.getPBCache().getChunkCount() + " chunks.");
+
+        String doorsStr = "";
+
+        for (Long chunkHash : chunks)
+        {
+            HashMap<Long, Long> doors = plugin.getPBCache().get(chunkHash);
+            Iterator<Entry<Long, Long>> it = doors.entrySet().iterator();
+            while (it.hasNext())
+            {
+                Entry<Long, Long> entry = it.next();
+                Door door = plugin.getCommander().getDoor(entry.getValue());
+                doorsStr += entry.getValue() + " (" + door.getPowerBlockLoc() + " = " + door.getPowerBlockChunkHash() + "), ";
+            }
+        }
+        Util.broadcastMessage("Doors found: " + doorsStr);
     }
 }

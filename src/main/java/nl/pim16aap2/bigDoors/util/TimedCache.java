@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.util;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -57,7 +58,7 @@ public class TimedCache<K, V>
     public V get(K key)
     {
         if (hashtable.containsKey(key))
-            return hashtable.get(key).value;
+            return hashtable.get(key).timedOut() ? null : hashtable.get(key).value;
         return null;
     }
 
@@ -79,7 +80,8 @@ public class TimedCache<K, V>
 
     }
 
-    private final class Value<T>
+    // TODO: Make private again.
+    public final class Value<T>
     {
         public final long insertTime;
         public final T value;
@@ -94,5 +96,19 @@ public class TimedCache<K, V>
         {
             return TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - insertTime) > timeout;
         }
+    }
+
+    public ArrayList<K> getKeys()
+    {
+        ArrayList<K> keys = new ArrayList<>();
+        Iterator<Entry<K, TimedCache<K, V>.Value<V>>> it = hashtable.entrySet().iterator();
+        while (it.hasNext())
+            keys.add(it.next().getKey());
+        return keys;
+    }
+
+    public int getChunkCount()
+    {
+        return hashtable.size();
     }
 }

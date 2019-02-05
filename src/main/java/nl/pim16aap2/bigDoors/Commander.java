@@ -222,20 +222,17 @@ public class Commander
     public Door doorFromPowerBlockLoc(Location loc)
     {
         long chunkHash = Util.chunkHashFromLocation(loc);
-        HashMap<Long, Long> doors = plugin.getPBCache().get(chunkHash);
-        if (doors == null)
+        HashMap<Long, Long> powerBlockData = plugin.getPBCache().get(chunkHash);
+        if (powerBlockData == null)
         {
-            Util.broadcastMessage("Not cached, adding to cache!");
-            doors = db.getPowerBlockData(chunkHash);
-            plugin.getPBCache().put(chunkHash, doors);
+            powerBlockData = db.getPowerBlockData(chunkHash);
+            plugin.getPBCache().put(chunkHash, powerBlockData);
         }
-        else
-            Util.broadcastMessage("Cached!");
-        Long doorUID = doors.get(Util.locationHash(loc));
+        Long doorUID = powerBlockData.get(Util.locationHash(loc));
         return doorUID == null ? null : db.getDoor(doorUID);
     }
 
-    // Change hte location of a powerblock.
+    // Change the location of a powerblock.
     public void updatePowerBlockLoc(long doorUID, Location loc)
     {
         plugin.getPBCache().invalidate(db.getDoor(doorUID).getPowerBlockChunkHash());

@@ -55,6 +55,8 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
 // TODO: Fix /BDRestart (if broken).
+// TODO: LocationHash doesn't use world.
+// TODO: Split up SQL upgrade stuff into multiple methods.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -80,8 +82,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private RedstoneHandler   redstoneHandler;
     private PortcullisOpener portcullisOpener;
     private String                loginString;
-    //                 Chunk         Location DoorUID
-    private TimedCache<Long, HashMap<Long,    Long>> pbCache; // Powerblock cache.
+    //                 Chunk         Location, DoorUID
+    private TimedCache<Long, HashMap<Long,     Long>> pbCache; // Powerblock cache.
 
     private boolean            is1_13 = false;
     private boolean         enabledAS = false;
