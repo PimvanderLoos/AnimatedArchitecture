@@ -197,7 +197,7 @@ public class CommandHandler implements CommandExecutor
             type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
                 type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) : null;
 
-                startTimerForAbortable((Abortable) tu, player, 60 * 20);
+                startTimerForAbortable(tu, player, 60 * 20);
     }
 
     public ToolUser isToolUser(Player player)
@@ -237,7 +237,7 @@ public class CommandHandler implements CommandExecutor
     {
         if (isPlayerBusy(player))
             return;
-        startTimerForAbortable((Abortable) (new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), player, 20 * 20);
+        startTimerForAbortable((new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), player, 20 * 20);
     }
 
     private boolean isPlayerBusy(Player player)
@@ -250,7 +250,7 @@ public class CommandHandler implements CommandExecutor
 
     public void startPowerBlockRelocator(Player player, long doorUID)
     {
-        startTimerForAbortable((Abortable) new PowerBlockRelocator(plugin, player, doorUID), player, 20 * 20);
+        startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID), player, 20 * 20);
     }
 
     // Handle commands.
@@ -501,7 +501,7 @@ public class CommandHandler implements CommandExecutor
             {
                 if (isPlayerBusy(player))
                     return false;
-                startTimerForAbortable((Abortable) new PowerBlockInspector(plugin, player, -1), player, 20 * 20);
+                startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), player, 20 * 20);
                 return true;
             }
 
@@ -549,7 +549,7 @@ public class CommandHandler implements CommandExecutor
                 if (tu != null)
                 {
                     tu.setIsDone(true);
-                    plugin.getMyLogger().returnToSender((CommandSender) player, Level.INFO, ChatColor.RED, plugin.getMessages().getString("CREATOR.GENERAL.Cancelled"));
+                    plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED, plugin.getMessages().getString("CREATOR.GENERAL.Cancelled"));
                 }
                 return true;
             }
@@ -613,7 +613,7 @@ public class CommandHandler implements CommandExecutor
 
     public void delDoor(Player player, String doorName)
     {
-        CommandSender sender = (CommandSender) player;
+        CommandSender sender = player;
         try
         {
             long doorUID     = Long.parseLong(doorName);
@@ -646,24 +646,44 @@ public class CommandHandler implements CommandExecutor
         long doorCount = 0;
 
         ArrayList<Long> chunks = plugin.getPBCache().getKeys();
-        for (Long chunkHash : chunks)
-            doorCount += plugin.getPBCache().get(chunkHash).size();
-
-        Util.broadcastMessage("# of doors in cache: " + doorCount + " in " + plugin.getPBCache().getChunkCount() + " chunks.");
-
-        String doorsStr = "";
-
-        for (Long chunkHash : chunks)
+        if (chunks == null)
+            Util.broadcastMessage("No chunks in cache!");
+        else
         {
-            HashMap<Long, Long> doors = plugin.getPBCache().get(chunkHash);
-            Iterator<Entry<Long, Long>> it = doors.entrySet().iterator();
-            while (it.hasNext())
+            for (Long chunkHash : chunks)
+                doorCount += plugin.getPBCache().get(chunkHash).size();
+
+            Util.broadcastMessage("# of doors in cache: " + doorCount + " in " + plugin.getPBCache().getChunkCount() + " chunks.");
+
+            String doorsStr = "";
+
+            for (Long chunkHash : chunks)
             {
-                Entry<Long, Long> entry = it.next();
-                Door door = plugin.getCommander().getDoor(entry.getValue());
-                doorsStr += entry.getValue() + " (" + door.getPowerBlockLoc() + " = " + door.getPowerBlockChunkHash() + "), ";
+                HashMap<Long, Long> doors = plugin.getPBCache().get(chunkHash);
+                Iterator<Entry<Long, Long>> it = doors.entrySet().iterator();
+                while (it.hasNext())
+                {
+                    Entry<Long, Long> entry = it.next();
+                    Door door = plugin.getCommander().getDoor(entry.getValue());
+                    doorsStr += entry.getValue() + " (" + door.getPowerBlockLoc() + " = " + door.getPowerBlockChunkHash() + "), ";
+                }
             }
+            Util.broadcastMessage("Doors found: " + doorsStr);
         }
-        Util.broadcastMessage("Doors found: " + doorsStr);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

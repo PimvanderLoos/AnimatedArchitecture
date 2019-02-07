@@ -354,6 +354,8 @@ public class SQLiteJDBCDriverConnection
 
                 door = newDoorFromRS(rs1, rs1.getLong(DOOR_ID), 0, UUID.fromString(foundPlayerUUID));
             }
+            ps1.close();
+            rs1.close();
         }
         catch (SQLException e)
         {
@@ -450,6 +452,9 @@ public class SQLiteJDBCDriverConnection
             while (rs1.next())
                 playerID = rs1.getInt(PLAYERS_ID);
 
+            ps1.close();
+            rs1.close();
+
             PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
             ResultSet rs2         = ps2.executeQuery();
             int count             = 0;
@@ -463,7 +468,7 @@ public class SQLiteJDBCDriverConnection
                         doors.add(newDoorFromRS(rs3, rs3.getLong(DOOR_ID), rs2.getInt(UNION_PERM), UUID.fromString(playerUUID)));
                     ++count;
                 }
-                rs3.close();
+                ps3.close();
                 rs3.close();
             }
             ps2.close();
@@ -500,9 +505,6 @@ public class SQLiteJDBCDriverConnection
             ResultSet rs = ps.executeQuery();
             while (rs.next())
             {
-                Util.broadcastMessage("In chunk: " + chunkHash + " door " + rs.getLong(DOOR_ID) + " was found. LocHash = " +
-                                       Util.locationHash(rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z),
-                                                         UUID.fromString(rs.getString(DOOR_WORLD))));
                 doors.put(Util.locationHash(rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z), UUID.fromString(rs.getString(DOOR_WORLD))),
                           rs.getLong(DOOR_ID));
             }
@@ -676,8 +678,13 @@ public class SQLiteJDBCDriverConnection
                                                                              "' AND world = '"       + loc.getWorld().getUID().toString() + "';");
             ResultSet rs = ps.executeQuery();
             boolean isAvailable = true;
-            while (rs.next())
+
+            if (rs.next())
                 isAvailable = false;
+
+//            while (rs.next())
+//                isAvailable = false;
+
             ps.close();
             rs.close();
             return isAvailable;
@@ -758,15 +765,16 @@ public class SQLiteJDBCDriverConnection
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
-                String query         = "SELECT last_insert_rowid() AS lastId";
-                PreparedStatement p2 = conn.prepareStatement(query);
-                ResultSet rs2        = p2.executeQuery();
-                playerID             = rs2.getLong("lastId");
-                stmt2.close();
+                String query          = "SELECT last_insert_rowid() AS lastId";
+                PreparedStatement ps2 = conn.prepareStatement(query);
+                ResultSet rs2         = ps2.executeQuery();
+                playerID              = rs2.getLong("lastId");
+                ps2.close();
+                rs2.close();
             }
 
-            String doorInsertsql = "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,openDirection,autoClose) "
-                                 + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String doorInsertsql = "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,openDirection,autoClose,chunkHash) "
+                                 + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 
             doorstatement.setString(DOOR_NAME - 1,     door.getName());
@@ -795,11 +803,11 @@ public class SQLiteJDBCDriverConnection
             doorstatement.executeUpdate();
             doorstatement.close();
 
-            String query         = "SELECT last_insert_rowid() AS lastId";
-            PreparedStatement p2 = conn.prepareStatement(query);
-            ResultSet rs2        = p2.executeQuery();
-            Long doorID          = rs2.getLong("lastId");
-            p2.close();
+            String query          = "SELECT last_insert_rowid() AS lastId";
+            PreparedStatement ps2 = conn.prepareStatement(query);
+            ResultSet rs2         = ps2.executeQuery();
+            Long doorID           = rs2.getLong("lastId");
+            ps2.close();
             rs2.close();
 
             Statement stmt3 = conn.createStatement();

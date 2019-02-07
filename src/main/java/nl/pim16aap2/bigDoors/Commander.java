@@ -53,7 +53,7 @@ public class Commander
     // Set the availability of the door.
     public void setDoorAvailable(long doorUID)
     {
-        busyDoors.remove((Long) doorUID);
+        busyDoors.remove(doorUID);
     }
 
     // Check if the doors are paused.

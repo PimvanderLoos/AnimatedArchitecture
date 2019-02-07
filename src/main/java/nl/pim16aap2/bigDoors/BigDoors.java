@@ -12,7 +12,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.AS_v1_12_R1.ArmorStandFactory_V1_12_R1;
-import nl.pim16aap2.bigDoors.NMS.AS_v1_13_R2.ArmorStandFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
@@ -55,7 +54,6 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
 // TODO: Fix /BDRestart (if broken).
-// TODO: LocationHash doesn't use world.
 // TODO: Split up SQL upgrade stuff into multiple methods.
 
 public class BigDoors extends JavaPlugin implements Listener
@@ -411,11 +409,12 @@ public class BigDoors extends JavaPlugin implements Listener
             fabf2     = new ArmorStandFactory_V1_12_R1();
             enabledAS = true;
         }
-        if (version.equals("v1_13_R2"))
-        {
-            fabf2     = new ArmorStandFactory_V1_13_R2();
-            enabledAS = true;
-        }
+//        if (version.equals("v1_13_R2")) // Doesn't work for 1.13.2. 1.13.1 needs verification!
+//        {
+//            fabf2     = new ArmorStandFactory_V1_13_R2();
+//            enabledAS = true;
+//        }
+
         // Return true if compatible.
         return fabf2 != null;
     }

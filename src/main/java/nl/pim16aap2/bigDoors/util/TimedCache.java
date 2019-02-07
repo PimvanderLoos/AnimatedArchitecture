@@ -52,11 +52,15 @@ public class TimedCache<K, V>
 
     public void put(K key, V value)
     {
+        if (timeout < 0)
+            return;
         hashtable.put(key, new Value<V>(value));
     }
 
     public V get(K key)
     {
+        if (timeout < 0)
+            return null;
         if (hashtable.containsKey(key))
             return hashtable.get(key).timedOut() ? null : hashtable.get(key).value;
         return null;
@@ -68,7 +72,7 @@ public class TimedCache<K, V>
     }
 
     // Loop over all cache entries to verify they haven't timed out yet.
-    void verifyCache()
+    private void verifyCache()
     {
         Iterator<Entry<K, TimedCache<K, V>.Value<V>>> it = hashtable.entrySet().iterator();
         while (it.hasNext())
@@ -100,6 +104,8 @@ public class TimedCache<K, V>
 
     public ArrayList<K> getKeys()
     {
+        if (timeout < 0)
+            return null;
         ArrayList<K> keys = new ArrayList<>();
         Iterator<Entry<K, TimedCache<K, V>.Value<V>>> it = hashtable.entrySet().iterator();
         while (it.hasNext())

@@ -2,7 +2,9 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -57,28 +59,28 @@ public class BridgeMover implements BlockMover
 	public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
 			DoorDirection openDirection, boolean instantOpen)
 	{
-		this.door          = door;
-		fabf          = plugin.getFABF();
-		this.world         = world;
-		this.plugin        = plugin;
-		engineSide    = door.getEngSide();
-		NS            = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
+		fabf = plugin.getFABF();
+        NS   = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
+        this.door   = door;
+		this.world  = world;
+		this.plugin = plugin;
+		engineSide  = door.getEngSide();
+        this.upDown = upDown;
 		this.instantOpen   = instantOpen;
 		this.openDirection = openDirection;
-		this.upDown        = upDown;
 
-		xMin       = door.getMinimum().getBlockX();
-		yMin       = door.getMinimum().getBlockY();
-		zMin       = door.getMinimum().getBlockZ();
-		xMax       = door.getMaximum().getBlockX();
-		yMax       = door.getMaximum().getBlockY();
-		zMax       = door.getMaximum().getBlockZ();
-		int xLen        = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
-		int yLen        = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
-		int zLen        = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
-		int doorSize    = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-		double vars[]   = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().dbMultiplier(), 5.2);
-		this.time       = vars[0];
+		xMin = door.getMinimum().getBlockX();
+		yMin = door.getMinimum().getBlockY();
+		zMin = door.getMinimum().getBlockZ();
+		xMax = door.getMaximum().getBlockX();
+		yMax = door.getMaximum().getBlockY();
+		zMax = door.getMaximum().getBlockZ();
+		int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
+		int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
+		int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
+		int doorSize  = Math.max(xLen, Math.max(yLen, zLen)) + 1;
+		double vars[] = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().dbMultiplier(), 5.2);
+		this.time  = vars[0];
 		tickRate   = (int) vars[1];
 		multiplier = vars[2];
 
@@ -422,12 +424,15 @@ public class BridgeMover implements BlockMover
 		{
 			Location center   = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
 			boolean replace   = false;
-			int counter       = 0;
+			double counter    = 0;
 			int endCount      = (int) (20 / tickRate * time);
 			double step       = (Math.PI / 2) / endCount * stepMultiplier;
 			double stepSum    = startStepSum;
 			int totalTicks    = (int) (endCount * multiplier);
-			int replaceCount  = (int) (endCount / 2);
+			int replaceCount  = endCount / 2;
+            long startTime    = System.nanoTime();
+            long lastTime;
+            long currentTime  = System.nanoTime();
 
 			@Override
 			public void run()
@@ -435,8 +440,13 @@ public class BridgeMover implements BlockMover
 				if (counter == 0 || (counter < endCount - 45 / tickRate && counter % (6 * tickRate / 4) == 0))
 					Util.playSound(door.getEngine(), "bd.drawbridge-rattling", 0.8f, 0.7f);
 
-				if (!plugin.getCommander().isPaused())
-					++counter;
+                lastTime = currentTime;
+                currentTime = System.nanoTime();
+                long msSinceStart = (currentTime - startTime) / 1000000;
+                if (!plugin.getCommander().isPaused())
+                    counter = msSinceStart / (50 * tickRate);
+                else
+                    startTime += currentTime - lastTime;
 
 				if (counter < endCount - 1)
 					stepSum = startStepSum + step * counter;
@@ -453,35 +463,56 @@ public class BridgeMover implements BlockMover
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						if (!savedBlocks.get(idx).getMat().equals(Material.AIR))
 							savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
-					putBlocks(false);
+                    Bukkit.getScheduler().callSyncMethod(plugin, new Callable<Void>()
+                    {
+                        @Override
+                        public Void call()
+                        {
+                            putBlocks(false);
+                            return null;
+                        }
+                    });
 					cancel();
 				}
 				else
 				{
+                    // It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated.
+                    // Also, this stuff needs to be done on the main thread.
+                    if (replace)
+                    {
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                for (MyBlockData block : savedBlocks)
+                                {
+                                    if (block.canRot() != 0 && block.canRot() != 4)
+                                    {
+                                        Material mat = block.getMat();
+                                        Location loc = block.getFBlock().getLocation();
+                                        Byte matData = block.getBlockByte();
+                                        Vector veloc = block.getFBlock().getVelocity();
+
+                                        CustomCraftFallingBlock_Vall fBlock;
+                                        // Because the block in savedBlocks is already rotated where applicable, just use that block now.
+                                        fBlock = fallingBlockFactory(loc, mat, matData, block.getBlock());
+
+                                        block.getFBlock().remove();
+                                        block.setFBlock(fBlock);
+
+                                        block.getFBlock().setVelocity(veloc);
+                                    }
+                                }
+                            }
+                        }, 0);
+                    }
+
 					for (MyBlockData block : savedBlocks)
 					{
 						if (!block.getMat().equals(Material.AIR))
 						{
 							double radius = block.getRadius();
-							if (replace)
-							{
-								if (block.canRot() != 0 && block.canRot() != 4)
-								{
-									Material mat = block.getMat();
-									Location loc = block.getFBlock().getLocation();
-									Byte matData = block.getBlockByte();
-									Vector veloc = block.getFBlock().getVelocity();
-
-									CustomCraftFallingBlock_Vall fBlock;
-									// Because the block in savedBlocks is already rotated where applicable, just use that block now.
-									fBlock = fallingBlockFactory(loc, mat, (byte) matData, block.getBlock());
-
-									block.getFBlock().remove();
-									block.setFBlock(fBlock);
-
-									block.getFBlock().setVelocity(veloc);
-								}
-							}
 							if (radius != 0)
 							{
 								double posX, posY, posZ;
@@ -505,7 +536,7 @@ public class BridgeMover implements BlockMover
 					}
 				}
 			}
-		}.runTaskTimer(plugin, 14, tickRate);
+        }.runTaskTimerAsynchronously(plugin, 14, tickRate);
 	}
 
 	// Rotate blocks such a logs by modifying its material data.
