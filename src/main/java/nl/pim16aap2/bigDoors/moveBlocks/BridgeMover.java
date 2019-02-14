@@ -32,57 +32,57 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class BridgeMover implements BlockMover
 {
-	private World                    world;
-	private BigDoors                plugin;
-	private int                   tickRate;
-	private double              multiplier;
-	private int                     dx, dz;
-	private double                    time;
-	private FallingBlockFactory_Vall  fabf;
-	private boolean                     NS;
-	private GetNewLocation             gnl;
-	private Door                      door;
-	private RotateDirection         upDown;
-	private DoorDirection       engineSide;
-	private double              endStepSum;
-	private boolean            instantOpen;
-	private Location          turningPoint;
-	private double            startStepSum;
-	private DoorDirection    openDirection;
-	private Location         pointOpposite;
-	private int             stepMultiplier;
-	private int           xMin, yMin, zMin;
-	private int           xMax, yMax, zMax;
-	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
+    private World                    world;
+    private BigDoors                plugin;
+    private int                   tickRate;
+    private double              multiplier;
+    private int                     dx, dz;
+    private double                    time;
+    private FallingBlockFactory_Vall  fabf;
+    private boolean                     NS;
+    private GetNewLocation             gnl;
+    private Door                      door;
+    private RotateDirection         upDown;
+    private DoorDirection       engineSide;
+    private double              endStepSum;
+    private boolean            instantOpen;
+    private Location          turningPoint;
+    private double            startStepSum;
+    private DoorDirection    openDirection;
+    private Location         pointOpposite;
+    private int             stepMultiplier;
+    private int           xMin, yMin, zMin;
+    private int           xMax, yMax, zMax;
+    private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 
 	@SuppressWarnings("deprecation")
 	public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
 			DoorDirection openDirection, boolean instantOpen)
 	{
-		fabf = plugin.getFABF();
-        NS   = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
-        this.door   = door;
-		this.world  = world;
-		this.plugin = plugin;
-		engineSide  = door.getEngSide();
+        fabf = plugin.getFABF();
+        engineSide = door.getEngSide();
+        NS = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
+        this.door = door;
+        this.world = world;
+        this.plugin = plugin;
         this.upDown = upDown;
-		this.instantOpen   = instantOpen;
-		this.openDirection = openDirection;
+        this.instantOpen = instantOpen;
+        this.openDirection = openDirection;
 
-		xMin = door.getMinimum().getBlockX();
-		yMin = door.getMinimum().getBlockY();
-		zMin = door.getMinimum().getBlockZ();
-		xMax = door.getMaximum().getBlockX();
-		yMax = door.getMaximum().getBlockY();
-		zMax = door.getMaximum().getBlockZ();
-		int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
-		int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
-		int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
-		int doorSize  = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-		double vars[] = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().dbMultiplier(), 5.2);
-		this.time  = vars[0];
-		tickRate   = (int) vars[1];
-		multiplier = vars[2];
+        xMin = door.getMinimum().getBlockX();
+        yMin = door.getMinimum().getBlockY();
+        zMin = door.getMinimum().getBlockZ();
+        xMax = door.getMaximum().getBlockX();
+        yMax = door.getMaximum().getBlockY();
+        zMax = door.getMaximum().getBlockZ();
+        int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
+        int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
+        int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
+        int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
+        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().dbMultiplier(), 5.2);
+        this.time = vars[0];
+        tickRate = (int) vars[1];
+        multiplier = vars[2];
 
 		// Regarding dx, dz. These variables determine whether loops get incremented (1) or decremented (-1)
 		// When looking in the direction of the opposite point from the engine side, the blocks should get
