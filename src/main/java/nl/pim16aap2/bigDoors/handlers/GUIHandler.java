@@ -45,13 +45,24 @@ public class GUIHandler implements Listener
     }
     
     // Changes the opening direction for a door.
-    // NONE -> CLOCKWISE -> COUNTERCLOCKWISE
     private void changeOpenDir(Player player, Door door, Inventory inv)
     {
         RotateDirection curOpenDir = door.getOpenDir();
-        RotateDirection newOpenDir = curOpenDir == RotateDirection.NONE      ? RotateDirection.CLOCKWISE :
-                                     curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
-                                                                               RotateDirection.NONE;
+        RotateDirection newOpenDir;
+        if (door.getType() == DoorType.SLIDINGDOOR)
+        {
+            newOpenDir = curOpenDir == RotateDirection.NONE  ? RotateDirection.NORTH :
+                         curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST  :
+                         curOpenDir == RotateDirection.EAST  ? RotateDirection.SOUTH :
+                         curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST  :
+                                                               RotateDirection.NONE;
+        }
+        else
+        {
+            newOpenDir = curOpenDir == RotateDirection.NONE      ? RotateDirection.CLOCKWISE :
+                         curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
+                                                                   RotateDirection.NONE;
+        }
         plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
         setPage(player, inv, getPreviousPage(inv) + 1, PageType.DOORINFO, door.getDoorUID(), getPageCount(inv));
     }

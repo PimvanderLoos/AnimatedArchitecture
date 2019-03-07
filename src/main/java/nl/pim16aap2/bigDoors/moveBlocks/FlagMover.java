@@ -265,9 +265,6 @@ public class FlagMover implements BlockMover
                                             double maxVal   = 0.25   *   distanceToEng;
                                             maxVal = maxVal > 0.75   ? 0.75   : maxVal;
                                             zOff   = offset > maxVal ? maxVal : offset;
-//                                            if (yAxis == yMax)
-//                                                Bukkit.broadcastMessage(String.format("Type=%9s, maxVal=%.2f, dist=%d, tot=%.3f",
-//                                                        savedBlocks.get(index).getMat().toString(), maxVal, distanceToEng, zOff));
                                         }
                                     }
                                     Location loc = new Location(null, xAxis + 0.5 + xOff, yAxis, zAxis + 0.5 + zOff);

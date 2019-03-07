@@ -45,7 +45,7 @@ public class GUIPage implements Listener
     private PageType     pageType;
     private int              page;
     private Door             door;
-    private static final int chestSize  = 45;
+    private static final int chestSize = 45;
 
     private static final Material[] doorTypes =
     {
@@ -188,16 +188,17 @@ public class GUIPage implements Listener
         lore.clear();
 
         // Currently, only doors and drawbridges have directions etc.
-        if (door.getType() == DoorType.DOOR || door.getType() == DoorType.DRAWBRIDGE)
+        if (door.getType() == DoorType.DOOR || door.getType() == DoorType.DRAWBRIDGE || door.getType() == DoorType.SLIDINGDOOR)
         {
             desc = messages.getString("GUI.Direction.Name");
             RotateDirection doorsOpenDir = door.getOpenDir();
             loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(doorsOpenDir));
             lore.add(loreStr);
-            lore.add(messages.getString("GUI.Direction.Looking") +
-                    (door.getType()       == DoorType.DOOR       ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
-                     door.getLookingDir() == DoorDirection.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
-                                                                   messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
+            if (door.getType() != DoorType.SLIDINGDOOR)
+                lore.add(messages.getString("GUI.Direction.Looking") +
+                        (door.getType()       == DoorType.DOOR       ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
+                         door.getLookingDir() == DoorDirection.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
+                                                                       messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
             inv.setItem(15, new GUIItem(setOpenDirMat, desc, lore, 1).getItemStack());
             lore.clear();
         }

@@ -68,10 +68,10 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Rewrite Openers to get rid of code duplication.
 // TODO: Add config options for compatibility hooks.
 // TODO: Add proper formatting per door-type in the GUI in the door class. (i.e. just request the door format from the door object.)
-// TODO: Implement GUI buttons for creation new sliding doors and elevators.
 // TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
 // TODO: Split up SQL upgrade stuff into multiple methods.
+// TODO: Use generics for ConfigOption.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -137,27 +137,6 @@ public class BigDoors extends JavaPlugin implements Listener
         elevatorOpener    = new ElevatorOpener(this);
         portcullisOpener  = new PortcullisOpener(this);
         slidingDoorOpener = new SlidingDoorOpener(this);
-        protectionCompats = new ArrayList<ProtectionCompat>();
-
-        if (getServer().getPluginManager().getPlugin("PlotSquared") != null)
-        {
-            ProtectionCompat plotSquaredCompat;
-            String PSVersion = getServer().getPluginManager().getPlugin("PlotSquared").getDescription().getVersion();
-            if (!PSVersion.startsWith("4."))
-            {
-                logger.logMessageToConsole("Old PlotSquared version detected!");
-                plotSquaredCompat = new PlotSquaredOldProtectionCompat(this);
-            }
-            else
-            {
-                logger.logMessageToConsole("New PlotSquared version detected! Note that this hook is not yet implemented!");
-                plotSquaredCompat = new PlotSquaredNewProtectionCompat(this);
-            }
-            addProtectionCompat(plotSquaredCompat);
-        }
-
-        if (getServer().getPluginManager().getPlugin("WorldGuard") != null)
-            addProtectionCompat(new WorldGuardProtectionCompat(this));
 
         getCommand("inspectpowerblockloc").setExecutor(new CommandHandler(this));
         getCommand("changepowerblockloc" ).setExecutor(new CommandHandler(this));
@@ -218,11 +197,33 @@ public class BigDoors extends JavaPlugin implements Listener
             rPackHandler = null;
 
             pbCache.reinit(config.cacheTimeout());
+            protectionCompats.clear();
         }
         else
         {
             pbCache = new TimedCache<Long, HashMap<Long, Long>>(this, config.cacheTimeout());
+            protectionCompats = new ArrayList<ProtectionCompat>();
         }
+        
+        if (config.plotSquaredHook() && getServer().getPluginManager().getPlugin("PlotSquared") != null)
+        {
+            ProtectionCompat plotSquaredCompat;
+            String PSVersion = getServer().getPluginManager().getPlugin("PlotSquared").getDescription().getVersion();
+            if (PSVersion.startsWith("4."))
+            {
+                logger.logMessageToConsole("New PlotSquared version detected! Note that this hook is not yet implemented!");
+                plotSquaredCompat = new PlotSquaredNewProtectionCompat(this);
+            }
+            else
+            {
+                logger.logMessageToConsole("Old PlotSquared version detected!");
+                plotSquaredCompat = new PlotSquaredOldProtectionCompat(this);
+            }
+            addProtectionCompat(plotSquaredCompat);
+        }
+
+        if (config.worldGuardHook() && getServer().getPluginManager().getPlugin("WorldGuard") != null)
+            addProtectionCompat(new WorldGuardProtectionCompat(this));
 
         if (config.enableRedstone())
         {

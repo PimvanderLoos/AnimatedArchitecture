@@ -9,10 +9,12 @@ Alpha 0.1.8
 - Fixed incompatibility with Wireless Redstone. Thanks, @DaniRadio for the bug report!
 - Fixed terracotta accidentally being blacklisted in <1.13.*. Thanks, @Minestick for the bug report! 
 - Added filldoor command to quickly generate doors.
-- Added sliding door type.
+- Added sliding door and elevator door types. Note that you cannot ride elevators (yet)!
 - Added some translations.
 - Fixed timing issues with door creation again. Should be the last time :)
 - Added caching for redstone requests.
+- Added compatibility hooks for PlotSquared (<v4!) and WorldGuard. 
+- Added config options for the compatibility hooks.
 
 Alpha 0.1.7.3
 - Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!

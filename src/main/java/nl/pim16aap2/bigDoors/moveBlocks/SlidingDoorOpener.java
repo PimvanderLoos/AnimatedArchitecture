@@ -41,17 +41,6 @@ public class SlidingDoorOpener implements Opener
         return openDoor(door, time, false, false);
     }
 
-    private int getDoorSize(Door door)
-    {
-        int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
-        int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
-        int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
-        xLen = xLen == 0 ? 1 : xLen;
-        yLen = yLen == 0 ? 1 : yLen;
-        zLen = zLen == 0 ? 1 : zLen;
-        return xLen * yLen * zLen;
-    }
-
     // Open a door.
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
@@ -73,11 +62,11 @@ public class SlidingDoorOpener implements Opener
         // If it does, open the door instantly.
         int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
         if (maxDoorSize != -1)
-            if(getDoorSize(door) > maxDoorSize)
+            if(door.getBlockCount() > maxDoorSize)
                 instantOpen = true;
 
         int blocksToMove = getBlocksToMove(door);
-
+        
         if (blocksToMove != 0)
         {
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
@@ -99,26 +88,6 @@ public class SlidingDoorOpener implements Opener
         xLen = Math.abs(xMax - xMin) + 1;
         zLen = Math.abs(zMax - zMin) + 1;
 
-        // If the door is bigger in the xDir, it'll move either north or south.
-        boolean NS = zLen > xLen ? true : false;
-        int moveLen = NS ? zLen : xLen;
-        int moveX, moveZ;
-
-        if ((zLen == 1 || xLen == 1))
-        {
-            if ( NS && slideDir.equals(RotateDirection.EAST ) ||  NS && slideDir.equals(RotateDirection.WEST ) ||
-                !NS && slideDir.equals(RotateDirection.NORTH) || !NS && slideDir.equals(RotateDirection.SOUTH))
-                return 0;
-            moveX = moveLen;
-            moveZ = moveLen;
-        }
-        else
-        {
-            NS = slideDir.equals(RotateDirection.NORTH) || slideDir.equals(RotateDirection.SOUTH);
-            moveX = xLen;
-            moveZ = zLen;
-        }
-
         int xAxis, yAxis, zAxis;
         step = slideDir == RotateDirection.NORTH || slideDir == RotateDirection.WEST ? -1 : 1;
 
@@ -128,14 +97,14 @@ public class SlidingDoorOpener implements Opener
         if (slideDir == RotateDirection.NORTH)
         {
             startZ = zMin - 1;
-            endZ   = zMin - moveZ - 1;
+            endZ   = zMin - zLen - 1;
             startX = xMin;
             endX   = xMax;
         }
         else if (slideDir == RotateDirection.SOUTH)
         {
             startZ = zMax + 1;
-            endZ   = zMax + moveZ + 1;
+            endZ   = zMax + zLen + 1;
             startX = xMin;
             endX   = xMax;
         }
@@ -144,20 +113,20 @@ public class SlidingDoorOpener implements Opener
             startZ = zMin;
             endZ   = zMax;
             startX = xMin - 1;
-            endX   = xMin - moveX - 1;
+            endX   = xMin - xLen - 1;
         }
         else if (slideDir == RotateDirection.EAST)
         {
             startZ = zMin;
             endZ   = zMax;
             startX = xMax + 1;
-            endX   = xMax + moveX + 1;
+            endX   = xMax + xLen + 1;
         }
         else
             return 0;
 
         World world = door.getWorld();
-        if (NS)
+        if (slideDir == RotateDirection.NORTH || slideDir == RotateDirection.SOUTH)
             for (zAxis = startZ; zAxis != endZ; zAxis += step)
             {
                 for (xAxis = startX; xAxis != endX + 1; ++xAxis)
