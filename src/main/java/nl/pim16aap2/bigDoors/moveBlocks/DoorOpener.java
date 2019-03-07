@@ -213,7 +213,6 @@ public class DoorOpener implements Opener
         // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
         if (!plugin.canBreakBlocksBetweenLocs(Bukkit.getPlayer(door.getPlayerUUID()), door.getNewMin(), door.getNewMax()))
             return DoorOpenResult.NOPERMISSION;
-        Util.broadcastMessage("newMin:" + door.getNewMin().toString() + ", newMax:" + door.getNewMax().toString());
 
 		// Change door availability so it cannot be opened again (just temporarily, don't worry!).
 		plugin.getCommander().setDoorBusy(door.getDoorUID());

@@ -12,6 +12,7 @@ Alpha 0.1.8
 - Added sliding door type.
 - Added some translations.
 - Fixed timing issues with door creation again. Should be the last time :)
+- Added caching for redstone requests.
 
 Alpha 0.1.7.3
 - Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!

@@ -21,20 +21,9 @@ public enum DoorDirection
         this.val = val;
     }
 
-    public static double getExtraAngle(DoorDirection dir)
-    {
-        return dir.extraAngle;
-    }
-
-    public static int getValue(DoorDirection dir)
-    {
-        return dir.val;
-    }
-
-    public static DoorDirection valueOf(int dir)
-    {
-        return map.get(dir);
-    }
+    public static double         getExtraAngle (DoorDirection dir)  {    return dir.extraAngle;    }
+    public static int            getValue      (DoorDirection dir)  {    return dir.val;           }
+    public static DoorDirection  valueOf       (int dir)            {    return map.get(dir);      }
 
     static
     {

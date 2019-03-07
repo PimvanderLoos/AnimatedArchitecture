@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigDoors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -20,13 +21,13 @@ public class Commander
     private boolean paused = false;
     private SQLiteJDBCDriverConnection db;
     private Messages messages;
-    
+
     public Commander(BigDoors plugin, SQLiteJDBCDriverConnection db)
     {
         this.plugin   = plugin;
         this.db       = db;
         busyDoors     = new ArrayList<Long>();
-        this.messages = plugin.getMessages();
+        messages = plugin.getMessages();
     }
 
     // Check if a door is busy
@@ -37,47 +38,47 @@ public class Commander
                 return true;
         return false;
     }
-    
+
     public void emptyBusyDoors()
     {
         busyDoors.clear();
     }
-    
+
     // Change the busy-status of a door.
     public void setDoorBusy(long doorUID)
     {
         busyDoors.add(doorUID);
     }
-    
+
     // Set the availability of the door.
     public void setDoorAvailable(long doorUID)
     {
-        busyDoors.remove((Long) doorUID);
+        busyDoors.remove(doorUID);
     }
 
     // Check if the doors are paused.
     public boolean isPaused()
     {
-        return this.paused;
+        return paused;
     }
-    
+
     // Toggle the paused status of all doors.
     public void togglePaused()
     {
-        this.paused = !this.paused;
+        paused = !paused;
     }
-    
-    // Check if the doors can go. This differs from beign paused in that it will finish up 
+
+    // Check if the doors can go. This differs from beign paused in that it will finish up
     // all currently moving doors.
     public boolean canGo()
     {
-        return this.goOn;
+        return goOn;
     }
-    
+
     // Change the canGo status of all doors.
     public void setCanGo(boolean bool)
     {
-        this.goOn = bool;
+        goOn = bool;
     }
 
     // Print an ArrayList of doors to a player.
@@ -96,7 +97,7 @@ public class Commander
             long doorUID = Long.parseLong(doorStr);
             return db.getDoor(doorUID);
         }
-        // If it can't convert to a long, get all doors from the player with the provided name. 
+        // If it can't convert to a long, get all doors from the player with the provided name.
         // If there is more than one, tell the player that they are going to have to make a choice.
         catch (NumberFormatException e)
         {
@@ -106,7 +107,7 @@ public class Commander
             doors = db.getDoors(player.getUniqueId().toString(), doorStr);
             if (doors.size() == 1)
                 return doors.get(0);
-            else 
+            else
             {
                 if (doors.size() == 0)
                     Util.messagePlayer(player, messages.getString("GENERAL.NoDoorsFound"));
@@ -131,18 +132,18 @@ public class Commander
             newDoor.setPermission(permission);
         db.insert(newDoor);
     }
-    
+
     // Add a door to the db of doors.
     public void addDoor(Door newDoor, Player player)
     {
         addDoor(newDoor, player, 0);
     }
-    
+
     public void removeDoor(long doorUID)
     {
         db.removeDoor(doorUID);
     }
-    
+
     public void removeDoor(String playerUUID, String doorName)
     {
         db.removeDoor(playerUUID, doorName);
@@ -153,7 +154,7 @@ public class Commander
     {
         return db.countDoors(playerUUID, doorName);
     }
-    
+
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
     public ArrayList<Door> getDoors(String playerUUID, String name)
     {
@@ -177,7 +178,7 @@ public class Commander
     {
         return db.getDoor(doorUID);
     }
-    
+
     // Get the permission of a player on a door.
     public int getPermission(String playerUUID, long doorUID)
     {
@@ -185,32 +186,32 @@ public class Commander
     }
 
     // Update the coordinates of a given door.
-    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin, 
+    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
                                  int blockZMin, int blockXMax, int blockYMax, int blockZMax)
     {
-        db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, 
+        db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax,
                             blockYMax, blockZMax, null);
     }
 
     // Update the coordinates of a given door.
-    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin, 
-                                 int blockZMin, int blockXMax, int blockYMax, int blockZMax, 
+    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
+                                 int blockZMin, int blockXMax, int blockYMax, int blockZMax,
                                  DoorDirection newEngSide)
     {
-        db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, 
+        db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax,
                             blockZMax, newEngSide);
     }
-    
+
     public void updateDoorOpenDirection(long doorUID, RotateDirection openDir)
     {
         db.updateDoorOpenDirection(doorUID, openDir == null ? RotateDirection.NONE : openDir);
     }
-    
+
     public void updateDoorAutoClose(long doorUID, int autoClose)
     {
         db.updateDoorAutoClose(doorUID, autoClose);
     }
-    
+
     // Change the "locked" status of a door.
     public void setLock(long doorUID, boolean newLockStatus)
     {
@@ -220,13 +221,23 @@ public class Commander
     // Get a door from the x,y,z coordinates of its power block.
     public Door doorFromPowerBlockLoc(Location loc)
     {
-        return db.doorFromPowerBlockLoc(loc);
+        long chunkHash = Util.chunkHashFromLocation(loc);
+        HashMap<Long, Long> powerBlockData = plugin.getPBCache().get(chunkHash);
+        if (powerBlockData == null)
+        {
+            powerBlockData = db.getPowerBlockData(chunkHash);
+            plugin.getPBCache().put(chunkHash, powerBlockData);
+        }
+        Long doorUID = powerBlockData.get(Util.locationHash(loc));
+        return doorUID == null ? null : db.getDoor(doorUID);
     }
 
-    // Change hte location of a powerblock.
+    // Change the location of a powerblock.
     public void updatePowerBlockLoc(long doorUID, Location loc)
     {
-        db.updateDoorPowerBlockLoc(doorUID, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        plugin.getPBCache().invalidate(db.getDoor(doorUID).getPowerBlockChunkHash());
+        db.updateDoorPowerBlockLoc(doorUID, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getUID());
+        plugin.getPBCache().invalidate(Util.chunkHashFromLocation(loc));
     }
 
     public boolean isPowerBlockLocationValid(Location loc)

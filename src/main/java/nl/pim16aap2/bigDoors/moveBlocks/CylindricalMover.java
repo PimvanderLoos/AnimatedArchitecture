@@ -2,7 +2,9 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -57,21 +59,17 @@ public class CylindricalMover implements BlockMover
 	public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
 			Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
 	{
-//	    plugin.getMyLogger().logMessage("\n\nCylindricalMover initiation!", false, false);
 		this.pointOpposite    = pointOpposite;
-		turningPoint          = door.getEngine();
 		this.rotDirection     = rotDirection;
 		this.currentDirection = currentDirection;
 		this.plugin           = plugin;
 		this.world            = world;
 		this.door             = door;
+        turningPoint          = door.getEngine();
 		isASEnabled      = plugin.isASEnabled();
 		fabf             = isASEnabled ? plugin.getFABF2() : plugin.getFABF();
 		this.instantOpen = instantOpen;
 		stepMultiplier   = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
-
-		// Debug string
-//		String logStr = "CylindricalMover will move door " + door.getName() + "\n";
 
 		xMin = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
 		yMin = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
@@ -84,22 +82,13 @@ public class CylindricalMover implements BlockMover
 		int doorSize  = Math.max(xLen, zLen) + 1;
 		double vars[] = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().bdMultiplier(), 3.7);
 		this.time     = vars[0];
-		tickRate   = (int) vars[1];
-		multiplier = vars[2];
-
-        // Debug string
-//		logStr += "xLen = " + xLen + "\nyLen = " + Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY()) +
-//		          "\nzLen = " + zLen + "\nDoorSize = " + doorSize + "\ntime = " + this.time +
-//		          "\ntickRate = " + tickRate + "\nmultiplier = " + multiplier + "\nInstantOpen = " + instantOpen;
+		tickRate      = (int) vars[1];
+		if (isASEnabled)
+		    tickRate = 1;
+		multiplier    = vars[2];
 
 		dx   = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
 		dz   = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
-
-        // Debug string
-//		logStr += "min (x;y;z) = (" + xMin + " ; " + yMin + " ; " + zMin + ")\n";
-//		logStr += "max (x;y;z) = (" + xMax + " ; " + yMax + " ; " + zMax + ")\n";
-//		logStr += "dx = " + dx + ", dz = " + dz + "\n";
-//		logStr += "Adding blocks now:\n";
 
 		int index = 0;
 		double xAxis = turningPoint.getX();
@@ -114,24 +103,14 @@ public class CylindricalMover implements BlockMover
 
 				for (double yAxis = yMin; yAxis <= yMax; yAxis++)
 				{
-			        // Debug string
-//				    logStr += "\n";
-				    String canRot = "";
-				    String block_NMS = "";
-				    String block_NMS2 = "";
-				    String isAllowed = "";
-				    String vBlockStr = "";
-
 					Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
 					// Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
 					if (yAxis == yMin)
 						newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 
 					Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
-					vBlockStr += vBlock.toString();
 					Material mat = vBlock.getType();
 
-//					plugin.getMyLogger().logMessage("Adding mat = " + mat, false, false);
 					if (!mat.equals(Material.AIR))
 					{
 						Byte matData  = vBlock.getData();
@@ -141,27 +120,24 @@ public class CylindricalMover implements BlockMover
 						NMSBlock_Vall block  = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
 						NMSBlock_Vall block2 = null;
 
-						int canRotate        = 0;
-						Byte matByte         = matData;
+						int canRotate = 0;
+						Byte matByte  = matData;
 						// Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
 						if (Util.isAllowedBlock(mat))
 						{
-						    isAllowed = "TRUE";
-							canRotate        = Util.canRotate(mat);
-							canRot = Integer.toString(canRotate);
-//							plugin.getMyLogger().logMessage("canRotate: " + canRotate, false, false);
+							canRotate = Util.canRotate(mat);
 							// Rotate blocks here so they don't interrupt the rotation animation.
 							if (canRotate != 0)
 							{
 								Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
 								if (canRotate == 1 || canRotate == 3)
-									matByte  = rotateBlockDataLog(matData);
+									matByte = rotateBlockDataLog(matData);
 								else if (canRotate == 2)
-									matByte  = rotateBlockDataStairs(matData);
+									matByte = rotateBlockDataStairs(matData);
 								else if (canRotate == 4)
-									matByte  = rotateBlockDataAnvil(matData);
+									matByte = rotateBlockDataAnvil(matData);
 
-								Block b      = world.getBlockAt(pos);
+								Block b = world.getBlockAt(pos);
 								materialData.setData(matByte);
 
 								if (plugin.is1_13())
@@ -185,8 +161,6 @@ public class CylindricalMover implements BlockMover
 						}
 						else
 						{
-						    isAllowed = "FALSE";
-//						    plugin.getMyLogger().logMessage("Adding Air!", false, false);
 							mat     = Material.AIR;
 							matByte = 0;
 							matData = 0;
@@ -199,35 +173,9 @@ public class CylindricalMover implements BlockMover
 							 fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 
 						savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, (int) yAxis));
-
-				        try
-				        {
-				            block_NMS  = block.toString();
-				        }
-				        catch (Exception unhandled)
-				        {
-				            block_NMS = "...";
-				        }
-
-				        try
-				        {
-				            block_NMS2 = block2.toString();
-				        }
-				        catch (Exception unhandled)
-				        {
-				            block_NMS2 = "...";
-				        }
 					}
 					else
 						savedBlocks.add(index, new MyBlockData(Material.AIR));
-
-
-//                    logStr += "(" + index + ") " + "radius: " + radius + ", isAllowed = " + isAllowed + ", canRot = " + canRot;
-//                    logStr += "\nvBlock = " + vBlockStr.toString() + "\n";
-//                    logStr += "block_NMS = " + block_NMS + "\n";
-//                    logStr += "block_NMS2 = " + block_NMS2 + "\n";
-//                    logStr += "savedBlocks[idx] = \n" + savedBlocks.get(index).toString() + "\n";
-
 					index++;
 				}
 				zAxis += dz;
@@ -261,16 +209,6 @@ public class CylindricalMover implements BlockMover
 			break;
 		}
 
-//		// Stuff used for debugging purposes:
-//		plugin.getMyLogger().logMessage("cDir: " + currentDirection + ", startSum = " + startStepSum + ", endSum = " + endStepSum, false, false);
-//		logStr += "cDir: " + currentDirection + ", startSum = " + startStepSum + ", endSum = " + endStepSum + "\n";
-//		String output = "";
-//		for (MyBlockData sb : savedBlocks)
-//		    output += (sb.getMat() + " " + sb.getFBlock() + "\n");
-//		plugin.getMyLogger().logMessage("savedBlocks size = " + savedBlocks.size() + ":\n" + output + "InstantOpen: " + instantOpen, false, false);
-//        logStr += "savedBlocks size = " + savedBlocks.size() + ":\n" + output + "InstantOpen: " + instantOpen + "\n";
-//        plugin.getMyLogger().logMessage(logStr, false, false);
-
 		if (!instantOpen)
 			rotateEntities();
 		else
@@ -282,7 +220,6 @@ public class CylindricalMover implements BlockMover
 	@Override
 	public void putBlocks(boolean onDisable)
 	{
-//	    plugin.getMyLogger().logMessage("Putting blocks. onDisable = " + onDisable, false, false);
 		int index = 0;
 		double xAxis = turningPoint.getX();
 		do
@@ -298,16 +235,15 @@ public class CylindricalMover implements BlockMover
 					 * spruce, birch, jungle bark texture on all six faces
 					 */
 
-					Material mat    = savedBlocks.get(index).getMat();
+					Material mat = savedBlocks.get(index).getMat();
 
 					if (!mat.equals(Material.AIR))
 					{
-						Byte matByte;
-						matByte         = savedBlocks.get(index).getBlockByte();
+						Byte matByte = savedBlocks.get(index).getBlockByte();
 						Location newPos = gnl.getNewLocation(savedBlocks, xAxis, yAxis, zAxis, index);
 						if (!instantOpen)
 							savedBlocks.get(index).getFBlock().remove();
-//						plugin.getMyLogger().logMessage("Material = " + savedBlocks.get(index).getMat(), false, false);
+
 						if (!savedBlocks.get(index).getMat().equals(Material.AIR))
 							if (plugin.is1_13())
 							{
@@ -337,7 +273,7 @@ public class CylindricalMover implements BlockMover
 		}
 		while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
 		savedBlocks.clear();
-//		plugin.getMyLogger().logMessage("Going to update coords now!", false, false);
+
 		// Tell the door object it has been opened and what its new coordinates are.
 		updateCoords(door, currentDirection, rotDirection, -1);
 		toggleOpen  (door);
@@ -369,7 +305,6 @@ public class CylindricalMover implements BlockMover
 
 	private void goAgain()
 	{
-//	    plugin.getMyLogger().logMessage("Going again!", false, false);
 		int autoCloseTimer = door.getAutoClose();
 		if (autoCloseTimer < 0 || !door.isOpen())
 			return;
@@ -388,28 +323,35 @@ public class CylindricalMover implements BlockMover
 	// Method that takes care of the rotation aspect.
 	private void rotateEntities()
 	{
-//	    plugin.getMyLogger().logMessage("Rotation intiation!", false, false);
 		new BukkitRunnable()
 		{
 			int indexMid      = savedBlocks.size() / 2;
 			Location center   = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
 			boolean replace   = false;
-			int counter       = 0;
+			double counter    = 0;
 			int endCount      = (int) (20 / tickRate * time);
 			double step       = (Math.PI / 2) / endCount * stepMultiplier;
 			double stepSum    = startStepSum;
 			int totalTicks    = (int) (endCount * multiplier);
 			int replaceCount  = endCount / 2;
+			long startTime    = System.nanoTime();
+			long lastTime;
+			long currentTime  = System.nanoTime();
 
 			@Override
 			public void run()
 			{
-//			    plugin.getMyLogger().logMessage("Running", false, false);
 				if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
 					Util.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
 
+				lastTime = currentTime;
+				currentTime = System.nanoTime();
+				long msSinceStart = (currentTime - startTime) / 1000000;
 				if (!plugin.getCommander().isPaused())
-					++counter;
+				    counter = msSinceStart / (50 * tickRate);
+				else
+				    startTime += currentTime - lastTime;
+
 				if (counter < endCount - 1)
 					stepSum = startStepSum + step * counter;
 				else
@@ -421,46 +363,65 @@ public class CylindricalMover implements BlockMover
 
 				if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
 				{
-//				    plugin.getMyLogger().logMessage("plugin.canGo = " + plugin.getCommander().canGo() +
-//				                                    ", door.canGo = " + door.canGo() +
-//				                                    ", counter = " + counter + ", totalTicks = " + totalTicks +
-//				                                    ", step = " + step + ", tickrate = " + tickRate + ", time = " + time, false, false);
 					Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
 					for (int idx = 0; idx < savedBlocks.size(); ++idx)
 						if (!savedBlocks.get(idx).getMat().equals(Material.AIR))
 							savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
-					putBlocks(false);
+
+					Bukkit.getScheduler().callSyncMethod(plugin, new Callable<Void>()
+                    {
+					    @Override
+                        public Void call()
+					    {
+					        putBlocks(false);
+                            return null;
+					    }
+                    });
 					cancel();
 				}
-				else
-				{
+                else
+                {
+                    // It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated.
+                    // Also, this stuff needs to be done on the main thread.
+                    if (replace && !isASEnabled)
+                    {
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                for (MyBlockData block : savedBlocks)
+                                {
+                                    if (block.canRot() != 0 && block.canRot() != 5)
+                                    {
+                                        Material mat = block.getMat();
+                                        Location loc = block.getFBlock().getLocation();
+                                        Byte matData = block.getBlockByte();
+                                        Vector veloc = block.getFBlock().getVelocity();
+                                        // For some reason respawning fblocks puts them higher than they were, which has
+                                        // to be counteracted.
+                                        if (block.getStartY() != yMin)
+                                            loc.setY(loc.getY() - .010001);
+                                        CustomCraftFallingBlock_Vall fBlock;
+                                        // Because the block in savedBlocks is already rotated where applicable, just
+                                        // use that block now.
+                                        fBlock = fallingBlockFactory(loc, mat, matData, block.getBlock());
+
+                                        block.getFBlock().remove();
+                                        block.setFBlock(fBlock);
+                                        block.getFBlock().setVelocity(veloc);
+                                    }
+                                }
+                            }
+                        }, 0);
+                    }
+
 					for (MyBlockData block : savedBlocks)
 					{
 						if (!block.getMat().equals(Material.AIR))
 						{
 							double radius = block.getRadius();
 							int yPos      = block.getStartY();
-							// It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated.
-							if (replace)
-							{
-								if (block.canRot() != 0 && block.canRot() != 5)
-								{
-									Material mat = block.getMat();
-									Location loc = block.getFBlock().getLocation();
-									Byte matData = block.getBlockByte();
-									Vector veloc = block.getFBlock().getVelocity();
-									// For some reason respawning fblocks puts them higher than they were, which has to be counteracted.
-									if (yPos != yMin)
-										loc.setY(loc.getY() - .010001);
-									CustomCraftFallingBlock_Vall fBlock;
-									// Because the block in savedBlocks is already rotated where applicable, just use that block now.
-									fBlock = fallingBlockFactory(loc, mat, matData, block.getBlock());
-
-									block.getFBlock().remove();
-									block.setFBlock(fBlock);
-									block.getFBlock().setVelocity(veloc);
-								}
-							}
 
 							if (isASEnabled)
 							{
@@ -473,6 +434,7 @@ public class CylindricalMover implements BlockMover
 									vec = (new Location(center.getWorld(), midLoc.getX(), yPos, midLoc.getZ())).subtract(block.getFBlock().getLocation());
 								}
 								block.getFBlock().setHeadPose(directionToEuler(vec));
+								--yPos;
 							}
 
 							if (radius != 0)
@@ -491,12 +453,12 @@ public class CylindricalMover implements BlockMover
 					}
 				}
 			}
-		}.runTaskTimer(plugin, 14, 4);
+		}.runTaskTimerAsynchronously(plugin, 14, tickRate);
 	}
 
 	private EulerAngle directionToEuler(Location dir)
 	{
-	    double yaw      = -Math.atan2(dir.getX(), dir.getZ()) + Math.PI / 2;
+	    double yaw = -Math.atan2(dir.getX(), dir.getZ()) + Math.PI / 2;
 	    return new EulerAngle(0, yaw, 0);
 	}
 
@@ -604,13 +566,13 @@ public class CylindricalMover implements BlockMover
 		case EAST:
 			if (rotDirection == RotateDirection.CLOCKWISE)
 			{
-				newMin = new Location(door.getWorld(), xMin, yMin,          zMin);
+				newMin = new Location(door.getWorld(), xMin, yMin,         zMin );
 				newMax = new Location(door.getWorld(), xMin, yMax, (zMax + xLen));
 			}
 			else
 			{
 				newMin = new Location(door.getWorld(), xMin, yMin, (zMin - xLen));
-				newMax = new Location(door.getWorld(), xMin, yMax,          zMin);
+				newMax = new Location(door.getWorld(), xMin, yMax,         zMin );
 			}
 			break;
 
@@ -633,11 +595,11 @@ public class CylindricalMover implements BlockMover
 			if (rotDirection == RotateDirection.CLOCKWISE)
 			{
 				newMin = new Location(door.getWorld(), xMax, yMin, (zMin - xLen));
-				newMax = new Location(door.getWorld(), xMax, yMax,          zMax);
+				newMax = new Location(door.getWorld(), xMax, yMax,         zMax );
 			}
 			else
 			{
-				newMin = new Location(door.getWorld(), xMax, yMin,          zMin);
+				newMin = new Location(door.getWorld(), xMax, yMin,         zMin );
 				newMax = new Location(door.getWorld(), xMax, yMax, (zMax + xLen));
 			}
 			break;

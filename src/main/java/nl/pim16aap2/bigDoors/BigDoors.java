@@ -16,7 +16,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.AS_v1_12_R1.ArmorStandFactory_V1_12_R1;
-import nl.pim16aap2.bigDoors.NMS.AS_v1_13_R2.ArmorStandFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
@@ -51,6 +50,7 @@ import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
+import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 // TODO: Store starting x,z values in savedBlocks, then make putblocks etc part of abstact class.
@@ -69,6 +69,9 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Add config options for compatibility hooks.
 // TODO: Add proper formatting per door-type in the GUI in the door class. (i.e. just request the door format from the door object.)
 // TODO: Implement GUI buttons for creation new sliding doors and elevators.
+// TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
+// TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
+// TODO: Split up SQL upgrade stuff into multiple methods.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -99,6 +102,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private FlagOpener               flagOpener;
     private HashMap<UUID, ToolUser>   toolUsers;
     private ArrayList<ProtectionCompat> protectionCompats;
+    //                 Chunk         Location, DoorUID
+    private TimedCache<Long, HashMap<Long,     Long>> pbCache; // Powerblock cache.
 
     private boolean              is1_13 = false;
     private boolean           enabledAS = false;
@@ -204,25 +209,25 @@ public class BigDoors extends JavaPlugin implements Listener
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
         loginString = "";
 
-        if (config.enableRedstone())
-        {
-            if (redstoneHandler == null)
-            {
-                redstoneHandler = new RedstoneHandler(this);
-                Bukkit.getPluginManager().registerEvents(redstoneHandler, this);
-            }
-        }
-        else if (!firstRun)
+        if (!firstRun)
         {
             HandlerList.unregisterAll(redstoneHandler);
             redstoneHandler = null;
-        }
 
-        // If it's not the first run, unregister the resource pack handler. It might not be needed anymore.
-        if (!firstRun)
-        {
             HandlerList.unregisterAll(rPackHandler);
             rPackHandler = null;
+
+            pbCache.reinit(config.cacheTimeout());
+        }
+        else
+        {
+            pbCache = new TimedCache<Long, HashMap<Long, Long>>(this, config.cacheTimeout());
+        }
+
+        if (config.enableRedstone())
+        {
+            redstoneHandler = new RedstoneHandler(this);
+            Bukkit.getPluginManager().registerEvents(redstoneHandler, this);
         }
         // If the resourcepack is set to "NONE", don't load it.
         if (!config.resourcePack().equals("NONE"))
@@ -300,7 +305,6 @@ public class BigDoors extends JavaPlugin implements Listener
         // Stop all toolUsers and take all BigDoor tools from players.
         commander.setCanGo(false);
         
-        
         toolUsers.forEach((key,value) -> value.setIsDone(true));
         
         for (BlockMover bm : blockMovers)
@@ -309,6 +313,11 @@ public class BigDoors extends JavaPlugin implements Listener
         toolUsers.clear();
         cmdWaiters.clear();
         blockMovers.clear();
+    }
+
+    public TimedCache<Long, HashMap<Long, Long>> getPBCache()
+    {
+        return pbCache;
     }
 
     public FallingBlockFactory_Vall getFABF()
@@ -484,11 +493,12 @@ public class BigDoors extends JavaPlugin implements Listener
             fabf2     = new ArmorStandFactory_V1_12_R1();
             enabledAS = true;
         }
-        if (version.equals("v1_13_R2"))
-        {
-            fabf2     = new ArmorStandFactory_V1_13_R2();
-            enabledAS = true;
-        }
+//        if (version.equals("v1_13_R2")) // Doesn't work for 1.13.2. 1.13.1 needs verification!
+//        {
+//            fabf2     = new ArmorStandFactory_V1_13_R2();
+//            enabledAS = true;
+//        }
+
         // Return true if compatible.
         return fabf2 != null;
     }

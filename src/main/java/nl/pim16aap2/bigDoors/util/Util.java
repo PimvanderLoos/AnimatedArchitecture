@@ -46,6 +46,32 @@ public final class Util
         return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
     }
 
+    public static long chunkHashFromLocation(Location loc)
+    {
+        return chunkHashFromLocation(loc.getBlockX(), loc.getBlockZ(), loc.getWorld().getUID());
+    }
+
+    public static long chunkHashFromLocation(int x, int z, UUID worldUUID)
+    {
+        int chunk_X = x >> 4;
+        int chunk_Z = z >> 4;
+        long hash = 3;
+        hash = 19 * hash + worldUUID.hashCode();
+        hash = 19 * hash + (int) (Double.doubleToLongBits(chunk_X) ^ (Double.doubleToLongBits(chunk_X) >>> 32));
+        hash = 19 * hash + (int) (Double.doubleToLongBits(chunk_Z) ^ (Double.doubleToLongBits(chunk_Z) >>> 32));
+        return hash;
+    }
+
+    public static long locationHash(Location loc)
+    {
+        return loc.hashCode();
+    }
+
+    public static long locationHash(int x, int y, int z, UUID worldUUID)
+    {
+        return locationHash(new Location(Bukkit.getWorld(worldUUID), x, y, z));
+    }
+
     public static String nameFromUUID(UUID playerUUID)
     {
         if (playerUUID == null)
@@ -89,13 +115,13 @@ public final class Util
 
         return     door == null ? "Door not found!" :
                 door.getDoorUID() + ": " + door.getName().toString()  +
-                ", Min("     + door.getMinimum().getBlockX() + ";"    + door.getMinimum().getBlockY() + ";"   + door.getMinimum().getBlockZ() + ")" +
-                ", Max("     + door.getMaximum().getBlockX() + ";"    + door.getMaximum().getBlockY() + ";"   + door.getMaximum().getBlockZ() + ")" +
-                ", Engine("  + door.getEngine().getBlockX()  + ";"    + door.getEngine().getBlockY()  + ";"   + door.getEngine().getBlockZ()  + ")" +
+                ", Min("     + door.getMinimum().getBlockX() + ";"    + door.getMinimum().getBlockY() + ";"   + door.getMinimum().getBlockZ()   + ")" +
+                ", Max("     + door.getMaximum().getBlockX() + ";"    + door.getMaximum().getBlockY() + ";"   + door.getMaximum().getBlockZ()   + ")" +
+                ", Engine("  + door.getEngine().getBlockX()  + ";"    + door.getEngine().getBlockY()  + ";"   + door.getEngine().getBlockZ()    + ")" +
                 ", " + (door.isLocked() ? "" : "NOT ") + "locked"     + "; Type=" + door.getType()    +
                 (door.getEngSide() == null ? "" : ("; EngineSide = "  + door.getEngSide().toString()  + "; doorLen = " +
                  door.getLength())) + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX()     + ";"   +
-                 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()     + ")"   +
+                 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()     + ") = (" + door.getPowerBlockChunkHash() + ")" +
                 ". It is "   + (door.isOpen() ? "OPEN." : "CLOSED.")  + " OpenDir = " + door.getOpenDir().toString() +
                 ", Looking " + door.getLookingDir().toString()        + ". It " +
                 (door.getAutoClose() == -1 ? "does not auto close."   : ("auto closes after " + door.getAutoClose() + " seconds."));

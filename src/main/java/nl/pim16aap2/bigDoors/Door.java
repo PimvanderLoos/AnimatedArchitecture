@@ -9,6 +9,7 @@ import org.bukkit.World;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class Door
 {
@@ -235,6 +236,11 @@ public class Door
                 engine.getBlockX() != max.getBlockX() ? DoorDirection.EAST  :
                 engine.getBlockZ() != max.getBlockZ() ? DoorDirection.SOUTH :
                 engine.getBlockX() != min.getBlockX() ? DoorDirection.WEST  : null;
+    }
+    
+    public long getPowerBlockChunkHash()
+    {
+        return Util.chunkHashFromLocation(powerBlock.getBlockX(), powerBlock.getBlockZ(), world.getUID());
     }
 
     public Location getNewMin()
