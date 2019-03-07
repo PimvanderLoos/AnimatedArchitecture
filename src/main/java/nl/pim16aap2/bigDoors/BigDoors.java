@@ -124,7 +124,7 @@ public class BigDoors extends JavaPlugin implements Listener
             logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!", true, true);
             return;
         }
-
+        
         init(true);
 
         db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
@@ -207,23 +207,54 @@ public class BigDoors extends JavaPlugin implements Listener
         
         if (config.plotSquaredHook() && getServer().getPluginManager().getPlugin("PlotSquared") != null)
         {
-            ProtectionCompat plotSquaredCompat;
-            String PSVersion = getServer().getPluginManager().getPlugin("PlotSquared").getDescription().getVersion();
-            if (PSVersion.startsWith("4."))
+            try
             {
-                logger.logMessageToConsole("New PlotSquared version detected! Note that this hook is not yet implemented!");
-                plotSquaredCompat = new PlotSquaredNewProtectionCompat(this);
+                ProtectionCompat plotSquaredCompat;
+                String PSVersion = getServer().getPluginManager().getPlugin("PlotSquared").getDescription().getVersion();
+                if (PSVersion.startsWith("4."))
+                {
+                    logger.logMessageToConsole("New PlotSquared version detected! Note that this hook is not yet implemented!");
+                    plotSquaredCompat = new PlotSquaredNewProtectionCompat(this);
+                }
+                else
+                {
+                    logger.logMessageToConsole("Old PlotSquared version detected!");
+                    plotSquaredCompat = new PlotSquaredOldProtectionCompat(this);
+                }
+                addProtectionCompat(plotSquaredCompat);
             }
-            else
+            catch (NoClassDefFoundError e)
             {
-                logger.logMessageToConsole("Old PlotSquared version detected!");
-                plotSquaredCompat = new PlotSquaredOldProtectionCompat(this);
+                logger.logMessageToConsole("Failed to initialize PlotSquared compatibility hook! Perhaps this version isn't supported?");
+                e.printStackTrace();
+                logger.logMessageToConsole("Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
             }
-            addProtectionCompat(plotSquaredCompat);
+            catch (Exception e)
+            {
+                logger.logMessageToConsole("Failed to initialize PlotSquared compatibility hook!");
+                e.printStackTrace();
+                logger.logMessageToConsole("Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
+            }
         }
 
-        if (config.worldGuardHook() && getServer().getPluginManager().getPlugin("WorldGuard") != null)
-            addProtectionCompat(new WorldGuardProtectionCompat(this));
+        try
+        {
+            if (config.worldGuardHook() && getServer().getPluginManager().getPlugin("WorldGuard") != null)
+                addProtectionCompat(new WorldGuardProtectionCompat(this));
+        }
+        catch (NoClassDefFoundError e)
+        {
+            logger.logMessageToConsole("Failed to initialize WorldGuard compatibility hook! Only v7 seems to be supported atm!"
+                + " Maybe that's the issue?");
+            e.printStackTrace();
+            logger.logMessageToConsole("Now resuming normal startup with Worldguard Compatibility Hook disabled!");
+        }
+        catch (Exception e)
+        {
+            logger.logMessageToConsole("Failed to initialize WorldGuard compatibility hook!");
+            e.printStackTrace();
+            logger.logMessageToConsole("Now resuming normal startup with Worldguard Compatibility Hook disabled!");
+        }
 
         if (config.enableRedstone())
         {
