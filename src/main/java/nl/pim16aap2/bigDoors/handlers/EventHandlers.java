@@ -31,7 +31,7 @@ public class EventHandlers implements Listener
 		{
 			if (plugin.getTF().isTool(event.getPlayer().getItemInHand()))
 			{
-				ToolUser tu = plugin.getCommandHandler().isToolUser(event.getPlayer());
+				ToolUser tu = plugin.getToolUser(event.getPlayer());
 				if (tu != null)
 				{
 					tu.selector(event.getClickedBlock().getLocation());

@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigDoors.waitForCommand;
 
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.util.Abortable;
@@ -12,6 +13,7 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 	private Player   player;
 	private String  command;
 	private long    doorUID;
+    private BukkitTask bukkitTask;
 
 	public WaitForSetTime(BigDoors plugin, Player player, String command, long doorUID)
 	{
@@ -22,6 +24,18 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 		Util.messagePlayer(player, plugin.getMessages().getString("GUI.SetTimeInit"));
 		plugin.addCommandWaiter(this);
 	}
+    
+    @Override
+    public void setTask(BukkitTask task)
+    {
+        bukkitTask = task;
+    }
+
+    @Override
+    public BukkitTask getTask()
+    {
+        return bukkitTask;
+    }
 
 	@Override
 	public String getCommand()

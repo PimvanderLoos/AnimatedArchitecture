@@ -9,7 +9,8 @@ public enum DoorOpenResult
     NOPERMISSION  ("GENERAL.NoPermissionInNewLocation"),
     NODIRECTION   ("GENERAL.CannotFindOpenDirection"),
     ALREADYOPEN   ("GENERAL.DoorAlreadyOpen"),
-    ALREADYCLOSED ("GENERAL.DoorAlreadyClosed");
+    ALREADYCLOSED ("GENERAL.DoorAlreadyClosed"),
+    TYPEDISABLED  ("GENERAL.DoorTypeDisabled");
 
     private String message;
 

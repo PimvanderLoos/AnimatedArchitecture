@@ -2,6 +2,8 @@ package nl.pim16aap2.bigDoors;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.logging.Level;
 
@@ -32,8 +34,11 @@ import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
 import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
+import nl.pim16aap2.bigDoors.moveBlocks.ElevatorOpener;
+import nl.pim16aap2.bigDoors.moveBlocks.FlagOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.moveBlocks.PortcullisOpener;
+import nl.pim16aap2.bigDoors.moveBlocks.SlidingDoorOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationSouth;
@@ -55,46 +60,51 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Add /BDM [PlayerName (when online) || PlayerUUID || Server] to open a doorMenu for a specific player.
 // TODO: Store playernames as well as UUID in database (verify on login).
 // TODO: Add command: /OpenDoor [Player (when online) || PlayerUUID || Server] <DoorName (when owner is specified) || DoorUID>(repeat 1:inf) [Speed (double]
-// TODO: Change config so you no longer request specific values via a String.
-// TODO: Add permissions per door-type.
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
-// TODO: Use bukkit colors.
+// TODO: Use Bukkit colors.
 // TODO: Make release and debug build modes.
 // TODO: Make default language file read-only.
 // TODO: Add version number to language file. Only regen for version mismatch.
 // TODO: Rewrite Openers to get rid of code duplication.
 // TODO: Add config options for compatibility hooks.
+// TODO: Add proper formatting per door-type in the GUI in the door class. (i.e. just request the door format from the door object.)
+// TODO: Implement GUI buttons for creation new sliding doors and elevators.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
-    private ToolVerifier                   tf;
-    private SQLiteJDBCDriverConnection     db;
-    private FallingBlockFactory_Vall     fabf;
-    private FallingBlockFactory_Vall    fabf2;
-    private ConfigLoader               config;
-    private String                     locale;
-    private MyLogger                   logger;
-    private SpigotUpdater             updater;
-    private Metrics                   metrics;
-    private File                      logFile;
-    private Messages                 messages;
-    private Vector<ToolUser>        toolUsers;
-    private Commander               commander;
-    private Vector<WaitForCommand> cmdWaiters;
-    private DoorOpener             doorOpener;
-    private Vector<BlockMover>    blockMovers;
-    private BridgeOpener         bridgeOpener;
-    private boolean              validVersion;
-    private CommandHandler     commandHandler;
-    private RedstoneHandler   redstoneHandler;
-    private PortcullisOpener portcullisOpener;
-    private String                loginString;
+    private ToolVerifier                     tf;
+    private SQLiteJDBCDriverConnection       db;
+    private FallingBlockFactory_Vall       fabf;
+    private FallingBlockFactory_Vall      fabf2;
+    private ConfigLoader                 config;
+    private String                       locale;
+    private MyLogger                     logger;
+    private SpigotUpdater               updater;
+    private Metrics                     metrics;
+    private File                        logFile;
+    private Messages                   messages;
+    private Commander                 commander;
+    private Vector<WaitForCommand>   cmdWaiters;
+    private DoorOpener               doorOpener;
+    private Vector<BlockMover>      blockMovers;
+    private BridgeOpener           bridgeOpener;
+    private SlidingDoorOpener slidingDoorOpener;
+    private boolean                validVersion;
+    private CommandHandler       commandHandler;
+    private RedstoneHandler     redstoneHandler;
+    private PortcullisOpener   portcullisOpener;
+    private ElevatorOpener       elevatorOpener;
+    private String                  loginString;
+    @SuppressWarnings("unused")
+    private FlagOpener               flagOpener;
+    private HashMap<UUID, ToolUser>   toolUsers;
     private ArrayList<ProtectionCompat> protectionCompats;
 
-    private boolean            is1_13 = false;
-    private boolean         enabledAS = false;
+    private boolean              is1_13 = false;
+    private boolean           enabledAS = false;
 
     private LoginResourcePackHandler rPackHandler;
+
 
     @Override
     public void onEnable()
@@ -115,16 +125,20 @@ public class BigDoors extends JavaPlugin implements Listener
         db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
         commander         = new Commander(this, db);
         doorOpener        = new DoorOpener(this);
+        flagOpener        = new FlagOpener(this);
         bridgeOpener      = new BridgeOpener(this);
         bridgeOpener      = new BridgeOpener(this);
         commandHandler    = new CommandHandler(this);
+        elevatorOpener    = new ElevatorOpener(this);
         portcullisOpener  = new PortcullisOpener(this);
+        slidingDoorOpener = new SlidingDoorOpener(this);
         protectionCompats = new ArrayList<ProtectionCompat>();
 
         if (getServer().getPluginManager().getPlugin("PlotSquared") != null)
         {
             ProtectionCompat plotSquaredCompat;
-            if (getServer().getPluginManager().getPlugin("PlotSquared").getDescription().getVersion().equals("19.01.26-460583e-687"))
+            String PSVersion = getServer().getPluginManager().getPlugin("PlotSquared").getDescription().getVersion();
+            if (!PSVersion.startsWith("4."))
             {
                 logger.logMessageToConsole("Old PlotSquared version detected!");
                 plotSquaredCompat = new PlotSquaredOldProtectionCompat(this);
@@ -148,7 +162,6 @@ public class BigDoors extends JavaPlugin implements Listener
         getCommand("newportcullis"       ).setExecutor(new CommandHandler(this));
         getCommand("toggledoor"          ).setExecutor(new CommandHandler(this));
         getCommand("pausedoors"          ).setExecutor(new CommandHandler(this));
-        getCommand("bdrestart"           ).setExecutor(new CommandHandler(this));
         getCommand("closedoor"           ).setExecutor(new CommandHandler(this));
         getCommand("doordebug"           ).setExecutor(new CommandHandler(this));
         getCommand("bdversion"           ).setExecutor(new CommandHandler(this));
@@ -185,7 +198,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         readConfigValues();
         messages    = new Messages(this);
-        toolUsers   = new Vector<ToolUser>(2);
+        toolUsers   = new HashMap<>();
         blockMovers = new Vector<BlockMover>(2);
         cmdWaiters  = new Vector<WaitForCommand>(2);
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
@@ -286,8 +299,10 @@ public class BigDoors extends JavaPlugin implements Listener
 
         // Stop all toolUsers and take all BigDoor tools from players.
         commander.setCanGo(false);
-        for (ToolUser tu : toolUsers)
-            tu.setIsDone(true);
+        
+        
+        toolUsers.forEach((key,value) -> value.setIsDone(true));
+        
         for (BlockMover bm : blockMovers)
             bm.putBlocks(true);
 
@@ -321,8 +336,14 @@ public class BigDoors extends JavaPlugin implements Listener
             return bridgeOpener;
         case PORTCULLIS:
             return portcullisOpener;
+        case SLIDINGDOOR:
+            return slidingDoorOpener;
+        case ELEVATOR:
+            return elevatorOpener;
+        case FLAG:
+        default:
+            return null;
         }
-        return null;
     }
 
     public void addBlockMover(BlockMover blockMover)
@@ -339,21 +360,23 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         return blockMovers;
     }
-
-    // Get the Vector of ToolUsers.
-    public Vector<ToolUser> getToolUsers()
+    
+    public ToolUser getToolUser(Player player)
     {
-        return toolUsers;
+        ToolUser tu = null;
+        if (toolUsers.containsKey(player.getUniqueId()))
+            tu = toolUsers.get(player.getUniqueId());
+        return tu;
     }
 
     public void addToolUser(ToolUser toolUser)
     {
-        toolUsers.add(toolUser);
+        toolUsers.put(toolUser.getPlayer().getUniqueId(), toolUser);
     }
 
     public void removeToolUser(ToolUser toolUser)
     {
-        toolUsers.remove(toolUser);
+        toolUsers.remove(toolUser.getPlayer().getUniqueId());
     }
 
     // Get the Vector of WaitForCommand.

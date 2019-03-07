@@ -51,7 +51,10 @@ public class GUIPage implements Listener
     {
         XMaterial.OAK_DOOR.parseMaterial(),
         XMaterial.OAK_TRAPDOOR.parseMaterial(),
-        XMaterial.IRON_DOOR.parseMaterial()
+        XMaterial.IRON_DOOR.parseMaterial(),
+        XMaterial.OAK_BOAT.parseMaterial(),
+        XMaterial.GLASS_PANE.parseMaterial(),
+        XMaterial.PURPLE_CARPET.parseMaterial()
     };
 
     public GUIPage(BigDoors plugin, Player player, int page, PageType pageType, long doorUID, int pageCount)
@@ -102,19 +105,30 @@ public class GUIPage implements Listener
 
         if (pageType == PageType.DOORLIST)
         {
-            lore.add("Initiate drawbridge creation process");
+            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewElevator"));
+            inv.setItem(2, new GUIItem(newDoorMat, messages.getString("GUI.NewElevator"),
+                                       lore, page + 1).getItemStack());
+            lore.clear();
+            
+            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewDrawbridge"));
             inv.setItem(3, new GUIItem(newDoorMat, messages.getString("GUI.NewDrawbridge"),
                                        lore, page + 1).getItemStack());
             lore.clear();
 
-            lore.add("Initiate door creation process");
+            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewDoor"));
             inv.setItem(4, new GUIItem(newDoorMat, messages.getString("GUI.NewDoor"),
                                        lore, page + 1).getItemStack());
             lore.clear();
-
-            lore.add("Initiate portcullis creation process");
+            
+            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewPortcullis"));
             inv.setItem(5, new GUIItem(newDoorMat, messages.getString("GUI.NewPortcullis"),
                                        lore, page + 1).getItemStack());
+            lore.clear();
+
+            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewSlidingDoor"));
+            inv.setItem(6, new GUIItem(newDoorMat, messages.getString("GUI.NewSlidingDoor"),
+                                       lore, page + 1).getItemStack());
+            lore.clear();
         }
         else if (pageType == PageType.DOORINFO)
         {
@@ -165,7 +179,6 @@ public class GUIPage implements Listener
         inv.setItem(13, new GUIItem(relocatePBMat, desc, lore, 1).getItemStack());
         lore.clear();
 
-        // TODO: Add these Strings to en_US.
         desc = messages.getString("GUI.ChangeTimer");
         loreStr = door.getAutoClose() > -1 ? messages.getString("GUI.ChangeTimerLore") + door.getAutoClose() + "s." :
             messages.getString("GUI.ChangeTimerLoreDisabled");
@@ -174,19 +187,17 @@ public class GUIPage implements Listener
         inv.setItem(14, new GUIItem(changeTimeMat, desc, lore, count).getItemStack());
         lore.clear();
 
-        if (door.getType() != DoorType.PORTCULLIS)
+        // Currently, only doors and drawbridges have directions etc.
+        if (door.getType() == DoorType.DOOR || door.getType() == DoorType.DRAWBRIDGE)
         {
             desc = messages.getString("GUI.Direction.Name");
             RotateDirection doorsOpenDir = door.getOpenDir();
-            loreStr = messages.getString("GUI.Direction.ThisDoorOpens")  +
-                     (doorsOpenDir == RotateDirection.NONE               ? messages.getString("GUI.Direction.Any")     :
-                      doorsOpenDir == RotateDirection.CLOCKWISE          ? messages.getString("GUI.Direction.Clock")   :
-                      doorsOpenDir == RotateDirection.COUNTERCLOCKWISE   ? messages.getString("GUI.Direction.Counter") : "Error");
+            loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(doorsOpenDir));
             lore.add(loreStr);
             lore.add(messages.getString("GUI.Direction.Looking") +
-                    (door.getType()       == DoorType.DOOR       ? messages.getString("GUI.Direction.Down")  :
-                     door.getLookingDir() == DoorDirection.NORTH ? messages.getString("GUI.Direction.East") :
-                     messages.getString("GUI.Direction.North")));
+                    (door.getType()       == DoorType.DOOR       ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
+                     door.getLookingDir() == DoorDirection.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
+                                                                   messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
             inv.setItem(15, new GUIItem(setOpenDirMat, desc, lore, 1).getItemStack());
             lore.clear();
         }
@@ -224,14 +235,15 @@ public class GUIPage implements Listener
                 {
                     int doorType = DoorType.getValue(doors.get(realIdx).getType());
                     ArrayList<String> lore = new ArrayList<String>();
-                    lore.add("This door has ID " + doors.get(realIdx).getDoorUID());
+                    lore.add(messages.getString("GUI.DoorHasID") + doors.get(realIdx).getDoorUID());
+                    lore.add(messages.getString(DoorType.getNameKey(DoorType.valueOf(doorType))));
                     inv.setItem(idx, new GUIItem(doorTypes[doorType], doors.get(realIdx).getName(), lore, 1).getItemStack());
                 }
                 catch (Exception e)
                 {
 //                    Util.broadcastMessage("Failed to put door \"" + doors.get(realIdx) + "\" (" + doors.get(realIdx) +
 //                                          ") in the GUI. Type = " + doors.get(realIdx).getType());
-                    // No need to catch it. This is thrown because newer versions have more door types.
+                    // No need to catch it. This is thrown because newer (dev) versions have more door types.
                 }
             }
         else if (pageType == PageType.DOORINFO)

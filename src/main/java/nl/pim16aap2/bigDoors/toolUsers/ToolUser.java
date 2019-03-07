@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
@@ -34,6 +35,7 @@ public abstract class ToolUser implements Abortable
     protected boolean isOpen = false;
     protected Location one, two, engine;
     protected boolean aborting = false;
+    private BukkitTask bukkitTask;
 
     public ToolUser(BigDoors plugin, Player player, String name, DoorType type)
     {
@@ -47,6 +49,18 @@ public abstract class ToolUser implements Abortable
         engineSide = null;
         this.type = type;
         plugin.addToolUser(this);
+    }
+    
+    @Override
+    public void setTask(BukkitTask task)
+    {
+        bukkitTask = task;
+    }
+
+    @Override
+    public BukkitTask getTask()
+    {
+        return bukkitTask;
     }
 
     // Handle location input (player hitting a block).
@@ -166,7 +180,7 @@ public abstract class ToolUser implements Abortable
         if (bool)
         {
             triggerFinishUp();
-            plugin.getToolUsers().remove(this);
+            plugin.removeToolUser(this);
         }
     }
 

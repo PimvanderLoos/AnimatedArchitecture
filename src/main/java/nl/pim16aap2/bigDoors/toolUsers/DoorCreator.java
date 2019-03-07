@@ -17,27 +17,35 @@ import nl.pim16aap2.bigDoors.util.Util;
  **/
 public class DoorCreator extends ToolUser
 {
-    public DoorCreator(BigDoors plugin, Player player, String name)
+    protected String typeString;
+    
+    public DoorCreator(BigDoors plugin, Player player, String name, String typeString)
     {
         super(plugin, player, name, DoorType.DOOR);
-        Util.messagePlayer(player, messages.getString("CREATOR.DOOR.Init"));
+        this.typeString = typeString;
+        Util.messagePlayer(player, messages.getString("CREATOR." + typeString + ".Init"));
         if (name == null)
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
         else
             triggerGiveTool();
     }
 
+    public DoorCreator(BigDoors plugin, Player player, String name)
+    {
+        this(plugin, player, name, "DOOR");
+    }
+
     @Override
     protected void triggerGiveTool()
     {
-        giveToolToPlayer(messages.getString("CREATOR.DOOR.StickLore").split("\n"),
-                         messages.getString("CREATOR.DOOR.StickReceived").split("\n"));
+        giveToolToPlayer(messages.getString("CREATOR." + typeString + ".StickLore").split("\n"),
+                         messages.getString("CREATOR." + typeString + ".StickReceived").split("\n"));
     }
 
     @Override
     protected void triggerFinishUp()
     {
-        finishUp(messages.getString("CREATOR.DOOR.Success"));
+        finishUp(messages.getString("CREATOR." + typeString + ".Success"));
     }
 
     @Override
@@ -96,7 +104,7 @@ public class DoorCreator extends ToolUser
         if (one == null)
         {
             one = loc;
-            String[] message = messages.getString("CREATOR.DOOR.Step1").split("\n");
+            String[] message = messages.getString("CREATOR." + typeString + ".Step1").split("\n");
             Util.messagePlayer(player, message);
         }
         else if (two == null)
@@ -104,7 +112,7 @@ public class DoorCreator extends ToolUser
             if (isPosTwoValid(loc) && one != loc)
             {
                 two = loc;
-                String[] message = messages.getString("CREATOR.DOOR.Step2").split("\n");
+                String[] message = messages.getString("CREATOR." + typeString + ".Step2").split("\n");
                 Util.messagePlayer(player, message);
                 minMaxFix();
             }

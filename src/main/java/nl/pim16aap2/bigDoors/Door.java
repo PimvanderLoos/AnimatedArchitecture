@@ -256,4 +256,15 @@ public class Door
     {
         newMax = loc;
     }
+
+    public int getBlockCount()
+    {
+        int xLen = Math.abs(getMaximum().getBlockX() - getMinimum().getBlockX());
+        int yLen = Math.abs(getMaximum().getBlockY() - getMinimum().getBlockY());
+        int zLen = Math.abs(getMaximum().getBlockZ() - getMinimum().getBlockZ());
+        xLen = xLen == 0 ? 1 : xLen;
+        yLen = yLen == 0 ? 1 : yLen;
+        zLen = zLen == 0 ? 1 : zLen;
+        return xLen * yLen * zLen;
+    }
 }

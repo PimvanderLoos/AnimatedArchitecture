@@ -4,26 +4,42 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum DoorType
-{
-    // DoorType  // Value
-    DOOR         (0),
-    DRAWBRIDGE   (1),
-    PORTCULLIS   (2);
-
+{    
+    // DoorType     // Value // Creator Flag // Translation key             // Perm
+    DOOR           (0,       "-BD",          "GENERAL.DOORTYPE.Door"        , "bigdoors.user.createdoor.door"       ), 
+    DRAWBRIDGE     (1,       "-DB",          "GENERAL.DOORTYPE.DrawBridge"  , "bigdoors.user.createdoor.drawbridge" ), 
+    PORTCULLIS     (2,       "-PC",          "GENERAL.DOORTYPE.Portcullis"  , "bigdoors.user.createdoor.portcullis" ),
+    ELEVATOR       (3,       "-EL",          "GENERAL.DOORTYPE.Elevator"    , "bigdoors.user.createdoor.elevator"   ),
+    SLIDINGDOOR    (4,       "-SD",          "GENERAL.DOORTYPE.SlidingDoor" , "bigdoors.user.createdoor.slidingdoor"),
+    FLAG           (5,       "-FL",          "GENERAL.DOORTYPE.Flag"        , "bigdoors.user.createdoor.flag"       );
+    
     private int    val;
-    private static Map<Integer, DoorType> map = new HashMap<Integer, DoorType>();
-
-    private DoorType(int val)
+    private String flag;
+    private String nameKey;
+    private String permission;
+    private static Map<Integer, DoorType> valMap  = new HashMap<Integer, DoorType>();
+    private static Map<String,  DoorType> flagMap = new HashMap<String,  DoorType>();
+    
+    private DoorType(int val, String flag, String nameKey, String permission) 
     {
-        this.val = val;
+        this.val  = val;
+        this.flag = flag;
+        this.nameKey = nameKey;
+        this.permission = permission;
     }
-
-    public static int      getValue (DoorType type) {    return type.val;         }
-    public static DoorType valueOf  (int type)      {    return map.get(type);    }
-
-    static
+    
+    public static int      getValue      (DoorType type) {  return type.val;           }
+    public static String   getNameKey    (DoorType type) {  return type.nameKey;       }
+    public static String   getPermission (DoorType type) {  return type.permission;    }
+    public static DoorType valueOf       (int type)      {  return valMap.get(type);   }
+    public static DoorType valueOfFlag   (String flag)   {  return flagMap.get(flag);  }
+    
+    static 
     {
-        for (DoorType type : DoorType.values())
-            map.put(type.val, type);
+        for (DoorType type : DoorType.values()) 
+        {
+            valMap.put( type.val,  type);
+            flagMap.put(type.flag, type);
+        }
     }
 }

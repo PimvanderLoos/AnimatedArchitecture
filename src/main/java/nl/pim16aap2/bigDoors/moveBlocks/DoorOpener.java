@@ -144,17 +144,6 @@ public class DoorOpener implements Opener
 		return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
 	}
 
-	private int getDoorSize(Door door)
-	{
-		int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
-		int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
-		int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
-		xLen = xLen == 0 ? 1 : xLen;
-		yLen = yLen == 0 ? 1 : yLen;
-		zLen = zLen == 0 ? 1 : zLen;
-		return xLen * yLen * zLen;
-	}
-
 	@Override
 	public DoorOpenResult openDoor(Door door, double time)
 	{
@@ -217,9 +206,8 @@ public class DoorOpener implements Opener
 		// Make sure the doorSize does not exceed the total doorSize.
 		// If it does, open the door instantly.
 		int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
-
 		if (maxDoorSize != -1)
-			if(getDoorSize(door) > maxDoorSize)
+			if(door.getBlockCount() > maxDoorSize)
 				instantOpen = true;
 
         // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.

@@ -1,22 +1,18 @@
 name: BigDoors
 main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.7.4
+version: Alpha 0.1.8
 author: Pim
 api-version: 1.13
 softdepend: [PlotSquared, WorldGuard]
 commands:
   bigdoors:
-    description: Open the BigDoors GUI.
+    description: Basic command
     usage: /BigDoors
-    permission: bigdoors.user.gui
+    permission: bigdoors.user
   bdm:
     description: Alias of /BigDoors, Opens the BigDoors GUI.
     usage: /BDM
     permission: bigdoors.user.gui
-  bdrestart:
-    description: Restarts this plugin. Reloads config and translation files and reinitializes everything.
-    usage: /BDRestart
-    permission: bigdoors.admin.restart
   namedoor:
     description: Create a new door named "doorName".
     usage: /NameDoor <doorName || doorUID> 

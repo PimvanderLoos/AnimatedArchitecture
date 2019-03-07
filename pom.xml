@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.pim16aap2</groupId>
     <artifactId>BigDoors</artifactId>
-    <version>0.1.7.4-ALPHA</version>
+    <version>0.1.8-ALPHA</version>
 
     <repositories>
         <!-- Spigot -->

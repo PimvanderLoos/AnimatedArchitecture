@@ -70,7 +70,6 @@ public class WorldGuardProtectionCompat implements ProtectionCompat
             {
                 for (; z1 <= z2; ++z1)
                 {
-                    Util.broadcastMessage("Checking x = " + x1 + ", y = " + y1 + ", z = " + z1);
                     com.sk89q.worldedit.util.Location wgLoc = new com.sk89q.worldedit.util.Location(wgWorld, x1, y1, z1);
                     if (!query.testState(wgLoc, lPlayer, Flags.BUILD))
                         return false;
