@@ -95,15 +95,9 @@ commands:
     description: Display door info.
     usage: /DoorInfo <doorName || doorUID> 
     permission: bigdoors.user.doorinfo
-  bdversion:
-    description: Shows you which version of this plugin is installed on this server.
   doordebug:
     description: Do not use this unless you are me... What?
     usage: This command is not meant for mere mortals.
-    permission: bigdoors.admin.isweariampim16aap2
-  bigdoorsenableas:
-    description: Do not use this unless you want stuff to break!
-    usage: This command is not meant for mere mortals either.
     permission: bigdoors.admin.isweariampim16aap2
   filldoor:
     description: Fills a door with stones. 

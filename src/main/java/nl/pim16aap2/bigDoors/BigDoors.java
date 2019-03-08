@@ -15,7 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
-import nl.pim16aap2.bigDoors.NMS.AS_v1_12_R1.ArmorStandFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
@@ -23,7 +22,7 @@ import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.compatiblity.PlotSquaredNewProtectionCompat;
 import nl.pim16aap2.bigDoors.compatiblity.PlotSquaredOldProtectionCompat;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
-import nl.pim16aap2.bigDoors.compatiblity.WorldGuardProtectionCompat;
+import nl.pim16aap2.bigDoors.compatiblity.WorldGuard7ProtectionCompat;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
@@ -72,13 +71,14 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
 // TODO: Split up SQL upgrade stuff into multiple methods.
 // TODO: Use generics for ConfigOption.
+// TODO: Add "Blocks-to-move" property to sliding doors, portcullises, and elevators.
+// TODO: Make sure the abortable's BukkitTask isn't null.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
     private ToolVerifier                     tf;
     private SQLiteJDBCDriverConnection       db;
     private FallingBlockFactory_Vall       fabf;
-    private FallingBlockFactory_Vall      fabf2;
     private ConfigLoader                 config;
     private String                       locale;
     private MyLogger                     logger;
@@ -106,7 +106,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private TimedCache<Long, HashMap<Long,     Long>> pbCache; // Powerblock cache.
 
     private boolean              is1_13 = false;
-    private boolean           enabledAS = false;
 
     private LoginResourcePackHandler rPackHandler;
 
@@ -137,31 +136,34 @@ public class BigDoors extends JavaPlugin implements Listener
         elevatorOpener    = new ElevatorOpener(this);
         portcullisOpener  = new PortcullisOpener(this);
         slidingDoorOpener = new SlidingDoorOpener(this);
-
-        getCommand("inspectpowerblockloc").setExecutor(new CommandHandler(this));
-        getCommand("changepowerblockloc" ).setExecutor(new CommandHandler(this));
-        getCommand("bigdoorsenableas"    ).setExecutor(new CommandHandler(this));
-        getCommand("setautoclosetime"    ).setExecutor(new CommandHandler(this));
-        getCommand("setdoorrotation"     ).setExecutor(new CommandHandler(this));
-        getCommand("newportcullis"       ).setExecutor(new CommandHandler(this));
-        getCommand("toggledoor"          ).setExecutor(new CommandHandler(this));
-        getCommand("pausedoors"          ).setExecutor(new CommandHandler(this));
-        getCommand("closedoor"           ).setExecutor(new CommandHandler(this));
-        getCommand("doordebug"           ).setExecutor(new CommandHandler(this));
-        getCommand("bdversion"           ).setExecutor(new CommandHandler(this));
-        getCommand("listdoors"           ).setExecutor(new CommandHandler(this));
-        getCommand("stopdoors"           ).setExecutor(new CommandHandler(this));
-        getCommand("bdcancel"            ).setExecutor(new CommandHandler(this));
-        getCommand("filldoor"            ).setExecutor(new CommandHandler(this));
-        getCommand("doorinfo"            ).setExecutor(new CommandHandler(this));
-        getCommand("opendoor"            ).setExecutor(new CommandHandler(this));
-        getCommand("nameDoor"            ).setExecutor(new CommandHandler(this));
-        getCommand("bigdoors"            ).setExecutor(new CommandHandler(this));
-        getCommand("newdoor"             ).setExecutor(new CommandHandler(this));
-        getCommand("deldoor"             ).setExecutor(new CommandHandler(this));
-        getCommand("bdm"                 ).setExecutor(new CommandHandler(this));
+        
+        registerCommand("inspectpowerblockloc");
+        registerCommand("changepowerblockloc" );
+        registerCommand("setautoclosetime"    );
+        registerCommand("setdoorrotation"     );
+        registerCommand("newportcullis"       );
+        registerCommand("toggledoor"          );
+        registerCommand("pausedoors"          );
+        registerCommand("closedoor"           );
+        registerCommand("doordebug"           );
+        registerCommand("listdoors"           );
+        registerCommand("stopdoors"           );
+        registerCommand("bdcancel"            );
+        registerCommand("filldoor"            );
+        registerCommand("doorinfo"            );
+        registerCommand("opendoor"            );
+        registerCommand("nameDoor"            );
+        registerCommand("bigdoors"            );
+        registerCommand("newdoor"             );
+        registerCommand("deldoor"             );
+        registerCommand("bdm"                 );
 
         liveDevelopmentLoad();
+    }
+    
+    private void registerCommand(String command)
+    {
+        getCommand(command).setExecutor(new CommandHandler(this));
     }
 
     private void addProtectionCompat(ProtectionCompat hook)
@@ -240,7 +242,7 @@ public class BigDoors extends JavaPlugin implements Listener
         try
         {
             if (config.worldGuardHook() && getServer().getPluginManager().getPlugin("WorldGuard") != null)
-                addProtectionCompat(new WorldGuardProtectionCompat(this));
+                addProtectionCompat(new WorldGuard7ProtectionCompat(this));
         }
         catch (NoClassDefFoundError e)
         {
@@ -355,11 +357,6 @@ public class BigDoors extends JavaPlugin implements Listener
     public FallingBlockFactory_Vall getFABF()
     {
         return fabf;
-    }
-
-    public FallingBlockFactory_Vall getFABF2()
-    {
-        return fabf2;
     }
 
     public BigDoors getPlugin()
@@ -499,47 +496,6 @@ public class BigDoors extends JavaPlugin implements Listener
         return is1_13;
     }
 
-    public boolean bigDoorsEnableAS()
-    {
-        if (enabledAS)
-        {
-            enabledAS = false;
-            fabf2 = null;
-            return true;
-        }
-
-        String version;
-
-        try
-        {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
-        }
-        catch (ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
-        {
-            return false;
-        }
-
-        fabf2 = null;
-        if (version.equals("v1_12_R1"))
-        {
-            fabf2     = new ArmorStandFactory_V1_12_R1();
-            enabledAS = true;
-        }
-//        if (version.equals("v1_13_R2")) // Doesn't work for 1.13.2. 1.13.1 needs verification!
-//        {
-//            fabf2     = new ArmorStandFactory_V1_13_R2();
-//            enabledAS = true;
-//        }
-
-        // Return true if compatible.
-        return fabf2 != null;
-    }
-
-    public boolean isASEnabled()
-    {
-        return enabledAS;
-    }
-
     // Check + initialize for the correct version of Minecraft.
     private boolean compatibleMCVer()
     {
@@ -555,13 +511,11 @@ public class BigDoors extends JavaPlugin implements Listener
         }
 
         fabf  = null;
-        fabf2 = null;
         if (version.equals("v1_11_R1"))
             fabf     = new FallingBlockFactory_V1_11_R1();
         else if (version.equals("v1_12_R1"))
         {
             fabf     = new FallingBlockFactory_V1_12_R1();
-            fabf2    = new ArmorStandFactory_V1_12_R1();
         }
         else if (version.equals("v1_13_R1"))
         {

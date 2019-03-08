@@ -14,9 +14,8 @@ import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.util.Util;
 
-public class WorldGuardProtectionCompat implements ProtectionCompat
+public class WorldGuard7ProtectionCompat implements ProtectionCompat
 {
     private final WorldGuard worldGuard;
     private final WorldGuardPlugin worldGuardPlugin;
@@ -24,7 +23,7 @@ public class WorldGuardProtectionCompat implements ProtectionCompat
     private final BigDoors plugin;
     private boolean success = false;
 
-    public WorldGuardProtectionCompat(BigDoors plugin)
+    public WorldGuard7ProtectionCompat(BigDoors plugin)
     {
         this.plugin = plugin;
         worldGuard = WorldGuard.getInstance();

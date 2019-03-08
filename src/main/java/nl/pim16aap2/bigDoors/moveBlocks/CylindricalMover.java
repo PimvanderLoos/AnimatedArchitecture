@@ -13,7 +13,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigDoors.BigDoors;
@@ -44,7 +43,6 @@ public class CylindricalMover implements BlockMover
 	private double              endStepSum;
 	private double              multiplier;
 	private boolean            instantOpen;
-	private boolean            isASEnabled;
 	private double            startStepSum;
 	private RotateDirection   rotDirection;
 	private int             stepMultiplier;
@@ -55,7 +53,7 @@ public class CylindricalMover implements BlockMover
 	private Location          turningPoint;
 	private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
 
-	@SuppressWarnings({ "deprecation", "unused" })
+	@SuppressWarnings("deprecation")
 	public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
 			Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
 	{
@@ -66,8 +64,7 @@ public class CylindricalMover implements BlockMover
 		this.world            = world;
 		this.door             = door;
         turningPoint          = door.getEngine();
-		isASEnabled      = plugin.isASEnabled();
-		fabf             = isASEnabled ? plugin.getFABF2() : plugin.getFABF();
+		fabf             = plugin.getFABF();
 		this.instantOpen = instantOpen;
 		stepMultiplier   = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
 
@@ -83,8 +80,6 @@ public class CylindricalMover implements BlockMover
 		double vars[] = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().bdMultiplier(), 3.7);
 		this.time     = vars[0];
 		tickRate      = (int) vars[1];
-		if (isASEnabled)
-		    tickRate = 1;
 		multiplier    = vars[2];
 
 		dx   = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
@@ -325,7 +320,6 @@ public class CylindricalMover implements BlockMover
 	{
 		new BukkitRunnable()
 		{
-			int indexMid      = savedBlocks.size() / 2;
 			Location center   = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
 			boolean replace   = false;
 			double counter    = 0;
@@ -383,7 +377,7 @@ public class CylindricalMover implements BlockMover
                 {
                     // It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated.
                     // Also, this stuff needs to be done on the main thread.
-                    if (replace && !isASEnabled)
+                    if (replace)
                     {
                         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
                         {
@@ -423,20 +417,6 @@ public class CylindricalMover implements BlockMover
 							double radius = block.getRadius();
 							int yPos      = block.getStartY();
 
-							if (isASEnabled)
-							{
-								Location vec;
-								if (radius != 0)
-									vec = (new Location(center.getWorld(), center.getX(), yPos, center.getZ())).subtract(block.getFBlock().getLocation());
-								else
-								{
-									Location midLoc = savedBlocks.get(indexMid).getFBlock().getLocation();
-									vec = (new Location(center.getWorld(), midLoc.getX(), yPos, midLoc.getZ())).subtract(block.getFBlock().getLocation());
-								}
-								block.getFBlock().setHeadPose(directionToEuler(vec));
-								--yPos;
-							}
-
 							if (radius != 0)
 							{
 								Location loc;
@@ -454,12 +434,6 @@ public class CylindricalMover implements BlockMover
 				}
 			}
 		}.runTaskTimerAsynchronously(plugin, 14, tickRate);
-	}
-
-	private EulerAngle directionToEuler(Location dir)
-	{
-	    double yaw = -Math.atan2(dir.getX(), dir.getZ()) + Math.PI / 2;
-	    return new EulerAngle(0, yaw, 0);
 	}
 
 	// Rotate logs by modifying its material data.

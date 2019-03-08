@@ -35,7 +35,7 @@ public abstract class ToolUser implements Abortable
     protected boolean isOpen = false;
     protected Location one, two, engine;
     protected boolean aborting = false;
-    private BukkitTask bukkitTask;
+    private BukkitTask bukkitTask = null;
 
     public ToolUser(BigDoors plugin, Player player, String name, DoorType type)
     {

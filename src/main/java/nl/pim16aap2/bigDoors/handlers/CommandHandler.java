@@ -296,6 +296,10 @@ public class CommandHandler implements CommandExecutor
             // Help menu
             if (args.length == 0)
                 showHelpInfo(sender);
+            // Get plugin version
+            else if (args[0].equalsIgnoreCase("version"))
+                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " +
+                    plugin.getDescription().getVersion() + " of this plugin!");
             // Open GUI
             else if (player != null && args[0].equalsIgnoreCase("menu"))
                 new GUIPage(plugin, player);
@@ -402,14 +406,6 @@ public class CommandHandler implements CommandExecutor
             return true;
         }
 
-        // /bdversion
-        if (cmd.getName().equalsIgnoreCase("bdversion"))
-        {
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " +
-                    plugin.getDescription().getVersion() + " of this plugin!");
-            return true;
-        }
-
         // /opendoor <doorName 1> [doorName 2] ... [doorName x] [time]
         if (cmd.getName().equalsIgnoreCase("opendoor") ||
             cmd.getName().equalsIgnoreCase("closedoor") ||
@@ -511,13 +507,6 @@ public class CommandHandler implements CommandExecutor
 
         if (player != null)
         {
-            // /bigdoorsenableas
-            if (cmd.getName().equalsIgnoreCase("bigdoorsenableas"))
-            {
-                plugin.bigDoorsEnableAS();
-                return true;
-            }
-
             // /inspectpowerblockloc
             if (cmd.getName().equalsIgnoreCase("inspectpowerblockloc"))
             {
@@ -593,7 +582,7 @@ public class CommandHandler implements CommandExecutor
                     String name;
                     if (args.length == 2)
                     {
-                        type = DoorType.valueOfFlag(args[0]);
+                        type = DoorType.valueOfFlag(args[0].toUpperCase());
                         if (type == null)
                             return false;
                         name = args[1];
@@ -703,6 +692,7 @@ public class CommandHandler implements CommandExecutor
         String help = "";
         help += ChatColor.GREEN + "====[ BigDoors Help ]====\n";
         help += helpFormat("/BigDoors menu", "Opens BigDoors' GUI.");
+        help += helpFormat("/BigDoors version", "Get the version of this plugin.");
         if (player == null || player.hasPermission("bigdoors.admin.restart"))
             help += helpFormat("/BigDoors restart", "Restart the plugin. Reinitializes almost everything.");
         if (player == null || player.hasPermission("bigdoors.admin.stopdoors"))

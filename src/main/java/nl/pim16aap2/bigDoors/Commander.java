@@ -14,7 +14,6 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class Commander
 {
-    @SuppressWarnings("unused")
     private final BigDoors plugin;
     private ArrayList<Long> busyDoors;
     private boolean goOn   = true;
@@ -24,10 +23,10 @@ public class Commander
 
     public Commander(BigDoors plugin, SQLiteJDBCDriverConnection db)
     {
-        this.plugin   = plugin;
-        this.db       = db;
-        busyDoors     = new ArrayList<Long>();
-        messages = plugin.getMessages();
+        this.plugin = plugin;
+        this.db     = db;
+        busyDoors   = new ArrayList<Long>();
+        messages    = plugin.getMessages();
     }
 
     // Check if a door is busy

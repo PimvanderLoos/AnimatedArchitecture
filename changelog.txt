@@ -13,7 +13,7 @@ Alpha 0.1.8
 - Added some translations.
 - Fixed timing issues with door creation again. Should be the last time :)
 - Added caching for redstone requests.
-- Added compatibility hooks for PlotSquared (<v4!) and WorldGuard. 
+- Added compatibility hooks for PlotSquared (v3!) and WorldGuard (v7!).
 - Added config options for the compatibility hooks.
 
 Alpha 0.1.7.3
