@@ -211,6 +211,11 @@ public class Commander
         db.updateDoorAutoClose(doorUID, autoClose);
     }
 
+    public void updateDoorBlocksToMove(long doorID, int blocksToMove)
+    {
+        db.updateDoorBlocksToMove(doorID, blocksToMove);
+    }
+    
     // Change the "locked" status of a door.
     public void setLock(long doorUID, boolean newLockStatus)
     {

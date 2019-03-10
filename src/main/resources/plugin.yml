@@ -18,6 +18,11 @@ commands:
     usage: /NameDoor <doorName || doorUID> 
     permission: bigdoors.user.createdoor
     permission-message: You do not have the bigdoors.user.createdoor permission node.
+  setblockstomove:
+    description: Change the number of blocks the door will attempt to move in the provided direction.
+    usage: /SetBlocksToMove <doorName || doorUID> <time>
+    permission: bigdoors.user.setblockstomove
+    permission-message: You do not have the bigdoors.user.setblockstomove permission node.
   setautoclosetime:
     description: Changes/Sets time (in s) for doors to automatically close. -1 to disable.
     usage: /SetAutoCloseTime <doorName || doorUID> <time>

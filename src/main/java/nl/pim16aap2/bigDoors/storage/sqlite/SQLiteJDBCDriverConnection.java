@@ -30,39 +30,40 @@ public class SQLiteJDBCDriverConnection
     private File     dataFolder;
     private String   url;
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION =  1;
+    private static final int DATABASE_VERSION    =  2;
 
-    private static final int DOOR_ID          =  1;
-    private static final int DOOR_NAME        =  2;
-    private static final int DOOR_WORLD       =  3;
-    private static final int DOOR_OPEN        =  4;
-    private static final int DOOR_MIN_X       =  5;
-    private static final int DOOR_MIN_Y       =  6;
-    private static final int DOOR_MIN_Z       =  7;
-    private static final int DOOR_MAX_X       =  8;
-    private static final int DOOR_MAX_Y       =  9;
-    private static final int DOOR_MAX_Z       = 10;
-    private static final int DOOR_ENG_X       = 11;
-    private static final int DOOR_ENG_Y       = 12;
-    private static final int DOOR_ENG_Z       = 13;
-    private static final int DOOR_LOCKED      = 14;
-    private static final int DOOR_TYPE        = 15;
-    private static final int DOOR_ENG_SIDE    = 16;
-    private static final int DOOR_POWER_X     = 17;
-    private static final int DOOR_POWER_Y     = 18;
-    private static final int DOOR_POWER_Z     = 19;
-    private static final int DOOR_OPEN_DIR    = 20;
-    private static final int DOOR_AUTO_CLOSE  = 21;
-    private static final int DOOR_CHUNK_HASH  = 22;
+    private static final int DOOR_ID             =  1;
+    private static final int DOOR_NAME           =  2;
+    private static final int DOOR_WORLD          =  3;
+    private static final int DOOR_OPEN           =  4;
+    private static final int DOOR_MIN_X          =  5;
+    private static final int DOOR_MIN_Y          =  6;
+    private static final int DOOR_MIN_Z          =  7;
+    private static final int DOOR_MAX_X          =  8;
+    private static final int DOOR_MAX_Y          =  9;
+    private static final int DOOR_MAX_Z          = 10;
+    private static final int DOOR_ENG_X          = 11;
+    private static final int DOOR_ENG_Y          = 12;
+    private static final int DOOR_ENG_Z          = 13;
+    private static final int DOOR_LOCKED         = 14;
+    private static final int DOOR_TYPE           = 15;
+    private static final int DOOR_ENG_SIDE       = 16;
+    private static final int DOOR_POWER_X        = 17;
+    private static final int DOOR_POWER_Y        = 18;
+    private static final int DOOR_POWER_Z        = 19;
+    private static final int DOOR_OPEN_DIR       = 20;
+    private static final int DOOR_AUTO_CLOSE  	 = 21;
+    private static final int DOOR_CHUNK_HASH     = 22;
+    private static final int DOOR_BLOCKS_TO_MOVE = 23;
 
-    private static final int PLAYERS_ID       =  1;
-    private static final int PLAYERS_UUID     =  2;
+    private static final int PLAYERS_ID          =  1;
+    private static final int PLAYERS_UUID        =  2;
 
     @SuppressWarnings("unused")
-    private static final int UNION_ID         =  1;
-    private static final int UNION_PERM       =  2;
-    private static final int UNION_PLAYER_ID  =  3;
-    private static final int UNION_DOOR_ID    =  4;
+    private static final int UNION_ID            =  1;
+    private static final int UNION_PERM          =  2;
+    private static final int UNION_PLAYER_ID     =  3;
+    private static final int UNION_DOOR_ID       =  4;
 
     public SQLiteJDBCDriverConnection(BigDoors plugin, String dbName)
     {
@@ -139,7 +140,8 @@ public class SQLiteJDBCDriverConnection
                             + " powerBlockZ   INTEGER    NOT NULL, "
                             + " openDirection INTEGER    NOT NULL, "
                             + " autoClose     INTEGER    NOT NULL, "
-                            + " chunkHash     INTEGER    NOT NULL) ";
+                            + " chunkHash     INTEGER    NOT NULL, "
+                            + " blocksToMove  INTEGER    NOT NULL) ";
             stmt1.executeUpdate(sql1);
             stmt1.close();
 
@@ -230,15 +232,18 @@ public class SQLiteJDBCDriverConnection
         try
         {
             World world     = Bukkit.getServer().getWorld(UUID.fromString(rs.getString(DOOR_WORLD)));
-            Location min    = new Location(world, rs.getInt(DOOR_MIN_X), rs.getInt(DOOR_MIN_Y), rs.getInt(DOOR_MIN_Z));
-            Location max    = new Location(world, rs.getInt(DOOR_MAX_X), rs.getInt(DOOR_MAX_Y), rs.getInt(DOOR_MAX_Z));
-            Location engine = new Location(world, rs.getInt(DOOR_ENG_X), rs.getInt(DOOR_ENG_Y), rs.getInt(DOOR_ENG_Z));
+            Location min    = new Location(world, rs.getInt(DOOR_MIN_X),   rs.getInt(DOOR_MIN_Y),   rs.getInt(DOOR_MIN_Z));
+            Location max    = new Location(world, rs.getInt(DOOR_MAX_X),   rs.getInt(DOOR_MAX_Y),   rs.getInt(DOOR_MAX_Z));
+            Location engine = new Location(world, rs.getInt(DOOR_ENG_X),   rs.getInt(DOOR_ENG_Y),   rs.getInt(DOOR_ENG_Z));
             Location powerB = new Location(world, rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z));
 
-            return new Door(playerUUID, world, min, max, engine, rs.getString(DOOR_NAME), (rs.getInt(DOOR_OPEN) == 1 ? true : false),
-                            doorUID, (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(DOOR_TYPE)),
-                            DoorDirection.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
-                            rs.getInt(DOOR_AUTO_CLOSE));
+            Door door = new Door(playerUUID, world, min, max, engine, rs.getString(DOOR_NAME), (rs.getInt(DOOR_OPEN) == 1 ? true : false),
+                                 doorUID, (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(DOOR_TYPE)),
+                                 DoorDirection.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
+                                 rs.getInt(DOOR_AUTO_CLOSE));
+            
+            door.setBlocksToMove(rs.getInt(DOOR_BLOCKS_TO_MOVE));
+            return door;
         }
         catch (SQLException e)
         {
@@ -528,6 +533,36 @@ public class SQLiteJDBCDriverConnection
         }
         return doors;
     }
+    
+    public void updateDoorBlocksToMove(long doorID, int blocksToMove)
+    {
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+            String update = "UPDATE doors SET "
+                          +   "blocksToMove='" + blocksToMove
+                          + "' WHERE id = '"   + doorID + "';";
+            conn.prepareStatement(update).executeUpdate();
+            conn.commit();
+        }
+        catch(SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("540: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                plugin.getMyLogger().logMessageToLogFile("550: " + e.getMessage());
+            }
+        }
+    }
 
     // Update the door at doorUID with the provided coordinates and open status.
     public void updateDoorCoords(long doorID, boolean isOpen, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, DoorDirection engSide)
@@ -538,15 +573,15 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             conn.setAutoCommit(false);
             String update = "UPDATE doors SET "
-                          +   "xMin='"          + xMin
-                          + "',yMin='"          + yMin
-                          + "',zMin='"          + zMin
-                          + "',xMax='"          + xMax
-                          + "',yMax='"          + yMax
-                          + "',zMax='"          + zMax
-                          + "',isOpen='"        + (isOpen  == true ?  1 : 0)
-                          + "',engineSide='"    + (engSide == null ? -1 : DoorDirection.getValue(engSide))
-                          + "' WHERE id = '"    + doorID + "';";
+                          +   "xMin='"       + xMin
+                          + "',yMin='"       + yMin
+                          + "',zMin='"       + zMin
+                          + "',xMax='"       + xMax
+                          + "',yMax='"       + yMax
+                          + "',zMax='"       + zMax
+                          + "',isOpen='"     + (isOpen  == true ?  1 : 0)
+                          + "',engineSide='" + (engSide == null ? -1 : DoorDirection.getValue(engSide))
+                          + "' WHERE id = '" + doorID + "';";
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
@@ -773,32 +808,33 @@ public class SQLiteJDBCDriverConnection
                 rs2.close();
             }
 
-            String doorInsertsql = "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,openDirection,autoClose,chunkHash) "
-                                 + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String doorInsertsql = "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,openDirection,autoClose,chunkHash,blocksToMove) "
+                                 + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 
-            doorstatement.setString(DOOR_NAME - 1,     door.getName());
-            doorstatement.setString(DOOR_WORLD - 1,    door.getWorld().getUID().toString());
-            doorstatement.setInt(DOOR_OPEN - 1,        door.isOpen() == true ? 1 : 0);
-            doorstatement.setInt(DOOR_MIN_X - 1,       door.getMinimum().getBlockX());
-            doorstatement.setInt(DOOR_MIN_Y - 1,       door.getMinimum().getBlockY());
-            doorstatement.setInt(DOOR_MIN_Z - 1,       door.getMinimum().getBlockZ());
-            doorstatement.setInt(DOOR_MAX_X - 1,       door.getMaximum().getBlockX());
-            doorstatement.setInt(DOOR_MAX_Y - 1,       door.getMaximum().getBlockY());
-            doorstatement.setInt(DOOR_MAX_Z - 1,       door.getMaximum().getBlockZ());
-            doorstatement.setInt(DOOR_ENG_X - 1,       door.getEngine().getBlockX());
-            doorstatement.setInt(DOOR_ENG_Y - 1,       door.getEngine().getBlockY());
-            doorstatement.setInt(DOOR_ENG_Z - 1,       door.getEngine().getBlockZ());
-            doorstatement.setInt(DOOR_LOCKED - 1,      door.isLocked() == true ? 1 : 0);
-            doorstatement.setInt(DOOR_TYPE - 1,        DoorType.getValue(door.getType()));
+            doorstatement.setString(DOOR_NAME - 1,         door.getName());
+            doorstatement.setString(DOOR_WORLD - 1,        door.getWorld().getUID().toString());
+            doorstatement.setInt(DOOR_OPEN - 1,            door.isOpen() == true ? 1 : 0);
+            doorstatement.setInt(DOOR_MIN_X - 1,           door.getMinimum().getBlockX());
+            doorstatement.setInt(DOOR_MIN_Y - 1,           door.getMinimum().getBlockY());
+            doorstatement.setInt(DOOR_MIN_Z - 1,           door.getMinimum().getBlockZ());
+            doorstatement.setInt(DOOR_MAX_X - 1,           door.getMaximum().getBlockX());
+            doorstatement.setInt(DOOR_MAX_Y - 1,           door.getMaximum().getBlockY());
+            doorstatement.setInt(DOOR_MAX_Z - 1,           door.getMaximum().getBlockZ());
+            doorstatement.setInt(DOOR_ENG_X - 1,           door.getEngine().getBlockX());
+            doorstatement.setInt(DOOR_ENG_Y - 1,           door.getEngine().getBlockY());
+            doorstatement.setInt(DOOR_ENG_Z - 1,           door.getEngine().getBlockZ());
+            doorstatement.setInt(DOOR_LOCKED - 1,          door.isLocked() == true ? 1 : 0);
+            doorstatement.setInt(DOOR_TYPE - 1,            DoorType.getValue(door.getType()));
             // Set -1 if the door has no engineSide (normal doors don't use it)
-            doorstatement.setInt(DOOR_ENG_SIDE - 1,    door.getEngSide() == null ? -1 : DoorDirection.getValue(door.getEngSide()));
-            doorstatement.setInt(DOOR_POWER_X - 1,     door.getEngine().getBlockX());
-            doorstatement.setInt(DOOR_POWER_Y - 1,     door.getEngine().getBlockY() - 1); // Power Block Location is 1 block below the engine, by default.
-            doorstatement.setInt(DOOR_POWER_Z - 1,     door.getEngine().getBlockZ());
-            doorstatement.setInt(DOOR_OPEN_DIR - 1,    RotateDirection.getValue(door.getOpenDir()));
-            doorstatement.setInt(DOOR_AUTO_CLOSE - 1,  door.getAutoClose());
-            doorstatement.setLong(DOOR_CHUNK_HASH - 1, door.getPowerBlockChunkHash());
+            doorstatement.setInt(DOOR_ENG_SIDE - 1,        door.getEngSide() == null ? -1 : DoorDirection.getValue(door.getEngSide()));
+            doorstatement.setInt(DOOR_POWER_X - 1,         door.getEngine().getBlockX());
+            doorstatement.setInt(DOOR_POWER_Y - 1,         door.getEngine().getBlockY() - 1); // Power Block Location is 1 block below the engine, by default.
+            doorstatement.setInt(DOOR_POWER_Z - 1,         door.getEngine().getBlockZ());
+            doorstatement.setInt(DOOR_OPEN_DIR - 1,        RotateDirection.getValue(door.getOpenDir()));
+            doorstatement.setInt(DOOR_AUTO_CLOSE - 1,      door.getAutoClose());
+            doorstatement.setLong(DOOR_CHUNK_HASH - 1,     door.getPowerBlockChunkHash());
+            doorstatement.setLong(DOOR_BLOCKS_TO_MOVE - 1, door.getBlocksToMove());
 
             doorstatement.executeUpdate();
             doorstatement.close();
@@ -1015,6 +1051,14 @@ public class SQLiteJDBCDriverConnection
                     ps1.close();
                     rs1.close();
                 }
+            }
+            
+            if (dbVersion == 1)
+            {
+                plugin.getMyLogger().logMessage("Upgrading database! Adding blocksToMove!", true, true);
+                addColumn = "ALTER TABLE doors "
+                          + "ADD COLUMN blocksToMove int NOT NULL DEFAULT 0";
+                stmt.execute(addColumn);
             }
 
             // Update the database version if needed.

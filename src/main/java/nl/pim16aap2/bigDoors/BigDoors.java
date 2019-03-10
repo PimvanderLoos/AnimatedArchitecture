@@ -50,6 +50,7 @@ import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
 import nl.pim16aap2.bigDoors.util.TimedCache;
+import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 // TODO: Store starting x,z values in savedBlocks, then make putblocks etc part of abstact class.
@@ -73,6 +74,8 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Use generics for ConfigOption.
 // TODO: Add "Blocks-to-move" property to sliding doors, portcullises, and elevators.
 // TODO: Make sure the abortable's BukkitTask isn't null.
+// TODO: Make invalid input stuff more informative (e.g. int, float etc).
+// TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -141,6 +144,7 @@ public class BigDoors extends JavaPlugin implements Listener
         registerCommand("changepowerblockloc" );
         registerCommand("setautoclosetime"    );
         registerCommand("setdoorrotation"     );
+        registerCommand("setblockstomove"     );
         registerCommand("newportcullis"       );
         registerCommand("toggledoor"          );
         registerCommand("pausedoors"          );
@@ -227,8 +231,8 @@ public class BigDoors extends JavaPlugin implements Listener
             }
             catch (NoClassDefFoundError e)
             {
-                logger.logMessageToConsole("Failed to initialize PlotSquared compatibility hook! Perhaps this version isn't supported?");
-                e.printStackTrace();
+                logger.logMessageToConsole("Failed to initialize PlotSquared compatibility hook! Perhaps this version isn't supported? Check error.log for more info!");
+                logger.logMessage(Util.errorToString(e), false, false);
                 logger.logMessageToConsole("Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
             }
             catch (Exception e)
@@ -248,7 +252,7 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             logger.logMessageToConsole("Failed to initialize WorldGuard compatibility hook! Only v7 seems to be supported atm!"
                 + " Maybe that's the issue?");
-            e.printStackTrace();
+            logger.logMessage(Util.errorToString(e), false, false);
             logger.logMessageToConsole("Now resuming normal startup with Worldguard Compatibility Hook disabled!");
         }
         catch (Exception e)

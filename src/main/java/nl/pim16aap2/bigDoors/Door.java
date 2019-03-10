@@ -35,6 +35,8 @@ public class Door
     private Location           newMin;
     private Location           newMax;
 
+    private int     blocksToMove = -1;
+
     // Generate a new door.
     public Door(UUID player, World world, Location min, Location max, Location engine, String name, boolean isOpen, long doorUID,
                 boolean isLocked, int permission, DoorType type, DoorDirection engineSide, Location powerBlock,
@@ -87,23 +89,29 @@ public class Door
              type, engineSide, powerBlock, openDir, autoClose);
     }
 
-    // ----------------------- SIMPLE GETTERS ------------------- //
-    public DoorType getType()           {  return type;        }  // Get this door's type.
-    public String getName()             {  return name;        }  // Get the name of the door.
-    public World getWorld()             {  return world;       }  // Get the world this door is in.
-    public long getDoorUID()            {  return doorUID;     }  // Get doorUID as used in the doors table in the db.
-    public boolean isLocked()           {  return isLocked;    }  // Check if this door is locked or not.
-    public boolean isOpen()             {  return isOpen;      }  // Check if this door is in the open or closed state.
-    public int getPermission()          {  return permission;  }  // Check permission level of current owner.
-    public UUID getPlayerUUID()         {  return player;      }  // Get UUID of the owner of the door. Might be null!
-    public DoorDirection getEngSide()   {  return engineSide;  }  // Get this door's (or drawbridge's, in this case) engine side.
-    public boolean canGo()              {  return canGo;       }  // Check if this door can still be opened or not.
-    public RotateDirection getOpenDir() {  return openDir;     }  // Get the open direction of this door.
-    public int getAutoClose()           {  return autoClose;   }  // Get the auto close time.
+    // ------------------------ SIMPLE GETTERS -------------------- //
+    public DoorType getType()           {  return type;          }  // Get this door's type.
+    public String getName()             {  return name;          }  // Get the name of the door.
+    public World getWorld()             {  return world;         }  // Get the world this door is in.
+    public long getDoorUID()            {  return doorUID;       }  // Get doorUID as used in the doors table in the db.
+    public boolean isLocked()           {  return isLocked;      }  // Check if this door is locked or not.
+    public boolean isOpen()             {  return isOpen;        }  // Check if this door is in the open or closed state.
+    public int getPermission()          {  return permission;    }  // Check permission level of current owner.
+    public UUID getPlayerUUID()         {  return player;        }  // Get UUID of the owner of the door. Might be null!
+    public DoorDirection getEngSide()   {  return engineSide;    }  // Get this door's (or drawbridge's, in this case) engine side.
+    public boolean canGo()              {  return canGo;         }  // Check if this door can still be opened or not.
+    public RotateDirection getOpenDir() {  return openDir;       }  // Get the open direction of this door.
+    public int getAutoClose()           {  return autoClose;     }  // Get the auto close time.
+    public int getBlocksToMove()	    {  return blocksToMove;  }  // Get the desired number of blocks to move this door.
 
     public void setPlayerUUID(UUID playerUUID)
     {
         player = playerUUID;
+    }
+    
+    public void setBlocksToMove(int move)
+    {
+    	this.blocksToMove = move;
     }
 
     // Change the open-status of this door.

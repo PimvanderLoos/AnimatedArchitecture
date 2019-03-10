@@ -238,6 +238,11 @@ public class GUIHandler implements Listener
                 plugin.getCommandHandler().startTimerSetter(player, door.getDoorUID());
                 player.closeInventory();
             }
+            else if (itemName.equals(messages.getString("GUI.BLOCKSTOMOVE.Name")))
+            {
+                plugin.getCommandHandler().startBlocksToMoveSetter(player, door.getDoorUID());
+                player.closeInventory();
+            }
             return;
         }
         else if (itemName.equals(messages.getString("GUI.NewDoor")))

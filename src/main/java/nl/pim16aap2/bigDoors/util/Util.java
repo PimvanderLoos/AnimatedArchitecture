@@ -22,6 +22,13 @@ public final class Util
     {
         player.sendMessage(color + s);
     }
+    
+    public static String errorToString(Error e)
+    {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
 
     public static String exceptionToString(Exception e)
     {

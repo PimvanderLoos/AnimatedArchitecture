@@ -14,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import com.mysql.jdbc.Messages;
+
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.GUI.GUIPage;
@@ -34,6 +36,7 @@ import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.XMaterial;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
+import nl.pim16aap2.bigDoors.waitForCommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForSetTime;
 
 public class CommandHandler implements CommandExecutor
@@ -252,17 +255,29 @@ public class CommandHandler implements CommandExecutor
                 return cw;
         return null;
     }
-
+    
     public void setDoorOpenTime(Player player, long doorUID, int autoClose)
     {
         plugin.getCommander().updateDoorAutoClose(doorUID, autoClose);
     }
 
+    public void setDoorBlocksToMove(Player player, long doorUID, int autoClose)
+    {
+        plugin.getCommander().updateDoorBlocksToMove(doorUID, autoClose);
+    }
+    
     public void startTimerSetter(Player player, long doorUID)
     {
         if (isPlayerBusy(player))
             return;
         startTimerForAbortable((new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), player, 20 * 20);
+    }
+
+    public void startBlocksToMoveSetter(Player player, long doorUID)
+    {
+        if (isPlayerBusy(player))
+            return;
+        startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, "setblockstomove", doorUID)), player, 20 * 20);
     }
 
     private boolean isPlayerBusy(Player player)
@@ -350,6 +365,37 @@ public class CommandHandler implements CommandExecutor
                 {
                     int time = Integer.parseInt(args[1]);
                     setDoorOpenTime(player, door.getDoorUID(), time);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        // /setblockstomove <doorName> <distance>
+        if (cmd.getName().equalsIgnoreCase("setblockstomove"))
+        {
+            // If there is only 1 argument, assume that it is a player using the commandWaiter system
+            // And therefore the Door is already defined somewhere else (e.g. selected from the GUI).
+            if (args.length == 1 && player != null)
+            {
+                WaitForCommand cw = isCommandWaiter(player);
+                if (cw != null)
+                    return cw.executeCommand(args);
+            }
+            else if (args.length == 2)
+            {
+                Door door = plugin.getCommander().getDoor(args[0], player);
+                if (door == null)
+                    return false;
+
+                try
+                {
+                    int blocksToMove = Integer.parseInt(args[1]);
+                    setDoorBlocksToMove(player, door.getDoorUID(), blocksToMove);
                     return true;
                 }
                 catch (Exception e)

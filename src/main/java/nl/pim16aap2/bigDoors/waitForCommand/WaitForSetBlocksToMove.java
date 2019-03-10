@@ -7,7 +7,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.Util;
 
-public class WaitForSetTime implements WaitForCommand, Abortable
+public class WaitForSetBlocksToMove implements WaitForCommand, Abortable
 {
 	private BigDoors plugin;
 	private Player   player;
@@ -15,13 +15,13 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 	private long    doorUID;
     private BukkitTask bukkitTask;
 
-	public WaitForSetTime(BigDoors plugin, Player player, String command, long doorUID)
+	public WaitForSetBlocksToMove(BigDoors plugin, Player player, String command, long doorUID)
 	{
 		this.player  = player;
 		this.plugin  = plugin;
 		this.command = command;
 		this.doorUID = doorUID;
-		Util.messagePlayer(player, plugin.getMessages().getString("GUI.SetTimeInit"));
+		Util.messagePlayer(player, plugin.getMessages().getString("GUI.SetBlocksToMoveInit"));
 		plugin.addCommandWaiter(this);
 	}
     
@@ -56,13 +56,13 @@ public class WaitForSetTime implements WaitForCommand, Abortable
 		{
 			try
 			{
-				int time = Integer.parseInt(args[0]);
-				plugin.getCommandHandler().setDoorOpenTime(player, doorUID, time);
+				int blocksToMove = Integer.parseInt(args[0]);
+				plugin.getCommandHandler().setDoorBlocksToMove(player, doorUID, blocksToMove);
 				plugin.removeCommandWaiter(this);
-				if (time != -1)
-					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetCloseTimerSuccess") + time + "s.");
+				if (blocksToMove > 0)
+					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetBlocksToMoveSuccess") + blocksToMove);
 				else
-					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.DisableCloseTimerSuccess") + time + "s.");
+					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.DisableBlocksToMoveSuccess"));
 				return true;
 			}
 			catch (Exception e)
