@@ -15,14 +15,14 @@ import nl.pim16aap2.bigDoors.util.Util;
 public class ElevatorOpener implements Opener
 {
     private BigDoors plugin;
-    
+
     DoorDirection ddirection;
 
     public ElevatorOpener(BigDoors plugin)
     {
         this.plugin = plugin;
     }
-    
+
     // Check if the chunks at the minimum and maximum locations of the door are loaded.
     private boolean chunksLoaded(Door door)
     {
@@ -33,7 +33,7 @@ public class ElevatorOpener implements Opener
             plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
         if (door.getWorld().getChunkAt(door.getMinimum()) == null)
             plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
-        
+
         return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
     }
 
@@ -42,7 +42,7 @@ public class ElevatorOpener implements Opener
     {
         return openDoor(door, time, false, false);
     }
-    
+
     // Open a door.
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
@@ -68,20 +68,21 @@ public class ElevatorOpener implements Opener
                 instantOpen = true;
 
         int blocksToMove = getBlocksToMove(door);
-        
+        Util.broadcastMessage("blocksToMove = " + blocksToMove);
+
         if (blocksToMove != 0)
         {
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());
-            
+
             plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove));
         }
         return DoorOpenResult.SUCCESS;
     }
-    
+
     private int getBlocksInDir(Door door, RotateDirection upDown)
     {
-        int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksUp = 0, step;
+        int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksMoved = 0, step;
         xMin  = door.getMinimum().getBlockX();
         yMin  = door.getMinimum().getBlockY();
         zMin  = door.getMinimum().getBlockZ();
@@ -89,29 +90,36 @@ public class ElevatorOpener implements Opener
         yMax  = door.getMaximum().getBlockY();
         zMax  = door.getMaximum().getBlockZ();
         yLen  = yMax - yMin + 1;
-        yLen  = 9; // DEBUG stuff.
+        int distanceToCheck = door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
+        Util.broadcastMessage("DistanceToCheck = " + distanceToCheck + ", yLen = " + yLen);
+
         int xAxis, yAxis, zAxis, yGoal;
         World world = door.getWorld();
         step  = upDown == RotateDirection.DOWN ? -1 : 1;
         yAxis = upDown == RotateDirection.DOWN ? yMin - 1 : yMax + 1;
-        yGoal = upDown == RotateDirection.DOWN ? yMin - yLen - 1 : yMax + yLen + 1;
-            
+        yGoal = upDown == RotateDirection.DOWN ? yMin - distanceToCheck - 1 : yMax + distanceToCheck + 1;
+
         while (yAxis != yGoal)
         {
             for (xAxis = xMin; xAxis <= xMax; ++xAxis)
                 for (zAxis = zMin; zAxis <= zMax; ++zAxis)
                     if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
-                        return blocksUp;
-            yAxis    += step;
-            blocksUp += step;
+                        return blocksMoved;
+            yAxis += step;
+            blocksMoved += step;
         }
-        return blocksUp;
+        Util.broadcastMessage("blocksMoved = " + blocksMoved);
+        return blocksMoved;
     }
-    
+
     private int getBlocksToMove(Door door)
     {
-        int blocksUp    = getBlocksInDir(door, RotateDirection.UP  );
-        int blocksDown  = getBlocksInDir(door, RotateDirection.DOWN);
+        int blocksUp = 0, blocksDown = 0;
+        if (door.getOpenDir() == RotateDirection.UP   && !door.isOpen() ||
+            door.getOpenDir() == RotateDirection.DOWN &&  door.isOpen())
+            blocksUp    = getBlocksInDir(door, RotateDirection.UP  );
+        else
+            blocksDown  = getBlocksInDir(door, RotateDirection.DOWN);
         return blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
     }
 }

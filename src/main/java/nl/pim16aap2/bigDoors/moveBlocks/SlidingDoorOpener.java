@@ -66,7 +66,7 @@ public class SlidingDoorOpener implements Opener
                 instantOpen = true;
 
         int blocksToMove = getBlocksToMove(door);
-        
+
         if (blocksToMove != 0)
         {
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
@@ -87,6 +87,9 @@ public class SlidingDoorOpener implements Opener
         zMax = door.getMaximum().getBlockZ();
         xLen = Math.abs(xMax - xMin) + 1;
         zLen = Math.abs(zMax - zMin) + 1;
+
+        xLen = door.getOpenDir() == RotateDirection.NONE || door.getBlocksToMove() < 1 ? xLen : door.getBlocksToMove();
+        zLen = door.getOpenDir() == RotateDirection.NONE || door.getBlocksToMove() < 1 ? zLen : door.getBlocksToMove();
 
         int xAxis, yAxis, zAxis;
         step = slideDir == RotateDirection.NORTH || slideDir == RotateDirection.WEST ? -1 : 1;

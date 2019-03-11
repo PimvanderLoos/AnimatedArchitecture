@@ -19,24 +19,24 @@ import nl.pim16aap2.bigDoors.util.XMaterial;
 
 public class GUIPage implements Listener
 {
-    private static Material pageSwitchMat  = Material.ARROW;
-    private static Material currDoorMat    = Material.BOOK;
-    private static Material changeTimeMat  = XMaterial.CLOCK.parseMaterial();
-    private static Material newDoorMat     = XMaterial.WRITABLE_BOOK.parseMaterial();
-    private static Material lockDoorMat    = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
-    private static Material unlockDoorMat  = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
-    private static Material confirmMat     = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
-    private static Material noConfirmMat   = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
-    private static Material toggleDoorMat  = Material.LEVER;
-    private static Material infoMat        = Material.BOOKSHELF;
-    private static Material delDoorMat     = Material.BARRIER;
-    private static Material relocatePBMat  = Material.LEATHER_BOOTS;
-    private static Material setOpenDirMat  = Material.COMPASS;
-    private static Material setBTMoveMat   = XMaterial.STICKY_PISTON.parseMaterial();
-    private static byte     lockedData     = 14;
-    private static byte     unlockedData   =  5;
-    private static byte     confirmData    = 14;
-    private static byte     notConfirmData =  5;
+    private static final Material PAGESWITCHMAT  = Material.ARROW;
+    private static final Material CURRDOORMAT    = Material.BOOK;
+    private static final Material CHANGETIMEMAT  = XMaterial.CLOCK.parseMaterial();
+    private static final Material NEWDOORMAT     = XMaterial.WRITABLE_BOOK.parseMaterial();
+    private static final Material LOCKDOORMAT    = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
+    private static final Material UNLOCKDOORMAT  = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
+    private static final Material CONFIRMMAT     = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
+    private static final Material NOTCONFIRMMAT  = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
+    private static final Material TOGGLEDOORMAT  = Material.LEVER;
+    private static final Material INFOMAT        = Material.BOOKSHELF;
+    private static final Material DELDOORMAT     = Material.BARRIER;
+    private static final Material RELOCATEPBMAT  = Material.LEATHER_BOOTS;
+    private static final Material SETOPENDIRMAT  = Material.COMPASS;
+    private static final Material SETBTMOVEMAT   = XMaterial.STICKY_PISTON.parseMaterial();
+    private static final byte     LOCKEDDATA     = 14;
+    private static final byte     UNLOCKEDDATA   =  5;
+    private static final byte     CONFIRMDATA    = 14;
+    private static final byte     NOTCONFIRMDATA =  5;
     private final  Messages messages;
 
     // Create a new inventory, with no owner, a size of nine, called example
@@ -46,9 +46,9 @@ public class GUIPage implements Listener
     private PageType     pageType;
     private int              page;
     private Door             door;
-    private static final int chestSize = 45;
+    private static final int CHESTSIZE = 45;
 
-    private static final Material[] doorTypes =
+    private static final Material[] DOORTYPES =
     {
         XMaterial.OAK_DOOR.parseMaterial(),
         XMaterial.OAK_TRAPDOOR.parseMaterial(),
@@ -61,19 +61,19 @@ public class GUIPage implements Listener
     public GUIPage(BigDoors plugin, Player player, int page, PageType pageType, long doorUID, int pageCount)
     {
         messages = plugin.getMessages();
-        inv = Bukkit.createInventory(player, chestSize,
+        inv = Bukkit.createInventory(player, CHESTSIZE,
                   (pageType == PageType.DOORLIST ? messages.getString("GUI.Name") :
                    pageType == PageType.DOORINFO ? messages.getString("GUI.SubName") :
                    messages.getString("GUI.ConfirmMenu")));
-        int startIndex =  page * (chestSize - 9);            // Get starting and ending indices of the door to be displayed.
-        int endIndex   = (page + 1) * (chestSize - 9);
+        int startIndex =  page * (CHESTSIZE - 9);            // Get starting and ending indices of the door to be displayed.
+        int endIndex   = (page + 1) * (CHESTSIZE - 9);
 
         doors = pageType != PageType.DOORLIST ? null :
             plugin.getCommander().getDoorsInRange(player.getUniqueId().toString(), null, startIndex, endIndex);
 
         this.pageCount = (long) (pageCount == -1 ?
                           Math.ceil(plugin.getCommander().countDoors(player.getUniqueId().toString(), null) /
-                                    (chestSize - 9.0)) : pageCount); // If pageCount hasn't been set, calculate it.
+                                    (CHESTSIZE - 9.0)) : pageCount); // If pageCount hasn't been set, calculate it.
         this.pageType  = pageType;
         this.page      = page;
         door = doorUID != -1 ? plugin.getCommander().getDoor(doorUID) : null;
@@ -91,7 +91,7 @@ public class GUIPage implements Listener
         ArrayList<String> lore = new ArrayList<String>();
         lore.add("Go to page " + page + " out of " + pageCount);
         // If it's not on the first page, add an arrow to the first page.
-        inv.setItem(0, new GUIItem(pageSwitchMat, messages.getString("GUI.PreviousPage"),
+        inv.setItem(0, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.PreviousPage"),
                                    lore, ((pageType == PageType.DOORINFO ||
                                            pageType == PageType.CONFIRMATION) &&
                                           page == 0 ? 1 : page)).getItemStack());
@@ -100,34 +100,34 @@ public class GUIPage implements Listener
 
         lore.add("Go to page " + (page + 2) + " out of " + pageCount);
         if ((page + 1) < pageCount && pageType == PageType.DOORLIST)
-            inv.setItem(8, new GUIItem(pageSwitchMat, messages.getString("GUI.NextPage"),
+            inv.setItem(8, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.NextPage"),
                                        lore, page + 2).getItemStack());
         lore.clear();
 
         if (pageType == PageType.DOORLIST)
         {
             lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewElevator"));
-            inv.setItem(2, new GUIItem(newDoorMat, messages.getString("GUI.NewElevator"),
+            inv.setItem(2, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewElevator"),
                                        lore, page + 1).getItemStack());
             lore.clear();
-            
+
             lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewDrawbridge"));
-            inv.setItem(3, new GUIItem(newDoorMat, messages.getString("GUI.NewDrawbridge"),
+            inv.setItem(3, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewDrawbridge"),
                                        lore, page + 1).getItemStack());
             lore.clear();
 
             lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewDoor"));
-            inv.setItem(4, new GUIItem(newDoorMat, messages.getString("GUI.NewDoor"),
+            inv.setItem(4, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewDoor"),
                                        lore, page + 1).getItemStack());
             lore.clear();
-            
+
             lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewPortcullis"));
-            inv.setItem(5, new GUIItem(newDoorMat, messages.getString("GUI.NewPortcullis"),
+            inv.setItem(5, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewPortcullis"),
                                        lore, page + 1).getItemStack());
             lore.clear();
 
             lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewSlidingDoor"));
-            inv.setItem(6, new GUIItem(newDoorMat, messages.getString("GUI.NewSlidingDoor"),
+            inv.setItem(6, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewSlidingDoor"),
                                        lore, page + 1).getItemStack());
             lore.clear();
         }
@@ -135,14 +135,14 @@ public class GUIPage implements Listener
         {
             lore.add("Expanded menu for door " + door.getName());
             lore.add("This door has ID " + door.getDoorUID());
-            inv.setItem(4, new GUIItem(currDoorMat, door.getName() + ": "
+            inv.setItem(4, new GUIItem(CURRDOORMAT, door.getName() + ": "
                                         + door.getDoorUID(), lore, 1).getItemStack());
         }
         else if (pageType == PageType.CONFIRMATION)
         {
             lore.add("Expanded menu for door " + door.getName());
             lore.add("This door has ID " + door.getDoorUID());
-            inv.setItem(4, new GUIItem(currDoorMat, door.getName() + ": "
+            inv.setItem(4, new GUIItem(CURRDOORMAT, door.getName() + ": "
                                         + door.getDoorUID(), lore, 1).getItemStack());
         }
         lore.clear();
@@ -153,32 +153,32 @@ public class GUIPage implements Listener
         int position = 9;
         ArrayList<String> lore = new ArrayList<String>();
         if (door.isLocked())
-            inv.setItem(position++, new GUIItem(lockDoorMat, messages.getString("GUI.UnlockDoor"),
-                                       null, 1, unlockedData).getItemStack());
+            inv.setItem(position++, new GUIItem(LOCKDOORMAT, messages.getString("GUI.UnlockDoor"),
+                                       null, 1, UNLOCKEDDATA).getItemStack());
         else
-            inv.setItem(position++, new GUIItem(unlockDoorMat, messages.getString("GUI.LockDoor"),
-                                       null, 1, lockedData).getItemStack());
+            inv.setItem(position++, new GUIItem(UNLOCKDOORMAT, messages.getString("GUI.LockDoor"),
+                                       null, 1, LOCKEDDATA).getItemStack());
 
         String desc = messages.getString("GUI.ToggleDoor");
         lore.add(desc);
-        inv.setItem(position++, new GUIItem(toggleDoorMat, desc, lore, 1).getItemStack());
+        inv.setItem(position++, new GUIItem(TOGGLEDOORMAT, desc, lore, 1).getItemStack());
         lore.clear();
 
         desc = messages.getString("GUI.GetInfo");
         lore.add(desc);
-        inv.setItem(position++, new GUIItem(infoMat, desc, lore, 1).getItemStack());
+        inv.setItem(position++, new GUIItem(INFOMAT, desc, lore, 1).getItemStack());
         lore.clear();
 
         desc = messages.getString("GUI.DeleteDoor");
         String loreStr = messages.getString("GUI.DeleteDoorLong");
         lore.add(loreStr);
-        inv.setItem(position++, new GUIItem(delDoorMat, desc , lore, 1).getItemStack());
+        inv.setItem(position++, new GUIItem(DELDOORMAT, desc , lore, 1).getItemStack());
         lore.clear();
 
         desc = messages.getString("GUI.RelocatePowerBlock");
         loreStr = messages.getString("GUI.RelocatePowerBlockLore");
         lore.add(loreStr);
-        inv.setItem(position++, new GUIItem(relocatePBMat, desc, lore, 1).getItemStack());
+        inv.setItem(position++, new GUIItem(RELOCATEPBMAT, desc, lore, 1).getItemStack());
         lore.clear();
 
         desc = messages.getString("GUI.ChangeTimer");
@@ -186,36 +186,37 @@ public class GUIPage implements Listener
             messages.getString("GUI.ChangeTimerLoreDisabled");
         lore.add(loreStr);
         int count = door.getAutoClose() < 1 ? 1 : door.getAutoClose();
-        inv.setItem(position++, new GUIItem(changeTimeMat, desc, lore, count).getItemStack());
+        inv.setItem(position++, new GUIItem(CHANGETIMEMAT, desc, lore, count).getItemStack());
         lore.clear();
 
         // Currently, only doors and drawbridges have directions etc.
-        if (door.getType() == DoorType.DOOR || door.getType() == DoorType.DRAWBRIDGE || door.getType() == DoorType.SLIDINGDOOR)
+        if (door.getType() == DoorType.DOOR || door.getType() == DoorType.DRAWBRIDGE ||
+            door.getType() == DoorType.SLIDINGDOOR || door.getType() == DoorType.ELEVATOR)
         {
             desc = messages.getString("GUI.Direction.Name");
             RotateDirection doorsOpenDir = door.getOpenDir();
             loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(doorsOpenDir));
             lore.add(loreStr);
             // Sliding doors use north/south/... for opening direction, so it doesn't matter which way you're looking. Those are pretty standard.
-            if (door.getType() != DoorType.SLIDINGDOOR)
+            if (door.getType() != DoorType.SLIDINGDOOR && door.getType() != DoorType.ELEVATOR)
                 lore.add(messages.getString("GUI.Direction.Looking") +
                         (door.getType()       == DoorType.DOOR       ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
                          door.getLookingDir() == DoorDirection.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
                                                                        messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
-            inv.setItem(position++, new GUIItem(setOpenDirMat, desc, lore, 1).getItemStack());
+            inv.setItem(position++, new GUIItem(SETOPENDIRMAT, desc, lore, 1).getItemStack());
             lore.clear();
         }
-        
+
         if (door.getType() == DoorType.SLIDINGDOOR || door.getType() == DoorType.ELEVATOR || door.getType() == DoorType.PORTCULLIS)
         {
             desc = messages.getString("GUI.BLOCKSTOMOVE.Name");
             if (door.getBlocksToMove() <= 0)
                 loreStr = messages.getString("GUI.BLOCKSTOMOVE.Unavailable");
             else
-                loreStr = messages.getString("GUI.BLOCKSTOMOVE.Available") + door.getBlocksToMove();
+                loreStr = messages.getString("GUI.BLOCKSTOMOVE.Available") + " " + door.getBlocksToMove();
             lore.add(loreStr);
-            
-            inv.setItem(position++, new GUIItem(setBTMoveMat, desc, lore, 1).getItemStack());
+
+            inv.setItem(position++, new GUIItem(SETBTMOVEMAT, desc, lore, 1).getItemStack());
             lore.clear();
         }
 
@@ -224,19 +225,19 @@ public class GUIPage implements Listener
     // Fill the entire menu with NO's, but put a single "yes" in the middle.
     public void fillConfirmationMenu()
     {
-        int mid = (int) ((chestSize - 9) / 2) + 4;
-        for (int idx = 9; idx < chestSize; ++idx)
+        int mid = (CHESTSIZE - 9) / 2 + 4;
+        for (int idx = 9; idx < CHESTSIZE; ++idx)
         {
             ArrayList<String> lore = new ArrayList<String>();
             if (idx == mid) // Middle block.
             {
                 lore.add(messages.getString("GUI.ConfirmDelete"));
-                inv.setItem(idx, new GUIItem(noConfirmMat, messages.getString("GUI.Confirm"), lore, 1, confirmData).getItemStack());
+                inv.setItem(idx, new GUIItem(NOTCONFIRMMAT, messages.getString("GUI.Confirm"), lore, 1, CONFIRMDATA).getItemStack());
             }
             else
             {
                 lore.add(messages.getString("GUI.NotConfirm"));
-                inv.setItem(idx, new GUIItem(confirmMat, messages.getString("GUI.No"), lore, 1, notConfirmData).getItemStack());
+                inv.setItem(idx, new GUIItem(CONFIRMMAT, messages.getString("GUI.No"), lore, 1, NOTCONFIRMDATA).getItemStack());
             }
         }
     }
@@ -245,7 +246,7 @@ public class GUIPage implements Listener
     {
         createHeader();
         if (pageType == PageType.DOORLIST)
-            for (int idx = 9; idx - 9 != doors.size() && idx < chestSize; ++idx)
+            for (int idx = 9; idx - 9 != doors.size() && idx < CHESTSIZE; ++idx)
             {
                 int realIdx  = idx - 9;
                 try
@@ -254,7 +255,7 @@ public class GUIPage implements Listener
                     ArrayList<String> lore = new ArrayList<String>();
                     lore.add(messages.getString("GUI.DoorHasID") + doors.get(realIdx).getDoorUID());
                     lore.add(messages.getString(DoorType.getNameKey(DoorType.valueOf(doorType))));
-                    inv.setItem(idx, new GUIItem(doorTypes[doorType], doors.get(realIdx).getName(), lore, 1).getItemStack());
+                    inv.setItem(idx, new GUIItem(DOORTYPES[doorType], doors.get(realIdx).getName(), lore, 1).getItemStack());
                 }
                 catch (Exception e)
                 {
@@ -277,5 +278,5 @@ public class GUIPage implements Listener
         return;
     }
 
-    public static int getChestSize() {  return chestSize;  }
+    public static int getChestSize() {  return CHESTSIZE;  }
 }

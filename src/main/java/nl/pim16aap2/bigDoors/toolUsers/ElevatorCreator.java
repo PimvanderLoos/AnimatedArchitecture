@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.util.DoorType;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class ElevatorCreator extends ToolUser
@@ -17,6 +18,7 @@ public class ElevatorCreator extends ToolUser
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
         else
             triggerGiveTool();
+        openDir = RotateDirection.UP;
     }
 
     @Override

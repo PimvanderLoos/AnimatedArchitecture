@@ -30,7 +30,7 @@ public class WaitForSetBlocksToMove extends WaitForCommand
                 plugin.getCommandHandler().setDoorBlocksToMove(player, doorUID, blocksToMove);
                 plugin.removeCommandWaiter(this);
                 if (blocksToMove > 0)
-                    Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetBlocksToMoveSuccess") + blocksToMove);
+                    Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetBlocksToMoveSuccess") + " " + blocksToMove);
                 else
                     Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.DisableBlocksToMoveSuccess"));
                 return true;

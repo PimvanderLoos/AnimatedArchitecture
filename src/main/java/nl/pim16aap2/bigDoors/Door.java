@@ -35,7 +35,7 @@ public class Door
     private Location           newMin;
     private Location           newMax;
 
-    private int     blocksToMove = -1;
+    private int      blocksToMove = 0;
 
     // Generate a new door.
     public Door(UUID player, World world, Location min, Location max, Location engine, String name, boolean isOpen, long doorUID,

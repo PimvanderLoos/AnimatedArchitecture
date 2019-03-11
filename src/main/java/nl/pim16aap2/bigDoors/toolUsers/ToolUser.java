@@ -20,6 +20,7 @@ import nl.pim16aap2.bigDoors.util.Abortable;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public abstract class ToolUser extends Abortable
@@ -35,6 +36,7 @@ public abstract class ToolUser extends Abortable
     protected boolean isOpen = false;
     protected Location one, two, engine;
     protected boolean aborting = false;
+    protected RotateDirection openDir = null;
     private BukkitTask bukkitTask = null;
 
     public ToolUser(BigDoors plugin, Player player, String name, DoorType type)
@@ -50,7 +52,7 @@ public abstract class ToolUser extends Abortable
         this.type = type;
         plugin.addToolUser(this);
     }
-    
+
     @Override
     public final void setTask(BukkitTask task)
     {
@@ -95,7 +97,7 @@ public abstract class ToolUser extends Abortable
             }
 
             Door door = new Door(player.getUniqueId(), world, min, max, engine, name, isOpen, -1, false,
-                                 0, type, engineSide, powerB, null, -1);
+                                 0, type, engineSide, powerB, openDir, -1);
             plugin.getCommander().addDoor(door);
 
             Util.messagePlayer(player, message);

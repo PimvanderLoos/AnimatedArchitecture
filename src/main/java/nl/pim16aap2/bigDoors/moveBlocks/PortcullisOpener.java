@@ -92,12 +92,14 @@ public class PortcullisOpener implements Opener
         yMax = door.getMaximum().getBlockY();
         zMax = door.getMaximum().getBlockZ();
         yLen = yMax - yMin + 1;
+//        int distanceToCheck = door.getOpenDir() == RotateDirection.NONE || door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
+        int distanceToCheck = door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
 
         int xAxis, yAxis, zAxis, yGoal;
         World world = door.getWorld();
         delta = upDown == RotateDirection.DOWN ? -1 : 1;
         yAxis = upDown == RotateDirection.DOWN ? yMin - 1 : yMax + 1;
-        yGoal = upDown == RotateDirection.DOWN ? yMin - yLen - 1 : yMax + yLen + 1;
+        yGoal = upDown == RotateDirection.DOWN ? yMin - distanceToCheck - 1 : yMax + distanceToCheck + 1;
 
         while (yAxis != yGoal)
         {
