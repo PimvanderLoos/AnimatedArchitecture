@@ -22,7 +22,7 @@ import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Util;
 
-public abstract class ToolUser implements Abortable
+public abstract class ToolUser extends Abortable
 {
     protected DoorType type;
     protected String name;
@@ -52,13 +52,13 @@ public abstract class ToolUser implements Abortable
     }
     
     @Override
-    public void setTask(BukkitTask task)
+    public final void setTask(BukkitTask task)
     {
         bukkitTask = task;
     }
 
     @Override
-    public BukkitTask getTask()
+    public final BukkitTask getTask()
     {
         return bukkitTask;
     }
@@ -77,7 +77,7 @@ public abstract class ToolUser implements Abortable
     protected abstract boolean isReadyToCreateDoor();
 
     // Final cleanup
-    protected void finishUp(String message)
+    protected final void finishUp(String message)
     {
         if (isReadyToCreateDoor() && !aborting)
         {
@@ -103,7 +103,7 @@ public abstract class ToolUser implements Abortable
         takeToolFromPlayer();
     }
 
-    protected void giveToolToPlayer(String[] lore, String[] message)
+    protected final void giveToolToPlayer(String[] lore, String[] message)
     {
         ItemStack tool = new ItemStack(Material.STICK, 1);
         tool.addUnsafeEnchantment(Enchantment.LUCK, 1);
@@ -123,24 +123,24 @@ public abstract class ToolUser implements Abortable
         Util.messagePlayer(player, message);
     }
 
-    public Player getPlayer()
+    public final Player getPlayer()
     {
         return player;
     }
 
-    public void setName(String newName)
+    public final void setName(String newName)
     {
         name = newName;
         triggerGiveTool();
     }
 
-    public String getName()
+    public final String getName()
     {
         return name;
     }
 
     // Take any selection tools in the player's inventory from them.
-    public void takeToolFromPlayer()
+    public final void takeToolFromPlayer()
     {
         for (ItemStack is : player.getInventory())
             if (is != null)
@@ -150,7 +150,7 @@ public abstract class ToolUser implements Abortable
 
     // Make sure position "one" contains the minimum values, "two" the maximum
     // values and engine min.Y;
-    protected void minMaxFix()
+    protected final void minMaxFix()
     {
         int minX = one.getBlockX();
         int minY = one.getBlockY();
@@ -168,13 +168,13 @@ public abstract class ToolUser implements Abortable
     }
 
     // See if this class is done.
-    public boolean isDone()
+    public final boolean isDone()
     {
         return done;
     }
 
     // Change isDone status and
-    public void setIsDone(boolean bool)
+    public final void setIsDone(boolean bool)
     {
         done = bool;
         if (bool)
@@ -185,7 +185,7 @@ public abstract class ToolUser implements Abortable
     }
 
     @Override
-    public void abort(boolean onDisable)
+    public final void abort(boolean onDisable)
     {
         aborting = true;
         takeToolFromPlayer();
@@ -202,7 +202,7 @@ public abstract class ToolUser implements Abortable
     }
 
     @Override
-    public void abort()
+    public final void abort()
     {
         abort(false);
     }

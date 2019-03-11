@@ -2,11 +2,24 @@ package nl.pim16aap2.bigDoors.util;
 
 import org.bukkit.scheduler.BukkitTask;
 
-public interface Abortable
+public abstract class Abortable
 {
-	public void abort(boolean onDisable);
-	public void abort();
+    private BukkitTask bukkitTask;
+    
+    public abstract void abort(boolean onDisable);
+
+    public void abort()
+    {
+        abort(false);
+    }
 	
-	public void setTask(BukkitTask task);
-	public BukkitTask getTask();
+	public void setTask(BukkitTask task)
+    {
+        bukkitTask = task;
+    }
+	
+	public BukkitTask getTask()
+	{
+	    return bukkitTask;
+	}
 }

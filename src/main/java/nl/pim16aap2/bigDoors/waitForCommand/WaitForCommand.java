@@ -2,11 +2,36 @@ package nl.pim16aap2.bigDoors.waitForCommand;
 
 import org.bukkit.entity.Player;
 
-public interface WaitForCommand
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.Abortable;
+
+public abstract class WaitForCommand extends Abortable
 {
-	public String getCommand();
+    protected String command;
+    protected Player player;
+    protected final BigDoors plugin;
+    
+    protected WaitForCommand(BigDoors plugin)
+    {
+        this.plugin = plugin;
+    }
+    
+    @Override
+    public final void abort(boolean onDisable)
+    {
+        if (!onDisable)
+            plugin.removeCommandWaiter(this);
+    }
+    
+	public final String getCommand()
+	{
+	    return command;
+	}
 	
-	public boolean executeCommand(String[] args);
+	public abstract boolean executeCommand(String[] args);
 	
-	public Player getPlayer();
+	public final Player getPlayer()
+	{
+	    return player;
+	}
 }
