@@ -97,6 +97,7 @@ public class CylindricalMover implements BlockMover
 
                 for (double yAxis = yMin; yAxis <= yMax; yAxis++)
                 {
+                    Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
                     // Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
                     if (yAxis == yMin)
@@ -166,7 +167,7 @@ public class CylindricalMover implements BlockMover
                         if (!instantOpen)
                              fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 
-                        savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, (int) yAxis));
+                        savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, startLocation));
                     }
                     else
                         savedBlocks.add(index, new MyBlockData(Material.AIR));
@@ -386,7 +387,7 @@ public class CylindricalMover implements BlockMover
                                     Vector veloc = block.getFBlock().getVelocity();
                                     // For some reason respawning fblocks puts them higher than they were, which has
                                     // to be counteracted.
-                                    if (block.getStartY() != yMin)
+                                    if (block.getStartLocation().getBlockY() != yMin)
                                         loc.setY(loc.getY() - .010001);
                                     CustomCraftFallingBlock_Vall fBlock;
                                     // Because the block in savedBlocks is already rotated where applicable, just
@@ -406,7 +407,7 @@ public class CylindricalMover implements BlockMover
                         if (!block.getMat().equals(Material.AIR))
                         {
                             double radius = block.getRadius();
-                            int yPos      = block.getStartY();
+                            int yPos      = block.getStartLocation().getBlockY();
 
                             if (radius != 0)
                             {

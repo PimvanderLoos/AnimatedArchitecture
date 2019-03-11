@@ -46,11 +46,11 @@ public class SlidingMover implements BlockMover
         this.plugin        = plugin;
         this.world         = world;
         this.door          = door;
-        fabf          = plugin.getFABF();
+        fabf               = plugin.getFABF();
         this.instantOpen   = instantOpen;
         this.blocksToMove  = blocksToMove;
         this.openDirection = openDirection;
-        NS            = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
+        NS                 = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 
         xMin = door.getMinimum().getBlockX();
         yMin = door.getMinimum().getBlockY();
@@ -91,18 +91,19 @@ public class SlidingMover implements BlockMover
             {
                 for (int xAxis = xMin; xAxis <= xMax; xAxis++)
                 {
+                    Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
                     // Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
                     if (yAxis == yMin)
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
-                    Block vBlock  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+                    Block vBlock  = world.getBlockAt(xAxis, yAxis, zAxis);
                     Material mat  = vBlock.getType();
                     if (!mat.equals(Material.AIR))
                     {
                         Byte matData  = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
-                        NMSBlock_Vall block  = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                        NMSBlock_Vall block  = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
 
                         // Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
                         if (Util.isAllowedBlock(mat))
@@ -116,7 +117,7 @@ public class SlidingMover implements BlockMover
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
                              fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-                        savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, (int) yAxis));
+                        savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
                     }
                     else
                         savedBlocks.add(index, new MyBlockData(Material.AIR));
@@ -197,7 +198,7 @@ public class SlidingMover implements BlockMover
 
         // Change door availability to true, so it can be opened again.
         // Wait for a bit if instantOpen is enabled.
-        int timer = onDisable   ?  0 : 
+        int timer = onDisable   ?  0 :
                     instantOpen ? 40 : plugin.getConfigLoader().coolDown() * 20;
 
         if (timer > 0)
@@ -245,21 +246,29 @@ public class SlidingMover implements BlockMover
     {
         new BukkitRunnable()
         {
-            int counter       = 0;
-            int endCount      = (int) (20 / tickRate * time);
-            double step       = ((double) blocksToMove) / ((double) endCount);
-            double stepSum    = 0;
-            int totalTicks    = (int) (endCount * 1.1);
+            double counter   = 0;
+            int endCount     = (int) (20 / tickRate * time);
+            double step      = ((double) blocksToMove) / ((double) endCount);
+            double stepSum   = 0;
+            int totalTicks   = (int) (endCount * 1.1);
+            long startTime   = System.nanoTime();
+            long lastTime;
+            long currentTime = System.nanoTime();
 
             @Override
             public void run()
             {
                 if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
                     Util.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
-                int index = 0;
 
+                lastTime = currentTime;
+                currentTime = System.nanoTime();
+                long msSinceStart = (currentTime - startTime) / 1000000;
                 if (!plugin.getCommander().isPaused())
-                    ++counter;
+                    counter = msSinceStart / (50 * tickRate);
+                else
+                    startTime += currentTime - lastTime;
+
                 if (counter < endCount - 1)
                     stepSum = step * counter;
                 else
@@ -276,40 +285,24 @@ public class SlidingMover implements BlockMover
                 }
                 else
                 {
-                    int yAxis = yMin;
-                    do
+                    for (MyBlockData block : savedBlocks)
                     {
-                        int zAxis = zMin;
-                        do
+                        if (!block.getMat().equals(Material.AIR))
                         {
-                            for (int xAxis = xMin; xAxis <= xMax; xAxis++)
-                            {
-                                if (!savedBlocks.get(index).getMat().equals(Material.AIR))
-                                {
-                                    double xPos = xAxis + 0.5;
-                                    double yPos = savedBlocks.get(index).getStartY();
-                                    double zPos = zAxis + 0.5;
+                            Location loc = block.getStartLocation();
 
-                                    if (NS)
-                                        zPos = zAxis + stepSum + 0.5;
-                                    else
-                                        xPos = xAxis + stepSum + 0.5;
+                            if (NS)
+                                loc.setZ(loc.getZ() + stepSum);
+                            else
+                                loc.setX(loc.getX() + stepSum);
 
-                                    Location loc  = new Location(null, xPos, yPos, zPos);
-                                    if (yAxis != yMin)
-                                        loc.setY(loc.getY() - .010001);
-                                    Vector vec = loc.toVector().subtract(savedBlocks.get(index).getFBlock().getLocation().toVector());
-                                    vec.multiply(0.101);
-                                    savedBlocks.get(index).getFBlock().setVelocity(vec);
-                                }
-                                ++index;
-                            }
-                            ++zAxis;
+                            if (block.getStartLocation().getBlockY() != yMin)
+                                loc.setY(loc.getY() - .010001);
+                            Vector vec = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
+                            vec.multiply(0.101);
+                            block.getFBlock().setVelocity(vec);
                         }
-                        while (zAxis <= zMax);
-                        ++yAxis;
                     }
-                    while (yAxis <= yMax);
                 }
             }
         }.runTaskTimer(plugin, 14, tickRate);

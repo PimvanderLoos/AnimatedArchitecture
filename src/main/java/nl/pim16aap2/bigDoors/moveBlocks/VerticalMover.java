@@ -85,11 +85,12 @@ public class VerticalMover implements BlockMover
             {
                 for (int xAxis = xMin; xAxis <= xMax; xAxis++)
                 {
+                    Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
                     // Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
                     if (yAxis == yMin)
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
-                    Block vBlock  = world.getBlockAt(xAxis, yAxis, zAxis);
+                    Block vBlock  = world.getBlockAt(startLocation);
                     Material mat  = vBlock.getType();
 //                    if (!mat.equals(Material.AIR))
                     if (!Util.isAirOrWater(mat))
@@ -111,7 +112,7 @@ public class VerticalMover implements BlockMover
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
                              fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-                        savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, yAxis));
+                        savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
                     }
                     else
                         savedBlocks.add(index, new MyBlockData(Material.AIR));
@@ -254,7 +255,6 @@ public class VerticalMover implements BlockMover
             {
                 if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
                     Util.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
-                int index = 0;
 
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
@@ -284,29 +284,17 @@ public class VerticalMover implements BlockMover
                 }
                 else
                 {
-                    int yAxis = yMin;
-                    do
+                    for (MyBlockData block : savedBlocks)
                     {
-                        int zAxis = zMin;
-                        do
+                        if (!block.getMat().equals(Material.AIR))
                         {
-                            for (int xAxis = xMin; xAxis <= xMax; xAxis++)
-                            {
-                                if (!savedBlocks.get(index).getMat().equals(Material.AIR))
-                                {
-                                    Location loc = new Location(null, xAxis + 0.5, yAxis + stepSum, zAxis + 0.5);
-                                    Vector vec = loc.toVector().subtract(savedBlocks.get(index).getFBlock().getLocation().toVector());
-                                    vec.multiply(0.101);
-                                    savedBlocks.get(index).getFBlock().setVelocity(vec);
-                                }
-                                ++index;
-                            }
-                            ++zAxis;
+                            Location loc = block.getStartLocation();
+                            loc.add(0, stepSum, 0);
+                            Vector vec = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
+                            vec.multiply(0.101);
+                            block.getFBlock().setVelocity(vec);
                         }
-                        while (zAxis <= zMax);
-                        ++yAxis;
                     }
-                    while (yAxis <= yMax);
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);

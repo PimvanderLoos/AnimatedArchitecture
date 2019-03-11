@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.util;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.material.MaterialData;
 
@@ -11,23 +12,23 @@ public class MyBlockData
     private Material                        mat;
     private NMSBlock_Vall                 block;
     private int                          canRot;
-    private int                          startY;
     private double                       radius;
     private CustomCraftFallingBlock_Vall fBlock;
     private MaterialData                matData;
     private Byte                      blockByte;
+    private Location              startLocation;
 
     public MyBlockData(Material mat, Byte blockByte, CustomCraftFallingBlock_Vall fBlock, double radius,
-                       MaterialData matData, NMSBlock_Vall block, int canRot, int startY)
+                       MaterialData matData, NMSBlock_Vall block, int canRot, Location startLocation)
     {
         this.mat       = mat;
         this.block     = block;
-        this.startY    = startY;
-        this.canRot    = canRot;
         this.fBlock    = fBlock;
         this.radius    = radius;
+        this.canRot    = canRot;
         this.matData   = matData;
         this.blockByte = blockByte;
+        this.startLocation = startLocation;
     }
 
     public MyBlockData(Material mat)
@@ -45,7 +46,15 @@ public class MyBlockData
     public void setBlockByte(Byte blockByte)                   {  this.blockByte = blockByte;  }
     public NMSBlock_Vall getBlock()                            {  return block;                }
     public int canRot()                                        {  return canRot;               }
-    public int getStartY()                                     {  return startY;               }
+
+    public Location getStartLocation()
+    {
+        // block.getStartLocation() acts as a reference. I don't want that, so return a copy instead.
+        return new Location(startLocation.getWorld(),
+                            startLocation.getX(),
+                            startLocation.getY(),
+                            startLocation.getZ());
+    }
 
     @Override
     public String toString()
@@ -64,8 +73,8 @@ public class MyBlockData
         {
             ret += "  block = "  + "...\n";
         }
-        ret += "  canRot = "     + canRot    + "\n";
-        ret += "  startY = "     + startY    + "\n";
+        ret += "  canRot = "     + canRot        + "\n";
+        ret += "  startLoc = "   + startLocation + "\n";
         try
         {
             ret += "  fBlock = " + fBlock.toString() + "\n";

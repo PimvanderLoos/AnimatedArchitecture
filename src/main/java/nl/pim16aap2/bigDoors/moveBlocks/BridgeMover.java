@@ -210,6 +210,7 @@ public class BridgeMover implements BlockMover
 
                 for (double yAxis = yMin; yAxis <= yMax; ++yAxis)
                 {
+                    Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     if (upDown == RotateDirection.DOWN)
                         radius = yAxis - turningPoint.getBlockY();
 
@@ -272,7 +273,7 @@ public class BridgeMover implements BlockMover
                         if (!instantOpen)
                              fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 
-                        savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, -1));
+                        savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, startLocation));
                     }
                     else
                         savedBlocks.add(index, new MyBlockData(Material.AIR));
