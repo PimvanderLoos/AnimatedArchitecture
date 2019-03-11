@@ -7,29 +7,29 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 
-public class LoginResourcePackHandler implements Listener 
+public class LoginResourcePackHandler implements Listener
 {
-	BigDoors plugin;
-	String   url;
-	
-	public LoginResourcePackHandler(BigDoors plugin, String url)
-	{
-		this.plugin = plugin;
-		this.url    = url;
-	}
-	
-	@EventHandler
-	public void onLogin(PlayerLoginEvent event)
-	{	
-		// Slight delay so the player actually fully exists.
-		new BukkitRunnable() 
-		{
+    BigDoors plugin;
+    String   url;
+
+    public LoginResourcePackHandler(BigDoors plugin, String url)
+    {
+        this.plugin = plugin;
+        this.url    = url;
+    }
+
+    @EventHandler
+    public void onLogin(PlayerLoginEvent event)
+    {
+        // Slight delay so the player actually fully exists.
+        new BukkitRunnable()
+        {
             @Override
-            public void run() 
+            public void run()
             {
-            		if (event.getPlayer() != null)
-            			event.getPlayer().setResourcePack(url);
+                if (event.getPlayer() != null)
+                    event.getPlayer().setResourcePack(url);
             }
-		}.runTaskLater(this.plugin, 10);
-	}
+        }.runTaskLater(plugin, 10);
+    }
 }

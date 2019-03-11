@@ -6,19 +6,19 @@ import org.bukkit.inventory.ItemStack;
 
 public class ToolVerifier
 {
-	private String toolName;
-	
-	public ToolVerifier(String str)
-	{
-		this.toolName = str;
-	}
+    private String toolName;
 
-	// Check if the provided itemstack is a selection tool.
-	public boolean isTool(ItemStack is)
-	{	
-		return 	is.getType() == Material.STICK 					&& 
-				is.getEnchantmentLevel(Enchantment.LUCK) == 1 	&& 
-				is.getItemMeta().getDisplayName() != null 		&& 
-				is.getItemMeta().getDisplayName().toString().equals(toolName);
-	}
+    public ToolVerifier(String str)
+    {
+        toolName = str;
+    }
+
+    // Check if the provided itemstack is a selection tool.
+    public boolean isTool(ItemStack is)
+    {
+        return     is.getType() == Material.STICK                     &&
+                is.getEnchantmentLevel(Enchantment.LUCK) == 1     &&
+                is.getItemMeta().getDisplayName() != null         &&
+                is.getItemMeta().getDisplayName().toString().equals(toolName);
+    }
 }

@@ -12,15 +12,17 @@ import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 
 public class FallingBlockFactory_V1_11_R1 implements FallingBlockFactory_Vall
 {
-	// Make a falling block.
-	public CustomCraftFallingBlock_Vall fallingBlockFactory(BigDoors plugin, Location loc, NMSBlock_Vall block, byte matData, Material mat)
-	{
-		CustomEntityFallingBlock_V1_11_R1 fBlockNMS = new CustomEntityFallingBlock_V1_11_R1(loc.getWorld(), mat, loc.getX(), loc.getY(), loc.getZ(), (byte) matData);
-		return new CustomCraftFallingBlock_V1_11_R1(Bukkit.getServer(), fBlockNMS);
-	}
+    // Make a falling block.
+    @Override
+    public CustomCraftFallingBlock_Vall fallingBlockFactory(BigDoors plugin, Location loc, NMSBlock_Vall block, byte matData, Material mat)
+    {
+        CustomEntityFallingBlock_V1_11_R1 fBlockNMS = new CustomEntityFallingBlock_V1_11_R1(loc.getWorld(), mat, loc.getX(), loc.getY(), loc.getZ(), matData);
+        return new CustomCraftFallingBlock_V1_11_R1(Bukkit.getServer(), fBlockNMS);
+    }
 
-	public NMSBlock_Vall nmsBlockFactory(World world, int x, int y, int z)
-	{
-		return null;
-	}
+    @Override
+    public NMSBlock_Vall nmsBlockFactory(World world, int x, int y, int z)
+    {
+        return null;
+    }
 }

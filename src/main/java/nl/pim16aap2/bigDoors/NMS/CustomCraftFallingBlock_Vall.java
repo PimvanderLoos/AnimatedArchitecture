@@ -6,18 +6,18 @@ import org.bukkit.util.Vector;
 
 public interface CustomCraftFallingBlock_Vall
 {
-	boolean teleport(Location newPos);
+    boolean teleport(Location newPos);
 
-	void remove();
+    void remove();
 
-	void setVelocity(Vector vector);
+    void setVelocity(Vector vector);
 
-	Location getLocation();
+    Location getLocation();
 
-	Vector getVelocity();
+    Vector getVelocity();
 
-	void setHeadPose(EulerAngle pose);
+    void setHeadPose(EulerAngle pose);
 
-	void setBodyPose(EulerAngle eulerAngle);
+    void setBodyPose(EulerAngle eulerAngle);
 }
 

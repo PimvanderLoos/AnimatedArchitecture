@@ -42,25 +42,25 @@ public class Door
                 boolean isLocked, int permission, DoorType type, DoorDirection engineSide, Location powerBlock,
                 RotateDirection openDir, int autoClose)
     {
-        this.player        = player;
-        this.world         = world;
-        this.min           = min;
-        this.max           = max;
-        this.engine        = engine;
-        this.powerBlock    = powerBlock;
-        this.name          = name;
-        this.isOpen        = isOpen;
-        this.doorUID       = doorUID;
-        this.isLocked      = isLocked;
-        this.permission    = permission;
-        this.type          = type;
-        this.engineSide    = engineSide;
-        chunkLoc      = null;
-        length        = null;
-        roundedLength = null;
-        canGo         = true;
-        this.openDir       = openDir == null ? RotateDirection.NONE : openDir;
-        this.autoClose     = autoClose;
+        this.player     = player;
+        this.world      = world;
+        this.min        = min;
+        this.max        = max;
+        this.engine     = engine;
+        this.powerBlock = powerBlock;
+        this.name       = name;
+        this.isOpen     = isOpen;
+        this.doorUID    = doorUID;
+        this.isLocked   = isLocked;
+        this.permission = permission;
+        this.type       = type;
+        this.engineSide = engineSide;
+        chunkLoc        = null;
+        length          = null;
+        roundedLength   = null;
+        canGo           = true;
+        this.openDir    = openDir == null ? RotateDirection.NONE : openDir;
+        this.autoClose  = autoClose;
     }
 
     public Door(UUID player, World world, Location min, Location max, Location engine, String name,
@@ -102,16 +102,16 @@ public class Door
     public boolean canGo()              {  return canGo;         }  // Check if this door can still be opened or not.
     public RotateDirection getOpenDir() {  return openDir;       }  // Get the open direction of this door.
     public int getAutoClose()           {  return autoClose;     }  // Get the auto close time.
-    public int getBlocksToMove()	    {  return blocksToMove;  }  // Get the desired number of blocks to move this door.
+    public int getBlocksToMove()        {  return blocksToMove;  }  // Get the desired number of blocks to move this door.
 
     public void setPlayerUUID(UUID playerUUID)
     {
         player = playerUUID;
     }
-    
+
     public void setBlocksToMove(int move)
     {
-    	this.blocksToMove = move;
+        blocksToMove = move;
     }
 
     // Change the open-status of this door.
@@ -185,7 +185,7 @@ public class Door
         if (chunkLoc != null)
             return chunkLoc;
 
-        Chunk chunk   = world.getBlockAt((int) engine.getX(), (int) engine.getY(),
+        Chunk chunk = world.getBlockAt((int) engine.getX(), (int) engine.getY(),
                                               (int) engine.getZ()).getChunk();
         chunkLoc = new Location(world, chunk.getX(), 0, chunk.getZ());
 
@@ -211,19 +211,20 @@ public class Door
         int zLen = Math.abs(max.getBlockZ() - min.getBlockZ());
 
         length = 1;
+
         // Regular door or Portcullis
         if (type.equals(DoorType.DOOR) || type.equals(DoorType.PORTCULLIS))
             length = xLen > zLen ? xLen : zLen;
 
-            // Drawbridge
-            else if (type.equals(DoorType.DRAWBRIDGE) && engineSide != null)
-            {
-                int yLen = Math.abs(max.getBlockY() - min.getBlockY());
-                if (engineSide.equals(DoorDirection.NORTH) || engineSide.equals(DoorDirection.SOUTH))
-                    length = zLen > yLen ? zLen : yLen;
-                else
-                    length = xLen > yLen ? xLen : yLen;
-            }
+        // Drawbridge
+        else if (type.equals(DoorType.DRAWBRIDGE) && engineSide != null)
+        {
+            int yLen = Math.abs(max.getBlockY() - min.getBlockY());
+            if (engineSide.equals(DoorDirection.NORTH) || engineSide.equals(DoorDirection.SOUTH))
+                length = zLen > yLen ? zLen : yLen;
+            else
+                length = xLen > yLen ? xLen : yLen;
+        }
 
         // Portcullis engine is in the middle and doesn't rotate.
         if (type.equals(DoorType.PORTCULLIS))
@@ -236,16 +237,16 @@ public class Door
 
     public DoorDirection getLookingDir()
     {
-        if (type.equals(DoorType.DRAWBRIDGE)    || type.equals(DoorType.PORTCULLIS))
+        if (type.equals(DoorType.DRAWBRIDGE) || type.equals(DoorType.PORTCULLIS))
             return engineSide == DoorDirection.NORTH ||
                    engineSide == DoorDirection.SOUTH ? DoorDirection.NORTH : DoorDirection.EAST;
 
-        return  engine.getBlockZ() != min.getBlockZ() ? DoorDirection.NORTH :
-                engine.getBlockX() != max.getBlockX() ? DoorDirection.EAST  :
-                engine.getBlockZ() != max.getBlockZ() ? DoorDirection.SOUTH :
-                engine.getBlockX() != min.getBlockX() ? DoorDirection.WEST  : null;
+        return engine.getBlockZ() != min.getBlockZ() ? DoorDirection.NORTH :
+               engine.getBlockX() != max.getBlockX() ? DoorDirection.EAST  :
+               engine.getBlockZ() != max.getBlockZ() ? DoorDirection.SOUTH :
+               engine.getBlockX() != min.getBlockX() ? DoorDirection.WEST  : null;
     }
-    
+
     public long getPowerBlockChunkHash()
     {
         return Util.chunkHashFromLocation(powerBlock.getBlockX(), powerBlock.getBlockZ(), world.getUID());

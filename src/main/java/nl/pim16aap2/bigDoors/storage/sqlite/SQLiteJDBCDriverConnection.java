@@ -52,7 +52,7 @@ public class SQLiteJDBCDriverConnection
     private static final int DOOR_POWER_Y        = 18;
     private static final int DOOR_POWER_Z        = 19;
     private static final int DOOR_OPEN_DIR       = 20;
-    private static final int DOOR_AUTO_CLOSE  	 = 21;
+    private static final int DOOR_AUTO_CLOSE     = 21;
     private static final int DOOR_CHUNK_HASH     = 22;
     private static final int DOOR_BLOCKS_TO_MOVE = 23;
 
@@ -241,7 +241,7 @@ public class SQLiteJDBCDriverConnection
                                  doorUID, (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(DOOR_TYPE)),
                                  DoorDirection.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
                                  rs.getInt(DOOR_AUTO_CLOSE));
-            
+
             door.setBlocksToMove(rs.getInt(DOOR_BLOCKS_TO_MOVE));
             return door;
         }
@@ -533,7 +533,7 @@ public class SQLiteJDBCDriverConnection
         }
         return doors;
     }
-    
+
     public void updateDoorBlocksToMove(long doorID, int blocksToMove)
     {
         Connection conn = null;
@@ -1052,7 +1052,7 @@ public class SQLiteJDBCDriverConnection
                     rs1.close();
                 }
             }
-            
+
             if (dbVersion == 1)
             {
                 plugin.getMyLogger().logMessage("Upgrading database! Adding blocksToMove!", true, true);

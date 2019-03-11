@@ -75,7 +75,7 @@ public class CommandHandler implements CommandExecutor
         {
             Opener opener = plugin.getDoorOpener(door.getType());
             DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(door, time);
-            
+
             if (result != DoorOpenResult.SUCCESS)
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString(DoorOpenResult.getMessage(result)));
         }
@@ -193,10 +193,10 @@ public class CommandHandler implements CommandExecutor
     public void startCreator(Player player, String name, DoorType type)
     {
         if (!player.hasPermission(DoorType.getPermission(type)))
-    	{
+        {
             Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
             return;
-    	}
+        }
 
         long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
         int maxCount   = Util.getMaxDoorsForPlayer(player);
@@ -214,20 +214,16 @@ public class CommandHandler implements CommandExecutor
 
         if (isPlayerBusy(player))
             return;
-        
-        
-        
+
         // These are disabled.
         if (type == DoorType.FLAG)
             return;
-        
-        
-        
+
         ToolUser tu = type == DoorType.DOOR        ? new DoorCreator       (plugin, player, name) :
                       type == DoorType.DRAWBRIDGE  ? new DrawbridgeCreator (plugin, player, name) :
-                      type == DoorType.PORTCULLIS  ? new PortcullisCreator (plugin, player, name) : 
-                      type == DoorType.ELEVATOR    ? new ElevatorCreator   (plugin, player, name) : 
-                      type == DoorType.FLAG        ? new FlagCreator       (plugin, player, name) : 
+                      type == DoorType.PORTCULLIS  ? new PortcullisCreator (plugin, player, name) :
+                      type == DoorType.ELEVATOR    ? new ElevatorCreator   (plugin, player, name) :
+                      type == DoorType.FLAG        ? new FlagCreator       (plugin, player, name) :
                       type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
 
         startTimerForAbortable(tu, player, 60 * 20);
@@ -253,7 +249,7 @@ public class CommandHandler implements CommandExecutor
                 return cw;
         return null;
     }
-    
+
     public void setDoorOpenTime(Player player, long doorUID, int autoClose)
     {
         plugin.getCommander().updateDoorAutoClose(doorUID, autoClose);
@@ -263,7 +259,7 @@ public class CommandHandler implements CommandExecutor
     {
         plugin.getCommander().updateDoorBlocksToMove(doorUID, autoClose);
     }
-    
+
     public void startTimerSetter(Player player, long doorUID)
     {
         if (isPlayerBusy(player))
@@ -285,7 +281,7 @@ public class CommandHandler implements CommandExecutor
             Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
         return isBusy;
     }
-    
+
     private void abortAbortable(Abortable abort)
     {
         if (abort instanceof ToolUser)
@@ -318,7 +314,7 @@ public class CommandHandler implements CommandExecutor
                 new GUIPage(plugin, player);
             // Restart plugin
             else if (args[0].equalsIgnoreCase("restart") && ((player != null && player.hasPermission("bigdoors.admin.restart")) || player == null))
-                plugin.restart();            
+                plugin.restart();
             // Stop doors
             else if (args[0].equalsIgnoreCase("stop") && ((player != null && player.hasPermission("bigdoors.admin.stopdoors")) || player == null))
                 stopDoors();
@@ -722,14 +718,14 @@ public class CommandHandler implements CommandExecutor
             Util.broadcastMessage("Doors found: " + doorsStr);
         }
     }
-    
+
     private String helpFormat(String command, String explanation)
     {
         String help = "";
         help += String.format(ChatColor.GREEN + "%s " + ChatColor.BLUE + "%s\n", command, explanation);
         return help;
     }
-    
+
     private void showHelpInfo(CommandSender sender)
     {
         Player player = sender instanceof Player ? (Player) sender : null;

@@ -10,28 +10,28 @@ public abstract class WaitForCommand extends Abortable
     protected String command;
     protected Player player;
     protected final BigDoors plugin;
-    
+
     protected WaitForCommand(BigDoors plugin)
     {
         this.plugin = plugin;
     }
-    
+
     @Override
     public final void abort(boolean onDisable)
     {
         if (!onDisable)
             plugin.removeCommandWaiter(this);
     }
-    
-	public final String getCommand()
-	{
-	    return command;
-	}
-	
-	public abstract boolean executeCommand(String[] args);
-	
-	public final Player getPlayer()
-	{
-	    return player;
-	}
+
+    public final String getCommand()
+    {
+        return command;
+    }
+
+    public abstract boolean executeCommand(String[] args);
+
+    public final Player getPlayer()
+    {
+        return player;
+    }
 }

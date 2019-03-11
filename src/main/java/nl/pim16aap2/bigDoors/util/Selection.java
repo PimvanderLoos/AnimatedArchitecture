@@ -4,12 +4,12 @@ import org.bukkit.Location;
 
 public class Selection
 {
-	Location min, max, engine;
-	
-	public Selection(Location min, Location max, Location engine)
-	{
-		this.min    = min;
-		this.max    = max;
-		this.engine = engine;
-	}
+    Location min, max, engine;
+
+    public Selection(Location min, Location max, Location engine)
+    {
+        this.min    = min;
+        this.max    = max;
+        this.engine = engine;
+    }
 }

@@ -5,6 +5,6 @@ import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 
 public interface Opener
 {
-	public DoorOpenResult openDoor (Door door, double time);
-	public DoorOpenResult openDoor (Door door, double time, boolean instantOpen, boolean silent);
+    public DoorOpenResult openDoor (Door door, double time);
+    public DoorOpenResult openDoor (Door door, double time, boolean instantOpen, boolean silent);
 }

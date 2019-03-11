@@ -10,35 +10,35 @@ import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class GetNewLocationNorth implements GetNewLocation
 {
-	@SuppressWarnings("unused")
-	private int xMin, xMax, zMin, zMax;
-	private World world;
-	private RotateDirection rotDir;
-	
-	public GetNewLocationNorth(World world, int xMin, int xMax, int zMin, int zMax, RotateDirection rotDir)
-	{
-		this.rotDir = rotDir;
-		this.world  = world;
-		this.xMin   = xMin;
-		this.xMax   = xMax;
-		this.zMin   = zMin;
-		this.zMax   = zMax;
-	}
+    @SuppressWarnings("unused")
+    private int xMin, xMax, zMin, zMax;
+    private World world;
+    private RotateDirection rotDir;
 
-	public GetNewLocationNorth()
-	{}
+    public GetNewLocationNorth(World world, int xMin, int xMax, int zMin, int zMax, RotateDirection rotDir)
+    {
+        this.rotDir = rotDir;
+        this.world  = world;
+        this.xMin   = xMin;
+        this.xMax   = xMax;
+        this.zMin   = zMin;
+        this.zMax   = zMax;
+    }
 
-	@Override
-	public Location getNewLocation(List<MyBlockData> savedBlocks, double xPos, double yPos, double zPos, int index)
-	{
-		Location oldPos = new Location(world, xPos, yPos, zPos);
-		Location newPos = oldPos;
+    public GetNewLocationNorth()
+    {}
 
-		double radius = savedBlocks.get(index).getRadius();
+    @Override
+    public Location getNewLocation(List<MyBlockData> savedBlocks, double xPos, double yPos, double zPos, int index)
+    {
+        Location oldPos = new Location(world, xPos, yPos, zPos);
+        Location newPos = oldPos;
 
-		newPos.setX(oldPos.getX() + (rotDir == RotateDirection.CLOCKWISE ? radius : -radius));
-		newPos.setY(oldPos.getY());
-		newPos.setZ(zMax);
-		return newPos;
-	}
+        double radius = savedBlocks.get(index).getRadius();
+
+        newPos.setX(oldPos.getX() + (rotDir == RotateDirection.CLOCKWISE ? radius : -radius));
+        newPos.setY(oldPos.getY());
+        newPos.setZ(zMax);
+        return newPos;
+    }
 }

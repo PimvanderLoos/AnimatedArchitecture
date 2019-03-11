@@ -8,5 +8,5 @@ import nl.pim16aap2.bigDoors.util.MyBlockData;
 
 public interface GetNewLocation
 {
-	public Location getNewLocation(List<MyBlockData> savedBlocks, double xPos, double yPos, double zPos, int index);
+    public Location getNewLocation(List<MyBlockData> savedBlocks, double xPos, double yPos, double zPos, int index);
 }

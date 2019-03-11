@@ -16,8 +16,8 @@ public class CustomCraftFallingBlock_V1_12_R1 extends CraftEntity implements Fal
     public CustomCraftFallingBlock_V1_12_R1(Server server, CustomEntityFallingBlock_V1_12_R1 entity)
     {
         super((org.bukkit.craftbukkit.v1_12_R1.CraftServer) server, entity);
-		setVelocity(new Vector(0, 0, 0));
-		setDropItem(false);
+        setVelocity(new Vector(0, 0, 0));
+        setDropItem(false);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class CustomCraftFallingBlock_V1_12_R1 extends CraftEntity implements Fal
 
     @Override
     @SuppressWarnings("deprecation")
-	public Material getMaterial()
+    public Material getMaterial()
     {
         return Material.getMaterial(getBlockId());
     }
@@ -54,8 +54,8 @@ public class CustomCraftFallingBlock_V1_12_R1 extends CraftEntity implements Fal
     @Override
     public int getBlockId()
     {
-    		System.out.println("CustomFallingBlock.GetBlockID() MUST NOT BE USED!");
-    		return -1;
+        System.out.println("CustomFallingBlock.GetBlockID() MUST NOT BE USED!");
+        return -1;
     }
 
     @Override
@@ -97,16 +97,16 @@ public class CustomCraftFallingBlock_V1_12_R1 extends CraftEntity implements Fal
         getHandle().ticksLived = value;
     }
 
-	@Override
-	public Spigot spigot()
-	{
-		return null;
-	}
+    @Override
+    public Spigot spigot()
+    {
+        return null;
+    }
 
-	@Override
-	public void setHeadPose(EulerAngle pose) {}
+    @Override
+    public void setHeadPose(EulerAngle pose) {}
 
-	@Override
-	public void setBodyPose(EulerAngle eulerAngle) {}
+    @Override
+    public void setBodyPose(EulerAngle eulerAngle) {}
 }
 

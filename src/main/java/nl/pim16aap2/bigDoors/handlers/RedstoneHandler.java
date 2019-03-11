@@ -31,11 +31,11 @@ public class RedstoneHandler implements Listener
     // signal recently.
     // Use this information to check for permissions to open doors. Store it in an
     // arraylist or something.
-//	@EventHandler
-//	public void onRedStoneToggled(PlayerInteractEvent event)
-//	{
-//		// TODO: Check interactions with switches, placing redstone torches, hitting buttons (hand / arrow), pressure plates
-//	}
+//    @EventHandler
+//    public void onRedStoneToggled(PlayerInteractEvent event)
+//    {
+//        // TODO: Check interactions with switches, placing redstone torches, hitting buttons (hand / arrow), pressure plates
+//    }
 
     public boolean checkDoor(Location loc)
     {

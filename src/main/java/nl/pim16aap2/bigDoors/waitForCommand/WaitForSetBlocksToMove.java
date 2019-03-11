@@ -7,39 +7,39 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class WaitForSetBlocksToMove extends WaitForCommand
 {
-	private long doorUID;
+    private long doorUID;
 
-	public WaitForSetBlocksToMove(BigDoors plugin, Player player, String command, long doorUID)
-	{
-	    super(plugin);
-		this.player  = player;
-		this.command = command;
-		this.doorUID = doorUID;
-		Util.messagePlayer(player, plugin.getMessages().getString("GUI.SetBlocksToMoveInit"));
-		plugin.addCommandWaiter(this);
-	}
+    public WaitForSetBlocksToMove(BigDoors plugin, Player player, String command, long doorUID)
+    {
+        super(plugin);
+        this.player  = player;
+        this.command = command;
+        this.doorUID = doorUID;
+        Util.messagePlayer(player, plugin.getMessages().getString("GUI.SetBlocksToMoveInit"));
+        plugin.addCommandWaiter(this);
+    }
 
-	@Override
-	public boolean executeCommand(String[] args)
-	{
-		if (args.length == 1)
-		{
-			try
-			{
-				int blocksToMove = Integer.parseInt(args[0]);
-				plugin.getCommandHandler().setDoorBlocksToMove(player, doorUID, blocksToMove);
-				plugin.removeCommandWaiter(this);
-				if (blocksToMove > 0)
-					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetBlocksToMoveSuccess") + blocksToMove);
-				else
-					Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.DisableBlocksToMoveSuccess"));
-				return true;
-			}
-			catch (Exception e)
-			{
-				Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.InvalidInput.Integer"));
-			}
-		}
-		return false;
-	}
+    @Override
+    public boolean executeCommand(String[] args)
+    {
+        if (args.length == 1)
+        {
+            try
+            {
+                int blocksToMove = Integer.parseInt(args[0]);
+                plugin.getCommandHandler().setDoorBlocksToMove(player, doorUID, blocksToMove);
+                plugin.removeCommandWaiter(this);
+                if (blocksToMove > 0)
+                    Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetBlocksToMoveSuccess") + blocksToMove);
+                else
+                    Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.DisableBlocksToMoveSuccess"));
+                return true;
+            }
+            catch (Exception e)
+            {
+                Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.InvalidInput.Integer"));
+            }
+        }
+        return false;
+    }
 }
