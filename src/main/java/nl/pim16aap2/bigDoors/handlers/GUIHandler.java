@@ -213,6 +213,9 @@ public class GUIHandler implements Listener
             else
                 openDoorSubMenu(player, inv, inv.getItem(4));
         }
+        // This option occurs on many different pages.
+        else if (itemName.equals(messages.getString("GUI.PreviousPage")))
+            setPage(player, inv, getPreviousPage(inv), PageType.DOORLIST, -1, getPageCount(inv));
         else if (pageType == PageType.DOORINFO)
         {
             Door door = getDoor(inv.getItem(4));
@@ -255,8 +258,6 @@ public class GUIHandler implements Listener
             startCreationProcess(player, DoorType.SLIDINGDOOR);
         else if (itemName.equals(messages.getString("GUI.NextPage")))
             setPage(player, inv, inv.getItem(8).getAmount() - 1, PageType.DOORLIST, -1, getPageCount(inv));
-        else if (itemName.equals(messages.getString("GUI.PreviousPage")))
-            setPage(player, inv, getPreviousPage(inv), PageType.DOORLIST, -1, getPageCount(inv));
         else if (slot > 8)
             openDoorSubMenu(player, inv, inv.getItem(slot));
     }

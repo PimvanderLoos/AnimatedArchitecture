@@ -342,11 +342,12 @@ public class SQLiteJDBCDriverConnection
             while (rs1.next())
             {
                 String foundPlayerUUID = null;
-                PreparedStatement ps2  = conn.prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + rs1.getLong(DOOR_ID)
-                                                                                     + "' AND permission = '" + 0 + "';");
+                int permission = -1;
+                PreparedStatement ps2  = conn.prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + rs1.getLong(DOOR_ID) + "';");
                 ResultSet rs2          = ps2.executeQuery();
                 while (rs2.next())
                 {
+                    permission = rs2.getInt(UNION_PERM);
                     PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM players WHERE id = '" + rs2.getInt(UNION_PLAYER_ID) + "';");
                     ResultSet rs3         = ps3.executeQuery();
                     while (rs3.next())
@@ -357,7 +358,7 @@ public class SQLiteJDBCDriverConnection
                 ps2.close();
                 rs2.close();
 
-                door = newDoorFromRS(rs1, rs1.getLong(DOOR_ID), 0, UUID.fromString(foundPlayerUUID));
+                door = newDoorFromRS(rs1, rs1.getLong(DOOR_ID), permission, UUID.fromString(foundPlayerUUID));
             }
             ps1.close();
             rs1.close();
@@ -717,9 +718,6 @@ public class SQLiteJDBCDriverConnection
             if (rs.next())
                 isAvailable = false;
 
-//            while (rs.next())
-//                isAvailable = false;
-
             ps.close();
             rs.close();
             return isAvailable;
@@ -773,7 +771,6 @@ public class SQLiteJDBCDriverConnection
             }
         }
     }
-
 
     // Insert a new door in the db.
     public void insert(Door door)
@@ -869,6 +866,113 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
+    // Insert a new door in the db.
+    public void removeOwner(long doorUID, UUID playerUUID)
+    {
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+
+            long playerID = -1;
+            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
+            ResultSet rs1         = ps1.executeQuery();
+
+            while (rs1.next())
+                playerID = rs1.getLong(PLAYERS_ID);
+            ps1.close();
+            rs1.close();
+
+            if (playerID == -1)
+            {
+                plugin.getMyLogger().logMessage("Trying to remove player " + playerUUID.toString() +
+                                                " as ownwer of door " + doorUID + ". But player does not exist!" , true, false);
+                return;
+            }
+
+            PreparedStatement ps2 = conn.prepareStatement("DELETE FROM sqlUnion WHERE " +
+                                                            "playerUUID = '" + playerUUID.toString() +
+                                                            "' AND doorUID = '" + doorUID +
+                                                            "' AND permission > '" + 0 + "';"); // The creator cannot be removed as owner
+            ps2.execute();
+            ps2.close();
+
+        }
+        catch (SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("813: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                plugin.getMyLogger().logMessageToLogFile("823: " + e.getMessage());
+            }
+        }
+    }
+
+    // Insert a new door in the db.
+    public void addOwner(long doorUID, UUID playerUUID, int permission)
+    {
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+
+            long playerID = -1;
+            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
+            ResultSet rs1         = ps1.executeQuery();
+
+            while (rs1.next())
+                playerID = rs1.getLong(PLAYERS_ID);
+            ps1.close();
+            rs1.close();
+
+            if (playerID == -1)
+            {
+                Statement stmt2 = conn.createStatement();
+                String sql2     = "INSERT INTO players (playerUUID) "
+                                + "VALUES ('" + playerUUID.toString() + "');";
+                stmt2.executeUpdate(sql2);
+                stmt2.close();
+
+                String query          = "SELECT last_insert_rowid() AS lastId";
+                PreparedStatement ps2 = conn.prepareStatement(query);
+                ResultSet rs2         = ps2.executeQuery();
+                playerID              = rs2.getLong("lastId");
+                ps2.close();
+                rs2.close();
+            }
+
+
+
+            Statement stmt3 = conn.createStatement();
+            String sql3     = "INSERT INTO sqlUnion (permission, playerID, doorUID) "
+                            + "VALUES ('" + permission + "', '" + playerID + "', '" + doorUID + "');";
+            stmt3.executeUpdate(sql3);
+            stmt3.close();
+        }
+        catch (SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("813: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                plugin.getMyLogger().logMessageToLogFile("823: " + e.getMessage());
+            }
+        }
+    }
+
     // Get the number of doors owned by this player.
     // If name is null, it will ignore door names, otherwise it will return the number of doors with the provided name.
     public long countDoors(String playerUUID, String name)
@@ -929,150 +1033,18 @@ public class SQLiteJDBCDriverConnection
         Connection conn = null;
         try
         {
-            String addColumn;
             conn = DriverManager.getConnection(url);
-            DatabaseMetaData md = conn.getMetaData();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("PRAGMA user_version;");
-            int dbVersion = rs.getInt(1);
-
+            ResultSet rs   = stmt.executeQuery("PRAGMA user_version;");
+            int dbVersion  = rs.getInt(1);
             if (dbVersion == 0)
-            {
-                rs = md.getColumns(null, null, "doors", "type");
-                if (!rs.next())
-                {
-                    plugin.getMyLogger().logMessage("Upgrading database! Adding type!", true, true);
-                    addColumn = "ALTER TABLE doors "
-                              + "ADD COLUMN type int NOT NULL DEFAULT 0";
-                    stmt.execute(addColumn);
-                }
-
-                rs = md.getColumns(null, null, "doors", "engineSide");
-                if (!rs.next())
-                {
-                    plugin.getMyLogger().logMessage("Upgrading database! Adding engineSide!", true, true);
-                    addColumn = "ALTER TABLE doors "
-                              + "ADD COLUMN engineSide int NOT NULL DEFAULT -1";
-                    stmt.execute(addColumn);
-                }
-
-                rs = md.getColumns(null, null, "doors", "powerBlockX");
-                if (!rs.next())
-                {
-                    plugin.getMyLogger().logMessage("Upgrading database! Adding powerBlockLoc!", true, true);
-                    addColumn = "ALTER TABLE doors "
-                              + "ADD COLUMN powerBlockX int NOT NULL DEFAULT -1";
-                    stmt.execute(addColumn);
-                    addColumn = "ALTER TABLE doors "
-                              + "ADD COLUMN powerBlockY int NOT NULL DEFAULT -1";
-                    stmt.execute(addColumn);
-                    addColumn = "ALTER TABLE doors "
-                              + "ADD COLUMN powerBlockZ int NOT NULL DEFAULT -1";
-                    stmt.execute(addColumn);
-
-                    PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
-                    ResultSet rs1 = ps1.executeQuery();
-                    String update;
-
-                    while (rs1.next())
-                    {
-                        long UID = rs1.getLong(DOOR_ID);
-                        int x    = rs1.getInt(DOOR_ENG_X);
-                        int y    = rs1.getInt(DOOR_ENG_Y) - 1;
-                        int z    = rs1.getInt(DOOR_ENG_Z);
-                        update   = "UPDATE doors SET "
-                                 +   "powerBlockX='" + x
-                                 + "',powerBlockY='" + y
-                                 + "',powerBlockZ='" + z
-                                 + "' WHERE id = '"  + UID + "';";
-                        conn.prepareStatement(update).executeUpdate();
-                    }
-                    ps1.close();
-                    rs1.close();
-                }
-
-                rs = md.getColumns(null, null, "doors", "openDirection");
-                if (!rs.next())
-                {
-                    plugin.getMyLogger().logMessage("Upgrading database! Adding openDirection!", true, true);
-                    addColumn = "ALTER TABLE doors "
-                              + "ADD COLUMN openDirection int NOT NULL DEFAULT 0";
-                    stmt.execute(addColumn);
-
-
-                    plugin.getMyLogger().logMessage("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!", true, true);
-                    String update = "UPDATE doors SET "
-                                  +   "isOpen='" + 2
-                                  + "' WHERE isOpen = '" + 0 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
-                    stmt.execute(update);
-                    update = "UPDATE doors SET "
-                           +   "isOpen='" + 0
-                           + "' WHERE isOpen = '" + 1 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
-                    stmt.execute(update);
-                    update = "UPDATE doors SET "
-                           +   "isOpen='" + 1
-                           + "' WHERE isOpen = '" + 2 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
-                    stmt.execute(update);
-                }
-
-                rs = md.getColumns(null, null, "doors", "autoClose");
-                if (!rs.next())
-                {
-                    plugin.getMyLogger().logMessage("Upgrading database! Adding autoClose!", true, true);
-                    addColumn = "ALTER TABLE doors "
-                              + "ADD COLUMN autoClose int NOT NULL DEFAULT -1";
-                    stmt.execute(addColumn);
-                }
-
-                rs = md.getColumns(null, null, "doors", "chunkHash");
-                if (!rs.next())
-                {
-                    plugin.getMyLogger().logMessage("Upgrading database! Adding chunkHash!", true, true);
-                    addColumn = "ALTER TABLE doors "
-                              + "ADD COLUMN chunkHash int NOT NULL DEFAULT -1";
-                    stmt.execute(addColumn);
-
-                    PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
-                    ResultSet rs1 = ps1.executeQuery();
-                    String update;
-
-                    while (rs1.next())
-                    {
-                        long UID = rs1.getLong(DOOR_ID);
-                        UUID worldUUID = UUID.fromString(rs1.getString(DOOR_WORLD));
-                        int x    = rs1.getInt(DOOR_POWER_X);
-                        int z    = rs1.getInt(DOOR_POWER_Z);
-
-                        update   = "UPDATE doors SET "
-                                 +   "chunkHash='" + Util.chunkHashFromLocation(x, z, worldUUID)
-                                 + "' WHERE id = '"  + UID + "';";
-                        conn.prepareStatement(update).executeUpdate();
-                    }
-                    ps1.close();
-                    rs1.close();
-                }
-            }
+                upgradeToV1(conn);
 
             if (dbVersion == 1)
-            {
-                plugin.getMyLogger().logMessage("Upgrading database! Adding blocksToMove!", true, true);
-                addColumn = "ALTER TABLE doors "
-                          + "ADD COLUMN blocksToMove int NOT NULL DEFAULT 0";
-                stmt.execute(addColumn);
-            }
+                upgradeToV2(conn);
 
-            // Update the database version if needed.
-            try
-            {
-                ResultSet rs1 = stmt.executeQuery("PRAGMA user_version;");
-                if (rs1.getInt(1) != DATABASE_VERSION)
-                    stmt.execute("PRAGMA user_version = " + DATABASE_VERSION + ";");
-                rs1.close();
-            }
-            catch(Exception e)
-            {
-                plugin.getMyLogger().logMessageToLogFile("1022 " + e.getMessage());
-            }
+            if (dbVersion != DATABASE_VERSION)
+                setDBVersion(conn, DATABASE_VERSION);
 
             stmt.close();
             rs.close();
@@ -1093,4 +1065,172 @@ public class SQLiteJDBCDriverConnection
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+    private void setDBVersion(Connection conn, int version)
+    {
+        try
+        {
+            conn.createStatement().execute("PRAGMA user_version = " + version + ";");
+        }
+        catch (SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("972 " + e.getMessage());
+        }
+    }
+
+    private void upgradeToV1(Connection conn)
+    {
+        try
+        {
+            String addColumn;
+
+            DatabaseMetaData md = conn.getMetaData();
+            ResultSet rs = md.getColumns(null, null, "doors", "type");
+            Statement stmt = conn.createStatement();
+
+            if (!rs.next())
+            {
+                plugin.getMyLogger().logMessage("Upgrading database! Adding type!", true, true);
+                addColumn = "ALTER TABLE doors "
+                          + "ADD COLUMN type int NOT NULL DEFAULT 0";
+                stmt.execute(addColumn);
+            }
+
+            rs = md.getColumns(null, null, "doors", "engineSide");
+            if (!rs.next())
+            {
+                plugin.getMyLogger().logMessage("Upgrading database! Adding engineSide!", true, true);
+                addColumn = "ALTER TABLE doors "
+                          + "ADD COLUMN engineSide int NOT NULL DEFAULT -1";
+                stmt.execute(addColumn);
+            }
+
+            rs = md.getColumns(null, null, "doors", "powerBlockX");
+            if (!rs.next())
+            {
+                plugin.getMyLogger().logMessage("Upgrading database! Adding powerBlockLoc!", true, true);
+                addColumn = "ALTER TABLE doors "
+                          + "ADD COLUMN powerBlockX int NOT NULL DEFAULT -1";
+                stmt.execute(addColumn);
+                addColumn = "ALTER TABLE doors "
+                          + "ADD COLUMN powerBlockY int NOT NULL DEFAULT -1";
+                stmt.execute(addColumn);
+                addColumn = "ALTER TABLE doors "
+                          + "ADD COLUMN powerBlockZ int NOT NULL DEFAULT -1";
+                stmt.execute(addColumn);
+
+                PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
+                ResultSet rs1 = ps1.executeQuery();
+                String update;
+
+                while (rs1.next())
+                {
+                    long UID = rs1.getLong(DOOR_ID);
+                    int x    = rs1.getInt(DOOR_ENG_X);
+                    int y    = rs1.getInt(DOOR_ENG_Y) - 1;
+                    int z    = rs1.getInt(DOOR_ENG_Z);
+                    update   = "UPDATE doors SET "
+                             +   "powerBlockX='" + x
+                             + "',powerBlockY='" + y
+                             + "',powerBlockZ='" + z
+                             + "' WHERE id = '"  + UID + "';";
+                    conn.prepareStatement(update).executeUpdate();
+                }
+                ps1.close();
+                rs1.close();
+            }
+
+            rs = md.getColumns(null, null, "doors", "openDirection");
+            if (!rs.next())
+            {
+                plugin.getMyLogger().logMessage("Upgrading database! Adding openDirection!", true, true);
+                addColumn = "ALTER TABLE doors "
+                          + "ADD COLUMN openDirection int NOT NULL DEFAULT 0";
+                stmt.execute(addColumn);
+
+
+                plugin.getMyLogger().logMessage("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!", true, true);
+                String update = "UPDATE doors SET "
+                              +   "isOpen='" + 2
+                              + "' WHERE isOpen = '" + 0 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
+                stmt.execute(update);
+                update = "UPDATE doors SET "
+                       +   "isOpen='" + 0
+                       + "' WHERE isOpen = '" + 1 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
+                stmt.execute(update);
+                update = "UPDATE doors SET "
+                       +   "isOpen='" + 1
+                       + "' WHERE isOpen = '" + 2 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
+                stmt.execute(update);
+            }
+
+            rs = md.getColumns(null, null, "doors", "autoClose");
+            if (!rs.next())
+            {
+                plugin.getMyLogger().logMessage("Upgrading database! Adding autoClose!", true, true);
+                addColumn = "ALTER TABLE doors "
+                          + "ADD COLUMN autoClose int NOT NULL DEFAULT -1";
+                stmt.execute(addColumn);
+            }
+
+            rs = md.getColumns(null, null, "doors", "chunkHash");
+            if (!rs.next())
+            {
+                plugin.getMyLogger().logMessage("Upgrading database! Adding chunkHash!", true, true);
+                addColumn = "ALTER TABLE doors "
+                          + "ADD COLUMN chunkHash int NOT NULL DEFAULT -1";
+                stmt.execute(addColumn);
+
+                PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
+                ResultSet rs1 = ps1.executeQuery();
+                String update;
+
+                while (rs1.next())
+                {
+                    long UID = rs1.getLong(DOOR_ID);
+                    UUID worldUUID = UUID.fromString(rs1.getString(DOOR_WORLD));
+                    int x    = rs1.getInt(DOOR_POWER_X);
+                    int z    = rs1.getInt(DOOR_POWER_Z);
+
+                    update   = "UPDATE doors SET "
+                             +   "chunkHash='" + Util.chunkHashFromLocation(x, z, worldUUID)
+                             + "' WHERE id = '"  + UID + "';";
+                    conn.prepareStatement(update).executeUpdate();
+                }
+                ps1.close();
+                rs1.close();
+            }
+        }
+        catch (SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("1101 " + e.getMessage());
+        }
+    }
+
+    private void upgradeToV2(Connection conn)
+    {
+        try
+        {
+            String addColumn;
+            Statement stmt = conn.createStatement();
+            plugin.getMyLogger().logMessage("Upgrading database! Adding blocksToMove!", true, true);
+            addColumn = "ALTER TABLE doors "
+                      + "ADD COLUMN blocksToMove int NOT NULL DEFAULT 0";
+            stmt.execute(addColumn);
+        }
+        catch (SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("1118 " + e.getMessage());
+        }
+    }
+
 }

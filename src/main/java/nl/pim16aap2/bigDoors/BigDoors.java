@@ -76,6 +76,8 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Make sure the abortable's BukkitTask isn't null.
 // TODO: Make invalid input stuff more informative (e.g. int, float etc).
 // TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
+// TODO: Implement multiple ownership / shared ownership.
+// TODO: Figure out why back button in GUI isn't workin.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -126,7 +128,7 @@ public class BigDoors extends JavaPlugin implements Listener
             logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!", true, true);
             return;
         }
-        
+
         init(true);
 
         db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
@@ -139,7 +141,7 @@ public class BigDoors extends JavaPlugin implements Listener
         elevatorOpener    = new ElevatorOpener(this);
         portcullisOpener  = new PortcullisOpener(this);
         slidingDoorOpener = new SlidingDoorOpener(this);
-        
+
         registerCommand("inspectpowerblockloc");
         registerCommand("changepowerblockloc" );
         registerCommand("setautoclosetime"    );
@@ -164,7 +166,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         liveDevelopmentLoad();
     }
-    
+
     private void registerCommand(String command)
     {
         getCommand(command).setExecutor(new CommandHandler(this));
@@ -210,7 +212,7 @@ public class BigDoors extends JavaPlugin implements Listener
             pbCache = new TimedCache<Long, HashMap<Long, Long>>(this, config.cacheTimeout());
             protectionCompats = new ArrayList<ProtectionCompat>();
         }
-        
+
         if (config.plotSquaredHook() && getServer().getPluginManager().getPlugin("PlotSquared") != null)
         {
             try
@@ -342,9 +344,9 @@ public class BigDoors extends JavaPlugin implements Listener
 
         // Stop all toolUsers and take all BigDoor tools from players.
         commander.setCanGo(false);
-        
+
         toolUsers.forEach((key,value) -> value.setIsDone(true));
-        
+
         for (BlockMover bm : blockMovers)
             bm.putBlocks(true);
 
@@ -402,7 +404,7 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         return blockMovers;
     }
-    
+
     public ToolUser getToolUser(Player player)
     {
         ToolUser tu = null;

@@ -10,6 +10,7 @@ import org.bukkit.inventory.Inventory;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
@@ -33,6 +34,8 @@ public class GUIPage implements Listener
     private static final Material RELOCATEPBMAT  = Material.LEATHER_BOOTS;
     private static final Material SETOPENDIRMAT  = Material.COMPASS;
     private static final Material SETBTMOVEMAT   = XMaterial.STICKY_PISTON.parseMaterial();
+    private static final Material ADDOWNERMAT    = XMaterial.PLAYER_HEAD.parseMaterial();
+    private static final Material REMOVEOWNERMAT = XMaterial.SKELETON_SKULL.parseMaterial();
     private static final byte     LOCKEDDATA     = 14;
     private static final byte     UNLOCKEDDATA   =  5;
     private static final byte     CONFIRMDATA    = 14;
@@ -135,6 +138,7 @@ public class GUIPage implements Listener
         {
             lore.add("Expanded menu for door " + door.getName());
             lore.add("This door has ID " + door.getDoorUID());
+            lore.add(messages.getString(DoorType.getNameKey(door.getType())));
             inv.setItem(4, new GUIItem(CURRDOORMAT, door.getName() + ": "
                                         + door.getDoorUID(), lore, 1).getItemStack());
         }
@@ -142,6 +146,7 @@ public class GUIPage implements Listener
         {
             lore.add("Expanded menu for door " + door.getName());
             lore.add("This door has ID " + door.getDoorUID());
+            lore.add(messages.getString(DoorType.getNameKey(door.getType())));
             inv.setItem(4, new GUIItem(CURRDOORMAT, door.getName() + ": "
                                         + door.getDoorUID(), lore, 1).getItemStack());
         }
@@ -151,75 +156,12 @@ public class GUIPage implements Listener
     public void createDoorSubMenu()
     {
         int position = 9;
-        ArrayList<String> lore = new ArrayList<String>();
-        if (door.isLocked())
-            inv.setItem(position++, new GUIItem(LOCKDOORMAT, messages.getString("GUI.UnlockDoor"),
-                                       null, 1, UNLOCKEDDATA).getItemStack());
-        else
-            inv.setItem(position++, new GUIItem(UNLOCKDOORMAT, messages.getString("GUI.LockDoor"),
-                                       null, 1, LOCKEDDATA).getItemStack());
-
-        String desc = messages.getString("GUI.ToggleDoor");
-        lore.add(desc);
-        inv.setItem(position++, new GUIItem(TOGGLEDOORMAT, desc, lore, 1).getItemStack());
-        lore.clear();
-
-        desc = messages.getString("GUI.GetInfo");
-        lore.add(desc);
-        inv.setItem(position++, new GUIItem(INFOMAT, desc, lore, 1).getItemStack());
-        lore.clear();
-
-        desc = messages.getString("GUI.DeleteDoor");
-        String loreStr = messages.getString("GUI.DeleteDoorLong");
-        lore.add(loreStr);
-        inv.setItem(position++, new GUIItem(DELDOORMAT, desc , lore, 1).getItemStack());
-        lore.clear();
-
-        desc = messages.getString("GUI.RelocatePowerBlock");
-        loreStr = messages.getString("GUI.RelocatePowerBlockLore");
-        lore.add(loreStr);
-        inv.setItem(position++, new GUIItem(RELOCATEPBMAT, desc, lore, 1).getItemStack());
-        lore.clear();
-
-        desc = messages.getString("GUI.ChangeTimer");
-        loreStr = door.getAutoClose() > -1 ? messages.getString("GUI.ChangeTimerLore") + door.getAutoClose() + "s." :
-            messages.getString("GUI.ChangeTimerLoreDisabled");
-        lore.add(loreStr);
-        int count = door.getAutoClose() < 1 ? 1 : door.getAutoClose();
-        inv.setItem(position++, new GUIItem(CHANGETIMEMAT, desc, lore, count).getItemStack());
-        lore.clear();
-
-        // Currently, only doors and drawbridges have directions etc.
-        if (door.getType() == DoorType.DOOR || door.getType() == DoorType.DRAWBRIDGE ||
-            door.getType() == DoorType.SLIDINGDOOR || door.getType() == DoorType.ELEVATOR)
+        for (DoorAttribute attr : DoorType.getAttributes(door.getType()))
         {
-            desc = messages.getString("GUI.Direction.Name");
-            RotateDirection doorsOpenDir = door.getOpenDir();
-            loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(doorsOpenDir));
-            lore.add(loreStr);
-            // Sliding doors use north/south/... for opening direction, so it doesn't matter which way you're looking. Those are pretty standard.
-            if (door.getType() != DoorType.SLIDINGDOOR && door.getType() != DoorType.ELEVATOR)
-                lore.add(messages.getString("GUI.Direction.Looking") +
-                        (door.getType()       == DoorType.DOOR       ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
-                         door.getLookingDir() == DoorDirection.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
-                                                                       messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
-            inv.setItem(position++, new GUIItem(SETOPENDIRMAT, desc, lore, 1).getItemStack());
-            lore.clear();
+            GUIItem item = getGUIItem(door, attr);
+            if (item != null)
+                inv.setItem(position++, item.getItemStack());
         }
-
-        if (door.getType() == DoorType.SLIDINGDOOR || door.getType() == DoorType.ELEVATOR || door.getType() == DoorType.PORTCULLIS)
-        {
-            desc = messages.getString("GUI.BLOCKSTOMOVE.Name");
-            if (door.getBlocksToMove() <= 0)
-                loreStr = messages.getString("GUI.BLOCKSTOMOVE.Unavailable");
-            else
-                loreStr = messages.getString("GUI.BLOCKSTOMOVE.Available") + " " + door.getBlocksToMove();
-            lore.add(loreStr);
-
-            inv.setItem(position++, new GUIItem(SETBTMOVEMAT, desc, lore, 1).getItemStack());
-            lore.clear();
-        }
-
     }
 
     // Fill the entire menu with NO's, but put a single "yes" in the middle.
@@ -251,11 +193,11 @@ public class GUIPage implements Listener
                 int realIdx  = idx - 9;
                 try
                 {
-                    int doorType = DoorType.getValue(doors.get(realIdx).getType());
+                    DoorType doorType = doors.get(realIdx).getType();
                     ArrayList<String> lore = new ArrayList<String>();
                     lore.add(messages.getString("GUI.DoorHasID") + doors.get(realIdx).getDoorUID());
-                    lore.add(messages.getString(DoorType.getNameKey(DoorType.valueOf(doorType))));
-                    inv.setItem(idx, new GUIItem(DOORTYPES[doorType], doors.get(realIdx).getName(), lore, 1).getItemStack());
+                    lore.add(messages.getString(DoorType.getNameKey(doorType)));
+                    inv.setItem(idx, new GUIItem(DOORTYPES[DoorType.getValue(doorType)], doors.get(realIdx).getName(), lore, 1).getItemStack());
                 }
                 catch (Exception e)
                 {
@@ -279,4 +221,102 @@ public class GUIPage implements Listener
     }
 
     public static int getChestSize() {  return CHESTSIZE;  }
+
+
+    private GUIItem getGUIItem(Door door, DoorAttribute atr)
+    {
+        ArrayList<String> lore = new ArrayList<String>();
+        String desc, loreStr;
+        GUIItem ret = null;
+
+        switch(atr)
+        {
+        case LOCK:
+            if (door.isLocked())
+                ret = new GUIItem(LOCKDOORMAT, messages.getString("GUI.UnlockDoor"),
+                            null, 1, UNLOCKEDDATA);
+            else
+                ret = new GUIItem(UNLOCKDOORMAT, messages.getString("GUI.LockDoor"),
+                            null, 1, LOCKEDDATA);
+            break;
+
+        case TOGGLE:
+            desc = messages.getString("GUI.ToggleDoor");
+            lore.add(desc);
+            ret = new GUIItem(TOGGLEDOORMAT, desc, lore, 1);
+            break;
+
+        case INFO:
+            desc = messages.getString("GUI.GetInfo");
+            lore.add(desc);
+            ret = new GUIItem(INFOMAT, desc, lore, 1);
+            break;
+
+        case DELETE:
+            desc = messages.getString("GUI.DeleteDoor");
+            loreStr = messages.getString("GUI.DeleteDoorLong");
+            lore.add(loreStr);
+            ret = new GUIItem(DELDOORMAT, desc , lore, 1);
+            break;
+
+        case RELOCATEPOWERBLOCK:
+            desc = messages.getString("GUI.RelocatePowerBlock");
+            loreStr = messages.getString("GUI.RelocatePowerBlockLore");
+            lore.add(loreStr);
+            ret = new GUIItem(RELOCATEPBMAT, desc, lore, 1);
+            break;
+
+        case CHANGETIMER:
+            desc = messages.getString("GUI.ChangeTimer");
+            loreStr = door.getAutoClose() > -1 ? messages.getString("GUI.ChangeTimerLore") + door.getAutoClose() + "s." :
+                messages.getString("GUI.ChangeTimerLoreDisabled");
+            lore.add(loreStr);
+            int count = door.getAutoClose() < 1 ? 1 : door.getAutoClose();
+            ret = new GUIItem(CHANGETIMEMAT, desc, lore, count);
+            break;
+
+        case DIRECTION_OPEN:
+            desc = messages.getString("GUI.Direction.Name");
+            loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
+            lore.add(loreStr);
+            ret = new GUIItem(SETOPENDIRMAT, desc, lore, 1);
+            break;
+
+        case DIRECTION_GO:
+            desc = messages.getString("GUI.Direction.Name");
+            loreStr = messages.getString("GUI.Direction.ThisDoorGoes") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
+            lore.add(loreStr);
+            ret = new GUIItem(SETOPENDIRMAT, desc, lore, 1);
+            break;
+
+        case DIRECTION_NSEW_LOOK:
+            desc = messages.getString("GUI.Direction.Name");
+            loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
+            lore.add(loreStr);
+            lore.add(messages.getString("GUI.Direction.Looking") +
+                    (door.getType()       == DoorType.DOOR       ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
+                     door.getLookingDir() == DoorDirection.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
+                                                                   messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
+            ret = new GUIItem(SETOPENDIRMAT, desc, lore, 1);
+            break;
+
+        case BLOCKSTOMOVE:
+            desc = messages.getString("GUI.BLOCKSTOMOVE.Name");
+            if (door.getBlocksToMove() <= 0)
+                loreStr = messages.getString("GUI.BLOCKSTOMOVE.Unavailable");
+            else
+                loreStr = messages.getString("GUI.BLOCKSTOMOVE.Available") + " " + door.getBlocksToMove();
+            lore.add(loreStr);
+
+            ret = new GUIItem(SETBTMOVEMAT, desc, lore, 1);
+            break;
+
+        case ADDOWNER:
+            break;
+
+        case REMOVEOWNER:
+            break;
+        }
+        return ret;
+    }
 }

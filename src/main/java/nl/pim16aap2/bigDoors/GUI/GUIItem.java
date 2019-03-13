@@ -12,13 +12,13 @@ public class GUIItem
     private ItemStack is;
     public GUIItem(Material mat, String name, ArrayList<String> lore, int count, byte data)
     {
-        this.is = new ItemStack(mat, count, data);
+        is = new ItemStack(mat, count, data);
         construct(name, lore);
     }
 
     public GUIItem(Material mat, String name, ArrayList<String> lore, int count)
     {
-        this.is = new ItemStack(mat, count);
+        is = new ItemStack(mat, count);
         construct(name, lore);
     }
 
