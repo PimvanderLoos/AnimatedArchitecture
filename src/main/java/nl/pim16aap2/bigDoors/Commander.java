@@ -2,6 +2,9 @@ package nl.pim16aap2.bigDoors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -88,13 +91,13 @@ public class Commander
     }
 
     // Get the door from the string. Can be use with a doorUID or a doorName.
-    public Door getDoor(String doorStr, Player player)
+    public Door getDoor(String doorStr, @Nullable Player player)
     {
         // First try converting the doorStr to a doorUID.
         try
         {
             long doorUID = Long.parseLong(doorStr);
-            return db.getDoor(doorUID);
+            return db.getDoor(player == null ? null : player.getUniqueId() , doorUID);
         }
         // If it can't convert to a long, get all doors from the player with the provided name.
         // If there is more than one, tell the player that they are going to have to make a choice.
@@ -103,7 +106,7 @@ public class Commander
             if (player == null)
                 return null;
             ArrayList<Door> doors = new ArrayList<Door>();
-            doors = db.getDoors(player.getUniqueId().toString(), doorStr);
+            doors = db.getDoors(player == null ? null : player.getUniqueId().toString(), doorStr);
             if (doors.size() == 1)
                 return doors.get(0);
             else
@@ -173,9 +176,9 @@ public class Commander
     }
 
     // Get a door with a specific doorUID.
-    public Door getDoor(long doorUID)
+    public Door getDoor(@Nullable UUID playerUUID, long doorUID)
     {
-        return db.getDoor(doorUID);
+        return db.getDoor(playerUUID, doorUID);
     }
 
     // Get the permission of a player on a door.
@@ -201,6 +204,28 @@ public class Commander
                             blockZMax, newEngSide);
     }
 
+    public void addOwner(UUID playerUUID, Door door)
+    {
+        addOwner(playerUUID, door, 1);
+    }
+
+    public boolean addOwner(UUID playerUUID, Door door, int permission)
+    {
+        if (permission < 1 || permission > 2 || door.getPermission() != 0 || door.getPlayerUUID().equals(playerUUID))
+            return false;
+
+        db.addOwner(door.getDoorUID(), playerUUID, permission);
+        return true;
+    }
+
+    public boolean removeOwner(UUID playerUUID, Door door)
+    {
+        if (door.getPermission() != 0 || door.getPlayerUUID().equals(playerUUID))
+            return false;
+        db.removeOwner(door.getDoorUID(), playerUUID);
+        return true;
+    }
+
     public void updateDoorOpenDirection(long doorUID, RotateDirection openDir)
     {
         db.updateDoorOpenDirection(doorUID, openDir == null ? RotateDirection.NONE : openDir);
@@ -215,7 +240,7 @@ public class Commander
     {
         db.updateDoorBlocksToMove(doorID, blocksToMove);
     }
-    
+
     // Change the "locked" status of a door.
     public void setLock(long doorUID, boolean newLockStatus)
     {
@@ -233,13 +258,13 @@ public class Commander
             plugin.getPBCache().put(chunkHash, powerBlockData);
         }
         Long doorUID = powerBlockData.get(Util.locationHash(loc));
-        return doorUID == null ? null : db.getDoor(doorUID);
+        return doorUID == null ? null : db.getDoor(null, doorUID);
     }
 
     // Change the location of a powerblock.
     public void updatePowerBlockLoc(long doorUID, Location loc)
     {
-        plugin.getPBCache().invalidate(db.getDoor(doorUID).getPowerBlockChunkHash());
+        plugin.getPBCache().invalidate(db.getDoor(null, doorUID).getPowerBlockChunkHash());
         db.updateDoorPowerBlockLoc(doorUID, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getUID());
         plugin.getPBCache().invalidate(Util.chunkHashFromLocation(loc));
     }

@@ -15,7 +15,7 @@ public class WaitForSetBlocksToMove extends WaitForCommand
         this.player  = player;
         this.command = command;
         this.doorUID = doorUID;
-        Util.messagePlayer(player, plugin.getMessages().getString("GUI.SetBlocksToMoveInit"));
+        Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Init"));
         plugin.addCommandWaiter(this);
     }
 
@@ -30,9 +30,9 @@ public class WaitForSetBlocksToMove extends WaitForCommand
                 plugin.getCommandHandler().setDoorBlocksToMove(player, doorUID, blocksToMove);
                 plugin.removeCommandWaiter(this);
                 if (blocksToMove > 0)
-                    Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetBlocksToMoveSuccess") + " " + blocksToMove);
+                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Success") + blocksToMove);
                 else
-                    Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.DisableBlocksToMoveSuccess"));
+                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Disabled"));
                 return true;
             }
             catch (Exception e)

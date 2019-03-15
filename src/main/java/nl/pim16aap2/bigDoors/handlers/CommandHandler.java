@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
@@ -33,7 +34,9 @@ import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.XMaterial;
+import nl.pim16aap2.bigDoors.waitForCommand.WaitForAddOwner;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
+import nl.pim16aap2.bigDoors.waitForCommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForSetTime;
 
@@ -63,14 +66,13 @@ public class CommandHandler implements CommandExecutor
     // Open the door.
     public void openDoorCommand(CommandSender sender, Door door, double time)
     {
+        UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         // Get a new instance of the door to make sure the locked / unlocked status is recent.
-        if (plugin.getCommander().getDoor(door.getDoorUID()).isLocked())
+        if (plugin.getCommander().getDoor(playerUUID, door.getDoorUID()).isLocked())
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.DoorIsLocked"));
         // If the sender is a Player && the player's permission level is larger than 1 for this door, the player doesn't have permission (for now).
         else if (sender instanceof Player && plugin.getCommander().getPermission(((Player) (sender)).getUniqueId().toString(), door.getDoorUID()) > 1)
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.NoPermissionToOpen"));
-//        else if (!plugin.getDoorOpener(door.getType()).openDoor(door, time))
-//            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.ToggleFailure"));
         else
         {
             Opener opener = plugin.getDoorOpener(door.getType());
@@ -117,7 +119,7 @@ public class CommandHandler implements CommandExecutor
     {
         long doorUID = Util.longFromString(name, -1L);
         if (doorUID != -1)
-            Util.messagePlayer(player, Util.getFullDoorInfo(plugin.getCommander().getDoor(doorUID)));
+            Util.messagePlayer(player, Util.getFullDoorInfo(plugin.getCommander().getDoor(player.getUniqueId(), doorUID)));
         else
         {
             ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
@@ -145,7 +147,7 @@ public class CommandHandler implements CommandExecutor
                 plugin.getMyLogger().myLogger(Level.INFO, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
             return;
         }
-        Door door = plugin.getCommander().getDoor(doorUID);
+        Door door = plugin.getCommander().getDoor(null, doorUID);
         if (door == null)
         {
             plugin.getMyLogger().myLogger(Level.INFO, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
@@ -169,7 +171,7 @@ public class CommandHandler implements CommandExecutor
 
     public void listDoorsFromConsole(String str)
     {
-        String playerUUID = Util.playerUUIDFromString(str);
+        String playerUUID = Util.playerUUIDStrFromString(str);
         if (playerUUID != null)
             listDoorsFromConsole(playerUUID, null);
         else
@@ -274,6 +276,20 @@ public class CommandHandler implements CommandExecutor
         startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, "setblockstomove", doorUID)), player, 20 * 20);
     }
 
+    public void startAddOwner(Player player, long doorUID)
+    {
+        if (isPlayerBusy(player))
+            return;
+        startTimerForAbortable((new WaitForAddOwner(plugin, player, "addowner", doorUID)), player, 20 * 20);
+    }
+
+    public void startRemoveOwner(Player player, long doorUID)
+    {
+        if (isPlayerBusy(player))
+            return;
+        startTimerForAbortable((new WaitForRemoveOwner(plugin, player, "removeowner", doorUID)), player, 20 * 20);
+    }
+
     private boolean isPlayerBusy(Player player)
     {
         boolean isBusy = (plugin.getToolUser(player) != null || isCommandWaiter(player) != null);
@@ -302,25 +318,98 @@ public class CommandHandler implements CommandExecutor
 
         if (cmd.getName().equalsIgnoreCase("bigdoors"))
         {
-            // Help menu
-            if (args.length == 0)
-                showHelpInfo(sender);
-            // Get plugin version
-            else if (args[0].equalsIgnoreCase("version"))
+            String firstCommand = args.length == 0 ? "" : args[0].toLowerCase();
+
+            switch(firstCommand)
+            {
+            case "version":
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " +
                     plugin.getDescription().getVersion() + " of this plugin!");
-            // Open GUI
-            else if (player != null && args[0].equalsIgnoreCase("menu"))
-                new GUIPage(plugin, player);
-            // Restart plugin
-            else if (args[0].equalsIgnoreCase("restart") && ((player != null && player.hasPermission("bigdoors.admin.restart")) || player == null))
+                break;
+
+            case "menu":
+                if (player != null)
+                    new GUIPage(plugin, player);
+                break;
+
+            case "restart":
                 plugin.restart();
-            // Stop doors
-            else if (args[0].equalsIgnoreCase("stop") && ((player != null && player.hasPermission("bigdoors.admin.stopdoors")) || player == null))
-                stopDoors();
-            // Pause doors
-            else if (args[0].equalsIgnoreCase("pause") && ((player != null && player.hasPermission("bigdoors.admin.pausedoors")) || player == null))
-                plugin.getCommander().togglePaused();
+                break;
+
+            case "stop":
+                if ((player != null && player.hasPermission("bigdoors.admin.stopdoors")) || player == null)
+                    stopDoors();
+                break;
+
+            case "pause":
+                if ((player != null && player.hasPermission("bigdoors.admin.pausedoors")) || player == null)
+                    plugin.getCommander().togglePaused();
+                break;
+
+            case "addowner":
+                if (player == null)
+                    break;
+
+                if (args.length > 1)
+                {
+                    WaitForCommand cw = isCommandWaiter(player);
+                    if (cw != null)
+                        return cw.executeCommand(args);
+
+                    Door door = plugin.getCommander().getDoor(args[1], player);
+                    if (door == null)
+                        return false;
+
+                    UUID playerUUID = null;
+                    int permission = 1;
+                    try
+                    {
+                        playerUUID = Util.playerUUIDFromString(args[2]);
+                        if (args.length == 4)
+                            permission = Integer.parseInt(args[3]);
+                    }
+                    catch (Exception uncaught)
+                    {
+                        // No need to catch this. I don't care if people fuck it up.
+                    }
+                    if (playerUUID != null)
+                        return plugin.getCommander().addOwner(playerUUID, door, permission);
+                    else
+                        return false;
+                }
+                else
+                    return false;
+
+            case "removeowner":
+                if (player == null)
+                    break;
+
+                if (args.length == 2)
+                {
+                    WaitForCommand cw = isCommandWaiter(player);
+                    if (cw != null)
+                        return cw.executeCommand(args);
+                }
+                else if (args.length > 2)
+                {
+                    Door door = plugin.getCommander().getDoor(args[1], player);
+                    if (door == null)
+                        return false;
+
+                    UUID playerUUID = Util.playerUUIDFromString(args[2]);
+
+                    if (playerUUID != null)
+                        plugin.getCommander().removeOwner(playerUUID, door);
+                    else
+                        return false;
+                }
+                break;
+
+            case "":
+            case "help":
+            default:
+                showHelpInfo(sender);
+            }
             return true;
         }
 
@@ -689,6 +778,8 @@ public class CommandHandler implements CommandExecutor
     // Used for various debugging purposes (you don't say!).
     public void doorDebug(Player player)
     {
+        Util.broadcastMessage("Player " + player.getDisplayName() + " has UUID: " + player.getUniqueId());
+
         Util.broadcastMessage("Going to display cache stats now!");
         long doorCount = 0;
 
@@ -711,7 +802,7 @@ public class CommandHandler implements CommandExecutor
                 while (it.hasNext())
                 {
                     Entry<Long, Long> entry = it.next();
-                    Door door = plugin.getCommander().getDoor(entry.getValue());
+                    Door door = plugin.getCommander().getDoor(player.getUniqueId(), entry.getValue());
                     doorsStr += entry.getValue() + " (" + door.getPowerBlockLoc() + " = " + door.getPowerBlockChunkHash() + "), ";
                 }
             }
@@ -733,6 +824,8 @@ public class CommandHandler implements CommandExecutor
         help += ChatColor.GREEN + "====[ BigDoors Help ]====\n";
         help += helpFormat("/BigDoors menu", "Opens BigDoors' GUI.");
         help += helpFormat("/BigDoors version", "Get the version of this plugin.");
+        help += helpFormat("/BigDoors removeowner <door> <player>", "Add another owner for a door.");
+        help += helpFormat("/BigDoors addowner <door> <player> [permission]", "Add another owner for a door.");
         if (player == null || player.hasPermission("bigdoors.admin.restart"))
             help += helpFormat("/BigDoors restart", "Restart the plugin. Reinitializes almost everything.");
         if (player == null || player.hasPermission("bigdoors.admin.stopdoors"))

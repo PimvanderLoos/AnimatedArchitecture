@@ -17,6 +17,7 @@ public class ConfigLoader
     private String           dbFile;
     private String           header;
     private int            coolDown;
+    private boolean      makeBackup;
     private boolean      allowStats;
     private int         maxDoorSize;
     private double     pcMultiplier = 1.0;
@@ -115,7 +116,7 @@ public class ConfigLoader
                 "bd = Big Door, pc = Portcullis, db = Drawbridge.",
                 "Note that everything is optimized for default values, so it's recommended to leave this setting as-is."
             };
-        String[] compatibilityHooks     = 
+        String[] compatibilityHooks     =
             {
                 "Enable or disable compatibility hooks for certain plugins. If the plugins aren't installed, these options do nothing.",
                 "When enabled, doors cannot be opened or created in areas not owned by the door's owner."
@@ -130,7 +131,12 @@ public class ConfigLoader
             };
         String[] debugComment           =
             {
-                "Don't use this. Just leave it on false."
+                 "Don't use this. Just leave it on false."
+            };
+        String[] backupComment          =
+            {
+                "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
+                "In case anything goes wrong, you can just revert to the old version! Only the most recent backup will be kept."
             };
 
         FileConfiguration config = plugin.getConfig();
@@ -171,6 +177,8 @@ public class ConfigLoader
         configOptionsList.add(new ConfigOption( "dbMultiplier"    , dbMultiplier    , null                  ));
         coolDown         = config.getInt(       "coolDown"        , 0                );
         configOptionsList.add(new ConfigOption( "coolDown"        , coolDown        , coolDownComment       ));
+        makeBackup       = config.getBoolean(   "makeBackup"      , true             );
+        configOptionsList.add(new ConfigOption( "makeBackup"      , makeBackup       , backupComment         ));
         cacheTimeout     = config.getInt(       "cacheTimeout"    , 120              );
         configOptionsList.add(new ConfigOption( "cacheTimeout"    , cacheTimeout    , cacheTimeoutComment   ));
 
@@ -220,22 +228,23 @@ public class ConfigLoader
         }
     }
 
-    public String  dbFile()          {    return dbFile;             }
-    public int     coolDown()        {    return coolDown;           }
-    public boolean allowStats()      {    return allowStats;         }
-    public int     maxDoorSize()     {    return maxDoorSize;        }
-    public double  pcMultiplier()    {    return pcMultiplier;       }
-    public double  dbMultiplier()    {    return dbMultiplier;       }
-    public double  bdMultiplier()    {    return bdMultiplier;       }
-    public String  resourcePack()    {    return resourcePack;       }
-    public String  languageFile()    {    return languageFile;       }
-    public int     maxdoorCount()    {    return maxDoorCount;       }
-    public boolean autoDLUpdate()    {    return autoDLUpdate;       }
-    public int     downloadDelay()   {    return downloadDelay;      }
-    public boolean enableRedstone()  {    return enableRedstone;     }
-    public String  powerBlockType()  {    return powerBlockType;     }
-    public boolean checkForUpdates() {    return checkForUpdates;    }
-    public int     cacheTimeout()    {    return cacheTimeout;       }
-    public boolean worldGuardHook()  {    return worldGuardHook;     }
-    public boolean plotSquaredHook() {    return plotSquaredHook;    }
+    public String  dbFile()          {  return dbFile;           }
+    public boolean dbBackup()        {  return makeBackup;       }
+    public int     coolDown()        {  return coolDown;         }
+    public boolean allowStats()      {  return allowStats;       }
+    public int     maxDoorSize()     {  return maxDoorSize;      }
+    public int     cacheTimeout()    {  return cacheTimeout;     }
+    public double  pcMultiplier()    {  return pcMultiplier;     }
+    public double  dbMultiplier()    {  return dbMultiplier;     }
+    public double  bdMultiplier()    {  return bdMultiplier;     }
+    public String  resourcePack()    {  return resourcePack;     }
+    public String  languageFile()    {  return languageFile;     }
+    public int     maxdoorCount()    {  return maxDoorCount;     }
+    public boolean autoDLUpdate()    {  return autoDLUpdate;     }
+    public int     downloadDelay()   {  return downloadDelay;    }
+    public boolean enableRedstone()  {  return enableRedstone;   }
+    public String  powerBlockType()  {  return powerBlockType;   }
+    public boolean worldGuardHook()  {  return worldGuardHook;   }
+    public boolean checkForUpdates() {  return checkForUpdates;  }
+    public boolean plotSquaredHook() {  return plotSquaredHook;  }
 }

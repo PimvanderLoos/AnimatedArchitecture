@@ -50,7 +50,6 @@ import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
 import nl.pim16aap2.bigDoors.util.TimedCache;
-import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 // TODO: Store starting x,z values in savedBlocks, then make putblocks etc part of abstact class.
@@ -59,25 +58,26 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Add "Server" as door owner.
 // TODO: Add /BDM [PlayerName (when online) || PlayerUUID || Server] to open a doorMenu for a specific player.
 // TODO: Store playernames as well as UUID in database (verify on login).
-// TODO: Add command: /OpenDoor [Player (when online) || PlayerUUID || Server] <DoorName (when owner is specified) || DoorUID>(repeat 1:inf) [Speed (double]
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
-// TODO: Use Bukkit colors.
 // TODO: Make release and debug build modes.
 // TODO: Make default language file read-only.
-// TODO: Add version number to language file. Only regen for version mismatch.
 // TODO: Rewrite Openers to get rid of code duplication.
-// TODO: Add config options for compatibility hooks.
-// TODO: Add proper formatting per door-type in the GUI in the door class. (i.e. just request the door format from the door object.)
 // TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
-// TODO: Split up SQL upgrade stuff into multiple methods.
 // TODO: Use generics for ConfigOption.
 // TODO: Add "Blocks-to-move" property to sliding doors, portcullises, and elevators.
 // TODO: Make sure the abortable's BukkitTask isn't null.
 // TODO: Make invalid input stuff more informative (e.g. int, float etc).
 // TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
+// TODO: Split up SQL functions into 2: One taking a connection and one without the connection, to get rid of code duplication.
+
 // TODO: Implement multiple ownership / shared ownership.
-// TODO: Figure out why back button in GUI isn't workin.
+// TODO: Add permission level to each attribute. To enable/disable them based on permission.
+// TODO: Implement add and remove owner buttons and commands.
+// TODO: Implement backup option for making a backup of the database when upgrading.
+// TODO: Rewrite GUI implementation. 1 Object per opened menu, so the db doesn't have to be pinged constantly and so that sorting can be implemented.
+// TODO: Test skulls etc in the GUI on 1.13
+// TODO: Make sure no duplicate entries are inserted into sqlUnion (check if relation already exists, if so, alter).
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -234,7 +234,7 @@ public class BigDoors extends JavaPlugin implements Listener
             catch (NoClassDefFoundError e)
             {
                 logger.logMessageToConsole("Failed to initialize PlotSquared compatibility hook! Perhaps this version isn't supported? Check error.log for more info!");
-                logger.logMessage(Util.errorToString(e), false, false);
+//                logger.logMessage(Util.errorToString(e), false, false);
                 logger.logMessageToConsole("Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
             }
             catch (Exception e)
@@ -254,7 +254,7 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             logger.logMessageToConsole("Failed to initialize WorldGuard compatibility hook! Only v7 seems to be supported atm!"
                 + " Maybe that's the issue?");
-            logger.logMessage(Util.errorToString(e), false, false);
+//            logger.logMessage(Util.errorToString(e), false, false);
             logger.logMessageToConsole("Now resuming normal startup with Worldguard Compatibility Hook disabled!");
         }
         catch (Exception e)
@@ -562,21 +562,21 @@ public class BigDoors extends JavaPlugin implements Listener
     // Toggle a door from a doorUID and instantly or not.
     public boolean toggleDoor(long doorUID, boolean instantOpen)
     {
-        Door door = getCommander().getDoor(doorUID);
+        Door door = getCommander().getDoor(null, doorUID);
         return toggleDoor(door, 0.0, instantOpen) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID and a given time.
     public boolean toggleDoor(long doorUID, double time)
     {
-        Door door = getCommander().getDoor(doorUID);
+        Door door = getCommander().getDoor(null, doorUID);
         return toggleDoor(door, time, false) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID using default values.
     public boolean toggleDoor(long doorUID)
     {
-        Door door = getCommander().getDoor(doorUID);
+        Door door = getCommander().getDoor(null, doorUID);
         return toggleDoor(door, 0.0, false) == DoorOpenResult.SUCCESS;
     }
 
@@ -589,7 +589,7 @@ public class BigDoors extends JavaPlugin implements Listener
     // Check the open-status of a door from a doorUID.
     public boolean isOpen (long doorUID)
     {
-        Door door = getCommander().getDoor(doorUID);
+        Door door = getCommander().getDoor(null, doorUID);
         return this.isOpen(door);
     }
 }

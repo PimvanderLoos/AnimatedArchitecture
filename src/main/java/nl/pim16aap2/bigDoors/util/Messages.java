@@ -22,13 +22,15 @@ public class Messages
     {
         this.plugin = plugin;
         locale = plugin.getLocale();
-        textFile    = new File(plugin.getDataFolder(), locale + ".txt");
+        textFile = new File(plugin.getDataFolder(), locale + ".txt");
         readFile();
     }
 
     // Read locale file.
     private void readFile()
     {
+        if (!textFile.setWritable(true))
+            plugin.getMyLogger().myLogger(Level.SEVERE, "Failed to make file " + locale + ".txt writable!");
         // Load the default en_US from the resources.
         plugin.saveResource("en_US.txt", true);
 
@@ -65,6 +67,7 @@ public class Messages
             plugin.getMyLogger().myLogger(Level.SEVERE, "Could not read locale file! (" + locale + ".txt)");
             e.printStackTrace();
         }
+        textFile.setWritable(false);
     }
 
     // Get a string from a key. Returns "null" if null.

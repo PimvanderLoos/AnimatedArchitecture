@@ -15,7 +15,7 @@ public class WaitForSetTime extends WaitForCommand
         this.player  = player;
         this.command = command;
         this.doorUID = doorUID;
-        Util.messagePlayer(player, plugin.getMessages().getString("GUI.SetTimeInit"));
+        Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Init"));
         plugin.addCommandWaiter(this);
     }
 
@@ -30,9 +30,9 @@ public class WaitForSetTime extends WaitForCommand
                 plugin.getCommandHandler().setDoorOpenTime(player, doorUID, time);
                 plugin.removeCommandWaiter(this);
                 if (time != -1)
-                    Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.SetCloseTimerSuccess") + time + "s.");
+                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Success") + time + "s.");
                 else
-                    Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.DisableCloseTimerSuccess") + time + "s.");
+                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Disabled"));
                 return true;
             }
             catch (Exception e)

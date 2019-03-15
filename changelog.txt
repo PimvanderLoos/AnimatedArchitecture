@@ -8,16 +8,21 @@ Alpha 0.1.8
 - Made update checking a little less frequent (once every 4h now (and on startup) instead of every 30 mins).
 - Fixed incompatibility with Wireless Redstone. Thanks, @DaniRadio for the bug report!
 - Fixed terracotta accidentally being blacklisted in <1.13.*. Thanks, @Minestick for the bug report! 
-- Added filldoor command to quickly generate doors.
+- Added "/fillDoor" command to quickly generate doors.
 - Added sliding door and elevator door types. Note that you cannot ride elevators (yet)!
 - Added some translations.
 - Fixed timing issues with door creation again. Should be the last time :)
 - Added caching for redstone requests.
-- Added compatibility hooks for PlotSquared (v3!) and WorldGuard (v7!).
+- Added compatibility hooks for PlotSquared (only v3!) and WorldGuard (only v7!).
 - Added config options for the compatibility hooks.
 - Added blocksToMove attribute for sliding doors, elevators, and portcullises.
 - Added command "/setBlocksToMove <doorName || doorUID> <distance>" and GUI button to change how far the "door" will try to open.
-- DB is now v2. (this means it'll receive an update, so don't forget to make a backup!).
+- DB upgraded to v3.
+- Added config option (default = true) to create a backup of the database before performing an upgrade. I hope it'll never be necessary, but if it is, it'll be there!
+- Added door ownership tiers. Level 0 = owner, level 1 = admin (full access), level 2 = user (can use door, but not edit it).
+- Added "/BigDoors addOwner <doorUID || doorName> <Player || PlayerUUID> [permission level (int)]" and corresponding removeOwner commands to share ownership of a door.
+- Added addOwner and removeOwner buttons to GUI.
+- Made en_US.txt (default locale file) read-only to make it a bit more clear that you should not edit it (changes are overwritten).
 
 Alpha 0.1.7.3
 - Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!

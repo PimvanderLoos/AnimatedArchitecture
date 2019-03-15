@@ -92,7 +92,7 @@ public class GUIHandler implements Listener
     {
         if (player == null || inv == null || item == null)
             return;
-        Door door = getDoor(item);
+        Door door = getDoor(player, item);
         if (door == null)
             return;
         long doorUID = door.getDoorUID();
@@ -129,19 +129,19 @@ public class GUIHandler implements Listener
 
     private void toggleLock(Player player, Inventory inv)
     {
-        Door door = getDoor(inv.getItem(4));
+        Door door = getDoor(player, inv.getItem(4));
         long doorID = door.getDoorUID();
         door.setLock(true);
-        plugin.getCommandHandler().lockDoorCommand(player, plugin.getCommander().getDoor(doorID));
-        openDoorSubMenu(player, inv, getDoor(inv.getItem(4)).getDoorUID());
+        plugin.getCommandHandler().lockDoorCommand(player, plugin.getCommander().getDoor(player.getUniqueId(), doorID));
+        openDoorSubMenu(player, inv, door.getDoorUID());
     }
 
     private void toggleDoor(Player player, Inventory inv)
     {
-        plugin.getCommandHandler().openDoorCommand(player, getDoor(inv.getItem(4)));
+        plugin.getCommandHandler().openDoorCommand(player, getDoor(player, inv.getItem(4)));
     }
 
-    private Door getDoor(ItemStack item)
+    private Door getDoor(Player player, ItemStack item)
     {
         List<String> lore = item.getItemMeta().getLore();
 
@@ -161,13 +161,13 @@ public class GUIHandler implements Listener
             return null;
         }
 
-        Door door = plugin.getCommander().getDoor(doorUID);
+        Door door = plugin.getCommander().getDoor(player.getUniqueId(), doorUID);
         return door;
     }
 
     private void deleteDoor(Player player, Inventory inv)
     {
-        long doorUID = getDoor(inv.getItem(4)).getDoorUID();
+        long doorUID = getDoor(player, inv.getItem(4)).getDoorUID();
         plugin.getCommandHandler().delDoor(player, doorUID);
         setPage(player, inv, 0, PageType.DOORLIST, -1, getPageCount(inv));
     }
@@ -218,7 +218,7 @@ public class GUIHandler implements Listener
             setPage(player, inv, getPreviousPage(inv), PageType.DOORLIST, -1, getPageCount(inv));
         else if (pageType == PageType.DOORINFO)
         {
-            Door door = getDoor(inv.getItem(4));
+            Door door = getDoor(player, inv.getItem(4));
             if (itemName.equals(messages.getString("GUI.LockDoor")) || itemName.equals(messages.getString("GUI.UnlockDoor")))
                 toggleLock(player, inv);
             else if (itemName.equals(messages.getString("GUI.ToggleDoor")))
@@ -242,6 +242,16 @@ public class GUIHandler implements Listener
             else if (itemName.equals(messages.getString("GUI.BLOCKSTOMOVE.Name")))
             {
                 plugin.getCommandHandler().startBlocksToMoveSetter(player, door.getDoorUID());
+                player.closeInventory();
+            }
+            else if (itemName.equals(messages.getString("GUI.ADDOWNER")))
+            {
+                plugin.getCommandHandler().startAddOwner(player, door.getDoorUID());
+                player.closeInventory();
+            }
+            else if (itemName.equals(messages.getString("GUI.REMOVEOWNER")))
+            {
+                plugin.getCommandHandler().startRemoveOwner(player, door.getDoorUID());
                 player.closeInventory();
             }
             return;

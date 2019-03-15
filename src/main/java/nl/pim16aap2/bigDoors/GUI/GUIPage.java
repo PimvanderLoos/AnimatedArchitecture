@@ -34,12 +34,14 @@ public class GUIPage implements Listener
     private static final Material RELOCATEPBMAT  = Material.LEATHER_BOOTS;
     private static final Material SETOPENDIRMAT  = Material.COMPASS;
     private static final Material SETBTMOVEMAT   = XMaterial.STICKY_PISTON.parseMaterial();
-    private static final Material ADDOWNERMAT    = XMaterial.PLAYER_HEAD.parseMaterial();
-    private static final Material REMOVEOWNERMAT = XMaterial.SKELETON_SKULL.parseMaterial();
+    private static final Material ADDOWNERMAT    = Material.SKULL_ITEM;
+    private static final Material REMOVEOWNERMAT = Material.SKULL_ITEM;
     private static final byte     LOCKEDDATA     = 14;
     private static final byte     UNLOCKEDDATA   =  5;
     private static final byte     CONFIRMDATA    = 14;
     private static final byte     NOTCONFIRMDATA =  5;
+    private static final byte     PLAYERHEADDATA =  3;
+    private static final byte     SKULLDATA      =  0;
     private final  Messages messages;
 
     // Create a new inventory, with no owner, a size of nine, called example
@@ -79,7 +81,7 @@ public class GUIPage implements Listener
                                     (CHESTSIZE - 9.0)) : pageCount); // If pageCount hasn't been set, calculate it.
         this.pageType  = pageType;
         this.page      = page;
-        door = doorUID != -1 ? plugin.getCommander().getDoor(doorUID) : null;
+        door = doorUID != -1 ? plugin.getCommander().getDoor(player.getUniqueId(), doorUID) : null;
         fillInventory(player);
     }
 
@@ -225,6 +227,10 @@ public class GUIPage implements Listener
 
     private GUIItem getGUIItem(Door door, DoorAttribute atr)
     {
+        // If the permission level is higher than the
+        if (door.getPermission() > DoorAttribute.getPermissionLevel(atr))
+            return null;
+
         ArrayList<String> lore = new ArrayList<String>();
         String desc, loreStr;
         GUIItem ret = null;
@@ -307,14 +313,19 @@ public class GUIPage implements Listener
             else
                 loreStr = messages.getString("GUI.BLOCKSTOMOVE.Available") + " " + door.getBlocksToMove();
             lore.add(loreStr);
-
             ret = new GUIItem(SETBTMOVEMAT, desc, lore, 1);
             break;
 
         case ADDOWNER:
+            desc = messages.getString("GUI.ADDOWNER");
+            lore.add(desc);
+            ret = new GUIItem(ADDOWNERMAT, desc, lore, 1, PLAYERHEADDATA);
             break;
 
         case REMOVEOWNER:
+            desc = messages.getString("GUI.REMOVEOWNER");
+            lore.add(desc);
+            ret = new GUIItem(REMOVEOWNERMAT, desc, lore, 1, SKULLDATA);
             break;
         }
         return ret;

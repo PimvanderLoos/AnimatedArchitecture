@@ -3,6 +3,7 @@
 # You can change which file will be used in the config.yml. 
 # The format is "key=value" (without quotation marks). You can modify the values, but not the keys. 
 # Order doesn't matter and you can use comments if you so desire.
+# Please do note that white space does matter! (so spaces at the end of lines, for example).
 GENERAL.TooManyDoors=You already reached your maximum number of doors!
 GENERAL.InvalidDoorName=is not a valid door name!
 GENERAL.InvalidDoorID=is not a valid door ID!
@@ -20,10 +21,6 @@ GENERAL.NoDoorsFound=§4No door found with this name/ID!
 GENERAL.MoreThan1DoorFound=§4More than 1 door with that name found! Please use its ID instead!
 GENERAL.IsBusy=§4You are already in a creation / relocation / inspector process.
 GENERAL.NotBusy=§4You are not creating any doors right now! Please initiate the creation process in the GUI! /BDM
-GENERAL.SetCloseTimerSuccess=§2The door will now close after 
-GENERAL.DisableCloseTimerSuccess=§2The door will no longer close automatically.
-GENERAL.SetBlocksToMoveSuccess=§2Number of blocks this door will now attempt to move:
-GENERAL.DisableBlocksToMoveSuccess=§2The door will try to move for as many blocks as it is long again.
 GENERAL.NoDoorTypeCreationPermission=§4You do not have permission to create a door of this type!
 GENERAL.DOORTYPE.Door=Door
 GENERAL.DOORTYPE.DrawBridge=Drawbridge
@@ -81,13 +78,21 @@ GUI.Direction.South=South
 GUI.Direction.West=West
 GUI.Direction.Down=Down
 GUI.Direction.Up=Up
-GUI.SetTimeInit=&aType "/SetAutoCloseTime <time>" in chat. Replace "<time>" by a number in seconds. After that number of seconds, the door will close again.\nSetting a negative amount of time disables it!
-GUI.SetBlocksToMoveInit=&aType "/SetBlocksToMove <distance>" in chat. Replace <distance> by the number of blocks that you want the door to attempt to move.\nAny value lower than 1 will disable this function.
 GUI.ChangeTimer=Set door auto close timer.
 GUI.ChangeTimerLore=This door automatically closes after 
 GUI.ChangeTimerLoreDisabled=This door is not set to close automatically.
 GUI.ADDOWNER=Add another owner for this door.
 GUI.REMOVEOWNER=Remove another owner of this door. 
+COMMAND.AddOwner.Init=&aType "/BigDoors addowner <playerName> [permission]" in chat. Replace "<playerName>" by the name of the player you want to add as owner.\nOptionally, you can specify their permission level. 1 = default (can edit door), 2 = limited access (use only, no editing).
+COMMAND.AddOwner.Success=&aSuccessfully removed another owner!
+COMMAND.RemoveOwner.Init=&aType "/BigDoors removeowner <playerName>" in chat. Replace "<playerName>" by the name of the player you want to remove as owner.
+COMMAND.RemoveOwner.Success=&aSuccessfully added another owner!
+COMMAND.SetTime.Init=&aType "/SetAutoCloseTime <time>" in chat. Replace "<time>" by a number in seconds. After that number of seconds, the door will close again.\nSetting a negative amount of time disables it!
+COMMAND.SetTime.Success=§2The door will now close after 
+COMMAND.SetTime.Disabled=§2The door will no longer close automatically.
+COMMAND.SetBlocksToMove.Init=&aType "/SetBlocksToMove <distance>" in chat. Replace "<distance>" by the number of blocks that you want the door to attempt to move.\nAny value lower than 1 will disable this function.
+COMMAND.SetBlocksToMove.Success=§2Number of blocks this door will now attempt to move: 
+COMMAND.SetBlocksToMove.Disabled=§2The door will try to move for as many blocks as it is long again.
 CREATOR.GENERAL.GiveNameInstruc=§aPlease start by giving the door/drawbridge/portcullis a name using the command: /namedoor <name>
 CREATOR.GENERAL.InvalidPoint=§cInvalid second point selection! Try again!
 CREATOR.GENERAL.InvalidRotation=§cInvalid rotation point selection! Try again!

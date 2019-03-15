@@ -22,7 +22,7 @@ public final class Util
     {
         player.sendMessage(color + s);
     }
-    
+
     public static String errorToString(Error e)
     {
         StringWriter sw = new StringWriter();
@@ -92,7 +92,13 @@ public final class Util
         return output;
     }
 
-    public static String playerUUIDFromString(String input)
+    public static String playerUUIDStrFromString(String input)
+    {
+        UUID playerUUID = playerUUIDFromString(input);
+        return playerUUID == null ? null : playerUUID.toString();
+    }
+
+    public static UUID playerUUIDFromString(String input)
     {
         Player player = null;
         player = Bukkit.getPlayer(input);
@@ -101,14 +107,14 @@ public final class Util
             // Not doing anything with catch because I really couldn't care less if it didn't work.
             catch (Exception e)    {}
         if (player != null)
-            return player.getUniqueId().toString();
+            return player.getUniqueId();
 
         OfflinePlayer offPlayer = null;
         try { offPlayer = Bukkit.getOfflinePlayer(UUID.fromString(input)); }
         // Not doing anything with catch because I really couldn't care less if it didn't work.
         catch (Exception e)    {}
         if (offPlayer != null)
-            return offPlayer.getUniqueId().toString();
+            return offPlayer.getUniqueId();
         return null;
     }
 

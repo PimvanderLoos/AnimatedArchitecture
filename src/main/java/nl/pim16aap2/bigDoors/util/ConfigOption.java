@@ -4,82 +4,82 @@ import java.util.List;
 
 public class ConfigOption
 {
-    private String     optionName;
+    private String   optionName;
     List<String>     listVal   = null;
-    private Integer     intVal    = null;
-    private Double     doubleVal = null;
-    private Boolean     boolVal   = null;
-    private String     stringVal = null;
-    private String[]    comment;
+    private Integer  intVal    = null;
+    private Double   doubleVal = null;
+    private Boolean  boolVal   = null;
+    private String   stringVal = null;
+    private String[] comment;
 
     public ConfigOption(String optionName, int value, String[] comment)
     {
-        this.optionName   = optionName;
-        intVal       = value;
-        this.comment      = comment;
+        this.optionName = optionName;
+        intVal = value;
+        this.comment = comment;
     }
 
     public ConfigOption(String optionName, int value)
     {
-        this.optionName   = optionName;
-        intVal       = value;
-        comment      = null;
+        this.optionName = optionName;
+        intVal = value;
+        comment = null;
     }
 
     public ConfigOption(String optionName, boolean value, String[] comment)
     {
-        this.optionName   = optionName;
-        boolVal      = value;
-        this.comment      = comment;
+        this.optionName = optionName;
+        boolVal = value;
+        this.comment = comment;
     }
 
     public ConfigOption(String optionName, boolean value)
     {
-        this.optionName   = optionName;
-        boolVal      = value;
-        comment      = null;
+        this.optionName = optionName;
+        boolVal = value;
+        comment = null;
     }
 
     public ConfigOption(String optionName, String value, String[] comment)
     {
-        this.optionName   = optionName;
-        stringVal    = value;
-        this.comment      = comment;
+        this.optionName = optionName;
+        stringVal = value;
+        this.comment = comment;
     }
 
     public ConfigOption(String optionName, String value)
     {
-        this.optionName   = optionName;
-        stringVal    = value;
-        comment      = null;
+        this.optionName = optionName;
+        stringVal = value;
+        comment = null;
     }
 
     public ConfigOption(String optionName, List<String> value, String[] comment)
     {
-        this.optionName   = optionName;
-        listVal      = value;
-        this.comment      = comment;
+        this.optionName = optionName;
+        listVal = value;
+        this.comment = comment;
     }
 
     public ConfigOption(String optionName, List<String> value)
     {
-        this.optionName   = optionName;
-        listVal      = value;
-        comment      = null;
+        this.optionName = optionName;
+        listVal = value;
+        comment = null;
     }
 
     public ConfigOption(String optionName, double value, String[] comment)
     {
-        this.optionName   = optionName;
-        doubleVal    = value;
-        this.comment      = comment;
+        this.optionName = optionName;
+        doubleVal = value;
+        this.comment = comment;
     }
 
     public ConfigOption(String optionName, double value)
     {
-        this.optionName   = optionName;
-        doubleVal    = value;
-        comment      = null;
+        this.optionName = optionName;
+        doubleVal = value;
+        comment = null;
     }
 
     public String stringListToString()
@@ -113,11 +113,11 @@ public class ConfigOption
 
         // Then add the name of the option followed by its value (if it is an int/bool/String/String[]).
         string += optionName + ": " +
-                (intVal    != null ? intVal    :
-                 doubleVal != null ? doubleVal :
-                 boolVal   != null ? boolVal   :
-                 stringVal != null ? "\'" + stringVal + "\'" :
-                 listVal   != null ? "\n" + stringListToString() : null);
+            (intVal    != null ? intVal    :
+             doubleVal != null ? doubleVal :
+             boolVal   != null ? boolVal   :
+             stringVal != null ? "\'" + stringVal + "\'" :
+             listVal   != null ? "\n" + stringListToString() : null);
 
         return string;
     }
