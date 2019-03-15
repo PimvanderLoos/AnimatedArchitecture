@@ -17,7 +17,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.GUI.GUIPage;
+import nl.pim16aap2.bigDoors.GUI.GUI;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.toolUsers.DoorCreator;
 import nl.pim16aap2.bigDoors.toolUsers.DrawbridgeCreator;
@@ -29,6 +29,7 @@ import nl.pim16aap2.bigDoors.toolUsers.PowerBlockRelocator;
 import nl.pim16aap2.bigDoors.toolUsers.SlidingDoorCreator;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 import nl.pim16aap2.bigDoors.util.Abortable;
+import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -70,8 +71,8 @@ public class CommandHandler implements CommandExecutor
         // Get a new instance of the door to make sure the locked / unlocked status is recent.
         if (plugin.getCommander().getDoor(playerUUID, door.getDoorUID()).isLocked())
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.DoorIsLocked"));
-        // If the sender is a Player && the player's permission level is larger than 1 for this door, the player doesn't have permission (for now).
-        else if (sender instanceof Player && plugin.getCommander().getPermission(((Player) (sender)).getUniqueId().toString(), door.getDoorUID()) > 1)
+        // If the sender is a Player && the player's permission level exceeds toggle permission.
+        else if (sender instanceof Player && plugin.getCommander().getPermission(((Player) (sender)).getUniqueId().toString(), door.getDoorUID()) > DoorAttribute.getPermissionLevel(DoorAttribute.TOGGLE))
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.NoPermissionToOpen"));
         else
         {
@@ -329,7 +330,7 @@ public class CommandHandler implements CommandExecutor
 
             case "menu":
                 if (player != null)
-                    new GUIPage(plugin, player);
+                    new GUI(plugin, player);
                 break;
 
             case "restart":
@@ -648,7 +649,8 @@ public class CommandHandler implements CommandExecutor
             // /bdm
             if (cmd.getName().equalsIgnoreCase("bdm"))
             {
-                new GUIPage(plugin, player);
+//                new GUIPage_OLD(plugin, player);
+                new GUI(plugin, player);
                 return true;
             }
 

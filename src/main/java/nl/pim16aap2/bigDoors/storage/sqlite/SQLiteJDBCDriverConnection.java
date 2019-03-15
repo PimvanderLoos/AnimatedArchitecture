@@ -942,6 +942,65 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
+    public ArrayList<DoorOwner> getOwnersOfDoor(long doorUID)
+    {
+        ArrayList<DoorOwner> ret = new ArrayList<>();
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + doorUID + "';");
+            ResultSet rs1         = ps1.executeQuery();
+            while (rs1.next())
+            {
+                PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM players WHERE id = '" + rs1.getInt(UNION_PLAYER_ID) + "';");
+                ResultSet rs2         = ps2.executeQuery();
+                ret.add(new DoorOwner(UUID.fromString(rs2.getString(PLAYERS_UUID)), rs1.getInt(UNION_PERM)));
+            }
+            ps1.close();
+            rs1.close();
+        }
+        catch (SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("905: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                plugin.getMyLogger().logMessageToLogFile("915: " + e.getMessage());
+            }
+        }
+
+        return ret.size() == 0 ? null : ret;
+    }
+
+    public class DoorOwner
+    {
+        private UUID owner;
+        private int permission;
+
+        public DoorOwner(UUID owner, int permission)
+        {
+            this.owner = owner;
+            this.permission = permission;
+        }
+
+        public UUID getOwner()
+        {
+            return owner;
+        }
+
+        public int getPermission()
+        {
+            return permission;
+        }
+    }
+
     // Insert a new door in the db.
     public void addOwner(long doorUID, UUID playerUUID, int permission)
     {
@@ -975,11 +1034,34 @@ public class SQLiteJDBCDriverConnection
                 rs2.close();
             }
 
-            Statement stmt3 = conn.createStatement();
-            String sql3     = "INSERT INTO sqlUnion (permission, playerID, doorUID) "
-                            + "VALUES ('" + permission + "', '" + playerID + "', '" + doorUID + "');";
-            stmt3.executeUpdate(sql3);
-            stmt3.close();
+            PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID +
+                                                          "' AND doorUID = '" + doorUID + "';");
+            ResultSet rs3         = ps3.executeQuery();
+
+            // If it already exists, update the permission, if needed.
+            if (rs3.next())
+            {
+                // Already exists, no need to do anything.
+                if (rs3.getInt(UNION_PERM) == permission)
+                    return;
+
+                Statement stmt4 = conn.createStatement();
+                String sql4     = "UPDATE sqlUnion SET permission = '" + permission
+                                + "' WHERE playerID = '" + playerID
+                                + "' AND doorUID = '" + doorUID + "';";
+                stmt4.executeUpdate(sql4);
+                stmt4.close();
+            }
+            else
+            {
+                Statement stmt4 = conn.createStatement();
+                String sql4     = "INSERT INTO sqlUnion (permission, playerID, doorUID) "
+                                + "VALUES ('" + permission + "', '" + playerID + "', '" + doorUID + "');";
+                stmt4.executeUpdate(sql4);
+                stmt4.close();
+            }
+            ps3.close();
+            rs3.close();
         }
         catch (SQLException e)
         {

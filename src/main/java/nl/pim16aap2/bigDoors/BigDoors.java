@@ -14,6 +14,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import nl.pim16aap2.bigDoors.GUI.GUI;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
@@ -73,11 +74,31 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 // TODO: Implement multiple ownership / shared ownership.
 // TODO: Add permission level to each attribute. To enable/disable them based on permission.
-// TODO: Implement add and remove owner buttons and commands.
-// TODO: Implement backup option for making a backup of the database when upgrading.
-// TODO: Rewrite GUI implementation. 1 Object per opened menu, so the db doesn't have to be pinged constantly and so that sorting can be implemented.
 // TODO: Test skulls etc in the GUI on 1.13
 // TODO: Make sure no duplicate entries are inserted into sqlUnion (check if relation already exists, if so, alter).
+// TODO: Implement listing owners of doors using command and GUI.
+// TODO: Make player skull in 1.13 a player skull.
+// TODO: ALWAYS return true when using the /BigDoors tree. false is just not useful.
+
+/* ISSUES:
+ * - 1.13 player skull is a human skull.
+ * - XMaterial skull might not work on 1.12 -> needs testing
+ * - Adding owner using commandwaiter doesn't work?
+ * - Adding owner who is already an owner using commandwaiter just returns the init?
+ * - Adding user with invalid permission range just returns /BigDoors.
+ * - Removing another owner doesn't work.
+ *
+ */
+
+/* To test:
+ * - Make sure other users can get proper access to doors given to them.
+ * - Make sure removing owners works properly.
+ * - Make sure you cannot add the same owner more than once (both different and same permissions).
+ * - Make sure you cannot add 0 or >2 permissions.
+ * - Make sure owner with permission 0 cannot remove themselves as owner.
+ * - Make sure other players cannot remove another user as owner.
+ *
+ */
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -109,6 +130,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private ArrayList<ProtectionCompat> protectionCompats;
     //                 Chunk         Location, DoorUID
     private TimedCache<Long, HashMap<Long,     Long>> pbCache; // Powerblock cache.
+
+    private HashMap<UUID, GUI> playerGUIs;
 
     private boolean              is1_13 = false;
 
@@ -191,6 +214,7 @@ public class BigDoors extends JavaPlugin implements Listener
         readConfigValues();
         messages    = new Messages(this);
         toolUsers   = new HashMap<>();
+        playerGUIs  = new HashMap<>();
         blockMovers = new Vector<BlockMover>(2);
         cmdWaiters  = new Vector<WaitForCommand>(2);
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
@@ -333,6 +357,8 @@ public class BigDoors extends JavaPlugin implements Listener
         toolUsers = null;
         cmdWaiters = null;
         blockMovers = null;
+        playerGUIs.forEach((key,value) -> value.close());
+        playerGUIs = null;
         init(false);
     }
 
@@ -349,6 +375,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         for (BlockMover bm : blockMovers)
             bm.putBlocks(true);
+
 
         toolUsers.clear();
         cmdWaiters.clear();
@@ -421,6 +448,24 @@ public class BigDoors extends JavaPlugin implements Listener
     public void removeToolUser(ToolUser toolUser)
     {
         toolUsers.remove(toolUser.getPlayer().getUniqueId());
+    }
+
+    public GUI getGUIUser(Player player)
+    {
+        GUI gui = null;
+        if (playerGUIs.containsKey(player.getUniqueId()))
+            gui = playerGUIs.get(player.getUniqueId());
+        return gui;
+    }
+
+    public void addGUIUser(GUI gui)
+    {
+        playerGUIs.put(gui.getPlayer().getUniqueId(), gui);
+    }
+
+    public void removeGUIUser(GUI gui)
+    {
+        playerGUIs.remove(gui.getPlayer().getUniqueId());
     }
 
     // Get the Vector of WaitForCommand.

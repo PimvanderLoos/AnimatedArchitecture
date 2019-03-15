@@ -13,7 +13,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 
 public class Messages
 {
-    private Map<String, String> messageMap = new HashMap<String, String>();
+    private HashMap<String, String> messageMap = new HashMap<>();
     private BigDoors plugin;
     private String   locale;
     private File   textFile;
@@ -81,5 +81,14 @@ public class Messages
             plugin.getMyLogger().logMessageToConsole("Failed to get translation for key " + key);
         }
         return value;
+    }
+
+    public String getStringReverse(String value)
+    {
+        return messageMap.entrySet().stream()
+            .filter(e -> e.getValue().equals(value))
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElse(null);
     }
 }

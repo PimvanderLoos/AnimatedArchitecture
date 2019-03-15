@@ -109,6 +109,11 @@ public class Door
         player = playerUUID;
     }
 
+    public void setOpenDir(RotateDirection newRotDir)
+    {
+        openDir = newRotDir;
+    }
+
     public void setBlocksToMove(int move)
     {
         blocksToMove = move;

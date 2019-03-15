@@ -5,41 +5,40 @@ import java.util.Map;
 
 public enum DoorType
 {
-    // DoorType     // Value // Creator Flag // Translation key             // Perm
-    DOOR           (0,       "-BD",          "GENERAL.DOORTYPE.Door"        , "bigdoors.user.createdoor.door",
-                    new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
-                                         DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                         DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_NSEW_LOOK}),
+    DOOR        (0, "-BD", "GENERAL.DOORTYPE.Door", "bigdoors.user.createdoor.door",
+                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
+                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_NSEW_LOOK}),
 
 
-    DRAWBRIDGE     (1,       "-DB",          "GENERAL.DOORTYPE.DrawBridge"  , "bigdoors.user.createdoor.drawbridge",
-                    new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
-                                         DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                         DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_NSEW_LOOK}),
+    DRAWBRIDGE  (1, "-DB", "GENERAL.DOORTYPE.DrawBridge", "bigdoors.user.createdoor.drawbridge",
+                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
+                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_NSEW_LOOK}),
 
 
-    PORTCULLIS     (2,       "-PC",          "GENERAL.DOORTYPE.Portcullis"  , "bigdoors.user.createdoor.portcullis",
-                    new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
-                                         DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                         DoorAttribute.REMOVEOWNER, DoorAttribute.BLOCKSTOMOVE}),
+    PORTCULLIS  (2, "-PC", "GENERAL.DOORTYPE.Portcullis", "bigdoors.user.createdoor.portcullis",
+                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
+                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.BLOCKSTOMOVE}),
 
 
-    ELEVATOR       (3,       "-EL",          "GENERAL.DOORTYPE.Elevator"    , "bigdoors.user.createdoor.elevator",
-                    new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
-                                         DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                         DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_GO, DoorAttribute.BLOCKSTOMOVE}),
+    ELEVATOR    (3, "-EL", "GENERAL.DOORTYPE.Elevator", "bigdoors.user.createdoor.elevator",
+                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
+                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_GO, DoorAttribute.BLOCKSTOMOVE}),
 
 
-    SLIDINGDOOR    (4,       "-SD",          "GENERAL.DOORTYPE.SlidingDoor" , "bigdoors.user.createdoor.slidingdoor",
-                    new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
-                                         DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                         DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_GO, DoorAttribute.BLOCKSTOMOVE}),
+    SLIDINGDOOR (4, "-SD", "GENERAL.DOORTYPE.SlidingDoor", "bigdoors.user.createdoor.slidingdoor",
+                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
+                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_GO, DoorAttribute.BLOCKSTOMOVE}),
 
 
-    FLAG           (5,       "-FL",          "GENERAL.DOORTYPE.Flag"        , "bigdoors.user.createdoor.flag",
-                    new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
-                                         DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                         DoorAttribute.REMOVEOWNER});
+    FLAG        (5, "-FL", "GENERAL.DOORTYPE.Flag", "bigdoors.user.createdoor.flag",
+                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
+                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
+                                      DoorAttribute.REMOVEOWNER});
 
     private int    val;
     private String flag;

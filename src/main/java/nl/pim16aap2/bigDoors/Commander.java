@@ -70,7 +70,7 @@ public class Commander
         paused = !paused;
     }
 
-    // Check if the doors can go. This differs from beign paused in that it will finish up
+    // Check if the doors can go. This differs from begin paused in that it will finish up
     // all currently moving doors.
     public boolean canGo()
     {
@@ -152,13 +152,13 @@ public class Commander
     }
 
     // Returns the number of doors owner by a player and with a specific name, if provided (can be null).
-    public long countDoors(String playerUUID, String doorName)
+    public long countDoors(String playerUUID, @Nullable String doorName)
     {
         return db.countDoors(playerUUID, doorName);
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
-    public ArrayList<Door> getDoors(String playerUUID, String name)
+    public ArrayList<Door> getDoors(String playerUUID, @Nullable String name)
     {
         return playerUUID == null ? getDoors(name) : db.getDoors(playerUUID, name);
     }
@@ -170,7 +170,7 @@ public class Commander
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
-    public ArrayList<Door> getDoorsInRange(String playerUUID, String name, int start, int end)
+    public ArrayList<Door> getDoorsInRange(String playerUUID, @Nullable String name, int start, int end)
     {
         return db.getDoors(playerUUID, name, start, end);
     }

@@ -23,6 +23,8 @@ Alpha 0.1.8
 - Added "/BigDoors addOwner <doorUID || doorName> <Player || PlayerUUID> [permission level (int)]" and corresponding removeOwner commands to share ownership of a door.
 - Added addOwner and removeOwner buttons to GUI.
 - Made en_US.txt (default locale file) read-only to make it a bit more clear that you should not edit it (changes are overwritten).
+- Rewrote all GUI code to make my life easier and this plugin a little faster.
+- Added option to sort doors in GUI by name or ID.
 
 Alpha 0.1.7.3
 - Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!
