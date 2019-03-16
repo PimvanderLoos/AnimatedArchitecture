@@ -26,9 +26,9 @@ public class WaitForAddOwner extends WaitForCommand
     public boolean executeCommand(String[] args)
     {
         // Example: /BigDoors addOwner pim16aap2 1
-        if (args.length == 3)
+        if (args.length >= 2)
         {
-            UUID playerUUID = Util.playerUUIDFromString(args[1]);
+            UUID playerUUID = plugin.getCommander().playerUUIDFromName(args[1]);
             Door door = plugin.getCommander().getDoor(player.getUniqueId(), doorUID);
             int permission = 1;
             try
@@ -36,7 +36,7 @@ public class WaitForAddOwner extends WaitForCommand
                 if (args.length == 3)
                     permission = Integer.parseInt(args[2]);
             }
-            catch (Exception uncaught)
+            catch (Exception e)
             {
                 Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.InvalidInput.Integer"));
             }
@@ -44,13 +44,17 @@ public class WaitForAddOwner extends WaitForCommand
             {
                 if (plugin.getCommander().addOwner(playerUUID, door, permission))
                 {
-                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.AddOwner.Init"));
+                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.AddOwner.Success"));
                     return true;
                 }
-                return false;
+                Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
+                return true;
             }
             else
-                return false;
+            {
+                Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[1] + "\"");
+                return true;
+            }
         }
         return false;
     }

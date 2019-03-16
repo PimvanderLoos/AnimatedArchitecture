@@ -53,42 +53,21 @@ import nl.pim16aap2.bigDoors.util.Metrics;
 import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
-// TODO: Store starting x,z values in savedBlocks, then make putblocks etc part of abstact class.
 // TODO: Add success message for changing door opendirection.
-// TODO: Add /RenameDoor command and config option.
 // TODO: Add "Server" as door owner.
 // TODO: Add /BDM [PlayerName (when online) || PlayerUUID || Server] to open a doorMenu for a specific player.
-// TODO: Store playernames as well as UUID in database (verify on login).
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
 // TODO: Make release and debug build modes.
-// TODO: Make default language file read-only.
 // TODO: Rewrite Openers to get rid of code duplication.
 // TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
 // TODO: Use generics for ConfigOption.
-// TODO: Add "Blocks-to-move" property to sliding doors, portcullises, and elevators.
 // TODO: Make sure the abortable's BukkitTask isn't null.
 // TODO: Make invalid input stuff more informative (e.g. int, float etc).
 // TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
 // TODO: Split up SQL functions into 2: One taking a connection and one without the connection, to get rid of code duplication.
-
-// TODO: Implement multiple ownership / shared ownership.
-// TODO: Add permission level to each attribute. To enable/disable them based on permission.
-// TODO: Test skulls etc in the GUI on 1.13
-// TODO: Make sure no duplicate entries are inserted into sqlUnion (check if relation already exists, if so, alter).
-// TODO: Implement listing owners of doors using command and GUI.
-// TODO: Make player skull in 1.13 a player skull.
-// TODO: ALWAYS return true when using the /BigDoors tree. false is just not useful.
-
-/* ISSUES:
- * - 1.13 player skull is a human skull.
- * - XMaterial skull might not work on 1.12 -> needs testing
- * - Adding owner using commandwaiter doesn't work?
- * - Adding owner who is already an owner using commandwaiter just returns the init?
- * - Adding user with invalid permission range just returns /BigDoors.
- * - Removing another owner doesn't work.
- *
- */
+// TODO: Use generic player heads before the skins are loaded. Then refresh once they are.
+// TODO: Add help menu for every command separately. Use that when a mistake was made.
 
 /* To test:
  * - Make sure other users can get proper access to doors given to them.
@@ -97,7 +76,6 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
  * - Make sure you cannot add 0 or >2 permissions.
  * - Make sure owner with permission 0 cannot remove themselves as owner.
  * - Make sure other players cannot remove another user as owner.
- *
  */
 
 public class BigDoors extends JavaPlugin implements Listener
@@ -466,6 +444,14 @@ public class BigDoors extends JavaPlugin implements Listener
     public void removeGUIUser(GUI gui)
     {
         playerGUIs.remove(gui.getPlayer().getUniqueId());
+    }
+
+    public WaitForCommand getCommandWaiter(Player player)
+    {
+        for (WaitForCommand wfc : cmdWaiters)
+            if (wfc.getPlayer().equals(player))
+                return wfc;
+        return null;
     }
 
     // Get the Vector of WaitForCommand.

@@ -28,7 +28,7 @@ public class WaitForRemoveOwner extends WaitForCommand
         // example: /BigDoors removeOwner pim16aap2
         if (args.length == 2)
         {
-            UUID playerUUID = Util.playerUUIDFromString(args[1]);
+            UUID playerUUID = plugin.getCommander().playerUUIDFromName(args[1]);
             Door door = plugin.getCommander().getDoor(player.getUniqueId(), doorUID);
 
             if (playerUUID != null)
@@ -38,10 +38,14 @@ public class WaitForRemoveOwner extends WaitForCommand
                     Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
                     return true;
                 }
-                return false;
+                Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
+                return true;
             }
             else
-                return false;
+            {
+                Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[1] + "\"");
+                return true;
+            }
         }
         return false;
     }

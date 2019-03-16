@@ -143,7 +143,7 @@ public class CommandHandler implements CommandExecutor
         {
             ArrayList<Door> doors = plugin.getCommander().getDoors(null, str);
             for (Door door : doors)
-                plugin.getMyLogger().myLogger(Level.INFO, Util.nameFromUUID(door.getPlayerUUID()) + ": " + Util.getFullDoorInfo(door));
+                plugin.getMyLogger().myLogger(Level.INFO, plugin.getCommander().playerNameFromUUID(door.getPlayerUUID()) + ": " + Util.getFullDoorInfo(door));
             if (doors.size() == 0)
                 plugin.getMyLogger().myLogger(Level.INFO, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
             return;
@@ -157,12 +157,12 @@ public class CommandHandler implements CommandExecutor
         plugin.getMyLogger().myLogger(Level.INFO, Util.nameFromUUID(door.getPlayerUUID()) + ": " + Util.getFullDoorInfo(door));
     }
 
-    private void listDoorsFromConsole(String playerUID, String name)
+    private void listDoorsFromConsole(String playerUUID, String name)
     {
-        ArrayList<Door> doors = plugin.getCommander().getDoors(playerUID, name);
+        ArrayList<Door> doors = plugin.getCommander().getDoors(playerUUID, name);
         for (Door door : doors)
         {
-            String playerName = Util.nameFromUUID(door.getPlayerUUID());
+            String playerName = plugin.getCommander().playerNameFromUUID(UUID.fromString(playerUUID));
             plugin.getMyLogger().myLogger(Level.INFO,
                                           (playerName == null ? "" : playerName + ": ") + Util.getBasicDoorInfo(door));
         }
@@ -172,7 +172,9 @@ public class CommandHandler implements CommandExecutor
 
     public void listDoorsFromConsole(String str)
     {
-        String playerUUID = Util.playerUUIDStrFromString(str);
+//        String playerUUID = Util.playerUUIDStrFromString(str);
+
+        String playerUUID = plugin.getCommander().playerUUIDFromName(str).toString();
         if (playerUUID != null)
             listDoorsFromConsole(playerUUID, null);
         else
@@ -263,13 +265,6 @@ public class CommandHandler implements CommandExecutor
         plugin.getCommander().updateDoorBlocksToMove(doorUID, autoClose);
     }
 
-    public void startTimerSetter(Player player, long doorUID)
-    {
-        if (isPlayerBusy(player))
-            return;
-        startTimerForAbortable((new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), player, 20 * 20);
-    }
-
     public void startBlocksToMoveSetter(Player player, long doorUID)
     {
         if (isPlayerBusy(player))
@@ -277,17 +272,28 @@ public class CommandHandler implements CommandExecutor
         startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, "setblockstomove", doorUID)), player, 20 * 20);
     }
 
+    private void replaceWaitForCommand(Player player)
+    {
+        WaitForCommand cw = plugin.getCommandWaiter(player);
+        if (cw != null)
+            abortAbortable(cw);
+    }
+
+    public void startTimerSetter(Player player, long doorUID)
+    {
+        replaceWaitForCommand(player);
+        startTimerForAbortable((new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), player, 20 * 20);
+    }
+
     public void startAddOwner(Player player, long doorUID)
     {
-        if (isPlayerBusy(player))
-            return;
+        replaceWaitForCommand(player);
         startTimerForAbortable((new WaitForAddOwner(plugin, player, "addowner", doorUID)), player, 20 * 20);
     }
 
     public void startRemoveOwner(Player player, long doorUID)
     {
-        if (isPlayerBusy(player))
-            return;
+        replaceWaitForCommand(player);
         startTimerForAbortable((new WaitForRemoveOwner(plugin, player, "removeowner", doorUID)), player, 20 * 20);
     }
 
@@ -299,11 +305,12 @@ public class CommandHandler implements CommandExecutor
         return isBusy;
     }
 
-    private void abortAbortable(Abortable abort)
+    private void abortAbortable(Abortable abortable)
     {
-        if (abort instanceof ToolUser)
-            ((ToolUser) abort).setIsDone(true);
-        abort.getTask().cancel();
+        if (abortable instanceof ToolUser)
+            ((ToolUser) abortable).setIsDone(true);
+        abortable.getTask().cancel();
+        abortable.abort();
     }
 
     public void startPowerBlockRelocator(Player player, long doorUID)
@@ -348,7 +355,7 @@ public class CommandHandler implements CommandExecutor
                 break;
 
             case "addowner":
-                if (player == null)
+                if (player == null) // TODO: Surely, the server should be able to add any user to any door?
                     break;
 
                 if (args.length > 1)
@@ -359,13 +366,17 @@ public class CommandHandler implements CommandExecutor
 
                     Door door = plugin.getCommander().getDoor(args[1], player);
                     if (door == null)
-                        return false;
+                    {
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
+                                                            ChatColor.RED, "\"" + args[1] + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+                        return true;
+                    }
 
                     UUID playerUUID = null;
                     int permission = 1;
                     try
                     {
-                        playerUUID = Util.playerUUIDFromString(args[2]);
+                        playerUUID = plugin.getCommander().playerUUIDFromName(args[2]);
                         if (args.length == 4)
                             permission = Integer.parseInt(args[3]);
                     }
@@ -376,10 +387,18 @@ public class CommandHandler implements CommandExecutor
                     if (playerUUID != null)
                         return plugin.getCommander().addOwner(playerUUID, door, permission);
                     else
-                        return false;
+                    {
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
+                                                            ChatColor.RED, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[2] + "\"");
+                        return true;
+                    }
                 }
                 else
-                    return false;
+                {
+                    // TODO: Print help menu!
+                    Util.broadcastMessage("FAIL");
+                    return true;
+                }
 
             case "removeowner":
                 if (player == null)
@@ -395,14 +414,16 @@ public class CommandHandler implements CommandExecutor
                 {
                     Door door = plugin.getCommander().getDoor(args[1], player);
                     if (door == null)
-                        return false;
+                    {
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
+                                                            ChatColor.RED, "\"" + args[1] + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+                        return true;
+                    }
 
                     UUID playerUUID = Util.playerUUIDFromString(args[2]);
 
                     if (playerUUID != null)
                         plugin.getCommander().removeOwner(playerUUID, door);
-                    else
-                        return false;
                 }
                 break;
 
@@ -690,9 +711,14 @@ public class CommandHandler implements CommandExecutor
                 ToolUser tu = plugin.getToolUser(player);
                 if (tu != null)
                 {
-//                    tu.setIsDone(true);
                     abortAbortable(tu);
                     plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED, plugin.getMessages().getString("CREATOR.GENERAL.Cancelled"));
+                }
+                else
+                {
+                    WaitForCommand cw = plugin.getCommandWaiter(player);
+                    if (cw != null)
+                        abortAbortable(cw);
                 }
                 return true;
             }

@@ -17,14 +17,16 @@ Alpha 0.1.8
 - Added config options for the compatibility hooks.
 - Added blocksToMove attribute for sliding doors, elevators, and portcullises.
 - Added command "/setBlocksToMove <doorName || doorUID> <distance>" and GUI button to change how far the "door" will try to open.
-- DB upgraded to v3.
+- DB upgraded to v4.
 - Added config option (default = true) to create a backup of the database before performing an upgrade. I hope it'll never be necessary, but if it is, it'll be there!
 - Added door ownership tiers. Level 0 = owner, level 1 = admin (full access), level 2 = user (can use door, but not edit it).
 - Added "/BigDoors addOwner <doorUID || doorName> <Player || PlayerUUID> [permission level (int)]" and corresponding removeOwner commands to share ownership of a door.
 - Added addOwner and removeOwner buttons to GUI.
+- Added removeOwner menu to GUI.
 - Made en_US.txt (default locale file) read-only to make it a bit more clear that you should not edit it (changes are overwritten).
 - Rewrote all GUI code to make my life easier and this plugin a little faster.
 - Added option to sort doors in GUI by name or ID.
+- Now storing player names in db (easier and faster).
 
 Alpha 0.1.7.3
 - Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!

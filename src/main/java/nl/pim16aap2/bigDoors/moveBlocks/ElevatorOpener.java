@@ -68,7 +68,6 @@ public class ElevatorOpener implements Opener
                 instantOpen = true;
 
         int blocksToMove = getBlocksToMove(door);
-        Util.broadcastMessage("blocksToMove = " + blocksToMove);
 
         if (blocksToMove != 0)
         {
@@ -91,7 +90,6 @@ public class ElevatorOpener implements Opener
         zMax  = door.getMaximum().getBlockZ();
         yLen  = yMax - yMin + 1;
         int distanceToCheck = door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
-        Util.broadcastMessage("DistanceToCheck = " + distanceToCheck + ", yLen = " + yLen);
 
         int xAxis, yAxis, zAxis, yGoal;
         World world = door.getWorld();
@@ -108,7 +106,6 @@ public class ElevatorOpener implements Opener
             yAxis += step;
             blocksMoved += step;
         }
-        Util.broadcastMessage("blocksMoved = " + blocksMoved);
         return blocksMoved;
     }
 

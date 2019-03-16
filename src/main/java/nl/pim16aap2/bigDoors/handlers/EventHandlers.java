@@ -7,6 +7,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -42,16 +44,17 @@ public class EventHandlers implements Listener
         }
     }
 
-//    @EventHandler
-//    public void onBlockBreakEvent(BlockBreakEvent event)
-//    {
-//        Block block = event.getBlock();
-//        if (block.hasMetadata("BDBreakTest"))
-//        {
-//            event.setCancelled(true);
-//            block.removeMetadata("BDBreakTest", plugin);
-//        }
-//    }
+    @EventHandler
+    public void onLogin(PlayerLoginEvent event)
+    {
+        plugin.getCommander().updatePlayer(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onLogout(PlayerQuitEvent event)
+    {
+        plugin.getCommander().removePlayer(event.getPlayer());
+    }
 
     // Do not allow the player to drop the door creation tool.
     @EventHandler

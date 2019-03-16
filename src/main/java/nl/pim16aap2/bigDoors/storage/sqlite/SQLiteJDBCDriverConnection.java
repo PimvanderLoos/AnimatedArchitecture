@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,6 +24,7 @@ import com.google.common.io.Files;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -32,7 +35,7 @@ public class SQLiteJDBCDriverConnection
     private File     dbFile;
     private String   url;
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION    =  3;
+    private static final int DATABASE_VERSION    =  4;
 
     private static final int DOOR_ID             =  1;
     private static final int DOOR_NAME           =  2;
@@ -60,6 +63,7 @@ public class SQLiteJDBCDriverConnection
 
     private static final int PLAYERS_ID          =  1;
     private static final int PLAYERS_UUID        =  2;
+    private static final int PLAYERS_NAME        =  3;
 
     @SuppressWarnings("unused")
     private static final int UNION_ID            =  1;
@@ -159,7 +163,8 @@ public class SQLiteJDBCDriverConnection
             Statement stmt2 = conn.createStatement();
             String sql2     = "CREATE TABLE IF NOT EXISTS players "
                             + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
-                            + " playerUUID  TEXT       NOT NULL)";
+                            + " playerUUID  TEXT       NOT NULL,"
+                            + " playerName  TEXT)";
             stmt2.executeUpdate(sql2);
             stmt2.close();
 
@@ -341,7 +346,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Get Door from a doorID.
-    public Door getDoor(UUID playerUUID, long doorID)
+    public Door getDoor(UUID playerUUID, long doorUID)
     {
         Door door = null;
 
@@ -368,7 +373,7 @@ public class SQLiteJDBCDriverConnection
                 rs1.close();
 
                 // Select all doors from the sqlUnion table that have the previously found player as owner.
-                PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
+                PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND doorUID = '" + doorUID + "';");
                 ResultSet rs2         = ps2.executeQuery();
                 while (rs2.next())
                     permission = rs2.getInt(UNION_PERM);
@@ -380,11 +385,11 @@ public class SQLiteJDBCDriverConnection
                     return null;
             }
 
-            PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + doorID + "';");
+            PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + doorUID + "';");
             ResultSet rs3         = ps3.executeQuery();
 
             while (rs3.next())
-                door = newDoorFromRS(rs3, doorID, permission, playerUUID);
+                door = newDoorFromRS(rs3, doorUID, permission, playerUUID);
 
             ps3.close();
             rs3.close();
@@ -523,6 +528,112 @@ public class SQLiteJDBCDriverConnection
             }
         }
         return doors;
+    }
+
+    public void updatePlayerName(UUID playerUUID, String playerName)
+    {
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+            // Get the door associated with the x/y/z location of the power block block.
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+            {
+                if (rs.getString(PLAYERS_NAME) == null || !rs.getString(PLAYERS_NAME).equals(playerName))
+                {
+                    conn.setAutoCommit(false);
+                    String update = "UPDATE players SET "
+                                  + "playerName='" + playerName
+                                  + "' WHERE playerUUID = '" + playerUUID.toString() + "';";
+                    conn.prepareStatement(update).executeUpdate();
+                    conn.commit();
+                }
+            }
+            ps.close();
+            rs.close();
+        }
+        catch(SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("566: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                plugin.getMyLogger().logMessageToLogFile("534: " + e.getMessage());
+            }
+        }
+    }
+
+    public UUID getUUIDFromName(String playerName)
+    {
+        UUID uuid = null;
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+            // Get the door associated with the x/y/z location of the power block block.
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE playerName = '" + playerName + "';");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+                uuid = UUID.fromString(rs.getString(PLAYERS_UUID));
+            ps.close();
+            rs.close();
+        }
+        catch(SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("598: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                plugin.getMyLogger().logMessageToLogFile("608: " + e.getMessage());
+            }
+        }
+        return uuid;
+    }
+    public String getPlayerName(UUID playerUUID)
+    {
+        String playerName = null;
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+            // Get the door associated with the x/y/z location of the power block block.
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+                playerName = rs.getString(PLAYERS_NAME);
+            ps.close();
+            rs.close();
+        }
+        catch(SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("598: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                plugin.getMyLogger().logMessageToLogFile("608: " + e.getMessage());
+            }
+        }
+        return playerName;
     }
 
     public HashMap<Long, Long> getPowerBlockData(long chunkHash)
@@ -819,8 +930,8 @@ public class SQLiteJDBCDriverConnection
             if (playerID == -1)
             {
                 Statement stmt2 = conn.createStatement();
-                String sql2     = "INSERT INTO players (playerUUID) "
-                                + "VALUES ('" + door.getPlayerUUID().toString() + "');";
+                String sql2     = "INSERT INTO players (playerUUID, playerName) "
+                                + "VALUES ('" + door.getPlayerUUID().toString() + "', '" + Util.nameFromUUID(door.getPlayerUUID()) + "');";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
@@ -918,7 +1029,7 @@ public class SQLiteJDBCDriverConnection
             }
 
             PreparedStatement ps2 = conn.prepareStatement("DELETE FROM sqlUnion WHERE " +
-                                                          "playerUUID = '" + playerUUID.toString() +
+                                                          "playerID = '" + playerID +
                                                           "' AND doorUID = '" + doorUID +
                                                           "' AND permission > '" + 0 + "';"); // The creator cannot be removed as owner
             ps2.execute();
@@ -942,7 +1053,7 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
-    public ArrayList<DoorOwner> getOwnersOfDoor(long doorUID)
+    public ArrayList<DoorOwner> getOwnersOfDoor(long doorUID, @Nullable UUID playerUUID)
     {
         ArrayList<DoorOwner> ret = new ArrayList<>();
         Connection conn = null;
@@ -955,7 +1066,8 @@ public class SQLiteJDBCDriverConnection
             {
                 PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM players WHERE id = '" + rs1.getInt(UNION_PLAYER_ID) + "';");
                 ResultSet rs2         = ps2.executeQuery();
-                ret.add(new DoorOwner(UUID.fromString(rs2.getString(PLAYERS_UUID)), rs1.getInt(UNION_PERM)));
+                if (playerUUID == null || !UUID.fromString(rs2.getString(PLAYERS_UUID)).equals(playerUUID))
+                    ret.add(new DoorOwner(plugin, doorUID, UUID.fromString(rs2.getString(PLAYERS_UUID)), rs1.getInt(UNION_PERM), rs2.getString(PLAYERS_NAME)));
             }
             ps1.close();
             rs1.close();
@@ -976,29 +1088,7 @@ public class SQLiteJDBCDriverConnection
             }
         }
 
-        return ret.size() == 0 ? null : ret;
-    }
-
-    public class DoorOwner
-    {
-        private UUID owner;
-        private int permission;
-
-        public DoorOwner(UUID owner, int permission)
-        {
-            this.owner = owner;
-            this.permission = permission;
-        }
-
-        public UUID getOwner()
-        {
-            return owner;
-        }
-
-        public int getPermission()
-        {
-            return permission;
-        }
+        return ret;
     }
 
     // Insert a new door in the db.
@@ -1021,8 +1111,8 @@ public class SQLiteJDBCDriverConnection
             if (playerID == -1)
             {
                 Statement stmt2 = conn.createStatement();
-                String sql2     = "INSERT INTO players (playerUUID) "
-                                + "VALUES ('" + playerUUID.toString() + "');";
+                String sql2     = "INSERT INTO players (playerUUID, playerName) "
+                                + "VALUES ('" + playerUUID.toString() + "', '" + Util.nameFromUUID(playerUUID) + "');";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
@@ -1162,14 +1252,17 @@ public class SQLiteJDBCDriverConnection
                 conn = DriverManager.getConnection(url);
             }
 
-            if (dbVersion == 0)
+            if (dbVersion < 1)
                 upgradeToV1(conn);
 
-            if (dbVersion == 1)
+            if (dbVersion < 2)
                 upgradeToV2(conn);
 
-            if (dbVersion == 2)
+            if (dbVersion < 3)
                 upgradeToV3(conn);
+
+            if (dbVersion < 4)
+                upgradeToV4(conn);
 
             // Do this at the very end, so the db version isn't altered if anything fails.
             if (dbVersion != DATABASE_VERSION)
@@ -1418,6 +1511,23 @@ public class SQLiteJDBCDriverConnection
                 plugin.getMyLogger().logMessageToLogFile("1285 "  + e.getMessage());
             }
             plugin.getMyLogger().logMessageToLogFile("1287 "  + e.getMessage());
+        }
+    }
+
+    private void upgradeToV4(Connection conn)
+    {
+        try
+        {
+            String addColumn;
+            Statement stmt = conn.createStatement();
+            plugin.getMyLogger().logMessage("Upgrading database to V4! Adding playerName!", true, true);
+            addColumn = "ALTER TABLE players "
+                      + "ADD COLUMN playerName TEXT DEFAULT NULL";
+            stmt.execute(addColumn);
+        }
+        catch (SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("1420 " + e.getMessage());
         }
     }
 }

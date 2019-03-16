@@ -6,8 +6,11 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.DoorOwner;
+import nl.pim16aap2.bigDoors.util.XMaterial;
 
 public class GUIItem
 {
@@ -18,6 +21,7 @@ public class GUIItem
     private byte data = 0;
     private String name;
     private Material mat;
+    private DoorOwner doorOwner = null;
 
     public GUIItem(Material mat, String name, ArrayList<String> lore, int count, byte data)
     {
@@ -27,7 +31,7 @@ public class GUIItem
         this.count = count;
         this.data = data;
         is = new ItemStack(mat, count, data);
-        construct(name, lore);
+        construct();
     }
 
     public GUIItem(Material mat, String name, ArrayList<String> lore, int count)
@@ -37,7 +41,7 @@ public class GUIItem
         this.lore = lore;
         this.count = count;
         is = new ItemStack(mat, count);
-        construct(name, lore);
+        construct();
     }
 
     public GUIItem(ItemStack is, String name, ArrayList<String> lore, int count)
@@ -47,10 +51,24 @@ public class GUIItem
         this.count = count;
         this.is = is;
         is.setAmount(count);
-        construct(name, lore);
+        construct();
     }
 
-    private void construct(String name, ArrayList<String> lore)
+    public GUIItem(DoorOwner doorOwner)
+    {
+        this.doorOwner = doorOwner;
+        count = doorOwner.getPermission() == 0 ? 1 : doorOwner.getPermission();
+        name = doorOwner.getName() == null ? doorOwner.getUUID().toString() : doorOwner.getName();
+        is = new ItemStack(XMaterial.PLAYER_HEAD.parseMaterial(), count, (short) 3);
+        SkullMeta skull = (SkullMeta) is.getItemMeta();
+        skull.setOwner(name);
+        skull.setDisplayName(name);
+        skull.setLore(lore);
+        skull.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        is.setItemMeta(skull);
+    }
+
+    private void construct()
     {
         ItemMeta meta = is.getItemMeta();
         meta.setDisplayName(name);
@@ -97,5 +115,10 @@ public class GUIItem
     public byte getData()
     {
         return data;
+    }
+
+    public DoorOwner getDoorOwner()
+    {
+        return doorOwner;
     }
 }

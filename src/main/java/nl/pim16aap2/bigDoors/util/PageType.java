@@ -8,7 +8,8 @@ public enum PageType
     DOORLIST     ("GUI.NAME.DoorList"   ), // Page showing a list of doors.
     DOORINFO     ("GUI.NAME.SubMenu"    ), // Page showing the information of one specific door.
     CONFIRMATION ("GUI.NAME.ConfirmMenu"), // Confirm delete.
-    DOORCREATION ("GUI.NAME.NewDoors"   ); // Create new doors and such
+    DOORCREATION ("GUI.NAME.NewDoors"   ), // Create new doors and such.
+    REMOVEOWNER  ("GUI.NAME.REMOVEOWNER"); // Delete other owners.
 
     private String message;
     private static HashMap<String, PageType> map = new HashMap<>();

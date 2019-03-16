@@ -14,6 +14,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.PageType;
@@ -37,9 +38,7 @@ public class GUI
     private static final Material   RELOCATEPBMAT  = Material.LEATHER_BOOTS;
     private static final Material   SETOPENDIRMAT  = Material.COMPASS;
     private static final Material   SETBTMOVEMAT   = XMaterial.STICKY_PISTON.parseMaterial();
-//    private static final Material   ADDOWNERMAT    = Material.SKULL_ITEM;
-//    private static final Material   REMOVEOWNERMAT = Material.SKULL_ITEM;
-    private static final Material   ADDOWNERMAT    = XMaterial.SKELETON_SKULL.parseMaterial();
+    private static final Material   ADDOWNERMAT    = XMaterial.PLAYER_HEAD.parseMaterial();
     private static final Material   REMOVEOWNERMAT = XMaterial.SKELETON_SKULL.parseMaterial();
     private static final byte       LOCKEDDATA     = 14;
     private static final byte       UNLOCKEDDATA   =  5;
@@ -65,6 +64,9 @@ public class GUI
     private PageType pageType;
     private int page;
     private ArrayList<Door> doors;
+    private ArrayList<DoorOwner> owners;
+    private int doorOwnerPage = 0;
+    private int maxDoorOwnerPageCount = 0;
     private boolean sortAlphabetically = false;
     private Inventory inventory = null;
     private HashMap<Integer, GUIItem> items;
@@ -84,7 +86,6 @@ public class GUI
         plugin.addGUIUser(this);
 
         doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), null);
-        maxPageCount = doors.size() / (CHESTSIZE - 9) + ((doors.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
 
         sort();
         update();
@@ -93,6 +94,7 @@ public class GUI
     private void update()
     {
         items.clear();
+        maxPageCount = doors.size() / (CHESTSIZE - 9) + ((doors.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
 
         if (pageType == PageType.CONFIRMATION || pageType == PageType.DOORINFO)
         {
@@ -107,10 +109,38 @@ public class GUI
             fillDefaultHeader();
             fillDoors();
         }
+        else if (pageType == PageType.REMOVEOWNER)
+        {
+            owners = plugin.getCommander().getDoorOwners(door.getDoorUID(), player.getUniqueId());
+            Collections.sort(owners, Comparator.comparing(DoorOwner::getName));
+            maxDoorOwnerPageCount = owners.size() / (CHESTSIZE - 9) + ((owners.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
+            fillOwnerListHeader();
+            fillOwners();
+        }
 
         inventory = Bukkit.createInventory(player, CHESTSIZE, messages.getString(PageType.getMessage(pageType)));
         player.openInventory(inventory);
         items.forEach((k,v) -> inventory.setItem(k, v.getItemStack()));
+    }
+
+    private void fillOwnerListHeader()
+    {
+        fillInfoHeader();
+
+        ArrayList<String> lore = new ArrayList<String>();
+        if (doorOwnerPage != 0)
+        {
+            lore.add(messages.getString("GUI.ToPage") + doorOwnerPage + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
+            items.put(1, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, doorOwnerPage));
+            lore.clear();
+        }
+
+        if ((doorOwnerPage + 1) < maxDoorOwnerPageCount)
+        {
+            lore.add(messages.getString("GUI.ToPage") + (doorOwnerPage + 2) + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
+            items.put(7, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, doorOwnerPage + 2));
+            lore.clear();
+        }
     }
 
     private void fillInfoHeader()
@@ -175,7 +205,7 @@ public class GUI
             lore.clear();
         }
 
-        if ((page + 1) < maxPageCount && pageType == PageType.DOORLIST)
+        if ((page + 1) < maxPageCount)
         {
             lore.add(messages.getString("GUI.ToPage") + (page + 2) + messages.getString("GUI.OutOf") + maxPageCount);
             items.put(8, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, page + 2));
@@ -234,16 +264,15 @@ public class GUI
         }
     }
 
+    private void fillOwners()
+    {
+        int idx = 9;
+        for (DoorOwner owner : owners)
+            items.put(idx++, new GUIItem(owner));
+    }
+
     public void handleInput(int interactionIDX)
     {
-        if (interactionIDX > CHESTSIZE)
-        {
-            sortAlphabetically = !sortAlphabetically;
-            Util.broadcastMessage("Now changing sorting to " + (sortAlphabetically ? "Alphabetically" : "Numerically") + "!");
-            sort();
-            update();
-        }
-
         if (!items.containsKey(interactionIDX))
             return;
 
@@ -263,7 +292,7 @@ public class GUI
             break;
 
         case DOORINFO:
-            if (interactionIDX == 0 && items.containsKey(0))
+            if (interactionIDX == 0)
             {
                 pageType = PageType.DOORLIST;
                 update();
@@ -313,14 +342,39 @@ public class GUI
                 }
                 else if (itemName.equals(messages.getString("GUI.REMOVEOWNER")))
                 {
-                    plugin.getCommandHandler().startRemoveOwner(player, door.getDoorUID());
-                    close();
+                    pageType = PageType.REMOVEOWNER;
+                    update();
                 }
             }
             break;
 
+        case REMOVEOWNER:
+            if (interactionIDX == 0)
+            {
+                pageType = PageType.DOORINFO;
+                update();
+            }
+            else if (interactionIDX == 1)
+            {
+                --doorOwnerPage;
+                update();
+            }
+            else if (interactionIDX == 7)
+            {
+                ++doorOwnerPage;
+                update();
+            }
+            else if (interactionIDX > 8)
+            {
+                removeOwner(items.get(interactionIDX).getDoorOwner());
+                if (owners.size() == 0)
+                    pageType = PageType.DOORINFO;
+                update();
+            }
+            break;
+
         case DOORLIST:
-            if (interactionIDX == 0 && items.containsKey(0))
+            if (interactionIDX == 0)
             {
                 --page;
                 update();
@@ -331,7 +385,7 @@ public class GUI
                 sort();
                 update();
             }
-            else if (interactionIDX == 8 && items.containsKey(8))
+            else if (interactionIDX == 8)
             {
                 ++page;
                 update();
@@ -370,7 +424,6 @@ public class GUI
         }
 
     }
-
 
     private void sort()
     {
@@ -538,5 +591,11 @@ public class GUI
         int idx = doors.indexOf(door);
         doors.get(idx).setOpenDir(newOpenDir);
         door = doors.get(idx);
+    }
+
+    private void removeOwner(DoorOwner owner)
+    {
+        plugin.getCommander().removeOwner(owner.getUUID(), owner.getDoorUID(), owner.getPermission());
+        owners.remove(owners.indexOf(owner));
     }
 }

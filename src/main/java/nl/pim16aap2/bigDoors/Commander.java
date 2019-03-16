@@ -2,15 +2,19 @@ package nl.pim16aap2.bigDoors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -18,7 +22,8 @@ import nl.pim16aap2.bigDoors.util.Util;
 public class Commander
 {
     private final BigDoors plugin;
-    private ArrayList<Long> busyDoors;
+    private HashSet<Long> busyDoors;
+    private HashMap<UUID, String> players;
     private boolean goOn   = true;
     private boolean paused = false;
     private SQLiteJDBCDriverConnection db;
@@ -28,17 +33,15 @@ public class Commander
     {
         this.plugin = plugin;
         this.db     = db;
-        busyDoors   = new ArrayList<Long>();
+        busyDoors   = new HashSet<>();
         messages    = plugin.getMessages();
+        players     = new HashMap<>();
     }
 
     // Check if a door is busy
     public boolean isDoorBusy(long doorUID)
     {
-        for (long x : busyDoors)
-            if (x == doorUID)
-                return true;
-        return false;
+        return busyDoors.contains(doorUID);
     }
 
     public void emptyBusyDoors()
@@ -175,6 +178,61 @@ public class Commander
         return db.getDoors(playerUUID, name, start, end);
     }
 
+    public UUID playerUUIDFromName(String playerName)
+    {
+        UUID uuid = players.entrySet().stream()
+            .filter(e -> e.getValue().equals(playerName))
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElse(null);
+        if (uuid != null)
+            return uuid;
+        uuid = db.getUUIDFromName(playerName);
+        if (uuid != null)
+            return uuid;
+
+        uuid = Util.playerUUIDFromString(playerName);
+        if (uuid != null)
+            updatePlayer(uuid, playerName);
+        return uuid;
+    }
+
+    public String playerNameFromUUID(UUID playerUUID)
+    {
+        // Try from HashSet first; it's the fastest.
+        if (players.containsKey(playerUUID))
+            return players.get(playerUUID);
+        // Then try to get it from an online player.
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player != null)
+            return player.getName();
+        // First try to get the player name from the database.
+        String name = db.getPlayerName(playerUUID);
+        if (name != null)
+            return name;
+        // As a last resort, try to get the name from an offline player. This is slow af, so last resort.
+        name = Util.nameFromUUID(playerUUID);
+        // Then place the UUID/String combo in the db. Need moar data!
+        updatePlayer(playerUUID, name);
+        return name;
+    }
+
+    public void updatePlayer(UUID uuid, String playerName)
+    {
+        db.updatePlayerName(uuid, playerName);
+        players.put(uuid, playerName);
+    }
+
+    public void updatePlayer(Player player)
+    {
+        updatePlayer(player.getUniqueId(), player.getName());
+    }
+
+    public void removePlayer(Player player)
+    {
+        players.remove(player.getUniqueId());
+    }
+
     // Get a door with a specific doorUID.
     public Door getDoor(@Nullable UUID playerUUID, long doorUID)
     {
@@ -220,10 +278,20 @@ public class Commander
 
     public boolean removeOwner(UUID playerUUID, Door door)
     {
-        if (door.getPermission() != 0 || door.getPlayerUUID().equals(playerUUID))
+        return removeOwner(playerUUID, door.getDoorUID(), door.getPermission());
+    }
+
+    public boolean removeOwner(UUID playerUUID, long doorUID, int permission)
+    {
+        if (permission == 0)
             return false;
-        db.removeOwner(door.getDoorUID(), playerUUID);
+        db.removeOwner(doorUID, playerUUID);
         return true;
+    }
+
+    public ArrayList<DoorOwner> getDoorOwners(long doorUID, @Nullable UUID playerUUID)
+    {
+        return db.getOwnersOfDoor(doorUID, playerUUID);
     }
 
     public void updateDoorOpenDirection(long doorUID, RotateDirection openDir)
