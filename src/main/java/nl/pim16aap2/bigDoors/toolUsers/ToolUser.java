@@ -91,7 +91,7 @@ public abstract class ToolUser extends Abortable
 
             if (!plugin.canBreakBlocksBetweenLocs(player, min, max))
             {
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NotPermissionHere"));
+                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere"));
                 this.abort(false);
                 return;
             }

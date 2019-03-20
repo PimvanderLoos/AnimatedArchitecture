@@ -66,9 +66,6 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Add help menu for every command separately. Use that when a mistake was made.
 // TODO: Add option to delete yourself as owner from a door you're not the creator of.
 // TODO: Use nested statements in SQL.
-// TODO: Add support for v4 of PlotSquared now that it's been released.
-// TODO: Add support for v6 of WorldGuard.
-// TODO: PlotSquared support: Respect roads.
 
 /* To test:
  * - Make sure other users can get proper access to doors given to them.

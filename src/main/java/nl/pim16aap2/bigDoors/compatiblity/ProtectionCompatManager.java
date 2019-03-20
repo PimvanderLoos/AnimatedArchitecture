@@ -53,7 +53,8 @@ public class ProtectionCompatManager implements Listener
     public boolean canBreakBlock(Player player, Location loc)
     {
         for (ProtectionCompat compat : protectionCompats)
-            if (!compat.canBreakBlock(player, loc));
+            if (!compat.canBreakBlock(player, loc))
+                return false;
         return true;
     }
 
@@ -111,9 +112,29 @@ public class ProtectionCompatManager implements Listener
         {
             try
             {
-                if (protectionAlreadyLoaded(WorldGuard7ProtectionCompat.class))
+                ProtectionCompat protectionCompat;
+                String WGVersion = plugin.getServer().getPluginManager().getPlugin("WorldGuard").getDescription().getVersion();
+                if (WGVersion.startsWith("7."))
+                {
+                    if (protectionAlreadyLoaded(WorldGuard7ProtectionCompat.class))
+                        return;
+                    plugin.getMyLogger().logMessageToConsoleOnly("WorldGuard v7 detected!");
+                    protectionCompat = new WorldGuard7ProtectionCompat(plugin);
+                }
+                else if (WGVersion.startsWith("6."))
+                {
+                    if (protectionAlreadyLoaded(WorldGuard6ProtectionCompat.class))
+                        return;
+                    plugin.getMyLogger().logMessageToConsoleOnly("WorldGuard v6 detected!");
+                    protectionCompat = new WorldGuard6ProtectionCompat(plugin);
+                }
+                else
+                {
+                    plugin.getMyLogger().logMessageToConsole("Version " +
+                        WGVersion + " is not supported! If you believe this is in error, please contact pim16aap2.");
                     return;
-                addProtectionCompat(new WorldGuard7ProtectionCompat(plugin));
+                }
+                addProtectionCompat(protectionCompat);
             }
             catch (NoClassDefFoundError e)
             {
@@ -155,14 +176,14 @@ public class ProtectionCompatManager implements Listener
                 {
                     if (protectionAlreadyLoaded(PlotSquaredNewProtectionCompat.class))
                         return;
-                    plugin.getMyLogger().logMessageToConsole("New PlotSquared version detected!");
+                    plugin.getMyLogger().logMessageToConsoleOnly("PlotSquared v4 detected!");
                     plotSquaredCompat = new PlotSquaredNewProtectionCompat(plugin);
                 }
                 else
                 {
                     if (protectionAlreadyLoaded(PlotSquaredOldProtectionCompat.class))
                         return;
-                    plugin.getMyLogger().logMessageToConsole("Old PlotSquared version detected!");
+                    plugin.getMyLogger().logMessageToConsoleOnly("PlotSquared v3 detected!");
                     plotSquaredCompat = new PlotSquaredOldProtectionCompat(plugin);
                 }
                 addProtectionCompat(plotSquaredCompat);

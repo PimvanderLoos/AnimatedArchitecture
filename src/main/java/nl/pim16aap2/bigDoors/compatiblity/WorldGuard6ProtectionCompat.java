@@ -1,49 +1,64 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.Flags;
-import com.sk89q.worldguard.protection.regions.RegionQuery;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 
-public class WorldGuard7ProtectionCompat implements ProtectionCompat
+public class WorldGuard6ProtectionCompat implements ProtectionCompat
 {
-    private final WorldGuard worldGuard;
-    private final WorldGuardPlugin worldGuardPlugin;
+    private final WorldGuardPlugin worldGuard;
     @SuppressWarnings("unused")
     private final BigDoors plugin;
     private boolean success = false;
+    private Method m;
 
-    public WorldGuard7ProtectionCompat(BigDoors plugin)
+    public WorldGuard6ProtectionCompat(BigDoors plugin)
     {
         this.plugin = plugin;
-        worldGuard = WorldGuard.getInstance();
 
         Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
 
         // WorldGuard may not be loaded
         if (plugin == null || !(wgPlugin instanceof WorldGuardPlugin))
         {
-            worldGuardPlugin = null;
+            worldGuard = null;
             return;
         }
-        worldGuardPlugin = (WorldGuardPlugin) wgPlugin;
-        success = true;
+
+        worldGuard = (WorldGuardPlugin) wgPlugin;
+
+        try
+        {
+            m = worldGuard.getClass().getMethod("canBuild", Player.class, Location.class);
+            success = true;
+        }
+        catch (NoSuchMethodException | SecurityException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        return worldGuard.getPlatform().getRegionContainer().createQuery().testState(BukkitAdapter.adapt(loc), worldGuardPlugin.wrapPlayer(player), Flags.BUILD);
+        try
+        {
+            return (boolean) (m.invoke(worldGuard, player, loc));
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
@@ -59,18 +74,11 @@ public class WorldGuard7ProtectionCompat implements ProtectionCompat
         int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
-        LocalPlayer lPlayer = worldGuardPlugin.wrapPlayer(player);
-        RegionQuery query   = worldGuard.getPlatform().getRegionContainer().createQuery();
-        com.sk89q.worldedit.world.World wgWorld = BukkitAdapter.adapt(loc1.getWorld());
-
         for (; x1 <= x2; ++x1)
             for (; y1 <= y2; ++y1)
                 for (; z1 <= z2; ++z1)
-                {
-                    com.sk89q.worldedit.util.Location wgLoc = new com.sk89q.worldedit.util.Location(wgWorld, x1, y1, z1);
-                    if (!query.testState(wgLoc, lPlayer, Flags.BUILD))
+                    if (!canBreakBlock(player, new Location(loc1.getWorld(), x1, y1, z1)))
                         return false;
-                }
         return true;
     }
 
@@ -83,6 +91,6 @@ public class WorldGuard7ProtectionCompat implements ProtectionCompat
     @Override
     public JavaPlugin getPlugin()
     {
-        return worldGuardPlugin;
+        return worldGuard;
     }
 }

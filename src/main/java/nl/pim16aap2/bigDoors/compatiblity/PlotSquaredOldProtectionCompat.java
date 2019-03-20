@@ -29,12 +29,12 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
     {
         this.plugin = plugin;
         plotSquared = new PlotAPI();
-        success = true;
         plotSquaredPlugin = JavaPlugin.getPlugin(com.plotsquared.bukkit.BukkitMain.class);
 
         for (RegisteredListener rl : HandlerList.getRegisteredListeners(plotSquaredPlugin))
             for (Method method : rl.getListener().getClass().getDeclaredMethods())
-                if (method.toString().startsWith("public void com.github.intellectualsites.plotsquared.bukkit.listeners.PlayerEvents.blockDestroy"))
+            {
+                if (method.toString().startsWith("public void com.plotsquared.bukkit.listeners.PlayerEvents.blockDestroy"))
                     try
                     {
                         playerEventsListener = (PlayerEvents) rl.getListener();
@@ -44,17 +44,15 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
                     {
                         continue;
                     }
+            }
+
+        success = playerEventsListener != null;
     }
 
     private boolean canBreakBlock(Player player, Plot plot, World world)
     {
         com.intellectualcrafters.plot.object.Location center = plot.getCenter();
         return canBreakBlock(player, new Location(world, center.getX(), center.getY(), center.getZ()));
-
-//        // No plot, no restriction
-//        if (plot == null || player == null)
-//            return true;
-//        return plotSquared.getPlayerPlots(world, player).contains(plot);
     }
 
     @Override
@@ -63,10 +61,6 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
         BlockBreakEvent blockBreakEvent = new BlockBreakEvent(loc.getBlock(), player);
         playerEventsListener.blockDestroy(blockBreakEvent);
         return !blockBreakEvent.isCancelled();
-
-//        if (!plotSquared.isPlotWorld(loc.getWorld()))
-//            return true;
-//        return canBreakBlock(player, plotSquared.getPlot(loc), loc.getWorld());
     }
 
     @Override

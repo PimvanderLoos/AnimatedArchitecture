@@ -31,7 +31,6 @@ public class PlotSquaredNewProtectionCompat implements ProtectionCompat
     {
         this.plugin = plugin;
         plotSquared = new PlotAPI();
-        success = true;
         plotSquaredPlugin = JavaPlugin.getPlugin(com.github.intellectualsites.plotsquared.bukkit.BukkitMain.class);
 
         for (RegisteredListener rl : HandlerList.getRegisteredListeners(plotSquaredPlugin))
@@ -46,6 +45,8 @@ public class PlotSquaredNewProtectionCompat implements ProtectionCompat
                     {
                         continue;
                     }
+
+        success = playerEventsListener != null;
     }
 
     private Plot getPlot(Location loc)
@@ -59,35 +60,12 @@ public class PlotSquaredNewProtectionCompat implements ProtectionCompat
         BlockBreakEvent blockBreakEvent = new BlockBreakEvent(loc.getBlock(), player);
         playerEventsListener.blockDestroy(blockBreakEvent);
         return !blockBreakEvent.isCancelled();
-
-//        com.github.intellectualsites.plotsquared.plot.object.Location plotLoc = BukkitUtil.getLocation(loc);
-//        PlotArea area = plotLoc.getPlotArea();
-//        // First check if this is a plot world.
-//        if (area == null)
-//            return true;
-//        return canBreakBlock(player, area.getPlot(plotLoc));
-
     }
 
     private boolean canBreakBlock(Player player, Plot plot, World world)
     {
         com.github.intellectualsites.plotsquared.plot.object.Location center = plot.getCenter();
         return canBreakBlock(player, new Location(world, center.getX(), center.getY(), center.getZ()));
-
-
-//        PlotPlayer plotPlayer = PlotPlayer.wrap(player);
-//        if (plot != null)
-//        {
-//            // Check if this plot is unowned and the player is allowed to destroy unowned plots.
-//            // I chose to use DESTROY because opening doors etc can be destructive.
-//            if (!plot.hasOwner() && Permissions.hasPermission(plotPlayer, Captions.PERMISSION_ADMIN_DESTROY_UNOWNED))
-//                return true;
-//            // Check if the player owns this plot or if the player is allowed to destroy blocks in other people's plots.
-//            if (plot.isAdded(player.getUniqueId()) || Permissions.hasPermission(plotPlayer, Captions.PERMISSION_ADMIN_DESTROY_OTHER))
-//                return true;
-//        }
-//        // Finally, return whether or not players
-//        return Permissions.hasPermission(plotPlayer, Captions.PERMISSION_ADMIN_DESTROY_ROAD);
     }
 
     @Override

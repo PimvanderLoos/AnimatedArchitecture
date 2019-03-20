@@ -79,11 +79,11 @@
             <artifactId>bstats-bukkit</artifactId>
             <version>1.2</version>
         </dependency>
-
+                
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-core</artifactId>
-            <version>LATEST</version>
+            <artifactId>worldguard-legacy</artifactId>
+            <version>6.2</version>
             <scope>provided</scope>
         </dependency>
 

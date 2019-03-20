@@ -102,6 +102,11 @@ public class MyLogger
         logMessage(msg, true, false);
     }
 
+    public void logMessageToConsoleOnly(String msg)
+    {
+        logMessage(msg, false, false);
+    }
+
     // Prints a debugmessage. Deprecated because there are much better systems now.
     @Deprecated
     public void debugMsg(int level, Level lvl, String msg)
