@@ -1,12 +1,18 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
+import java.lang.reflect.Method;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.intellectualcrafters.plot.api.PlotAPI;
 import com.intellectualcrafters.plot.object.Plot;
+import com.plotsquared.bukkit.listeners.PlayerEvents;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 
@@ -17,6 +23,7 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
     private final BigDoors plugin;
     private boolean success = false;
     private final JavaPlugin plotSquaredPlugin;
+    private PlayerEvents playerEventsListener = null;
 
     public PlotSquaredOldProtectionCompat(BigDoors plugin)
     {
@@ -24,33 +31,49 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
         plotSquared = new PlotAPI();
         success = true;
         plotSquaredPlugin = JavaPlugin.getPlugin(com.plotsquared.bukkit.BukkitMain.class);
+
+        for (RegisteredListener rl : HandlerList.getRegisteredListeners(plotSquaredPlugin))
+            for (Method method : rl.getListener().getClass().getDeclaredMethods())
+                if (method.toString().startsWith("public void com.github.intellectualsites.plotsquared.bukkit.listeners.PlayerEvents.blockDestroy"))
+                    try
+                    {
+                        playerEventsListener = (PlayerEvents) rl.getListener();
+                        break;
+                    }
+                    catch (Exception uncaught)
+                    {
+                        continue;
+                    }
     }
 
     private boolean canBreakBlock(Player player, Plot plot, World world)
     {
-        // No plot, no restriction
-        if (plot == null || player == null)
-            return true;
-        return plotSquared.getPlayerPlots(world, player).contains(plot);
+        com.intellectualcrafters.plot.object.Location center = plot.getCenter();
+        return canBreakBlock(player, new Location(world, center.getX(), center.getY(), center.getZ()));
+
+//        // No plot, no restriction
+//        if (plot == null || player == null)
+//            return true;
+//        return plotSquared.getPlayerPlots(world, player).contains(plot);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        if (!plotSquared.isPlotWorld(loc.getWorld()))
-            return true;
-        return canBreakBlock(player, plotSquared.getPlot(loc), loc.getWorld());
+        BlockBreakEvent blockBreakEvent = new BlockBreakEvent(loc.getBlock(), player);
+        playerEventsListener.blockDestroy(blockBreakEvent);
+        return !blockBreakEvent.isCancelled();
+
+//        if (!plotSquared.isPlotWorld(loc.getWorld()))
+//            return true;
+//        return canBreakBlock(player, plotSquared.getPlot(loc), loc.getWorld());
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
-        if (!plotSquared.isPlotWorld(loc1.getWorld()))
-            return true;
 
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());

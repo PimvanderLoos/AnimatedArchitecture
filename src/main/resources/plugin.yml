@@ -3,7 +3,8 @@ main: nl.pim16aap2.bigDoors.BigDoors
 version: Alpha 0.1.8
 author: pim16aap2
 api-version: 1.13
-softdepend: [PlotSquared, WorldGuard]
+loadbefore: [PlotSquared]
+softdepend: [WorldGuard]
 commands:
   bigdoors:
     description: Basic command

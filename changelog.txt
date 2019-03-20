@@ -13,7 +13,7 @@ Alpha 0.1.8
 - Added some translations.
 - Fixed timing issues with door creation again. Should be the last time :)
 - Added caching for redstone requests.
-- Added compatibility hooks for PlotSquared (only v3!) and WorldGuard (only v7!).
+- Added compatibility hooks for PlotSquared (v3 and v4) and WorldGuard (only v7!).
 - Added config options for the compatibility hooks.
 - Added blocksToMove attribute for sliding doors, elevators, and portcullises.
 - Added command "/setBlocksToMove <doorName || doorUID> <distance>" and GUI button to change how far the "door" will try to open.
@@ -27,6 +27,7 @@ Alpha 0.1.8
 - Rewrote all GUI code to make my life easier and this plugin a little faster.
 - Added option to sort doors in GUI by name or ID.
 - Now storing player names in db (easier and faster).
+- PlotSquared hook now respects roads.
 
 Alpha 0.1.7.3
 - Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!

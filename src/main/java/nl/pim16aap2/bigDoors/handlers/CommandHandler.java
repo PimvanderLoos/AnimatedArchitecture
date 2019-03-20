@@ -807,6 +807,32 @@ public class CommandHandler implements CommandExecutor
     public void doorDebug(Player player)
     {
         Util.broadcastMessage("Player " + player.getDisplayName() + " has UUID: " + player.getUniqueId());
+        Util.broadcastMessage("Going to get door 10 owned by pim16aap2 now!");
+
+//        Door d1 = plugin.getCommander().getDoor (player.getUniqueId(), 10);
+//        Door d2 = plugin.getCommander().getDoor2(player.getUniqueId(), 10);
+
+
+
+
+
+//        long startTime = System.nanoTime();
+//
+//        for (int idx = 0; idx < 100000; ++idx)
+//            plugin.getCommander().getDoor(player.getUniqueId(), 10);
+//
+//        long endTime = System.nanoTime();
+//        long timeElapsed = endTime - startTime;
+//        Util.broadcastMessage("Method 1 took " + timeElapsed);
+//
+//
+//
+//        startTime = System.nanoTime();
+//
+//
+//        endTime = System.nanoTime();
+//        timeElapsed = endTime - startTime;
+//        Util.broadcastMessage("Method 2 took " + timeElapsed);
 
         Util.broadcastMessage("Going to display cache stats now!");
         long doorCount = 0;

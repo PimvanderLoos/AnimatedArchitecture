@@ -345,10 +345,126 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
+    @Deprecated
+    public Door getDoor2(@Nullable UUID playerUUID, long doorUID)
+    {
+        Util.broadcastMessage("getDoor2()");
+        Door door = null;
+        Connection conn = null;
+        try
+        {
+            // SQLite joins work a little differently, check this: http://www.sqlitetutorial.net/sqlite-inner-join/
+            conn = getConnection();
+
+
+            String execute;
+
+            if (playerUUID != null )
+                execute =
+//                "SELECT DOOR.*, UN.permission" +
+//                "FROM doors DOOR, sqlUnion UN, " +
+//                "        (SELECT P.id" +
+//                "         FROM players P" +
+//                "         WHERE P.playerUUID = '" + playerUUID.toString() + "') P" +
+//                "WHERE P.id = UN.playerID AND UN.doorUID = '" + doorUID + "';";
+                "SELECT DOOR.*, UN.permission" +
+                "FROM doors AS DOOR, sqlUnion AS UN, " +
+                "        (SELECT P.id" +
+                "         FROM players P" +
+                "         WHERE P.playerUUID = '" + playerUUID.toString() + "') AS PL" +
+                "INNER JOIN players ON PL. " +
+                "WHERE PL.id = UN.playerID AND UN.doorUID = '" + doorUID + "';";
+            else
+                execute = "";
+
+            PreparedStatement ps = conn.prepareStatement(execute);
+            ResultSet rs         = ps.executeQuery();
+
+            String result = ""; // doors
+            result += rs.getInt("id");
+            result += "  ";
+            result += rs.getString("name");
+            result += "  ";
+            result += rs.getString("world") + ".  ";
+            result += "isOpen: " + rs.getInt("isOpen") + "  ";
+            result += "  ";
+
+            result += "min: ";
+            result += rs.getInt("xMin");
+            result += ", ";
+            result += rs.getInt("yMin");
+            result += ", ";
+            result += rs.getInt("zMin");
+            result += ".    ";
+
+            result += "max: ";
+            result += rs.getInt("xMax");
+            result += ", ";
+            result += rs.getInt("yMax");
+            result += ", ";
+            result += rs.getInt("zMax");
+            result += ".    ";
+
+            result += "eng: ";
+            result += rs.getInt("engineX");
+            result += ", ";
+            result += rs.getInt("engineY");
+            result += ", ";
+            result += rs.getInt("engineZ");
+            result += ".    ";
+
+            result += "pb: ";
+            result += rs.getInt("powerBlockX");
+            result += ", ";
+            result += rs.getInt("powerBlockY");
+            result += ", ";
+            result += rs.getInt("powerBlockZ");
+            result += ".    ";
+
+            result += "locked: " + rs.getInt("openDirection") + "  ";
+            result += "autoClose: " + rs.getInt("autoClose") + "  ";
+            result += "chunkHash: " + rs.getInt("chunkHash") + "  ";
+            result += "blocksToMove: " + rs.getInt("blocksToMove") + "  ";
+            result += "permission: " + rs.getInt("permission");
+            Util.broadcastMessage(result);
+
+            World world     = Bukkit.getServer().getWorld(UUID.fromString(rs.getString(DOOR_WORLD)));
+            Location min    = new Location(world, rs.getInt(DOOR_MIN_X),   rs.getInt(DOOR_MIN_Y),   rs.getInt(DOOR_MIN_Z));
+            Location max    = new Location(world, rs.getInt(DOOR_MAX_X),   rs.getInt(DOOR_MAX_Y),   rs.getInt(DOOR_MAX_Z));
+            Location engine = new Location(world, rs.getInt(DOOR_ENG_X),   rs.getInt(DOOR_ENG_Y),   rs.getInt(DOOR_ENG_Z));
+            Location powerB = new Location(world, rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z));
+
+            int permission = rs.getInt(DOOR_BLOCKS_TO_MOVE + 1);
+
+            door = new Door(playerUUID, world, min, max, engine, rs.getString(DOOR_NAME), (rs.getInt(DOOR_OPEN) == 1 ? true : false),
+                            doorUID, (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(DOOR_TYPE)),
+                            DoorDirection.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
+                            rs.getInt(DOOR_AUTO_CLOSE));
+        }
+        catch (SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("382: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                plugin.getMyLogger().logMessageToLogFile("392: " + e.getMessage());
+            }
+        }
+        return door;
+    }
+
     // Get Door from a doorID.
     public Door getDoor(UUID playerUUID, long doorUID)
     {
+//        return getDoor2(playerUUID, doorUID);
         Door door = null;
+        String result;
 
         Connection conn = null;
         try
@@ -363,6 +479,15 @@ public class SQLiteJDBCDriverConnection
                 int playerID          = -1;
                 PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
                 ResultSet rs1         = ps1.executeQuery();
+                result = "";
+                result += rs1.getInt("id"); // players
+                result += "  ";
+                result += rs1.getString("playerUUID");
+                result += "  ";
+                result += rs1.getString("playerName");
+                Util.broadcastMessage(result);
+
+
                 while (rs1.next())
                     playerID = rs1.getInt(PLAYERS_ID);
 
@@ -375,6 +500,18 @@ public class SQLiteJDBCDriverConnection
                 // Select all doors from the sqlUnion table that have the previously found player as owner.
                 PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND doorUID = '" + doorUID + "';");
                 ResultSet rs2         = ps2.executeQuery();
+
+                result = ""; // sqlUnion
+                result += rs2.getInt("id");
+                result += "  ";
+                result += rs2.getInt("permission");
+                result += "  ";
+                result += rs2.getInt("playerID");
+                result += "  ";
+                result += rs2.getInt("doorUID");
+                result += "  ";
+                Util.broadcastMessage(result);
+
                 while (rs2.next())
                     permission = rs2.getInt(UNION_PERM);
 
@@ -387,6 +524,52 @@ public class SQLiteJDBCDriverConnection
 
             PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + doorUID + "';");
             ResultSet rs3         = ps3.executeQuery();
+            result = ""; // doors
+            result += rs3.getInt("id");
+            result += "  ";
+            result += rs3.getString("name");
+            result += "  ";
+            result += rs3.getString("world") + ".  ";
+            result += "isOpen: " + rs3.getInt("isOpen") + "  ";
+            result += "  ";
+
+            result += "\nmin: ";
+            result += rs3.getInt("xMin");
+            result += ", ";
+            result += rs3.getInt("yMin");
+            result += ", ";
+            result += rs3.getInt("zMin");
+            result += ".    ";
+
+            result += "\nmax: ";
+            result += rs3.getInt("xMax");
+            result += ", ";
+            result += rs3.getInt("yMax");
+            result += ", ";
+            result += rs3.getInt("zMax");
+            result += ".    ";
+
+            result += "\neng: ";
+            result += rs3.getInt("engineX");
+            result += ", ";
+            result += rs3.getInt("engineY");
+            result += ", ";
+            result += rs3.getInt("engineZ");
+            result += ".    ";
+
+            result += "\npb: ";
+            result += rs3.getInt("powerBlockX");
+            result += ", ";
+            result += rs3.getInt("powerBlockY");
+            result += ", ";
+            result += rs3.getInt("powerBlockZ");
+            result += ".    ";
+
+            result += "locked: " + rs3.getInt("openDirection") + "  ";
+            result += "autoClose: " + rs3.getInt("autoClose") + "  ";
+            result += "chunkHash: " + rs3.getInt("chunkHash") + "  ";
+            result += "blocksToMove: " + rs3.getInt("blocksToMove") + "  ";
+            Util.broadcastMessage(result);
 
             while (rs3.next())
                 door = newDoorFromRS(rs3, doorUID, permission, playerUUID);

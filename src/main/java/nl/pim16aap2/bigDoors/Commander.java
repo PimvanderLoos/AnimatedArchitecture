@@ -239,6 +239,13 @@ public class Commander
         return db.getDoor(playerUUID, doorUID);
     }
 
+    // Get a door with a specific doorUID.
+    @Deprecated
+    public Door getDoor2(@Nullable UUID playerUUID, long doorUID)
+    {
+        return db.getDoor2(playerUUID, doorUID);
+    }
+
     // Get the permission of a player on a door.
     public int getPermission(String playerUUID, long doorUID)
     {

@@ -1,10 +1,18 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
+import java.lang.reflect.Method;
+
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.github.intellectualsites.plotsquared.api.PlotAPI;
+import com.github.intellectualsites.plotsquared.bukkit.listeners.PlayerEvents;
+import com.github.intellectualsites.plotsquared.bukkit.util.BukkitUtil;
 import com.github.intellectualsites.plotsquared.plot.object.Plot;
 
 import nl.pim16aap2.bigDoors.BigDoors;
@@ -17,25 +25,69 @@ public class PlotSquaredNewProtectionCompat implements ProtectionCompat
     private final BigDoors plugin;
     private boolean success = false;
     private final JavaPlugin plotSquaredPlugin;
+    private PlayerEvents playerEventsListener = null;
 
     public PlotSquaredNewProtectionCompat(BigDoors plugin)
     {
         this.plugin = plugin;
         plotSquared = new PlotAPI();
-//        success = true; // This hook isn't implemented yet, so it's not successful.
+        success = true;
         plotSquaredPlugin = JavaPlugin.getPlugin(com.github.intellectualsites.plotsquared.bukkit.BukkitMain.class);
+
+        for (RegisteredListener rl : HandlerList.getRegisteredListeners(plotSquaredPlugin))
+            for (Method method : rl.getListener().getClass().getDeclaredMethods())
+                if (method.toString().startsWith("public void com.github.intellectualsites.plotsquared.bukkit.listeners.PlayerEvents.blockDestroy"))
+                    try
+                    {
+                        playerEventsListener = (PlayerEvents) rl.getListener();
+                        break;
+                    }
+                    catch (Exception uncaught)
+                    {
+                        continue;
+                    }
     }
 
-    private boolean canBreakBlock(Player player, Plot plot)
+    private Plot getPlot(Location loc)
     {
-        return true;
+        return BukkitUtil.getLocation(loc).getPlot();
     }
 
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        Plot plot = null;
-        return canBreakBlock(player, plot);
+        BlockBreakEvent blockBreakEvent = new BlockBreakEvent(loc.getBlock(), player);
+        playerEventsListener.blockDestroy(blockBreakEvent);
+        return !blockBreakEvent.isCancelled();
+
+//        com.github.intellectualsites.plotsquared.plot.object.Location plotLoc = BukkitUtil.getLocation(loc);
+//        PlotArea area = plotLoc.getPlotArea();
+//        // First check if this is a plot world.
+//        if (area == null)
+//            return true;
+//        return canBreakBlock(player, area.getPlot(plotLoc));
+
+    }
+
+    private boolean canBreakBlock(Player player, Plot plot, World world)
+    {
+        com.github.intellectualsites.plotsquared.plot.object.Location center = plot.getCenter();
+        return canBreakBlock(player, new Location(world, center.getX(), center.getY(), center.getZ()));
+
+
+//        PlotPlayer plotPlayer = PlotPlayer.wrap(player);
+//        if (plot != null)
+//        {
+//            // Check if this plot is unowned and the player is allowed to destroy unowned plots.
+//            // I chose to use DESTROY because opening doors etc can be destructive.
+//            if (!plot.hasOwner() && Permissions.hasPermission(plotPlayer, Captions.PERMISSION_ADMIN_DESTROY_UNOWNED))
+//                return true;
+//            // Check if the player owns this plot or if the player is allowed to destroy blocks in other people's plots.
+//            if (plot.isAdded(player.getUniqueId()) || Permissions.hasPermission(plotPlayer, Captions.PERMISSION_ADMIN_DESTROY_OTHER))
+//                return true;
+//        }
+//        // Finally, return whether or not players
+//        return Permissions.hasPermission(plotPlayer, Captions.PERMISSION_ADMIN_DESTROY_ROAD);
     }
 
     @Override
@@ -44,20 +96,24 @@ public class PlotSquaredNewProtectionCompat implements ProtectionCompat
         if (loc1.getWorld() != loc2.getWorld())
             return false;
 
-        int x1 = Math.max(loc1.getBlockX(), loc2.getBlockX());
-        int z1 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
-        int x2 = Math.min(loc1.getBlockX(), loc2.getBlockX());
-        int z2 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
+        int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
+        int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
+        int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX());
+        int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
+
+        Plot checkPlot = null;
 
         for (; x1 <= x2; ++x1)
             for (; z1 <= z2; ++z1)
             {
-//                Location loc = new Location(loc1.getWorld(), x1, 128, z1);
-//                Set<Plot> x = plotSquared.getPlayerPlots(plotSquared.wrapPlayer(player.getUniqueId()));
-//                plotSquared.getPlotSquared().getPlotAreaManager().getPlotArea(loc);
-
-                if (!canBreakBlock(player, new Location(loc1.getWorld(), x1, 128, z1)))
-                    return false;
+                Location loc = new Location(loc1.getWorld(), x1, 128, z1);
+                Plot newPlot = getPlot(loc);
+                if (checkPlot == null || checkPlot != newPlot)
+                {
+                    checkPlot = newPlot;
+                    if (!canBreakBlock(player, checkPlot, loc.getWorld()))
+                        return false;
+                }
             }
         return true;
     }

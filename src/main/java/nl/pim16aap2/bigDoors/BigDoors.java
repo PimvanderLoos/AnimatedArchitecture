@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigDoors;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.Vector;
@@ -20,10 +19,7 @@ import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
-import nl.pim16aap2.bigDoors.compatiblity.PlotSquaredNewProtectionCompat;
-import nl.pim16aap2.bigDoors.compatiblity.PlotSquaredOldProtectionCompat;
-import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
-import nl.pim16aap2.bigDoors.compatiblity.WorldGuard7ProtectionCompat;
+import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
@@ -68,6 +64,11 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Split up SQL functions into 2: One taking a connection and one without the connection, to get rid of code duplication.
 // TODO: Use generic player heads before the skins are loaded. Then refresh once they are.
 // TODO: Add help menu for every command separately. Use that when a mistake was made.
+// TODO: Add option to delete yourself as owner from a door you're not the creator of.
+// TODO: Use nested statements in SQL.
+// TODO: Add support for v4 of PlotSquared now that it's been released.
+// TODO: Add support for v6 of WorldGuard.
+// TODO: PlotSquared support: Respect roads.
 
 /* To test:
  * - Make sure other users can get proper access to doors given to them.
@@ -90,31 +91,28 @@ public class BigDoors extends JavaPlugin implements Listener
     private Metrics                     metrics;
     private File                        logFile;
     private Messages                   messages;
-    private Commander                 commander;
+    private Commander                 commander = null;
     private Vector<WaitForCommand>   cmdWaiters;
     private DoorOpener               doorOpener;
     private Vector<BlockMover>      blockMovers;
     private BridgeOpener           bridgeOpener;
-    private SlidingDoorOpener slidingDoorOpener;
-    private boolean                validVersion;
     private CommandHandler       commandHandler;
-    private RedstoneHandler     redstoneHandler;
+    private SlidingDoorOpener slidingDoorOpener;
     private PortcullisOpener   portcullisOpener;
+    private RedstoneHandler     redstoneHandler;
     private ElevatorOpener       elevatorOpener;
+    private boolean                validVersion;
     private String                  loginString;
     @SuppressWarnings("unused")
     private FlagOpener               flagOpener;
     private HashMap<UUID, ToolUser>   toolUsers;
-    private ArrayList<ProtectionCompat> protectionCompats;
-    //                 Chunk         Location, DoorUID
-    private TimedCache<Long, HashMap<Long,     Long>> pbCache; // Powerblock cache.
-
-    private HashMap<UUID, GUI> playerGUIs;
-
+    private HashMap<UUID, GUI>       playerGUIs;
     private boolean              is1_13 = false;
 
+    private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
-
+    //                 Chunk         Location, DoorUID
+    private TimedCache<Long, HashMap<Long,     Long>> pbCache = null;
 
     @Override
     public void onEnable()
@@ -130,8 +128,12 @@ public class BigDoors extends JavaPlugin implements Listener
             return;
         }
 
-        init(true);
+        init();
 
+        // No need to put these in init, as they should not be reloaded.
+        pbCache           = new TimedCache<Long, HashMap<Long, Long>>(this, config.cacheTimeout());
+        protCompatMan     = new ProtectionCompatManager(this);
+        Bukkit.getPluginManager().registerEvents(protCompatMan, this);
         db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
         commander         = new Commander(this, db);
         doorOpener        = new DoorOpener(this);
@@ -173,18 +175,7 @@ public class BigDoors extends JavaPlugin implements Listener
         getCommand(command).setExecutor(new CommandHandler(this));
     }
 
-    private void addProtectionCompat(ProtectionCompat hook)
-    {
-        if (hook.success())
-        {
-            protectionCompats.add(hook);
-            logger.logMessageToConsole("Successfully hooked into \"" + hook.getPlugin().getName() + "\"!");
-        }
-        else
-            logger.logMessageToConsole("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
-    }
-
-    private void init(boolean firstRun)
+    private void init()
     {
         if (!validVersion)
             return;
@@ -197,74 +188,6 @@ public class BigDoors extends JavaPlugin implements Listener
         cmdWaiters  = new Vector<WaitForCommand>(2);
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
         loginString = "";
-
-        if (!firstRun)
-        {
-            HandlerList.unregisterAll(redstoneHandler);
-            redstoneHandler = null;
-
-            HandlerList.unregisterAll(rPackHandler);
-            rPackHandler = null;
-
-            pbCache.reinit(config.cacheTimeout());
-            protectionCompats.clear();
-        }
-        else
-        {
-            pbCache = new TimedCache<Long, HashMap<Long, Long>>(this, config.cacheTimeout());
-            protectionCompats = new ArrayList<ProtectionCompat>();
-        }
-
-        if (config.plotSquaredHook() && getServer().getPluginManager().getPlugin("PlotSquared") != null)
-        {
-            try
-            {
-                ProtectionCompat plotSquaredCompat;
-                String PSVersion = getServer().getPluginManager().getPlugin("PlotSquared").getDescription().getVersion();
-                if (PSVersion.startsWith("4."))
-                {
-                    logger.logMessageToConsole("New PlotSquared version detected! Note that this hook is not yet implemented!");
-                    plotSquaredCompat = new PlotSquaredNewProtectionCompat(this);
-                }
-                else
-                {
-                    logger.logMessageToConsole("Old PlotSquared version detected!");
-                    plotSquaredCompat = new PlotSquaredOldProtectionCompat(this);
-                }
-                addProtectionCompat(plotSquaredCompat);
-            }
-            catch (NoClassDefFoundError e)
-            {
-                logger.logMessageToConsole("Failed to initialize PlotSquared compatibility hook! Perhaps this version isn't supported? Check error.log for more info!");
-//                logger.logMessage(Util.errorToString(e), false, false);
-                logger.logMessageToConsole("Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
-            }
-            catch (Exception e)
-            {
-                logger.logMessageToConsole("Failed to initialize PlotSquared compatibility hook!");
-                e.printStackTrace();
-                logger.logMessageToConsole("Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
-            }
-        }
-
-        try
-        {
-            if (config.worldGuardHook() && getServer().getPluginManager().getPlugin("WorldGuard") != null)
-                addProtectionCompat(new WorldGuard7ProtectionCompat(this));
-        }
-        catch (NoClassDefFoundError e)
-        {
-            logger.logMessageToConsole("Failed to initialize WorldGuard compatibility hook! Only v7 seems to be supported atm!"
-                + " Maybe that's the issue?");
-//            logger.logMessage(Util.errorToString(e), false, false);
-            logger.logMessageToConsole("Now resuming normal startup with Worldguard Compatibility Hook disabled!");
-        }
-        catch (Exception e)
-        {
-            logger.logMessageToConsole("Failed to initialize WorldGuard compatibility hook!");
-            e.printStackTrace();
-            logger.logMessageToConsole("Now resuming normal startup with Worldguard Compatibility Hook disabled!");
-        }
 
         if (config.enableRedstone())
         {
@@ -305,24 +228,18 @@ public class BigDoors extends JavaPlugin implements Listener
         else
             updater = null;
 
-        if (!firstRun)
+        if (commander != null)
             commander.setCanGo(true);
     }
 
     public boolean canBreakBlock(Player player, Location loc)
     {
-        for (ProtectionCompat compat : protectionCompats)
-            if (!compat.canBreakBlock(player, loc))
-                return false;
-        return true;
+        return protCompatMan.canBreakBlock(player, loc);
     }
 
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
-        for (ProtectionCompat compat : protectionCompats)
-            if (!compat.canBreakBlocksBetweenLocs(player, loc1, loc2))
-                return false;
-        return true;
+        return protCompatMan.canBreakBlocksBetweenLocs(player, loc1, loc2);
     }
 
     public void restart()
@@ -332,12 +249,21 @@ public class BigDoors extends JavaPlugin implements Listener
         reloadConfig();
         // Stop all tool users, end all blockmovers, and clear all command waiter.
         onDisable();
+        protCompatMan.reload();
         toolUsers = null;
         cmdWaiters = null;
         blockMovers = null;
         playerGUIs.forEach((key,value) -> value.close());
         playerGUIs = null;
-        init(false);
+
+        HandlerList.unregisterAll(redstoneHandler);
+        redstoneHandler = null;
+        HandlerList.unregisterAll(rPackHandler);
+        rPackHandler = null;
+
+        init();
+
+        pbCache.reinit(config.cacheTimeout());
     }
 
     @Override
@@ -349,11 +275,16 @@ public class BigDoors extends JavaPlugin implements Listener
         // Stop all toolUsers and take all BigDoor tools from players.
         commander.setCanGo(false);
 
-        toolUsers.forEach((key,value) -> value.setIsDone(true));
+        try
+        {
+            toolUsers.forEach((key,value) -> value.setIsDone(true));
+        }
+        // Don't care if it fails.
+        catch (Exception uncaught)
+        {}
 
         for (BlockMover bm : blockMovers)
             bm.putBlocks(true);
-
 
         toolUsers.clear();
         cmdWaiters.clear();
