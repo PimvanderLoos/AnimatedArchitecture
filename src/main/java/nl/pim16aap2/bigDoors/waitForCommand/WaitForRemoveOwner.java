@@ -1,11 +1,13 @@
 package nl.pim16aap2.bigDoors.waitForCommand;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class WaitForRemoveOwner extends WaitForCommand
@@ -19,6 +21,13 @@ public class WaitForRemoveOwner extends WaitForCommand
         this.command = command;
         this.doorUID = doorUID;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Init"));
+        Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.ListOfOwners"));
+        String ownersStr = "";
+        ArrayList<DoorOwner> doorOwners = plugin.getCommander().getDoorOwners(doorUID, player.getUniqueId());
+        for (DoorOwner owner : doorOwners)
+            ownersStr += owner.getPlayerName() + ", ";
+        Util.messagePlayer(player, ownersStr);
+
         plugin.addCommandWaiter(this);
     }
 
@@ -33,20 +42,25 @@ public class WaitForRemoveOwner extends WaitForCommand
 
             if (playerUUID != null)
             {
-                if (plugin.getCommander().removeOwner(playerUUID, door))
+                if (plugin.getCommander().removeOwner(door, playerUUID))
                 {
                     Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
+                    isFinished = true;
+                    abort();
                     return true;
                 }
                 Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
+                abort();
                 return true;
             }
             else
             {
                 Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[1] + "\"");
+                abort();
                 return true;
             }
         }
+        abort();
         return false;
     }
 }

@@ -61,6 +61,9 @@ public class GUI
     private final Messages messages;
     private final Player player;
 
+    @SuppressWarnings("unused")
+    private int missingHeadTextures;
+
     private PageType pageType;
     private int page;
     private ArrayList<Door> doors;
@@ -75,6 +78,7 @@ public class GUI
 
     public GUI(BigDoors plugin, Player player)
     {
+        missingHeadTextures = 0;
         this.plugin = plugin;
         messages = plugin.getMessages();
         this.player = player;
@@ -93,9 +97,24 @@ public class GUI
 
     private void update()
     {
+        if (!(pageType == PageType.DOORLIST || pageType == PageType.DOORCREATION))
+            isStillOwner();
+
         items.clear();
         maxPageCount = doors.size() / (CHESTSIZE - 9) + ((doors.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
 
+        if (pageType == PageType.REMOVEOWNER)
+        {
+            owners = plugin.getCommander().getDoorOwners(door.getDoorUID(), player.getUniqueId());
+            Collections.sort(owners, Comparator.comparing(DoorOwner::getPlayerName));
+            maxDoorOwnerPageCount = owners.size() / (CHESTSIZE - 9) + ((owners.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
+        }
+
+        refresh();
+    }
+
+    private void refresh()
+    {
         if (pageType == PageType.CONFIRMATION || pageType == PageType.DOORINFO)
         {
             fillInfoHeader();
@@ -111,9 +130,6 @@ public class GUI
         }
         else if (pageType == PageType.REMOVEOWNER)
         {
-            owners = plugin.getCommander().getDoorOwners(door.getDoorUID(), player.getUniqueId());
-            Collections.sort(owners, Comparator.comparing(DoorOwner::getName));
-            maxDoorOwnerPageCount = owners.size() / (CHESTSIZE - 9) + ((owners.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
             fillOwnerListHeader();
             fillOwners();
         }
@@ -267,162 +283,234 @@ public class GUI
     private void fillOwners()
     {
         int idx = 9;
+        missingHeadTextures = 0;
         for (DoorOwner owner : owners)
-            items.put(idx++, new GUIItem(owner));
+        {
+            GUIItem item = new GUIItem(plugin, owner, player);
+            if (item.missingHeadTexture())
+                ++missingHeadTextures;
+            items.put(idx++, item);
+        }
+    }
+
+    private boolean isStillOwner()
+    {
+        if (door != null && plugin.getCommander().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
+        {
+            doors.remove(door);
+            door = null;
+            pageType = PageType.DOORLIST;
+            return false;
+        }
+        return true;
     }
 
     public void handleInput(int interactionIDX)
     {
         if (!items.containsKey(interactionIDX))
+        {
+//            refresh();
             return;
+        }
 
         boolean header = Util.between(interactionIDX, 0, 8);
 
         switch (pageType)
         {
         case CONFIRMATION:
-            int mid = (CHESTSIZE - 9) / 2 + 4;
-            if (interactionIDX == mid)
-                deleteDoor();
-            else
-            {
-                pageType = PageType.DOORINFO;
-                update();
-            }
+            handleInputConfirmation(interactionIDX);
             break;
 
         case DOORINFO:
-            if (interactionIDX == 0)
-            {
-                pageType = PageType.DOORLIST;
-                update();
-            }
-            else
-            {
-                String itemName = items.get(interactionIDX).getName();
-                if (itemName.equals(messages.getString("GUI.LockDoor")) || itemName.equals(messages.getString("GUI.UnlockDoor")))
-                {
-                    door.setLock(!door.isLocked());
-                    plugin.getCommander().setLock(door.getDoorUID(), door.isLocked());
-                    update();
-                }
-                else if (itemName.equals(messages.getString("GUI.ToggleDoor")))
-                    plugin.getCommandHandler().openDoorCommand(player, door);
-                else if (itemName.equals(messages.getString("GUI.GetInfo")))
-                    plugin.getCommandHandler().listDoorInfo(player, door);
-                else if (itemName.equals(messages.getString("GUI.DeleteDoor")))
-                {
-                    pageType = PageType.CONFIRMATION;
-                    update();
-                }
-                else if (itemName.equals(messages.getString("GUI.RelocatePowerBlock")))
-                {
-                    plugin.getCommandHandler().startPowerBlockRelocator(player, door.getDoorUID());
-                    close();
-                }
-                else if (itemName.equals(messages.getString("GUI.Direction.Name")))
-                {
-                    changeOpenDir(player, door);
-                    update();
-                }
-                else if (itemName.equals(messages.getString("GUI.ChangeTimer")))
-                {
-                    plugin.getCommandHandler().startTimerSetter(player, door.getDoorUID());
-                    close();
-                }
-                else if (itemName.equals(messages.getString("GUI.BLOCKSTOMOVE.Name")))
-                {
-                    plugin.getCommandHandler().startBlocksToMoveSetter(player, door.getDoorUID());
-                    close();
-                }
-                else if (itemName.equals(messages.getString("GUI.ADDOWNER")))
-                {
-                    plugin.getCommandHandler().startAddOwner(player, door.getDoorUID());
-                    close();
-                }
-                else if (itemName.equals(messages.getString("GUI.REMOVEOWNER")))
-                {
-                    pageType = PageType.REMOVEOWNER;
-                    update();
-                }
-            }
+            handleInputDoorInfo(interactionIDX);
             break;
 
         case REMOVEOWNER:
-            if (interactionIDX == 0)
-            {
-                pageType = PageType.DOORINFO;
-                update();
-            }
-            else if (interactionIDX == 1)
-            {
-                --doorOwnerPage;
-                update();
-            }
-            else if (interactionIDX == 7)
-            {
-                ++doorOwnerPage;
-                update();
-            }
-            else if (interactionIDX > 8)
-            {
-                removeOwner(items.get(interactionIDX).getDoorOwner());
-                if (owners.size() == 0)
-                    pageType = PageType.DOORINFO;
-                update();
-            }
+            handleInputRemoveOwner(interactionIDX);
             break;
 
         case DOORLIST:
-            if (interactionIDX == 0)
-            {
-                --page;
-                update();
-            }
-            else if (interactionIDX == 1)
-            {
-                sortAlphabetically = !sortAlphabetically;
-                sort();
-                update();
-            }
-            else if (interactionIDX == 8)
-            {
-                ++page;
-                update();
-            }
-            else if (header)
-            {
-                String itemName = items.get(interactionIDX).getName();
-                if (itemName.equals(messages.getString("GUI.NewDoor")))
-                    startCreationProcess(player, DoorType.DOOR);
-                else if (itemName.equals(messages.getString("GUI.NewPortcullis")))
-                    startCreationProcess(player, DoorType.PORTCULLIS);
-                else if (itemName.equals(messages.getString("GUI.NewDrawbridge")))
-                    startCreationProcess(player, DoorType.DRAWBRIDGE);
-                else if (itemName.equals(messages.getString("GUI.NewElevator")))
-                    startCreationProcess(player, DoorType.ELEVATOR);
-                else if (itemName.equals(messages.getString("GUI.NewSlidingDoor")))
-                    startCreationProcess(player, DoorType.SLIDINGDOOR);
-            }
-            else
-            {
-                door = items.get(interactionIDX).getDoor();
-                if (door == null)
-                {
-                    Util.messagePlayer(player, "An unexpected error occurred while trying to open a sub-menu for a door! Try again!");
-                    close();
-                    return;
-                }
-                pageType = PageType.DOORINFO;
-                update();
-            }
+            handleInputDoorList(interactionIDX, header);
             break;
 
         case DOORCREATION: // Unimplemented
         default:
             break;
         }
+    }
 
+    private void handleInputConfirmation(int interactionIDX)
+    {
+        if (!isStillOwner())
+            return;
+        int mid = (CHESTSIZE - 9) / 2 + 4;
+        if (interactionIDX == mid)
+            deleteDoor();
+        else
+        {
+            pageType = PageType.DOORINFO;
+            update();
+        }
+    }
+
+    private void handleInputDoorInfo(int interactionIDX)
+    {
+        if (interactionIDX == 0)
+        {
+            pageType = PageType.DOORLIST;
+            update();
+        }
+        else
+        {
+            if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), items.get(interactionIDX).getDoorAttribute()))
+            {
+                update();
+                return;
+            }
+
+            switch(items.get(interactionIDX).getDoorAttribute())
+            {
+            case LOCK:
+                door.setLock(!door.isLocked());
+                plugin.getCommander().setLock(door.getDoorUID(), door.isLocked());
+                update();
+                break;
+            case TOGGLE:
+                plugin.getCommandHandler().openDoorCommand(player, door);
+                break;
+            case INFO:
+                plugin.getCommandHandler().listDoorInfo(player, door);
+                break;
+            case DELETE:
+                pageType = PageType.CONFIRMATION;
+                update();
+                break;
+            case RELOCATEPOWERBLOCK:
+                plugin.getCommandHandler().startPowerBlockRelocator(player, door.getDoorUID());
+                close();
+                break;
+            case DIRECTION_OPEN:
+            case DIRECTION_GO:
+            case DIRECTION_NSEW_LOOK:
+                changeOpenDir(player, door);
+                break;
+            case CHANGETIMER:
+                plugin.getCommandHandler().startTimerSetter(player, door.getDoorUID());
+                close();
+                break;
+            case BLOCKSTOMOVE:
+                plugin.getCommandHandler().startBlocksToMoveSetter(player, door.getDoorUID());
+                close();
+                break;
+            case ADDOWNER:
+                plugin.getCommandHandler().startAddOwner(player, door.getDoorUID());
+                close();
+                break;
+            case REMOVEOWNER:
+                switchToRemoveOwner();
+            }
+        }
+    }
+
+    private void handleInputRemoveOwner(int interactionIDX)
+    {
+        if (interactionIDX == 0)
+        {
+            pageType = PageType.DOORINFO;
+            update();
+        }
+        else if (interactionIDX == 1)
+        {
+            --doorOwnerPage;
+            update();
+        }
+        else if (interactionIDX == 7)
+        {
+            ++doorOwnerPage;
+            update();
+        }
+        else if (interactionIDX > 8)
+        {
+            if (isStillOwner())
+                return;
+            removeOwner(items.get(interactionIDX).getDoorOwner());
+            if (owners.size() == 0)
+                pageType = PageType.DOORINFO;
+            update();
+        }
+    }
+
+    private void handleInputDoorList(int interactionIDX, boolean header)
+    {
+        if (interactionIDX == 0)
+        {
+            --page;
+            update();
+        }
+        else if (interactionIDX == 1)
+        {
+            sortAlphabetically = !sortAlphabetically;
+            sort();
+            update();
+        }
+        else if (interactionIDX == 8)
+        {
+            ++page;
+            update();
+        }
+        else if (header)
+        {
+            String itemName = items.get(interactionIDX).getName();
+            if (itemName.equals(messages.getString("GUI.NewDoor")))
+                startCreationProcess(player, DoorType.DOOR);
+            else if (itemName.equals(messages.getString("GUI.NewPortcullis")))
+                startCreationProcess(player, DoorType.PORTCULLIS);
+            else if (itemName.equals(messages.getString("GUI.NewDrawbridge")))
+                startCreationProcess(player, DoorType.DRAWBRIDGE);
+            else if (itemName.equals(messages.getString("GUI.NewElevator")))
+                startCreationProcess(player, DoorType.ELEVATOR);
+            else if (itemName.equals(messages.getString("GUI.NewSlidingDoor")))
+                startCreationProcess(player, DoorType.SLIDINGDOOR);
+        }
+        else
+        {
+            door = items.get(interactionIDX).getDoor();
+            if (door == null)
+            {
+                Util.messagePlayer(player, "An unexpected error occurred while trying to open a sub-menu for a door! Try again!");
+                close();
+                return;
+            }
+            if (isStillOwner())
+                pageType = PageType.DOORINFO;
+            update();
+        }
+    }
+
+    private void switchToRemoveOwner()
+    {
+        plugin.getCommandHandler().startRemoveOwner(player, door.getDoorUID());
+        close();
+
+//        pageType = PageType.REMOVEOWNER;
+//        update();
+//
+//        if (missingHeadTextures == 0)
+//            return;
+//
+//        // It usually takes a while for the skull textures to load.
+//        // This will refresh the skulls every now and then.
+//        // Until a texture is found, the default player texture is used.
+//        new BukkitRunnable()
+//        {
+//            @Override
+//            public void run()
+//            {
+//                refresh();
+//                if (missingHeadTextures == 0 || pageType != PageType.REMOVEOWNER)
+//                    cancel();
+//            }
+//        }.runTaskTimer(plugin, 10, 20);
     }
 
     private void sort()
@@ -537,6 +625,7 @@ public class GUI
             ret = new GUIItem(REMOVEOWNERMAT, desc, lore, 1, SKULLDATA);
             break;
         }
+        ret.setDoorAttribute(atr);
         return ret;
     }
 
@@ -574,6 +663,8 @@ public class GUI
     {
         RotateDirection curOpenDir = door.getOpenDir();
         RotateDirection newOpenDir;
+
+        // TODO: Use DoorAttribute here.
         if (door.getType() == DoorType.SLIDINGDOOR)
             newOpenDir = curOpenDir == RotateDirection.NONE  ? RotateDirection.NORTH :
                          curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST  :
@@ -591,11 +682,12 @@ public class GUI
         int idx = doors.indexOf(door);
         doors.get(idx).setOpenDir(newOpenDir);
         door = doors.get(idx);
+        refresh();
     }
 
     private void removeOwner(DoorOwner owner)
     {
-        plugin.getCommander().removeOwner(owner.getUUID(), owner.getDoorUID(), owner.getPermission());
+        plugin.getCommander().removeOwner(owner.getDoorUID(), owner.getPlayerUUID());
         owners.remove(owners.indexOf(owner));
     }
 }

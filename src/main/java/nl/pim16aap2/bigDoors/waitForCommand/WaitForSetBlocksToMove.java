@@ -33,6 +33,8 @@ public class WaitForSetBlocksToMove extends WaitForCommand
                     Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Success") + blocksToMove);
                 else
                     Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Disabled"));
+                isFinished = true;
+                abort();
                 return true;
             }
             catch (Exception e)
@@ -40,6 +42,7 @@ public class WaitForSetBlocksToMove extends WaitForCommand
                 Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.InvalidInput.Integer"));
             }
         }
+        abort();
         return false;
     }
 }

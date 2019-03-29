@@ -45,17 +45,22 @@ public class WaitForAddOwner extends WaitForCommand
                 if (plugin.getCommander().addOwner(playerUUID, door, permission))
                 {
                     Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.AddOwner.Success"));
+                    isFinished = true;
+                    abort();
                     return true;
                 }
                 Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
+                abort();
                 return true;
             }
             else
             {
                 Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[1] + "\"");
+                abort();
                 return true;
             }
         }
+        abort();
         return false;
     }
 }

@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
+import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.Messages;
@@ -187,6 +188,7 @@ public class Commander
             .orElse(null);
         if (uuid != null)
             return uuid;
+
         uuid = db.getUUIDFromName(playerName);
         if (uuid != null)
             return uuid;
@@ -246,6 +248,15 @@ public class Commander
 //        return db.getDoor2(playerUUID, doorUID);
 //    }
 
+    public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr)
+    {
+        int playerPermission = getPermission(player.getUniqueId().toString(), doorUID);
+        boolean hasPermission = playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);
+        if (!hasPermission)
+            Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+        return hasPermission;
+    }
+
     // Get the permission of a player on a door.
     public int getPermission(String playerUUID, long doorUID)
     {
@@ -283,17 +294,16 @@ public class Commander
         return true;
     }
 
-    public boolean removeOwner(UUID playerUUID, Door door)
+    public boolean removeOwner(Door door, UUID playerUUID)
     {
-        return removeOwner(playerUUID, door.getDoorUID(), door.getPermission());
+        return removeOwner(door.getDoorUID(), playerUUID);
     }
 
-    public boolean removeOwner(UUID playerUUID, long doorUID, int permission)
+    public boolean removeOwner(long doorUID, UUID playerUUID)
     {
-        if (permission == 0)
+        if (db.getPermission(playerUUID.toString(), doorUID) == 0)
             return false;
-        db.removeOwner(doorUID, playerUUID);
-        return true;
+        return db.removeOwner(doorUID, playerUUID);
     }
 
     public ArrayList<DoorOwner> getDoorOwners(long doorUID, @Nullable UUID playerUUID)

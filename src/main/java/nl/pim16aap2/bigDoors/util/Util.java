@@ -103,18 +103,26 @@ public final class Util
         Player player = null;
         player = Bukkit.getPlayer(input);
         if (player == null)
-            try { player = Bukkit.getPlayer(UUID.fromString(input)); }
+            try
+            {
+                player = Bukkit.getPlayer(UUID.fromString(input));
+            }
             // Not doing anything with catch because I really couldn't care less if it didn't work.
-            catch (Exception e)    {}
+            catch (Exception e)
+            {}
         if (player != null)
-            return player.getUniqueId();
+            return player.getName().equals(input) ? player.getUniqueId() : null;
 
         OfflinePlayer offPlayer = null;
-        try { offPlayer = Bukkit.getOfflinePlayer(UUID.fromString(input)); }
+        try
+        {
+            offPlayer = Bukkit.getOfflinePlayer(UUID.fromString(input));
+        }
         // Not doing anything with catch because I really couldn't care less if it didn't work.
-        catch (Exception e)    {}
+        catch (Exception e)
+        {}
         if (offPlayer != null)
-            return offPlayer.getUniqueId();
+            return offPlayer.getName().equals(input) ? offPlayer.getUniqueId() : null;
         return null;
     }
 

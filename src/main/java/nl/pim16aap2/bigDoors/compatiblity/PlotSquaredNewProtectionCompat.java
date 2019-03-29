@@ -89,7 +89,7 @@ public class PlotSquaredNewProtectionCompat implements ProtectionCompat
                 if (checkPlot == null || checkPlot != newPlot)
                 {
                     checkPlot = newPlot;
-                    if (!canBreakBlock(player, checkPlot, loc.getWorld()))
+                    if (checkPlot != null && !canBreakBlock(player, checkPlot, loc.getWorld()))
                         return false;
                 }
             }

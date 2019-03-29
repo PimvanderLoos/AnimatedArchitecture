@@ -8,6 +8,11 @@ public abstract class Abortable
 
     public abstract void abort(boolean onDisable);
 
+    protected void cancelTask()
+    {
+        bukkitTask.cancel();
+    }
+
     public void abort()
     {
         abort(false);

@@ -28,7 +28,7 @@ public class DoorOwner
         return doorUID;
     }
 
-    public UUID getUUID()
+    public UUID getPlayerUUID()
     {
         return playerUUID;
     }
@@ -38,7 +38,7 @@ public class DoorOwner
         return permission;
     }
 
-    public String getName()
+    public String getPlayerName()
     {
         if (name == null)
             name = plugin.getCommander().playerNameFromUUID(playerUUID);

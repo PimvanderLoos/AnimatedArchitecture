@@ -67,17 +67,26 @@ public class CommandHandler implements CommandExecutor
     // Open the door.
     public void openDoorCommand(CommandSender sender, Door door, double time)
     {
+        if (sender instanceof Player &&
+            !plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE))
+            return;
+
         UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         // Get a new instance of the door to make sure the locked / unlocked status is recent.
-        if (plugin.getCommander().getDoor(playerUUID, door.getDoorUID()).isLocked())
+        Door newDoor = plugin.getCommander().getDoor(playerUUID, door.getDoorUID());
+
+        if (newDoor == null)
+        {
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.ToggleFailure"));
+            return;
+        }
+        if (newDoor.isLocked())
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.DoorIsLocked"));
-        // If the sender is a Player && the player's permission level exceeds toggle permission.
-        else if (sender instanceof Player && plugin.getCommander().getPermission(((Player) (sender)).getUniqueId().toString(), door.getDoorUID()) > DoorAttribute.getPermissionLevel(DoorAttribute.TOGGLE))
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.NoPermissionToOpen"));
+
         else
         {
-            Opener opener = plugin.getDoorOpener(door.getType());
-            DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(door, time);
+            Opener opener = plugin.getDoorOpener(newDoor.getType());
+            DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(newDoor, time);
 
             if (result != DoorOpenResult.SUCCESS)
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString(DoorOpenResult.getMessage(result)));
@@ -172,8 +181,6 @@ public class CommandHandler implements CommandExecutor
 
     public void listDoorsFromConsole(String str)
     {
-//        String playerUUID = Util.playerUUIDStrFromString(str);
-
         String playerUUID = plugin.getCommander().playerUUIDFromName(str).toString();
         if (playerUUID != null)
             listDoorsFromConsole(playerUUID, null);
@@ -181,7 +188,8 @@ public class CommandHandler implements CommandExecutor
             listDoorsFromConsole(null, str);
     }
 
-    public boolean isValidName(String name)
+    // Doors aren't allowed to have numerical names, to differentiate doorNames from doorUIDs.
+    public boolean isValidDoorName(String name)
     {
         try
         {
@@ -211,7 +219,7 @@ public class CommandHandler implements CommandExecutor
             return;
         }
 
-        if (name != null && !isValidName(name))
+        if (name != null && !isValidDoorName(name))
         {
             Util.messagePlayer(player, ChatColor.RED, "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
             return;
@@ -276,7 +284,10 @@ public class CommandHandler implements CommandExecutor
     {
         WaitForCommand cw = plugin.getCommandWaiter(player);
         if (cw != null)
+        {
+            cw.setFinished(true); // I don't want to print any timeout messages, as it's being replaced.
             abortAbortable(cw);
+        }
     }
 
     public void startTimerSetter(Player player, long doorUID)
@@ -385,7 +396,17 @@ public class CommandHandler implements CommandExecutor
                         // No need to catch this. I don't care if people fuck it up.
                     }
                     if (playerUUID != null)
-                        return plugin.getCommander().addOwner(playerUUID, door, permission);
+                    {
+                        if (plugin.getCommander().addOwner(playerUUID, door, permission))
+                        {
+                            plugin.getMyLogger().returnToSender(sender, Level.INFO,
+                                                                ChatColor.RED, plugin.getMessages().getString("COMMAND.AddOwner.Success"));
+                            return true;
+                        }
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
+                                                            ChatColor.RED, plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
+                        return false;
+                    }
                     else
                     {
                         plugin.getMyLogger().returnToSender(sender, Level.INFO,
@@ -423,7 +444,17 @@ public class CommandHandler implements CommandExecutor
                     UUID playerUUID = Util.playerUUIDFromString(args[2]);
 
                     if (playerUUID != null)
-                        plugin.getCommander().removeOwner(playerUUID, door);
+                    {
+                        if (plugin.getCommander().removeOwner(door, playerUUID))
+                        {
+                            plugin.getMyLogger().returnToSender(sender, Level.INFO,
+                                                                ChatColor.RED, plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
+                            return true;
+                        }
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
+                                                            ChatColor.RED, plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
+                        return false;
+                    }
                 }
                 break;
 
@@ -682,7 +713,7 @@ public class CommandHandler implements CommandExecutor
                 if (tu != null)
                 {
                     if (args.length == 1)
-                        if (isValidName(args[0]))
+                        if (isValidDoorName(args[0]))
                         {
                             tu.setName(args[0]);
                             return true;
@@ -808,6 +839,9 @@ public class CommandHandler implements CommandExecutor
     {
         Util.broadcastMessage("Player " + player.getDisplayName() + " has UUID: " + player.getUniqueId());
         Util.broadcastMessage("Going to get door 10 owned by pim16aap2 now!");
+
+        Util.broadcastMessage("Command waiter status: " + isCommandWaiter(player));
+
 
 //        Door d1 = plugin.getCommander().getDoor (player.getUniqueId(), 10);
 //        Door d2 = plugin.getCommander().getDoor2(player.getUniqueId(), 10);

@@ -11,14 +11,19 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigDoors.GUI.GUI;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.v1_11_R1.FallingBlockFactory_V1_11_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_11_R1.SkullCreator_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_12_R1.FallingBlockFactory_V1_12_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_12_R1.SkullCreator_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_13_R1.SkullCreator_V1_13_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
+import nl.pim16aap2.bigDoors.NMS.v1_13_R2.SkullCreator_V1_13_R2;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
@@ -58,23 +63,21 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
 // TODO: Use generics for ConfigOption.
-// TODO: Make sure the abortable's BukkitTask isn't null.
+// TODO: Make sure the abortable's BukkitTask isn't null. upgr
 // TODO: Make invalid input stuff more informative (e.g. int, float etc).
 // TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
 // TODO: Split up SQL functions into 2: One taking a connection and one without the connection, to get rid of code duplication.
 // TODO: Use generic player heads before the skins are loaded. Then refresh once they are.
 // TODO: Add help menu for every command separately. Use that when a mistake was made.
 // TODO: Add option to delete yourself as owner from a door you're not the creator of.
-// TODO: Use nested statements in SQL.
+// TODO: SQL: Use nested statements.
+// TODO: SQL: Use preparedStatements for everything (with values(?,?,?) etc).
+// TODO: SQL: See if inserting into doors works when adding another question mark for the UUID (but leaving it empty).
+//            Then +1 won't have to be appended to everything.
+// TODO: SQL: Use proper COUNT operation for getting the number of doors.
 
-/* To test:
- * - Make sure other users can get proper access to doors given to them.
- * - Make sure removing owners works properly.
- * - Make sure you cannot add the same owner more than once (both different and same permissions).
- * - Make sure you cannot add 0 or >2 permissions.
- * - Make sure owner with permission 0 cannot remove themselves as owner.
- * - Make sure other players cannot remove another user as owner.
- */
+// TODO: Allow adding owners to doors from console.
+
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -110,6 +113,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private LoginResourcePackHandler rPackHandler;
     //                 Chunk         Location, DoorUID
     private TimedCache<Long, HashMap<Long,     Long>> pbCache = null;
+    private HeadManager headManager;
 
     @Override
     public void onEnable()
@@ -126,6 +130,7 @@ public class BigDoors extends JavaPlugin implements Listener
         }
 
         init();
+        headManager.init();
 
         // No need to put these in init, as they should not be reloaded.
         pbCache           = new TimedCache<Long, HashMap<Long, Long>>(this, config.cacheTimeout());
@@ -261,6 +266,7 @@ public class BigDoors extends JavaPlugin implements Listener
         init();
 
         pbCache.reinit(config.cacheTimeout());
+        headManager.reload();
     }
 
     @Override
@@ -477,20 +483,26 @@ public class BigDoors extends JavaPlugin implements Listener
 
         fabf  = null;
         if (version.equals("v1_11_R1"))
-            fabf     = new FallingBlockFactory_V1_11_R1();
+        {
+            fabf        = new FallingBlockFactory_V1_11_R1();
+            headManager = new SkullCreator_V1_11_R1(this);
+        }
         else if (version.equals("v1_12_R1"))
         {
-            fabf     = new FallingBlockFactory_V1_12_R1();
+            fabf        = new FallingBlockFactory_V1_12_R1();
+            headManager = new SkullCreator_V1_12_R1(this);
         }
         else if (version.equals("v1_13_R1"))
         {
-            is1_13   = true;
-            fabf     = new FallingBlockFactory_V1_13_R1();
+            is1_13      = true;
+            fabf        = new FallingBlockFactory_V1_13_R1();
+            headManager = new SkullCreator_V1_13_R1(this);
         }
         else if (version.equals("v1_13_R2"))
         {
-            is1_13   = true;
-            fabf     = new FallingBlockFactory_V1_13_R2();
+            is1_13      = true;
+            fabf        = new FallingBlockFactory_V1_13_R2();
+            headManager = new SkullCreator_V1_13_R2(this);
         }
         // Return true if compatible.
         return fabf != null;
@@ -504,6 +516,11 @@ public class BigDoors extends JavaPlugin implements Listener
     public void setLoginString(String str)
     {
         loginString = str;
+    }
+
+    public ItemStack getPlayerHead(UUID playerUUID, String playerName, int x, int y, int z, Player player)
+    {
+        return headManager.getPlayerHead(playerUUID, playerName, x, y, z, player);
     }
 
 

@@ -84,8 +84,21 @@ public class SQLiteJDBCDriverConnection
         upgrade();
     }
 
+    private long getPlayerID(Connection conn, String playerUUID) throws SQLException
+    {
+        long playerID = -1;
+        PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
+        ResultSet rs1         = ps1.executeQuery();
+        while (rs1.next())
+            playerID = rs1.getLong(PLAYERS_ID);
+        ps1.close();
+        rs1.close();
+        return playerID;
+    }
+
+
     // Establish a connection.
-    public Connection getConnection()
+    private Connection getConnection()
     {
         if (!enabled)
         {
@@ -111,7 +124,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Initialize the tables.
-    public void init()
+    private void init()
     {
         if (!dbFile.exists())
         {
@@ -207,22 +220,17 @@ public class SQLiteJDBCDriverConnection
         try
         {
             conn = getConnection();
-            // Get the player ID as used in the sqlUnion table.
-            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
-            ResultSet rs1         = ps1.executeQuery();
-            while (rs1.next())
-            {
-                int playerID = rs1.getInt(PLAYERS_ID);
-                // Select all doors from the sqlUnion table that have the previously found player as owner.
-                PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND doorUID = '" + doorUID + "';");
-                ResultSet rs2         = ps2.executeQuery();
-                while (rs2.next())
-                    ret = rs2.getInt(UNION_PERM);
-                ps2.close();
-                rs2.close();
-            }
-            ps1.close();
-            rs1.close();
+            long playerID = getPlayerID(conn, playerUUID);
+            if (playerID == -1)
+                return -1;
+
+            // Select all doors from the sqlUnion table that have the previously found player as owner.
+            PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND doorUID = '" + doorUID + "';");
+            ResultSet rs2         = ps2.executeQuery();
+            while (rs2.next())
+                ret = rs2.getInt(UNION_PERM);
+            ps2.close();
+            rs2.close();
         }
         catch (SQLException e)
         {
@@ -244,7 +252,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Construct a new door from a resultset.
-    public Door newDoorFromRS(ResultSet rs, long doorUID, int permission, UUID playerUUID)
+    private Door newDoorFromRS(ResultSet rs, long doorUID, int permission, UUID playerUUID)
     {
         try
         {
@@ -305,28 +313,23 @@ public class SQLiteJDBCDriverConnection
         try
         {
             conn = getConnection();
-            // Get the player ID as used in the sqlUnion table.
-            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
-            ResultSet rs1         = ps1.executeQuery();
-            while (rs1.next())
+            long playerID = getPlayerID(conn, playerUUID);
+            if (playerID == -1)
+                return;
+
+            // Select all doors from the sqlUnion table that have the previously found player as owner.
+            PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
+            ResultSet rs2         = ps2.executeQuery();
+            while (rs2.next())
             {
-                int playerID = rs1.getInt(PLAYERS_ID);
-                // Select all doors from the sqlUnion table that have the previously found player as owner.
-                PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
-                ResultSet rs2         = ps2.executeQuery();
-                while (rs2.next())
-                {
-                    // Delete all doors with the provided name owned by the provided player.
-                    PreparedStatement ps3 = conn.prepareStatement("DELETE FROM doors WHERE id = '" + rs2.getInt(UNION_DOOR_ID)
-                                                                            + "' AND name = '" + doorName + "';");
-                    ps3.executeUpdate();
-                    ps3.close();
-                }
-                ps2.close();
-                rs2.close();
+                // Delete all doors with the provided name owned by the provided player.
+                PreparedStatement ps3 = conn.prepareStatement("DELETE FROM doors WHERE id = '" + rs2.getInt(UNION_DOOR_ID)
+                                                                        + "' AND name = '" + doorName + "';");
+                ps3.executeUpdate();
+                ps3.close();
             }
-            ps1.close();
-            rs1.close();
+            ps2.close();
+            rs2.close();
         }
         catch(SQLException e)
         {
@@ -464,7 +467,6 @@ public class SQLiteJDBCDriverConnection
     {
 //        return getDoor2(playerUUID, doorUID);
         Door door = null;
-//        String result;
 
         Connection conn = null;
         try
@@ -476,40 +478,14 @@ public class SQLiteJDBCDriverConnection
                 permission = 2;
             else
             {
-                int playerID          = -1;
-                PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
-                ResultSet rs1         = ps1.executeQuery();
-//                result = "";
-//                result += rs1.getInt("id"); // players
-//                result += "  ";
-//                result += rs1.getString("playerUUID");
-//                result += "  ";
-//                result += rs1.getString("playerName");
-//                Util.broadcastMessage(result);
-
-                while (rs1.next())
-                    playerID = rs1.getInt(PLAYERS_ID);
-
+                long playerID = getPlayerID(conn, playerUUID.toString());
                 if (playerID == -1)
                     return null;
-
-                ps1.close();
-                rs1.close();
 
                 // Select all doors from the sqlUnion table that have the previously found player as owner.
                 PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND doorUID = '" + doorUID + "';");
                 ResultSet rs2         = ps2.executeQuery();
 
-//                result = ""; // sqlUnion
-//                result += rs2.getInt("id");
-//                result += "  ";
-//                result += rs2.getInt("permission");
-//                result += "  ";
-//                result += rs2.getInt("playerID");
-//                result += "  ";
-//                result += rs2.getInt("doorUID");
-//                result += "  ";
-//                Util.broadcastMessage(result);
 
                 while (rs2.next())
                     permission = rs2.getInt(UNION_PERM);
@@ -523,52 +499,6 @@ public class SQLiteJDBCDriverConnection
 
             PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + doorUID + "';");
             ResultSet rs3         = ps3.executeQuery();
-//            result = ""; // doors
-//            result += rs3.getInt("id");
-//            result += "  ";
-//            result += rs3.getString("name");
-//            result += "  ";
-//            result += rs3.getString("world") + ".  ";
-//            result += "isOpen: " + rs3.getInt("isOpen") + "  ";
-//            result += "  ";
-//
-//            result += "\nmin: ";
-//            result += rs3.getInt("xMin");
-//            result += ", ";
-//            result += rs3.getInt("yMin");
-//            result += ", ";
-//            result += rs3.getInt("zMin");
-//            result += ".    ";
-//
-//            result += "\nmax: ";
-//            result += rs3.getInt("xMax");
-//            result += ", ";
-//            result += rs3.getInt("yMax");
-//            result += ", ";
-//            result += rs3.getInt("zMax");
-//            result += ".    ";
-//
-//            result += "\neng: ";
-//            result += rs3.getInt("engineX");
-//            result += ", ";
-//            result += rs3.getInt("engineY");
-//            result += ", ";
-//            result += rs3.getInt("engineZ");
-//            result += ".    ";
-//
-//            result += "\npb: ";
-//            result += rs3.getInt("powerBlockX");
-//            result += ", ";
-//            result += rs3.getInt("powerBlockY");
-//            result += ", ";
-//            result += rs3.getInt("powerBlockZ");
-//            result += ".    ";
-//
-//            result += "locked: " + rs3.getInt("openDirection") + "  ";
-//            result += "autoClose: " + rs3.getInt("autoClose") + "  ";
-//            result += "chunkHash: " + rs3.getInt("chunkHash") + "  ";
-//            result += "blocksToMove: " + rs3.getInt("blocksToMove") + "  ";
-//            Util.broadcastMessage(result);
 
             while (rs3.next())
                 door = newDoorFromRS(rs3, doorUID, permission, playerUUID);
@@ -664,15 +594,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             conn = getConnection();
-
-            int playerID          = -1;
-            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
-            ResultSet rs1         = ps1.executeQuery();
-            while (rs1.next())
-                playerID = rs1.getInt(PLAYERS_ID);
-
-            ps1.close();
-            rs1.close();
+            long playerID = getPlayerID(conn, playerUUID);
 
             PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
             ResultSet rs2         = ps2.executeQuery();
@@ -718,7 +640,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             conn = getConnection();
-            // Get the door associated with the x/y/z location of the power block block.
+
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
             ResultSet rs = ps.executeQuery();
             while (rs.next())
@@ -785,6 +707,7 @@ public class SQLiteJDBCDriverConnection
         }
         return uuid;
     }
+
     public String getPlayerName(UUID playerUUID)
     {
         String playerName = null;
@@ -1100,14 +1023,7 @@ public class SQLiteJDBCDriverConnection
         {
             conn = getConnection();
 
-            long playerID = -1;
-            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + door.getPlayerUUID().toString() + "';");
-            ResultSet rs1         = ps1.executeQuery();
-
-            while (rs1.next())
-                playerID = rs1.getLong(PLAYERS_ID);
-            ps1.close();
-            rs1.close();
+            long playerID = getPlayerID(conn, door.getPlayerUUID().toString());
 
             if (playerID == -1)
             {
@@ -1187,27 +1103,19 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Insert a new door in the db.
-    public void removeOwner(long doorUID, UUID playerUUID)
+    public boolean removeOwner(long doorUID, UUID playerUUID)
     {
         Connection conn = null;
         try
         {
             conn = getConnection();
-
-            long playerID = -1;
-            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
-            ResultSet rs1         = ps1.executeQuery();
-
-            while (rs1.next())
-                playerID = rs1.getLong(PLAYERS_ID);
-            ps1.close();
-            rs1.close();
+            long playerID = getPlayerID(conn, playerUUID.toString());
 
             if (playerID == -1)
             {
                 plugin.getMyLogger().logMessage("Trying to remove player " + playerUUID.toString() +
                                                 " as ownwer of door " + doorUID + ". But player does not exist!" , true, false);
-                return;
+                return false;
             }
 
             PreparedStatement ps2 = conn.prepareStatement("DELETE FROM sqlUnion WHERE " +
@@ -1221,6 +1129,7 @@ public class SQLiteJDBCDriverConnection
         catch (SQLException e)
         {
             plugin.getMyLogger().logMessageToLogFile("905: " + e.getMessage());
+            return false;
         }
         finally
         {
@@ -1231,8 +1140,10 @@ public class SQLiteJDBCDriverConnection
             catch (SQLException e)
             {
                 plugin.getMyLogger().logMessageToLogFile("915: " + e.getMessage());
+                return false;
             }
         }
+        return true;
     }
 
     public ArrayList<DoorOwner> getOwnersOfDoor(long doorUID, @Nullable UUID playerUUID)
@@ -1280,15 +1191,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             conn = getConnection();
-
-            long playerID = -1;
-            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
-            ResultSet rs1         = ps1.executeQuery();
-
-            while (rs1.next())
-                playerID = rs1.getLong(PLAYERS_ID);
-            ps1.close();
-            rs1.close();
+            long playerID = getPlayerID(conn, playerUUID.toString());
 
             if (playerID == -1)
             {
@@ -1361,32 +1264,25 @@ public class SQLiteJDBCDriverConnection
         try
         {
             conn = getConnection();
-            // Get the player ID as used in the sqlUnion table.
-            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
-            ResultSet rs1         = ps1.executeQuery();
-            while (rs1.next())
+            long playerID = getPlayerID(conn, playerUUID.toString());
+
+            // Select all doors from the sqlUnion table that have the previously found player as owner.
+            PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
+            ResultSet rs2         = ps2.executeQuery();
+            while (rs2.next())
             {
-                int playerID = rs1.getInt(PLAYERS_ID);
-                // Select all doors from the sqlUnion table that have the previously found player as owner.
-                PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
-                ResultSet rs2         = ps2.executeQuery();
-                while (rs2.next())
-                {
-                    // Retrieve the door with the provided ID.
-                    PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + rs2.getInt(UNION_DOOR_ID) + "';");
-                    ResultSet rs3         = ps3.executeQuery();
-                    // Check if this door matches the provided name, if a name was provided.
-                    while (rs3.next())
-                        if (name == null || name != null && rs3.getString(DOOR_NAME).equals(name))
-                            ++count;
-                    ps3.close();
-                    rs3.close();
-                }
-                ps2.close();
-                rs2.close();
+                // Retrieve the door with the provided ID.
+                PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + rs2.getInt(UNION_DOOR_ID) + "';");
+                ResultSet rs3         = ps3.executeQuery();
+                // Check if this door matches the provided name, if a name was provided.
+                while (rs3.next())
+                    if (name == null || name != null && rs3.getString(DOOR_NAME).equals(name))
+                        ++count;
+                ps3.close();
+                rs3.close();
             }
-            ps1.close();
-            rs1.close();
+            ps2.close();
+            rs2.close();
         }
         catch(SQLException e)
         {

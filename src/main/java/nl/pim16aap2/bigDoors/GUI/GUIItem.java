@@ -2,13 +2,16 @@ package nl.pim16aap2.bigDoors.GUI;
 
 import java.util.ArrayList;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 
+import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.XMaterial;
 
@@ -22,6 +25,8 @@ public class GUIItem
     private String name;
     private Material mat;
     private DoorOwner doorOwner = null;
+    private boolean missingHeadTexture;
+    private DoorAttribute attribute = null;
 
     public GUIItem(Material mat, String name, ArrayList<String> lore, int count, byte data)
     {
@@ -54,18 +59,26 @@ public class GUIItem
         construct();
     }
 
-    public GUIItem(DoorOwner doorOwner)
+    public GUIItem(BigDoors plugin, DoorOwner doorOwner, Player guiOwner)
     {
         this.doorOwner = doorOwner;
         count = doorOwner.getPermission() == 0 ? 1 : doorOwner.getPermission();
-        name = doorOwner.getName() == null ? doorOwner.getUUID().toString() : doorOwner.getName();
-        is = new ItemStack(XMaterial.PLAYER_HEAD.parseMaterial(), count, (short) 3);
-        SkullMeta skull = (SkullMeta) is.getItemMeta();
-        skull.setOwner(name);
-        skull.setDisplayName(name);
-        skull.setLore(lore);
-        skull.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        is.setItemMeta(skull);
+        name = doorOwner.getPlayerName() == null ? doorOwner.getPlayerUUID().toString() : doorOwner.getPlayerName();
+
+        Location loc = guiOwner.getLocation();
+        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(), loc.getBlockX(),
+                                            loc.getBlockY(), loc.getBlockZ(), guiOwner);
+        if (is == null)
+        {
+            is = new ItemStack(XMaterial.PLAYER_HEAD.parseMaterial(), 1, (short) 3);
+            missingHeadTexture = true;
+        }
+        else
+            missingHeadTexture = false;
+
+        name = doorOwner.getPlayerName();
+        lore = null;
+        construct();
     }
 
     private void construct()
@@ -77,9 +90,24 @@ public class GUIItem
         is.setItemMeta(meta);
     }
 
+    public boolean missingHeadTexture()
+    {
+        return missingHeadTexture;
+    }
+
     public ItemStack getItemStack()
     {
         return is;
+    }
+
+    public void setDoorAttribute(DoorAttribute atr)
+    {
+        attribute = atr;
+    }
+
+    public DoorAttribute getDoorAttribute()
+    {
+        return attribute;
     }
 
     public void setDoor(Door door)

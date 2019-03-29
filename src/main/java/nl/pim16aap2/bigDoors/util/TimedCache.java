@@ -39,8 +39,8 @@ public class TimedCache<K, V>
     private void startTask()
     {
         if (timeout > 0)
-            // Verify cache every minute.
-            verifyTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> verifyCache(), 1200, 1200);
+            // Verify cache 1/2 the timeout time. Timeout is in minutes, task timer in ticks, so 1200 * timeout = timeout in ticks.
+            verifyTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> verifyCache(), 600 * timeout, 1200 * timeout);
     }
 
     // Take care of killing the async task (if needed).
@@ -66,6 +66,11 @@ public class TimedCache<K, V>
         return null;
     }
 
+    public boolean contains(K key)
+    {
+        return get(key) != null;
+    }
+
     public void invalidate(K key)
     {
         hashtable.remove(key);
@@ -81,7 +86,6 @@ public class TimedCache<K, V>
             if (entry.getValue().timedOut())
                 hashtable.remove(entry.getKey());
         }
-
     }
 
     // TODO: Make private again.

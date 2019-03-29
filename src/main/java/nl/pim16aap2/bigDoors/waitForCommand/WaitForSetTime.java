@@ -33,6 +33,8 @@ public class WaitForSetTime extends WaitForCommand
                     Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Success") + time + "s.");
                 else
                     Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Disabled"));
+                isFinished = true;
+                abort();
                 return true;
             }
             catch (Exception e)
@@ -40,6 +42,7 @@ public class WaitForSetTime extends WaitForCommand
                 Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.InvalidInput.Integer"));
             }
         }
+        abort();
         return false;
     }
 }
