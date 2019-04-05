@@ -13,6 +13,7 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class RedstoneHandler implements Listener
 {
@@ -42,7 +43,10 @@ public class RedstoneHandler implements Listener
         Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
 
         if (door != null && !door.isLocked())
+        {
+            Util.broadcastMessage("Going to try to open the door!");
             return plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, true) == DoorOpenResult.SUCCESS;
+        }
         return false;
     }
 
@@ -85,6 +89,7 @@ public class RedstoneHandler implements Listener
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             plugin.getMyLogger().logMessageToLogFile("79 " + sw.toString());
+//            e.printStackTrace();
         }
     }
 }

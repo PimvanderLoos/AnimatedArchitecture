@@ -18,7 +18,7 @@ import nl.pim16aap2.bigDoors.util.Util;
 public class DoorCreator extends ToolUser
 {
     protected String typeString;
-    
+
     public DoorCreator(BigDoors plugin, Player player, String name, String typeString)
     {
         super(plugin, player, name, DoorType.DOOR);
@@ -95,7 +95,7 @@ public class DoorCreator extends ToolUser
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
-        if (!plugin.canBreakBlock(player, loc))
+        if (!plugin.canBreakBlock(player.getUniqueId(), loc))
         {
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere"));
             return;

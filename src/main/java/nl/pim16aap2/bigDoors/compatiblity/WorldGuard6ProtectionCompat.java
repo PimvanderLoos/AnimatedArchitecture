@@ -15,9 +15,9 @@ import nl.pim16aap2.bigDoors.BigDoors;
 
 public class WorldGuard6ProtectionCompat implements ProtectionCompat
 {
-    private final WorldGuardPlugin worldGuard;
     @SuppressWarnings("unused")
     private final BigDoors plugin;
+    private final WorldGuardPlugin worldGuard;
     private boolean success = false;
     private Method m;
 

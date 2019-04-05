@@ -64,7 +64,7 @@ public class CustomEntityFallingBlock_V1_13_R2 extends net.minecraft.server.v1_1
     public NBTTagCompound tileEntityData;
     protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class, DataWatcherRegistry.l);
     private org.bukkit.World bukkitWorld;
-    private BigDoors plugin;
+    private final BigDoors plugin;
 
     public CustomEntityFallingBlock_V1_13_R2(BigDoors plugin, org.bukkit.World world, double d0, double d1, double d2, IBlockData iblockdata)
     {

@@ -18,9 +18,9 @@ import nl.pim16aap2.bigDoors.BigDoors;
 
 public class PlotSquaredOldProtectionCompat implements ProtectionCompat
 {
-    private final PlotAPI plotSquared;
     @SuppressWarnings("unused")
     private final BigDoors plugin;
+    private final PlotAPI plotSquared;
     private boolean success = false;
     private final JavaPlugin plotSquaredPlugin;
     private PlayerEvents playerEventsListener = null;
@@ -49,16 +49,19 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
         success = playerEventsListener != null;
     }
 
-    private boolean canBreakBlock(Player player, Plot plot, World world)
-    {
-        com.intellectualcrafters.plot.object.Location center = plot.getCenter();
-        return canBreakBlock(player, new Location(world, center.getX(), center.getY(), center.getZ()));
-    }
-
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        BlockBreakEvent blockBreakEvent = new BlockBreakEvent(loc.getBlock(), player);
+        return canBreakBlock(player, plotSquared.getPlot(loc), loc.getWorld());
+    }
+
+    private boolean canBreakBlock(Player player, Plot plot, World world)
+    {
+        if (plot == null)
+            return true;
+        com.intellectualcrafters.plot.object.Location center = plot.getCenter();
+
+        BlockBreakEvent blockBreakEvent = new BlockBreakEvent(new Location(world, center.getX(), center.getY(), center.getZ()).getBlock(), player);
         playerEventsListener.blockDestroy(blockBreakEvent);
         return !blockBreakEvent.isCancelled();
     }

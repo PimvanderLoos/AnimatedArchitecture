@@ -73,7 +73,7 @@ public class PortcullisCreator extends ToolUser
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
-        if (!plugin.canBreakBlock(player, loc))
+        if (!plugin.canBreakBlock(player.getUniqueId(), loc))
         {
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere"));
             return;

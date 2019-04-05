@@ -75,7 +75,7 @@ public abstract class ToolUser extends Abortable
             Location engine = new Location(world, this.engine.getBlockX(), this.engine.getBlockY(), this.engine.getBlockZ());
             Location powerB = new Location(world, this.engine.getBlockX(), this.engine.getBlockY() - 1, this.engine.getBlockZ());
 
-            if (!plugin.canBreakBlocksBetweenLocs(player, min, max))
+            if (!plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max))
             {
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere"));
                 this.abort(false);

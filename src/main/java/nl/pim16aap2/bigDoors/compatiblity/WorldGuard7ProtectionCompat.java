@@ -17,10 +17,10 @@ import nl.pim16aap2.bigDoors.BigDoors;
 
 public class WorldGuard7ProtectionCompat implements ProtectionCompat
 {
-    private final WorldGuard worldGuard;
-    private final WorldGuardPlugin worldGuardPlugin;
     @SuppressWarnings("unused")
     private final BigDoors plugin;
+    private final WorldGuard worldGuard;
+    private final WorldGuardPlugin worldGuardPlugin;
     private boolean success = false;
 
     public WorldGuard7ProtectionCompat(BigDoors plugin)
@@ -40,10 +40,20 @@ public class WorldGuard7ProtectionCompat implements ProtectionCompat
         success = true;
     }
 
+    private boolean canBreakBlock(LocalPlayer player, Location loc)
+    {
+        return worldGuard.getPlatform().getRegionContainer().createQuery().testState(BukkitAdapter.adapt(loc), player, Flags.BUILD);
+    }
+
+    private LocalPlayer getLocalPlayer(Player player)
+    {
+        return worldGuardPlugin.wrapPlayer(player);
+    }
+
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        return worldGuard.getPlatform().getRegionContainer().createQuery().testState(BukkitAdapter.adapt(loc), worldGuardPlugin.wrapPlayer(player), Flags.BUILD);
+        return canBreakBlock(getLocalPlayer(player), loc);
     }
 
     @Override
@@ -59,7 +69,7 @@ public class WorldGuard7ProtectionCompat implements ProtectionCompat
         int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
-        LocalPlayer lPlayer = worldGuardPlugin.wrapPlayer(player);
+        LocalPlayer lPlayer = getLocalPlayer(player);
         RegionQuery query   = worldGuard.getPlatform().getRegionContainer().createQuery();
         com.sk89q.worldedit.world.World wgWorld = BukkitAdapter.adapt(loc1.getWorld());
 

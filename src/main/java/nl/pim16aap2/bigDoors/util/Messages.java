@@ -14,9 +14,9 @@ import nl.pim16aap2.bigDoors.BigDoors;
 public class Messages
 {
     private HashMap<String, String> messageMap = new HashMap<>();
-    private BigDoors plugin;
-    private String   locale;
-    private File   textFile;
+    private final BigDoors plugin;
+    private String locale;
+    private File textFile;
 
     public Messages(BigDoors plugin)
     {

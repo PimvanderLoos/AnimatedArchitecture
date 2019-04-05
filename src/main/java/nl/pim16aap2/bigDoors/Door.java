@@ -287,4 +287,21 @@ public class Door
         zLen = zLen == 0 ? 1 : zLen;
         return xLen * yLen * zLen;
     }
+
+    @Override
+    public String toString()
+    {
+        String ret = "";
+        ret += "\"" + name + "\". Owned by \"" + player.toString() + "\" (" + getPermission() + ")\n";
+        ret += "Max = " + Util.locIntToString(max) + ", min = " + Util.locIntToString(min) + "\n";
+        ret += "Eng = " + Util.locIntToString(engine) + ", locked = " + isLocked + ", open = " + isOpen + "\n";
+        ret += "blockCount = " + getBlockCount() + ", hash = " + getPowerBlockChunkHash();
+        return ret;
+    }
 }
+
+
+
+
+
+

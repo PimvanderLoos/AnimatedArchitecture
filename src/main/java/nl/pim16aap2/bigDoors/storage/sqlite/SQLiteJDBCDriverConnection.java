@@ -31,9 +31,9 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class SQLiteJDBCDriverConnection
 {
-    private BigDoors plugin;
-    private File     dbFile;
-    private String   url;
+    private final BigDoors plugin;
+    private File   dbFile;
+    private String url;
     private static final String DRIVER = "org.sqlite.JDBC";
     private static final int DATABASE_VERSION    =  4;
 
@@ -190,6 +190,7 @@ public class SQLiteJDBCDriverConnection
                             + " unique (playerID, doorUID))";
             stmt3.executeUpdate(sql3);
             stmt3.close();
+            setDBVersion(conn, DATABASE_VERSION);
         }
         catch (SQLException e)
         {
@@ -474,8 +475,12 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             int permission = -1;
 
+            // If no player is specified, get the lowest tier permission and the original creator.
             if (playerUUID == null)
+            {
                 permission = 2;
+                playerUUID = getOwnerOfDoor(conn, doorUID).getPlayerUUID();
+            }
             else
             {
                 long playerID = getPlayerID(conn, playerUUID.toString());
@@ -485,7 +490,6 @@ public class SQLiteJDBCDriverConnection
                 // Select all doors from the sqlUnion table that have the previously found player as owner.
                 PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND doorUID = '" + doorUID + "';");
                 ResultSet rs2         = ps2.executeQuery();
-
 
                 while (rs2.next())
                     permission = rs2.getInt(UNION_PERM);
@@ -741,6 +745,59 @@ public class SQLiteJDBCDriverConnection
         return playerName;
     }
 
+    private DoorOwner getOwnerOfDoor(Connection conn, long doorUID) throws SQLException
+    {
+        DoorOwner doorOwner = null;
+        conn = getConnection();
+
+        String command = "SELECT * FROM sqlUnion WHERE doorUID = '" + doorUID +
+                         "' AND permission = '" + 0 + "';";
+        PreparedStatement ps1 = conn.prepareStatement(command);
+        ResultSet rs1         = ps1.executeQuery();
+
+        while (rs1.next())
+        {
+            PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM players WHERE id = '" + rs1.getInt(UNION_PLAYER_ID) + "';");
+            ResultSet rs2         = ps2.executeQuery();
+            while(rs2.next())
+                doorOwner = new DoorOwner(plugin, doorUID, UUID.fromString(rs2.getString(PLAYERS_UUID)),
+                                          rs1.getInt(UNION_PERM), rs2.getString(PLAYERS_NAME));
+            ps2.close();
+            rs2.close();
+        }
+        ps1.close();
+        rs1.close();
+        return doorOwner;
+    }
+
+    public DoorOwner getOwnerOfDoor(long doorUID)
+    {
+        DoorOwner doorOwner = null;
+
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+            doorOwner = getOwnerOfDoor(conn, doorUID);
+        }
+        catch (SQLException e)
+        {
+            plugin.getMyLogger().logMessageToLogFile("774: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                plugin.getMyLogger().logMessageToLogFile("784: " + e.getMessage());
+            }
+        }
+        return doorOwner;
+    }
+
     public HashMap<Long, Long> getPowerBlockData(long chunkHash)
     {
         HashMap<Long, Long> doors = new HashMap<Long, Long>();
@@ -754,15 +811,18 @@ public class SQLiteJDBCDriverConnection
             ResultSet rs = ps.executeQuery();
             while (rs.next())
             {
-                doors.put(Util.locationHash(rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z), UUID.fromString(rs.getString(DOOR_WORLD))),
-                          rs.getLong(DOOR_ID));
+                long locationHash = Util.locationHash(rs.getInt(DOOR_POWER_X),
+                                                      rs.getInt(DOOR_POWER_Y),
+                                                      rs.getInt(DOOR_POWER_Z),
+                                                      UUID.fromString(rs.getString(DOOR_WORLD)));
+                doors.put(locationHash, rs.getLong(DOOR_ID));
             }
             ps.close();
             rs.close();
         }
         catch(SQLException e)
         {
-            plugin.getMyLogger().logMessageToLogFile("524: " + e.getMessage());
+            plugin.getMyLogger().logMessageToLogFile("818: " + e.getMessage());
         }
         finally
         {
@@ -772,7 +832,7 @@ public class SQLiteJDBCDriverConnection
             }
             catch (SQLException e)
             {
-                plugin.getMyLogger().logMessageToLogFile("534: " + e.getMessage());
+                plugin.getMyLogger().logMessageToLogFile("828: " + e.getMessage());
             }
         }
         return doors;
@@ -1115,15 +1175,16 @@ public class SQLiteJDBCDriverConnection
             {
                 plugin.getMyLogger().logMessage("Trying to remove player " + playerUUID.toString() +
                                                 " as ownwer of door " + doorUID + ". But player does not exist!" , true, false);
-                return false;
             }
-
-            PreparedStatement ps2 = conn.prepareStatement("DELETE FROM sqlUnion WHERE " +
-                                                          "playerID = '" + playerID +
-                                                          "' AND doorUID = '" + doorUID +
-                                                          "' AND permission > '" + 0 + "';"); // The creator cannot be removed as owner
-            ps2.execute();
-            ps2.close();
+            else
+            {
+                PreparedStatement ps2 = conn.prepareStatement("DELETE FROM sqlUnion WHERE " +
+                                                              "playerID = '" + playerID +
+                                                              "' AND doorUID = '" + doorUID +
+                                                              "' AND permission > '" + 0 + "';"); // The creator cannot be removed as owner
+                ps2.execute();
+                ps2.close();
+            }
 
         }
         catch (SQLException e)
@@ -1161,6 +1222,8 @@ public class SQLiteJDBCDriverConnection
                 ResultSet rs2         = ps2.executeQuery();
                 if (playerUUID == null || !UUID.fromString(rs2.getString(PLAYERS_UUID)).equals(playerUUID))
                     ret.add(new DoorOwner(plugin, doorUID, UUID.fromString(rs2.getString(PLAYERS_UUID)), rs1.getInt(UNION_PERM), rs2.getString(PLAYERS_NAME)));
+                ps2.close();
+                rs2.close();
             }
             ps1.close();
             rs1.close();
@@ -1218,7 +1281,10 @@ public class SQLiteJDBCDriverConnection
             {
                 // Already exists, no need to do anything.
                 if (rs3.getInt(UNION_PERM) == permission)
+                {
+                    conn.close();
                     return;
+                }
 
                 Statement stmt4 = conn.createStatement();
                 String sql4     = "UPDATE sqlUnion SET permission = '" + permission

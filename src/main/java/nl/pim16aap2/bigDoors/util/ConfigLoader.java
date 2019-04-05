@@ -38,7 +38,7 @@ public class ConfigLoader
 
     private ArrayList<ConfigOption> configOptionsList;
     public static boolean DEBUG = false;
-    private BigDoors plugin;
+    private final BigDoors plugin;
 
     public ConfigLoader(BigDoors plugin)
     {
@@ -87,8 +87,8 @@ public class ConfigLoader
         String[] coolDownComment = { "Cooldown on using doors. Time is measured in seconds." };
         String[] cacheTimeoutComment = { "Amount of time (in minutes) to cache powerblock positions. -1 means no caching (not recommended!), 0 = infinite cache.",
                                          "Doesn't take up a lot of RAM, so it's recommended to leave this value high. It'll get updated automatically when needed anyway." };
-        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
-                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
+//        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
+//                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
         String[] debugComment = { "Don't use this. Just leave it on false." };
         String[] backupComment = { "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
                                    "In case anything goes wrong, you can just revert to the old version! Only the most recent backup will be kept." };
@@ -155,8 +155,8 @@ public class ConfigLoader
         cacheTimeout = config.getInt("cacheTimeout", 0);
         configOptionsList.add(new ConfigOption("cacheTimeout", cacheTimeout, cacheTimeoutComment));
 
-        cacheTimeout = config.getInt("headCacheTimeout", 1440);
-        configOptionsList.add(new ConfigOption("headCacheTimeout", headCacheTimeout, headCacheTimeoutComment));
+//        cacheTimeout = config.getInt("headCacheTimeout", 1440);
+//        configOptionsList.add(new ConfigOption("headCacheTimeout", headCacheTimeout, headCacheTimeoutComment));
 
 
         // This is a bit special, as it's public static (for util debug messages).

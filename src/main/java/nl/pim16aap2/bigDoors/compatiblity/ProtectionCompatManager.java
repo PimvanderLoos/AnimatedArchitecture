@@ -1,8 +1,11 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -50,18 +53,26 @@ public class ProtectionCompatManager implements Listener
         loadPlotSquared(silent);
     }
 
-    public boolean canBreakBlock(Player player, Location loc)
+    private Player getPlayer(UUID playerUUID, World world)
+    {
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player == null)
+            player = plugin.getFakePlayerCreator().getFakePlayer(Bukkit.getOfflinePlayer(playerUUID), world);
+        return player;
+    }
+
+    public boolean canBreakBlock(UUID playerUUID, Location loc)
     {
         for (ProtectionCompat compat : protectionCompats)
-            if (!compat.canBreakBlock(player, loc))
+            if (!compat.canBreakBlock(getPlayer(playerUUID, loc.getWorld()), loc))
                 return false;
         return true;
     }
 
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public boolean canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
     {
         for (ProtectionCompat compat : protectionCompats)
-            if (!compat.canBreakBlocksBetweenLocs(player, loc1, loc2))
+            if (!compat.canBreakBlocksBetweenLocs(getPlayer(playerUUID, loc1.getWorld()), loc1, loc2))
                 return false;
         return true;
     }
@@ -107,8 +118,7 @@ public class ProtectionCompatManager implements Listener
     private void loadWorldGuard(boolean silent)
     {
         silent = false;
-        if (plugin.getConfigLoader().worldGuardHook() &&
-            plugin.getServer().getPluginManager().getPlugin("WorldGuard") != null)
+        if (plugin.getConfigLoader().worldGuardHook())
         {
             try
             {
@@ -141,11 +151,14 @@ public class ProtectionCompatManager implements Listener
                 if (!silent)
                 {
                     plugin.getMyLogger().logMessageToConsole("NoClassDefFoundError: "
-                        + "Failed to initialize WorldGuard compatibility hook! "
-                        + "Only v7 seems to be supported atm! Maybe that's the issue?");
+                        + "Failed to initialize WorldGuard compatibility hook!");
                     plugin.getMyLogger().logMessageToConsole(
                           "Now resuming normal startup with Worldguard Compatibility Hook disabled!");
                 }
+            }
+            catch (NullPointerException e)
+            {
+                plugin.getMyLogger().logMessageToConsole("Could not find PlotSquared! Hook not enabled!");
             }
             catch (Exception e)
             {
@@ -153,7 +166,6 @@ public class ProtectionCompatManager implements Listener
                 {
                     plugin.getMyLogger().logMessageToConsole(
                           "Failed to initialize WorldGuard compatibility hook!");
-                    e.printStackTrace();
                     plugin.getMyLogger().logMessageToConsole(
                           "Now resuming normal startup with Worldguard Compatibility Hook disabled!");
                 }
@@ -164,8 +176,7 @@ public class ProtectionCompatManager implements Listener
     private void loadPlotSquared(boolean silent)
     {
         silent = false;
-        if (plugin.getConfigLoader().plotSquaredHook() &&
-            plugin.getServer().getPluginManager().getPlugin("PlotSquared") != null)
+        if (plugin.getConfigLoader().plotSquaredHook())
         {
             try
             {
@@ -198,13 +209,16 @@ public class ProtectionCompatManager implements Listener
                           "Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
                 }
             }
+            catch (NullPointerException e)
+            {
+                plugin.getMyLogger().logMessageToConsole("Could not find PlotSquared! Hook not enabled!");
+            }
             catch (Exception e)
             {
                 if (!silent)
                 {
                     plugin.getMyLogger().logMessageToConsole(
                           "Failed to initialize PlotSquared compatibility hook!");
-                    e.printStackTrace();
                     plugin.getMyLogger().logMessageToConsole(
                           "Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
                 }

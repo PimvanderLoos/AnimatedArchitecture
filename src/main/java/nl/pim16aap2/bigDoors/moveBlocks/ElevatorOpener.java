@@ -14,7 +14,7 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class ElevatorOpener implements Opener
 {
-    private BigDoors plugin;
+    private final BigDoors plugin;
 
     DoorDirection ddirection;
 

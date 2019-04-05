@@ -342,6 +342,7 @@ public class Commander
             powerBlockData = db.getPowerBlockData(chunkHash);
             plugin.getPBCache().put(chunkHash, powerBlockData);
         }
+
         Long doorUID = powerBlockData.get(Util.locationHash(loc));
         return doorUID == null ? null : db.getDoor(null, doorUID);
     }

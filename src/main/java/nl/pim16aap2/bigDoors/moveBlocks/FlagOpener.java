@@ -9,7 +9,7 @@ import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 
 public class FlagOpener implements Opener
 {
-    private BigDoors plugin;
+    private final BigDoors plugin;
 
     public FlagOpener(BigDoors plugin)
     {

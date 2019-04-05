@@ -32,7 +32,7 @@ public class SpigotUpdater
     private String newVersion        = "";
     private int newVersionID         = -1;
     private boolean success          = false;
-    private BigDoors plugin;
+    private final BigDoors plugin;
 
     public SpigotUpdater(BigDoors plugin, int projectID)
     {

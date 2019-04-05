@@ -24,6 +24,7 @@ import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.SkullCreator_V1_13_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.SkullCreator_V1_13_R2;
+import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
@@ -76,11 +77,23 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 //            Then +1 won't have to be appended to everything.
 // TODO: SQL: Use proper COUNT operation for getting the number of doors.
 
+
+// TODO: Allow "empty" chunks in cache! Only chunks WITH doors are cached atm! Just a simple fake door could work.
 // TODO: Allow adding owners to doors from console.
+// TODO: Catch NPE when listing doors from invalid name (e.g. Pim16aap2).
+// TODO: DO NOT FUCKING AUTO DOWNGRADE WHEN RUNNING DEV BUILDS!!!!11 DISABLE auto updates when a dev build is
+//       being used!
+// TODO: For v5 of the database, make playerName a non-null attribute and if needed, update ALL players on another
+//       thread, while locking the db in the meantime.
+// TODO: Add new doortypes to config for speed configuration.
+// TODO: Log startup error to log. Only load logger in onEnable, then try/catch to load the rest.
 
 
 public class BigDoors extends JavaPlugin implements Listener
 {
+    public static final boolean DEVBUILD = true;
+
+
     private ToolVerifier                     tf;
     private SQLiteJDBCDriverConnection       db;
     private FallingBlockFactory_Vall       fabf;
@@ -108,11 +121,12 @@ public class BigDoors extends JavaPlugin implements Listener
     private HashMap<UUID, ToolUser>   toolUsers;
     private HashMap<UUID, GUI>       playerGUIs;
     private boolean              is1_13 = false;
+    private FakePlayerCreator fakePlayerCreator;
 
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
-    //                 Chunk         Location, DoorUID
-    private TimedCache<Long, HashMap<Long,     Long>> pbCache = null;
+    //                 Chunk         Location DoorUID
+    private TimedCache<Long, HashMap<Long,    Long>> pbCache = null;
     private HeadManager headManager;
 
     @Override
@@ -128,6 +142,8 @@ public class BigDoors extends JavaPlugin implements Listener
             logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!", true, true);
             return;
         }
+
+        fakePlayerCreator = new FakePlayerCreator();
 
         init();
         headManager.init();
@@ -234,14 +250,14 @@ public class BigDoors extends JavaPlugin implements Listener
             commander.setCanGo(true);
     }
 
-    public boolean canBreakBlock(Player player, Location loc)
+    public boolean canBreakBlock(UUID playerUUID, Location loc)
     {
-        return protCompatMan.canBreakBlock(player, loc);
+        return protCompatMan.canBreakBlock(playerUUID, loc);
     }
 
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public boolean canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
     {
-        return protCompatMan.canBreakBlocksBetweenLocs(player, loc1, loc2);
+        return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
     }
 
     public void restart()
@@ -307,6 +323,11 @@ public class BigDoors extends JavaPlugin implements Listener
     public BigDoors getPlugin()
     {
         return this;
+    }
+
+    public FakePlayerCreator getFakePlayerCreator()
+    {
+        return fakePlayerCreator;
     }
 
     public Opener getDoorOpener(DoorType type)

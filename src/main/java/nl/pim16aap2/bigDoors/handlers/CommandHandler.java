@@ -846,10 +846,6 @@ public class CommandHandler implements CommandExecutor
 //        Door d1 = plugin.getCommander().getDoor (player.getUniqueId(), 10);
 //        Door d2 = plugin.getCommander().getDoor2(player.getUniqueId(), 10);
 
-
-
-
-
 //        long startTime = System.nanoTime();
 //
 //        for (int idx = 0; idx < 100000; ++idx)
