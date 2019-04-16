@@ -1,9 +1,6 @@
 package nl.pim16aap2.bigDoors.handlers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -315,8 +312,6 @@ public class CommandHandler implements CommandExecutor
     {
         if (abortable instanceof ToolUser)
             ((ToolUser) abortable).setIsDone(true);
-        // TODO: This is bs.
-        abortable.getTask().cancel();
         abortable.abort();
     }
 
@@ -817,10 +812,10 @@ public class CommandHandler implements CommandExecutor
     // Used for various debugging purposes (you don't say!).
     public void doorDebug(Player player)
     {
-        Util.broadcastMessage("Player " + player.getDisplayName() + " has UUID: " + player.getUniqueId());
-        Util.broadcastMessage("Going to get door 10 owned by pim16aap2 now!");
-
-        Util.broadcastMessage("Command waiter status: " + isCommandWaiter(player));
+//        Util.broadcastMessage("Player " + player.getDisplayName() + " has UUID: " + player.getUniqueId());
+//        Util.broadcastMessage("Going to get door 10 owned by pim16aap2 now!");
+//
+//        Util.broadcastMessage("Command waiter status: " + isCommandWaiter(player));
 
 
 //        Door d1 = plugin.getCommander().getDoor (player.getUniqueId(), 10);
@@ -844,34 +839,34 @@ public class CommandHandler implements CommandExecutor
 //        timeElapsed = endTime - startTime;
 //        Util.broadcastMessage("Method 2 took " + timeElapsed);
 
-        Util.broadcastMessage("Going to display cache stats now!");
-        long doorCount = 0;
-
-        ArrayList<Long> chunks = plugin.getPBCache().getKeys();
-        if (chunks == null)
-            Util.broadcastMessage("No chunks in cache!");
-        else
-        {
-            for (Long chunkHash : chunks)
-                doorCount += plugin.getPBCache().get(chunkHash).size();
-
-            Util.broadcastMessage("# of doors in cache: " + doorCount + " in " + plugin.getPBCache().getChunkCount() + " chunks.");
-
-            String doorsStr = "";
-
-            for (Long chunkHash : chunks)
-            {
-                HashMap<Long, Long> doors = plugin.getPBCache().get(chunkHash);
-                Iterator<Entry<Long, Long>> it = doors.entrySet().iterator();
-                while (it.hasNext())
-                {
-                    Entry<Long, Long> entry = it.next();
-                    Door door = plugin.getCommander().getDoor(player.getUniqueId(), entry.getValue());
-                    doorsStr += entry.getValue() + " (" + door.getPowerBlockLoc() + " = " + door.getPowerBlockChunkHash() + "), ";
-                }
-            }
-            Util.broadcastMessage("Doors found: " + doorsStr);
-        }
+//        Util.broadcastMessage("Going to display cache stats now!");
+//        long doorCount = 0;
+//
+//        ArrayList<Long> chunks = plugin.getPBCache().getKeys();
+//        if (chunks == null)
+//            Util.broadcastMessage("No chunks in cache!");
+//        else
+//        {
+//            for (Long chunkHash : chunks)
+//                doorCount += plugin.getPBCache().get(chunkHash).size();
+//
+//            Util.broadcastMessage("# of doors in cache: " + doorCount + " in " + plugin.getPBCache().getChunkCount() + " chunks.");
+//
+//            String doorsStr = "";
+//
+//            for (Long chunkHash : chunks)
+//            {
+//                HashMap<Long, Long> doors = plugin.getPBCache().get(chunkHash);
+//                Iterator<Entry<Long, Long>> it = doors.entrySet().iterator();
+//                while (it.hasNext())
+//                {
+//                    Entry<Long, Long> entry = it.next();
+//                    Door door = plugin.getCommander().getDoor(player.getUniqueId(), entry.getValue());
+//                    doorsStr += entry.getValue() + " (" + door.getPowerBlockLoc() + " = " + door.getPowerBlockChunkHash() + "), ";
+//                }
+//            }
+//            Util.broadcastMessage("Doors found: " + doorsStr);
+//        }
     }
 
     private String helpFormat(String command, String explanation)

@@ -66,13 +66,13 @@ public class GUI
 
     private PageType pageType;
     private int page;
-    private ArrayList<Door> doors;
+    private final ArrayList<Door> doors;
     private ArrayList<DoorOwner> owners;
     private int doorOwnerPage = 0;
     private int maxDoorOwnerPageCount = 0;
     private boolean sortAlphabetically = false;
     private Inventory inventory = null;
-    private HashMap<Integer, GUIItem> items;
+    private final HashMap<Integer, GUIItem> items;
     private int maxPageCount;
     private Door door = null;
 
@@ -141,7 +141,7 @@ public class GUI
     {
         fillInfoHeader();
 
-        ArrayList<String> lore = new ArrayList<String>();
+        ArrayList<String> lore = new ArrayList<>();
         if (doorOwnerPage != 0)
         {
             lore.add(messages.getString("GUI.ToPage") + doorOwnerPage + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
@@ -159,7 +159,7 @@ public class GUI
 
     private void fillInfoHeader()
     {
-        ArrayList<String> lore = new ArrayList<String>();
+        ArrayList<String> lore = new ArrayList<>();
         items.put(0, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, page + 1));
         lore.clear();
 
@@ -171,7 +171,7 @@ public class GUI
 
     private void fillDefaultHeader()
     {
-        ArrayList<String> lore = new ArrayList<String>();
+        ArrayList<String> lore = new ArrayList<>();
         if (page != 0)
         {
             lore.add(messages.getString("GUI.ToPage") + page + messages.getString("GUI.OutOf") + maxPageCount);
@@ -233,7 +233,7 @@ public class GUI
         int mid = (CHESTSIZE - 9) / 2 + 4;
         for (int idx = 9; idx < CHESTSIZE; ++idx)
         {
-            ArrayList<String> lore = new ArrayList<String>();
+            ArrayList<String> lore = new ArrayList<>();
             if (idx == mid) // Middle block.
             {
                 lore.add(messages.getString("GUI.ConfirmDelete"));
@@ -264,7 +264,7 @@ public class GUI
     {
         int offset = page * (CHESTSIZE - 9);
         int endCount = Math.min((CHESTSIZE - 9), (doors.size() - offset));
-        ArrayList<String> lore = new ArrayList<String>();
+        ArrayList<String> lore = new ArrayList<>();
         for (int idx = 0; idx < endCount; ++idx)
         {
             int realIdx  = offset + idx;
@@ -306,10 +306,8 @@ public class GUI
     public void handleInput(int interactionIDX)
     {
         if (!items.containsKey(interactionIDX))
-        {
-//            refresh();
+            //            refresh();
             return;
-        }
 
         boolean header = Util.between(interactionIDX, 0, 8);
 
@@ -342,13 +340,12 @@ public class GUI
         if (!isStillOwner())
             return;
         int mid = (CHESTSIZE - 9) / 2 + 4;
+
         if (interactionIDX == mid)
             deleteDoor();
-        else
-        {
-            pageType = PageType.DOORINFO;
-            update();
-        }
+
+        pageType = PageType.DOORINFO;
+        update();
     }
 
     private void handleInputDoorInfo(int interactionIDX)
@@ -526,7 +523,7 @@ public class GUI
         if (door.getPermission() > DoorAttribute.getPermissionLevel(atr))
             return null;
 
-        ArrayList<String> lore = new ArrayList<String>();
+        ArrayList<String> lore = new ArrayList<>();
         String desc, loreStr;
         GUIItem ret = null;
 

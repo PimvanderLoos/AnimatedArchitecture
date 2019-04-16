@@ -18,7 +18,7 @@ import nl.pim16aap2.bigDoors.util.Util;
 public class MyLogger
 {
     private final BigDoors plugin;
-    private File logFile;
+    private final File logFile;
 
     public MyLogger(BigDoors plugin, File logFile)
     {
@@ -31,7 +31,6 @@ public class MyLogger
     public void loadLog()
     {
         if (!logFile.exists())
-        {
             try
             {
                 logFile.createNewFile();
@@ -41,7 +40,6 @@ public class MyLogger
             {
                 myLogger(Level.SEVERE, "File write error: " + logFile);
             }
-        }
     }
 
     // Print a string to the console.
@@ -97,7 +95,7 @@ public class MyLogger
 
     public void logMessageToConsoleOnly(String msg)
     {
-        logMessage(msg, false, false);
+        info(msg);
     }
 
     public void info(String str)

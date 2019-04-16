@@ -2,6 +2,8 @@ package nl.pim16aap2.bigDoors;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -162,6 +164,9 @@ public class BigDoors extends JavaPlugin implements Listener
         headManager.init();
         economyManager    = new EconomyManager(this);
 
+        Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
+        Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
+        Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
         // No need to put these in init, as they should not be reloaded.
         pbCache           = new TimedCache<>(this, config.cacheTimeout());
         protCompatMan     = new ProtectionCompatManager(this);
@@ -233,9 +238,6 @@ public class BigDoors extends JavaPlugin implements Listener
             rPackHandler = new LoginResourcePackHandler(this, config.resourcePack());
             Bukkit.getPluginManager().registerEvents(rPackHandler,  this);
         }
-        Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
-        Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
-        Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
 
         // Load stats collector if allowed, otherwise unload it if needed or simply don't load it in the first place.
         if (config.allowStats())
@@ -279,15 +281,11 @@ public class BigDoors extends JavaPlugin implements Listener
         if (!validVersion)
             return;
         reloadConfig();
-        // Stop all tool users, end all blockmovers, and clear all command waiters.
-        toolUsers.forEach((key,value) -> value.abort());
+
         onDisable();
         protCompatMan.reload();
-        toolUsers = null;
-        cmdWaiters = null;
-        blockMovers = null;
         playerGUIs.forEach((key,value) -> value.close());
-        playerGUIs = null;
+        playerGUIs.clear();
 
         HandlerList.unregisterAll(redstoneHandler);
         redstoneHandler = null;
@@ -310,13 +308,12 @@ public class BigDoors extends JavaPlugin implements Listener
         // Stop all toolUsers and take all BigDoor tools from players.
         commander.setCanGo(false);
 
-        try
+        Iterator<Entry<UUID, ToolUser>> it = toolUsers.entrySet().iterator();
+        while (it.hasNext())
         {
-            toolUsers.forEach((key,value) -> value.setIsDone(true));
+            Entry<UUID, ToolUser> entry = it.next();
+            entry.getValue().abort();
         }
-        // Don't care if it fails.
-        catch (final Exception uncaught)
-        {}
 
         for (final BlockMover bm : blockMovers)
             bm.putBlocks(true);

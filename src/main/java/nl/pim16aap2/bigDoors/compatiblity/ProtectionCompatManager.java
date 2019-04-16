@@ -18,7 +18,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 public class ProtectionCompatManager implements Listener
 {
     private final BigDoors plugin;
-    private ArrayList<ProtectionCompat> protectionCompats;
+    private final ArrayList<ProtectionCompat> protectionCompats;
 
     /* This class keeps track of all protection compats.
      * It allows you to test if you can break a block or all blocks
@@ -90,7 +90,7 @@ public class ProtectionCompatManager implements Listener
         if (hook.success())
         {
             protectionCompats.add(hook);
-            plugin.getMyLogger().logMessageToConsole("Successfully hooked into \"" + hook.getPlugin().getName() + "\"!");
+            plugin.getMyLogger().info("Successfully hooked into \"" + hook.getPlugin().getName() + "\"!");
         }
         else
             plugin.getMyLogger().logMessageToConsole("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
@@ -119,7 +119,6 @@ public class ProtectionCompatManager implements Listener
     {
         silent = false;
         if (plugin.getConfigLoader().worldGuardHook())
-        {
             try
             {
                 ProtectionCompat protectionCompat;
@@ -128,14 +127,14 @@ public class ProtectionCompatManager implements Listener
                 {
                     if (protectionAlreadyLoaded(WorldGuard7ProtectionCompat.class))
                         return;
-                    plugin.getMyLogger().logMessageToConsoleOnly("WorldGuard v7 detected!");
+                    plugin.getMyLogger().info("WorldGuard v7 detected!");
                     protectionCompat = new WorldGuard7ProtectionCompat(plugin);
                 }
                 else if (WGVersion.startsWith("6."))
                 {
                     if (protectionAlreadyLoaded(WorldGuard6ProtectionCompat.class))
                         return;
-                    plugin.getMyLogger().logMessageToConsoleOnly("WorldGuard v6 detected!");
+                    plugin.getMyLogger().info("WorldGuard v6 detected!");
                     protectionCompat = new WorldGuard6ProtectionCompat(plugin);
                 }
                 else
@@ -170,14 +169,12 @@ public class ProtectionCompatManager implements Listener
                           "Now resuming normal startup with Worldguard Compatibility Hook disabled!");
                 }
             }
-        }
     }
 
     private void loadPlotSquared(boolean silent)
     {
         silent = false;
         if (plugin.getConfigLoader().plotSquaredHook())
-        {
             try
             {
                 ProtectionCompat plotSquaredCompat;
@@ -187,14 +184,14 @@ public class ProtectionCompatManager implements Listener
                 {
                     if (protectionAlreadyLoaded(PlotSquaredNewProtectionCompat.class))
                         return;
-                    plugin.getMyLogger().logMessageToConsoleOnly("PlotSquared v4 detected!");
+                    plugin.getMyLogger().info("PlotSquared v4 detected!");
                     plotSquaredCompat = new PlotSquaredNewProtectionCompat(plugin);
                 }
                 else
                 {
                     if (protectionAlreadyLoaded(PlotSquaredOldProtectionCompat.class))
                         return;
-                    plugin.getMyLogger().logMessageToConsoleOnly("PlotSquared v3 detected!");
+                    plugin.getMyLogger().info("PlotSquared v3 detected!");
                     plotSquaredCompat = new PlotSquaredOldProtectionCompat(plugin);
                 }
                 addProtectionCompat(plotSquaredCompat);
@@ -223,6 +220,5 @@ public class ProtectionCompatManager implements Listener
                           "Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
                 }
             }
-        }
     }
 }

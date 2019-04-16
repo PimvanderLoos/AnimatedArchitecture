@@ -30,7 +30,6 @@ public class EventHandlers implements Listener
     public void onLeftClick(PlayerInteractEvent event)
     {
         if (event.getAction() == Action.LEFT_CLICK_BLOCK)
-        {
             if (plugin.getTF().isTool(event.getPlayer().getItemInHand()))
             {
                 ToolUser tu = plugin.getToolUser(event.getPlayer());
@@ -41,7 +40,6 @@ public class EventHandlers implements Listener
                     return;
                 }
             }
-        }
     }
 
     @EventHandler
@@ -80,7 +78,6 @@ public class EventHandlers implements Listener
         if (event.isCancelled())
             return;
         for (BlockMover bm : plugin.getBlockMovers())
-        {
             if (bm.getDoor().chunkInRange(event.getChunk()))
             {
                 bm.getDoor().setCanGo(false);
@@ -95,6 +92,5 @@ public class EventHandlers implements Listener
                     }
                 }.runTaskLater(plugin, 10);
             }
-        }
     }
 }

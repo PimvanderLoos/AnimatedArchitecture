@@ -88,6 +88,8 @@ public abstract class ToolUser extends Abortable
             int doorSize = door.getBlockCount();
             int sizeLimit = Util.getMaxDoorSizeForPlayer(player);
 
+            Util.broadcastMessage("doorSize = " + door.getBlockCount() + " sizeLimit = " + sizeLimit);
+
             if (sizeLimit >= 0 && sizeLimit < doorSize)
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);
             else if (plugin.getEconomyManager().buyDoor(player, type, doorSize))
@@ -176,10 +178,7 @@ public abstract class ToolUser extends Abortable
     {
         done = bool;
         if (bool)
-        {
             triggerFinishUp();
-            plugin.removeToolUser(this);
-        }
     }
 
     @Override
@@ -190,14 +189,12 @@ public abstract class ToolUser extends Abortable
         if (onDisable)
             return;
         cancelTask();
+        plugin.removeToolUser(this);
         if (!done)
-        {
-            plugin.removeToolUser(this);
             // TODO: This is dumb. Casting player to CommandSender and then checking if it's
             // a player or console.
             plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED,
                                                 messages.getString("CREATOR.GENERAL.TimeUp"));
-        }
     }
 
     @Override

@@ -22,7 +22,7 @@ public class Door
     private boolean            isOpen;
     private Location           engine;
     private UUID               player;
-    private long              doorUID;
+    private final long        doorUID;
     private RotateDirection   openDir;
     private boolean          isLocked;
     private int             autoClose;
@@ -279,12 +279,13 @@ public class Door
 
     public int getBlockCount()
     {
-        int xLen = Math.abs(getMaximum().getBlockX() - getMinimum().getBlockX());
-        int yLen = Math.abs(getMaximum().getBlockY() - getMinimum().getBlockY());
-        int zLen = Math.abs(getMaximum().getBlockZ() - getMinimum().getBlockZ());
+        int xLen = Math.abs(getMaximum().getBlockX() - getMinimum().getBlockX()) + 1;
+        int yLen = Math.abs(getMaximum().getBlockY() - getMinimum().getBlockY()) + 1;
+        int zLen = Math.abs(getMaximum().getBlockZ() - getMinimum().getBlockZ()) + 1;
         xLen = xLen == 0 ? 1 : xLen;
         yLen = yLen == 0 ? 1 : yLen;
         zLen = zLen == 0 ? 1 : zLen;
+
         return xLen * yLen * zLen;
     }
 
