@@ -15,7 +15,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 public class ConfigLoader
 {
     private String dbFile;
-    private String header;
+    private final String header;
     private int coolDown;
     private boolean makeBackup;
     private boolean allowStats;
@@ -35,15 +35,17 @@ public class ConfigLoader
     private boolean checkForUpdates;
     private boolean plotSquaredHook;
     private int headCacheTimeout;
+    private String doorPrice, drawbridgePrice, portcullisPrice,
+                   elevatorPrice, slidingDoorPrice, flagPrice;
 
-    private ArrayList<ConfigOption> configOptionsList;
+    private final ArrayList<ConfigOption> configOptionsList;
     public static boolean DEBUG = false;
     private final BigDoors plugin;
 
     public ConfigLoader(BigDoors plugin)
     {
         this.plugin = plugin;
-        configOptionsList = new ArrayList<ConfigOption>();
+        configOptionsList = new ArrayList<>();
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
         makeConfig();
     }
@@ -87,8 +89,18 @@ public class ConfigLoader
         String[] coolDownComment = { "Cooldown on using doors. Time is measured in seconds." };
         String[] cacheTimeoutComment = { "Amount of time (in minutes) to cache powerblock positions. -1 means no caching (not recommended!), 0 = infinite cache.",
                                          "Doesn't take up a lot of RAM, so it's recommended to leave this value high. It'll get updated automatically when needed anyway." };
+        String[] pricesComment = { "When Vault is present, you can set the price of door creation here for every type of door.",
+                                   "You can use the word \"blockCount\" (without quotationmarks, case sensitive) as a variable that will be replaced by the actual blockCount.",
+                                   "Furthermore, you can use these options:",
+                                   "-, +, *, /, sqrt(), ^(): These do exactly what you'd think they'd do :)",
+                                   "min(a,b), max(a,b): Results in the lowest or highest of the two provided values",
+                                   "abs(a): Returns absolute value.",
+                                   "For example: \"doorPrice='max(10, sqrt(16)^(4)/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
+                                   "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!" };
+
 //        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
 //                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
+
         String[] debugComment = { "Don't use this. Just leave it on false." };
         String[] backupComment = { "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
                                    "In case anything goes wrong, you can just revert to the old version! Only the most recent backup will be kept." };
@@ -154,6 +166,24 @@ public class ConfigLoader
 
         cacheTimeout = config.getInt("cacheTimeout", 0);
         configOptionsList.add(new ConfigOption("cacheTimeout", cacheTimeout, cacheTimeoutComment));
+
+        doorPrice = config.getString("doorPrice", "0");
+        configOptionsList.add(new ConfigOption("doorPrice", doorPrice, pricesComment));
+
+        drawbridgePrice = config.getString("drawbridgePrice", "0");
+        configOptionsList.add(new ConfigOption("drawbridgePrice", drawbridgePrice, null));
+
+        portcullisPrice = config.getString("portcullisPrice", "0");
+        configOptionsList.add(new ConfigOption("portcullisPrice", portcullisPrice, null));
+
+        elevatorPrice = config.getString("elevatorPrice", "0");
+        configOptionsList.add(new ConfigOption("elevatorPrice", elevatorPrice, null));
+
+        slidingDoorPrice = config.getString("slidingDoorPrice", "0");
+        configOptionsList.add(new ConfigOption("slidingDoorPrice", slidingDoorPrice, null));
+
+        flagPrice = config.getString("flagPrice", "0");
+        configOptionsList.add(new ConfigOption("flagPrice", flagPrice, null));
 
 //        cacheTimeout = config.getInt("headCacheTimeout", 1440);
 //        configOptionsList.add(new ConfigOption("headCacheTimeout", headCacheTimeout, headCacheTimeoutComment));
@@ -306,5 +336,35 @@ public class ConfigLoader
     public int headCacheTimeout()
     {
         return headCacheTimeout;
+    }
+
+    public String doorPrice()
+    {
+        return doorPrice;
+    }
+
+    public String drawbridgePrice()
+    {
+        return drawbridgePrice;
+    }
+
+    public String portcullisPrice()
+    {
+        return portcullisPrice;
+    }
+
+    public String elevatorPrice()
+    {
+        return elevatorPrice;
+    }
+
+    public String slidingDoorPrice()
+    {
+        return slidingDoorPrice;
+    }
+
+    public String flagPrice()
+    {
+        return flagPrice;
     }
 }

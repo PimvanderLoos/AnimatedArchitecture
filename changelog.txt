@@ -26,6 +26,9 @@ Alpha 0.1.8
 - Rewrote all GUI code to make my life easier and this plugin a little faster.
 - Added option to sort doors in GUI alphabetically (name) or numerically (ID).
 - Now storing player names in db (easier and faster).
+- Simplified calculations. About 40% faster for medium sized doors. The bigger the door, the bigger the improvement.
+- Added economy support. You can set a price (flat or formula) for every door. Formula supports -,+,*,/,min(a,b),max(a,b),abs(),sqrt(),^().
+- Added "bigdoors.maxsize.<maxSize>" permission node to determine the max door size a player/group can make.
 
 Alpha 0.1.7.3
 - Fix door items in GUI in 1.12. Thanks, @bbayu for the bug report!

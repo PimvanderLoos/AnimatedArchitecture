@@ -42,7 +42,7 @@ public class WorldGuard7ProtectionCompat implements ProtectionCompat
 
     private boolean canBreakBlock(LocalPlayer player, Location loc)
     {
-        return worldGuard.getPlatform().getRegionContainer().createQuery().testState(BukkitAdapter.adapt(loc), player, Flags.BUILD);
+        return worldGuard.getPlatform().getRegionContainer().createQuery().testState(BukkitAdapter.adapt(loc), player, com.sk89q.worldguard.protection.flags.Flags.BUILD);
     }
 
     private LocalPlayer getLocalPlayer(Player player)

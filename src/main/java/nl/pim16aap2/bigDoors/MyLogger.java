@@ -19,19 +19,12 @@ public class MyLogger
 {
     private final BigDoors plugin;
     private File logFile;
-    private int debugLevel = 100;
 
     public MyLogger(BigDoors plugin, File logFile)
     {
         this.plugin  = plugin;
         this.logFile = logFile;
         loadLog();
-    }
-
-    // Change debug level.
-    public void setDebugLevel(int level)
-    {
-        debugLevel = level;
     }
 
     // Initialise log
@@ -72,10 +65,9 @@ public class MyLogger
     {
         if (printToConsole)
             myLogger(Level.WARNING, msg);
-        BufferedWriter bw = null;
         try
         {
-            bw = new BufferedWriter(new FileWriter(logFile, true));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true));
             Date now = new Date();
             SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             if (startSkip)
@@ -84,6 +76,7 @@ public class MyLogger
                 bw.write("[" + format.format(now) + "] " + msg);
             bw.newLine();
             bw.flush();
+            bw.close();
         }
         catch (IOException e)
         {
@@ -105,20 +98,6 @@ public class MyLogger
     public void logMessageToConsoleOnly(String msg)
     {
         logMessage(msg, false, false);
-    }
-
-    // Prints a debugmessage. Deprecated because there are much better systems now.
-    @Deprecated
-    public void debugMsg(int level, Level lvl, String msg)
-    {
-        if (level <= debugLevel)
-            Bukkit.broadcastMessage("" + msg);
-    }
-
-    @Deprecated // Do not use this. Use the proper logging tools instead.
-    public void debugMsg(Level lvl, String msg)
-    {
-        debugMsg(0, lvl, msg);
     }
 
     public void info(String str)

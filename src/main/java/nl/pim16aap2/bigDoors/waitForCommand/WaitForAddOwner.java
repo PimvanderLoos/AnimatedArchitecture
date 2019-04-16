@@ -53,12 +53,9 @@ public class WaitForAddOwner extends WaitForCommand
                 abort();
                 return true;
             }
-            else
-            {
-                Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[1] + "\"");
-                abort();
-                return true;
-            }
+            Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[1] + "\"");
+            abort();
+            return true;
         }
         abort();
         return false;

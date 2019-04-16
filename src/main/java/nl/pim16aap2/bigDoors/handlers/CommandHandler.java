@@ -103,11 +103,6 @@ public class CommandHandler implements CommandExecutor
         openDoorCommand((CommandSender) player, door, 0.0);
     }
 
-    public void lockDoorCommand(Player player, Door door)
-    {
-        plugin.getCommander().setLock(door.getDoorUID(), !door.isLocked());
-    }
-
     // Get the number of doors owned by player player with name doorName (or any name, if doorName == null)
     public long countDoors(Player player, String doorName)
     {
@@ -213,7 +208,7 @@ public class CommandHandler implements CommandExecutor
 
         long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
         int maxCount   = Util.getMaxDoorsForPlayer(player);
-        if (maxCount  >= 0 && doorCount >= maxCount)
+        if (maxCount  >= 0 && doorCount > maxCount)
         {
             Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.TooManyDoors"));
             return;
@@ -239,10 +234,10 @@ public class CommandHandler implements CommandExecutor
                       type == DoorType.FLAG        ? new FlagCreator       (plugin, player, name) :
                       type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
 
-        startTimerForAbortable(tu, player, 60 * 20);
+        startTimerForAbortable(tu, 60 * 20);
     }
 
-    public void startTimerForAbortable(Abortable abortable, Player player, int time)
+    public void startTimerForAbortable(Abortable abortable, int time)
     {
         BukkitTask task = new BukkitRunnable()
         {
@@ -277,7 +272,7 @@ public class CommandHandler implements CommandExecutor
     {
         if (isPlayerBusy(player))
             return;
-        startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, "setblockstomove", doorUID)), player, 20 * 20);
+        startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, "setblockstomove", doorUID)), 20 * 20);
     }
 
     private void replaceWaitForCommand(Player player)
@@ -293,19 +288,19 @@ public class CommandHandler implements CommandExecutor
     public void startTimerSetter(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), player, 20 * 20);
+        startTimerForAbortable((new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), 20 * 20);
     }
 
     public void startAddOwner(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForAddOwner(plugin, player, "addowner", doorUID)), player, 20 * 20);
+        startTimerForAbortable((new WaitForAddOwner(plugin, player, "addowner", doorUID)), 20 * 20);
     }
 
     public void startRemoveOwner(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForRemoveOwner(plugin, player, "removeowner", doorUID)), player, 20 * 20);
+        startTimerForAbortable((new WaitForRemoveOwner(plugin, player, "removeowner", doorUID)), 20 * 20);
     }
 
     private boolean isPlayerBusy(Player player)
@@ -320,13 +315,14 @@ public class CommandHandler implements CommandExecutor
     {
         if (abortable instanceof ToolUser)
             ((ToolUser) abortable).setIsDone(true);
+        // TODO: This is bs.
         abortable.getTask().cancel();
         abortable.abort();
     }
 
     public void startPowerBlockRelocator(Player player, long doorUID)
     {
-        startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID), player, 20 * 20);
+        startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID), 20 * 20);
     }
 
     // Handle commands.
@@ -348,7 +344,7 @@ public class CommandHandler implements CommandExecutor
 
             case "menu":
                 if (player != null)
-                    new GUI(plugin, player);
+                    plugin.addGUIUser(new GUI(plugin, player));
                 break;
 
             case "restart":
@@ -407,19 +403,13 @@ public class CommandHandler implements CommandExecutor
                                                             ChatColor.RED, plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
                         return false;
                     }
-                    else
-                    {
-                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                            ChatColor.RED, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[2] + "\"");
-                        return true;
-                    }
-                }
-                else
-                {
-                    // TODO: Print help menu!
-                    Util.broadcastMessage("FAIL");
+                    plugin.getMyLogger().returnToSender(sender, Level.INFO,
+                                                        ChatColor.RED, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[2] + "\"");
                     return true;
                 }
+                // TODO: Print help menu!
+                Util.broadcastMessage("FAIL");
+                return true;
 
             case "removeowner":
                 if (player == null)
@@ -624,7 +614,6 @@ public class CommandHandler implements CommandExecutor
                                                                 ChatColor.RED, "Don't forget that you should use the DoorUID in the console/command blocks! DoorName won't work here!");
                     }
                     else if (door != null)
-                    {
                         if (type == 2 || door.getOpenDir().equals(RotateDirection.NONE))
                             openDoorCommand(sender, door, time);
                         else if (type == 1)
@@ -637,15 +626,12 @@ public class CommandHandler implements CommandExecutor
                                                                     "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyClosed"));
                         }
                         else if (type == 0)
-                        {
                             if (!door.isOpen())
                                 openDoorCommand(sender, door, time);
                             else
                                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
                                                                     plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] +
                                                                     "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
-                        }
-                    }
                 }
                 return true;
             }
@@ -662,13 +648,10 @@ public class CommandHandler implements CommandExecutor
                 else if (args.length == 1)
                     listDoors(player, args[0]);
             }
-            else
-            {
-                if (args.length == 0)
-                    return false;
-                else if (args.length == 1)
-                    listDoorsFromConsole(args[0]);
-            }
+            else if (args.length == 0)
+                return false;
+            else if (args.length == 1)
+                listDoorsFromConsole(args[0]);
 
             return true;
         }
@@ -676,7 +659,6 @@ public class CommandHandler implements CommandExecutor
         // /doorinfo <doorName>
         // /doorinfo <doorUID>
         if (cmd.getName().equalsIgnoreCase("doorinfo"))
-        {
             if (args.length == 1)
             {
                 if (player != null)
@@ -685,7 +667,6 @@ public class CommandHandler implements CommandExecutor
                     listDoorInfoFromConsole(args[0]);
                 return true;
             }
-        }
 
         if (player != null)
         {
@@ -694,15 +675,14 @@ public class CommandHandler implements CommandExecutor
             {
                 if (isPlayerBusy(player))
                     return false;
-                startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), player, 20 * 20);
+                startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), 20 * 20);
                 return true;
             }
 
             // /bdm
             if (cmd.getName().equalsIgnoreCase("bdm"))
             {
-//                new GUIPage_OLD(plugin, player);
-                new GUI(plugin, player);
+                plugin.addGUIUser(new GUI(plugin, player));
                 return true;
             }
 

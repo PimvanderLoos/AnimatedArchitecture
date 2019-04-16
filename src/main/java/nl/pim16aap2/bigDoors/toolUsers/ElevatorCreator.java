@@ -49,20 +49,13 @@ public class ElevatorCreator extends ToolUser
         engine = new Location(one.getWorld(), xMid, yMin, zMid);
     }
 
-    // Elevators can be of any shape and size.
-    private boolean isPositionValid(Location loc)
-    {
-        return true;
-    }
-
     // Take care of the selection points.
     @Override
     public void selector(Location loc)
     {
         if (name == null)
             return;
-        if (!isPositionValid(loc))
-            return;
+
         if (one == null)
         {
             one = loc;

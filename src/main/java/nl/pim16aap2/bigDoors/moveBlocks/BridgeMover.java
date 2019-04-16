@@ -542,14 +542,12 @@ public class BridgeMover implements BlockMover
                 return (byte) (matData - 4);
             return matData;
         }
-        else
-        {
-            if (matData >= 0 && matData < 4)
-                return (byte) (matData + 8);
-            if (matData >= 8 && matData < 12)
-                return (byte) (matData - 8);
-            return matData;
-        }
+
+        if (matData >= 0 && matData < 4)
+            return (byte) (matData + 8);
+        if (matData >= 8 && matData < 12)
+            return (byte) (matData - 8);
+        return matData;
     }
 
     // Rotate blocks such a logs by modifying its material data.
@@ -574,18 +572,16 @@ public class BridgeMover implements BlockMover
                 return (byte) (openDirection.equals(DoorDirection.EAST) ? 0 : 1);
             return matData;
         }
-        else
-        {
-            if (matData == 0)
-                return (byte) (openDirection.equals(DoorDirection.NORTH) ? 3 : 2);
-            if (matData == 1)
-                return (byte) (openDirection.equals(DoorDirection.NORTH) ? 2 : 3);
-            if (matData == 2)
-                return (byte) (openDirection.equals(DoorDirection.NORTH) ? 0 : 1);
-            if (matData == 3)
-                return (byte) (openDirection.equals(DoorDirection.NORTH) ? 1 : 0);
-            return matData;
-        }
+
+        if (matData == 0)
+            return (byte) (openDirection.equals(DoorDirection.NORTH) ? 3 : 2);
+        if (matData == 1)
+            return (byte) (openDirection.equals(DoorDirection.NORTH) ? 2 : 3);
+        if (matData == 2)
+            return (byte) (openDirection.equals(DoorDirection.NORTH) ? 0 : 1);
+        if (matData == 3)
+            return (byte) (openDirection.equals(DoorDirection.NORTH) ? 1 : 0);
+        return matData;
     }
 
     // Toggle the open status of a drawbridge.
@@ -595,6 +591,7 @@ public class BridgeMover implements BlockMover
     }
 
     // Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
+    @SuppressWarnings("null")
     private void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown, int moved)
     {
         int xMin = door.getMinimum().getBlockX();

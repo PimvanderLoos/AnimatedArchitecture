@@ -29,6 +29,7 @@ import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock_Vall;
  * - NoClip enabled
  */
 
+@SuppressWarnings("hiding")
 public class CustomEntityFallingBlock_V1_11_R1 extends net.minecraft.server.v1_11_R1.EntityFallingBlock implements CustomEntityFallingBlock_Vall
 {
     private        IBlockData block      ;

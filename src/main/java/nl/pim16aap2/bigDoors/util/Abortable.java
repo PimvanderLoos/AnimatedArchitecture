@@ -23,6 +23,7 @@ public abstract class Abortable
         bukkitTask = task;
     }
 
+    // TODO: This shouldn't really be publicly accessible.
     public BukkitTask getTask()
     {
         return bukkitTask;

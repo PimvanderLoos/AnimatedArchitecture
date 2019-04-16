@@ -56,6 +56,10 @@ public class MyBlockData
                             startLocation.getZ());
     }
 
+    public double getStartX()  {  return startLocation.getX();  }
+    public double getStartY()  {  return startLocation.getY();  }
+    public double getStartZ()  {  return startLocation.getZ();  }
+
     @Override
     public String toString()
     {

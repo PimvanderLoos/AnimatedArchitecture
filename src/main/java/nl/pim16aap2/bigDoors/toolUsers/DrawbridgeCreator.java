@@ -88,57 +88,53 @@ public class DrawbridgeCreator extends ToolUser
             }
             return true;
         }
+
         // If an engine point has already been selected but an engine side wasn't determined yet.
-        else
+        if (loc.equals(engine))
+            return false;
+
+        int posXa = engine.getBlockX();
+        int posZa = engine.getBlockZ();
+
+        // Engine axis should be on 1 axis only.
+        Vector vector = loc.toVector().subtract(engine.toVector());
+        vector.normalize();
+
+        if (Math.abs(vector.getX() + vector.getY() + vector.getZ()) != 1)
+            return false;
+
+        // First figure out which corner was selected.
+        if (engine.equals(one)) // NORTH / WEST Possible
         {
-            if (loc.equals(engine))
-                return false;
-
-            int posXa = engine.getBlockX();
-            int posZa = engine.getBlockZ();
-
-            // Engine axis should be on 1 axis only.
-            Vector vector = loc.toVector().subtract(engine.toVector());
-            vector.normalize();
-
-            if (Math.abs(vector.getX() + vector.getY() + vector.getZ()) != 1)
-                return false;
-            else
-            {
-                // First figure out which corner was selected.
-                if      (engine.equals(one)) // NORTH / WEST Possible
-                {
-                    if (vector.getBlockX() == 1)
-                        engineSide = DoorDirection.NORTH;
-                    else if (vector.getBlockZ() == 1)
-                        engineSide = DoorDirection.WEST;
-                }
-                else if (engine.equals(two)) // EAST / SOUTH Possible
-                {
-                    if (vector.getBlockX() == -1)
-                        engineSide = DoorDirection.SOUTH;
-                    else if (vector.getBlockZ() == -1)
-                        engineSide = DoorDirection.EAST;
-                }
-                else if (posXa == one.getBlockX() && posZa == two.getBlockZ()) // SOUTH / WEST Possible
-                {
-                    if (vector.getBlockX() == 1)
-                        engineSide = DoorDirection.SOUTH;
-                    else if (vector.getBlockZ() == -1)
-                        engineSide = DoorDirection.WEST;
-                }
-                else if (posXa == two.getBlockX() && posZa == one.getBlockZ()) // NORTH / EAST Possible
-                {
-                    if (vector.getBlockX() == -1)
-                        engineSide = DoorDirection.NORTH;
-                    else if (vector.getBlockZ() == 1)
-                        engineSide = DoorDirection.EAST;
-                }
-                else
-                    return false;
-                drawBridgeEngineFix();
-            }
+            if (vector.getBlockX() == 1)
+                engineSide = DoorDirection.NORTH;
+            else if (vector.getBlockZ() == 1)
+                engineSide = DoorDirection.WEST;
         }
+        else if (engine.equals(two)) // EAST / SOUTH Possible
+        {
+            if (vector.getBlockX() == -1)
+                engineSide = DoorDirection.SOUTH;
+            else if (vector.getBlockZ() == -1)
+                engineSide = DoorDirection.EAST;
+        }
+        else if (posXa == one.getBlockX() && posZa == two.getBlockZ()) // SOUTH / WEST Possible
+        {
+            if (vector.getBlockX() == 1)
+                engineSide = DoorDirection.SOUTH;
+            else if (vector.getBlockZ() == -1)
+                engineSide = DoorDirection.WEST;
+        }
+        else if (posXa == two.getBlockX() && posZa == one.getBlockZ()) // NORTH / EAST Possible
+        {
+            if (vector.getBlockX() == -1)
+                engineSide = DoorDirection.NORTH;
+            else if (vector.getBlockZ() == 1)
+                engineSide = DoorDirection.EAST;
+        }
+        else
+            return false;
+        drawBridgeEngineFix();
         return engineSide != null;
     }
 

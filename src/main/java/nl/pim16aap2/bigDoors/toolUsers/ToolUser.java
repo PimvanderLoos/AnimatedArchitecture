@@ -64,7 +64,7 @@ public abstract class ToolUser extends Abortable
     // Check if all the variables that cannot be null are not null.
     protected abstract boolean isReadyToCreateDoor();
 
-    // Final cleanup
+    // Final cleanup and door creation.
     protected final void finishUp(String message)
     {
         if (isReadyToCreateDoor() && !aborting)
@@ -84,11 +84,21 @@ public abstract class ToolUser extends Abortable
 
             Door door = new Door(player.getUniqueId(), world, min, max, engine, name, isOpen, -1, false,
                                  0, type, engineSide, powerB, openDir, -1);
-            plugin.getCommander().addDoor(door);
 
-            Util.messagePlayer(player, message);
+            int doorSize = door.getBlockCount();
+            int sizeLimit = Util.getMaxDoorSizeForPlayer(player);
+
+            if (sizeLimit >= 0 && sizeLimit < doorSize)
+                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);
+            else if (plugin.getEconomyManager().buyDoor(player, type, doorSize))
+            {
+                plugin.getCommander().addDoor(door);
+                if (message != null)
+                    Util.messagePlayer(player, message);
+            }
         }
         takeToolFromPlayer();
+        this.abort();
     }
 
     protected final void giveToolToPlayer(String[] lore, String[] message)

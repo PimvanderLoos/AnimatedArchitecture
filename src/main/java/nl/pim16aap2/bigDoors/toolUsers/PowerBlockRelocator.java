@@ -31,7 +31,7 @@ public class PowerBlockRelocator extends ToolUser
             plugin.getCommander().updatePowerBlockLoc(doorUID, one);
             Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Success"));
         }
-        takeToolFromPlayer();
+        finishUp(null);
     }
 
     // Take care of the selection points.

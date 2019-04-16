@@ -1,11 +1,8 @@
 package nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation;
 
-import java.util.List;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class GetNewLocationNorth implements GetNewLocation
@@ -29,12 +26,10 @@ public class GetNewLocationNorth implements GetNewLocation
     {}
 
     @Override
-    public Location getNewLocation(List<MyBlockData> savedBlocks, double xPos, double yPos, double zPos, int index)
+    public Location getNewLocation(double radius, double xPos, double yPos, double zPos)
     {
         Location oldPos = new Location(world, xPos, yPos, zPos);
         Location newPos = oldPos;
-
-        double radius = savedBlocks.get(index).getRadius();
 
         newPos.setX(oldPos.getX() + (rotDir == RotateDirection.CLOCKWISE ? radius : -radius));
         newPos.setY(oldPos.getY());

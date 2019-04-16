@@ -33,6 +33,12 @@
             <id>Massive</id>
             <url>https://repo.dustplanet.de/artifactory/ext-release-local/</url>
         </repository>
+        
+        <!-- Vault -->
+        <repository>
+            <id>vault-repo</id>
+            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -105,6 +111,14 @@
             <groupId>br.net.fabiozumbi12.RedProtect</groupId>
             <artifactId>RedProtect-Spigot-1.13</artifactId>
             <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- Vault -->
+        <dependency>
+            <groupId>net.milkbowl.vault</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
             <scope>provided</scope>
         </dependency>
         

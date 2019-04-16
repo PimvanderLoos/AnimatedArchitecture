@@ -28,8 +28,7 @@ public enum PageType
     {
         if (map.containsKey(str))
             return map.get(str);
-        else
-            return PageType.NOTBIGDOORS;
+        return PageType.NOTBIGDOORS;
     }
 
     static

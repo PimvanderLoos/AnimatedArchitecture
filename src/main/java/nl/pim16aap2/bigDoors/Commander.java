@@ -110,18 +110,16 @@ public class Commander
             if (player == null)
                 return null;
             ArrayList<Door> doors = new ArrayList<Door>();
-            doors = db.getDoors(player == null ? null : player.getUniqueId().toString(), doorStr);
+            doors = db.getDoors(player.getUniqueId().toString(), doorStr);
             if (doors.size() == 1)
                 return doors.get(0);
+
+            if (doors.size() == 0)
+                Util.messagePlayer(player, messages.getString("GENERAL.NoDoorsFound"));
             else
-            {
-                if (doors.size() == 0)
-                    Util.messagePlayer(player, messages.getString("GENERAL.NoDoorsFound"));
-                else
-                    Util.messagePlayer(player, messages.getString("GENERAL.MoreThan1DoorFound"));
-                printDoors(player, doors);
-                return null;
-            }
+                Util.messagePlayer(player, messages.getString("GENERAL.MoreThan1DoorFound"));
+            printDoors(player, doors);
+            return null;
         }
     }
 

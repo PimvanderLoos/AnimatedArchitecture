@@ -87,8 +87,6 @@ public class GUI
         page = 0;
         items = new HashMap<>();
 
-        plugin.addGUIUser(this);
-
         doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), null);
 
         sort();
@@ -625,7 +623,8 @@ public class GUI
             ret = new GUIItem(REMOVEOWNERMAT, desc, lore, 1, SKULLDATA);
             break;
         }
-        ret.setDoorAttribute(atr);
+        if (ret != null)
+            ret.setDoorAttribute(atr);
         return ret;
     }
 

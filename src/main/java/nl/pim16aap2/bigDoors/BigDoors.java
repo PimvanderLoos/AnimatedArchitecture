@@ -76,9 +76,9 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: SQL: See if inserting into doors works when adding another question mark for the UUID (but leaving it empty).
 //            Then +1 won't have to be appended to everything.
 // TODO: SQL: Use proper COUNT operation for getting the number of doors.
+// TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 
 
-// TODO: Allow "empty" chunks in cache! Only chunks WITH doors are cached atm! Just a simple fake door could work.
 // TODO: Allow adding owners to doors from console.
 // TODO: Catch NPE when listing doors from invalid name (e.g. Pim16aap2).
 // TODO: DO NOT FUCKING AUTO DOWNGRADE WHEN RUNNING DEV BUILDS!!!!11 DISABLE auto updates when a dev build is
@@ -87,7 +87,18 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 //       thread, while locking the db in the meantime.
 // TODO: Add new doortypes to config for speed configuration.
 // TODO: Log startup error to log. Only load logger in onEnable, then try/catch to load the rest.
-
+// TODO: Abort commandWaiter if someone used the command directly (e.g. /setblockstomove randomDoor 7" after initiating
+//       the BTM process via the GUI).
+// TODO: Create "creator" abstract class from which all creators can be derived, so the finishUp() method can
+//       be safely used from all class types.
+// TODO: Look into CommandHandler.setDoorOpenTime(Player, long, int) method. It either doesn't need a player object,
+//       Or it needs to do some checks. There are a few more methods like this.
+// TODO: Figure out what's up with chunbkHash == -1 for snail and elevator.
+// TODO: When the plugin cannot be enabled, register alternative command handler that informs the player
+//       that the plugin couldn't be enabled.
+// TODO: Remove successful hooking from log file.
+// TODO: Instead of always using global wallet for economy, use world wallet instead.
+// TODO: Restarting while a toolusers is active fucks it up.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -129,6 +140,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private TimedCache<Long, HashMap<Long,    Long>> pbCache = null;
     private HeadManager headManager;
 
+    private EconomyManager economyManager;
+
     @Override
     public void onEnable()
     {
@@ -147,9 +160,10 @@ public class BigDoors extends JavaPlugin implements Listener
 
         init();
         headManager.init();
+        economyManager    = new EconomyManager(this);
 
         // No need to put these in init, as they should not be reloaded.
-        pbCache           = new TimedCache<Long, HashMap<Long, Long>>(this, config.cacheTimeout());
+        pbCache           = new TimedCache<>(this, config.cacheTimeout());
         protCompatMan     = new ProtectionCompatManager(this);
         Bukkit.getPluginManager().registerEvents(protCompatMan, this);
         db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
@@ -202,8 +216,8 @@ public class BigDoors extends JavaPlugin implements Listener
         messages    = new Messages(this);
         toolUsers   = new HashMap<>();
         playerGUIs  = new HashMap<>();
-        blockMovers = new Vector<BlockMover>(2);
-        cmdWaiters  = new Vector<WaitForCommand>(2);
+        blockMovers = new Vector<>(2);
+        cmdWaiters  = new Vector<>(2);
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
         loginString = "";
 
@@ -265,7 +279,8 @@ public class BigDoors extends JavaPlugin implements Listener
         if (!validVersion)
             return;
         reloadConfig();
-        // Stop all tool users, end all blockmovers, and clear all command waiter.
+        // Stop all tool users, end all blockmovers, and clear all command waiters.
+        toolUsers.forEach((key,value) -> value.abort());
         onDisable();
         protCompatMan.reload();
         toolUsers = null;
@@ -281,6 +296,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         init();
 
+        economyManager.init();
         pbCache.reinit(config.cacheTimeout());
         headManager.reload();
     }
@@ -299,10 +315,10 @@ public class BigDoors extends JavaPlugin implements Listener
             toolUsers.forEach((key,value) -> value.setIsDone(true));
         }
         // Don't care if it fails.
-        catch (Exception uncaught)
+        catch (final Exception uncaught)
         {}
 
-        for (BlockMover bm : blockMovers)
+        for (final BlockMover bm : blockMovers)
             bm.putBlocks(true);
 
         toolUsers.clear();
@@ -403,7 +419,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public WaitForCommand getCommandWaiter(Player player)
     {
-        for (WaitForCommand wfc : cmdWaiters)
+        for (final WaitForCommand wfc : cmdWaiters)
             if (wfc.getPlayer().equals(player))
                 return wfc;
         return null;
@@ -455,6 +471,11 @@ public class BigDoors extends JavaPlugin implements Listener
         return config;
     }
 
+    public EconomyManager getEconomyManager()
+    {
+        return economyManager;
+    }
+
     // Get the ToolVerifier.
     public ToolVerifier getTF()
     {
@@ -474,6 +495,7 @@ public class BigDoors extends JavaPlugin implements Listener
     }
 
     // This function simply loads these classes to make my life a bit less hell-ish with live development.
+    @SuppressWarnings("unused")
     private void liveDevelopmentLoad()
     {
         new GetNewLocationNorth ();
@@ -497,7 +519,7 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
         }
-        catch (ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
+        catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
             return false;
         }
@@ -559,21 +581,21 @@ public class BigDoors extends JavaPlugin implements Listener
     // Toggle a door from a doorUID and instantly or not.
     public boolean toggleDoor(long doorUID, boolean instantOpen)
     {
-        Door door = getCommander().getDoor(null, doorUID);
+        final Door door = getCommander().getDoor(null, doorUID);
         return toggleDoor(door, 0.0, instantOpen) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID and a given time.
     public boolean toggleDoor(long doorUID, double time)
     {
-        Door door = getCommander().getDoor(null, doorUID);
+        final Door door = getCommander().getDoor(null, doorUID);
         return toggleDoor(door, time, false) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID using default values.
     public boolean toggleDoor(long doorUID)
     {
-        Door door = getCommander().getDoor(null, doorUID);
+        final Door door = getCommander().getDoor(null, doorUID);
         return toggleDoor(door, 0.0, false) == DoorOpenResult.SUCCESS;
     }
 
@@ -586,7 +608,10 @@ public class BigDoors extends JavaPlugin implements Listener
     // Check the open-status of a door from a doorUID.
     public boolean isOpen (long doorUID)
     {
-        Door door = getCommander().getDoor(null, doorUID);
+        final Door door = getCommander().getDoor(null, doorUID);
         return this.isOpen(door);
     }
+
+//    public long createNewDoor(Location min, Location max, Location engine,
+//                              Location powerBlock, DoorType type, )
 }

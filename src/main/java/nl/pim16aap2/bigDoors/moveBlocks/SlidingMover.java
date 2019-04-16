@@ -254,6 +254,7 @@ public class SlidingMover implements BlockMover
             long startTime   = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
+            MyBlockData firstBlockData = savedBlocks.stream().filter(block -> !block.getMat().equals(Material.AIR)).findFirst().orElse(null);
 
             @Override
             public void run()
@@ -274,7 +275,7 @@ public class SlidingMover implements BlockMover
                 else
                     stepSum = blocksToMove;
 
-                if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks || firstBlockData == null)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (int idx = 0; idx < savedBlocks.size(); ++idx)
@@ -285,24 +286,21 @@ public class SlidingMover implements BlockMover
                 }
                 else
                 {
+                    Location loc = firstBlockData.getStartLocation();
+
+                    if (NS)
+                        loc.setZ(loc.getZ() + stepSum);
+                    else
+                        loc.setX(loc.getX() + stepSum);
+
+                    if (firstBlockData.getStartLocation().getBlockY() != yMin)
+                        loc.setY(loc.getY() - .010001);
+                    Vector vec = loc.toVector().subtract(firstBlockData.getFBlock().getLocation().toVector());
+                    vec.multiply(0.101);
+
                     for (MyBlockData block : savedBlocks)
-                    {
                         if (!block.getMat().equals(Material.AIR))
-                        {
-                            Location loc = block.getStartLocation();
-
-                            if (NS)
-                                loc.setZ(loc.getZ() + stepSum);
-                            else
-                                loc.setX(loc.getX() + stepSum);
-
-                            if (block.getStartLocation().getBlockY() != yMin)
-                                loc.setY(loc.getY() - .010001);
-                            Vector vec = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
-                            vec.multiply(0.101);
                             block.getFBlock().setVelocity(vec);
-                        }
-                    }
                 }
             }
         }.runTaskTimer(plugin, 14, tickRate);

@@ -158,7 +158,16 @@ public final class Util
 
     public static int getMaxDoorsForPlayer(Player player)
     {
-        String permissionNode = "bigdoors.own.";
+        return getHighestPermissionSuffix(player, "bigdoors.own.");
+    }
+
+    public static int getMaxDoorSizeForPlayer(Player player)
+    {
+        return getHighestPermissionSuffix(player, "bigdoors.maxsize.");
+    }
+
+    private static int getHighestPermissionSuffix(Player player, String permissionNode)
+    {
         int ret = -1;
         for (PermissionAttachmentInfo perms : player.getEffectivePermissions())
             if (perms.getPermission().startsWith(permissionNode))
