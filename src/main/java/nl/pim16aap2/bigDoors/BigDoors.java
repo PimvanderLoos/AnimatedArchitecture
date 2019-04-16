@@ -55,6 +55,7 @@ import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.Metrics;
 import nl.pim16aap2.bigDoors.util.TimedCache;
+import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 // TODO: Add success message for changing door opendirection.
@@ -88,19 +89,14 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: For v5 of the database, make playerName a non-null attribute and if needed, update ALL players on another
 //       thread, while locking the db in the meantime.
 // TODO: Add new doortypes to config for speed configuration.
-// TODO: Log startup error to log. Only load logger in onEnable, then try/catch to load the rest.
 // TODO: Abort commandWaiter if someone used the command directly (e.g. /setblockstomove randomDoor 7" after initiating
 //       the BTM process via the GUI).
-// TODO: Create "creator" abstract class from which all creators can be derived, so the finishUp() method can
-//       be safely used from all class types.
+// TODO: Create "creator" abstract class as subclass of ToolUser from which all creators can be derived, so
+//       the finishUp() method can be safely used from all class types.
 // TODO: Look into CommandHandler.setDoorOpenTime(Player, long, int) method. It either doesn't need a player object,
 //       Or it needs to do some checks. There are a few more methods like this.
 // TODO: Figure out what's up with chunbkHash == -1 for snail and elevator.
-// TODO: When the plugin cannot be enabled, register alternative command handler that informs the player
-//       that the plugin couldn't be enabled.
-// TODO: Remove successful hooking from log file.
 // TODO: Instead of always using global wallet for economy, use world wallet instead.
-// TODO: Restarting while a toolusers is active fucks it up.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -150,61 +146,69 @@ public class BigDoors extends JavaPlugin implements Listener
         logFile = new File(getDataFolder(), "log.txt");
         logger  = new MyLogger(this, logFile);
 
-        validVersion = compatibleMCVer();
-        // Load the files for the correct version of Minecraft.
-        if (!validVersion)
+        try
         {
-            logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!", true, true);
-            return;
+            validVersion = compatibleMCVer();
+            // Load the files for the correct version of Minecraft.
+            if (!validVersion)
+            {
+                logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!", true, true);
+                return;
+            }
+
+            fakePlayerCreator = new FakePlayerCreator();
+
+            init();
+            headManager.init();
+            economyManager    = new EconomyManager(this);
+
+            Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
+            Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
+            Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
+            // No need to put these in init, as they should not be reloaded.
+            pbCache           = new TimedCache<>(this, config.cacheTimeout());
+            protCompatMan     = new ProtectionCompatManager(this);
+            Bukkit.getPluginManager().registerEvents(protCompatMan, this);
+            db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
+            commander         = new Commander(this, db);
+            doorOpener        = new DoorOpener(this);
+            flagOpener        = new FlagOpener(this);
+            bridgeOpener      = new BridgeOpener(this);
+            bridgeOpener      = new BridgeOpener(this);
+            commandHandler    = new CommandHandler(this);
+            elevatorOpener    = new ElevatorOpener(this);
+            portcullisOpener  = new PortcullisOpener(this);
+            slidingDoorOpener = new SlidingDoorOpener(this);
+
+            registerCommand("inspectpowerblockloc");
+            registerCommand("changepowerblockloc" );
+            registerCommand("setautoclosetime"    );
+            registerCommand("setdoorrotation"     );
+            registerCommand("setblockstomove"     );
+            registerCommand("newportcullis"       );
+            registerCommand("toggledoor"          );
+            registerCommand("pausedoors"          );
+            registerCommand("closedoor"           );
+            registerCommand("doordebug"           );
+            registerCommand("listdoors"           );
+            registerCommand("stopdoors"           );
+            registerCommand("bdcancel"            );
+            registerCommand("filldoor"            );
+            registerCommand("doorinfo"            );
+            registerCommand("opendoor"            );
+            registerCommand("nameDoor"            );
+            registerCommand("bigdoors"            );
+            registerCommand("newdoor"             );
+            registerCommand("deldoor"             );
+            registerCommand("bdm"                 );
+
+            liveDevelopmentLoad();
         }
-
-        fakePlayerCreator = new FakePlayerCreator();
-
-        init();
-        headManager.init();
-        economyManager    = new EconomyManager(this);
-
-        Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
-        Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
-        Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
-        // No need to put these in init, as they should not be reloaded.
-        pbCache           = new TimedCache<>(this, config.cacheTimeout());
-        protCompatMan     = new ProtectionCompatManager(this);
-        Bukkit.getPluginManager().registerEvents(protCompatMan, this);
-        db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
-        commander         = new Commander(this, db);
-        doorOpener        = new DoorOpener(this);
-        flagOpener        = new FlagOpener(this);
-        bridgeOpener      = new BridgeOpener(this);
-        bridgeOpener      = new BridgeOpener(this);
-        commandHandler    = new CommandHandler(this);
-        elevatorOpener    = new ElevatorOpener(this);
-        portcullisOpener  = new PortcullisOpener(this);
-        slidingDoorOpener = new SlidingDoorOpener(this);
-
-        registerCommand("inspectpowerblockloc");
-        registerCommand("changepowerblockloc" );
-        registerCommand("setautoclosetime"    );
-        registerCommand("setdoorrotation"     );
-        registerCommand("setblockstomove"     );
-        registerCommand("newportcullis"       );
-        registerCommand("toggledoor"          );
-        registerCommand("pausedoors"          );
-        registerCommand("closedoor"           );
-        registerCommand("doordebug"           );
-        registerCommand("listdoors"           );
-        registerCommand("stopdoors"           );
-        registerCommand("bdcancel"            );
-        registerCommand("filldoor"            );
-        registerCommand("doorinfo"            );
-        registerCommand("opendoor"            );
-        registerCommand("nameDoor"            );
-        registerCommand("bigdoors"            );
-        registerCommand("newdoor"             );
-        registerCommand("deldoor"             );
-        registerCommand("bdm"                 );
-
-        liveDevelopmentLoad();
+        catch(Exception exception)
+        {
+            exception.printStackTrace();
+            logger.logMessage(Util.exceptionToString(exception), true, true);
+        }
     }
 
     private void registerCommand(String command)

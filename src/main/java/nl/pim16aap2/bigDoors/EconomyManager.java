@@ -37,7 +37,7 @@ public class EconomyManager
         if (!vaultEnabled)
             return true;
         double price = getPrice(type, blockCount);
-        if (withdrawPlayer(player, price))
+        if (withdrawPlayer(player, player.getWorld().getName(), price))
             return true;
 
         Util.messagePlayer(player, plugin.getMessages().getString("CREATOR.GENERAL.InsufficientFunds") + " " + price);
@@ -180,16 +180,16 @@ public class EconomyManager
         return economy.has(player, amount);
     }
 
-    private boolean withdrawPlayer(OfflinePlayer player, double amount)
+    private boolean withdrawPlayer(OfflinePlayer player, String worldName, double amount)
     {
         if (has(player, amount))
-            return economy.withdrawPlayer(player, amount).type.equals(EconomyResponse.ResponseType.SUCCESS);
+            return economy.withdrawPlayer(player, worldName, amount).type.equals(EconomyResponse.ResponseType.SUCCESS);
         return false;
     }
 
-    private boolean withdrawPlayer(Player player, double amount)
+    private boolean withdrawPlayer(Player player, String worldName, double amount)
     {
-        return withdrawPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()), amount);
+        return withdrawPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()), worldName, amount);
     }
 
     private boolean setupEconomy()
