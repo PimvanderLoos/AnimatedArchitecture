@@ -23,8 +23,10 @@ public class LoginMessageHandler implements Listener
     public void onLogin(PlayerLoginEvent event)
     {
         Player player = event.getPlayer();
-        if (player.hasPermission("bigdoors.admin"))
-        {
+        // Normally, only send to those with permission, so they can disable it.
+        // But when it's a devbuild, also send it to everyone who's OP, to make it
+        // a bit harder to get around the message.
+        if (player.hasPermission("bigdoors.admin") || player.isOp() && BigDoors.DEVBUILD)
             // Slight delay so the player actually receives the message;
             new BukkitRunnable()
             {
@@ -36,6 +38,5 @@ public class LoginMessageHandler implements Listener
                         player.sendMessage(ChatColor.AQUA + plugin.getLoginString());
                 }
             }.runTaskLater(plugin, 10);
-        }
     }
 }

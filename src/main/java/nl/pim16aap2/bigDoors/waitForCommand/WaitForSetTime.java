@@ -3,11 +3,12 @@ package nl.pim16aap2.bigDoors.waitForCommand;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class WaitForSetTime extends WaitForCommand
 {
-    private long    doorUID;
+    private final long doorUID;
 
     public WaitForSetTime(BigDoors plugin, Player player, String command, long doorUID)
     {
@@ -22,8 +23,10 @@ public class WaitForSetTime extends WaitForCommand
     @Override
     public boolean executeCommand(String[] args)
     {
+        if (!plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.CHANGETIMER))
+            return true;
+
         if (args.length == 1)
-        {
             try
             {
                 int time = Integer.parseInt(args[0]);
@@ -41,7 +44,6 @@ public class WaitForSetTime extends WaitForCommand
             {
                 Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.InvalidInput.Integer"));
             }
-        }
         abort();
         return false;
     }

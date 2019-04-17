@@ -80,23 +80,16 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 //            Then +1 won't have to be appended to everything.
 // TODO: SQL: Use proper COUNT operation for getting the number of doors.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
+// TODO: Create "creator" abstract class as subclass of ToolUser from which all creators can be derived, so
+//       the finishUp() method can be safely used from all class types.
 
 
 // TODO: Allow adding owners to doors from console.
 // TODO: Catch NPE when listing doors from invalid name (e.g. Pim16aap2).
-// TODO: DO NOT FUCKING AUTO DOWNGRADE WHEN RUNNING DEV BUILDS!!!!11 DISABLE auto updates when a dev build is
-//       being used!
 // TODO: For v5 of the database, make playerName a non-null attribute and if needed, update ALL players on another
 //       thread, while locking the db in the meantime.
-// TODO: Add new doortypes to config for speed configuration.
 // TODO: Abort commandWaiter if someone used the command directly (e.g. /setblockstomove randomDoor 7" after initiating
 //       the BTM process via the GUI).
-// TODO: Create "creator" abstract class as subclass of ToolUser from which all creators can be derived, so
-//       the finishUp() method can be safely used from all class types.
-// TODO: Look into CommandHandler.setDoorOpenTime(Player, long, int) method. It either doesn't need a player object,
-//       Or it needs to do some checks. There are a few more methods like this.
-// TODO: Figure out what's up with chunbkHash == -1 for snail and elevator.
-// TODO: Instead of always using global wallet for economy, use world wallet instead.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -148,6 +141,10 @@ public class BigDoors extends JavaPlugin implements Listener
 
         try
         {
+            Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
+            if (DEVBUILD)
+                setLoginString("[BigDoors] Warning: You are running a devbuild!");
+
             validVersion = compatibleMCVer();
             // Load the files for the correct version of Minecraft.
             if (!validVersion)
@@ -164,7 +161,6 @@ public class BigDoors extends JavaPlugin implements Listener
 
             Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
             Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
-            Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
             // No need to put these in init, as they should not be reloaded.
             pbCache           = new TimedCache<>(this, config.cacheTimeout());
             protCompatMan     = new ProtectionCompatManager(this);
@@ -216,6 +212,7 @@ public class BigDoors extends JavaPlugin implements Listener
         getCommand(command).setExecutor(new CommandHandler(this));
     }
 
+    @SuppressWarnings("unused")
     private void init()
     {
         if (!validVersion)
@@ -258,7 +255,7 @@ public class BigDoors extends JavaPlugin implements Listener
         }
 
         // Load update checker if allowed, otherwise unload it if needed or simply don't load it in the first place.
-        if (config.checkForUpdates())
+        if (config.checkForUpdates() && !DEVBUILD)
         {
             if (updater == null)
                 updater = new SpigotUpdater(this, 58669);

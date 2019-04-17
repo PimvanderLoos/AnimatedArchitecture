@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.waitForCommand;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class WaitForSetBlocksToMove extends WaitForCommand
@@ -22,8 +23,10 @@ public class WaitForSetBlocksToMove extends WaitForCommand
     @Override
     public boolean executeCommand(String[] args)
     {
+        if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.BLOCKSTOMOVE))
+            return true;
+
         if (args.length == 1)
-        {
             try
             {
                 int blocksToMove = Integer.parseInt(args[0]);
@@ -41,7 +44,6 @@ public class WaitForSetBlocksToMove extends WaitForCommand
             {
                 Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.InvalidInput.Integer"));
             }
-        }
         abort();
         return false;
     }

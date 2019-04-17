@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.Util;
 
@@ -34,6 +35,9 @@ public class WaitForRemoveOwner extends WaitForCommand
     @Override
     public boolean executeCommand(String[] args)
     {
+        if (!plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.REMOVEOWNER))
+            return true;
+
         // example: /BigDoors removeOwner pim16aap2
         if (args.length == 2)
         {

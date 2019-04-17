@@ -44,7 +44,7 @@ public class CommandHandler implements CommandExecutor
 
     public CommandHandler(BigDoors plugin)
     {
-        this.plugin   = plugin;
+        this.plugin = plugin;
     }
 
     public void stopDoors()
@@ -134,7 +134,8 @@ public class CommandHandler implements CommandExecutor
 
     public void listDoorInfo(Player player, Door door)
     {
-        Util.messagePlayer(player, Util.getFullDoorInfo(door));
+        if (plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.INFO))
+            Util.messagePlayer(player, Util.getFullDoorInfo(door));
     }
 
     public void listDoorInfoFromConsole(String str)
@@ -257,12 +258,14 @@ public class CommandHandler implements CommandExecutor
 
     public void setDoorOpenTime(Player player, long doorUID, int autoClose)
     {
-        plugin.getCommander().updateDoorAutoClose(doorUID, autoClose);
+        if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.CHANGETIMER))
+            plugin.getCommander().updateDoorAutoClose(doorUID, autoClose);
     }
 
     public void setDoorBlocksToMove(Player player, long doorUID, int autoClose)
     {
-        plugin.getCommander().updateDoorBlocksToMove(doorUID, autoClose);
+        if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.BLOCKSTOMOVE))
+            plugin.getCommander().updateDoorBlocksToMove(doorUID, autoClose);
     }
 
     public void startBlocksToMoveSetter(Player player, long doorUID)
