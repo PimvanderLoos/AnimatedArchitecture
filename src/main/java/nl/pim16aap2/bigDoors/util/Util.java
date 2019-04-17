@@ -2,6 +2,8 @@ package nl.pim16aap2.bigDoors.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.security.SecureRandom;
+import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -77,6 +79,25 @@ public final class Util
     public static long locationHash(int x, int y, int z, UUID worldUUID)
     {
         return locationHash(new Location(Bukkit.getWorld(worldUUID), x, y, z));
+    }
+
+    static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    static SecureRandom srnd = new SecureRandom();
+    static Random rnd = new Random();
+    public static String randomString(int length)
+    {
+        StringBuilder sb = new StringBuilder(length);
+        for (int idx = 0; idx != length; ++idx)
+            sb.append(chars.charAt(rnd.nextInt(chars.length())));
+        return sb.toString();
+    }
+
+    public static String secureRandomString(int length)
+    {
+        StringBuilder sb = new StringBuilder(length);
+        for (int idx = 0; idx != length; ++idx)
+            sb.append(chars.charAt(srnd.nextInt(chars.length())));
+        return sb.toString();
     }
 
     public static String nameFromUUID(UUID playerUUID)

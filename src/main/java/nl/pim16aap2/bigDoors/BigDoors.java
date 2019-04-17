@@ -91,6 +91,8 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Abort commandWaiter if someone used the command directly (e.g. /setblockstomove randomDoor 7" after initiating
 //       the BTM process via the GUI).
 
+// TODO: Make sure there are no System.exit() calls left anywhere in the code!
+
 public class BigDoors extends JavaPlugin implements Listener
 {
     public static final boolean DEVBUILD = true;

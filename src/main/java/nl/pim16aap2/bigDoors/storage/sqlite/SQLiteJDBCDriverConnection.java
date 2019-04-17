@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
 
@@ -37,7 +38,7 @@ public class SQLiteJDBCDriverConnection
     private final File   dbFile;
     private final String url;
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION    =  4;
+    private static final int DATABASE_VERSION    =  5;
 
     private static final int DOOR_ID             =  1;
     private static final int DOOR_NAME           =  2;
@@ -75,7 +76,8 @@ public class SQLiteJDBCDriverConnection
 
     private final String dbName;
     private boolean enabled = true;
-    private boolean locked = false;
+    private AtomicBoolean locked = new AtomicBoolean(false);
+    private static final String FAKEUUID = "0000";
 
     public SQLiteJDBCDriverConnection(final BigDoors plugin, final String dbName)
     {
@@ -95,7 +97,7 @@ public class SQLiteJDBCDriverConnection
             plugin.getMyLogger().logMessage("Database disabled! This probably means an upgrade failed! Please contact pim16aap2.", true, false);
             return null;
         }
-        if (locked)
+        if (locked.get())
         {
             plugin.getMyLogger().logMessage("Database locked! Please try again later! Please contact pim16aap2 if the issue persists.", true, false);
             return null;
@@ -138,52 +140,57 @@ public class SQLiteJDBCDriverConnection
         {
             conn = getConnection();
 
-            Statement stmt1 = conn.createStatement();
-            String sql1     = "CREATE TABLE IF NOT EXISTS doors "
-                            + "(id            INTEGER    PRIMARY KEY autoincrement, "
-                            + " name          TEXT       NOT NULL, "
-                            + " world         TEXT       NOT NULL, "
-                            + " isOpen        INTEGER    NOT NULL, "
-                            + " xMin          INTEGER    NOT NULL, "
-                            + " yMin          INTEGER    NOT NULL, "
-                            + " zMin          INTEGER    NOT NULL, "
-                            + " xMax          INTEGER    NOT NULL, "
-                            + " yMax          INTEGER    NOT NULL, "
-                            + " zMax          INTEGER    NOT NULL, "
-                            + " engineX       INTEGER    NOT NULL, "
-                            + " engineY       INTEGER    NOT NULL, "
-                            + " engineZ       INTEGER    NOT NULL, "
-                            + " isLocked      INTEGER    NOT NULL, "
-                            + " type          INTEGER    NOT NULL, "
-                            + " engineSide    INTEGER    NOT NULL, "
-                            + " powerBlockX   INTEGER    NOT NULL, "
-                            + " powerBlockY   INTEGER    NOT NULL, "
-                            + " powerBlockZ   INTEGER    NOT NULL, "
-                            + " openDirection INTEGER    NOT NULL, "
-                            + " autoClose     INTEGER    NOT NULL, "
-                            + " chunkHash     INTEGER    NOT NULL, "
-                            + " blocksToMove  INTEGER    NOT NULL) ";
-            stmt1.executeUpdate(sql1);
-            stmt1.close();
+            // Check if the doors table already exists. If it does, assume the rest exists as well
+            // and don't set it up.
+            if (!conn.getMetaData().getTables(null, null, "doors", new String[] {"TABLE"}).next())
+            {
+                Statement stmt1 = conn.createStatement();
+                String sql1     = "CREATE TABLE IF NOT EXISTS doors "
+                                + "(id            INTEGER    PRIMARY KEY autoincrement, "
+                                + " name          TEXT       NOT NULL, "
+                                + " world         TEXT       NOT NULL, "
+                                + " isOpen        INTEGER    NOT NULL, "
+                                + " xMin          INTEGER    NOT NULL, "
+                                + " yMin          INTEGER    NOT NULL, "
+                                + " zMin          INTEGER    NOT NULL, "
+                                + " xMax          INTEGER    NOT NULL, "
+                                + " yMax          INTEGER    NOT NULL, "
+                                + " zMax          INTEGER    NOT NULL, "
+                                + " engineX       INTEGER    NOT NULL, "
+                                + " engineY       INTEGER    NOT NULL, "
+                                + " engineZ       INTEGER    NOT NULL, "
+                                + " isLocked      INTEGER    NOT NULL, "
+                                + " type          INTEGER    NOT NULL, "
+                                + " engineSide    INTEGER    NOT NULL, "
+                                + " powerBlockX   INTEGER    NOT NULL, "
+                                + " powerBlockY   INTEGER    NOT NULL, "
+                                + " powerBlockZ   INTEGER    NOT NULL, "
+                                + " openDirection INTEGER    NOT NULL, "
+                                + " autoClose     INTEGER    NOT NULL, "
+                                + " chunkHash     INTEGER    NOT NULL, "
+                                + " blocksToMove  INTEGER    NOT NULL) ";
+                stmt1.executeUpdate(sql1);
+                stmt1.close();
 
-            Statement stmt2 = conn.createStatement();
-            String sql2     = "CREATE TABLE IF NOT EXISTS players "
-                            + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
-                            + " playerUUID  TEXT       NOT NULL,"
-                            + " playerName  TEXT)";
-            stmt2.executeUpdate(sql2);
-            stmt2.close();
+                Statement stmt2 = conn.createStatement();
+                String sql2     = "CREATE TABLE IF NOT EXISTS players "
+                                + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
+                                + " playerUUID  TEXT       NOT NULL,"
+                                + " playerName  TEXT       NOT NULL)";
+                stmt2.executeUpdate(sql2);
+                stmt2.close();
 
-            Statement stmt3 = conn.createStatement();
-            String sql3     = "CREATE TABLE IF NOT EXISTS sqlUnion "
-                            + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
-                            + " permission  INTEGER    NOT NULL, "
-                            + " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, "
-                            + " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE,"
-                            + " unique (playerID, doorUID))";
-            stmt3.executeUpdate(sql3);
-            stmt3.close();
-            setDBVersion(conn, DATABASE_VERSION);
+                Statement stmt3 = conn.createStatement();
+                String sql3     = "CREATE TABLE IF NOT EXISTS sqlUnion "
+                                + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
+                                + " permission  INTEGER    NOT NULL, "
+                                + " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, "
+                                + " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE,"
+                                + " unique (playerID, doorUID))";
+                stmt3.executeUpdate(sql3);
+                stmt3.close();
+                setDBVersion(conn, DATABASE_VERSION);
+            }
         }
         catch (SQLException e)
         {
@@ -1368,6 +1375,7 @@ public class SQLiteJDBCDriverConnection
     private void upgrade()
     {
         Connection conn = null;
+        boolean replaceTempPlayerNames = false;
         try
         {
             conn = DriverManager.getConnection(url);
@@ -1404,6 +1412,19 @@ public class SQLiteJDBCDriverConnection
             if (dbVersion < 4)
                 upgradeToV4(conn);
 
+            if (dbVersion < 5)
+            {
+                conn.close();
+                upgradeToV5();
+                replaceTempPlayerNames = true;
+                conn = DriverManager.getConnection(url);
+            }
+
+            // If the database upgrade to V5 got interrupted in a previous attempt, the fakeUUID
+            // will still be in the database. If so, simply continue filling in player names in the db.
+            if (!replaceTempPlayerNames && fakeUUIDExists(conn))
+                replaceTempPlayerNames = true;
+
             // Do this at the very end, so the db version isn't altered if anything fails.
             if (dbVersion != DATABASE_VERSION)
                 setDBVersion(conn, DATABASE_VERSION);
@@ -1423,6 +1444,21 @@ public class SQLiteJDBCDriverConnection
                 logMessage("1424", e);
             }
         }
+        if (replaceTempPlayerNames)
+            replaceTempPlayerNames();
+    }
+
+    private boolean fakeUUIDExists(final Connection conn)
+    {
+        try
+        {
+            return (conn.createStatement().executeQuery("SELECT * FROM players WHERE playerUUID='" + FAKEUUID + "';").next());
+        }
+        catch (SQLException e)
+        {
+            logMessage("1461", e);
+        }
+        return false;
     }
 
     private boolean makeBackup()
@@ -1627,6 +1663,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             plugin.getMyLogger().logMessage("Upgrading database to V3! Recreating sqlUnion!", true, true);
+            conn.setAutoCommit(false);
             // Rename sqlUnion.
             conn.createStatement().execute("ALTER TABLE sqlUnion RENAME TO sqlUnion_old;");
 
@@ -1643,6 +1680,8 @@ public class SQLiteJDBCDriverConnection
 
             // Get rid of old sqlUnion.
             conn.createStatement().execute("DROP TABLE IF EXISTS 'sqlUnion_old';");
+            conn.commit();
+            conn.setAutoCommit(true);
         }
         catch (SQLException e)
         {
@@ -1674,9 +1713,183 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
+    /* In V5 of the DB, the NOT NULL constraint has been added to the
+     * playerName attribute of the players table. All NULL values get replaced
+     * by a temporary, randomly chosen unique player name. All these temporary
+     * names then get replaced by their actual names on a separate thread.
+     * While updating on the secondary thread, the DB is locked.
+     */
+    private void upgradeToV5()
+    {
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+            plugin.getMyLogger().logMessageToLogFile("Upgrading database to V5!");
+
+            String countStr = "SELECT COUNT(*) AS total FROM players WHERE playerName IS NULL";
+            int count = conn.createStatement().executeQuery(countStr).getInt("total");
+
+            // Make sure there aren't any NULL values in the players database.
+            if (count > 0)
+            {
+                // First, find a name that does not exist in the database already.
+                // Do this by generating random strings and checking if it exists until
+                // We encounter one that doesn't.
+                String fakeName = Util.randomString(12);
+                boolean exists = true;
+                while (exists)
+                {
+                    PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE playerName = '" + fakeName + "';");
+                    ResultSet rs         = ps.executeQuery();
+                    if (!rs.next())
+                        exists = false;
+                    ps.close();
+                    rs.close();
+                    if (exists)
+                        fakeName = Util.randomString(12);
+                }
+                plugin.getMyLogger().logMessageToLogFile("UpgradeToV5: Using fakeName = " + fakeName);
+                Util.broadcastMessage("fakeName = " + fakeName);
+
+                Statement stmt = conn.createStatement();
+                String sql     = "INSERT INTO players (playerUUID, playerName) "
+                               + "VALUES ('" + FAKEUUID + "', '" + fakeName + "');";
+                stmt.executeUpdate(sql);
+                stmt.close();
+
+                String update  = "UPDATE players SET playerName='" + fakeName + "' WHERE playerName IS NULL;";
+                conn.prepareStatement(update).executeUpdate();
+            }
+        }
+        catch (SQLException e)
+        {
+            logMessage("1745", e);
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch(SQLException e)
+            {
+                logMessage("1755", e);
+            }
+        }
+
+        Connection con = null;
+        try
+        {
+            con = DriverManager.getConnection(url);
+            con.setAutoCommit(false);
+            // Rename sqlUnion.
+            con.createStatement().execute("ALTER TABLE players RENAME TO players_old;");
+
+            // Create updated version of sqlUnion.
+            con.createStatement().execute("CREATE TABLE IF NOT EXISTS players "
+                                        + "(id          INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                        + " playerUUID  TEXT    NOT NULL,"
+                                        + " playerName  TEXT    NOT NULL)");
+
+            // Copy data from old sqlUnion to new sqlUnion.
+            con.createStatement().execute("INSERT INTO players SELECT * FROM players_old;");
+
+            // Get rid of old sqlUnion.
+            con.createStatement().execute("DROP TABLE IF EXISTS 'players_old';");
+            con.commit();
+            con.setAutoCommit(true);
+        }
+        catch (SQLException e)
+        {
+            try
+            {
+                con.rollback();
+            }
+            catch (SQLException e1)
+            {
+                logMessage("1770", e1);
+            }
+            logMessage("1772", e);
+        }
+        finally
+        {
+            try
+            {
+                con.close();
+            }
+            catch(SQLException e)
+            {
+                logMessage("1781", e);
+            }
+        }
+    }
+
+    /* Part of the upgrade to V5 of the database.
+     * First lock the database so nothing else can interfere.
+     * Then find the temporary name from the fake player (that was stored in the db).
+     * All fake names then get replaced by the real names. Or the last ones they used, anyway.
+     */
+    private void replaceTempPlayerNames()
+    {
+        locked.set(true);
+        final Thread thread = new Thread(() ->
+        {
+            Connection conn = null;
+            try
+            {
+                // Database is in a locked state, so a simple getConnection() call won't work.
+                // So do it again manually here.
+                Class.forName(DRIVER);
+                conn = DriverManager.getConnection(url);
+                conn.createStatement().execute("PRAGMA foreign_keys=ON");
+
+                ResultSet rs1 = conn.createStatement().executeQuery("SELECT * FROM players WHERE playerUUID='" + FAKEUUID + "';");
+                String fakeName = null;
+                while (rs1.next())
+                    fakeName = rs1.getString("playerName");
+                rs1.close();
+
+                ResultSet rs2 = conn.createStatement().executeQuery("SELECT * FROM players WHERE playerName='" + fakeName + "';");
+                while (rs2.next())
+                {
+                    if (rs2.getString("playerUUID").equals(FAKEUUID))
+                        continue;
+                    UUID playerUUID = UUID.fromString(rs2.getString("playerUUID"));
+                    String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+
+                    String update  = "UPDATE players SET playerName='" + playerName + "' WHERE playerUUID='" + playerUUID.toString() + "';";
+                    conn.prepareStatement(update).executeUpdate();
+                }
+                rs2.close();
+
+                String deleteFakePlayer = "DELETE FROM players WHERE playerUUID = '" + FAKEUUID + "';";
+                conn.createStatement().executeUpdate(deleteFakePlayer);
+            }
+            catch (SQLException | ClassNotFoundException e)
+            {
+                logMessage("1729", e);
+            }
+            finally
+            {
+                try
+                {
+                    conn.close();
+                }
+                catch (SQLException e)
+                {
+                    logMessage("1739", e);
+                }
+                locked.set(false);
+            }
+        });
+        thread.start();
+    }
+
+
     private void logMessage(String str, Exception e)
     {
-        if (!locked)
+        if (!locked.get())
             plugin.getMyLogger().logMessageToLogFile(str + " " + Util.exceptionToString(e));
         else
             plugin.getMyLogger().logMessageToLogFile("Database locked! Failed at: " + str + ". Message: " + e.getMessage());
