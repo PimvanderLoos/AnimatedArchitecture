@@ -10,11 +10,11 @@ public class WaitForSetBlocksToMove extends WaitForCommand
 {
     private long doorUID;
 
-    public WaitForSetBlocksToMove(BigDoors plugin, Player player, String command, long doorUID)
+    public WaitForSetBlocksToMove(BigDoors plugin, Player player, long doorUID)
     {
         super(plugin);
         this.player  = player;
-        this.command = command;
+        command = "setblockstomove";
         this.doorUID = doorUID;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Init"));
         plugin.addCommandWaiter(this);
@@ -23,7 +23,7 @@ public class WaitForSetBlocksToMove extends WaitForCommand
     @Override
     public boolean executeCommand(String[] args)
     {
-        if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.BLOCKSTOMOVE))
+        if (!plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.BLOCKSTOMOVE))
             return true;
 
         if (args.length == 1)

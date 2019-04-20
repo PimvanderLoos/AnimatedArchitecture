@@ -36,6 +36,12 @@ public abstract class WaitForCommand extends Abortable
         abort(false);
     }
 
+    public final void abortSilently()
+    {
+        setFinished(true);
+        abort();
+    }
+
     public final String getCommand()
     {
         return command;

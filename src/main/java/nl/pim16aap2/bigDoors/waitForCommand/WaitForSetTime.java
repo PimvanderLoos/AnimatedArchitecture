@@ -10,11 +10,11 @@ public class WaitForSetTime extends WaitForCommand
 {
     private final long doorUID;
 
-    public WaitForSetTime(BigDoors plugin, Player player, String command, long doorUID)
+    public WaitForSetTime(BigDoors plugin, Player player, long doorUID)
     {
         super(plugin);
         this.player  = player;
-        this.command = command;
+        command = "setautoclosetime";
         this.doorUID = doorUID;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Init"));
         plugin.addCommandWaiter(this);

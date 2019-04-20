@@ -13,7 +13,7 @@ public enum DoorDirection
 
     private double extraAngle;
     private int val;
-    private static Map<Integer, DoorDirection> map = new HashMap<Integer, DoorDirection>();
+    private static Map<Integer, DoorDirection> map = new HashMap<>();
 
     private DoorDirection(double extraAngle, int val)
     {

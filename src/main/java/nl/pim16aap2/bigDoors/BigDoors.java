@@ -86,12 +86,9 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 // TODO: Allow adding owners to doors from console.
 // TODO: Catch NPE when listing doors from invalid name (e.g. Pim16aap2).
-// TODO: For v5 of the database, make playerName a non-null attribute and if needed, update ALL players on another
-//       thread, while locking the db in the meantime.
 // TODO: Abort commandWaiter if someone used the command directly (e.g. /setblockstomove randomDoor 7" after initiating
 //       the BTM process via the GUI).
 
-// TODO: Make sure there are no System.exit() calls left anywhere in the code!
 
 public class BigDoors extends JavaPlugin implements Listener
 {

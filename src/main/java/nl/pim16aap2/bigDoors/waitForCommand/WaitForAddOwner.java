@@ -13,11 +13,11 @@ public class WaitForAddOwner extends WaitForCommand
 {
     private long doorUID;
 
-    public WaitForAddOwner(BigDoors plugin, Player player, String command, long doorUID)
+    public WaitForAddOwner(BigDoors plugin, Player player, long doorUID)
     {
         super(plugin);
         this.player  = player;
-        this.command = command;
+        command = "addowner";
         this.doorUID = doorUID;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.AddOwner.Init"));
         plugin.addCommandWaiter(this);

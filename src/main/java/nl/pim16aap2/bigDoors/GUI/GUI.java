@@ -184,46 +184,27 @@ public class GUI
         items.put(1, new GUIItem(TOGGLEDOORMAT, messages.getString("GUI.SORTED.Change"), lore, 1));
         lore.clear();
 
-        if (player.hasPermission(DoorType.getPermission(DoorType.ELEVATOR)))
-        {
-            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewElevator"));
-            items.put(2, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewElevator"), lore, page + 1));
-            lore.clear();
-        }
-
-        if (player.hasPermission(DoorType.getPermission(DoorType.DRAWBRIDGE)))
-        {
-            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewDrawbridge"));
-            items.put(3, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewDrawbridge"), lore, page + 1));
-            lore.clear();
-        }
-
-        if (player.hasPermission(DoorType.getPermission(DoorType.DOOR)))
-        {
-            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewDoor"));
-            items.put(4, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewDoor"), lore, page + 1));
-            lore.clear();
-        }
-
-        if (player.hasPermission(DoorType.getPermission(DoorType.PORTCULLIS)))
-        {
-            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewPortcullis"));
-            items.put(5, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewPortcullis"), lore, page + 1));
-            lore.clear();
-        }
-
-        if (player.hasPermission(DoorType.getPermission(DoorType.SLIDINGDOOR)))
-        {
-            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString("GUI.NewSlidingDoor"));
-            items.put(6, new GUIItem(NEWDOORMAT, messages.getString("GUI.NewSlidingDoor"), lore, page + 1));
-            lore.clear();
-        }
+        addCreationBook(DoorType.ELEVATOR,    2, "GUI.NewElevator"   );
+        addCreationBook(DoorType.DRAWBRIDGE,  3, "GUI.NewDrawbridge" );
+        addCreationBook(DoorType.DOOR,        4, "GUI.NewDoor"       );
+        addCreationBook(DoorType.PORTCULLIS,  5, "GUI.NewPortcullis" );
+        addCreationBook(DoorType.SLIDINGDOOR, 6, "GUI.NewSlidingDoor");
 
         if ((page + 1) < maxPageCount)
         {
             lore.add(messages.getString("GUI.ToPage") + (page + 2) + messages.getString("GUI.OutOf") + maxPageCount);
             items.put(8, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, page + 2));
             lore.clear();
+        }
+    }
+
+    private void addCreationBook(DoorType type, int idx, String message)
+    {
+        if (player.hasPermission(DoorType.getPermission(type)))
+        {
+            ArrayList<String> lore = new ArrayList<>();
+            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString(message));
+            items.put(idx, new GUIItem(NEWDOORMAT, messages.getString(message), lore, page + 1));
         }
     }
 

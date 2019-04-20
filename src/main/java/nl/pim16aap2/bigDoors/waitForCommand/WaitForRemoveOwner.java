@@ -15,11 +15,11 @@ public class WaitForRemoveOwner extends WaitForCommand
 {
     private long doorUID;
 
-    public WaitForRemoveOwner(BigDoors plugin, Player player, String command, long doorUID)
+    public WaitForRemoveOwner(BigDoors plugin, Player player, long doorUID)
     {
         super(plugin);
         this.player  = player;
-        this.command = command;
+        command = "removeowner";
         this.doorUID = doorUID;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Init"));
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.ListOfOwners"));

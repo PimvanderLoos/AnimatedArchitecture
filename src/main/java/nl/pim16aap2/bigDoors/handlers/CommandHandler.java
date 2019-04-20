@@ -272,7 +272,7 @@ public class CommandHandler implements CommandExecutor
     {
         if (isPlayerBusy(player))
             return;
-        startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, "setblockstomove", doorUID)), 20 * 20);
+        startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, doorUID)), 20 * 20);
     }
 
     private void replaceWaitForCommand(Player player)
@@ -288,19 +288,19 @@ public class CommandHandler implements CommandExecutor
     public void startTimerSetter(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForSetTime(plugin, player, "setautoclosetime", doorUID)), 20 * 20);
+        startTimerForAbortable((new WaitForSetTime(plugin, player, doorUID)), 20 * 20);
     }
 
     public void startAddOwner(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForAddOwner(plugin, player, "addowner", doorUID)), 20 * 20);
+        startTimerForAbortable((new WaitForAddOwner(plugin, player, doorUID)), 20 * 20);
     }
 
     public void startRemoveOwner(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForRemoveOwner(plugin, player, "removeowner", doorUID)), 20 * 20);
+        startTimerForAbortable((new WaitForRemoveOwner(plugin, player, doorUID)), 20 * 20);
     }
 
     private boolean isPlayerBusy(Player player)
@@ -421,6 +421,11 @@ public class CommandHandler implements CommandExecutor
                 }
                 else if (args.length > 2)
                 {
+                    // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
+                    WaitForCommand cw = isCommandWaiter(player);
+                    if (cw != null && cw.getCommand().equals("removeowner"))
+                        cw.abortSilently();
+
                     Door door = plugin.getCommander().getDoor(args[1], player);
                     if (door == null)
                     {
@@ -481,6 +486,11 @@ public class CommandHandler implements CommandExecutor
             }
             else if (args.length == 2)
             {
+                // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
+                WaitForCommand cw = isCommandWaiter(player);
+                if (cw != null && cw.getCommand().equals("setautoclosetime"))
+                    cw.abortSilently();
+
                 Door door = plugin.getCommander().getDoor(args[0], player);
                 if (door == null)
                     return false;
@@ -512,6 +522,11 @@ public class CommandHandler implements CommandExecutor
             }
             else if (args.length == 2)
             {
+                // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
+                WaitForCommand cw = isCommandWaiter(player);
+                if (cw != null && cw.getCommand().equals("setblockstomove"))
+                    cw.abortSilently();
+
                 Door door = plugin.getCommander().getDoor(args[0], player);
                 if (door == null)
                     return false;

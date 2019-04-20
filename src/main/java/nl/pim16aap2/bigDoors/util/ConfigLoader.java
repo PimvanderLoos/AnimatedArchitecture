@@ -91,11 +91,8 @@ public class ConfigLoader
                                          "Doesn't take up a lot of RAM, so it's recommended to leave this value high. It'll get updated automatically when needed anyway." };
         String[] pricesComment = { "When Vault is present, you can set the price of door creation here for every type of door.",
                                    "You can use the word \"blockCount\" (without quotationmarks, case sensitive) as a variable that will be replaced by the actual blockCount.",
-                                   "Furthermore, you can use these options:",
-                                   "-, +, *, /, sqrt(), ^(): These do exactly what you'd think they'd do :)",
-                                   "min(a,b), max(a,b): Results in the lowest or highest of the two provided values",
-                                   "abs(a): Returns absolute value.",
-                                   "For example: \"doorPrice='max(10, sqrt(16)^(4)/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
+                                   "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), and parentheses.",
+                                   "For example: \"doorPrice='max(10, sqrt(16)^4/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
                                    "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!" };
 
 //        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",

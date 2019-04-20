@@ -1825,6 +1825,7 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
+
     /* Part of the upgrade to V5 of the database.
      * First lock the database so nothing else can interfere.
      * Then find the temporary name from the fake player (that was stored in the db).
