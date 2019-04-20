@@ -174,11 +174,11 @@ public class CommandHandler implements CommandExecutor
 
     public void listDoorsFromConsole(String str)
     {
-        String playerUUID = plugin.getCommander().playerUUIDFromName(str).toString();
+        UUID playerUUID = plugin.getCommander().playerUUIDFromName(str);
         if (playerUUID != null)
-            listDoorsFromConsole(playerUUID, null);
+            listDoorsFromConsole(playerUUID.toString(), null);
         else
-            listDoorsFromConsole(null, str);
+            plugin.getMyLogger().info("Player \"" + str + "\" was not found!");
     }
 
     // Doors aren't allowed to have numerical names, to differentiate doorNames from doorUIDs.

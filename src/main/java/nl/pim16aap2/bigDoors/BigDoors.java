@@ -82,12 +82,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 // TODO: Create "creator" abstract class as subclass of ToolUser from which all creators can be derived, so
 //       the finishUp() method can be safely used from all class types.
-
-
-// TODO: Allow adding owners to doors from console.
-// TODO: Catch NPE when listing doors from invalid name (e.g. Pim16aap2).
-// TODO: Abort commandWaiter if someone used the command directly (e.g. /setblockstomove randomDoor 7" after initiating
-//       the BTM process via the GUI).
+// TODO: Allow adding owners to doors from console.j
 
 
 public class BigDoors extends JavaPlugin implements Listener
