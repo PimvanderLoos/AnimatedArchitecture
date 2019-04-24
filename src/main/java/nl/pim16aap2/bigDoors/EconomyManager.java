@@ -135,37 +135,43 @@ public class EconomyManager
         case DOOR:
             if (doorPrice != null)
                 price = doorPrice;
-            price = evaluateFormula(plugin.getConfigLoader().doorPrice(), blockCount);
+            else
+                price = evaluateFormula(plugin.getConfigLoader().doorPrice(), blockCount);
             break;
 
         case DRAWBRIDGE:
             if (drawbridgePrice != null)
                 price = drawbridgePrice;
-            price = evaluateFormula(plugin.getConfigLoader().drawbridgePrice(), blockCount);
+            else
+                price = evaluateFormula(plugin.getConfigLoader().drawbridgePrice(), blockCount);
             break;
 
         case ELEVATOR:
             if (elevatorPrice != null)
                 price = elevatorPrice;
-            price = evaluateFormula(plugin.getConfigLoader().elevatorPrice(), blockCount);
+            else
+                price = evaluateFormula(plugin.getConfigLoader().elevatorPrice(), blockCount);
             break;
 
         case FLAG:
             if (flagPrice != null)
                 price = flagPrice;
-            price = evaluateFormula(plugin.getConfigLoader().flagPrice(), blockCount);
+            else
+                price = evaluateFormula(plugin.getConfigLoader().flagPrice(), blockCount);
             break;
 
         case PORTCULLIS:
             if (portcullisPrice != null)
                 price = portcullisPrice;
-            price = evaluateFormula(plugin.getConfigLoader().portcullisPrice(), blockCount);
+            else
+                price = evaluateFormula(plugin.getConfigLoader().portcullisPrice(), blockCount);
             break;
 
         case SLIDINGDOOR:
             if (slidingDoorPrice != null)
                 price = slidingDoorPrice;
-            price = evaluateFormula(plugin.getConfigLoader().slidingDoorPrice(), blockCount);
+            else
+                price = evaluateFormula(plugin.getConfigLoader().slidingDoorPrice(), blockCount);
             break;
         }
 

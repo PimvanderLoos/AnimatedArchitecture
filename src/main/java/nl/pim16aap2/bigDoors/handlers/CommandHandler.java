@@ -206,7 +206,7 @@ public class CommandHandler implements CommandExecutor
 
         long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
         int maxCount   = Util.getMaxDoorsForPlayer(player);
-        if (maxCount  >= 0 && doorCount > maxCount)
+        if (maxCount  >= 0 && doorCount >= maxCount)
         {
             Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.TooManyDoors"));
             return;

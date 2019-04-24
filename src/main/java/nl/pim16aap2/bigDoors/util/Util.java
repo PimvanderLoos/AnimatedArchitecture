@@ -179,11 +179,15 @@ public final class Util
 
     public static int getMaxDoorsForPlayer(Player player)
     {
+        if (player.isOp())
+            return -1;
         return getHighestPermissionSuffix(player, "bigdoors.own.");
     }
 
     public static int getMaxDoorSizeForPlayer(Player player)
     {
+        if (player.isOp())
+            return -1;
         return getHighestPermissionSuffix(player, "bigdoors.maxsize.");
     }
 

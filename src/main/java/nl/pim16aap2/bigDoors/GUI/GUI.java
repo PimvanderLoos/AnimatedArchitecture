@@ -49,12 +49,12 @@ public class GUI
     private static final int        CHESTSIZE      = 45;
     private static final Material[] DOORTYPES      =
     {
-        XMaterial.OAK_DOOR.parseMaterial(),
-        XMaterial.OAK_TRAPDOOR.parseMaterial(),
-        XMaterial.IRON_DOOR.parseMaterial(),
-        XMaterial.OAK_BOAT.parseMaterial(),
-        XMaterial.GLASS_PANE.parseMaterial(),
-        XMaterial.PURPLE_CARPET.parseMaterial()
+        XMaterial.OAK_DOOR.parseMaterial(),     // Door
+        XMaterial.OAK_TRAPDOOR.parseMaterial(), // DrawBridge
+        XMaterial.IRON_DOOR.parseMaterial(),    // Portcullis
+        XMaterial.OAK_BOAT.parseMaterial(),     // Elevator
+        XMaterial.PISTON.parseMaterial(),       // Sliding Door
+        XMaterial.PURPLE_CARPET.parseMaterial() // Flag
     };
 
     private final BigDoors plugin;

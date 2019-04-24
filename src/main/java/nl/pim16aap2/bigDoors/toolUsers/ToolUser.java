@@ -88,7 +88,7 @@ public abstract class ToolUser extends Abortable
             int doorSize = door.getBlockCount();
             int sizeLimit = Util.getMaxDoorSizeForPlayer(player);
 
-            if (sizeLimit >= 0 && sizeLimit < doorSize)
+            if (sizeLimit >= 0 && sizeLimit <= doorSize)
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);
             else if (plugin.getEconomyManager().buyDoor(player, type, doorSize))
             {

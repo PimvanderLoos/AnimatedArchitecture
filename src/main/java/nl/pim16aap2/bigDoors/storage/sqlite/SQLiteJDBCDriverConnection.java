@@ -1750,7 +1750,6 @@ public class SQLiteJDBCDriverConnection
                         fakeName = Util.randomString(12);
                 }
                 plugin.getMyLogger().logMessageToLogFile("UpgradeToV5: Using fakeName = " + fakeName);
-                Util.broadcastMessage("fakeName = " + fakeName);
 
                 Statement stmt = conn.createStatement();
                 String sql     = "INSERT INTO players (playerUUID, playerName) "
