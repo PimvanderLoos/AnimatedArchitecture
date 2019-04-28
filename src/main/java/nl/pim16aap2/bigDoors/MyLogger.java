@@ -39,6 +39,7 @@ public class MyLogger
             catch (IOException e)
             {
                 myLogger(Level.SEVERE, "File write error: " + logFile);
+                e.printStackTrace();
             }
     }
 
@@ -79,6 +80,7 @@ public class MyLogger
         catch (IOException e)
         {
             myLogger(Level.SEVERE, "Logging error! Could not log to logFile!");
+            e.printStackTrace();
         }
     }
 

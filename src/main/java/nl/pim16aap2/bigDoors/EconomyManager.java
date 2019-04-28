@@ -38,7 +38,11 @@ public class EconomyManager
             return true;
         double price = getPrice(type, blockCount);
         if (withdrawPlayer(player, player.getWorld().getName(), price))
+        {
+            if (price > 0)
+                Util.messagePlayer(player, plugin.getMessages().getString("CREATOR.GENERAL.MoneyWithdrawn") + " " + price);
             return true;
+        }
 
         Util.messagePlayer(player, plugin.getMessages().getString("CREATOR.GENERAL.InsufficientFunds") + " " + price);
         return false;

@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,6 +16,7 @@ import org.bukkit.scheduler.BukkitTask;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.GUI.GUI;
+import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.toolUsers.DoorCreator;
 import nl.pim16aap2.bigDoors.toolUsers.DrawbridgeCreator;
@@ -830,10 +832,12 @@ public class CommandHandler implements CommandExecutor
     // Used for various debugging purposes (you don't say!).
     public void doorDebug(Player player)
     {
-//        Util.broadcastMessage("Player " + player.getDisplayName() + " has UUID: " + player.getUniqueId());
-//        Util.broadcastMessage("Going to get door 10 owned by pim16aap2 now!");
-//
-//        Util.broadcastMessage("Command waiter status: " + isCommandWaiter(player));
+        Util.broadcastMessage("Loaded chunks: " + player.getLocation().getWorld().getLoadedChunks().length);
+        for (BlockMover bm : plugin.getBlockMovers())
+        {
+            Chunk chunk = bm.getDoor().getPowerBlockLoc().getChunk();
+            Util.broadcastMessage("Active chunk: " + chunk.getX() + ":" + chunk.getZ());
+        }
 
 
 //        Door d1 = plugin.getCommander().getDoor (player.getUniqueId(), 10);

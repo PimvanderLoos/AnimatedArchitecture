@@ -1,3 +1,7 @@
+Alpha 0.1.8.1
+- Added support for version 1.14 of Minecraft.
+- Fixed (harmless) error on startup when using non-default language file.
+
 Alpha 0.1.8
 - Added "/BigDoors restart" to reload the config and the translation file and generally reinitialize everything.
 - "/BigDoors" no longer opens GUI. Use "/BDM" or "/BigDoors Menu" instead. 

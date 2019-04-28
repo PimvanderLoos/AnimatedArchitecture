@@ -67,7 +67,14 @@ public class FakePlayerCreator
             uuid.setAccessible(true);
 
             World = getNMSClass("World");
-            PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(World);
+            try
+            {
+                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(WorldServer);
+            }
+            catch (Exception e)
+            {
+                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(World);
+            }
         }
         catch (ClassNotFoundException | NoSuchMethodException | SecurityException | NoSuchFieldException e)
         {

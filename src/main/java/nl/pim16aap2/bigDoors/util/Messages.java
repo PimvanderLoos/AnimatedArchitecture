@@ -26,13 +26,21 @@ public class Messages
         readFile();
     }
 
+    private void writeDefaultFile()
+    {
+        File defaultFile = new File(plugin.getDataFolder(), "en_US.txt");
+        if (!defaultFile.setWritable(true))
+            plugin.getMyLogger().myLogger(Level.SEVERE, "Failed to make file \"" + defaultFile + "\" writable!");
+
+        // Load the default en_US from the resources folder.
+        plugin.saveResource("en_US.txt", true);
+        defaultFile.setWritable(false);
+    }
+
     // Read locale file.
     private void readFile()
     {
-        if (!textFile.setWritable(true))
-            plugin.getMyLogger().myLogger(Level.SEVERE, "Failed to make file " + locale + ".txt writable!");
-        // Load the default en_US from the resources.
-        plugin.saveResource("en_US.txt", true);
+        writeDefaultFile();
 
         try (BufferedReader br = new BufferedReader(new FileReader(textFile)))
         {
@@ -67,7 +75,6 @@ public class Messages
             plugin.getMyLogger().myLogger(Level.SEVERE, "Could not read locale file! (" + locale + ".txt)");
             e.printStackTrace();
         }
-        textFile.setWritable(false);
     }
 
     // Get a string from a key. Returns "null" if null.

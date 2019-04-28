@@ -26,8 +26,11 @@ import nl.pim16aap2.bigDoors.NMS.v1_13_R1.FallingBlockFactory_V1_13_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R1.SkullCreator_V1_13_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.SkullCreator_V1_13_R2;
+import nl.pim16aap2.bigDoors.NMS.v1_14_R1.FallingBlockFactory_V1_14_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_14_R1.SkullCreator_V1_14_R1;
 import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
+import nl.pim16aap2.bigDoors.handlers.ChunkUnloadHandler;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
@@ -82,7 +85,11 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Create "creator" abstract class as subclass of ToolUser from which all creators can be derived, so
 //       the finishUp() method can be safely used from all class types.
 // TODO: Allow adding owners to doors from console.j
+// TODO: Verify the title of the GUI before doing actions. Just to make sure nothing has gone wrong.
 
+// TODO: Add confirmation message for subtracting money.
+// TODO: Make sure timers don't give an error when the player disconnects before finishing it.
+// TODO: Maybe check all player inventories on login/logout to make sure they don't have any leftover creators sticks.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -142,7 +149,9 @@ public class BigDoors extends JavaPlugin implements Listener
             // Load the files for the correct version of Minecraft.
             if (!validVersion)
             {
-                logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!", true, true);
+                logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! (\""  +
+                    (Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3]) +
+                                  "\"). This plugin will NOT be enabled!", true, true);
                 return;
             }
 
@@ -154,6 +163,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
             Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
             Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
+            Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler (this), this);
             // No need to put these in init, as they should not be reloaded.
             pbCache           = new TimedCache<>(this, config.cacheTimeout());
             protCompatMan     = new ProtectionCompatManager(this);
@@ -512,6 +522,7 @@ public class BigDoors extends JavaPlugin implements Listener
         }
         catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
+            useAVersionMentionedInTheDescriptionPleaseException.printStackTrace();
             return false;
         }
 
@@ -537,6 +548,12 @@ public class BigDoors extends JavaPlugin implements Listener
             is1_13      = true;
             fabf        = new FallingBlockFactory_V1_13_R2();
             headManager = new SkullCreator_V1_13_R2(this);
+        }
+        else if (version.equals("v1_14_R1"))
+        {
+            is1_13      = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
+            fabf        = new FallingBlockFactory_V1_14_R1();
+            headManager = new SkullCreator_V1_14_R1(this);
         }
         // Return true if compatible.
         return fabf != null;

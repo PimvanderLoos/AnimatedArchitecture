@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigDoors.handlers;
 
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
@@ -9,11 +8,8 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 
 public class EventHandlers implements Listener
@@ -68,29 +64,5 @@ public class EventHandlers implements Listener
     {
         if (plugin.getTF().isTool(event.getItem()))
             event.setCancelled(true);
-    }
-
-    // Make sure any chunks that are unloaded don't contain any moving doors.
-    // In the case it does happen, cancel the event, stop the door and uncancel the event a bit later.
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onChunkUnload(ChunkUnloadEvent event)
-    {
-        if (event.isCancelled())
-            return;
-        for (BlockMover bm : plugin.getBlockMovers())
-            if (bm.getDoor().chunkInRange(event.getChunk()))
-            {
-                bm.getDoor().setCanGo(false);
-                event.setCancelled(true);
-                new BukkitRunnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                       if (!event.isCancelled())
-                           event.getChunk().unload(true);
-                    }
-                }.runTaskLater(plugin, 10);
-            }
     }
 }
