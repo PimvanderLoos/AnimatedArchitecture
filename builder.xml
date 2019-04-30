@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<project name="BigDoors" default="all">
+
+    <xmlproperty file="pom.xml" prefix="pom" />
+    
+    <property name="servers" location="${basedir}/Servers"/>
+    <property name="lib" location="${basedir}/lib"/>
+
+    <echo>The version is ${pom.project.version}</echo>
+
+    <target name="compile">
+        <javac srcdir="/home/pim/Documents/workspace/JCalculator/src" destdir="bin">
+            <classpath>
+                <pathelement path="${lib}/java-cup-11b-runtime.jar"/>
+            </classpath>
+        </javac>
+    </target>
+        
+    <target name="jar" depends="compile">
+        <jar jarfile="${basedir}/Jars/BigDoors.jar" basedir="./target/classes/" includes="**/*">
+        <zipgroupfileset dir="${lib}/" includes="java-cup-11b-runtime.jar"/>
+        <zipgroupfileset dir="${lib}/" includes="JCalculator.jar"/>
+        <manifest>
+            <attribute name="Main-Class" value="nl.pim16aap2.jcalculator.JCalculator" />
+            <attribute name="Class-Path" value="java-cup-11b-runtime.jar" />
+        </manifest>
+        </jar>
+    </target>
+    
+    <target name="CopyJar" description="Create Jar file" depends="jar">
+        <!-- <copy file= "${basedir}/Jars/BigDoors.jar" tofile="${servers}/SpigotServer_1.12/plugins/BigDoors.jar"/>
+          <copy file= "${basedir}/Jars/BigDoors.jar" tofile="${servers}/SpigotServer_1.13/plugins/BigDoors.jar"/> -->
+        <copy file= "${basedir}/Jars/BigDoors.jar" tofile="${servers}/SpigotServer_1.14/plugins/BigDoors.jar"/>
+    </target>
+
+    <target name="all" depends="CopyJar"/>
+</project>

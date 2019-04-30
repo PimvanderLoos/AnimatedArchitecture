@@ -1,8 +1,8 @@
 name: BigDoors
-main: nl.pim16aap2.bigDoors.BigDoors
-version: Alpha 0.1.8.1
+main: nl.pim16aap2.bigdoors.BigDoors
+version: 0.2
 author: pim16aap2
-api-version: 1.13
+api-version: 1.14
 loadbefore: [PlotSquared]
 softdepend: [WorldGuard, Vault]
 commands:

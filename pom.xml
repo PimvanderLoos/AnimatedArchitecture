@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.pim16aap2</groupId>
     <artifactId>BigDoors</artifactId>
-    <version>0.1.8.1-ALPHA</version>
+    <version>0.2</version>
 
     <repositories>
         <!-- Spigot -->
@@ -42,36 +42,6 @@
     </repositories>
 
     <dependencies> <!-- -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-1.11</artifactId>
-            <version>1.11.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency> 
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-1.12</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-1.13</artifactId>
-            <version>1.13-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-1.13.1</artifactId>
-            <version>1.13.1-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-1.13.2</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency> 
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-1.14</artifactId>
