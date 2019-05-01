@@ -8,15 +8,11 @@
 
     <echo>The version is ${pom.project.version}</echo>
 
-    <target name="compile">
-        <javac srcdir="/home/pim/Documents/workspace/JCalculator/src" destdir="bin">
-            <classpath>
-                <pathelement path="${lib}/java-cup-11b-runtime.jar"/>
-            </classpath>
-        </javac>
+    <target name="init">
+        <mkdir dir="${basedir}/classes"/>
     </target>
         
-    <target name="jar" depends="compile">
+    <target name="compile" depends="init">
         <jar jarfile="${basedir}/Jars/BigDoors.jar" basedir="./target/classes/" includes="**/*">
         <zipgroupfileset dir="${lib}/" includes="java-cup-11b-runtime.jar"/>
         <zipgroupfileset dir="${lib}/" includes="JCalculator.jar"/>
@@ -27,11 +23,13 @@
         </jar>
     </target>
     
-    <target name="CopyJar" description="Create Jar file" depends="jar">
-        <!-- <copy file= "${basedir}/Jars/BigDoors.jar" tofile="${servers}/SpigotServer_1.12/plugins/BigDoors.jar"/>
-          <copy file= "${basedir}/Jars/BigDoors.jar" tofile="${servers}/SpigotServer_1.13/plugins/BigDoors.jar"/> -->
+    <target name="copyjar" description="Create Jar file" depends="compile">
         <copy file= "${basedir}/Jars/BigDoors.jar" tofile="${servers}/SpigotServer_1.14/plugins/BigDoors.jar"/>
     </target>
 
-    <target name="all" depends="CopyJar"/>
+    <target name="cleanup" depends="copyjar">
+        <delete dir="${basedir}/classes"/>
+    </target>
+	
+    <target name="all" depends="cleanup"/>
 </project>
