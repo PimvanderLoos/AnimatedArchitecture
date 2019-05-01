@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.util.Util;
 
 public class WorldGuard6ProtectionCompat implements ProtectionCompat
 {
@@ -43,6 +44,7 @@ public class WorldGuard6ProtectionCompat implements ProtectionCompat
         }
         catch (NoSuchMethodException | SecurityException e)
         {
+            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
             e.printStackTrace();
         }
     }

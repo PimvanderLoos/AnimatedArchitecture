@@ -21,7 +21,7 @@ public class EconomyManager
 
     private final BigDoors plugin;
     private final HashMap<Long, Double> menu;
-    private Economy economy;
+    private Economy economy = null;
     private final boolean vaultEnabled;
 
     public EconomyManager(BigDoors plugin)
@@ -187,14 +187,32 @@ public class EconomyManager
 
     private boolean has(OfflinePlayer player, double amount)
     {
-        return economy.has(player, amount);
+        try
+        {
+            return economy.has(player, amount);
+        }
+        catch(Exception e)
+        {
+            plugin.getMyLogger().warn("Failed to check balance of player \"" + player.getName() + "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
+            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+        }
+        return true;
     }
 
     private boolean withdrawPlayer(OfflinePlayer player, String worldName, double amount)
     {
-        if (has(player, amount))
-            return economy.withdrawPlayer(player, worldName, amount).type.equals(EconomyResponse.ResponseType.SUCCESS);
-        return false;
+        try
+        {
+            if (has(player, amount))
+                return economy.withdrawPlayer(player, worldName, amount).type.equals(EconomyResponse.ResponseType.SUCCESS);
+            return false;
+        }
+        catch(Exception e)
+        {
+            plugin.getMyLogger().warn("Failed to subtract money from player \"" + player.getName() + "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
+            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+        }
+        return true;
     }
 
     private boolean withdrawPlayer(Player player, String worldName, double amount)
