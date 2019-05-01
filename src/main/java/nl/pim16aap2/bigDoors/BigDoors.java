@@ -87,9 +87,9 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Allow adding owners to doors from console.j
 // TODO: Verify the title of the GUI before doing actions. Just to make sure nothing has gone wrong.
 
-// TODO: Add confirmation message for subtracting money.
 // TODO: Make sure timers don't give an error when the player disconnects before finishing it.
 // TODO: Maybe check all player inventories on login/logout to make sure they don't have any leftover creators sticks.
+// TODO: Use OOP and make every GUI page its own class.
 
 public class BigDoors extends JavaPlugin implements Listener
 {

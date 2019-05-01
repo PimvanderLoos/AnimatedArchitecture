@@ -1,0 +1,53 @@
+<config>
+    <input>
+        <dir in="target/classes" out="target/classes"/>
+        <dir in="target/classes" out="target/classes"/>
+        <dir in="target/classes" out="target/classes"/>
+    </input>
+
+    <classpath>
+        <jar name="/home/pim/.m2/repository/javax/persistence/persistence-api/1.0/persistence-api-1.0.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/resources.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/rt.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/jsse.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/jce.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/charsets.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/jfr.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/cldrdata.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/dnsns.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/jaccess.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/jfxrt.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/localedata.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/nashorn.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/sunec.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/sunjce_provider.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/sunpkcs11.jar"/>
+        <jar name="/usr/lib/jvm/java-8-oracle/jre/lib/ext/zipfs.jar"/>
+        <!--<jar name="/System/Library/Java/Extensions/MRJToolkit.jar"/>-->
+        <jar name="/home/pim/.m2/repository/org/spigotmc/spigot-api/1.11.2-R0.1-SNAPSHOT/spigot-api-1.11.2-R0.1-SNAPSHOT.jar"/>
+        <jar name="/home/pim/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar"/>
+        <jar name="/home/pim/.m2/repository/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar"/>
+        <jar name="/home/pim/.m2/repository/junit/junit/4.10/junit-4.10.jar"/>
+        <jar name="/home/pim/.m2/repository/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar"/>
+        <jar name="/home/pim/.m2/repository/com/google/guava/guava/17.0/guava-17.0.jar"/>
+        <jar name="/home/pim/.m2/repository/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar"/>
+        <jar name="/home/pim/.m2/repository/org/avaje/ebean/2.8.1/ebean-2.8.1.jar"/>
+        <jar name="/home/pim/.m2/repository/org/yaml/snakeyaml/1.17/snakeyaml-1.17.jar"/>
+        <jar name="/home/pim/.m2/repository/net/md-5/bungeecord-chat/1.10-SNAPSHOT/bungeecord-chat-1.10-SNAPSHOT.jar"/>
+        <jar name="/home/pim/.m2/repository/org/bukkit/craftbukkit/1.11.2-R0.1-SNAPSHOT/craftbukkit-1.11.2-R0.1-SNAPSHOT.jar"/>
+        <jar name="/home/pim/.m2/repository/org/spigotmc/spigot-1.10/1.10.2-R0.1-SNAPSHOT/spigot-1.10-1.10.2-R0.1-SNAPSHOT.jar"/>
+        <jar name="/home/pim/.m2/repository/org/spigotmc/spigot-1.11/1.11.2-R0.1-SNAPSHOT/spigot-1.11-1.11.2-R0.1-SNAPSHOT.jar"/>
+        <jar name="/home/pim/.m2/repository/org/spigotmc/spigot-1.12/1.12.2-R0.1-SNAPSHOT/spigot-1.12-1.12.2-R0.1-SNAPSHOT.jar"/>
+        <jar name="/home/pim/.m2/repository/org/bstats/bstats-bukkit/1.2/bstats-bukkit-1.2.jar"/>
+        <jar name="/home/pim/Documents/workspace/Plugin Library/sqlite-jdbc-3.21.0.jar"/>
+    </classpath>
+
+    <keep-names>
+        <class access="protected+">
+            <field access="protected+"/>
+            <method access="protected+"/>
+        </class>
+    </keep-names>
+
+    <property name="log-file" value="allatori-log.xml"/>
+</config>

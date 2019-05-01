@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<!-- Configuration of the Ant build system to generate a Jar file -->
+<project name="BigDoors" default="all">
+
+    <!--<property name="compiler.debug" value="on"/>-->
+    <!--<property name="compiler.generate.no.warnings" value="off"/>-->
+    <!--<property name="compiler.args" value=""/>-->
+    <!--<property name="compiler.max.memory" value="700m"/>-->
+    <!--<property file="builder.properties"/>-->
+
+    <xmlproperty file="pom.xml" prefix="pom" />
+
+    <echo>The version is ${pom.project.version}</echo>
+
+    <target name="compile">
+        <javac srcdir="/home/pim/Documents/workspace/JCalculator/src" destdir="bin">
+            <classpath>
+                <pathelement path="/home/pim/Documents/workspace/JCalculator/lib/java-cup-11b-runtime.jar"/>
+            </classpath>
+        </javac>
+    </target>
+    	
+    <target name="jar" depends="compile">
+    	<jar jarfile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" basedir="./target/classes/" includes="**/*">
+        <zipgroupfileset dir="/home/pim/Documents/workspace/JCalculator/lib/" includes="java-cup-11b-runtime.jar"/>
+        <manifest>
+            <attribute name="Main-Class" value="nl.pim16aap2.jcalculator.JCalculator" />
+            <attribute name="Class-Path" value="java-cup-11b-runtime.jar" />
+        </manifest>
+        </jar>
+    </target>
+    
+    <target name="CreateJar" description="Create Jar file">
+        <jar jarfile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" basedir="./target/classes/" includes="**/*">
+            <zipgroupfileset dir="/home/pim/Documents/workspace/JCalculator/" includes="JCalculator.jar"/>
+        	<!-- <fileset dir="${basedir}/src/main/resources" /> -->
+        </jar>
+        <copy file=  "${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
+    </target>
+
+    <target name="allatori" depends="CreateJar">
+        <taskdef name="allatori" classname="com.allatori.ant.ObfuscatorTask" classpath="lib/allatori.jar"/>
+        <allatori config="${basedir}/config.xml"/>
+    </target>
+
+    <target name ="obfuscate" depends="allatori"/>
+
+    <target name="rename" depends="obfuscate">
+        <copy file="${basedir}/BigDoors_Obf.jar" tofile="${basedir}/Jars/BigDoors.jar"/>
+        <delete file="${basedir}/BigDoors_Obf.jar"/>
+    </target>
+
+    <target name="all" depends="CreateJar, obfuscate, rename"/>
+</project>

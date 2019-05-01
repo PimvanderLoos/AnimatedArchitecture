@@ -1,0 +1,26 @@
+<config>
+    <input>
+        <jar in="/home/pim/Documents/workspace/BigDoors/Servers/SpigotServer_1.13/plugins/BigDoors.jar" out="/home/pim/Documents/workspace/BigDoors/BigDoors_Obf.jar"/>
+    </input>
+
+    <keep-names>
+        <class access="private+">
+            <field access="private+"/>
+            <method access="private+"/>
+        </class>
+    </keep-names>
+
+<!-- 	<property name="random-seed" value="PIM16AAP2"/> -->
+    <property name="log-file" value="log.xml"/>
+	<property name="string-encryption" value="enable"/>
+	<property name="string-encryption-type" value="fast"/>
+	<property name="string-encryption-version" value="v4"/>
+	<property name="control-flow-obfuscation" value="enable"/>
+	<property name="extensive-flow-obfuscation" value="maximum"/>
+	<property name="classes-naming" value="compact"/>
+	<property name="local-variables-naming" value="abc"/>
+	<property name="skip-renaming" value="disable"/>
+<!-- 	<property name="line-numbers" value="keep"/>
+	<property name="generics" value="keep"/> -->
+	<property name="methods-naming" value="compact"/>
+</config>
