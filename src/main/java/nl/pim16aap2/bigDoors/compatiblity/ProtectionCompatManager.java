@@ -14,6 +14,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class ProtectionCompatManager implements Listener
 {
@@ -64,16 +65,34 @@ public class ProtectionCompatManager implements Listener
     public boolean canBreakBlock(UUID playerUUID, Location loc)
     {
         for (ProtectionCompat compat : protectionCompats)
-            if (!compat.canBreakBlock(getPlayer(playerUUID, loc.getWorld()), loc))
-                return false;
+            try
+            {
+                if (!compat.canBreakBlock(getPlayer(playerUUID, loc.getWorld()), loc))
+                    return false;
+            }
+            catch(Exception e)
+            {
+                plugin.getMyLogger().warn("Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:");
+                e.printStackTrace();
+                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            }
         return true;
     }
 
     public boolean canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
     {
         for (ProtectionCompat compat : protectionCompats)
-            if (!compat.canBreakBlocksBetweenLocs(getPlayer(playerUUID, loc1.getWorld()), loc1, loc2))
-                return false;
+            try
+            {
+                if (!compat.canBreakBlocksBetweenLocs(getPlayer(playerUUID, loc1.getWorld()), loc1, loc2))
+                    return false;
+            }
+            catch(Exception e)
+            {
+                plugin.getMyLogger().warn("Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:");
+                e.printStackTrace();
+                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            }
         return true;
     }
 

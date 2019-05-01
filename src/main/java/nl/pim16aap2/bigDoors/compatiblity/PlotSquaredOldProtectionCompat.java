@@ -33,7 +33,6 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
 
         for (RegisteredListener rl : HandlerList.getRegisteredListeners(plotSquaredPlugin))
             for (Method method : rl.getListener().getClass().getDeclaredMethods())
-            {
                 if (method.toString().startsWith("public void com.plotsquared.bukkit.listeners.PlayerEvents.blockDestroy"))
                     try
                     {
@@ -44,8 +43,6 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
                     {
                         continue;
                     }
-            }
-
         success = playerEventsListener != null;
     }
 
