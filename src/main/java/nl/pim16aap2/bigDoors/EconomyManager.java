@@ -30,6 +30,8 @@ public class EconomyManager
         menu = new HashMap<>();
         init();
         vaultEnabled = setupEconomy();
+//        economy.isEnabled();
+//        economy.getName();
     }
 
     public boolean buyDoor(Player player, DoorType type, int blockCount)

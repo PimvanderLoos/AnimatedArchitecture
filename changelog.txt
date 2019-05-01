@@ -1,6 +1,8 @@
 Alpha 0.1.8.1
 - Added support for version 1.14 of Minecraft.
 - Fixed (harmless) error on startup when using non-default language file.
+- Fixed plugin breaking when depending on a broken compatibility plugin (e.g. WorldGuard). Thanks, @kristinr96 for the bug report!
+- Fixed plugin breaking when Vault was enabled but not hooked into an economy plugin. Thanks, @kristinr96 for the bug report!
 
 Alpha 0.1.8
 - Added "/BigDoors restart" to reload the config and the translation file and generally reinitialize everything.
