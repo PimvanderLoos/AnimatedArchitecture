@@ -12,30 +12,15 @@
 
     <echo>The version is ${pom.project.version}</echo>
 
-    <target name="compile">
-        <javac srcdir="/home/pim/Documents/workspace/JCalculator/src" destdir="bin">
-            <classpath>
-                <pathelement path="/home/pim/Documents/workspace/JCalculator/lib/java-cup-11b-runtime.jar"/>
-            </classpath>
-        </javac>
+    <target name="init">
+        <mkdir dir="${basedir}/classes"/>
     </target>
-    	
-    <target name="jar" depends="compile">
-    	<jar jarfile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" basedir="./target/classes/" includes="**/*">
-        <zipgroupfileset dir="/home/pim/Documents/workspace/JCalculator/lib/" includes="java-cup-11b-runtime.jar"/>
-        <manifest>
-            <attribute name="Main-Class" value="nl.pim16aap2.jcalculator.JCalculator" />
-            <attribute name="Class-Path" value="java-cup-11b-runtime.jar" />
-        </manifest>
-        </jar>
-    </target>
-    
-    <target name="CreateJar" description="Create Jar file">
-        <jar jarfile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" basedir="./target/classes/" includes="**/*">
+	
+    <target name="CreateJar" description="Create Jar file" depends="init">
+    	<jar jarfile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" basedir="./target/classes/" includes="**/*.*">
             <zipgroupfileset dir="/home/pim/Documents/workspace/JCalculator/" includes="JCalculator.jar"/>
-        	<!-- <fileset dir="${basedir}/src/main/resources" /> -->
         </jar>
-        <copy file=  "${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
+    	<copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
     </target>
 
     <target name="allatori" depends="CreateJar">
@@ -49,6 +34,10 @@
         <copy file="${basedir}/BigDoors_Obf.jar" tofile="${basedir}/Jars/BigDoors.jar"/>
         <delete file="${basedir}/BigDoors_Obf.jar"/>
     </target>
+    	
+    <target name="cleanup" depends="rename">
+        <delete dir="${basedir}/classes"/>
+    </target>
 
-    <target name="all" depends="CreateJar, obfuscate, rename"/>
+    <target name="all" depends="CreateJar, obfuscate, rename, cleanup"/>
 </project>

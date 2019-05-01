@@ -1,3 +1,12 @@
+Alpha 0.1.8.4
+- Fixes potential issues caused by accidental inclusion of experimental code.
+
+Alpha 0.1.8.3
+- Fixed incorrect import. Thanks, @mmuziek for the bug report!
+
+Alpha 0.1.8.2
+- Added plugin.yml again. Thanks, @mmuziek for the bug report!
+
 Alpha 0.1.8.1
 - Added support for version 1.14 of Minecraft.
 - Fixed (harmless) error on startup when using non-default language file.
