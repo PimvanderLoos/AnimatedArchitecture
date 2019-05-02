@@ -208,7 +208,6 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
         }.runTaskLater(plugin, 20);
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void tick()
     {

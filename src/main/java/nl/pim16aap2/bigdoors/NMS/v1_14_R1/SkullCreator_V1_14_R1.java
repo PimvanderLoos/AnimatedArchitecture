@@ -26,6 +26,7 @@ import net.minecraft.server.v1_14_R1.PlayerInteractManager;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.HeadManager;
 import nl.pim16aap2.bigdoors.util.Skull;
+import nl.pim16aap2.bigdoors.util.Util;
 
 public class SkullCreator_V1_14_R1 extends HeadManager
 {
@@ -50,33 +51,47 @@ public class SkullCreator_V1_14_R1 extends HeadManager
     {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
-            String[] a = getFromName(name, p);
-            MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
-            GameProfile profile = new GameProfile(UUID.randomUUID(), name);
+            try
+            {
+                String[] a = getFromName(name, p);
+                MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
+                GameProfile profile = new GameProfile(UUID.randomUUID(), name);
 
-            profile.getProperties().put("textures", new Property("textures", a[0], a[1]));
+                profile.getProperties().put("textures", new Property("textures", a[0], a[1]));
 
-            EntityPlayer npc = new EntityPlayer(server, server.getWorldServer(DimensionManager.OVERWORLD), profile,
-                                                new PlayerInteractManager(server.getWorldServer(DimensionManager.OVERWORLD)));
-            npc.setPosition(x, y, z);
+                EntityPlayer npc = new EntityPlayer(server, server.getWorldServer(DimensionManager.OVERWORLD), profile,
+                                                    new PlayerInteractManager(server.getWorldServer(DimensionManager.OVERWORLD)));
+                npc.setPosition(x, y, z);
 
-            byte[] dec = Base64.getDecoder().decode(a[0]);
-            String s = new String(dec);
+                byte[] dec = Base64.getDecoder().decode(a[0]);
+                String s = new String(dec);
 
-            s = s.substring(s.indexOf("l\":\"") + 1);
-            s = s.substring(0, s.indexOf("\"}}}"));
-            s = s.substring(s.indexOf("\""));
-            s = s.substring(1);
-            s = s.substring(1);
-            s = s.substring(1);
+                s = s.substring(s.indexOf("l\":\"") + 1);
+                try
+                {
+                s = s.substring(0, s.indexOf("\"}}}"));
+                }
+                catch (Exception e)
+                {
+                    Util.broadcastMessage("Caught exception getting string for playerUUID: " + playerUUID.toString() + " with name: " + name);
+                }
+                s = s.substring(s.indexOf("\""));
+                s = s.substring(1);
+                s = s.substring(1);
+                s = s.substring(1);
 
-            ItemStack skull = (Skull.getCustomSkull(s));
-            SkullMeta sm = (SkullMeta) skull.getItemMeta();
-            sm.setDisplayName(name);
-            skull.setItemMeta(sm);
-            end();
+                ItemStack skull = (Skull.getCustomSkull(s));
+                SkullMeta sm = (SkullMeta) skull.getItemMeta();
+                sm.setDisplayName(name);
+                skull.setItemMeta(sm);
+                end();
 
-            headMap.put(playerUUID, skull);
+                headMap.put(playerUUID, skull);
+            }
+            catch (Exception e)
+            {
+//                Util.broadcastMessage("0: Failed to get for player: " + p.getUniqueId() + " (\"" + p.getName() + "\")");
+            }
         });
     }
 
@@ -107,7 +122,10 @@ public class SkullCreator_V1_14_R1 extends HeadManager
                 {
                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cError: &3Player not found in mojang database."));
                 }
-
+                catch (Exception e)
+                {
+//                    Util.broadcastMessage("1: Failed to get for player: " + p.getUniqueId() + " (\"" + p.getName() + "\")");
+                }
             }
             else
             {

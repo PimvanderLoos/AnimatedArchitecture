@@ -1,35 +1,35 @@
 <?xml version="1.0" ?>
-<project name="BigDoors" default="all">
-
+<project name="BigDoors" default="copyjar">
     <xmlproperty file="pom.xml" prefix="pom" />
-    
-    <property name="servers" location="${basedir}/Servers"/>
-    <property name="lib" location="${basedir}/lib"/>
-
     <echo>The version is ${pom.project.version}</echo>
-
-    <target name="init">
-        <mkdir dir="${basedir}/classes"/>
-    </target>
-        
+    
+    <property name="servers"   location="${basedir}/Servers"/>
+    <property name="lib"       location="${basedir}/lib"/>
+    <property name="resources" location="${basedir}/src/main/resources"/>
+ 
+	<target name="init">
+		<mkdir   dir="./target/classes"/>
+        <!-- Force refresh these files, so Ant won't ignore them -->
+        <delete file="./target/classes/config.yml"/>
+        <delete file="./target/classes/plugin.yml"/>
+        <delete file="./target/classes/en_US.txt" />
+		<copy   file="${resources}/plugin.yml" tofile="./target/classes/plugin.yml"/>
+		<copy   file="${resources}/config.yml" tofile="./target/classes/config.yml"/>
+		<copy   file="${resources}/en_US.txt"  tofile="./target/classes/en_US.txt" />
+	</target>
+	
     <target name="compile" depends="init">
-        <jar jarfile="${basedir}/Jars/BigDoors.jar" basedir="./target/classes/" includes="**/*">
+        <jar jarfile="${basedir}/Jars/BigDoors.jar" basedir="./target/classes" includes="**/*">
         <zipgroupfileset dir="${lib}/" includes="java-cup-11b-runtime.jar"/>
         <zipgroupfileset dir="${lib}/" includes="JCalculator.jar"/>
         <manifest>
             <attribute name="Main-Class" value="nl.pim16aap2.jcalculator.JCalculator" />
-            <attribute name="Class-Path" value="java-cup-11b-runtime.jar" />
+            <attribute name="Class-Path" value="java-cup-11b-runtime.jar" /> 
         </manifest>
         </jar>
     </target>
     
-    <target name="copyjar" description="Create Jar file" depends="compile">
+    <target name="copyjar" depends="compile">
         <copy file= "${basedir}/Jars/BigDoors.jar" tofile="${servers}/SpigotServer_1.14/plugins/BigDoors.jar"/>
     </target>
-
-    <target name="cleanup" depends="copyjar">
-        <delete dir="${basedir}/classes"/>
-    </target>
-	
-    <target name="all" depends="cleanup"/>
 </project>

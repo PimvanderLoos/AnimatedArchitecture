@@ -16,43 +16,41 @@ public class EventHandlers implements Listener
 {
     private final BigDoors plugin;
 
-    public EventHandlers(BigDoors plugin)
+    public EventHandlers(final BigDoors plugin)
     {
         this.plugin = plugin;
     }
 
     // Selection event.
     @EventHandler
-    public void onLeftClick(PlayerInteractEvent event)
+    public void onLeftClick(final PlayerInteractEvent event)
     {
-        if (event.getAction() == Action.LEFT_CLICK_BLOCK)
-            if (plugin.getTF().isTool(event.getPlayer().getItemInHand()))
-            {
-                ToolUser tu = plugin.getToolUser(event.getPlayer());
-                if (tu != null)
-                {
-                    tu.selector(event.getClickedBlock().getLocation());
-                    event.setCancelled(true);
-                    return;
-                }
-            }
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK && plugin.getTF().isTool(event.getPlayer().getInventory().getItemInMainHand()))
+        {
+            ToolUser tu = plugin.getToolUser(event.getPlayer());
+            if (tu == null)
+                return;
+            tu.selector(event.getClickedBlock().getLocation());
+            event.setCancelled(true);
+            return;
+        }
     }
 
     @EventHandler
-    public void onLogin(PlayerLoginEvent event)
+    public void onLogin(final PlayerLoginEvent event)
     {
         plugin.getCommander().updatePlayer(event.getPlayer());
     }
 
     @EventHandler
-    public void onLogout(PlayerQuitEvent event)
+    public void onLogout(final PlayerQuitEvent event)
     {
         plugin.getCommander().removePlayer(event.getPlayer());
     }
 
     // Do not allow the player to drop the door creation tool.
     @EventHandler
-    public void onItemDropEvent(PlayerDropItemEvent event)
+    public void onItemDropEvent(final PlayerDropItemEvent event)
     {
         if (plugin.getTF().isTool(event.getItemDrop().getItemStack()))
             event.setCancelled(true);
@@ -60,7 +58,7 @@ public class EventHandlers implements Listener
 
     // Do not allow the user to move the tool around in their inventory.
     @EventHandler
-    public void onItemMoved(InventoryMoveItemEvent event)
+    public void onItemMoved(final InventoryMoveItemEvent event)
     {
         if (plugin.getTF().isTool(event.getItem()))
             event.setCancelled(true);

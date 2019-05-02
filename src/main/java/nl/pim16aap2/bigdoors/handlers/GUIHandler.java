@@ -5,7 +5,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.GUI.GUI;
@@ -15,16 +14,19 @@ import nl.pim16aap2.bigdoors.util.PageType;
 public class GUIHandler implements Listener
 {
     private final Messages messages;
-    private final BigDoors   plugin;
+    private final BigDoors plugin;
 
-    public GUIHandler(BigDoors plugin)
+    public GUIHandler(final BigDoors plugin)
     {
-        this.plugin   = plugin;
+        this.plugin = plugin;
         messages = plugin.getMessages();
     }
 
+    // When changing GUI pages, the InventoryCloseEvent is fired.
+    // So, before killing the GUI, make sure it wasn't just a
+    // page switch / update.
     @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event)
+    public void onInventoryClose(final InventoryCloseEvent event)
     {
         if (!(event.getPlayer() instanceof Player))
             return;
@@ -32,25 +34,19 @@ public class GUIHandler implements Listener
         Player player = (Player) event.getPlayer();
 
         GUI gui = plugin.getGUIUser(player);
-        if (gui != null)
-            // Slight delay, so that we get the "next" inventory, not the current one that is being closed.
-            new BukkitRunnable()
-            {
-                @Override
-                public void run()
-                {
-                    // Get the current page type. If no inventory is open (I don't think that's possible), it's notbigdoors by definition,
-                    // Otherwise, check which one it is and then close the GUI.
-                    if ((player.getOpenInventory() == null ? PageType.NOTBIGDOORS :
-                        PageType.valueOfName(messages.getStringReverse(player.getOpenInventory().getTitle()))) == PageType.NOTBIGDOORS)
-                        gui.close();
-                }
-            }.runTaskLater(plugin, 1);
+        if (gui == null)
+            return;
+
+        if (gui.isRefreshing())
+            return;
+
+        if (gui.isOpen())
+            gui.close();
     }
 
     // Check for clicks on items
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent event)
+    public void onInventoryClick(final InventoryClickEvent event)
     {
         if (!(event.getWhoClicked() instanceof Player))
             return;
@@ -59,6 +55,9 @@ public class GUIHandler implements Listener
         GUI gui = plugin.getGUIUser(player);
 
         if (gui == null)
+            return;
+
+        if (PageType.valueOfName(messages.getStringReverse(player.getOpenInventory().getTitle())) == PageType.NOTBIGDOORS)
             return;
 
         event.setCancelled(true);

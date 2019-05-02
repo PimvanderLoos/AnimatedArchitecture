@@ -80,7 +80,6 @@ public class Messages
         }
     }
 
-    // Get a string from a key. Returns "null" if null.
     public String getString(String key)
     {
         String value = null;
