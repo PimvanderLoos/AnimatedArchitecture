@@ -9,16 +9,32 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
+import nl.pim16aap2.bigdoors.toolUsers.DoorCreator;
+import nl.pim16aap2.bigdoors.toolUsers.DrawbridgeCreator;
+import nl.pim16aap2.bigdoors.toolUsers.ElevatorCreator;
+import nl.pim16aap2.bigdoors.toolUsers.FlagCreator;
+import nl.pim16aap2.bigdoors.toolUsers.PortcullisCreator;
+import nl.pim16aap2.bigdoors.toolUsers.PowerBlockRelocator;
+import nl.pim16aap2.bigdoors.toolUsers.SlidingDoorCreator;
+import nl.pim16aap2.bigdoors.toolUsers.ToolUser;
+import nl.pim16aap2.bigdoors.util.Abortable;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.XMaterial;
+import nl.pim16aap2.bigdoors.waitForCommand.WaitForSetTime;
 
 public class Commander
 {
@@ -62,6 +78,123 @@ public class Commander
         busyDoors.remove(doorUID);
     }
 
+    public void setDoorOpenTime(long doorUID, int autoClose)
+    {
+        updateDoorAutoClose(doorUID, autoClose);
+    }
+
+    private boolean isPlayerBusy(Player player)
+    {
+        boolean isBusy = (plugin.getToolUser(player) != null || plugin.isCommandWaiter(player) != null);
+        if (isBusy)
+            Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
+        return isBusy;
+    }
+
+    public void stopDoors()
+    {
+        setCanGo(false);
+        emptyBusyDoors();
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                setCanGo(true);
+            }
+        }.runTaskLater(plugin, 5L);
+    }
+
+    // Create a new door.
+    public void startCreator(Player player, String name, DoorType type)
+    {
+        if (!player.hasPermission(DoorType.getPermission(type)))
+        {
+            Util.messagePlayer(player, ChatColor.RED,
+                               plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
+            return;
+        }
+
+        long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
+        int maxCount = Util.getMaxDoorsForPlayer(player);
+        if (maxCount >= 0 && doorCount >= maxCount)
+        {
+            Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.TooManyDoors"));
+            return;
+        }
+
+        if (name != null && !Util.isValidDoorName(name))
+        {
+            Util.messagePlayer(player, ChatColor.RED,
+                               "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+            return;
+        }
+
+        if (isPlayerBusy(player))
+            return;
+
+        // These are disabled.
+        if (type == DoorType.FLAG)
+            return;
+
+        ToolUser tu = type == DoorType.DOOR ? new DoorCreator(plugin, player, name) :
+                           type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
+                           type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) :
+                           type == DoorType.ELEVATOR ? new ElevatorCreator(plugin, player, name) :
+                           type == DoorType.FLAG ? new FlagCreator(plugin, player, name) :
+                           type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
+
+        startTimerForAbortable(tu, 60 * 20);
+    }
+
+    public void startTimerForAbortable(Abortable abortable, int time)
+    {
+        BukkitTask task = new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                abortable.abort(false);
+            }
+        }.runTaskLater(plugin, time);
+        abortable.setTask(task);
+    }
+
+//    public void listDoorInfo(Player player, Door door)
+//    {
+//
+//    }
+
+    public void startPowerBlockRelocator(Player player, Door door)
+    {
+        startTimerForAbortable(new PowerBlockRelocator(plugin, player, door.getDoorUID()), 20 * 20);
+    }
+
+    public void startTimerSetter(Player player, Door door)
+    {
+        plugin.addCommandWaiter(new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand("BigDoors", "setautoclosetime"), player, door));
+    }
+
+//    public void startBlocksToMoveSetter(Player player, Door door)
+//    {
+//        plugin.addCommandWaiter(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin.getCommand("BigDoors", "setblockstomove"), player, door));
+//    }
+//
+//    public void startAddOwner(Player player, Door door)
+//    {
+//        plugin.addCommandWaiter(new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand("BigDoors", "addowner"), player, door));
+//    }
+//
+//    public void startRemoveOwner(Player player, Door door)
+//    {
+//        plugin.addCommandWaiter(new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand("BigDoors", "removeowner"), player, door));
+//    }
+
+    public void setDoorBlocksToMove(long doorUID, int autoClose)
+    {
+        plugin.getCommander().updateDoorBlocksToMove(doorUID, autoClose);
+    }
+
     // Check if the doors are paused.
     public boolean isPaused()
     {
@@ -92,6 +225,11 @@ public class Commander
     {
         for (Door door : doors)
             Util.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
+    }
+
+    public Door getDoor(long doorUID)
+    {
+        return db.getDoor(null, doorUID);
     }
 
     // Get the door from the string. Can be use with a doorUID or a doorName.
@@ -154,19 +292,32 @@ public class Commander
     }
 
     // Returns the number of doors owner by a player and with a specific name, if provided (can be null).
-    public long countDoors(String playerUUID, @Nullable String doorName)
+    public int countDoors(String playerUUID, @Nullable String doorName)
     {
         return db.countDoors(playerUUID, doorName);
+    }
+
+    public int countDoors(String doorName)
+    {
+        // TODO: This is dumb.
+        return getDoors(doorName).size();
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
     public ArrayList<Door> getDoors(String playerUUID, @Nullable String name)
     {
-        return playerUUID == null ? getDoors(name) : db.getDoors(playerUUID, name);
+        return db.getDoors(playerUUID, name);
+    }
+
+    // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null),
+    // and where the player has a higher permission node (lower number) than specified.
+    public ArrayList<Door> getDoors(String playerUUID, @Nullable String name, int maxPermission)
+    {
+        return db.getDoors(playerUUID, name, maxPermission);
     }
 
     // Returns an ArrayList of doors with a specific name.
-    private ArrayList<Door> getDoors(String name)
+    public ArrayList<Door> getDoors(String name)
     {
         return db.getDoors(name);
     }
@@ -174,7 +325,15 @@ public class Commander
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
     public ArrayList<Door> getDoorsInRange(String playerUUID, @Nullable String name, int start, int end)
     {
-        return db.getDoors(playerUUID, name, start, end);
+        return db.getDoors(playerUUID, name, start, end, Integer.MAX_VALUE);
+    }
+
+    public void fillDoor(Door door)
+    {
+        for (int i = door.getMinimum().getBlockX(); i <= door.getMaximum().getBlockX(); ++i)
+            for (int j = door.getMinimum().getBlockY(); j <= door.getMaximum().getBlockY(); ++j)
+                for (int k = door.getMinimum().getBlockZ(); k <= door.getMaximum().getBlockZ(); ++k)
+                    door.getWorld().getBlockAt(i, j, k).setType(XMaterial.STONE.parseMaterial());
     }
 
     public UUID playerUUIDFromName(String playerName)
@@ -246,12 +405,28 @@ public class Commander
 //        return db.getDoor2(playerUUID, doorUID);
 //    }
 
+    public boolean hasPermissionForActionPrintMessage(Player player, long doorUID, DoorAttribute atr)
+    {
+        return hasPermissionForActionPrintMessage(player.getUniqueId(), doorUID, atr);
+    }
+
+    public boolean hasPermissionForActionPrintMessage(UUID playerUUID, long doorUID, DoorAttribute atr)
+    {
+        boolean hasPermission = hasPermissionForAction(playerUUID, doorUID, atr);
+        if (!hasPermission)
+            Util.messagePlayer(Bukkit.getPlayer(playerUUID), plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+        return hasPermission;
+    }
+
     public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr)
     {
-        int playerPermission = getPermission(player.getUniqueId().toString(), doorUID);
+        return hasPermissionForAction(player.getUniqueId(), doorUID, atr);
+    }
+
+    public boolean hasPermissionForAction(UUID playerUUID, long doorUID, DoorAttribute atr)
+    {
+        int playerPermission = getPermission(playerUUID.toString(), doorUID);
         boolean hasPermission = playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);
-        if (!hasPermission)
-            Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
         return hasPermission;
     }
 
@@ -278,12 +453,12 @@ public class Commander
                             blockZMax, newEngSide);
     }
 
-    public void addOwner(UUID playerUUID, Door door)
+    public void addOwner(Door door, UUID playerUUID)
     {
-        addOwner(playerUUID, door, 1);
+        addOwner(door, playerUUID, 1);
     }
 
-    public boolean addOwner(UUID playerUUID, Door door, int permission)
+    public boolean addOwner(Door door, UUID playerUUID, int permission)
     {
         if (permission < 1 || permission > 2 || door.getPermission() != 0 || door.getPlayerUUID().equals(playerUUID))
             return false;

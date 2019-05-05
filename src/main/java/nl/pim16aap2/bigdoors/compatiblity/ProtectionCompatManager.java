@@ -14,7 +14,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.MyException;
 
 public class ProtectionCompatManager implements Listener
 {
@@ -72,9 +72,7 @@ public class ProtectionCompatManager implements Listener
             }
             catch(Exception e)
             {
-                plugin.getMyLogger().warn("Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:");
-                e.printStackTrace();
-                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+                plugin.handleMyStackTrace(new MyException(e, "Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
             }
         return true;
     }
@@ -89,9 +87,7 @@ public class ProtectionCompatManager implements Listener
             }
             catch(Exception e)
             {
-                plugin.getMyLogger().warn("Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:");
-                e.printStackTrace();
-                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+                plugin.handleMyStackTrace(new MyException(e, "Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
             }
         return true;
     }
@@ -176,7 +172,7 @@ public class ProtectionCompatManager implements Listener
             }
             catch (NullPointerException e)
             {
-                plugin.getMyLogger().logMessageToConsole("Could not find PlotSquared! Hook not enabled!");
+                plugin.getMyLogger().logMessageToConsole("Could not find WorldGuard! Hook not enabled!");
             }
             catch (Exception e)
             {

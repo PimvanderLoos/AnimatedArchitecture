@@ -1,67 +1,51 @@
 package nl.pim16aap2.bigdoors.waitForCommand;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
+import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class WaitForRemoveOwner extends WaitForCommand
 {
-    private long doorUID;
+    private final Door door;
+    private final SubCommandRemoveOwner subCommand;
 
-    public WaitForRemoveOwner(BigDoors plugin, Player player, long doorUID)
+    public WaitForRemoveOwner(final BigDoors plugin, final SubCommandRemoveOwner subCommand, final Player player, final Door door)
     {
         super(plugin);
-        this.player  = player;
-        command = "removeowner";
-        this.doorUID = doorUID;
+        this.subCommand = subCommand;
+        this.player = player;
+        this.door = door;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Init"));
-        Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.ListOfOwners"));
-        String ownersStr = "";
-        ArrayList<DoorOwner> doorOwners = plugin.getCommander().getDoorOwners(doorUID, player.getUniqueId());
+        Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.ListOfOwners"));
+
+        ArrayList<DoorOwner> doorOwners = plugin.getCommander().getDoorOwners(door.getDoorUID(), player.getUniqueId());
+        StringBuilder builder = new StringBuilder();
         for (DoorOwner owner : doorOwners)
-            ownersStr += owner.getPlayerName() + ", ";
-        Util.messagePlayer(player, ownersStr);
+            builder.append(owner.getPlayerName() + ", ");
+        Util.messagePlayer(player, builder.toString());
 
         plugin.addCommandWaiter(this);
     }
 
     @Override
-    public boolean executeCommand(String[] args)
+    public boolean executeCommand(String[] args) throws CommandPlayerNotFoundException, CommandActionNotAllowedException, CommandInvalidVariableException
     {
-        if (!plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.REMOVEOWNER))
-            return true;
+        abortSilently();
+        return subCommand.execute(player, door, args[2]);
+    }
 
-        // example: /BigDoors removeOwner pim16aap2
-        if (args.length == 2)
-        {
-            UUID playerUUID = plugin.getCommander().playerUUIDFromName(args[1]);
-            Door door = plugin.getCommander().getDoor(player.getUniqueId(), doorUID);
-
-            if (playerUUID != null)
-            {
-                if (plugin.getCommander().removeOwner(door, playerUUID))
-                {
-                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
-                    isFinished = true;
-                    abort();
-                    return true;
-                }
-                Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
-                abort();
-                return true;
-            }
-            Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[1] + "\"");
-            abort();
-            return true;
-        }
-        abort();
-        return false;
+    @Override
+    public String getCommand()
+    {
+        return subCommand.getName();
     }
 }

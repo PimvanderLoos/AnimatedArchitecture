@@ -20,10 +20,21 @@ import nl.pim16aap2.bigdoors.GUI.GUI;
 import nl.pim16aap2.bigdoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigdoors.NMS.v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigdoors.NMS.v1_14_R1.SkullCreator_V1_14_R1;
+import nl.pim16aap2.bigdoors.commands.CommandBigDoors;
+import nl.pim16aap2.bigdoors.commands.CommandManager;
+import nl.pim16aap2.bigdoors.commands.CommandMenu;
+import nl.pim16aap2.bigdoors.commands.ICommand;
+import nl.pim16aap2.bigdoors.commands.SuperCommand;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandMenu;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandPause;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRestart;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandStop;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigdoors.handlers.ChunkUnloadHandler;
-import nl.pim16aap2.bigdoors.handlers.CommandHandler;
 import nl.pim16aap2.bigdoors.handlers.EventHandlers;
 import nl.pim16aap2.bigdoors.handlers.GUIHandler;
 import nl.pim16aap2.bigdoors.handlers.LoginMessageHandler;
@@ -84,12 +95,18 @@ import nl.pim16aap2.bigdoors.waitForCommand.WaitForCommand;
 // TODO: Make invalid input stuff more informative (e.g. int, float etc).
 // TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
 // TODO: Allow adding owners to doors from console.
+// TODO: When the plugin fails to initialize properly, register alternative command handler to display this info.
+// TODO: Differentiate between cancelling and timing out on an abortable.
+// TODO: Move stuff such as StartTimerForAbortable into appropriate command classes.
 
 /*
  * Openers / Movers
  */
 // TODO: Rewrite Openers to get rid of code duplication.
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
+// TODO: When a door isn't set to open in a specific direction and therefor naively tries to find the first possible
+//       free location, automatically set the openDirection for this door. HOWEVER, this value must be reset when it is
+//       closed again, but ONLY if it used to be unset. So instead of storing value, add flag for un/intentionally set.
 
 /*
  * ToolUsers
@@ -102,6 +119,19 @@ import nl.pim16aap2.bigdoors.waitForCommand.WaitForCommand;
 
 
 
+
+
+/* "Rewrite" todo list
+
+- Get rid of the commander.
+- Get rid of the command handler.
+- Give every GUI page its own class.
+- Rewrite all block movers etc.
+  - When rewriting, make sure that absolutely 0 implementation-specific code ends up in the new movers.
+- Use Maven modules to be able to support multiple versions and perhaps even Forge / Sponge / whatever.
+- Clean up SQL class. Try to move as many shared items to private classes and/or use single statements.
+- Allow 1-wide drawbridges. Finally.
+ */
 
 
 
@@ -124,13 +154,14 @@ public class BigDoors extends JavaPlugin implements Listener
     private DoorOpener               doorOpener;
     private Vector<BlockMover>      blockMovers;
     private BridgeOpener           bridgeOpener;
-    private CommandHandler       commandHandler;
+//    private CommandHandler       commandHandler;
     private SlidingDoorOpener slidingDoorOpener;
     private PortcullisOpener   portcullisOpener;
     private RedstoneHandler     redstoneHandler;
     private ElevatorOpener       elevatorOpener;
     private boolean                validVersion;
     private String                  loginString;
+    private CommandManager       commandManager;
     @SuppressWarnings("unused")
     private FlagOpener               flagOpener;
     private HashMap<UUID, ToolUser>   toolUsers;
@@ -187,45 +218,57 @@ public class BigDoors extends JavaPlugin implements Listener
             flagOpener        = new FlagOpener(this);
             bridgeOpener      = new BridgeOpener(this);
             bridgeOpener      = new BridgeOpener(this);
-            commandHandler    = new CommandHandler(this);
+//            commandHandler    = new CommandHandler(this);
             elevatorOpener    = new ElevatorOpener(this);
             portcullisOpener  = new PortcullisOpener(this);
             slidingDoorOpener = new SlidingDoorOpener(this);
 
-            registerCommand("inspectpowerblockloc");
-            registerCommand("changepowerblockloc" );
-            registerCommand("setautoclosetime"    );
-            registerCommand("setdoorrotation"     );
-            registerCommand("setblockstomove"     );
-            registerCommand("newportcullis"       );
-            registerCommand("toggledoor"          );
-            registerCommand("pausedoors"          );
-            registerCommand("closedoor"           );
-            registerCommand("doordebug"           );
-            registerCommand("listdoors"           );
-            registerCommand("stopdoors"           );
-            registerCommand("bdcancel"            );
-            registerCommand("filldoor"            );
-            registerCommand("doorinfo"            );
-            registerCommand("opendoor"            );
-            registerCommand("nameDoor"            );
-            registerCommand("bigdoors"            );
-            registerCommand("newdoor"             );
-            registerCommand("deldoor"             );
-            registerCommand("bdm"                 );
 
-            liveDevelopmentLoad();
+            commandManager = new CommandManager(this);
+            SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
+            {
+                commandBigDoors.registerSubCommand(new SubCommandAddOwner   (this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandMenu       (this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandPause      (this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandRemoveOwner(this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandRestart    (this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandStop       (this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandVersion    (this, commandManager));
+            }
+            commandManager.registerCommand(commandBigDoors);
+            commandManager.registerCommand(new CommandMenu(this, commandManager));
+
+
+
+//            registerCommand("inspectpowerblockloc");
+//            registerCommand("changepowerblockloc" );
+//            registerCommand("setautoclosetime"    );
+//            registerCommand("setdoorrotation"     );
+//            registerCommand("setblockstomove"     );
+//            registerCommand("newportcullis"       );
+//            registerCommand("toggledoor"          );
+//            registerCommand("pausedoors"          );
+//            registerCommand("closedoor"           );
+//            registerCommand("doordebug"           );
+//            registerCommand("listdoors"           );
+//            registerCommand("stopdoors"           );
+//            registerCommand("bdcancel"            );
+//            registerCommand("filldoor"            );
+//            registerCommand("doorinfo"            );
+//            registerCommand("opendoor"            );
+//            registerCommand("nameDoor"            );
+//            registerCommand("bigdoors"            );
+//            registerCommand("newdoor"             );
+//            registerCommand("deldoor"             );
+//            registerCommand("bdm"                 );
+//
+//            liveDevelopmentLoad();
         }
         catch(Exception exception)
         {
             exception.printStackTrace();
             logger.logMessage(Util.exceptionToString(exception), true, true);
         }
-    }
-
-    private void registerCommand(String command)
-    {
-        getCommand(command).setExecutor(new CommandHandler(this));
     }
 
     @SuppressWarnings("unused")
@@ -283,6 +326,30 @@ public class BigDoors extends JavaPlugin implements Listener
             commander.setCanGo(true);
     }
 
+    public ICommand getCommand(String name, String ...subCommandNames)
+    {
+        ICommand command = commandManager.getCommand(name);
+        for (String subCommandName : subCommandNames)
+            command = ((SuperCommand) command).getCommand(subCommandName);
+        return command;
+    }
+
+    public void addCommandWaiter(final Class<WaitForCommand> waiterClass)
+    {
+        try
+        {
+            this.addCommandWaiter(waiterClass.newInstance());
+        }
+        catch (InstantiationException e)
+        {
+            handleMyStackTrace(new MyException(e));
+        }
+        catch (IllegalAccessException e)
+        {
+            handleMyStackTrace(new MyException(e));
+        }
+    }
+
     public boolean canBreakBlock(UUID playerUUID, Location loc)
     {
         return protCompatMan.canBreakBlock(playerUUID, loc);
@@ -338,6 +405,14 @@ public class BigDoors extends JavaPlugin implements Listener
         toolUsers.clear();
         cmdWaiters.clear();
         blockMovers.clear();
+    }
+
+    public void handleMyStackTrace(MyException e)
+    {
+        if (e.hasWarningMessage())
+            getMyLogger().warn(e.getWarningMessage());
+        e.printStackTrace();
+        getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
     }
 
     public TimedCache<Long, HashMap<Long, Long>> getPBCache()
@@ -413,6 +488,14 @@ public class BigDoors extends JavaPlugin implements Listener
         toolUsers.remove(toolUser.getPlayer().getUniqueId());
     }
 
+    public boolean isPlayerBusy(Player player)
+    {
+        boolean isBusy = (getToolUser(player) != null || isCommandWaiter(player) != null);
+        if (isBusy)
+            Util.messagePlayer(player, getMessages().getString("GENERAL.IsBusy"));
+        return isBusy;
+    }
+
     public GUI getGUIUser(Player player)
     {
         GUI gui = null;
@@ -445,6 +528,14 @@ public class BigDoors extends JavaPlugin implements Listener
         return cmdWaiters;
     }
 
+    public WaitForCommand isCommandWaiter(Player player)
+    {
+        for (WaitForCommand cw : cmdWaiters)
+            if (cw.getPlayer() == player)
+                return cw;
+        return null;
+    }
+
     public void addCommandWaiter(WaitForCommand cmdWaiter)
     {
         cmdWaiters.add(cmdWaiter);
@@ -455,11 +546,11 @@ public class BigDoors extends JavaPlugin implements Listener
         cmdWaiters.remove(cmdWaiter);
     }
 
-    // Get the command Handler.
-    public CommandHandler getCommandHandler()
-    {
-        return commandHandler;
-    }
+//    // Get the command Handler.
+//    public CommandHandler getCommandHandler()
+//    {
+//        return commandHandler;
+//    }
 
     // Get the commander (class executing commands).
     public Commander getCommander()
@@ -502,12 +593,12 @@ public class BigDoors extends JavaPlugin implements Listener
         config = new ConfigLoader(this);
     }
 
-    // This function simply loads these classes to make my life a bit less hell-ish with live development.
-    @SuppressWarnings("unused")
-    private void liveDevelopmentLoad()
-    {
-        commandHandler.stopDoors();
-    }
+//    // This function simply loads these classes to make my life a bit less hell-ish with live development.
+//    @SuppressWarnings("unused")
+//    private void liveDevelopmentLoad()
+//    {
+//        commandHandler.stopDoors();
+//    }
 
     public boolean is1_13()
     {

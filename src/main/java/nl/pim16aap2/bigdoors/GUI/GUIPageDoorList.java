@@ -139,7 +139,7 @@ public class GUIPageDoorList implements IGUIPage
     private void startCreationProcess(Player player, DoorType type)
     {
         player.closeInventory();
-        plugin.getCommandHandler().startCreator(player, null, type);
+        plugin.getCommander().startCreator(player, null, type);
     }
 
     @Override

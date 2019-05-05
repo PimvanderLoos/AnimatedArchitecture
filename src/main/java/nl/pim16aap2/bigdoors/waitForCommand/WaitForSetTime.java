@@ -3,48 +3,40 @@ package nl.pim16aap2.bigdoors.waitForCommand;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
+import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class WaitForSetTime extends WaitForCommand
 {
-    private final long doorUID;
+    private final Door door;
+    private final SubCommandSetAutoCloseTime subCommand;
 
-    public WaitForSetTime(BigDoors plugin, Player player, long doorUID)
+    public WaitForSetTime(final BigDoors plugin, final SubCommandSetAutoCloseTime subCommand, final Player player,
+        final Door door)
     {
         super(plugin);
-        this.player  = player;
-        command = "setautoclosetime";
-        this.doorUID = doorUID;
+        this.player = player;
+        this.subCommand = subCommand;
+        this.door = door;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Init"));
         plugin.addCommandWaiter(this);
     }
 
     @Override
     public boolean executeCommand(String[] args)
+        throws CommandPlayerNotFoundException, CommandActionNotAllowedException, CommandInvalidVariableException
     {
-        if (!plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.CHANGETIMER))
-            return true;
+        abortSilently();
+        return subCommand.execute(player, door, args[1]);
+    }
 
-        if (args.length == 1)
-            try
-            {
-                int time = Integer.parseInt(args[0]);
-                plugin.getCommandHandler().setDoorOpenTime(player, doorUID, time);
-                plugin.removeCommandWaiter(this);
-                if (time != -1)
-                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Success") + time + "s.");
-                else
-                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Disabled"));
-                isFinished = true;
-                abort();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.InvalidInput.Integer"));
-            }
-        abort();
-        return false;
+    @Override
+    public String getCommand()
+    {
+        return subCommand.getName();
     }
 }

@@ -32,7 +32,7 @@ public class Messages
     private void writeDefaultFile()
     {
         File defaultFile = new File(plugin.getDataFolder(), "en_US.txt");
-        if (!defaultFile.setWritable(true))
+        if (defaultFile.exists() && !defaultFile.setWritable(true))
             plugin.getMyLogger().myLogger(Level.SEVERE, "Failed to make file \"" + defaultFile + "\" writable!");
 
         // Load the default en_US from the resources folder.
@@ -87,7 +87,7 @@ public class Messages
         if (value == null)
         {
             value = "BigDoors: Translation not found! Contact server admin!";
-            plugin.getMyLogger().logMessageToConsole("Failed to get translation for key " + key);
+            plugin.getMyLogger().logMessageToConsole("Failed to get the translation for key " + key);
         }
         return value;
     }

@@ -21,6 +21,8 @@ public abstract class Abortable
         abort(false);
     }
 
+    public abstract void abortSilently();
+
     public void setTask(BukkitTask task)
     {
         bukkitTask = task;

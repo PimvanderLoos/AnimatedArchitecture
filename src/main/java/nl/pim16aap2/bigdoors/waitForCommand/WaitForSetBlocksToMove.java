@@ -3,48 +3,40 @@ package nl.pim16aap2.bigdoors.waitForCommand;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
+import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class WaitForSetBlocksToMove extends WaitForCommand
 {
-    private long doorUID;
+    private final Door door;
+    private final SubCommandSetBlocksToMove subCommand;
 
-    public WaitForSetBlocksToMove(BigDoors plugin, Player player, long doorUID)
+    public WaitForSetBlocksToMove(final BigDoors plugin, final SubCommandSetBlocksToMove subCommand,
+        final Player player, final Door door)
     {
         super(plugin);
-        this.player  = player;
-        command = "setblockstomove";
-        this.doorUID = doorUID;
+        this.subCommand = subCommand;
+        this.player = player;
+        this.door = door;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Init"));
         plugin.addCommandWaiter(this);
     }
 
     @Override
     public boolean executeCommand(String[] args)
+        throws CommandPlayerNotFoundException, CommandActionNotAllowedException, CommandInvalidVariableException
     {
-        if (!plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.BLOCKSTOMOVE))
-            return true;
+        abortSilently();
+        return subCommand.execute(player, door, args[1]);
+    }
 
-        if (args.length == 1)
-            try
-            {
-                int blocksToMove = Integer.parseInt(args[0]);
-                plugin.getCommandHandler().setDoorBlocksToMove(player, doorUID, blocksToMove);
-                plugin.removeCommandWaiter(this);
-                if (blocksToMove > 0)
-                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Success") + blocksToMove);
-                else
-                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Disabled"));
-                isFinished = true;
-                abort();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.InvalidInput.Integer"));
-            }
-        abort();
-        return false;
+    @Override
+    public String getCommand()
+    {
+        return subCommand.getName();
     }
 }

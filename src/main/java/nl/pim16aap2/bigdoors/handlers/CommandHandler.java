@@ -42,9 +42,9 @@ import nl.pim16aap2.bigdoors.waitForCommand.WaitForSetTime;
 
 public class CommandHandler implements CommandExecutor
 {
-    BigDoors plugin;
+    protected final BigDoors plugin;
 
-    public CommandHandler(BigDoors plugin)
+    public CommandHandler(final BigDoors plugin)
     {
         this.plugin = plugin;
     }
@@ -251,14 +251,6 @@ public class CommandHandler implements CommandExecutor
         abortable.setTask(task);
     }
 
-    public WaitForCommand isCommandWaiter(Player player)
-    {
-        for (WaitForCommand cw : plugin.getCommandWaiters())
-            if (cw.getPlayer() == player)
-                return cw;
-        return null;
-    }
-
     public void setDoorOpenTime(Player player, long doorUID, int autoClose)
     {
         if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.CHANGETIMER))
@@ -308,7 +300,7 @@ public class CommandHandler implements CommandExecutor
 
     private boolean isPlayerBusy(Player player)
     {
-        boolean isBusy = (plugin.getToolUser(player) != null || isCommandWaiter(player) != null);
+        boolean isBusy = (plugin.getToolUser(player) != null || plugin.isCommandWaiter(player) != null);
         if (isBusy)
             Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
         return isBusy;
@@ -368,7 +360,7 @@ public class CommandHandler implements CommandExecutor
 
                 if (args.length > 1)
                 {
-                    WaitForCommand cw = isCommandWaiter(player);
+                    WaitForCommand cw = plugin.isCommandWaiter(player);
                     if (cw != null)
                         return cw.executeCommand(args);
 
@@ -418,14 +410,14 @@ public class CommandHandler implements CommandExecutor
 
                 if (args.length == 2)
                 {
-                    WaitForCommand cw = isCommandWaiter(player);
+                    WaitForCommand cw = plugin.isCommandWaiter(player);
                     if (cw != null)
                         return cw.executeCommand(args);
                 }
                 else if (args.length > 2)
                 {
                     // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
-                    WaitForCommand cw = isCommandWaiter(player);
+                    WaitForCommand cw = plugin.isCommandWaiter(player);
                     if (cw != null && cw.getCommand().equals("removeowner"))
                         cw.abortSilently();
 
@@ -483,14 +475,14 @@ public class CommandHandler implements CommandExecutor
             // And therefore the Door is already defined somewhere else (e.g. selected from the GUI).
             if (args.length == 1 && player != null)
             {
-                WaitForCommand cw = isCommandWaiter(player);
+                WaitForCommand cw = plugin.isCommandWaiter(player);
                 if (cw != null)
                     return cw.executeCommand(args);
             }
             else if (args.length == 2)
             {
                 // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
-                WaitForCommand cw = isCommandWaiter(player);
+                WaitForCommand cw = plugin.isCommandWaiter(player);
                 if (cw != null && cw.getCommand().equals("setautoclosetime"))
                     cw.abortSilently();
 
@@ -519,14 +511,14 @@ public class CommandHandler implements CommandExecutor
             // And therefore the Door is already defined somewhere else (e.g. selected from the GUI).
             if (args.length == 1 && player != null)
             {
-                WaitForCommand cw = isCommandWaiter(player);
+                WaitForCommand cw = plugin.isCommandWaiter(player);
                 if (cw != null)
                     return cw.executeCommand(args);
             }
             else if (args.length == 2)
             {
                 // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
-                WaitForCommand cw = isCommandWaiter(player);
+                WaitForCommand cw = plugin.isCommandWaiter(player);
                 if (cw != null && cw.getCommand().equals("setblockstomove"))
                     cw.abortSilently();
 
@@ -668,7 +660,6 @@ public class CommandHandler implements CommandExecutor
                 return false;
             else if (args.length == 1)
                 listDoorsFromConsole(args[0]);
-
             return true;
         }
 
@@ -906,7 +897,7 @@ public class CommandHandler implements CommandExecutor
         help += ChatColor.GREEN + "====[ BigDoors Help ]====\n";
         help += helpFormat("/BigDoors menu", "Opens BigDoors' GUI.");
         help += helpFormat("/BigDoors version", "Get the version of this plugin.");
-        help += helpFormat("/BigDoors removeowner <door> <player>", "Add another owner for a door.");
+        help += helpFormat("/BigDoors removeowner <door> <player>", "Remove another owner for a door.");
         help += helpFormat("/BigDoors addowner <door> <player> [permission]", "Add another owner for a door.");
         if (player == null || player.hasPermission("bigdoors.admin.restart"))
             help += helpFormat("/BigDoors restart", "Restart the plugin. Reinitializes almost everything.");

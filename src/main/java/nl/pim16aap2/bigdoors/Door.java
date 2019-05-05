@@ -11,19 +11,6 @@ import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
-/* "Rewrite" todo list
-
-- Get rid of the commander.
-- Get rid of the command handler.
-- Give every GUI page its own class.
-- Rewrite all block movers etc.
-  - When rewriting, make sure that absolutely 0 implementation-specific code ends up in the new movers.
-- Use Maven modules to be able to support multiple versions and perhaps even Forge / Sponge / whatever.
-- Clean up SQL class. Try to move as many shared items to private classes and/or use single statements.
-- Allow 1-wide drawbridges. Finally.
- */
-
-
 public class Door
 {
     private Location min;

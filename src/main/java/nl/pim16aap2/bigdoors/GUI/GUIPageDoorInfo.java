@@ -1,11 +1,13 @@
 package nl.pim16aap2.bigdoors.GUI;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorType;
@@ -62,16 +64,16 @@ public class GUIPageDoorInfo implements IGUIPage
             refresh();
             break;
         case TOGGLE:
-            plugin.getCommandHandler().openDoorCommand(player, door);
+            plugin.getCommander().openDoorCommand(player, door);
             break;
         case INFO:
-            plugin.getCommandHandler().listDoorInfo(player, door);
+            ((SubCommandInfo) plugin.getCommand("bigdoors", "info")).execute(player, new ArrayList<>(Arrays.asList(door)));
             break;
         case DELETE:
             gui.setGUIPage(new GUIPageDeleteConfirmation(plugin, gui));
             break;
         case RELOCATEPOWERBLOCK:
-            plugin.getCommandHandler().startPowerBlockRelocator(player, door.getDoorUID());
+            plugin.getCommander().startPowerBlockRelocator(player, door);
             gui.close();
             break;
         case DIRECTION_OPEN:
@@ -80,15 +82,15 @@ public class GUIPageDoorInfo implements IGUIPage
             changeOpenDir(player, door);
             break;
         case CHANGETIMER:
-            plugin.getCommandHandler().startTimerSetter(player, door.getDoorUID());
+            plugin.getCommander().startTimerSetter(player, door);
             gui.close();
             break;
         case BLOCKSTOMOVE:
-            plugin.getCommandHandler().startBlocksToMoveSetter(player, door.getDoorUID());
+            plugin.getCommander().startBlocksToMoveSetter(player, door);
             gui.close();
             break;
         case ADDOWNER:
-            plugin.getCommandHandler().startAddOwner(player, door.getDoorUID());
+            plugin.getCommander().startAddOwner(player, door);
             gui.close();
             break;
         case REMOVEOWNER:
@@ -129,7 +131,7 @@ public class GUIPageDoorInfo implements IGUIPage
     private void switchToRemoveOwner()
     {
 //        // Text based method
-//        plugin.getCommandHandler().startRemoveOwner(gui.getPlayer(), gui.getDoor().getDoorUID());
+//        plugin.getCommander().startRemoveOwner(gui.getPlayer(), gui.getDoor());
 //        gui.close();
 
         // GUI based method

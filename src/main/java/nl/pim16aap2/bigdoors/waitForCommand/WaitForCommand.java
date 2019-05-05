@@ -3,17 +3,19 @@ package nl.pim16aap2.bigdoors.waitForCommand;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
+import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.util.Abortable;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public abstract class WaitForCommand extends Abortable
 {
-    protected String command;
     protected Player player;
     protected final BigDoors plugin;
     protected boolean isFinished = false;
 
-    protected WaitForCommand(BigDoors plugin)
+    protected WaitForCommand(final BigDoors plugin)
     {
         this.plugin = plugin;
     }
@@ -30,18 +32,16 @@ public abstract class WaitForCommand extends Abortable
         }
     }
 
+    @Override
     public final void abortSilently()
     {
         setFinished(true);
         abort();
     }
 
-    public final String getCommand()
-    {
-        return command;
-    }
+    public abstract String getCommand();
 
-    public abstract boolean executeCommand(String[] args);
+    public abstract boolean executeCommand(String[] args) throws CommandPlayerNotFoundException, CommandActionNotAllowedException, CommandInvalidVariableException;
 
     public final Player getPlayer()
     {

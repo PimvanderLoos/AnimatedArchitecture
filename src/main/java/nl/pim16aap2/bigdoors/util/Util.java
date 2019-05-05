@@ -23,6 +23,11 @@ public final class Util
         player.sendMessage(color + s);
     }
 
+    public static String helpFormat(String command, String explanation)
+    {
+        return String.format(ChatColor.GREEN + "/%s: " + ChatColor.BLUE + "%s\n", command, explanation);
+    }
+
     public static String errorToString(Error e)
     {
         StringWriter sw = new StringWriter();
@@ -67,6 +72,21 @@ public final class Util
         hash = 19 * hash + (int) (Double.doubleToLongBits(chunk_X) ^ (Double.doubleToLongBits(chunk_X) >>> 32));
         hash = 19 * hash + (int) (Double.doubleToLongBits(chunk_Z) ^ (Double.doubleToLongBits(chunk_Z) >>> 32));
         return hash;
+    }
+
+    // Doors aren't allowed to have numerical names, to differentiate doorNames from
+    // doorUIDs.
+    public static boolean isValidDoorName(String name)
+    {
+        try
+        {
+            Integer.parseInt(name);
+            return false;
+        }
+        catch (NumberFormatException e)
+        {
+            return true;
+        }
     }
 
     public static long locationHash(Location loc)

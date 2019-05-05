@@ -194,4 +194,11 @@ public abstract class ToolUser extends Abortable
             plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED,
                                                 messages.getString("CREATOR.GENERAL.TimeUp"));
     }
+
+    @Override
+    public void abortSilently()
+    {
+        done = true;
+        abort(false);
+    }
 }

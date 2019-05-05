@@ -8,6 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -50,12 +52,20 @@ public class MyLogger
     }
 
     // Send a message to whomever issued a command.
-    public void returnToSender(CommandSender sender, Level level, ChatColor color, String str)
+    public void returnToSender(CommandSender sender, Level level, @Nullable ChatColor color, String str)
     {
+        if (str == null)
+            return;
         if (sender instanceof Player)
-            Util.messagePlayer((Player) sender, color + str);
+            Util.messagePlayer((Player) sender, (color != null ? color : "") + str);
         else
-            myLogger(level, str);
+            myLogger(level, ChatColor.stripColor(str));
+    }
+
+    // Send a message to whomever issued a command.
+    public void returnToSender(CommandSender sender, @Nullable ChatColor color, String str)
+    {
+        returnToSender(sender, Level.INFO, color, str);
     }
 
     // Log a message to the log file. Can print to console and/or

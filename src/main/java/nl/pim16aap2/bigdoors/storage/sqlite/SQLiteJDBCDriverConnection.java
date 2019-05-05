@@ -541,9 +541,15 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Get ALL doors owned by a given playerUUID.
-    public ArrayList<Door> getDoors(final String playerUUID, final String name)
+    public ArrayList<Door> getDoors(final String playerUUID, @Nullable final String name)
     {
-        return getDoors(playerUUID, name, 0, Long.MAX_VALUE);
+        return getDoors(playerUUID, name, 0, Long.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
+    // Get ALL doors owned by a given playerUUID.
+    public ArrayList<Door> getDoors(final String playerUUID, @Nullable final String name, int maxPermission)
+    {
+        return getDoors(playerUUID, name, 0, Long.MAX_VALUE, maxPermission);
     }
 
     // Get all doors with a given name.
@@ -602,7 +608,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Get all doors associated with this player in a given range. Name can be null
-    public ArrayList<Door> getDoors(final String playerUUID, final String name, final long start, final long end)
+    public ArrayList<Door> getDoors(final String playerUUID, @Nullable final String name, final long start, final long end, int maxPermission)
     {
         ArrayList<Door> doors = new ArrayList<>();
 
@@ -612,7 +618,7 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             long playerID = getPlayerID(conn, playerUUID);
 
-            PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
+            PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND permission <= '" + maxPermission + "';");
             ResultSet rs2         = ps2.executeQuery();
             int count             = 0;
             while (rs2.next())
@@ -1326,9 +1332,9 @@ public class SQLiteJDBCDriverConnection
 
     // Get the number of doors owned by this player.
     // If name is null, it will ignore door names, otherwise it will return the number of doors with the provided name.
-    public long countDoors(final String playerUUID, final String name)
+    public int countDoors(final String playerUUID, @Nullable final String name)
     {
-        long count = 0;
+        int count = 0;
         Connection conn = null;
         try
         {
