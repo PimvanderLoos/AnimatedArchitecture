@@ -4,8 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.material.MaterialData;
 
-import nl.pim16aap2.bigdoors.NMS.CustomCraftFallingBlock_Vall;
-import nl.pim16aap2.bigdoors.NMS.NMSBlock_Vall;
+import nl.pim16aap2.bigdoors.nms.CustomCraftFallingBlock_Vall;
+import nl.pim16aap2.bigdoors.nms.NMSBlock_Vall;
 
 public class MyBlockData
 {

@@ -13,7 +13,7 @@ import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.waitForCommand.WaitForCommand;
+import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 public class SubCommandSetBlocksToMove implements ISubCommand
 {

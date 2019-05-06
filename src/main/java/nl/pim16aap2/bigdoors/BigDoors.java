@@ -16,10 +16,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import nl.pim16aap2.bigdoors.GUI.GUI;
-import nl.pim16aap2.bigdoors.NMS.FallingBlockFactory_Vall;
-import nl.pim16aap2.bigdoors.NMS.v1_14_R1.FallingBlockFactory_V1_14_R1;
-import nl.pim16aap2.bigdoors.NMS.v1_14_R1.SkullCreator_V1_14_R1;
 import nl.pim16aap2.bigdoors.commands.CommandBigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandMenu;
@@ -34,23 +30,27 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandStop;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
+import nl.pim16aap2.bigdoors.gui.GUI;
 import nl.pim16aap2.bigdoors.handlers.ChunkUnloadHandler;
 import nl.pim16aap2.bigdoors.handlers.EventHandlers;
 import nl.pim16aap2.bigdoors.handlers.GUIHandler;
 import nl.pim16aap2.bigdoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigdoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigdoors.handlers.RedstoneHandler;
-import nl.pim16aap2.bigdoors.moveBlocks.BlockMover;
-import nl.pim16aap2.bigdoors.moveBlocks.BridgeOpener;
-import nl.pim16aap2.bigdoors.moveBlocks.DoorOpener;
-import nl.pim16aap2.bigdoors.moveBlocks.ElevatorOpener;
-import nl.pim16aap2.bigdoors.moveBlocks.FlagOpener;
-import nl.pim16aap2.bigdoors.moveBlocks.Opener;
-import nl.pim16aap2.bigdoors.moveBlocks.PortcullisOpener;
-import nl.pim16aap2.bigdoors.moveBlocks.SlidingDoorOpener;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.BridgeOpener;
+import nl.pim16aap2.bigdoors.moveblocks.DoorOpener;
+import nl.pim16aap2.bigdoors.moveblocks.ElevatorOpener;
+import nl.pim16aap2.bigdoors.moveblocks.FlagOpener;
+import nl.pim16aap2.bigdoors.moveblocks.Opener;
+import nl.pim16aap2.bigdoors.moveblocks.PortcullisOpener;
+import nl.pim16aap2.bigdoors.moveblocks.SlidingDoorOpener;
+import nl.pim16aap2.bigdoors.nms.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigdoors.nms.v1_14_R1.FallingBlockFactory_V1_14_R1;
+import nl.pim16aap2.bigdoors.nms.v1_14_R1.SkullCreator_V1_14_R1;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
-import nl.pim16aap2.bigdoors.toolUsers.ToolUser;
-import nl.pim16aap2.bigdoors.toolUsers.ToolVerifier;
+import nl.pim16aap2.bigdoors.toolusers.ToolUser;
+import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
 import nl.pim16aap2.bigdoors.util.ConfigLoader;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.DoorType;
@@ -58,13 +58,7 @@ import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.Metrics;
 import nl.pim16aap2.bigdoors.util.TimedCache;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.waitForCommand.WaitForCommand;
-/*
- * GUI
- */
-// TODO: Verify the title of the GUI before doing actions. Just to make sure nothing has gone wrong.
-// TODO: Add option to delete yourself as owner from a door you're not the creator of.
-// TODO: Fix Skulls in removeOwner.
+import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 /*
  * General

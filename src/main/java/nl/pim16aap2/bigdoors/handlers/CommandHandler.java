@@ -15,18 +15,18 @@ import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
-import nl.pim16aap2.bigdoors.GUI.GUI;
-import nl.pim16aap2.bigdoors.moveBlocks.BlockMover;
-import nl.pim16aap2.bigdoors.moveBlocks.Opener;
-import nl.pim16aap2.bigdoors.toolUsers.DoorCreator;
-import nl.pim16aap2.bigdoors.toolUsers.DrawbridgeCreator;
-import nl.pim16aap2.bigdoors.toolUsers.ElevatorCreator;
-import nl.pim16aap2.bigdoors.toolUsers.FlagCreator;
-import nl.pim16aap2.bigdoors.toolUsers.PortcullisCreator;
-import nl.pim16aap2.bigdoors.toolUsers.PowerBlockInspector;
-import nl.pim16aap2.bigdoors.toolUsers.PowerBlockRelocator;
-import nl.pim16aap2.bigdoors.toolUsers.SlidingDoorCreator;
-import nl.pim16aap2.bigdoors.toolUsers.ToolUser;
+import nl.pim16aap2.bigdoors.gui.GUI;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.Opener;
+import nl.pim16aap2.bigdoors.toolusers.DoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.DrawbridgeCreator;
+import nl.pim16aap2.bigdoors.toolusers.ElevatorCreator;
+import nl.pim16aap2.bigdoors.toolusers.FlagCreator;
+import nl.pim16aap2.bigdoors.toolusers.PortcullisCreator;
+import nl.pim16aap2.bigdoors.toolusers.PowerBlockInspector;
+import nl.pim16aap2.bigdoors.toolusers.PowerBlockRelocator;
+import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.util.Abortable;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
@@ -34,11 +34,11 @@ import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.XMaterial;
-import nl.pim16aap2.bigdoors.waitForCommand.WaitForAddOwner;
-import nl.pim16aap2.bigdoors.waitForCommand.WaitForCommand;
-import nl.pim16aap2.bigdoors.waitForCommand.WaitForRemoveOwner;
-import nl.pim16aap2.bigdoors.waitForCommand.WaitForSetBlocksToMove;
-import nl.pim16aap2.bigdoors.waitForCommand.WaitForSetTime;
+import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
+import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
+import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
+import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
+import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetTime;
 
 public class CommandHandler implements CommandExecutor
 {

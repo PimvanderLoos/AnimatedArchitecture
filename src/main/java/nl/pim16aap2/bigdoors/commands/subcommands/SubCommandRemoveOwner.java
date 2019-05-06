@@ -15,7 +15,7 @@ import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.waitForCommand.WaitForCommand;
+import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 public class SubCommandRemoveOwner implements ISubCommand
 {

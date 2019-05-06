@@ -8,8 +8,8 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.toolUsers.ToolUser;
-import nl.pim16aap2.bigdoors.waitForCommand.WaitForCommand;
+import nl.pim16aap2.bigdoors.toolusers.ToolUser;
+import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 public class SubCommandCancel implements ISubCommand
 {

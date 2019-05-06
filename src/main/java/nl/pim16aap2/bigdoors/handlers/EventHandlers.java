@@ -10,7 +10,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.toolUsers.ToolUser;
+import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 
 public class EventHandlers implements Listener
 {
