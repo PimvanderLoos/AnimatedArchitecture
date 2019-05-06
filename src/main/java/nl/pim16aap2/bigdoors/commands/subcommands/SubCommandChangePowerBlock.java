@@ -20,7 +20,7 @@ public class SubCommandChangePowerBlock implements ISubCommand
     private static final String name = "changepowerblock";
     private static final String permission = "bigdoors.user.changepowerblock";
     private static final String help = "Change the location of the powerblock of a door.";
-    private static final String argsHelp = "<doorUUID/Name>";
+    private static final String argsHelp = "<doorUID/Name>";
     private static final int minArgCount = 2;
 
     public SubCommandChangePowerBlock(final BigDoors plugin, final CommandManager commandManager)

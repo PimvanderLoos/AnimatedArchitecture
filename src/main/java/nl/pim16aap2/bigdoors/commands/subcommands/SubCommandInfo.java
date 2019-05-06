@@ -22,7 +22,7 @@ public class SubCommandInfo implements ISubCommand
     private static final String name = "info";
     private static final String permission = "bigdoors.user.doorinfo";
     private static final String help = "Display info of a door.";
-    private static final String argsHelp = "<Door>";
+    private static final String argsHelp = "<doorUID/Name>";
     private static final int minArgCount = 2;
 
     public SubCommandInfo(final BigDoors plugin, final CommandManager commandManager)

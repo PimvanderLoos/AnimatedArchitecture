@@ -27,7 +27,7 @@ public class SubCommandAddOwner implements ISubCommand
     private static final String name = "addowner";
     private static final String permission = "bigdoors.user.addowner";
     private static final String help = "Add another owner for a door.";
-    private static final String argsHelp = "{door} <player> [permissionLevel]";
+    private static final String argsHelp = "{doorUID/Name} <player> [permissionLevel]";
     private static final int minArgCount = 3;
 
     public SubCommandAddOwner(final BigDoors plugin, final CommandManager commandManager)

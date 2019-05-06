@@ -98,6 +98,8 @@ import nl.pim16aap2.bigdoors.waitForCommand.WaitForCommand;
 // TODO: When the plugin fails to initialize properly, register alternative command handler to display this info.
 // TODO: Differentiate between cancelling and timing out on an abortable.
 // TODO: Move stuff such as StartTimerForAbortable into appropriate command classes.
+// TODO: When retrieving player argument (SubCommandAddOwner, SubCommandListPlayerDoors) don't just try to convert
+//       the provided playerArg to a UUID. That's not very user friendly at all.
 
 /*
  * Openers / Movers
@@ -132,8 +134,6 @@ import nl.pim16aap2.bigdoors.waitForCommand.WaitForCommand;
 - Clean up SQL class. Try to move as many shared items to private classes and/or use single statements.
 - Allow 1-wide drawbridges. Finally.
  */
-
-
 
 public class BigDoors extends JavaPlugin implements Listener
 {

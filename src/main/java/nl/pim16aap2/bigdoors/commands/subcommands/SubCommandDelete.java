@@ -24,7 +24,7 @@ public class SubCommandDelete implements ISubCommand
     private static final String name = "delete";
     private static final String permission = "bigdoors.user.delete";
     private static final String help = "Delete the specified door";
-    private static final String argsHelp = "<doorUUID/Name>";
+    private static final String argsHelp = "<doorUID/Name>";
     private static final int minArgCount = 2;
 
     public SubCommandDelete(final BigDoors plugin, final CommandManager commandManager)

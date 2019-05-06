@@ -39,12 +39,12 @@ public class SubCommandOpen extends SubCommandToggle
 
         for (Door door : doors)
             if (readyToOpen(door))
-                toggleDoorCommand(sender, door, time);
+                execute(sender, door, time);
             else
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
                                                     plugin.getMessages().getString("GENERAL.Door") + " \"" + door.getName() +
                                                     "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
-        return true;
+        return doors.size() > 0;
     }
 
     @Override

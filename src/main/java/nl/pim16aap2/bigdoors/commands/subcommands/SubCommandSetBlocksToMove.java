@@ -23,7 +23,7 @@ public class SubCommandSetBlocksToMove implements ISubCommand
     private static final String name = "setblockstomove";
     private static final String permission = "bigdoors.user.setblockstomove";
     private static final String help = "Change the number of blocks the door will attempt to move in the provided direction";
-    private static final String argsHelp = "{door} <blocks>";
+    private static final String argsHelp = "{doorUID/Name} <blocks>";
     private static final int minArgCount = 3;
 
     public SubCommandSetBlocksToMove(final BigDoors plugin, final CommandManager commandManager)

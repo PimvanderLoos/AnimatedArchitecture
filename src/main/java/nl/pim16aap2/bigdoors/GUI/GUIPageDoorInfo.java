@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorType;
@@ -64,7 +65,7 @@ public class GUIPageDoorInfo implements IGUIPage
             refresh();
             break;
         case TOGGLE:
-            plugin.getCommander().openDoorCommand(player, door);
+            ((SubCommandToggle) plugin.getCommand("bigdoors", "toggleDoor")).execute(player, door);
             break;
         case INFO:
             ((SubCommandInfo) plugin.getCommand("bigdoors", "info")).execute(player, new ArrayList<>(Arrays.asList(door)));
@@ -86,6 +87,7 @@ public class GUIPageDoorInfo implements IGUIPage
             gui.close();
             break;
         case BLOCKSTOMOVE:
+
             plugin.getCommander().startBlocksToMoveSetter(player, door);
             gui.close();
             break;

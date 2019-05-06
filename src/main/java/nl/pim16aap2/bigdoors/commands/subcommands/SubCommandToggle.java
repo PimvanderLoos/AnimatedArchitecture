@@ -27,7 +27,7 @@ public class SubCommandToggle implements ISubCommand
     private final String name = "toggle";
     private final String permission = "bigdoors.user.toggle";
     private final String help = "Toggle a door";
-    protected static final String argsHelp = "<doorUUID/Name1> <doorUUID/Name2> ... [time (decimal!)]";
+    protected static final String argsHelp = "<doorUID/Name1> <doorUID/Name2> ... [time (decimal!)]";
     protected static final int minArgCount = 2;
 
     public SubCommandToggle(final BigDoors plugin, final CommandManager commandManager)
@@ -36,7 +36,12 @@ public class SubCommandToggle implements ISubCommand
         this.commandManager = commandManager;
     }
 
-    public void toggleDoorCommand(CommandSender sender, Door door, double time)
+    public void execute(CommandSender sender, Door door)
+    {
+        execute(sender, door, 0.0D);
+    }
+
+    public void execute(CommandSender sender, Door door, double time)
     {
         if (sender instanceof Player
             && !plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE))
@@ -94,16 +99,6 @@ public class SubCommandToggle implements ISubCommand
         return time;
     }
 
-    public void toggleDoorCommand(Player player, Door door, double time)
-    {
-        toggleDoorCommand((CommandSender) player, door, time);
-    }
-
-    public void toggleDoorCommand(Player player, Door door)
-    {
-        toggleDoorCommand((CommandSender) player, door, 0.0);
-    }
-
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
@@ -112,8 +107,8 @@ public class SubCommandToggle implements ISubCommand
         double time = parseDoorsAndTime(sender, args, doors);
 
         for (Door door : doors)
-            toggleDoorCommand(sender, door, time);
-        return true;
+            execute(sender, door, time);
+        return doors.size() > 0;
     }
 
     @Override

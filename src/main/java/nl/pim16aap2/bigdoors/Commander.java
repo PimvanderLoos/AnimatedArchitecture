@@ -15,7 +15,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolUsers.DoorCreator;
 import nl.pim16aap2.bigdoors.toolUsers.DrawbridgeCreator;
@@ -34,6 +37,9 @@ import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.XMaterial;
+import nl.pim16aap2.bigdoors.waitForCommand.WaitForAddOwner;
+import nl.pim16aap2.bigdoors.waitForCommand.WaitForRemoveOwner;
+import nl.pim16aap2.bigdoors.waitForCommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigdoors.waitForCommand.WaitForSetTime;
 
 public class Commander
@@ -175,20 +181,20 @@ public class Commander
         plugin.addCommandWaiter(new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand("BigDoors", "setautoclosetime"), player, door));
     }
 
-//    public void startBlocksToMoveSetter(Player player, Door door)
-//    {
-//        plugin.addCommandWaiter(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin.getCommand("BigDoors", "setblockstomove"), player, door));
-//    }
-//
-//    public void startAddOwner(Player player, Door door)
-//    {
-//        plugin.addCommandWaiter(new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand("BigDoors", "addowner"), player, door));
-//    }
-//
-//    public void startRemoveOwner(Player player, Door door)
-//    {
-//        plugin.addCommandWaiter(new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand("BigDoors", "removeowner"), player, door));
-//    }
+    public void startBlocksToMoveSetter(Player player, Door door)
+    {
+        plugin.addCommandWaiter(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin.getCommand("BigDoors", "setblockstomove"), player, door));
+    }
+
+    public void startAddOwner(Player player, Door door)
+    {
+        plugin.addCommandWaiter(new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand("BigDoors", "addowner"), player, door));
+    }
+
+    public void startRemoveOwner(Player player, Door door)
+    {
+        plugin.addCommandWaiter(new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand("BigDoors", "removeowner"), player, door));
+    }
 
     public void setDoorBlocksToMove(long doorUID, int autoClose)
     {
