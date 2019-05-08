@@ -70,10 +70,8 @@ public class DrawbridgeCreator extends ToolUser
 
             if (loc.equals(one) || loc.equals(two) || // "bottom left" or "top right" (on 2d grid)
                (posX == one.getBlockX() && posZ == two.getBlockZ()) || // "top left"
-               (posX == two.getBlockX() && posZ == one.getBlockZ()))   // "bottom right"
-            {
+               (posX == two.getBlockX() && posZ == one.getBlockZ()))
                 engine = loc;
-            }
             else
             {
                 if      (posZ == one.getBlockZ())
@@ -174,9 +172,10 @@ public class DrawbridgeCreator extends ToolUser
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
-        if (!plugin.canBreakBlock(player.getUniqueId(), loc))
+        String canBreakBlock = plugin.canBreakBlock(player, loc);
+        if (canBreakBlock != null)
         {
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere"));
+            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
             return;
         }
 

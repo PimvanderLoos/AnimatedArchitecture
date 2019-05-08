@@ -1,3 +1,8 @@
+Alpha 0.1.8.5
+- Added permission node "bigdoors.admin.bypasscompat" to bypass compatibility stuff like WorldGuard and PlotSquared )door creation and toggling).
+- OPs also bypass compatibility stuff.
+- When a compatibility hook doesn't allow you to create a door somewhere, you'll now be notified which specific hook is blocking access.
+
 Alpha 0.1.8.4
 - Fixes potential issues caused by accidental inclusion of experimental code.
 

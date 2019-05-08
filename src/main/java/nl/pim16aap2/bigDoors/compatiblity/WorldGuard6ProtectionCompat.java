@@ -95,4 +95,10 @@ public class WorldGuard6ProtectionCompat implements ProtectionCompat
     {
         return worldGuard;
     }
+
+    @Override
+    public String getName()
+    {
+        return getPlugin().getName();
+    }
 }

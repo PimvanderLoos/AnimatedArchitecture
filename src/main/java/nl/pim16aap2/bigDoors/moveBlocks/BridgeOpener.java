@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -30,7 +31,6 @@ public class BridgeOpener implements Opener
         World world = door.getWorld();
 
         if (upDown.equals(RotateDirection.UP))
-        {
             switch (cardinal)
             {
             // North West = Min X, Min Z
@@ -81,9 +81,7 @@ public class BridgeOpener implements Opener
                 endZ   = door.getMaximum().getBlockZ();
                 break;
             }
-        }
         else
-        {
             switch (cardinal)
             {
             // North West = Min X, Min Z
@@ -134,7 +132,6 @@ public class BridgeOpener implements Opener
                 endZ   = door.getMaximum().getBlockZ();
                 break;
             }
-        }
 
         for (int xAxis = startX; xAxis <= endX; ++xAxis)
             for (int yAxis = startY; yAxis <= endY; ++yAxis)
@@ -252,7 +249,7 @@ public class BridgeOpener implements Opener
                 instantOpen = true;
 
         // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
-        if (!plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()))
+        if (plugin.canBreakBlocksBetweenLocs(Bukkit.getPlayer(door.getPlayerUUID()), door.getNewMin(), door.getNewMax()) != null)
             return DoorOpenResult.NOPERMISSION;
 
         // Change door availability so it cannot be opened again (just temporarily, don't worry!).

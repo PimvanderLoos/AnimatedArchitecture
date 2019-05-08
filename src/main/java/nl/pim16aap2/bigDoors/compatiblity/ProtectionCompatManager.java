@@ -62,30 +62,21 @@ public class ProtectionCompatManager implements Listener
         return player;
     }
 
-    public boolean canBreakBlock(UUID playerUUID, Location loc)
+    private boolean canByPass(Player player)
     {
-        for (ProtectionCompat compat : protectionCompats)
-            try
-            {
-                if (!compat.canBreakBlock(getPlayer(playerUUID, loc.getWorld()), loc))
-                    return false;
-            }
-            catch(Exception e)
-            {
-                plugin.getMyLogger().warn("Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:");
-                e.printStackTrace();
-                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
-            }
-        return true;
+        return player.isOp() || player.hasPermission("bigdoors.admin.bypasscompat");
     }
 
-    public boolean canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
+    public String canBreakBlock(Player player, Location loc)
     {
+        if (canByPass(player))
+            return null;
+
         for (ProtectionCompat compat : protectionCompats)
             try
             {
-                if (!compat.canBreakBlocksBetweenLocs(getPlayer(playerUUID, loc1.getWorld()), loc1, loc2))
-                    return false;
+                if (!compat.canBreakBlock(getPlayer(player.getUniqueId(), loc.getWorld()), loc))
+                    return compat.getName();
             }
             catch(Exception e)
             {
@@ -93,7 +84,27 @@ public class ProtectionCompatManager implements Listener
                 e.printStackTrace();
                 plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
             }
-        return true;
+        return null;
+    }
+
+    public String canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    {
+        if (canByPass(player))
+            return null;
+
+        for (ProtectionCompat compat : protectionCompats)
+            try
+            {
+                if (!compat.canBreakBlocksBetweenLocs(getPlayer(player.getUniqueId(), loc1.getWorld()), loc1, loc2))
+                    return compat.getName();
+            }
+            catch(Exception e)
+            {
+                plugin.getMyLogger().warn("Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:");
+                e.printStackTrace();
+                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            }
+        return null;
     }
 
     private <T> boolean protectionAlreadyLoaded(Class<T> compatType)

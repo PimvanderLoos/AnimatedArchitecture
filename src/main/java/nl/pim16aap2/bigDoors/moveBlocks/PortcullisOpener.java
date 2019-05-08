@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -68,7 +69,7 @@ public class PortcullisOpener implements Opener
         int blocksToMove = getBlocksToMove(door);
 
         // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
-        if (!plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()))
+        if (plugin.canBreakBlocksBetweenLocs(Bukkit.getPlayer(door.getPlayerUUID()), door.getNewMin(), door.getNewMax()) != null)
             return DoorOpenResult.NOPERMISSION;
 
         if (blocksToMove != 0)

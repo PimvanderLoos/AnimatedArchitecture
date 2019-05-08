@@ -270,14 +270,14 @@ public class BigDoors extends JavaPlugin implements Listener
             commander.setCanGo(true);
     }
 
-    public boolean canBreakBlock(UUID playerUUID, Location loc)
+    public String canBreakBlock(Player player, Location loc)
     {
-        return protCompatMan.canBreakBlock(playerUUID, loc);
+        return protCompatMan.canBreakBlock(player, loc);
     }
 
-    public boolean canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
+    public String canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
-        return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
+        return protCompatMan.canBreakBlocksBetweenLocs(player, loc1, loc2);
     }
 
     public void restart()
