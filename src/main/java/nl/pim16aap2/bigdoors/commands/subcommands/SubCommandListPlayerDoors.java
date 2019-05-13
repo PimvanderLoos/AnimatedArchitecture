@@ -33,7 +33,10 @@ public class SubCommandListPlayerDoors implements ISubCommand
     public boolean execute(CommandSender sender, ArrayList<Door> doors)
     {
         if (doors.size() == 0)
+        {
             plugin.getMyLogger().returnToSender(sender, null, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            return true;
+        }
         StringBuilder builder = new StringBuilder();
         for (Door door : doors)
             builder.append(door.getBasicInfo());

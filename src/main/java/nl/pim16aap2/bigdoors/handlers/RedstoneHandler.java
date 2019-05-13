@@ -25,18 +25,6 @@ public class RedstoneHandler implements Listener
         powerBlock = Material.getMaterial(plugin.getConfigLoader().powerBlockType());
     }
 
-    // Log players interacting with redstone source and log the time and location at
-    // which it happened.
-    // Then, if a door is found, check for nearby players that triggered a redstone
-    // signal recently.
-    // Use this information to check for permissions to open doors. Store it in an
-    // arraylist or something.
-//    @EventHandler
-//    public void onRedStoneToggled(PlayerInteractEvent event)
-//    {
-//        // TODO: Check interactions with switches, placing redstone torches, hitting buttons (hand / arrow), pressure plates
-//    }
-
     public boolean checkDoor(Location loc)
     {
         Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
@@ -73,10 +61,10 @@ public class RedstoneHandler implements Listener
             if (location.getWorld().getBlockAt(x - 1, y, z).getType() == powerBlock) // West
                 checkDoor(new Location(location.getWorld(), x - 1, y, z));
 
-            if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Above
+            if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Up
                 checkDoor(new Location(location.getWorld(), x, y + 1, z));
 
-            if (location.getWorld().getBlockAt(x, y - 1, z).getType() == powerBlock) // Under
+            if (location.getWorld().getBlockAt(x, y - 1, z).getType() == powerBlock) // Down
                 checkDoor(new Location(location.getWorld(), x, y - 1, z));
         }
         catch (Exception e)
@@ -85,7 +73,7 @@ public class RedstoneHandler implements Listener
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             plugin.getMyLogger().logMessageToLogFile("79 " + sw.toString());
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
 }

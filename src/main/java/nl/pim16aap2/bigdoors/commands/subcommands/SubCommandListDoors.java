@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -8,7 +9,6 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
-import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
@@ -33,10 +33,13 @@ public class SubCommandListDoors implements ISubCommand
     public boolean execute(CommandSender sender, ArrayList<Door> doors)
     {
         if (doors.size() == 0)
+        {
             plugin.getMyLogger().returnToSender(sender, null, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            return true;
+        }
         StringBuilder builder = new StringBuilder();
         for (Door door : doors)
-            builder.append(door.getBasicInfo());
+            builder.append(door.getBasicInfo() + "\n");
         plugin.getMyLogger().returnToSender(sender, null, builder.toString());
         return true;
     }
@@ -46,24 +49,23 @@ public class SubCommandListDoors implements ISubCommand
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         ArrayList<Door> doors = new ArrayList<>();
-        String name = args.length > 0 ? args[0] : null;
-        try
+        String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
+        if (sender instanceof Player)
+            doors.addAll(plugin.getCommander().getDoors(((Player) sender).getUniqueId().toString(), name));
+        else if (name != null)
         {
-            // Get the door with the specified ID if it exists.
-            // If a player requested the information, only send it if they are an owner.
-            // Otherwise get the information regardless.
-            doors.add(plugin.getCommander().getDoor((sender instanceof Player ? ((Player) sender).getUniqueId() : null),
-                                                    (CommandManager.getLongFromArg(name))));
+            doors.addAll(plugin.getCommander().getDoors(name));
+            // If no door with the provided name could be found, list all doors owned by the player with that name instead.
+            if (doors.size() == 0)
+            {
+                UUID playerUUID = plugin.getCommander().getPlayerUUIDFromString(name);
+                if (playerUUID == null)
+                    return true;
+                doors.addAll(plugin.getCommander().getDoors(playerUUID.toString(), null));
+            }
         }
-        catch (CommandInvalidVariableException e)
-        {
-            if (sender instanceof Player)
-                doors.addAll(plugin.getCommander().getDoors(((Player) sender).getUniqueId().toString(), name));
-            else if (name == null)
-                return false;
-            else
-                doors.addAll(plugin.getCommander().getDoors(args[1]));
-        }
+        else
+            return false;
         return execute(sender, doors);
     }
 

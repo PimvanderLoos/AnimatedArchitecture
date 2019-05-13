@@ -3,6 +3,8 @@ package nl.pim16aap2.bigdoors.gui;
 import java.util.ArrayList;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDelete;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.PageType;
@@ -46,7 +48,9 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
     private void deleteDoor()
     {
-        plugin.getCommander().removeDoor(gui.getDoor().getDoorUID());
+        if (!plugin.getCommander().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), DoorAttribute.DELETE))
+            return;
+        ((SubCommandDelete) plugin.getCommand("bigdoors", "delete")).execute(gui.getPlayer(), gui.getDoor());
         gui.removeSelectedDoor();
     }
 
@@ -71,12 +75,12 @@ public class GUIPageDeleteConfirmation implements IGUIPage
             if (idx == mid) // Middle block.
             {
                 lore.add(messages.getString("GUI.ConfirmDelete"));
-                gui.addItem(idx, new GUIItem(GUI.NOTCONFIRMMAT, messages.getString("GUI.Confirm"), lore, 1, GUI.CONFIRMDATA));
+                gui.addItem(idx, new GUIItem(GUI.CONFIRMMAT, messages.getString("GUI.Confirm"), lore, 1));
             }
             else
             {
                 lore.add(messages.getString("GUI.NotConfirm"));
-                gui.addItem(idx, new GUIItem(GUI.CONFIRMMAT, messages.getString("GUI.No"), lore, 1, GUI.NOTCONFIRMDATA));
+                gui.addItem(idx, new GUIItem(GUI.NOTCONFIRMMAT, messages.getString("GUI.No"), lore, 1));
             }
         }
     }

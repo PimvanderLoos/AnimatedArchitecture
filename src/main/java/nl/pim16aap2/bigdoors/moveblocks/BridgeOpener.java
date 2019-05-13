@@ -8,8 +8,8 @@ import org.bukkit.World;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -23,7 +23,7 @@ public class BridgeOpener implements Opener
     }
 
     // Check if the new position is free.
-    private boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
+    private boolean isNewPosFree(Door door, RotateDirection upDown, MyBlockFace cardinal)
     {
         int startX  = 0, startY = 0, startZ = 0;
         int endX    = 0, endY   = 0, endZ   = 0;
@@ -79,6 +79,9 @@ public class BridgeOpener implements Opener
                 startZ = door.getMinimum().getBlockZ();
                 endZ   = door.getMaximum().getBlockZ();
                 break;
+            default:
+                plugin.dumpStackTrace("Invalid rotation for bridge opener: " + cardinal.toString());
+                break;
             }
         else
             switch (cardinal)
@@ -130,12 +133,15 @@ public class BridgeOpener implements Opener
                 startZ = door.getMinimum().getBlockZ();
                 endZ   = door.getMaximum().getBlockZ();
                 break;
+            default:
+                plugin.dumpStackTrace("Invalid rotation for bridge opener: " + cardinal.toString());
+                break;
             }
 
         for (int xAxis = startX; xAxis <= endX; ++xAxis)
             for (int yAxis = startY; yAxis <= endY; ++yAxis)
                 for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
-                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis)))
                         return false;
 
         door.setNewMin(new Location(door.getWorld(), startX, startY, startZ));
@@ -154,32 +160,32 @@ public class BridgeOpener implements Opener
     }
 
     // Figure out which way the bridge should go.
-    private DoorDirection getOpenDirection(Door door)
+    private MyBlockFace getOpenDirection(Door door)
     {
         RotateDirection upDown = getUpDown(door);
-        DoorDirection cDir     = getCurrentDirection(door);
-        boolean NS  = cDir    == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
+        MyBlockFace cDir     = getCurrentDirection(door);
+        boolean NS  = cDir    == MyBlockFace.NORTH || cDir == MyBlockFace.SOUTH;
 
         if (upDown.equals(RotateDirection.UP))
             return isNewPosFree(door, upDown, door.getEngSide()) ? door.getEngSide() : null;
 
         if (door.getOpenDir().equals(RotateDirection.CLOCKWISE       ) && !door.isOpen() ||
             door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) &&  door.isOpen())
-            return  NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH :
-                   !NS && isNewPosFree(door, upDown, DoorDirection.EAST ) ? DoorDirection.EAST  : null;
+            return  NS && isNewPosFree(door, upDown, MyBlockFace.SOUTH) ? MyBlockFace.SOUTH :
+                   !NS && isNewPosFree(door, upDown, MyBlockFace.EAST ) ? MyBlockFace.EAST  : null;
         if (door.getOpenDir().equals(RotateDirection.CLOCKWISE       ) &&  door.isOpen() ||
             door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
-            return  NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
-                   !NS && isNewPosFree(door, upDown, DoorDirection.WEST ) ? DoorDirection.WEST  : null;
+            return  NS && isNewPosFree(door, upDown, MyBlockFace.NORTH) ? MyBlockFace.NORTH :
+                   !NS && isNewPosFree(door, upDown, MyBlockFace.WEST ) ? MyBlockFace.WEST  : null;
 
-        return   NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
-                !NS && isNewPosFree(door, upDown, DoorDirection.EAST ) ? DoorDirection.EAST  :
-                 NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH :
-                !NS && isNewPosFree(door, upDown, DoorDirection.WEST ) ? DoorDirection.WEST  : null;
+        return   NS && isNewPosFree(door, upDown, MyBlockFace.NORTH) ? MyBlockFace.NORTH :
+                !NS && isNewPosFree(door, upDown, MyBlockFace.EAST ) ? MyBlockFace.EAST  :
+                 NS && isNewPosFree(door, upDown, MyBlockFace.SOUTH) ? MyBlockFace.SOUTH :
+                !NS && isNewPosFree(door, upDown, MyBlockFace.WEST ) ? MyBlockFace.WEST  : null;
     }
 
     // Get the "current direction". In this context this means on which side of the drawbridge the engine is.
-    private DoorDirection getCurrentDirection(Door door)
+    private MyBlockFace getCurrentDirection(Door door)
     {
         return door.getEngSide();
     }
@@ -219,7 +225,7 @@ public class BridgeOpener implements Opener
             return DoorOpenResult.ERROR;
         }
 
-        DoorDirection currentDirection = getCurrentDirection(door);
+        MyBlockFace currentDirection = getCurrentDirection(door);
         if (currentDirection == null)
         {
             plugin.getMyLogger().logMessage("Current direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
@@ -233,7 +239,7 @@ public class BridgeOpener implements Opener
             return DoorOpenResult.ERROR;
         }
 
-        DoorDirection openDirection = getOpenDirection(door);
+        MyBlockFace openDirection = getOpenDirection(door);
         if (openDirection == null)
         {
             plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);

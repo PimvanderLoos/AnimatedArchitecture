@@ -6,8 +6,8 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -26,7 +26,7 @@ public class Door
     private RotateDirection openDir;
     private boolean isLocked;
     private int autoClose;
-    private DoorDirection engineSide;
+    private MyBlockFace engineSide;
     private Location powerBlock;
     private Integer roundedLength;
     private int permission;
@@ -39,7 +39,7 @@ public class Door
 
     // Generate a new door.
     public Door(UUID player, World world, Location min, Location max, Location engine, String name, boolean isOpen,
-        long doorUID, boolean isLocked, int permission, DoorType type, DoorDirection engineSide, Location powerBlock,
+        long doorUID, boolean isLocked, int permission, DoorType type, MyBlockFace engineSide, Location powerBlock,
         RotateDirection openDir, int autoClose)
     {
         this.player = player;
@@ -83,7 +83,7 @@ public class Door
     // Create a door with a player UUID string instead of player Object and an
     // engineSide (for draw bridges).
     public Door(World world, Location min, Location max, Location engine, String name, boolean isOpen, long doorUID,
-        boolean isLocked, int permission, String player, DoorType type, DoorDirection engineSide, Location powerBlock,
+        boolean isLocked, int permission, String player, DoorType type, MyBlockFace engineSide, Location powerBlock,
         RotateDirection openDir, int autoClose)
     {
         this(UUID.fromString(player), world, min, max, engine, name, isOpen, doorUID, isLocked, permission, type,
@@ -99,7 +99,7 @@ public class Door
     public boolean isOpen()             {  return isOpen;        }  // Check if this door is in the open or closed state.
     public int getPermission()          {  return permission;    }  // Check permission level of current owner.
     public UUID getPlayerUUID()         {  return player;        }  // Get UUID of the owner of the door. Might be null!
-    public DoorDirection getEngSide()   {  return engineSide;    }  // Get this door's (or drawbridge's, in this case) engine side.
+    public MyBlockFace getEngSide()   {  return engineSide;    }  // Get this door's (or drawbridge's, in this case) engine side.
     public boolean canGo()              {  return canGo;         }  // Check if this door can still be opened or not.
     public RotateDirection getOpenDir() {  return openDir;       }  // Get the open direction of this door.
     public int getAutoClose()           {  return autoClose;     }  // Get the auto close time.
@@ -181,7 +181,7 @@ public class Door
         this.permission = permission;
     }
 
-    public void setEngineSide(DoorDirection newEngSide)
+    public void setEngineSide(MyBlockFace newEngSide)
     {
         engineSide = newEngSide;
     }
@@ -226,7 +226,7 @@ public class Door
         else if (type.equals(DoorType.DRAWBRIDGE) && engineSide != null)
         {
             int yLen = Math.abs(max.getBlockY() - min.getBlockY());
-            if (engineSide.equals(DoorDirection.NORTH) || engineSide.equals(DoorDirection.SOUTH))
+            if (engineSide.equals(MyBlockFace.NORTH) || engineSide.equals(MyBlockFace.SOUTH))
                 length = zLen > yLen ? zLen : yLen;
             else
                 length = xLen > yLen ? xLen : yLen;
@@ -241,16 +241,16 @@ public class Door
         return length;
     }
 
-    public DoorDirection getLookingDir()
+    public MyBlockFace getLookingDir()
     {
         if (type.equals(DoorType.DRAWBRIDGE) || type.equals(DoorType.PORTCULLIS))
-            return engineSide == DoorDirection.NORTH ||
-                   engineSide == DoorDirection.SOUTH ? DoorDirection.NORTH : DoorDirection.EAST;
+            return engineSide == MyBlockFace.NORTH ||
+                   engineSide == MyBlockFace.SOUTH ? MyBlockFace.NORTH : MyBlockFace.EAST;
 
-        return engine.getBlockZ() != min.getBlockZ() ? DoorDirection.NORTH :
-               engine.getBlockX() != max.getBlockX() ? DoorDirection.EAST  :
-               engine.getBlockZ() != max.getBlockZ() ? DoorDirection.SOUTH :
-               engine.getBlockX() != min.getBlockX() ? DoorDirection.WEST  : null;
+        return engine.getBlockZ() != min.getBlockZ() ? MyBlockFace.NORTH :
+               engine.getBlockX() != max.getBlockX() ? MyBlockFace.EAST  :
+               engine.getBlockZ() != max.getBlockZ() ? MyBlockFace.SOUTH :
+               engine.getBlockX() != min.getBlockX() ? MyBlockFace.WEST  : null;
     }
 
     public long getPowerBlockChunkHash()

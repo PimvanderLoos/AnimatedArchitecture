@@ -11,6 +11,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -253,58 +256,14 @@ public final class Util
         messagePlayer(player, color, stringFromArray(str));
     }
 
-    public static boolean isAirOrWater(Material mat)
+    public static boolean isAirOrWater(Block block)
     {
-        return mat.equals(Material.AIR) || mat.equals(Material.WATER) || mat.equals(Material.LAVA);
+        return block.isLiquid() || block.isEmpty();
     }
 
-    // Logs, stairs and glass panes can rotate, but they don't rotate in exactly the
-    // same way.
-    public static int canRotate(Material mat)
+    public static boolean needsRefresh(Material mat)
     {
-        if (mat.equals(Material.ACACIA_LOG) || mat.equals(Material.BIRCH_LOG) || mat.equals(Material.DARK_OAK_LOG)
-            || mat.equals(Material.JUNGLE_LOG) || mat.equals(Material.OAK_LOG) || mat.equals(Material.SPRUCE_LOG))
-            return 1;
-        if (mat.equals(Material.ACACIA_STAIRS) || mat.equals(Material.BIRCH_STAIRS) || mat.equals(Material.BRICK_STAIRS)
-            || mat.equals(Material.COBBLESTONE_STAIRS) || mat.equals(Material.DARK_OAK_STAIRS)
-            || mat.equals(Material.JUNGLE_STAIRS) || mat.equals(Material.NETHER_BRICK_STAIRS)
-            || mat.equals(Material.PURPUR_STAIRS) || mat.equals(Material.QUARTZ_STAIRS)
-            || mat.equals(Material.RED_SANDSTONE_STAIRS) || mat.equals(Material.SANDSTONE_STAIRS)
-            || mat.equals(Material.PRISMARINE_STAIRS) || mat.equals(Material.DARK_PRISMARINE_STAIRS)
-            || mat.equals(Material.SPRUCE_STAIRS) || mat.equals(Material.OAK_STAIRS)
-            || mat.equals(Material.PRISMARINE_BRICK_STAIRS) || mat.equals(Material.RED_SANDSTONE_STAIRS)
-            || mat.equals(Material.STONE_BRICK_STAIRS))
-            return 2;
-        if (mat.equals(Material.WHITE_STAINED_GLASS) || mat.equals(Material.YELLOW_STAINED_GLASS)
-            || mat.equals(Material.PURPLE_STAINED_GLASS) || mat.equals(Material.LIGHT_BLUE_STAINED_GLASS)
-            || mat.equals(Material.GRAY_STAINED_GLASS) || mat.equals(Material.GREEN_STAINED_GLASS)
-            || mat.equals(Material.BLACK_STAINED_GLASS) || mat.equals(Material.LIME_STAINED_GLASS)
-            || mat.equals(Material.BLUE_STAINED_GLASS) || mat.equals(Material.BROWN_STAINED_GLASS)
-            || mat.equals(Material.CYAN_STAINED_GLASS) || mat.equals(Material.RED_STAINED_GLASS)
-            || mat.equals(Material.MAGENTA_STAINED_GLASS) || mat.equals(Material.WHITE_STAINED_GLASS_PANE)
-            || mat.equals(Material.YELLOW_STAINED_GLASS_PANE) || mat.equals(Material.PURPLE_STAINED_GLASS_PANE)
-            || mat.equals(Material.LIGHT_BLUE_STAINED_GLASS_PANE) || mat.equals(Material.GRAY_STAINED_GLASS_PANE)
-            || mat.equals(Material.GREEN_STAINED_GLASS_PANE) || mat.equals(Material.BLACK_STAINED_GLASS_PANE)
-            || mat.equals(Material.LIME_STAINED_GLASS_PANE) || mat.equals(Material.BLUE_STAINED_GLASS_PANE)
-            || mat.equals(Material.BROWN_STAINED_GLASS_PANE) || mat.equals(Material.CYAN_STAINED_GLASS_PANE)
-            || mat.equals(Material.RED_STAINED_GLASS_PANE) || mat.equals(Material.MAGENTA_STAINED_GLASS_PANE))
-            return 3;
-        if (mat.equals(Material.ANVIL))
-            return 4;
-        if (mat.equals(Material.COBBLESTONE_WALL))
-            return 5;
-        if (mat.equals(Material.STRIPPED_ACACIA_LOG) || mat.equals(Material.STRIPPED_BIRCH_LOG)
-            || mat.equals(Material.STRIPPED_SPRUCE_LOG) || mat.equals(Material.STRIPPED_DARK_OAK_LOG)
-            || mat.equals(Material.STRIPPED_JUNGLE_LOG) || mat.equals(Material.STRIPPED_OAK_LOG))
-            return 6;
-        if (mat.equals(Material.END_ROD))
-            return 7;
-        return 0;
-    }
-
-    public static boolean needsRefresh(Material xmat)
-    {
-        switch (xmat)
+        switch (mat)
         {
         case ACACIA_FENCE:
         case ACACIA_FENCE_GATE:
@@ -343,198 +302,103 @@ public final class Util
     }
 
     // Certain blocks don't work in doors, so don't allow their usage.
-    public static boolean isAllowedBlock(Material mat)
+    public static boolean isAllowedBlock(Block block)
     {
+        if (block == null)
+            return false;
+
+        Material mat = block.getType();
         if (mat == null)
+            return false;
+
+        BlockData blockData  = block.getBlockData();
+        BlockState blockState = block.getState();
+
+        if (
+               blockState instanceof org.bukkit.inventory.InventoryHolder
+            || blockState instanceof org.bukkit.block.CreatureSpawner
+            )
+            return false;
+
+        if (
+               blockData instanceof org.bukkit.block.data.type.Stairs
+            || blockData instanceof org.bukkit.block.data.type.Gate
+
+            )
+            return true;
+
+        if (
+            // DaylightDetector, RedstoneWire
+               blockData instanceof org.bukkit.block.data.AnaloguePowerable
+            // Bamboo, Cocoa, Fire
+            || blockData instanceof org.bukkit.block.data.Ageable
+            // Door, Stairs, TrapDoor, sunflower, tall grass, tall seagrass, large fern, peony, rose bush, lilac,
+            //
+            || blockData instanceof org.bukkit.block.data.Bisected
+            // Campfire, Furnace, RedstoneWallTorch
+            || blockData instanceof org.bukkit.block.data.Lightable
+            // Comparator, Door, Gate, Lectern, NoteBlock, Observer, RedstoneRail, Repeater,
+            // Switch, TrapDoor, Tripwire, TripwireHook
+            || blockData instanceof org.bukkit.block.data.Powerable
+            || blockData instanceof org.bukkit.block.data.Rail
+
+            || blockData instanceof org.bukkit.block.data.type.Bed
+            || blockData instanceof org.bukkit.block.data.type.BrewingStand
+            || blockData instanceof org.bukkit.block.data.type.Cake
+            || blockData instanceof org.bukkit.block.data.type.CommandBlock
+            || blockData instanceof org.bukkit.block.data.type.EnderChest
+            || blockData instanceof org.bukkit.block.data.type.EndPortalFrame
+            // Cauldron, Composter, Water, Lava
+            || blockData instanceof org.bukkit.block.data.Levelled
+            || blockData instanceof org.bukkit.block.data.type.Jukebox
+            || blockData instanceof org.bukkit.block.data.type.Ladder
+            || blockData instanceof org.bukkit.block.data.type.Piston
+            || blockData instanceof org.bukkit.block.data.type.Sapling
+            || blockData instanceof org.bukkit.block.data.type.Sign
+            || blockData instanceof org.bukkit.block.data.type.TechnicalPiston
+            || blockData instanceof org.bukkit.block.data.type.WallSign
+            )
             return false;
 
         switch (mat)
         {
         case AIR:
-        case WATER:
-        case LAVA:
 
-        case ARMOR_STAND:
-        case BREWING_STAND:
-        case CAULDRON:
-        case CHEST:
-        case DROPPER:
-        case DRAGON_EGG:
-        case ENDER_CHEST:
-        case HOPPER:
-        case JUKEBOX:
+        case WALL_TORCH:
+
         case PAINTING:
-        case ACACIA_SIGN:
-        case ACACIA_WALL_SIGN:
-        case BIRCH_SIGN:
-        case BIRCH_WALL_SIGN:
-        case DARK_OAK_SIGN:
-        case DARK_OAK_WALL_SIGN:
-        case JUNGLE_SIGN:
-        case JUNGLE_WALL_SIGN:
-        case OAK_SIGN:
-        case OAK_WALL_SIGN:
-        case SPRUCE_SIGN:
-        case SPRUCE_WALL_SIGN:
-        case SPAWNER:
-        case FURNACE:
-        case FURNACE_MINECART:
-        case CAKE:
 
-        case WHITE_SHULKER_BOX:
-        case YELLOW_SHULKER_BOX:
-        case PURPLE_SHULKER_BOX:
-        case LIGHT_BLUE_SHULKER_BOX:
-        case GRAY_SHULKER_BOX:
-        case GREEN_SHULKER_BOX:
-        case BLACK_SHULKER_BOX:
-        case LIME_SHULKER_BOX:
-        case BLUE_SHULKER_BOX:
-        case BROWN_SHULKER_BOX:
-        case CYAN_SHULKER_BOX:
-        case RED_SHULKER_BOX:
-
-        case ACACIA_TRAPDOOR:
-        case BIRCH_TRAPDOOR:
-        case DARK_OAK_TRAPDOOR:
-        case IRON_TRAPDOOR:
-        case JUNGLE_TRAPDOOR:
-        case OAK_TRAPDOOR:
-        case SPRUCE_TRAPDOOR:
-        case ACACIA_DOOR:
-        case BIRCH_DOOR:
-        case IRON_DOOR:
-        case JUNGLE_DOOR:
-        case OAK_DOOR:
-        case SPRUCE_DOOR:
-        case DARK_OAK_DOOR:
-
-        case CREEPER_HEAD:
-        case CREEPER_WALL_HEAD:
-        case DRAGON_HEAD:
-        case PISTON_HEAD:
-        case PLAYER_HEAD:
-        case PLAYER_WALL_HEAD:
-        case ZOMBIE_HEAD:
-        case ZOMBIE_WALL_HEAD:
-
-        case RAIL:
-        case DETECTOR_RAIL:
-        case ACTIVATOR_RAIL:
-        case POWERED_RAIL:
-
-        case REDSTONE:
-        case REDSTONE_WIRE:
-        case TRAPPED_CHEST:
-        case TRIPWIRE:
-        case TRIPWIRE_HOOK:
-        case REDSTONE_TORCH:
-        case REDSTONE_WALL_TORCH:
-        case TORCH:
-
-        case BLACK_CARPET:
-        case BLUE_CARPET:
-        case BROWN_CARPET:
-        case CYAN_CARPET:
-        case GRAY_CARPET:
-        case GREEN_CARPET:
-        case LIGHT_BLUE_CARPET:
-        case LIGHT_GRAY_CARPET:
-        case LIME_CARPET:
-        case MAGENTA_CARPET:
-        case ORANGE_CARPET:
-        case PINK_CARPET:
-        case PURPLE_CARPET:
-        case RED_CARPET:
-        case WHITE_CARPET:
-        case YELLOW_CARPET:
-
-        case ACACIA_BUTTON:
-        case BIRCH_BUTTON:
-        case DARK_OAK_BUTTON:
-        case JUNGLE_BUTTON:
-        case OAK_BUTTON:
-        case SPRUCE_BUTTON:
-        case STONE_BUTTON:
-
-        case ROSE_BUSH:
         case ATTACHED_MELON_STEM:
         case ATTACHED_PUMPKIN_STEM:
         case WHITE_TULIP:
         case DANDELION:
-        case LILY_PAD:
         case SUGAR_CANE:
-        case PUMPKIN_STEM:
         case NETHER_WART:
-        case NETHER_WART_BLOCK:
-        case VINE:
         case CHORUS_FLOWER:
         case CHORUS_FRUIT:
-        case CHORUS_PLANT:
-        case SUNFLOWER:
-
-        case ACACIA_SAPLING:
-        case BIRCH_SAPLING:
-        case DARK_OAK_SAPLING:
-        case JUNGLE_SAPLING:
-        case OAK_SAPLING:
-        case SPRUCE_SAPLING:
-        case SHULKER_BOX:
-        case LIGHT_GRAY_SHULKER_BOX:
-        case MAGENTA_SHULKER_BOX:
-        case ORANGE_SHULKER_BOX:
-        case PINK_SHULKER_BOX:
-
-        case BLACK_BED:
-        case BLUE_BED:
-        case BROWN_BED:
-        case CYAN_BED:
-        case GRAY_BED:
-        case GREEN_BED:
-        case LIME_BED:
-        case MAGENTA_BED:
-        case ORANGE_BED:
-        case PINK_BED:
-        case RED_BED:
-        case WHITE_BED:
-        case YELLOW_BED:
-        case LIGHT_BLUE_BED:
-        case LIGHT_GRAY_BED:
-
-        case BLACK_BANNER:
-        case BLACK_WALL_BANNER:
-        case BLUE_BANNER:
-        case BLUE_WALL_BANNER:
-        case BROWN_BANNER:
-        case BROWN_WALL_BANNER:
-        case CYAN_BANNER:
-        case CYAN_WALL_BANNER:
-        case GRAY_BANNER:
-        case GRAY_WALL_BANNER:
-        case GREEN_BANNER:
-        case GREEN_WALL_BANNER:
-        case LIME_BANNER:
-        case LIME_WALL_BANNER:
-        case MAGENTA_BANNER:
-        case MAGENTA_WALL_BANNER:
-        case ORANGE_BANNER:
-        case ORANGE_WALL_BANNER:
-        case PINK_BANNER:
-        case PINK_WALL_BANNER:
-        case RED_BANNER:
-        case RED_WALL_BANNER:
-        case WHITE_BANNER:
-        case WHITE_WALL_BANNER:
-        case YELLOW_BANNER:
-        case YELLOW_WALL_BANNER:
-        case LIGHT_BLUE_BANNER:
-        case LIGHT_BLUE_WALL_BANNER:
-        case LIGHT_GRAY_BANNER:
-        case LIGHT_GRAY_WALL_BANNER:
+        case SEAGRASS:
+        case POPPY:
+        case OXEYE_DAISY:
+        case LILY_OF_THE_VALLEY:
+        case LILY_PAD:
+        case VINE:
             return false;
         default:
-            return true;
+            break;
         }
+
+        String matName = mat.toString();
+        // Potted stuff will always work.
+        if (matName.startsWith("POTTED"))
+            return true;
+        if (
+               matName.endsWith("TULIP")
+            || matName.endsWith("BANNER")
+            || matName.endsWith("CARPET")
+            || matName.endsWith("HEAD")
+            )
+            return false;
+        return true;
     }
 
     public static boolean between(int value, int start, int end)

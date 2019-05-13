@@ -20,6 +20,7 @@ public class ProtectionCompatManager implements Listener
 {
     private final BigDoors plugin;
     private final ArrayList<ProtectionCompat> protectionCompats;
+    private FakePlayerCreator fakePlayerCreator;
 
     /* This class keeps track of all protection compats.
      * It allows you to test if you can break a block or all blocks
@@ -37,6 +38,7 @@ public class ProtectionCompatManager implements Listener
     public ProtectionCompatManager(BigDoors plugin)
     {
         this.plugin = plugin;
+        fakePlayerCreator = new FakePlayerCreator();
         protectionCompats = new ArrayList<>();
         loadLoadedPlugins(true);
     }
@@ -58,7 +60,7 @@ public class ProtectionCompatManager implements Listener
     {
         Player player = Bukkit.getPlayer(playerUUID);
         if (player == null)
-            player = plugin.getFakePlayerCreator().getFakePlayer(Bukkit.getOfflinePlayer(playerUUID), world);
+            player = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(playerUUID), world);
         return player;
     }
 

@@ -37,12 +37,12 @@ public class SubCommandCancel implements ISubCommand
         Player player = (Player) sender;
         ToolUser tu = plugin.getToolUser(player);
         if (tu != null)
-            tu.abort();
+            tu.abortSilently();
         else
         {
             WaitForCommand cw = plugin.getCommandWaiter(player);
             if (cw != null)
-                cw.abort();
+                cw.abortSilently();
         }
         return true;
     }

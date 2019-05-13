@@ -7,8 +7,8 @@ import org.bukkit.World;
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -16,7 +16,7 @@ public class ElevatorOpener implements Opener
 {
     private final BigDoors plugin;
 
-    DoorDirection ddirection;
+    MyBlockFace ddirection;
 
     public ElevatorOpener(BigDoors plugin)
     {
@@ -101,7 +101,7 @@ public class ElevatorOpener implements Opener
         {
             for (xAxis = xMin; xAxis <= xMax; ++xAxis)
                 for (zAxis = zMin; zAxis <= zMax; ++zAxis)
-                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis)))
                         return blocksMoved;
             yAxis += step;
             blocksMoved += step;

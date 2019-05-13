@@ -10,7 +10,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
-import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -19,8 +18,8 @@ import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.nms.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigdoors.nms.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigdoors.nms.NMSBlock_Vall;
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.MyBlockData;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -38,7 +37,6 @@ public class VerticalMover implements BlockMover
     private int           yMax, zMin, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
 
-    @SuppressWarnings("deprecation")
     public VerticalMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove)
     {
         this.plugin = plugin;
@@ -92,27 +90,20 @@ public class VerticalMover implements BlockMover
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
                     Block vBlock  = world.getBlockAt(startLocation);
                     Material mat  = vBlock.getType();
-//                    if (!mat.equals(Material.AIR))
-                    if (!Util.isAirOrWater(mat))
+                    if (!Util.isAirOrWater(vBlock))
                     {
-                        Byte matData  = vBlock.getData();
-                        BlockState bs = vBlock.getState();
-                        MaterialData materialData = bs.getData();
                         NMSBlock_Vall block  = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
 
                         // Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
-                        if (Util.isAllowedBlock(mat))
+                        if (Util.isAllowedBlock(vBlock))
                             vBlock.setType(Material.AIR);
                         else
-                        {
-                            mat     = Material.AIR;
-                            matData = 0;
-                        }
+                            mat = Material.AIR;
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
-                             fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-                        savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
+                             fBlock = fallingBlockFactory(newFBlockLocation, mat, block);
+                        savedBlocks.add(index, new MyBlockData(mat, fBlock, 0, block, 0, startLocation));
                     }
                     else
                         savedBlocks.add(index, new MyBlockData(Material.AIR));
@@ -132,7 +123,6 @@ public class VerticalMover implements BlockMover
     }
 
     // Put the door blocks back, but change their state now.
-    @SuppressWarnings("deprecation")
     @Override
     public void putBlocks(boolean onDisable)
     {
@@ -145,35 +135,22 @@ public class VerticalMover implements BlockMover
             {
                 for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
                 {
-                    Material mat    = savedBlocks.get(index).getMat();
+                    Material mat = savedBlocks.get(index).getMat();
                     if (!mat.equals(Material.AIR))
                     {
-                        Byte matByte    = savedBlocks.get(index).getBlockByte();
                         Location newPos = getNewLocation(xAxis, yAxis, zAxis);
 
                         if (!instantOpen)
                             savedBlocks.get(index).getFBlock().remove();
 
                         if (!savedBlocks.get(index).getMat().equals(Material.AIR))
-                            if (plugin.is1_13())
-                            {
-                                savedBlocks.get(index).getBlock().putBlock(newPos);
+                        {
+                            savedBlocks.get(index).getBlock().putBlock(newPos);
 
-                                Block b = world.getBlockAt(newPos);
-                                BlockState bs = b.getState();
-                                bs.update();
-                            }
-                            else
-                            {
-                                Block b = world.getBlockAt(newPos);
-                                MaterialData matData = savedBlocks.get(index).getMatData();
-                                matData.setData(matByte);
-
-                                b.setType(mat);
-                                BlockState bs = b.getState();
-                                bs.setData(matData);
-                                bs.update();
-                            }
+                            Block b = world.getBlockAt(newPos);
+                            BlockState bs = b.getState();
+                            bs.update();
+                        }
                     }
                     ++index;
                 }
@@ -303,7 +280,7 @@ public class VerticalMover implements BlockMover
     }
 
     // Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
-    private void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
+    private void updateCoords(Door door, MyBlockFace currentDirection, RotateDirection rotDirection, int moved)
     {
         int xMin = door.getMinimum().getBlockX();
         int yMin = door.getMinimum().getBlockY();
@@ -321,9 +298,9 @@ public class VerticalMover implements BlockMover
         plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
     }
 
-    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
+    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, NMSBlock_Vall block)
     {
-        CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
+        CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, mat);
         Entity bukkitEntity = (Entity) entity;
         bukkitEntity.setCustomName("BigDoorsEntity");
         bukkitEntity.setCustomNameVisible(false);

@@ -16,7 +16,7 @@ public class FallingBlockFactory_V1_14_R1 implements FallingBlockFactory_Vall
 {
     // Make a falling block.
     @Override
-    public CustomCraftFallingBlock_Vall fallingBlockFactory(BigDoors plugin, Location loc, NMSBlock_Vall block, byte matData, Material mat)
+    public CustomCraftFallingBlock_Vall fallingBlockFactory(BigDoors plugin, Location loc, NMSBlock_Vall block, Material mat)
     {
         IBlockData blockData = ((Block) block).getBlockData();
         CustomEntityFallingBlock_V1_14_R1 fBlockNMS = new CustomEntityFallingBlock_V1_14_R1(plugin, loc.getWorld(), loc.getX(), loc.getY(), loc.getZ(), blockData);

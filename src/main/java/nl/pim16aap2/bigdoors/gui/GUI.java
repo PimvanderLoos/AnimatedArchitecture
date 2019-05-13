@@ -14,41 +14,34 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.PageType;
-import nl.pim16aap2.bigdoors.util.XMaterial;
 
 public class GUI
 {
     public static final Material   PAGESWITCHMAT  = Material.ARROW;
     public static final Material   CURRDOORMAT    = Material.BOOK;
-    public static final Material   CHANGETIMEMAT  = XMaterial.CLOCK.parseMaterial();
-    public static final Material   NEWDOORMAT     = XMaterial.WRITABLE_BOOK.parseMaterial();
-    public static final Material   LOCKDOORMAT    = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
-    public static final Material   UNLOCKDOORMAT  = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
-    public static final Material   CONFIRMMAT     = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
-    public static final Material   NOTCONFIRMMAT  = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
+    public static final Material   CHANGETIMEMAT  = Material.CLOCK;
+    public static final Material   NEWDOORMAT     = Material.WRITABLE_BOOK;
+    public static final Material   LOCKDOORMAT    = Material.GREEN_STAINED_GLASS_PANE;
+    public static final Material   UNLOCKDOORMAT  = Material.RED_STAINED_GLASS_PANE;
+    public static final Material   CONFIRMMAT     = Material.GREEN_STAINED_GLASS_PANE;
+    public static final Material   NOTCONFIRMMAT  = Material.RED_STAINED_GLASS_PANE;
     public static final Material   TOGGLEDOORMAT  = Material.LEVER;
     public static final Material   INFOMAT        = Material.BOOKSHELF;
     public static final Material   DELDOORMAT     = Material.BARRIER;
     public static final Material   RELOCATEPBMAT  = Material.LEATHER_BOOTS;
     public static final Material   SETOPENDIRMAT  = Material.COMPASS;
-    public static final Material   SETBTMOVEMAT   = XMaterial.STICKY_PISTON.parseMaterial();
-    public static final Material   ADDOWNERMAT    = XMaterial.PLAYER_HEAD.parseMaterial();
-    public static final Material   REMOVEOWNERMAT = XMaterial.SKELETON_SKULL.parseMaterial();
-    public static final byte       LOCKEDDATA     = 14;
-    public static final byte       UNLOCKEDDATA   =  5;
-    public static final byte       CONFIRMDATA    = 14;
-    public static final byte       NOTCONFIRMDATA =  5;
-    public static final byte       PLAYERHEADDATA =  3;
-    public static final byte       SKULLDATA      =  0;
+    public static final Material   SETBTMOVEMAT   = Material.STICKY_PISTON;
+    public static final Material   ADDOWNERMAT    = Material.PLAYER_HEAD;
+    public static final Material   REMOVEOWNERMAT = Material.SKELETON_SKULL;
     public static final int        CHESTSIZE      = 45;
     public static final Material[] DOORTYPES      =
     {
-        XMaterial.OAK_DOOR.parseMaterial(),     // Door
-        XMaterial.OAK_TRAPDOOR.parseMaterial(), // DrawBridge
-        XMaterial.IRON_DOOR.parseMaterial(),    // Portcullis
-        XMaterial.OAK_BOAT.parseMaterial(),     // Elevator
-        XMaterial.PISTON.parseMaterial(),       // Sliding Door
-        XMaterial.PURPLE_CARPET.parseMaterial() // Flag
+        Material.OAK_DOOR,     // Door
+        Material.OAK_TRAPDOOR, // DrawBridge
+        Material.IRON_DOOR,    // Portcullis
+        Material.OAK_BOAT,     // Elevator
+        Material.PISTON,       // Sliding Door
+        Material.PURPLE_CARPET // Flag
     };
 
     private IGUIPage guiPage;

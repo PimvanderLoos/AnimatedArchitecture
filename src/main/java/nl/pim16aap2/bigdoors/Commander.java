@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -30,13 +31,12 @@ import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.util.Abortable;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.XMaterial;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
@@ -109,6 +109,14 @@ public class Commander
                 setCanGo(true);
             }
         }.runTaskLater(plugin, 5L);
+    }
+
+    public UUID getPlayerUUIDFromString(String playerStr)
+    {
+        UUID playerUUID = Util.playerUUIDFromString(playerStr);
+        if (playerUUID == null)
+            playerUUID = db.getPlayerUUID(playerStr);
+        return playerUUID;
     }
 
     // Create a new door.
@@ -339,7 +347,7 @@ public class Commander
         for (int i = door.getMinimum().getBlockX(); i <= door.getMaximum().getBlockX(); ++i)
             for (int j = door.getMinimum().getBlockY(); j <= door.getMaximum().getBlockY(); ++j)
                 for (int k = door.getMinimum().getBlockZ(); k <= door.getMaximum().getBlockZ(); ++k)
-                    door.getWorld().getBlockAt(i, j, k).setType(XMaterial.STONE.parseMaterial());
+                    door.getWorld().getBlockAt(i, j, k).setType(Material.STONE);
     }
 
     public UUID playerUUIDFromName(String playerName)
@@ -453,7 +461,7 @@ public class Commander
     // Update the coordinates of a given door.
     public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
                                  int blockZMin, int blockXMax, int blockYMax, int blockZMax,
-                                 DoorDirection newEngSide)
+                                 MyBlockFace newEngSide)
     {
         db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax,
                             blockZMax, newEngSide);

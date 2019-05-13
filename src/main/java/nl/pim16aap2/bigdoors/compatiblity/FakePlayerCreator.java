@@ -13,7 +13,10 @@ import org.bukkit.entity.Player;
 import com.mojang.authlib.GameProfile;
 
 /* This class is used to create a fake online player
- * from a provided online player in a provided world.
+ * from a provided offline player in a provided world.
+ * This can be used when trying to use an offline player in
+ * some kind of event that uses an online player.
+ * (e.g. blockbreakevent).
  */
 public class FakePlayerCreator
 {

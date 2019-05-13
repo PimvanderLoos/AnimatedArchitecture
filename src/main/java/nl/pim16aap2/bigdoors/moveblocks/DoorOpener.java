@@ -7,8 +7,8 @@ import org.bukkit.Location;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -22,7 +22,7 @@ public class DoorOpener implements Opener
     }
 
     // Check if the block on the north/east/south/west side of the location is free.
-    private boolean isPosFree(Door door, DoorDirection direction)
+    private boolean isPosFree(Door door, MyBlockFace direction)
     {
         Location engLoc = door.getEngine();
         int endX   = 0, endY   = 0, endZ   = 0;
@@ -64,12 +64,15 @@ public class DoorOpener implements Opener
             endY   = door.getMaximum().getBlockY();
             endZ   = engLoc.getBlockZ();
             break;
+        default:
+            plugin.dumpStackTrace("Invalid direction for door opener: " + direction.toString());
+            break;
         }
 
         for (int xAxis = startX; xAxis <= endX; ++xAxis)
             for (int yAxis = startY; yAxis <= endY; ++yAxis)
                 for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
-                    if (!Util.isAirOrWater(engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType()))
+                    if (!Util.isAirOrWater(engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis)))
                         return false;
         door.setNewMin(new Location(door.getWorld(), startX, startY, startZ));
         door.setNewMax(new Location(door.getWorld(), endX,   endY,   endZ));
@@ -78,7 +81,7 @@ public class DoorOpener implements Opener
     }
 
     // Determine which direction the door is going to rotate. Clockwise or counterclockwise.
-    private RotateDirection getRotationDirection(Door door, DoorDirection currentDir)
+    private RotateDirection getRotationDirection(Door door, MyBlockFace currentDir)
     {
         RotateDirection openDir = door.getOpenDir();
         openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
@@ -86,47 +89,50 @@ public class DoorOpener implements Opener
         switch(currentDir)
         {
         case NORTH:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.EAST))
+            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, MyBlockFace.EAST))
                 return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, DoorDirection.WEST))
+            else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, MyBlockFace.WEST))
                 return RotateDirection.COUNTERCLOCKWISE;
             break;
 
         case EAST:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.SOUTH))
+            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, MyBlockFace.SOUTH))
                 return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, DoorDirection.NORTH))
+            else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, MyBlockFace.NORTH))
                 return RotateDirection.COUNTERCLOCKWISE;
             break;
 
         case SOUTH:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.WEST))
+            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, MyBlockFace.WEST))
                 return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, DoorDirection.EAST))
+            else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, MyBlockFace.EAST))
                 return RotateDirection.COUNTERCLOCKWISE;
             break;
 
         case WEST:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.NORTH))
+            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, MyBlockFace.NORTH))
                 return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, DoorDirection.SOUTH))
+            else if (!openDir.equals(RotateDirection.CLOCKWISE)   && isPosFree(door, MyBlockFace.SOUTH))
                 return RotateDirection.COUNTERCLOCKWISE;
+            break;
+        default:
+            plugin.dumpStackTrace("Invalid currentDir for door opener: " + currentDir.toString());
             break;
         }
         return null;
     }
 
     // Get the direction the door is currently facing as seen from the engine to the end of the door.
-    private DoorDirection getCurrentDirection(Door door)
+    private MyBlockFace getCurrentDirection(Door door)
     {
         // MinZ != EngineZ => North
         // MaxX != EngineX => East
         // MaxZ != EngineZ => South
         // MinX != EngineX => West
-        return  door.getEngine().getBlockZ() != door.getMinimum().getBlockZ() ? DoorDirection.NORTH :
-                door.getEngine().getBlockX() != door.getMaximum().getBlockX() ? DoorDirection.EAST  :
-                door.getEngine().getBlockZ() != door.getMaximum().getBlockZ() ? DoorDirection.SOUTH :
-                door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? DoorDirection.WEST  : null;
+        return  door.getEngine().getBlockZ() != door.getMinimum().getBlockZ() ? MyBlockFace.NORTH :
+                door.getEngine().getBlockX() != door.getMaximum().getBlockX() ? MyBlockFace.EAST  :
+                door.getEngine().getBlockZ() != door.getMaximum().getBlockZ() ? MyBlockFace.SOUTH :
+                door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? MyBlockFace.WEST  : null;
     }
 
     // Check if the chunks at the minimum and maximum locations of the door are loaded.
@@ -166,7 +172,7 @@ public class DoorOpener implements Opener
             return DoorOpenResult.ERROR;
         }
 
-        DoorDirection currentDirection = getCurrentDirection(door);
+        MyBlockFace currentDirection = getCurrentDirection(door);
         if (currentDirection == null)
         {
             plugin.getMyLogger().logMessage("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
@@ -216,7 +222,7 @@ public class DoorOpener implements Opener
         // Change door availability so it cannot be opened again (just temporarily, don't worry!).
         plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-        plugin.addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint, currentDirection, door, instantOpen));
+        plugin.addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), rotDirection, time, oppositePoint, currentDirection, door, instantOpen));
 
         return DoorOpenResult.SUCCESS;
     }

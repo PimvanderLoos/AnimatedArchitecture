@@ -1,8 +1,5 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -42,7 +39,7 @@ public class PowerBlockInspector extends ToolUser
         Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
         if (door != null)
         {
-            ((SubCommandInfo) plugin.getCommand("bigdoors", "info")).execute(player, new ArrayList<>(Arrays.asList(door)));
+            ((SubCommandInfo) plugin.getCommand("bigdoors", "info")).execute(player, door);
             setIsDone(true);
         }
     }

@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.XMaterial;
 
 public class GUIItem
 {
@@ -21,23 +20,11 @@ public class GUIItem
     private Door door;
     private ArrayList<String> lore;
     private int count;
-    private byte data = 0;
     private String name;
     private Material mat;
     private DoorOwner doorOwner = null;
     private boolean missingHeadTexture;
     private DoorAttribute attribute = null;
-
-    public GUIItem(Material mat, String name, ArrayList<String> lore, int count, byte data)
-    {
-        this.name = name;
-        this.mat = mat;
-        this.lore = lore;
-        this.count = count;
-        this.data = data;
-        is = new ItemStack(mat, count, data);
-        construct();
-    }
 
     public GUIItem(Material mat, String name, ArrayList<String> lore, int count)
     {
@@ -70,7 +57,7 @@ public class GUIItem
                                             loc.getBlockY(), loc.getBlockZ(), guiOwner);
         if (is == null)
         {
-            is = new ItemStack(XMaterial.PLAYER_HEAD.parseMaterial(), 1, (short) 3);
+            is = new ItemStack(Material.PLAYER_HEAD, 1);
             missingHeadTexture = true;
         }
         else
@@ -138,11 +125,6 @@ public class GUIItem
     public int getCount()
     {
         return count;
-    }
-
-    public byte getData()
-    {
-        return data;
     }
 
     public DoorOwner getDoorOwner()

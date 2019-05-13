@@ -35,7 +35,12 @@ public class SubCommandDelete implements ISubCommand
 
     public boolean execute(CommandSender sender, Door door)
     {
-
+        String name = door.getName();
+        long doorUID = door.getDoorUID();
+        plugin.getCommander().removeDoor(door.getDoorUID());
+        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                            plugin.getMessages().getString("GENERAL.COMMAND.DoorIsDeleted") + " " + name
+                                                + " (" + doorUID + ")");
         return true;
     }
 
@@ -75,7 +80,8 @@ public class SubCommandDelete implements ISubCommand
                 door = plugin.getCommander().getDoor(args[1], null);
         }
 
-        if (sender instanceof Player && !plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.DELETE))
+        if (sender instanceof Player
+            && !plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.DELETE))
             throw new CommandActionNotAllowedException();
 
         if (door == null)
@@ -83,8 +89,6 @@ public class SubCommandDelete implements ISubCommand
 
         if (!execute(sender, door))
             return false;
-        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
-                                            plugin.getMessages().getString("GENERAL.COMMAND.DoorIsDeleted"));
         return true;
     }
 

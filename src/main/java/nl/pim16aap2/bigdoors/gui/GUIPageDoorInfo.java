@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.bukkit.entity.Player;
 
@@ -10,9 +9,9 @@ import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.PageType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
@@ -65,10 +64,10 @@ public class GUIPageDoorInfo implements IGUIPage
             refresh();
             break;
         case TOGGLE:
-            ((SubCommandToggle) plugin.getCommand("bigdoors", "toggleDoor")).execute(player, door);
+            ((SubCommandToggle) plugin.getCommand("bigdoors", "toggle")).execute(player, door);
             break;
         case INFO:
-            ((SubCommandInfo) plugin.getCommand("bigdoors", "info")).execute(player, new ArrayList<>(Arrays.asList(door)));
+            ((SubCommandInfo) plugin.getCommand("bigdoors", "info")).execute(player, door);
             break;
         case DELETE:
             gui.setGUIPage(new GUIPageDeleteConfirmation(plugin, gui));
@@ -182,10 +181,10 @@ public class GUIPageDoorInfo implements IGUIPage
         case LOCK:
             if (door.isLocked())
                 ret = new GUIItem(GUI.LOCKDOORMAT, messages.getString("GUI.UnlockDoor"),
-                            null, 1, GUI.UNLOCKEDDATA);
+                            null, 1);
             else
                 ret = new GUIItem(GUI.UNLOCKDOORMAT, messages.getString("GUI.LockDoor"),
-                            null, 1, GUI.LOCKEDDATA);
+                            null, 1);
             break;
 
         case TOGGLE:
@@ -242,9 +241,9 @@ public class GUIPageDoorInfo implements IGUIPage
             loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             lore.add(loreStr);
             lore.add(messages.getString("GUI.Direction.Looking") +
-                    (door.getType()       == DoorType.DOOR       ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
-                     door.getLookingDir() == DoorDirection.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
-                                                                   messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
+                    (door.getType()       == DoorType.DOOR     ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
+                     door.getLookingDir() == MyBlockFace.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
+                                                                 messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
             ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
             break;
 
@@ -261,13 +260,13 @@ public class GUIPageDoorInfo implements IGUIPage
         case ADDOWNER:
             desc = messages.getString("GUI.ADDOWNER");
             lore.add(desc);
-            ret = new GUIItem(GUI.ADDOWNERMAT, desc, lore, 1, GUI.PLAYERHEADDATA);
+            ret = new GUIItem(GUI.ADDOWNERMAT, desc, lore, 1);
             break;
 
         case REMOVEOWNER:
             desc = messages.getString("GUI.REMOVEOWNER");
             lore.add(desc);
-            ret = new GUIItem(GUI.REMOVEOWNERMAT, desc, lore, 1, GUI.SKULLDATA);
+            ret = new GUIItem(GUI.REMOVEOWNERMAT, desc, lore, 1);
             break;
         }
         if (ret != null)

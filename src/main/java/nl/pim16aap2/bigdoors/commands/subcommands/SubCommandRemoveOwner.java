@@ -37,7 +37,7 @@ public class SubCommandRemoveOwner implements ISubCommand
     public boolean execute(CommandSender sender, Door door, String playerArg)
         throws CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
-        UUID playerUUID = commandManager.getPlayerFromArg(playerArg);
+        UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
 
         if (sender instanceof Player && plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.REMOVEOWNER))
             throw new CommandActionNotAllowedException();

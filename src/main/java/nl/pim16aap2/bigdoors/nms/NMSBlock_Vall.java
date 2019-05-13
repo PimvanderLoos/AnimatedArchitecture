@@ -6,10 +6,12 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public interface NMSBlock_Vall
 {
-    public void   rotateBlock(RotateDirection rotDir);
-    public void   putBlock(Location loc);
-    public void   rotateBlockUpDown(boolean NS);
-    public void   rotateCylindrical(RotateDirection rotDir);
+    public boolean canRotate();
+
+    public void rotateBlock(RotateDirection rotDir);
+
+    public void putBlock(Location loc);
+
     @Override
     public String toString();
 }

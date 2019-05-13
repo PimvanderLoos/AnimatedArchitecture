@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
 
 /*
@@ -75,13 +75,13 @@ public class DrawbridgeCreator extends ToolUser
             else
             {
                 if      (posZ == one.getBlockZ())
-                    engineSide = DoorDirection.NORTH;
+                    engineSide = MyBlockFace.NORTH;
                 else if (posZ == two.getBlockZ())
-                    engineSide = DoorDirection.SOUTH;
+                    engineSide = MyBlockFace.SOUTH;
                 else if (posX == one.getBlockX())
-                    engineSide = DoorDirection.WEST;
+                    engineSide = MyBlockFace.WEST;
                 else if (posX == two.getBlockX())
-                    engineSide = DoorDirection.EAST;
+                    engineSide = MyBlockFace.EAST;
                 drawBridgeEngineFix();
             }
             return true;
@@ -105,30 +105,30 @@ public class DrawbridgeCreator extends ToolUser
         if (engine.equals(one)) // NORTH / WEST Possible
         {
             if (vector.getBlockX() == 1)
-                engineSide = DoorDirection.NORTH;
+                engineSide = MyBlockFace.NORTH;
             else if (vector.getBlockZ() == 1)
-                engineSide = DoorDirection.WEST;
+                engineSide = MyBlockFace.WEST;
         }
         else if (engine.equals(two)) // EAST / SOUTH Possible
         {
             if (vector.getBlockX() == -1)
-                engineSide = DoorDirection.SOUTH;
+                engineSide = MyBlockFace.SOUTH;
             else if (vector.getBlockZ() == -1)
-                engineSide = DoorDirection.EAST;
+                engineSide = MyBlockFace.EAST;
         }
         else if (posXa == one.getBlockX() && posZa == two.getBlockZ()) // SOUTH / WEST Possible
         {
             if (vector.getBlockX() == 1)
-                engineSide = DoorDirection.SOUTH;
+                engineSide = MyBlockFace.SOUTH;
             else if (vector.getBlockZ() == -1)
-                engineSide = DoorDirection.WEST;
+                engineSide = MyBlockFace.WEST;
         }
         else if (posXa == two.getBlockX() && posZa == one.getBlockZ()) // NORTH / EAST Possible
         {
             if (vector.getBlockX() == -1)
-                engineSide = DoorDirection.NORTH;
+                engineSide = MyBlockFace.NORTH;
             else if (vector.getBlockZ() == 1)
-                engineSide = DoorDirection.EAST;
+                engineSide = MyBlockFace.EAST;
         }
         else
             return false;
@@ -143,7 +143,7 @@ public class DrawbridgeCreator extends ToolUser
             return;
 
         // Make sure the power point is in the middle.
-        if (engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH)
+        if (engineSide == MyBlockFace.NORTH || engineSide == MyBlockFace.SOUTH)
             engine.setX(one.getX() + (two.getX() - one.getX()) / 2);
         else
             engine.setZ(one.getZ() + (two.getZ() - one.getZ()) / 2);

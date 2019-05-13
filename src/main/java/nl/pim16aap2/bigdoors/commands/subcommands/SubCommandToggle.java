@@ -85,7 +85,7 @@ public class SubCommandToggle implements ISubCommand
             --index;
 
         Player player = sender instanceof Player ? (Player) sender : null;
-        while (index-- > 0)
+        while (index --> 1)
         {
             Door door = plugin.getCommander().getDoor(args[index], player);
             if (door == null)

@@ -24,9 +24,9 @@ import com.google.common.io.Files;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -277,7 +277,7 @@ public class SQLiteJDBCDriverConnection
 
             Door door = new Door(playerUUID, world, min, max, engine, rs.getString(DOOR_NAME), (rs.getInt(DOOR_OPEN) == 1 ? true : false),
                                  doorUID, (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(DOOR_TYPE)),
-                                 DoorDirection.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
+                                 MyBlockFace.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
                                  rs.getInt(DOOR_AUTO_CLOSE));
 
             door.setBlocksToMove(rs.getInt(DOOR_BLOCKS_TO_MOVE));
@@ -454,7 +454,7 @@ public class SQLiteJDBCDriverConnection
 //
 //            door = new Door(playerUUID, world, min, max, engine, rs.getString(DOOR_NAME), (rs.getInt(DOOR_OPEN) == 1 ? true : false),
 //                            doorUID, (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(DOOR_TYPE)),
-//                            DoorDirection.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
+//                            MyBlockFace.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
 //                            rs.getInt(DOOR_AUTO_CLOSE));
 //        }
 //        catch (SQLException e)
@@ -728,6 +728,39 @@ public class SQLiteJDBCDriverConnection
         return uuid;
     }
 
+    public UUID getPlayerUUID(final String playerName)
+    {
+        UUID playerUUID = null;
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+            // Get the door associated with the x/y/z location of the power block block.
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE playerName = '" + playerName + "';");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+                playerUUID = UUID.fromString(rs.getString(PLAYERS_UUID));
+            ps.close();
+            rs.close();
+        }
+        catch(SQLException e)
+        {
+            logMessage("736", e);
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                logMessage("746", e);
+            }
+        }
+        return playerUUID;
+    }
+
     public String getPlayerName(final UUID playerUUID)
     {
         String playerName = null;
@@ -884,7 +917,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Update the door at doorUID with the provided coordinates and open status.
-    public void updateDoorCoords(final long doorID, final boolean isOpen, final int xMin, final int yMin, final int zMin, final int xMax, final int yMax, final int zMax, final DoorDirection engSide)
+    public void updateDoorCoords(final long doorID, final boolean isOpen, final int xMin, final int yMin, final int zMin, final int xMax, final int yMax, final int zMax, final MyBlockFace engSide)
     {
         Connection conn = null;
         try
@@ -899,7 +932,7 @@ public class SQLiteJDBCDriverConnection
                           + "',yMax='"       + yMax
                           + "',zMax='"       + zMax
                           + "',isOpen='"     + (isOpen  == true ?  1 : 0)
-                          + "',engineSide='" + (engSide == null ? -1 : DoorDirection.getValue(engSide))
+                          + "',engineSide='" + (engSide == null ? -1 : MyBlockFace.getValue(engSide))
                           + "' WHERE id = '" + doorID + "';";
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
@@ -1135,7 +1168,7 @@ public class SQLiteJDBCDriverConnection
             doorstatement.setInt(DOOR_LOCKED - 1,          door.isLocked() == true ? 1 : 0);
             doorstatement.setInt(DOOR_TYPE - 1,            DoorType.getValue(door.getType()));
             // Set -1 if the door has no engineSide (normal doors don't use it)
-            doorstatement.setInt(DOOR_ENG_SIDE - 1,        door.getEngSide() == null ? -1 : DoorDirection.getValue(door.getEngSide()));
+            doorstatement.setInt(DOOR_ENG_SIDE - 1,        door.getEngSide() == null ? -1 : MyBlockFace.getValue(door.getEngSide()));
             doorstatement.setInt(DOOR_POWER_X - 1,         door.getEngine().getBlockX());
             doorstatement.setInt(DOOR_POWER_Y - 1,         door.getEngine().getBlockY() - 1); // Power Block Location is 1 block below the engine, by default.
             doorstatement.setInt(DOOR_POWER_Z - 1,         door.getEngine().getBlockZ());

@@ -43,16 +43,19 @@ public abstract class SuperCommand implements ICommand
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandInvalidVariableException,
         CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
-        if (args.length == 0)
-            plugin.getMyLogger().returnToSender(sender, null, getHelp(sender));
-        else
+        if (args.length == 0 || args[0].toLowerCase().equals("help"))
         {
-            ISubCommand command = subCommands.get(args[0].toLowerCase());
-            if (!CommandManager.permissionForCommand(sender, command))
-                throw new CommandPermissionException();
-            if (args.length < command.getMinArgCount() || !command.onCommand(sender, cmd, label, args))
-                plugin.getMyLogger().returnToSender(sender, null, getHelpOfSubCommand(sender, command));
+            plugin.getMyLogger().returnToSender(sender, null, getHelp(sender));
+            return true;
         }
+
+        ISubCommand command = subCommands.get(args[0].toLowerCase());
+        if (command == null)
+            return false;
+        if (!CommandManager.permissionForCommand(sender, command))
+            throw new CommandPermissionException();
+        if (args.length < command.getMinArgCount() || !command.onCommand(sender, cmd, label, args))
+            plugin.getMyLogger().returnToSender(sender, null, getHelpOfSubCommand(sender, command));
         return true;
     }
 

@@ -16,9 +16,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.Abortable;
-import nl.pim16aap2.bigdoors.util.DoorDirection;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -30,7 +30,7 @@ public abstract class ToolUser extends Abortable
     protected Player player;
     protected long doorUID;
     protected final Messages messages;
-    protected DoorDirection engineSide;
+    protected MyBlockFace engineSide;
     protected boolean done = false;
     protected boolean isOpen = false;
     protected Location one, two, engine;

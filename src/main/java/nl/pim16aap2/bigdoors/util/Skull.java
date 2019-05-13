@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.util;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +17,6 @@ import nl.pim16aap2.bigdoors.HeadManager;
 
 public enum Skull
 {
-
     ARROW_LEFT("MHF_ArrowLeft"), ARROW_RIGHT("MHF_ArrowRight"), ARROW_UP("MHF_ArrowUp"), ARROW_DOWN("MHF_ArrowDown"),
     QUESTION("MHF_Question"), EXCLAMATION("MHF_Exclamation"), CAMERA("FHG_Cam"),
 
@@ -50,7 +50,7 @@ public enum Skull
             throw new IllegalStateException("Profile doesn't contain a property map");
         byte[] encodedData = base64.encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
         propertyMap.put("textures", new Property("textures", new String(encodedData)));
-        ItemStack head = new ItemStack(XMaterial.PLAYER_HEAD.parseMaterial(), 1, (short) 3);
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD, 1);
         ItemMeta headMeta = head.getItemMeta();
         Class<?> headMetaClass = headMeta.getClass();
         HeadManager.getField(headMetaClass, "profile", GameProfile.class).set(headMeta, profile);
@@ -64,11 +64,11 @@ public enum Skull
      * @param name player's name
      * @return itemstack
      */
-    public static ItemStack getPlayerSkull(String name)
+    public static ItemStack getPlayerSkull(UUID playerUUID)
     {
-        ItemStack itemStack = new ItemStack(Material.PLAYER_HEAD, 1, (short) 3);
+        ItemStack itemStack = new ItemStack(Material.PLAYER_HEAD, 1);
         SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
-        meta.setOwner(name);
+        meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerUUID));
         itemStack.setItemMeta(meta);
         return itemStack;
     }
@@ -88,9 +88,10 @@ public enum Skull
      *
      * @return itemstack
      */
+    @SuppressWarnings("deprecation")
     public ItemStack getSkull()
     {
-        ItemStack itemStack = new ItemStack(Material.PLAYER_HEAD, 1, (short) 3);
+        ItemStack itemStack = new ItemStack(Material.PLAYER_HEAD, 1);
         SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
         meta.setOwner(id);
         itemStack.setItemMeta(meta);
