@@ -1,9 +1,11 @@
 package nl.pim16aap2.bigdoors;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.Vector;
@@ -72,6 +74,7 @@ import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
 import nl.pim16aap2.bigdoors.util.ConfigLoader;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.Metrics;
 import nl.pim16aap2.bigdoors.util.TimedCache;
@@ -85,7 +88,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Put all listeners and command stuff (basically everything users can interact with) in try-catch blocks, so I can
 //       Dump more errors into the log file.
 // TODO: Add command to upload log file to PasteBin or something.
-// TODO: Add success message for changing door opendirection.
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
@@ -106,7 +108,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
  */
 // TODO: Look into playerheads for GUI buttons. Example: https://minecraft-heads.com/player-heads/alphabet/2762-arrow-left
 // TODO: Make GUI options always use the correct subCommand.
-// TODO: Get rid of repeated initialization for stuff like the options in teh GUIPageDoorInfo. Just initialize it once in the constructor.
+// TODO: Get rid of repeated initialization for stuff like the options in the GUIPageDoorInfo. Just initialize it once in the constructor.
 
 /*
  * SQL
@@ -149,6 +151,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       free location, automatically set the openDirection for this door. HOWEVER, this value must be reset when it is
 //       closed again, but ONLY if it used to be unset. So instead of storing value, add flag for un/intentionally set.
 // TODO: Rotate Sea Pickle and turtle egg.
+// TODO: Don't do any replacing by air stuff in the openers/movers. Instead, do it in the NMSBlock part. Also make sure
+//       to copy all rotational blockdata stuff properly!
 
 /*
  * ToolUsers
@@ -206,6 +210,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private FlagOpener               flagOpener;
     private HashMap<UUID, ToolUser>   toolUsers;
     private HashMap<UUID, GUI>       playerGUIs;
+    private List<IRestartable>     restartables;
     private boolean              is1_13 = false;
 
     private ProtectionCompatManager protCompatMan;
@@ -222,9 +227,6 @@ public class BigDoors extends JavaPlugin implements Listener
         logFile = new File(getDataFolder(), "log.txt");
         logger  = new MyLogger(this, logFile);
 
-
-
-
         try
         {
             Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
@@ -240,6 +242,8 @@ public class BigDoors extends JavaPlugin implements Listener
                                   "\"). This plugin will NOT be enabled!", true, true);
                 return;
             }
+
+            restartables = new ArrayList<>();
 
             init();
             headManager.init();
@@ -389,6 +393,11 @@ public class BigDoors extends JavaPlugin implements Listener
         return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
     }
 
+    public void registerRestartable(IRestartable restartable)
+    {
+        restartables.add(restartable);
+    }
+
     public void restart()
     {
         if (!validVersion)
@@ -396,7 +405,6 @@ public class BigDoors extends JavaPlugin implements Listener
         reloadConfig();
 
         onDisable();
-        protCompatMan.reload();
         playerGUIs.forEach((key,value) -> value.close());
         playerGUIs.clear();
 
@@ -407,9 +415,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         init();
 
-        economyManager.init();
-        pbCache.reinit(config.cacheTimeout());
-        headManager.reload();
+        restartables.forEach((K) -> K.restart());
     }
 
     @Override

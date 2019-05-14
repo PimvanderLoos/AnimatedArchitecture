@@ -10,10 +10,11 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
 
-public class EconomyManager
+public class EconomyManager implements IRestartable
 {
     // Try to store the price of the doors as integers, because that's faster than
     // evaluating the formula.
@@ -30,6 +31,7 @@ public class EconomyManager
         menu = new HashMap<>();
         init();
         vaultEnabled = setupEconomy();
+        plugin.registerRestartable(this);
     }
 
     public boolean buyDoor(Player player, DoorType type, int blockCount)
@@ -229,5 +231,11 @@ public class EconomyManager
             economy = economyProvider.getProvider();
 
         return (economy != null);
+    }
+
+    @Override
+    public void restart()
+    {
+        init();
     }
 }

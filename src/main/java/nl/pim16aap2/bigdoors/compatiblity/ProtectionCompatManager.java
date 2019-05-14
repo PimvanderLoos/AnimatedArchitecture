@@ -15,8 +15,9 @@ import org.bukkit.plugin.Plugin;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.MyException;
+import nl.pim16aap2.bigdoors.util.IRestartable;
 
-public class ProtectionCompatManager implements Listener
+public class ProtectionCompatManager implements Listener, IRestartable
 {
     private final BigDoors plugin;
     private final ArrayList<ProtectionCompat> protectionCompats;
@@ -38,12 +39,14 @@ public class ProtectionCompatManager implements Listener
     public ProtectionCompatManager(BigDoors plugin)
     {
         this.plugin = plugin;
+        plugin.registerRestartable(this);
         fakePlayerCreator = new FakePlayerCreator();
         protectionCompats = new ArrayList<>();
         loadLoadedPlugins(true);
     }
 
-    public void reload()
+    @Override
+    public void restart()
     {
         protectionCompats.clear();
         for (Plugin p : plugin.getServer().getPluginManager().getPlugins())

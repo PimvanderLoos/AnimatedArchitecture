@@ -8,9 +8,10 @@ import org.bukkit.inventory.ItemStack;
 
 import com.google.gson.JsonObject;
 
+import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.TimedCache;
 
-public abstract class HeadManager
+public abstract class HeadManager implements IRestartable
 {
     protected final BigDoors plugin;
     protected TimedCache<UUID, ItemStack> headMap;
@@ -23,11 +24,12 @@ public abstract class HeadManager
 
     public void init()
     {
-        map = new TimedCache<String, JsonObject> (plugin, plugin.getConfigLoader().headCacheTimeout());
-        headMap = new TimedCache<UUID, ItemStack>(plugin, plugin.getConfigLoader().headCacheTimeout());
+        map = new TimedCache<> (plugin, plugin.getConfigLoader().headCacheTimeout());
+        headMap = new TimedCache<>(plugin, plugin.getConfigLoader().headCacheTimeout());
     }
 
-    public void reload()
+    @Override
+    public void restart()
     {
         headMap.reinit(plugin.getConfigLoader().headCacheTimeout());
         map.reinit(plugin.getConfigLoader().headCacheTimeout());

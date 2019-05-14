@@ -7,21 +7,23 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-public class TimedCache<K, V>
+import nl.pim16aap2.bigdoors.BigDoors;
+
+public class TimedCache<K, V> implements IRestartable
 {
-    private final JavaPlugin plugin;
+    private final BigDoors plugin;
     private int timeout = -1;
     private Hashtable<K, Value<V>> hashtable;
     private BukkitTask verifyTask;
 
-    public TimedCache(JavaPlugin plugin, int time)
+    public TimedCache(BigDoors plugin, int time)
     {
         hashtable = new Hashtable<>();
         this.plugin = plugin;
         reinit(time);
+        plugin.registerRestartable(this);
     }
 
     public void reinit(int time)
@@ -119,5 +121,11 @@ public class TimedCache<K, V>
     public int getChunkCount()
     {
         return hashtable.size();
+    }
+
+    @Override
+    public void restart()
+    {
+        this.reinit(plugin.getConfigLoader().cacheTimeout());
     }
 }
