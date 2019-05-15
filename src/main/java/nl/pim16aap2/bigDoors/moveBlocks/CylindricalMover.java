@@ -48,7 +48,6 @@ public class CylindricalMover implements BlockMover
     private final int           xMin, xMax, yMin;
     private final int           yMax, zMin, zMax;
     private final DoorDirection currentDirection;
-    private final Location         pointOpposite;
     private final Location          turningPoint;
     private final List<MyBlockData> savedBlocks = new ArrayList<>();
 
@@ -56,7 +55,6 @@ public class CylindricalMover implements BlockMover
     public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
             Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
     {
-        this.pointOpposite    = pointOpposite;
         this.rotDirection     = rotDirection;
         this.currentDirection = currentDirection;
         this.plugin           = plugin;

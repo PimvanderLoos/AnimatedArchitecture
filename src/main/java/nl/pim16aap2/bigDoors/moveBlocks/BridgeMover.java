@@ -52,7 +52,7 @@ public class BridgeMover implements BlockMover
     private int             stepMultiplier;
     private int           xMin, yMin, zMin;
     private int           xMax, yMax, zMax;
-    private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
+    private List<MyBlockData> savedBlocks = new ArrayList<>();
 
     @SuppressWarnings("deprecation")
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,

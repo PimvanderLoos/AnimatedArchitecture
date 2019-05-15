@@ -1,7 +1,12 @@
 package nl.pim16aap2.bigDoors.NMS.v1_13_R2;
 
+import java.util.Set;
+
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_13_R2.block.CraftBlock;
@@ -14,23 +19,27 @@ import net.minecraft.server.v1_13_R2.EnumDirection.EnumAxis;
 import net.minecraft.server.v1_13_R2.IBlockData;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
-import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.XMaterial;
 
 public class NMSBlock_V1_13_R2 extends net.minecraft.server.v1_13_R2.Block implements NMSBlock_Vall
 {
     private IBlockData blockData;
-    private XMaterial  xmat;
+    private CraftBlockData craftBlockData;
+    private XMaterial xmat;
+    private Location loc;
 
     public NMSBlock_V1_13_R2(World world, int x, int y, int z)
     {
         super(net.minecraft.server.v1_13_R2.Block.Info.a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
 
+        loc = new Location(world, x, y, z);
+
         // If the block is waterlogged (i.e. it has water inside), unwaterlog it.
-        CraftBlockData cbd = (CraftBlockData) ((CraftBlock) world.getBlockAt(x, y, z)).getBlockData();
-        if (cbd instanceof Waterlogged)
-            ((Waterlogged) cbd).setWaterlogged(false);
-        blockData = cbd.getState();
+        craftBlockData = (CraftBlockData) ((CraftBlock) world.getBlockAt(x, y, z)).getBlockData();
+        if (craftBlockData instanceof Waterlogged)
+            ((Waterlogged) craftBlockData).setWaterlogged(false);
+
+        constructBlockDataFromBukkit();
 
         xmat = XMaterial.fromString(world.getBlockAt(x, y, z).getType().toString());
         // Update iBlockData in NMS Block.
@@ -55,16 +64,47 @@ public class NMSBlock_V1_13_R2 extends net.minecraft.server.v1_13_R2.Block imple
         blockData = blockData.a(rot);
     }
 
+    private void constructBlockDataFromBukkit()
+    {
+        blockData = craftBlockData.getState();
+    }
+
     @Override
     public void putBlock(Location loc)
     {
+        this.loc = loc;
+
+        if (craftBlockData instanceof MultipleFacing)
+            updateCraftBlockDataMultipleFacing();
+
         ((CraftWorld) loc.getWorld()).getHandle().setTypeAndData(
                 new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), blockData, 1);
-        if (Util.needsRefresh(xmat))
+    }
+
+    private void updateCraftBlockDataMultipleFacing()
+    {
+        Set<BlockFace> allowedFaces = ((MultipleFacing) craftBlockData).getAllowedFaces();
+        allowedFaces.forEach((K) ->
         {
-            loc.getWorld().getBlockAt(loc).setType(XMaterial.AIR.parseMaterial());
-            loc.getWorld().getBlockAt(loc).setType(xmat.parseMaterial());
-        }
+            org.bukkit.block.Block otherBlock = loc.clone().add(K.getModX(), K.getModY(), K.getModZ()).getBlock();
+            CraftBlockData otherData = (CraftBlockData) ((CraftBlock) otherBlock).getBlockData();
+
+            if (K.equals(BlockFace.UP))
+                ((MultipleFacing) craftBlockData).setFace(K, true);
+            else if (otherBlock.getType().isSolid())
+            {
+                ((MultipleFacing) craftBlockData).setFace(K, true);
+                if (otherBlock.getType().equals(xmat.parseMaterial()) && otherData instanceof MultipleFacing)
+                    if (((MultipleFacing) otherData).getAllowedFaces().contains(K.getOppositeFace()))
+                    {
+                        ((MultipleFacing) otherData).setFace(K.getOppositeFace(), true);
+                        ((CraftBlock) otherBlock).setBlockData(otherData);
+                    }
+            }
+            else
+                ((MultipleFacing) craftBlockData).setFace(K, false);
+        });
+        constructBlockDataFromBukkit();
     }
 
     @Override
@@ -100,5 +140,11 @@ public class NMSBlock_V1_13_R2 extends net.minecraft.server.v1_13_R2.Block imple
     public String toString()
     {
         return blockData.toString();
+    }
+
+    @Override
+    public void deleteOriginalBlock()
+    {
+        loc.getWorld().getBlockAt(loc).setType(Material.AIR);
     }
 }

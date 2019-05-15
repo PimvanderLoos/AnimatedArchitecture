@@ -375,46 +375,6 @@ public final class Util
         return 0;
     }
 
-    public static boolean needsRefresh(XMaterial xmat)
-    {
-        switch(xmat)
-        {
-        case ACACIA_FENCE:
-        case ACACIA_FENCE_GATE:
-        case BIRCH_FENCE:
-        case BIRCH_FENCE_GATE:
-        case DARK_OAK_FENCE:
-        case DARK_OAK_FENCE_GATE:
-        case JUNGLE_FENCE:
-        case JUNGLE_FENCE_GATE:
-        case OAK_FENCE:
-        case OAK_FENCE_GATE:
-        case SPRUCE_FENCE:
-        case SPRUCE_FENCE_GATE:
-        case NETHER_BRICK_FENCE:
-
-        case COBBLESTONE_WALL:
-        case IRON_BARS:
-
-        case WHITE_STAINED_GLASS_PANE:
-        case YELLOW_STAINED_GLASS_PANE:
-        case PURPLE_STAINED_GLASS_PANE:
-        case LIGHT_BLUE_STAINED_GLASS_PANE:
-        case MAGENTA_STAINED_GLASS_PANE:
-        case GRAY_STAINED_GLASS_PANE:
-        case GREEN_STAINED_GLASS_PANE:
-        case BLACK_STAINED_GLASS_PANE:
-        case LIME_STAINED_GLASS_PANE:
-        case BLUE_STAINED_GLASS_PANE:
-        case BROWN_STAINED_GLASS_PANE:
-        case CYAN_STAINED_GLASS_PANE:
-        case RED_STAINED_GLASS_PANE:
-             return true;
-         default:
-             return false;
-        }
-    }
-
     // Certain blocks don't work in doors, so don't allow their usage.
     public static boolean isAllowedBlock(Material mat)
     {
@@ -427,8 +387,6 @@ public final class Util
 
         switch(xmat)
         {
-//        case COBBLESTONE_WALL:
-
         case AIR:
         case WATER:
         case LAVA:

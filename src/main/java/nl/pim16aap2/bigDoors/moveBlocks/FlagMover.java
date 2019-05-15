@@ -33,7 +33,7 @@ public class FlagMover implements BlockMover
     private boolean            instantOpen;
     private int           xMin, xMax, yMin;
     private int           yMax, zMin, zMax;
-    private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
+    private List<MyBlockData> savedBlocks = new ArrayList<>();
 
     @SuppressWarnings("deprecation")
     public FlagMover(BigDoors plugin, World world, double time, Door door)

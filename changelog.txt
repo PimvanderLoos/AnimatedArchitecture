@@ -1,3 +1,6 @@
+Alpha 0.1.8.6
+- Connected blocks (i.e. fences, iron bars, panes, etc) now stay connected in portcullises, sliding doors, and elevators.
+
 Alpha 0.1.8.5
 - Added permission node "bigdoors.admin.bypasscompat" to bypass compatibility stuff like WorldGuard and PlotSquared )door creation and toggling).
 - OPs also bypass compatibility stuff.

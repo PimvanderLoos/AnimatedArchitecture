@@ -38,7 +38,7 @@ public class SlidingMover implements BlockMover
     private RotateDirection  openDirection;
     private int           xMin, xMax, yMin;
     private int           yMax, zMin, zMax;
-    private List<MyBlockData> savedBlocks = new ArrayList<MyBlockData>();
+    private List<MyBlockData> savedBlocks = new ArrayList<>();
 
     @SuppressWarnings("deprecation")
     public SlidingMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove, RotateDirection openDirection)
@@ -71,7 +71,7 @@ public class SlidingMover implements BlockMover
         {
             speed     = Math.abs(blocksToMove) / time * pcMult;
             this.time = time;
-        };
+        }
 
         // If the non-default exceeds the max-speed or isn't set, calculate default speed.
         if (time == 0.0 || Math.abs(blocksToMove) / time > maxSpeed)
@@ -107,7 +107,10 @@ public class SlidingMover implements BlockMover
 
                         // Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
                         if (Util.isAllowedBlock(mat))
+                        {
+                            if (!plugin.is1_13())
                             vBlock.setType(Material.AIR);
+                        }
                         else
                         {
                             mat     = Material.AIR;
@@ -129,6 +132,15 @@ public class SlidingMover implements BlockMover
             ++yAxis;
         }
         while (yAxis <= yMax);
+
+        // This is only supported on 1.13
+        if (plugin.is1_13())
+            for (MyBlockData mbd : savedBlocks)
+            {
+                NMSBlock_Vall block = mbd.getBlock();
+                if (block != null && Util.isAllowedBlock(mbd.getMat()))
+                    block.deleteOriginalBlock();
+            }
 
         if (!instantOpen)
             rotateEntities();
