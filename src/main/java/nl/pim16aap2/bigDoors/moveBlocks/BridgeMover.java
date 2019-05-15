@@ -222,7 +222,7 @@ public class BridgeMover implements BlockMover
 
                     Block vBlock  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                     Material mat  = vBlock.getType();
-                    if (!mat.equals(Material.AIR))
+                    if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
                         Byte matData  = vBlock.getData();
                         BlockState bs = vBlock.getState();
@@ -233,41 +233,33 @@ public class BridgeMover implements BlockMover
 
                         int canRotate = 0;
                         Byte matByte  = matData;
-                        // Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
-                        if (Util.isAllowedBlock(mat))
-                        {
-                            canRotate        = Util.canRotate(mat);
-                            // Rotate blocks here so they don't interrupt the rotation animation.
-                            if (canRotate == 1 || canRotate == 2 || canRotate == 3 || canRotate == 6 || canRotate == 7)
-                            {
-                                matByte      = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
-                                Block b      = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
-                                materialData.setData(matByte);
 
-                                if (plugin.is1_13())
+                        canRotate        = Util.canRotate(mat);
+                        // Rotate blocks here so they don't interrupt the rotation animation.
+                        if (canRotate == 1 || canRotate == 2 || canRotate == 3 || canRotate == 6 || canRotate == 7)
+                        {
+                            matByte      = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
+                            Block b      = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+                            materialData.setData(matByte);
+
+                            if (plugin.is1_13())
+                            {
+                                if (canRotate == 6)
                                 {
-                                    if (canRotate == 6)
-                                    {
-                                        block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
-                                        block2.rotateBlockUpDown(NS);
-                                    }
-                                    else
-                                    {
-                                        b.setType(mat);
-                                        BlockState bs2 = b.getState();
-                                        bs2.setData(materialData);
-                                        bs2.update();
-                                        block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
-                                    }
+                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                                    block2.rotateBlockUpDown(NS);
+                                }
+                                else
+                                {
+                                    b.setType(mat);
+                                    BlockState bs2 = b.getState();
+                                    bs2.setData(materialData);
+                                    bs2.update();
+                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                                 }
                             }
-                            vBlock.setType(Material.AIR);
                         }
-                        else
-                        {
-                            mat     = Material.AIR;
-                            matData = 0;
-                        }
+                        vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)

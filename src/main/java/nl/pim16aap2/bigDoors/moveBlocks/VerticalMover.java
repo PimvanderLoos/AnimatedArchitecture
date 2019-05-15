@@ -92,25 +92,15 @@ public class VerticalMover implements BlockMover
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
                     Block vBlock  = world.getBlockAt(startLocation);
                     Material mat  = vBlock.getType();
-//                    if (!mat.equals(Material.AIR))
-                    if (!Util.isAirOrWater(mat))
+                    if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
                         Byte matData  = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
                         NMSBlock_Vall block  = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
 
-                        // Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
-                        if (Util.isAllowedBlock(mat))
-                        {
-                            if (!plugin.is1_13())
-                                vBlock.setType(Material.AIR);
-                        }
-                        else
-                        {
-                            mat     = Material.AIR;
-                            matData = 0;
-                        }
+                        if (!plugin.is1_13())
+                            vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)

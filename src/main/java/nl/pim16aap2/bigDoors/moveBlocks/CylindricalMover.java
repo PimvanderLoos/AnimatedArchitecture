@@ -103,7 +103,7 @@ public class CylindricalMover implements BlockMover
                     Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                     Material mat = vBlock.getType();
 
-                    if (!mat.equals(Material.AIR))
+                    if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
                         Byte matData  = vBlock.getData();
                         BlockState bs = vBlock.getState();
@@ -114,49 +114,38 @@ public class CylindricalMover implements BlockMover
 
                         int canRotate = 0;
                         Byte matByte  = matData;
-                        // Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
-                        if (Util.isAllowedBlock(mat))
-                        {
-                            canRotate = Util.canRotate(mat);
-                            // Rotate blocks here so they don't interrupt the rotation animation.
-                            if (canRotate != 0)
-                            {
-                                Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
-                                if (canRotate == 1 || canRotate == 3)
-                                    matByte = rotateBlockDataLog(matData);
-                                else if (canRotate == 2)
-                                    matByte = rotateBlockDataStairs(matData);
-                                else if (canRotate == 4)
-                                    matByte = rotateBlockDataAnvil(matData);
 
-                                Block b = world.getBlockAt(pos);
-                                materialData.setData(matByte);
-
-                                if (plugin.is1_13())
-                                    if (canRotate == 6)
-                                    {
-                                        block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
-                                        block2.rotateCylindrical(this.rotDirection);
-                                    }
-                                    else
-                                    {
-                                        b.setType(mat);
-                                        BlockState bs2 = b.getState();
-                                        bs2.setData(materialData);
-                                        bs2.update();
-                                        block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
-                                    }
-                            }
-                            vBlock.setType(Material.AIR);
-                        }
-                        else
+                        canRotate = Util.canRotate(mat);
+                        // Rotate blocks here so they don't interrupt the rotation animation.
+                        if (canRotate != 0)
                         {
-                            mat     = Material.AIR;
-                            matByte = 0;
-                            matData = 0;
-                            block   = null;
-                            materialData = null;
+                            Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                            if (canRotate == 1 || canRotate == 3)
+                                matByte = rotateBlockDataLog(matData);
+                            else if (canRotate == 2)
+                                matByte = rotateBlockDataStairs(matData);
+                            else if (canRotate == 4)
+                                matByte = rotateBlockDataAnvil(matData);
+
+                            Block b = world.getBlockAt(pos);
+                            materialData.setData(matByte);
+
+                            if (plugin.is1_13())
+                                if (canRotate == 6)
+                                {
+                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                                    block2.rotateCylindrical(this.rotDirection);
+                                }
+                                else
+                                {
+                                    b.setType(mat);
+                                    BlockState bs2 = b.getState();
+                                    bs2.setData(materialData);
+                                    bs2.update();
+                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                                }
                         }
+                        vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
