@@ -16,7 +16,7 @@ public class SubCommandNameDoor implements ISubCommand
     protected final BigDoors plugin;
     protected final CommandManager commandManager;
 
-    private static final String name = "namedoor";
+    private static final String name = "setname";
     private static final String permission = "bigdoors.user.createdoor";
     private static final String help = "Set the name of the door in the door creation process.";
     private static final String argsHelp = "<doorName>";
