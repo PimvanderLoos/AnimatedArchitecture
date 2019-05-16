@@ -1,3 +1,6 @@
+Alpha 0.1.8.7
+- Fixed missing openDirection option for the portcullis type. Thanks, @RetroCh1cken for the bug report!
+
 Alpha 0.1.8.6
 - Connected blocks (i.e. fences, iron bars, panes, etc) now stay connected in portcullises, sliding doors, and elevators in 1.13.* and 1.14.*.
 - Fixed regular doors (and presumably other blocks) spawning ghost versions when used in a door. Thanks, @RedYoshi for the bug report!

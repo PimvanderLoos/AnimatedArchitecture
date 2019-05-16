@@ -91,6 +91,12 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Maybe check all player inventories on login/logout to make sure they don't have any leftover creators sticks.
 // TODO: Use OOP and make every GUI page its own class.
 
+
+// TODO: Implement movement modifiers for new door types.
+// TODO: Update XMaterial to support 1.14.
+// TODO: Take care of new materials introduced in 1.14 (stairs, blast furnace, etc).
+// TODO: Look into RetroCh1cken's report of small doors behaving weirdly.
+
 public class BigDoors extends JavaPlugin implements Listener
 {
     public static final boolean DEVBUILD = false;

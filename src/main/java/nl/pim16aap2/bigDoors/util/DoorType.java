@@ -8,31 +8,31 @@ public enum DoorType
     DOOR        (0, "-BD", "GENERAL.DOORTYPE.Door", "bigdoors.user.createdoor.door",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_NSEW_LOOK}),
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE}),
 
 
     DRAWBRIDGE  (1, "-DB", "GENERAL.DOORTYPE.DrawBridge", "bigdoors.user.createdoor.drawbridge",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_NSEW_LOOK}),
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE}),
 
 
     PORTCULLIS  (2, "-PC", "GENERAL.DOORTYPE.Portcullis", "bigdoors.user.createdoor.portcullis",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.BLOCKSTOMOVE}),
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT, DoorAttribute.BLOCKSTOMOVE}),
 
 
     ELEVATOR    (3, "-EL", "GENERAL.DOORTYPE.Elevator", "bigdoors.user.createdoor.elevator",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_GO, DoorAttribute.BLOCKSTOMOVE}),
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT, DoorAttribute.BLOCKSTOMOVE}),
 
 
     SLIDINGDOOR (4, "-SD", "GENERAL.DOORTYPE.SlidingDoor", "bigdoors.user.createdoor.slidingdoor",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_GO, DoorAttribute.BLOCKSTOMOVE}),
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT, DoorAttribute.BLOCKSTOMOVE}),
 
 
     FLAG        (5, "-FL", "GENERAL.DOORTYPE.Flag", "bigdoors.user.createdoor.flag",
@@ -44,8 +44,8 @@ public enum DoorType
     private String flag;
     private String nameKey;
     private String permission;
-    private static Map<Integer, DoorType> valMap  = new HashMap<Integer, DoorType>();
-    private static Map<String,  DoorType> flagMap = new HashMap<String,  DoorType>();
+    private static Map<Integer, DoorType> valMap  = new HashMap<>();
+    private static Map<String,  DoorType> flagMap = new HashMap<>();
     private DoorAttribute[] attributes;
 
     private DoorType(int val, String flag, String nameKey, String permission, DoorAttribute... attributes)

@@ -365,9 +365,8 @@ public class GUI
                 plugin.getCommandHandler().startPowerBlockRelocator(player, door.getDoorUID());
                 close();
                 break;
-            case DIRECTION_OPEN:
-            case DIRECTION_GO:
-            case DIRECTION_NSEW_LOOK:
+            case DIRECTION_STRAIGHT:
+            case DIRECTION_ROTATE:
                 changeOpenDir(player, door);
                 break;
             case CHANGETIMER:
@@ -554,21 +553,14 @@ public class GUI
             ret = new GUIItem(CHANGETIMEMAT, desc, lore, count);
             break;
 
-        case DIRECTION_OPEN:
-            desc = messages.getString("GUI.Direction.Name");
-            loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
-            lore.add(loreStr);
-            ret = new GUIItem(SETOPENDIRMAT, desc, lore, 1);
-            break;
-
-        case DIRECTION_GO:
+        case DIRECTION_STRAIGHT:
             desc = messages.getString("GUI.Direction.Name");
             loreStr = messages.getString("GUI.Direction.ThisDoorGoes") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             lore.add(loreStr);
             ret = new GUIItem(SETOPENDIRMAT, desc, lore, 1);
             break;
 
-        case DIRECTION_NSEW_LOOK:
+        case DIRECTION_ROTATE:
             desc = messages.getString("GUI.Direction.Name");
             loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             lore.add(loreStr);
