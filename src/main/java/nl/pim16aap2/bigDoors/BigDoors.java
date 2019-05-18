@@ -87,56 +87,63 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Allow adding owners to doors from console.j
 // TODO: Verify the title of the GUI before doing actions. Just to make sure nothing has gone wrong.
 
+
+
 // TODO: Make sure timers don't give an error when the player disconnects before finishing it.
-// TODO: Maybe check all player inventories on login/logout to make sure they don't have any leftover creators sticks.
-// TODO: Use OOP and make every GUI page its own class.
-
-
 // TODO: Implement movement modifiers for new door types.
 // TODO: Update XMaterial to support 1.14.
 // TODO: Take care of new materials introduced in 1.14 (stairs, blast furnace, etc).
 // TODO: Look into RetroCh1cken's report of small doors behaving weirdly.
+// TODO: Figure out "Caused by: java.lang.ClassNotFoundException: org.apache.commons.io.IOUtils" on 1.14.1.
+//       at nl.pim16aap2.bigDoors.SpigotUpdater.getNewVersion(xc:98) ~[?:?]
+// TODO: Check if all GUI buttons still work. (after renaming direction and removing DIRECTION_OPEN).
+// TODO: Make sure hook not hooked messages are NOT LOGGED in the log file. Only in the console. Just print a list:
+//       Hook: WorldGuard. Enabled: True.
+// TODO: "Soft remove" elevator type.
+// TODO: Allow more than 1 powerblock type.
+// TODO: Properly print "Incorrect location" for portcullis TU when location is incorrect.
+// TODO: Look into NPE from redstone ProtectionCompatManager:
+//       https://www.spigotmc.org/threads/big-doors.328449/page-31#post-3404262
+
 
 public class BigDoors extends JavaPlugin implements Listener
 {
-    public static final boolean DEVBUILD = false;
+    public static final boolean DEVBUILD = true;
 
 
-    private ToolVerifier                     tf;
-    private SQLiteJDBCDriverConnection       db;
-    private FallingBlockFactory_Vall       fabf;
-    private ConfigLoader                 config;
-    private String                       locale;
-    private MyLogger                     logger;
-    private SpigotUpdater               updater;
-    private Metrics                     metrics;
-    private File                        logFile;
-    private Messages                   messages;
-    private Commander                 commander = null;
-    private Vector<WaitForCommand>   cmdWaiters;
-    private DoorOpener               doorOpener;
-    private Vector<BlockMover>      blockMovers;
-    private BridgeOpener           bridgeOpener;
-    private CommandHandler       commandHandler;
+    private ToolVerifier tf;
+    private SQLiteJDBCDriverConnection db;
+    private FallingBlockFactory_Vall fabf;
+    private ConfigLoader config;
+    private String locale;
+    private MyLogger logger;
+    private SpigotUpdater updater;
+    private Metrics metrics;
+    private File logFile;
+    private Messages messages;
+    private Commander commander = null;
+    private Vector<WaitForCommand> cmdWaiters;
+    private DoorOpener doorOpener;
+    private Vector<BlockMover> blockMovers;
+    private BridgeOpener bridgeOpener;
+    private CommandHandler commandHandler;
     private SlidingDoorOpener slidingDoorOpener;
-    private PortcullisOpener   portcullisOpener;
-    private RedstoneHandler     redstoneHandler;
-    private ElevatorOpener       elevatorOpener;
-    private boolean                validVersion;
-    private String                  loginString;
+    private PortcullisOpener portcullisOpener;
+    private RedstoneHandler redstoneHandler;
+    private ElevatorOpener elevatorOpener;
+    private boolean validVersion;
+    private String loginString;
     @SuppressWarnings("unused")
-    private FlagOpener               flagOpener;
-    private HashMap<UUID, ToolUser>   toolUsers;
-    private HashMap<UUID, GUI>       playerGUIs;
-    private boolean              is1_13 = false;
+    private FlagOpener flagOpener;
+    private HashMap<UUID, ToolUser> toolUsers;
+    private HashMap<UUID, GUI> playerGUIs;
+    private boolean is1_13 = false;
     private FakePlayerCreator fakePlayerCreator;
-
+    private AutoCloseScheduler autoCloseScheduler;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
-    //                 Chunk         Location DoorUID
-    private TimedCache<Long, HashMap<Long,    Long>> pbCache = null;
+    private TimedCache<Long /*Chunk*/, HashMap<Long /*Loc*/, Long /*doorUID*/>> pbCache = null;
     private HeadManager headManager;
-
     private EconomyManager economyManager;
 
     @Override
@@ -165,47 +172,47 @@ public class BigDoors extends JavaPlugin implements Listener
 
             init();
             headManager.init();
-            economyManager    = new EconomyManager(this);
+            economyManager = new EconomyManager(this);
+            autoCloseScheduler = new AutoCloseScheduler(this);
 
-            Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
-            Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
-            Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler (this), this);
+            Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
+            Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
+            Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler(this), this);
             // No need to put these in init, as they should not be reloaded.
-            pbCache           = new TimedCache<>(this, config.cacheTimeout());
-            protCompatMan     = new ProtectionCompatManager(this);
+            pbCache = new TimedCache<>(this, config.cacheTimeout());
+            protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
-            db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
-            commander         = new Commander(this, db);
-            doorOpener        = new DoorOpener(this);
-            flagOpener        = new FlagOpener(this);
-            bridgeOpener      = new BridgeOpener(this);
-            bridgeOpener      = new BridgeOpener(this);
-            commandHandler    = new CommandHandler(this);
-            elevatorOpener    = new ElevatorOpener(this);
-            portcullisOpener  = new PortcullisOpener(this);
+            db = new SQLiteJDBCDriverConnection(this, config.dbFile());
+            commander = new Commander(this, db);
+            doorOpener = new DoorOpener(this);
+            flagOpener = new FlagOpener(this);
+            bridgeOpener = new BridgeOpener(this);
+            commandHandler = new CommandHandler(this);
+            elevatorOpener = new ElevatorOpener(this);
+            portcullisOpener = new PortcullisOpener(this);
             slidingDoorOpener = new SlidingDoorOpener(this);
 
             registerCommand("inspectpowerblockloc");
-            registerCommand("changepowerblockloc" );
-            registerCommand("setautoclosetime"    );
-            registerCommand("setdoorrotation"     );
-            registerCommand("setblockstomove"     );
-            registerCommand("newportcullis"       );
-            registerCommand("toggledoor"          );
-            registerCommand("pausedoors"          );
-            registerCommand("closedoor"           );
-            registerCommand("doordebug"           );
-            registerCommand("listdoors"           );
-            registerCommand("stopdoors"           );
-            registerCommand("bdcancel"            );
-            registerCommand("filldoor"            );
-            registerCommand("doorinfo"            );
-            registerCommand("opendoor"            );
-            registerCommand("nameDoor"            );
-            registerCommand("bigdoors"            );
-            registerCommand("newdoor"             );
-            registerCommand("deldoor"             );
-            registerCommand("bdm"                 );
+            registerCommand("changepowerblockloc");
+            registerCommand("setautoclosetime");
+            registerCommand("setdoorrotation");
+            registerCommand("setblockstomove");
+            registerCommand("newportcullis");
+            registerCommand("toggledoor");
+            registerCommand("pausedoors");
+            registerCommand("closedoor");
+            registerCommand("doordebug");
+            registerCommand("listdoors");
+            registerCommand("stopdoors");
+            registerCommand("bdcancel");
+            registerCommand("filldoor");
+            registerCommand("doorinfo");
+            registerCommand("opendoor");
+            registerCommand("nameDoor");
+            registerCommand("bigdoors");
+            registerCommand("newdoor");
+            registerCommand("deldoor");
+            registerCommand("bdm");
 
             liveDevelopmentLoad();
         }
@@ -346,6 +353,11 @@ public class BigDoors extends JavaPlugin implements Listener
     public BigDoors getPlugin()
     {
         return this;
+    }
+
+    public AutoCloseScheduler getAutoCloseScheduler()
+    {
+        return autoCloseScheduler;
     }
 
     public FakePlayerCreator getFakePlayerCreator()

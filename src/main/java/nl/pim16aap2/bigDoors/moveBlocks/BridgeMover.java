@@ -58,6 +58,7 @@ public class BridgeMover implements BlockMover
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
             DoorDirection openDirection, boolean instantOpen)
     {
+        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         fabf = plugin.getFABF();
         engineSide = door.getEngSide();
         NS = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
@@ -389,24 +390,7 @@ public class BridgeMover implements BlockMover
             plugin.getCommander().setDoorAvailable(door.getDoorUID());
 
         if (!onDisable)
-            goAgain();
-    }
-
-    private void goAgain()
-    {
-        int autoCloseTimer = door.getAutoClose();
-        if (autoCloseTimer < 0 || !door.isOpen())
-            return;
-
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()), time, instantOpen, false);
-            }
-        }.runTaskLater(plugin, autoCloseTimer * 20);
+            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
     // Method that takes care of the rotation aspect.

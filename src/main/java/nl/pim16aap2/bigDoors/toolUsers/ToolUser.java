@@ -141,10 +141,11 @@ public abstract class ToolUser extends Abortable
     // Take any selection tools in the player's inventory from them.
     public final void takeToolFromPlayer()
     {
-        for (ItemStack is : player.getInventory())
-            if (is != null)
-                if (plugin.getTF().isTool(is))
-                    is.setAmount(0);
+        player.getInventory().forEach(K ->
+        {
+            if (plugin.getTF().isTool(K))
+                K.setAmount(0);
+        });
     }
 
     // Make sure position "one" contains the minimum values, "two" the maximum

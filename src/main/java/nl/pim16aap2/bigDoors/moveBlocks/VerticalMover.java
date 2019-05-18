@@ -41,6 +41,7 @@ public class VerticalMover implements BlockMover
     @SuppressWarnings("deprecation")
     public VerticalMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove)
     {
+        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.plugin = plugin;
         this.world  = world;
         this.door   = door;
@@ -213,24 +214,7 @@ public class VerticalMover implements BlockMover
             plugin.getCommander().setDoorAvailable(door.getDoorUID());
 
         if (!onDisable)
-            goAgain();
-    }
-
-    private void goAgain()
-    {
-        int autoCloseTimer = door.getAutoClose();
-        if (autoCloseTimer < 0 || !door.isOpen())
-            return;
-
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()), time, instantOpen, false);
-            }
-        }.runTaskLater(plugin, autoCloseTimer * 20);
+            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
     private Location getNewLocation(double xAxis, double yAxis, double zAxis)

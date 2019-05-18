@@ -38,6 +38,7 @@ public class FlagMover implements BlockMover
     @SuppressWarnings("deprecation")
     public FlagMover(BigDoors plugin, World world, double time, Door door)
     {
+        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.plugin = plugin;
         this.world  = world;
         this.door   = door;
@@ -183,12 +184,7 @@ public class FlagMover implements BlockMover
             plugin.getCommander().setDoorAvailable(door.getDoorUID());
 
         if (!onDisable)
-            goAgain();
-    }
-
-    private void goAgain()
-    {
-        return;
+            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
     private Location getNewLocation(double xAxis, double yAxis, double zAxis)

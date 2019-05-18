@@ -55,6 +55,7 @@ public class CylindricalMover implements BlockMover
     public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
             Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
     {
+        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.rotDirection     = rotDirection;
         this.currentDirection = currentDirection;
         this.plugin           = plugin;
@@ -265,24 +266,7 @@ public class CylindricalMover implements BlockMover
             plugin.getCommander().setDoorAvailable(door.getDoorUID());
 
         if (!onDisable)
-            goAgain();
-    }
-
-    private void goAgain()
-    {
-        int autoCloseTimer = door.getAutoClose();
-        if (autoCloseTimer < 0 || !door.isOpen())
-            return;
-
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()), time, instantOpen, false);
-            }
-        }.runTaskLater(plugin, autoCloseTimer * 20);
+            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
     // Method that takes care of the rotation aspect.
