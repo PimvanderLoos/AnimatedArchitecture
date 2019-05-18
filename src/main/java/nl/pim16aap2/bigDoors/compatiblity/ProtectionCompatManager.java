@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -19,7 +20,7 @@ import nl.pim16aap2.bigDoors.util.Util;
 public class ProtectionCompatManager implements Listener
 {
     private final BigDoors plugin;
-    private final ArrayList<ProtectionCompat> protectionCompats;
+    private final Set<ProtectionCompat> protectionCompats;
 
     /* This class keeps track of all protection compats.
      * It allows you to test if you can break a block or all blocks
@@ -37,7 +38,7 @@ public class ProtectionCompatManager implements Listener
     public ProtectionCompatManager(BigDoors plugin)
     {
         this.plugin = plugin;
-        protectionCompats = new ArrayList<>();
+        protectionCompats = new HashSet<>();
         loadLoadedPlugins(true);
     }
 
@@ -187,7 +188,7 @@ public class ProtectionCompatManager implements Listener
             }
             catch (NullPointerException e)
             {
-                plugin.getMyLogger().logMessageToConsole("Could not find PlotSquared! Hook not enabled!");
+                plugin.getMyLogger().logMessageToConsoleOnly("Could not find WorldGuard! Hook not enabled!");
             }
             catch (Exception e)
             {
@@ -198,6 +199,7 @@ public class ProtectionCompatManager implements Listener
                     plugin.getMyLogger().logMessageToConsole(
                           "Now resuming normal startup with Worldguard Compatibility Hook disabled!");
                 }
+                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
             }
     }
 
@@ -238,7 +240,7 @@ public class ProtectionCompatManager implements Listener
             }
             catch (NullPointerException e)
             {
-                plugin.getMyLogger().logMessageToConsole("Could not find PlotSquared! Hook not enabled!");
+                plugin.getMyLogger().logMessageToConsoleOnly("Could not find PlotSquared! Hook not enabled!");
             }
             catch (Exception e)
             {
@@ -249,6 +251,7 @@ public class ProtectionCompatManager implements Listener
                     plugin.getMyLogger().logMessageToConsole(
                           "Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
                 }
+                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
             }
     }
 }
