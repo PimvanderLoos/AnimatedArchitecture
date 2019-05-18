@@ -255,7 +255,7 @@ public class BridgeOpener implements Opener
         // Change door availability so it cannot be opened again (just temporarily, don't worry!).
         plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-        plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen));
+        plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen, plugin.getConfigLoader().dbMultiplier()));
 
         return DoorOpenResult.SUCCESS;
     }

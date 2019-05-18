@@ -56,7 +56,7 @@ public class BridgeMover implements BlockMover
 
     @SuppressWarnings("deprecation")
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
-            DoorDirection openDirection, boolean instantOpen)
+            DoorDirection openDirection, boolean instantOpen, double multiplier)
     {
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         fabf = plugin.getFABF();
@@ -79,10 +79,10 @@ public class BridgeMover implements BlockMover
         int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
         int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
         int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().dbMultiplier(), 5.2);
+        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
         this.time = vars[0];
         tickRate = (int) vars[1];
-        multiplier = vars[2];
+        this.multiplier = vars[2];
 
         // Regarding dx, dz. These variables determine whether loops get incremented (1) or decremented (-1)
         // When looking in the direction of the opposite point from the engine side, the blocks should get

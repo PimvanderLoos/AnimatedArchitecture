@@ -84,12 +84,10 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
 // TODO: Create "creator" abstract class as subclass of ToolUser from which all creators can be derived, so
 //       the finishUp() method can be safely used from all class types.
-// TODO: Allow adding owners to doors from console.j
+// TODO: Allow adding owners to doors from console.
 // TODO: Verify the title of the GUI before doing actions. Just to make sure nothing has gone wrong.
 
 
-
-// TODO: Implement movement modifiers for new door types.
 // TODO: Look into RetroCh1cken's report of small doors behaving weirdly.
 // TODO: Figure out "Caused by: java.lang.ClassNotFoundException: org.apache.commons.io.IOUtils" on 1.14.1.
 //       at nl.pim16aap2.bigDoors.SpigotUpdater.getNewVersion(xc:98) ~[?:?]

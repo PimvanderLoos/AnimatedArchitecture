@@ -23,6 +23,9 @@ public class ConfigLoader
     private double pcMultiplier = 1.0;
     private double dbMultiplier = 1.0;
     private double bdMultiplier = 1.0;
+    private double sdMultiplier = 1.0;
+    private double flMultiplier = 1.0;
+    private double elMultiplier = 1.0;
     private String resourcePack;
     private String languageFile;
     private int maxDoorCount;
@@ -82,7 +85,7 @@ public class ConfigLoader
         String[] multiplierComment = { "These multipliers affect the opening/closing speed of their respective door types.",
                                        "Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
                                        "To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
-                                       "bd = Big Door, pc = Portcullis, db = Drawbridge.",
+                                       "bd = Big Door, pc = PortCullis, db = DrawBridge, sd = Sliding Door, fl = FLag, el = ELevator.",
                                        "Note that everything is optimized for default values, so it's recommended to leave this setting as-is." };
         String[] compatibilityHooks = { "Enable or disable compatibility hooks for certain plugins. If the plugins aren't installed, these options do nothing.",
                                         "When enabled, doors cannot be opened or created in areas not owned by the door's owner." };
@@ -154,6 +157,15 @@ public class ConfigLoader
 
         dbMultiplier = config.getDouble("dbMultiplier", 0.0D);
         configOptionsList.add(new ConfigOption("dbMultiplier", dbMultiplier, null));
+
+        sdMultiplier = config.getDouble("sdMultiplier", 0.0D);
+        configOptionsList.add(new ConfigOption("sdMultiplier", sdMultiplier, null));
+
+        flMultiplier = config.getDouble("flMultiplier", 0.0D);
+        configOptionsList.add(new ConfigOption("flMultiplier", flMultiplier, null));
+
+        elMultiplier = config.getDouble("elMultiplier", 0.0D);
+        configOptionsList.add(new ConfigOption("elMultiplier", elMultiplier, null));
 
         coolDown = config.getInt("coolDown", 0);
         configOptionsList.add(new ConfigOption("coolDown", coolDown, coolDownComment));
@@ -278,6 +290,21 @@ public class ConfigLoader
     public double bdMultiplier()
     {
         return bdMultiplier;
+    }
+
+    public double sdMultiplier()
+    {
+        return sdMultiplier;
+    }
+
+    public double flMultiplier()
+    {
+        return flMultiplier;
+    }
+
+    public double elMultiplier()
+    {
+        return elMultiplier;
     }
 
     public String resourcePack()

@@ -77,7 +77,7 @@ public class PortcullisOpener implements Opener
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-            plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove));
+            plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove, plugin.getConfigLoader().pcMultiplier()));
         }
         return DoorOpenResult.SUCCESS;
     }

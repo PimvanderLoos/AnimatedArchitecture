@@ -40,7 +40,7 @@ public class CylindricalMover implements BlockMover
     private final BigDoors                plugin;
     private final int                   tickRate;
     private double              endStepSum;
-    private final double              multiplier;
+    private double              multiplier;
     private final boolean            instantOpen;
     private double            startStepSum;
     private final RotateDirection   rotDirection;
@@ -53,7 +53,7 @@ public class CylindricalMover implements BlockMover
 
     @SuppressWarnings("deprecation")
     public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
-            Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen)
+            Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen, double multiplier)
     {
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.rotDirection     = rotDirection;
@@ -75,10 +75,10 @@ public class CylindricalMover implements BlockMover
         int xLen      = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
         int zLen      = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
         int doorSize  = Math.max(xLen, zLen) + 1;
-        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().bdMultiplier(), 3.7);
+        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 3.7);
         this.time     = vars[0];
         tickRate      = (int) vars[1];
-        multiplier    = vars[2];
+        this.multiplier    = vars[2];
 
         dx   = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
         dz   = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
