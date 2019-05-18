@@ -92,11 +92,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Figure out "Caused by: java.lang.ClassNotFoundException: org.apache.commons.io.IOUtils" on 1.14.1.
 //       at nl.pim16aap2.bigDoors.SpigotUpdater.getNewVersion(xc:98) ~[?:?]
 // TODO: Check if all GUI buttons still work. (after renaming direction and removing DIRECTION_OPEN).
-// TODO: Allow more than 1 powerblock type.
-// TODO: Look into NPE from redstone ProtectionCompatManager:
-//       https://www.spigotmc.org/threads/big-doors.328449/page-31#post-3404262
-// TODO: Return success message after restaring BD.
-
+// TODO: Use Vault for offline permission checking in ProtectionCompatManager. Checking regularly causes NPE.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -136,7 +132,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private LoginResourcePackHandler rPackHandler;
     private TimedCache<Long /*Chunk*/, HashMap<Long /*Loc*/, Long /*doorUID*/>> pbCache = null;
     private HeadManager headManager;
-    private EconomyManager economyManager;
+    private VaultManager vaultManager;
 
     @Override
     public void onEnable()
@@ -160,11 +156,11 @@ public class BigDoors extends JavaPlugin implements Listener
                 return;
             }
 
-            fakePlayerCreator = new FakePlayerCreator();
+            fakePlayerCreator = new FakePlayerCreator(this);
 
             init();
             headManager.init();
-            economyManager = new EconomyManager(this);
+            vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
 
             Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
@@ -275,14 +271,14 @@ public class BigDoors extends JavaPlugin implements Listener
             commander.setCanGo(true);
     }
 
-    public String canBreakBlock(Player player, Location loc)
+    public String canBreakBlock(UUID playerUUID, Location loc)
     {
-        return protCompatMan.canBreakBlock(player, loc);
+        return protCompatMan.canBreakBlock(playerUUID, loc);
     }
 
-    public String canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
     {
-        return protCompatMan.canBreakBlocksBetweenLocs(player, loc1, loc2);
+        return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
     }
 
     public void restart()
@@ -303,7 +299,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         init();
 
-        economyManager.init();
+        vaultManager.init();
         pbCache.reinit(config.cacheTimeout());
         headManager.reload();
     }
@@ -482,9 +478,9 @@ public class BigDoors extends JavaPlugin implements Listener
         return config;
     }
 
-    public EconomyManager getEconomyManager()
+    public VaultManager getVaultManager()
     {
-        return economyManager;
+        return vaultManager;
     }
 
     // Get the ToolVerifier.

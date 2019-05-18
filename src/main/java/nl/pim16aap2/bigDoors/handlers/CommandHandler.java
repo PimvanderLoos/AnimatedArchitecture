@@ -349,6 +349,7 @@ public class CommandHandler implements CommandExecutor
 
             case "restart":
                 plugin.restart();
+                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "BigDoors has been restarted!");
                 break;
 
             case "stop":

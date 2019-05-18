@@ -75,7 +75,7 @@ public abstract class ToolUser extends Abortable
             Location engine = new Location(world, this.engine.getBlockX(), this.engine.getBlockY(), this.engine.getBlockZ());
             Location powerB = new Location(world, this.engine.getBlockX(), this.engine.getBlockY() - 1, this.engine.getBlockZ());
 
-            String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player, min, max);
+            String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max);
             if (canBreakBlock != null)
             {
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
@@ -91,7 +91,7 @@ public abstract class ToolUser extends Abortable
 
             if (sizeLimit >= 0 && sizeLimit <= doorSize)
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);
-            else if (plugin.getEconomyManager().buyDoor(player, type, doorSize))
+            else if (plugin.getVaultManager().buyDoor(player, type, doorSize))
             {
                 plugin.getCommander().addDoor(door);
                 if (message != null)

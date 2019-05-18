@@ -758,7 +758,6 @@ public class SQLiteJDBCDriverConnection
     private DoorOwner getOwnerOfDoor(final Connection conn, final long doorUID) throws SQLException
     {
         DoorOwner doorOwner = null;
-
         String command = "SELECT * FROM sqlUnion WHERE doorUID = '" + doorUID +
                          "' AND permission = '" + 0 + "';";
         PreparedStatement ps1 = conn.prepareStatement(command);

@@ -58,7 +58,7 @@ public class ElevatorCreator extends ToolUser
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
-        String canBreakBlock = plugin.canBreakBlock(player, loc);
+        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
         if (canBreakBlock != null)
         {
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);

@@ -9,14 +9,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import com.mojang.authlib.GameProfile;
+
+import nl.pim16aap2.bigDoors.BigDoors;
 
 /* This class is used to create a fake online player
  * from a provided online player in a provided world.
  */
 public class FakePlayerCreator
 {
+    public static final String FAKEPLAYERMETADATA = "isBigDoorsFakePlayer";
     private final String NMSbase;
     private final String CraftBase;
     private Class<?> CraftOfflinePlayer;
@@ -46,8 +50,12 @@ public class FakePlayerCreator
         return Class.forName(CraftBase + name);
     }
 
-    public FakePlayerCreator()
+    private final BigDoors plugin;
+
+    public FakePlayerCreator(final BigDoors plugin)
     {
+        this.plugin = plugin;
+
         NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
         CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
         try
@@ -109,7 +117,8 @@ public class FakePlayerCreator
         {
             e.printStackTrace();
         }
-
+        if (player != null)
+            player.setMetadata(FAKEPLAYERMETADATA, new FixedMetadataValue(plugin, true));
         return player;
     }
 }

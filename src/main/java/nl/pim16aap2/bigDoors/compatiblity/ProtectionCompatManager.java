@@ -21,6 +21,7 @@ public class ProtectionCompatManager implements Listener
 {
     private final BigDoors plugin;
     private final Set<ProtectionCompat> protectionCompats;
+    private static final String byPassPermission = "bigdoors.admin.bypasscompat";
 
     /* This class keeps track of all protection compats.
      * It allows you to test if you can break a block or all blocks
@@ -65,38 +66,46 @@ public class ProtectionCompatManager implements Listener
 
     private boolean canByPass(Player player)
     {
-        return player.isOp() || player.hasPermission("bigdoors.admin.bypasscompat");
+        if (player.isOp())
+            return true;
+
+        // offline players don't have permissions, so use Vault if that's the case.
+        if (player.hasMetadata(FakePlayerCreator.FAKEPLAYERMETADATA))
+            return player.hasPermission(byPassPermission);
+        return plugin.getVaultManager().hasPermission(player, byPassPermission);
     }
 
-    public String canBreakBlock(Player player, Location loc)
+    public String canBreakBlock(UUID playerUUID, Location loc)
     {
-        if (canByPass(player))
+        Player fakePlayer = getPlayer(playerUUID, loc.getWorld());
+        if (canByPass(fakePlayer))
             return null;
 
         for (ProtectionCompat compat : protectionCompats)
             try
             {
-                if (!compat.canBreakBlock(getPlayer(player.getUniqueId(), loc.getWorld()), loc))
+                if (!compat.canBreakBlock(fakePlayer, loc))
                     return compat.getName();
             }
             catch(Exception e)
             {
                 plugin.getMyLogger().warn("Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:");
                 e.printStackTrace();
-                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+                plugin.getMyLogger().logMessageToLogFile(compat.getPlugin().getName() + "\n" + Util.exceptionToString(e));
             }
         return null;
     }
 
-    public String canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
     {
-        if (canByPass(player))
+        Player fakePlayer = getPlayer(playerUUID, loc1.getWorld());
+        if (canByPass(fakePlayer))
             return null;
 
         for (ProtectionCompat compat : protectionCompats)
             try
             {
-                if (!compat.canBreakBlocksBetweenLocs(getPlayer(player.getUniqueId(), loc1.getWorld()), loc1, loc2))
+                if (!compat.canBreakBlocksBetweenLocs(fakePlayer, loc1, loc2))
                     return compat.getName();
             }
             catch(Exception e)

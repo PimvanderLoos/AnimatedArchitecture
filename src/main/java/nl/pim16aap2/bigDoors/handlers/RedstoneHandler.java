@@ -1,8 +1,5 @@
 package nl.pim16aap2.bigDoors.handlers;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -12,6 +9,7 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
+import nl.pim16aap2.bigDoors.util.Util;
 
 public class RedstoneHandler implements Listener
 {
@@ -67,9 +65,8 @@ public class RedstoneHandler implements Listener
         catch (Exception e)
         {
             plugin.getMyLogger().logMessage("Exception thrown while handling redstone event!", true, false);
-            StringWriter sw = new StringWriter();
-            e.printStackTrace(new PrintWriter(sw));
-            plugin.getMyLogger().logMessageToLogFile("79 " + sw.toString());
+            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+//            e.printStackTrace();
         }
     }
 }

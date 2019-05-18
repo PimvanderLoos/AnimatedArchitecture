@@ -7,6 +7,8 @@ Alpha 0.1.8.7
 - Removed 1 block depth restriction from portcullises.
 - Added support for 1.14's new blocks.
 - Added missing multipliers for the new door types to the config. Thanks, @kristinr96 for the report!
+- Instead of a single powerblocktype, the config now accepts a list of materials.
+- Fixed NPE thrown by bypassCompat when checking for offline players. Thanks, @bolleboor and @mafen for the bug reports! 
 
 Alpha 0.1.8.6
 - Connected blocks (i.e. fences, iron bars, panes, etc) now stay connected in portcullises, sliding doors, and elevators in 1.13.* and 1.14.*.
