@@ -224,7 +224,7 @@ public class CommandHandler implements CommandExecutor
             return;
 
         // These are disabled.
-        if (type == DoorType.FLAG)
+        if (type.equals(DoorType.FLAG) || type.equals(DoorType.ELEVATOR)) // DISABLED ELEVATORS
             return;
 
         ToolUser tu = type == DoorType.DOOR        ? new DoorCreator       (plugin, player, name) :

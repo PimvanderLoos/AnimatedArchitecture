@@ -90,7 +90,11 @@ public class Door
     }
 
     // ------------------------ SIMPLE GETTERS -------------------- //
-    public DoorType getType()           {  return type;          }  // Get this door's type.
+//    public DoorType getType()           {  return type;          }  // Get this door's type.
+    public DoorType getType()
+    {
+        return type.equals(DoorType.ELEVATOR) ?  DoorType.PORTCULLIS : type; // DISABLED ELEVATORS
+    }
     public String getName()             {  return name;          }  // Get the name of the door.
     public World getWorld()             {  return world;         }  // Get the world this door is in.
     public long getDoorUID()            {  return doorUID;       }  // Get doorUID as used in the doors table in the db.

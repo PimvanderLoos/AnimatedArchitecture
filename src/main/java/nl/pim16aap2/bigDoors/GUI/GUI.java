@@ -184,7 +184,7 @@ public class GUI
         items.put(1, new GUIItem(TOGGLEDOORMAT, messages.getString("GUI.SORTED.Change"), lore, 1));
         lore.clear();
 
-        addCreationBook(DoorType.ELEVATOR,    2, "GUI.NewElevator"   );
+//        addCreationBook(DoorType.ELEVATOR,    2, "GUI.NewElevator"   ); // DISABLED ELEVATORS
         addCreationBook(DoorType.DRAWBRIDGE,  3, "GUI.NewDrawbridge" );
         addCreationBook(DoorType.DOOR,        4, "GUI.NewDoor"       );
         addCreationBook(DoorType.PORTCULLIS,  5, "GUI.NewPortcullis" );

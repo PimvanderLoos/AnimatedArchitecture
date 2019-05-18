@@ -2,7 +2,9 @@ Alpha 0.1.8.7
 - Fixed missing openDirection option for the portcullis type. Thanks, @RetroCh1cken for the bug report!
 - Fixed autoCloseTimers potentially overlapping. Thanks, @RetroCh1cken for the bug report!
 - Selection tool is removed from player's inventory if they logout before finishing or timing out any process involving a selection tool.
-- Selection tool cannot be moved into chests etc anymore
+- Selection tool cannot be moved into chests etc anymore.
+- Soft removed Elevator door type to avoid confusion. When reintroduced (with elevating capabilities), they'll show up as elevators again. Until then, they look and function like portcullises.
+- Removed 1 block depth restriction from portcullises.
 
 Alpha 0.1.8.6
 - Connected blocks (i.e. fences, iron bars, panes, etc) now stay connected in portcullises, sliding doors, and elevators in 1.13.* and 1.14.*.
