@@ -5,9 +5,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import nl.pim16aap2.bigDoors.BigDoors;
@@ -33,7 +38,9 @@ public class ConfigLoader
     private boolean autoDLUpdate;
     private int downloadDelay;
     private boolean enableRedstone;
-    private String powerBlockType;
+
+    private HashSet<Material> powerBlockTypesMap;
+
     private boolean worldGuardHook;
     private boolean checkForUpdates;
     private boolean plotSquaredHook;
@@ -45,10 +52,13 @@ public class ConfigLoader
     public static boolean DEBUG = false;
     private final BigDoors plugin;
 
+    private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Arrays.asList("GOLD_BLOCK"));
+
     public ConfigLoader(BigDoors plugin)
     {
         this.plugin = plugin;
         configOptionsList = new ArrayList<>();
+        powerBlockTypesMap = new HashSet<>();
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
         makeConfig();
     }
@@ -63,7 +73,7 @@ public class ConfigLoader
         String[] enableRedstoneComment = { "Allow doors to be opened using redstone signals." };
         String[] powerBlockTypeComment = { "Choose the type of the power block that is used to open doors using redstone.",
                                            "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
-                                           "This is the block that will open doors placed on top of it when it receives a redstone signal." };
+                                           "This is the block that will open the door attached to it when it receives a redstone signal." };
         String[] maxDoorCountComment = { "Maximum number of doors a player can own. -1 = infinite." };
         String[] languageFileComment = { "Specify a language file to be used. Note that en_US.txt will get regenerated!" };
         String[] dbFileComment = { "Pick the name (and location if you want) of the database." };
@@ -113,8 +123,7 @@ public class ConfigLoader
         enableRedstone = config.getBoolean("allowRedstone", true);
         configOptionsList.add(new ConfigOption("allowRedstone", enableRedstone, enableRedstoneComment));
 
-        powerBlockType = config.getString("powerBlockType", "GOLD_BLOCK");
-        configOptionsList.add(new ConfigOption("powerBlockType", powerBlockType, powerBlockTypeComment));
+        readPowerBlockConfig(config, powerBlockTypeComment);
 
         maxDoorCount = config.getInt("maxDoorCount", -1);
         configOptionsList.add(new ConfigOption("maxDoorCount", maxDoorCount, maxDoorCountComment));
@@ -203,6 +212,60 @@ public class ConfigLoader
         configOptionsList.add(new ConfigOption("DEBUG", ConfigLoader.DEBUG, debugComment));
 
         writeConfig();
+    }
+
+    private void readPowerBlockConfig(FileConfiguration config, String[] powerBlockTypeComment)
+    {
+        List<String> materials;
+
+        {
+            List<?> materialsTmp = config.getList("powerBlockTypes", DEFAULTPOWERBLOCK);
+            // If the user is illiterate and failed to read the part saying it should be an enum string and used
+            // non-String values, put those in a new String list.
+            materials = new ArrayList<>();
+            materialsTmp.forEach(K -> materials.add(K.toString()));
+        }
+
+        // Try to put all the found materials into a String map.
+        // Only valid and solid material Strings are allowed.
+        // Everything else is thrown out.
+        Iterator<String> it = materials.iterator();
+        while (it.hasNext())
+        {
+            String str = it.next();
+            try
+            {
+                Material mat = Material.valueOf(str);
+                if (mat.isSolid())
+                    powerBlockTypesMap.add(mat);
+                else
+                {
+                    plugin.getMyLogger().logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true, false);
+                    it.remove();
+                }
+            }
+            catch (Exception e)
+            {
+                plugin.getMyLogger().logMessage("Failed to parse material: \"" + str + "\"", true, false);
+                it.remove();
+            }
+        }
+
+        // If the user didn't supply even a single valid block, use the default.
+        if (powerBlockTypesMap.size() == 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            DEFAULTPOWERBLOCK.forEach(K -> sb.append(K + " "));
+            plugin.getMyLogger().logMessage("No materials found for powerBlockType! Defaulting to:" + sb.toString(), true, false);
+            DEFAULTPOWERBLOCK.forEach(K ->
+            {
+                powerBlockTypesMap.add(Material.valueOf(K));
+                materials.add(K);
+            });
+        }
+        configOptionsList.add(new ConfigOption("powerBlockTypes", materials, powerBlockTypeComment));
+        plugin.getMyLogger().logMessageToConsoleOnly("Power Block Types:");
+        powerBlockTypesMap.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K.toString()));
     }
 
     // Write new config file.
@@ -337,9 +400,14 @@ public class ConfigLoader
         return enableRedstone;
     }
 
-    public String powerBlockType()
+//    public String powerBlockType()
+//    {
+//        return powerBlockType;
+//    }
+
+    public HashSet<Material> getPowerBlockTypes()
     {
-        return powerBlockType;
+        return powerBlockTypesMap;
     }
 
     public boolean worldGuardHook()

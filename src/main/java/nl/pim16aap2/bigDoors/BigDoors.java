@@ -92,11 +92,10 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Figure out "Caused by: java.lang.ClassNotFoundException: org.apache.commons.io.IOUtils" on 1.14.1.
 //       at nl.pim16aap2.bigDoors.SpigotUpdater.getNewVersion(xc:98) ~[?:?]
 // TODO: Check if all GUI buttons still work. (after renaming direction and removing DIRECTION_OPEN).
-// TODO: Make sure hook not hooked messages are NOT LOGGED in the log file. Only in the console. Just print a list:
-//       Hook: WorldGuard. Enabled: True.
 // TODO: Allow more than 1 powerblock type.
 // TODO: Look into NPE from redstone ProtectionCompatManager:
 //       https://www.spigotmc.org/threads/big-doors.328449/page-31#post-3404262
+// TODO: Return success message after restaring BD.
 
 
 public class BigDoors extends JavaPlugin implements Listener

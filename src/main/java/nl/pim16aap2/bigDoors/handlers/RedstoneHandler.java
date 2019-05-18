@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,25 +16,11 @@ import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 public class RedstoneHandler implements Listener
 {
     private final BigDoors plugin;
-    private final Material powerBlock;
 
     public RedstoneHandler(BigDoors plugin)
     {
         this.plugin = plugin;
-        powerBlock = Material.getMaterial(plugin.getConfigLoader().powerBlockType());
     }
-
-    // Log players interacting with redstone source and log the time and location at
-    // which it happened.
-    // Then, if a door is found, check for nearby players that triggered a redstone
-    // signal recently.
-    // Use this information to check for permissions to open doors. Store it in an
-    // arraylist or something.
-//    @EventHandler
-//    public void onRedStoneToggled(PlayerInteractEvent event)
-//    {
-//        // TODO: Check interactions with switches, placing redstone torches, hitting buttons (hand / arrow), pressure plates
-//    }
 
     public boolean checkDoor(Location loc)
     {
@@ -61,22 +46,22 @@ public class RedstoneHandler implements Listener
 
             int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
 
-            if (location.getWorld().getBlockAt(x, y, z - 1).getType() == powerBlock) // North
+            if (plugin.getConfigLoader().getPowerBlockTypes().contains(location.getWorld().getBlockAt(x, y, z - 1).getType())) // North
                 checkDoor(new Location(location.getWorld(), x, y, z - 1));
 
-            if (location.getWorld().getBlockAt(x + 1, y, z).getType() == powerBlock) // East
+            if (plugin.getConfigLoader().getPowerBlockTypes().contains(location.getWorld().getBlockAt(x + 1, y, z).getType())) // East
                 checkDoor(new Location(location.getWorld(), x + 1, y, z));
 
-            if (location.getWorld().getBlockAt(x, y, z + 1).getType() == powerBlock) // South
+            if (plugin.getConfigLoader().getPowerBlockTypes().contains(location.getWorld().getBlockAt(x, y, z + 1).getType())) // South
                 checkDoor(new Location(location.getWorld(), x, y, z + 1));
 
-            if (location.getWorld().getBlockAt(x - 1, y, z).getType() == powerBlock) // West
+            if (plugin.getConfigLoader().getPowerBlockTypes().contains(location.getWorld().getBlockAt(x - 1, y, z).getType())) // West
                 checkDoor(new Location(location.getWorld(), x - 1, y, z));
 
-            if (location.getWorld().getBlockAt(x, y + 1, z).getType() == powerBlock) // Above
+            if (plugin.getConfigLoader().getPowerBlockTypes().contains(location.getWorld().getBlockAt(x, y + 1, z).getType())) // Above
                 checkDoor(new Location(location.getWorld(), x, y + 1, z));
 
-            if (location.getWorld().getBlockAt(x, y - 1, z).getType() == powerBlock) // Under
+            if (plugin.getConfigLoader().getPowerBlockTypes().contains(location.getWorld().getBlockAt(x, y - 1, z).getType())) // Under
                 checkDoor(new Location(location.getWorld(), x, y - 1, z));
         }
         catch (Exception e)
@@ -85,7 +70,6 @@ public class RedstoneHandler implements Listener
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             plugin.getMyLogger().logMessageToLogFile("79 " + sw.toString());
-//            e.printStackTrace();
         }
     }
 }
