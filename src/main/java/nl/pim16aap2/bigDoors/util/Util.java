@@ -341,12 +341,7 @@ public final class Util
         if (xmat.equals(XMaterial.ACACIA_LOG)             || xmat.equals(XMaterial.BIRCH_LOG)           || xmat.equals(XMaterial.DARK_OAK_LOG)       ||
             xmat.equals(XMaterial.JUNGLE_LOG)             || xmat.equals(XMaterial.OAK_LOG)             || xmat.equals(XMaterial.SPRUCE_LOG))
             return 1;
-        if (xmat.equals(XMaterial.ACACIA_STAIRS)          || xmat.equals(XMaterial.BIRCH_STAIRS)        || xmat.equals(XMaterial.BRICK_STAIRS)       ||
-            xmat.equals(XMaterial.COBBLESTONE_STAIRS)     || xmat.equals(XMaterial.DARK_OAK_STAIRS)     || xmat.equals(XMaterial.JUNGLE_STAIRS)      ||
-            xmat.equals(XMaterial.NETHER_BRICK_STAIRS)    || xmat.equals(XMaterial.PURPUR_STAIRS)       || xmat.equals(XMaterial.QUARTZ_STAIRS)      ||
-            xmat.equals(XMaterial.RED_SANDSTONE_STAIRS)   || xmat.equals(XMaterial.SANDSTONE_STAIRS)    || xmat.equals(XMaterial.PRISMARINE_STAIRS)  ||
-            xmat.equals(XMaterial.DARK_PRISMARINE_STAIRS) || xmat.equals(XMaterial.SPRUCE_STAIRS)       || xmat.equals(XMaterial.OAK_STAIRS)          ||
-            xmat.equals(XMaterial.PRISMARINE_BRICK_STAIRS)|| xmat.equals(XMaterial.RED_SANDSTONE_STAIRS)|| xmat.equals(XMaterial.STONE_BRICK_STAIRS))
+        if (mat.toString().endsWith("STAIRS"))
             return 2;
         if (xmat.equals(XMaterial.WHITE_STAINED_GLASS)       || xmat.equals(XMaterial.YELLOW_STAINED_GLASS)          ||
             xmat.equals(XMaterial.PURPLE_STAINED_GLASS)      || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS)      ||
@@ -367,7 +362,7 @@ public final class Util
             return 4;
         if (xmat.equals(XMaterial.COBBLESTONE_WALL))
             return 5;
-        if (    xmat.equals(XMaterial.STRIPPED_ACACIA_LOG)    || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG)  || xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG)||
+        if (xmat.equals(XMaterial.STRIPPED_ACACIA_LOG)    || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG)  || xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG)||
             xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG)  || xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG))
             return 6;
         if (xmat.equals(XMaterial.END_ROD))
@@ -378,12 +373,18 @@ public final class Util
     // Certain blocks don't work in doors, so don't allow their usage.
     public static boolean isAllowedBlock(Material mat)
     {
-        XMaterial xmat = XMaterial.fromString(mat.toString());
+        String name = mat.toString();
+
+        if (name.endsWith("SLAB") || name.endsWith("STAIRS") || name.endsWith("WALL"))
+            return true;
+
+        XMaterial xmat = XMaterial.fromString(name);
         if (xmat == null)
         {
-            Util.broadcastMessage("Could not determine material of mat: " + mat.toString());
+            Util.broadcastMessage("Could not determine material of mat: " + name);
             return false;
         }
+
 
         switch(xmat)
         {
@@ -401,8 +402,7 @@ public final class Util
         case HOPPER:
         case JUKEBOX:
         case PAINTING:
-        case SIGN:
-        case WALL_SIGN:
+
         case SPAWNER:
         case FURNACE:
         case FURNACE_MINECART:
@@ -488,7 +488,6 @@ public final class Util
         case ATTACHED_MELON_STEM:
         case ATTACHED_PUMPKIN_STEM:
         case WHITE_TULIP:
-        case DANDELION_YELLOW:
         case LILY_PAD:
         case SUGAR_CANE:
         case PUMPKIN_STEM:
@@ -558,6 +557,43 @@ public final class Util
         case LIGHT_BLUE_WALL_BANNER:
         case LIGHT_GRAY_BANNER:
         case LIGHT_GRAY_WALL_BANNER:
+
+        /* 1.14 start */
+
+        case DANDELION:
+        case CORNFLOWER:
+        case LILY_OF_THE_VALLEY:
+        case WITHER_ROSE:
+        case BARREL:
+        case ACACIA_SIGN:
+        case BIRCH_SIGN:
+        case DARK_OAK_SIGN:
+        case JUNGLE_SIGN:
+        case OAK_SIGN:
+        case SPRUCE_SIGN:
+
+        case ACACIA_WALL_SIGN:
+        case BIRCH_WALL_SIGN:
+        case DARK_OAK_WALL_SIGN:
+        case JUNGLE_WALL_SIGN:
+        case OAK_WALL_SIGN:
+        case SPRUCE_WALL_SIGN:
+        case BLAST_FURNACE:
+        case CARTOGRAPHY_TABLE:
+        case COMPOSTER:
+        case FLETCHING_TABLE:
+
+        case GRINDSTONE:
+        case JIGSAW:
+        case LECTERN:
+        case LOOM:
+        case SMITHING_TABLE:
+//        case SMOKER:
+        case STONECUTTER:
+        case SWEET_BERRY_BUSH:
+
+        /* 1.14 end */
+
             return false;
         default:
             return true;

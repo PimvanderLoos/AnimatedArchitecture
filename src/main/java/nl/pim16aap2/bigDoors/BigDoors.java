@@ -89,19 +89,14 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 
 
-// TODO: Make sure timers don't give an error when the player disconnects before finishing it.
 // TODO: Implement movement modifiers for new door types.
-// TODO: Update XMaterial to support 1.14.
-// TODO: Take care of new materials introduced in 1.14 (stairs, blast furnace, etc).
 // TODO: Look into RetroCh1cken's report of small doors behaving weirdly.
 // TODO: Figure out "Caused by: java.lang.ClassNotFoundException: org.apache.commons.io.IOUtils" on 1.14.1.
 //       at nl.pim16aap2.bigDoors.SpigotUpdater.getNewVersion(xc:98) ~[?:?]
 // TODO: Check if all GUI buttons still work. (after renaming direction and removing DIRECTION_OPEN).
 // TODO: Make sure hook not hooked messages are NOT LOGGED in the log file. Only in the console. Just print a list:
 //       Hook: WorldGuard. Enabled: True.
-// TODO: "Soft remove" elevator type.
 // TODO: Allow more than 1 powerblock type.
-// TODO: Properly print "Incorrect location" for portcullis TU when location is incorrect.
 // TODO: Look into NPE from redstone ProtectionCompatManager:
 //       https://www.spigotmc.org/threads/big-doors.328449/page-31#post-3404262
 

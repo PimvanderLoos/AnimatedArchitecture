@@ -36,7 +36,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 
-public enum XMaterial {
+public enum XMaterial
+{
     ACACIA_BOAT(0, "BOAT_ACACIA"),
     ACACIA_BUTTON(0, "WOOD_BUTTON"),
     ACACIA_DOOR(0, "ACACIA_DOOR","ACACIA_DOOR_ITEM"),
@@ -151,7 +152,7 @@ public enum XMaterial {
     BUBBLE_CORAL_FAN(0, "STONE"),
     BUCKET(0, "BUCKET"),
     CACTUS(0, "CACTUS"),
-    CACTUS_GREEN(2, "INK_SACK"),
+    GREEN_DYE(2,  "CACTUS_GREEN", "INK_SACK"),
     CAKE(0, "CAKE", "CAKE_BLOCK"),
     CARROT(0, "CARROT_ITEM"),
     CARROTS(0, "CARROT"),
@@ -211,9 +212,9 @@ public enum XMaterial {
     COW_SPAWN_EGG(0, "MONSTER_EGG"),
     CRACKED_STONE_BRICKS(2, "SMOOTH_BRICK"),
     CRAFTING_TABLE(0, "WORKBENCH"),
-    CREEPER_HEAD(0, "SKULL_ITEM"),
+    CREEPER_HEAD(0, "SKULL","SKULL_ITEM"),
     CREEPER_SPAWN_EGG(0, "MONSTER_EGG"),
-    CREEPER_WALL_HEAD(0, "SKULL_ITEM"),
+    CREEPER_WALL_HEAD(0, "SKULL","SKULL_ITEM"),
     CUT_RED_SANDSTONE(0, "STONE"),
     CUT_SANDSTONE(0, "STONE"),
     CYAN_BANNER(6, "BANNER", "STANDING_BANNER"),
@@ -231,7 +232,7 @@ public enum XMaterial {
     CYAN_WOOL(9, "WOOL"),
     DAMAGED_ANVIL(2, "ANVIL"),
     DANDELION(0, "YELLOW_FLOWER"),
-    DANDELION_YELLOW(11, "INK_SACK"),
+    YELLOW_DYE(11, "DANDELION_YELLOW", "INK_SACK"),
     DARK_OAK_BOAT(0, "BOAT_DARK_OAK"),
     DARK_OAK_BUTTON(0, "WOOD_BUTTON"),
     DARK_OAK_DOOR(0, "DARK_OAK_DOOR", "DARK_OAK_DOOR_ITEM"),
@@ -278,8 +279,8 @@ public enum XMaterial {
     DONKEY_SPAWN_EGG(0, "MONSTER_EGG"),
     DRAGON_BREATH(0, "DRAGONS_BREATH"),
     DRAGON_EGG(0, "DRAGON_EGG"),
-    DRAGON_HEAD(5, "SKULL_ITEM"),
-    DRAGON_WALL_HEAD(0, "SKULL_ITEM"),
+    DRAGON_HEAD(5, "SKULL","SKULL_ITEM"),
+    DRAGON_WALL_HEAD(0, "SKULL","SKULL_ITEM"),
     DRIED_KELP(0, "STONE"),
     DRIED_KELP_BLOCK(0, "STONE"),
     DROPPER(0, "DROPPER"),
@@ -411,7 +412,7 @@ public enum XMaterial {
     IRON_HORSE_ARMOR(0, "IRON_BARDING"),
     IRON_INGOT(0, "IRON_INGOT"),
     IRON_LEGGINGS(0, "IRON_LEGGINGS"),
-    IRON_NUGGET(0, "IRON_NUGGET"),
+    IRON_NUGGET(0, "IRON_NUGGET", "GOLD_NUGGET"),
     IRON_ORE(0, "IRON_ORE"),
     IRON_PICKAXE(0, "IRON_PICKAXE"),
     IRON_SHOVEL(0, "IRON_SPADE"),
@@ -569,7 +570,7 @@ public enum XMaterial {
     OAK_STAIRS(0, "WOOD_STAIRS"),
     OAK_TRAPDOOR(0, "TRAP_DOOR"),
     OAK_WOOD(0, "LOG"),
-    OBSERVER(0, "OBSERVER"),
+    OBSERVER(0, "OBSERVER", "STONE"),
     OBSIDIAN(0, "OBSIDIAN"),
     OCELOT_SPAWN_EGG(0, "RECORD_12"),
     ORANGE_BANNER(14, "BANNER", "STANDING_BANNER"),
@@ -612,8 +613,8 @@ public enum XMaterial {
     PINK_WOOL(6, "WOOL"),
     PISTON(0, "PISTON_BASE"),
     PISTON_HEAD(0, "PISTON_EXTENSION"),
-    PLAYER_HEAD(0, "SKULL_ITEM"),
-    PLAYER_WALL_HEAD(0, "SKULL_ITEM"),
+    PLAYER_HEAD(0, /*"SKULL",*/"SKULL_ITEM"),
+    PLAYER_WALL_HEAD(0, "SKULL","SKULL_ITEM"),
     PODZOL(2, "DIRT"),
     POISONOUS_POTATO(0, "POISONOUS_POTATO"),
     POLAR_BEAR_SPAWN_EGG(0, "MONSTER_EGG"),
@@ -721,7 +722,7 @@ public enum XMaterial {
     REPEATER(0, "DIODE", "DIODE_BLOCK_ON", "DIODE_BLOCK_OFF"),
     REPEATING_COMMAND_BLOCK(0, "COMMAND_REPEATING"),
     ROSE_BUSH(4, "DOUBLE_PLANT"),
-    ROSE_RED(1, "INK_SACK"),
+    RED_DYE(1, "ROSE_RED", "INK_SACK"),
     ROTTEN_FLESH(0, "ROTTEN_FLESH"),
     SADDLE(0, "SADDLE"),
     SALMON(1, "RAW_FISH"),
@@ -731,6 +732,7 @@ public enum XMaterial {
     SANDSTONE(0, "SANDSTONE"),
     SANDSTONE_SLAB(1, "STONE_SLAB", "STEP", "DOUBLE_STEP"),
     SANDSTONE_STAIRS(0, "SANDSTONE_STAIRS"),
+    SCAFFOLDING(0, "STONE"),
     SCUTE(0, "STONE"),
     SEAGRASS(0, "STONE"),
     SEA_LANTERN(0, "SEA_LANTERN"),
@@ -741,12 +743,11 @@ public enum XMaterial {
     SHULKER_BOX(0, "PURPLE_SHULKER_BOX"),
     SHULKER_SHELL(0, "SHULKER_SHELL"),
     SHULKER_SPAWN_EGG(0, "MONSTER_EGG"),
-    SIGN(0, "SIGN"),
     SILVERFISH_SPAWN_EGG(0, "MONSTER_EGG"),
     SKELETON_HORSE_SPAWN_EGG(0, "MONSTER_EGG"),
-    SKELETON_SKULL(0, "SKULL_ITEM"),
+    SKELETON_SKULL(0, "SKULL","SKULL_ITEM"),
     SKELETON_SPAWN_EGG(0, "MONSTER_EGG"),
-    SKELETON_WALL_SKULL(0, "SKULL_ITEM"),
+    SKELETON_WALL_SKULL(0, "SKULL","SKULL_ITEM"),
     SLIME_BALL(0, "SLIME_BALL"),
     SLIME_BLOCK(0, "SLIME_BLOCK"),
     SLIME_SPAWN_EGG(0, "MONSTER_EGG"),
@@ -791,7 +792,6 @@ public enum XMaterial {
     STONE_PICKAXE(0, "STONE_PICKAXE"),
     STONE_PRESSURE_PLATE(0, "STONE_PLATE"),
     STONE_SHOVEL(0, "STONE_SPADE"),
-    STONE_SLAB(0, "STONE_SLAB", "STEP", "DOUBLE_STEP"),
     STONE_SWORD(0, "STONE_SWORD"),
     STRAY_SPAWN_EGG(0, "MONSTER_EGG"),
     STRING(0, "STRING"),
@@ -838,7 +838,6 @@ public enum XMaterial {
     VINDICATOR_SPAWN_EGG(0, "MONSTER_EGG"),
     VINE(0, "VINE"),
     VOID_AIR(0, "AIR"),
-    WALL_SIGN(0, "WALL_SIGN", "SIGN_POST"),
     WALL_TORCH(1, "TORCH"),
     WATER(0, "WATER", "STATIONARY_WATER"),
     WATER_BUCKET(0, "WATER_BUCKET"),
@@ -859,9 +858,9 @@ public enum XMaterial {
     WHITE_WALL_BANNER(0, "WALL_BANNER"),
     WHITE_WOOL(0, "WOOL"),
     WITCH_SPAWN_EGG(0, "MONSTER_EGG"),
-    WITHER_SKELETON_SKULL(0, "SKULL_ITEM"),
+    WITHER_SKELETON_SKULL(0, "SKULL","SKULL_ITEM"),
     WITHER_SKELETON_SPAWN_EGG(0, "MONSTER_EGG"),
-    WITHER_SKELETON_WALL_SKULL(0, "SKULL_ITEM"),
+    WITHER_SKELETON_WALL_SKULL(0, "SKULL","SKULL_ITEM"),
     WOLF_SPAWN_EGG(0, "MONSTER_EGG"),
     WOODEN_AXE(0, "WOOD_AXE"),
     WOODEN_HOE(0, "WOOD_HOE"),
@@ -882,146 +881,224 @@ public enum XMaterial {
     YELLOW_TERRACOTTA(4, "STAINED_CLAY"),
     YELLOW_WALL_BANNER(0, "WALL_BANNER"),
     YELLOW_WOOL(4, "WOOL"),
-    ZOMBIE_HEAD(0, "SKULL_ITEM"),
+    ZOMBIE_HEAD(0, "SKULL","SKULL_ITEM"),
     ZOMBIE_HORSE_SPAWN_EGG(0, "MONSTER_EGG"),
     ZOMBIE_PIGMAN_SPAWN_EGG(0, "MONSTER_EGG"),
     ZOMBIE_SPAWN_EGG(0, "MONSTER_EGG"),
     ZOMBIE_VILLAGER_SPAWN_EGG(0, "MONSTER_EGG"),
-    ZOMBIE_WALL_HEAD(0, "SKULL_ITEM"),
-    ;
-    String[] m;
-    int data;
+    ZOMBIE_WALL_HEAD(0, "SKULL","SKULL_ITEM"),
 
-    XMaterial(int data, String... m){
+
+    /* 1.14 start */
+    LILY_OF_THE_VALLEY(0, "STONE"),
+    WITHER_ROSE(0, "STONE"),
+
+    COMPOSTER(0, "STONE"),
+    CARTOGRAPHY_TABLE(0, "STONE"),
+    BARREL(0, "STONE"),
+    BELL(0, "STONE"),
+    BLAST_FURNACE(0, "STONE"),
+    CORNFLOWER(0, "STONE"),
+    FLETCHING_TABLE(0, "STONE"),
+    GRINDSTONE(0, "STONE"),
+    JIGSAW(0, "STONE"),
+    LANTERN(0, "STONE"),
+    LECTERN(0, "STONE"),
+    LOOM(0, "STONE"),
+
+    CAMPFIRE(0, "STONE"),
+
+    SMITHING_TABLE(0, "STONE"),
+    SMOKER(0, "STONE"),
+    STONECUTTER(0, "STONE"),
+    SWEET_BERRY_BUSH(0, "STONE"),
+
+    OAK_SIGN(0, "SIGN"),
+    ACACIA_SIGN(0, "SIGN"),
+    SPRUCE_SIGN(0, "SIGN"),
+    BIRCH_SIGN(0, "SIGN"),
+    DARK_OAK_SIGN(0, "SIGN"),
+    JUNGLE_SIGN(0, "SIGN"),
+
+    OAK_WALL_SIGN(0, "WALL_SIGN", "SIGN_POST"),
+    ACACIA_WALL_SIGN(0, "WALL_SIGN", "SIGN_POST"),
+    SPRUCE_WALL_SIGN(0, "WALL_SIGN", "SIGN_POST"),
+    BIRCH_WALL_SIGN(0, "WALL_SIGN", "SIGN_POST"),
+    DARK_OAK_WALL_SIGN(0, "WALL_SIGN", "SIGN_POST"),
+    JUNGLE_WALL_SIGN(0, "WALL_SIGN", "SIGN_POST"),
+
+
+
+    SMOOTH_STONE_SLAB(0, "STONE_SLAB", "STEP", "DOUBLE_STEP"),
+
+    // New slab types aren't implemented (yet?)
+
+    /* 1.14 end */
+    ;
+
+
+    private static HashMap<String, Material> cache = new HashMap<>();
+
+    XMaterial(int data, String... m)
+    {
         this.m = m;
         this.data = data;
     }
 
-    public ItemStack parseItem(){
-        Material mat = parseMaterial();
-        if(isNewVersion()){
-            return new ItemStack(mat);
-        }
-        return new ItemStack(mat,1,(byte) data);
-    }
-    public static boolean isNewVersion(){
-        Material mat = Material.getMaterial("RED_WOOL");
-        if(mat != null){
-            return true;
-        }
-        return false;
+    String[] m;
+    int data;
+    private static Boolean isNew = null;
+
+
+    public static boolean isNewVersion()
+    {
+        return isNew != null ? isNew : (isNew = Material.getMaterial("RED_WOOL") != null);
     }
 
     private static HashMap<String, XMaterial> cachedSearch = new HashMap<>();
-    public static XMaterial requestXMaterial(String name, byte data){
-        if(cachedSearch.containsKey(name.toUpperCase()+","+data)){
+    public static XMaterial requestXMaterial(String name, byte data)
+    {
+        if(cachedSearch.containsKey(name.toUpperCase()+","+data))
             return cachedSearch.get(name.toUpperCase()+","+data);
-        }
-        for(XMaterial mat:XMaterial.values()){
-            for(String test:mat.m){
-                if(name.toUpperCase().equals(test) && ((byte)mat.data) == data){
+        for(XMaterial mat : XMaterial.values())
+            for(String test:mat.m)
+                if(name.toUpperCase().equals(test) && ((byte)mat.data) == data)
+                {
                     cachedSearch.put(test+","+data,mat);
                     return mat;
                 }
-            }
-        }
         return null;
     }
 
-    @SuppressWarnings("deprecation")
-    public boolean isSameMaterial(ItemStack comp){
-        if(isNewVersion()){
-            return comp.getType() == parseMaterial();
-        }
-        if(comp.getType() == parseMaterial() &&
-                comp.getData().getData() == data){
+    public boolean isSameMaterial(ItemStack comp)
+    {
+        if(isNewVersion())
+            return comp.getType() == getMaterial();
+
+        if(comp.getType() == getMaterial() && comp.getData().getData() == data)
             return true;
-        }
+
         XMaterial xmat = fromMaterial(comp.getType());
-        if(isDamageable(xmat)){
-            if(parseMaterial() == comp.getType()){
+
+        if(isDamageable(xmat))
+            if(getMaterial() == comp.getType())
                 return true;
-            }
-        }
         return false;
     }
 
-    public XMaterial fromMaterial(Material mat){
-        try{
+    public Material parseMaterial()
+    {
+        Material mat = Material.matchMaterial(toString());
+        if(mat != null)
+            return mat;
+        return Material.matchMaterial(m[0]);
+    }
+
+    public boolean isDamageable(XMaterial type)
+    {
+        if (type == null)
+            return false;
+
+        String[] split = type.toString().split("_");
+        int length = split.length;
+        switch(split[length - 1])
+        {
+            case "HELMET":
+                return true;
+            case "CHESTPLATE":
+                return true;
+            case "LEGGINGS":
+                return true;
+            case "BOOTS":
+                return true;
+            case "SWORD":
+                return true;
+            case "AXE":
+                return true;
+            case "PICKAXE":
+                return true;
+            case "SHOVEL":
+                return true;
+            case "HOE":
+                return true;
+            case "ELYTRA":
+                return true;
+            case "TURTLE_HELMET":
+                return true;
+            case "TRIDENT":
+                return true;
+            case "HORSE_ARMOR":
+                return true;
+            case "SHEARS":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public XMaterial fromMaterial(Material mat)
+    {
+        try
+        {
             return XMaterial.valueOf(mat.toString());
-        }catch(IllegalArgumentException e){
-            for(XMaterial xmat:XMaterial.values()){
-                for(String test:xmat.m){
-                    if(test.equalsIgnoreCase(mat.toString())){
+        }
+        catch(IllegalArgumentException e)
+        {
+            for(XMaterial xmat: XMaterial.values())
+                for(String test:xmat.m)
+                    if(test.equalsIgnoreCase(mat.toString()))
                         return xmat;
-                    }
-                }
-            }
         }
         return null;
     }
 
-    public static XMaterial fromString(String key){
+    public ItemStack getItemStack()
+    {
+        Material mat = getMaterial();
+        if (isNewVersion())
+            return new ItemStack(mat);
+        return new ItemStack(mat, 1, (byte) data);
+    }
+
+    public Material getMaterial()
+    {
+        //if material exists in this Mc version use the standard material class
+        Material mat = Material.matchMaterial(toString());
+        if(mat != null)
+            return mat;
+
+        //if cache
+        mat = cache.get(toString());
+        if (mat != null)
+            return mat;
+
+        //else find the right one
+        for (int i = 0; i < m.length; i++)
+        {
+            mat = Material.matchMaterial(m[i]);
+            if (mat != null)
+                cache.put(toString(), Material.valueOf(m[i]));
+        }
+        return mat;
+    }
+
+    public static XMaterial fromString(String key)
+    {
         XMaterial xmat = null;
-        try{
+        try
+        {
             xmat = XMaterial.valueOf(key);
             return xmat;
-        }catch(IllegalArgumentException e){
+        }
+        catch(IllegalArgumentException e)
+        {
             String[] split = key.split(":");
-            if(split.length == 1){
+            if(split.length == 1)
                 xmat = requestXMaterial(key,(byte) 0);
-            }else{
+            else
                 xmat = requestXMaterial(split[0],(byte) Integer.parseInt(split[1]));
-            }
             return xmat;
         }
 
     }
-
-    public boolean isDamageable(XMaterial type){
-        if(type == null) return false;
-        String[] split = type.toString().split("_");
-        int length = split.length;
-        switch(split[length-1]){
-        case "HELMET":
-            return true;
-        case "CHESTPLATE":
-            return true;
-        case "LEGGINGS":
-            return true;
-        case "BOOTS":
-            return true;
-        case "SWORD":
-            return true;
-        case "AXE":
-            return true;
-        case "PICKAXE":
-            return true;
-        case "SHOVEL":
-            return true;
-        case "HOE":
-            return true;
-        case "ELYTRA":
-            return true;
-        case "TURTLE_HELMET":
-            return true;
-        case "TRIDENT":
-            return true;
-        case "HORSE_ARMOR":
-            return true;
-        case "SHEARS":
-            return true;
-        default:
-            return false;
-        }
-    }
-
-    public Material parseMaterial(){
-        Material mat = Material.matchMaterial(toString());
-        if(mat != null){
-            return mat;
-        }
-        return Material.matchMaterial(m[0]);
-    }
-
 }
