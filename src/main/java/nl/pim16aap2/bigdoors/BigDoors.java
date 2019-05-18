@@ -102,6 +102,9 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Use Event for restart command. Then let stuff that needs to do stuff on restart subscribe.
 // TODO: Rename RotateDirection to moveDirection. Lifts don't rotate. They lift.
 // TODO: Update rotatable blocks after finishing rotation etc.
+// TODO: Cache all doors. Instead of constantly getting updated doors etc from the database, just get a cached door. 
+//       This also means that a set of owners (and their permission) should be stored in a door object. 
+//       Add a sync() method to sync any changes to the door with the database or send changes via commander. Might be faster.
 
 /*
  * GUI
@@ -153,6 +156,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Rotate Sea Pickle and turtle egg.
 // TODO: Don't do any replacing by air stuff in the openers/movers. Instead, do it in the NMSBlock part. Also make sure
 //       to copy all rotational blockdata stuff properly!
+// TODO: Add door opening/closing scheduler. This should 
+// TODO: Schedule doorAutoCloseTimer properly. When it is closed manually, the timer should be cancelled!
 
 /*
  * ToolUsers
