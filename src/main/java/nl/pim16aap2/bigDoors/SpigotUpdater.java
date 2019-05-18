@@ -10,8 +10,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 
-import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.libs.org.apache.commons.io.IOUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONArray;
@@ -105,6 +105,7 @@ public class SpigotUpdater
     {
         int MIN_AGE = plugin.getConfigLoader().downloadDelay() * 60;
         int age = -1000; // Default 1 second, so 0 or negative seconds = don't wait.
+        @SuppressWarnings("deprecation")
         JSONArray versionsArray = (JSONArray) JSONValue.parseWithException(IOUtils.toString(new URL(String.valueOf(VERSIONS_URL))));
         int count = 0;
         newVersion   = "";

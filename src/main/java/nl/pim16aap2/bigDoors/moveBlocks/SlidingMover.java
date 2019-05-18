@@ -44,7 +44,6 @@ public class SlidingMover implements BlockMover
     public SlidingMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove, RotateDirection openDirection,
                         double multiplier)
     {
-        Util.broadcastMessage("Sliding door mover! multiplier = " + multiplier);
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.plugin        = plugin;
         this.world         = world;

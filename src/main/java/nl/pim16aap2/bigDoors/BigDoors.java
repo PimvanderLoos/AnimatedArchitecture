@@ -88,11 +88,9 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Verify the title of the GUI before doing actions. Just to make sure nothing has gone wrong.
 
 
-// TODO: Look into RetroCh1cken's report of small doors behaving weirdly.
-// TODO: Figure out "Caused by: java.lang.ClassNotFoundException: org.apache.commons.io.IOUtils" on 1.14.1.
-//       at nl.pim16aap2.bigDoors.SpigotUpdater.getNewVersion(xc:98) ~[?:?]
+
 // TODO: Check if all GUI buttons still work. (after renaming direction and removing DIRECTION_OPEN).
-// TODO: Use Vault for offline permission checking in ProtectionCompatManager. Checking regularly causes NPE.
+
 
 public class BigDoors extends JavaPlugin implements Listener
 {
