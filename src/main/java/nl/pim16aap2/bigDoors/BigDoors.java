@@ -90,7 +90,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 public class BigDoors extends JavaPlugin implements Listener
 {
-    public static final boolean DEVBUILD = true;
+    public static final boolean DEVBUILD = false;
 
 
     private ToolVerifier tf;
