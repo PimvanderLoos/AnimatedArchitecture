@@ -235,7 +235,7 @@ public class BridgeMover implements BlockMover
                         int canRotate = 0;
                         Byte matByte  = matData;
 
-                        canRotate        = Util.canRotate(mat);
+                        canRotate = Util.canRotate(mat);
                         // Rotate blocks here so they don't interrupt the rotation animation.
                         if (canRotate == 1 || canRotate == 2 || canRotate == 3 || canRotate == 6 || canRotate == 7)
                         {
@@ -260,7 +260,8 @@ public class BridgeMover implements BlockMover
                                 }
                             }
                         }
-                        vBlock.setType(Material.AIR);
+                        if (!plugin.is1_13())
+                            vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
@@ -294,6 +295,15 @@ public class BridgeMover implements BlockMover
             gnl = new GetNewLocationWest (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
             break;
         }
+
+        // This is only supported on 1.13
+        if (plugin.is1_13())
+            for (MyBlockData mbd : savedBlocks)
+            {
+                NMSBlock_Vall block = mbd.getBlock();
+                if (block != null && Util.isAllowedBlock(mbd.getMat()))
+                    block.deleteOriginalBlock();
+            }
 
         if (!instantOpen)
             rotateEntities();

@@ -146,7 +146,8 @@ public class CylindricalMover implements BlockMover
                                     block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                                 }
                         }
-                        vBlock.setType(Material.AIR);
+                        if (!plugin.is1_13())
+                            vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
@@ -187,6 +188,15 @@ public class CylindricalMover implements BlockMover
             endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? Math.PI : 0;
             break;
         }
+        
+        // This is only supported on 1.13
+        if (plugin.is1_13())
+            for (MyBlockData mbd : savedBlocks)
+            {
+                NMSBlock_Vall block = mbd.getBlock();
+                if (block != null && Util.isAllowedBlock(mbd.getMat()))
+                    block.deleteOriginalBlock();
+            }
 
         if (!instantOpen)
             rotateEntities();

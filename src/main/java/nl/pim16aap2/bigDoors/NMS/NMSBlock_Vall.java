@@ -10,6 +10,7 @@ public interface NMSBlock_Vall
     public void putBlock(Location loc);
     public void rotateBlockUpDown(boolean NS);
     public void rotateCylindrical(RotateDirection rotDir);
+    public boolean canRotate();
 
     public void deleteOriginalBlock();
     @Override

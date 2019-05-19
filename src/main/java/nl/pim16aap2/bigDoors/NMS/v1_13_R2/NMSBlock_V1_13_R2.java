@@ -47,6 +47,12 @@ public class NMSBlock_V1_13_R2 extends net.minecraft.server.v1_13_R2.Block imple
     }
 
     @Override
+    public boolean canRotate()
+    {
+        return craftBlockData instanceof MultipleFacing;
+    }
+
+    @Override
     public void rotateBlock(RotateDirection rotDir)
     {
         EnumBlockRotation rot;

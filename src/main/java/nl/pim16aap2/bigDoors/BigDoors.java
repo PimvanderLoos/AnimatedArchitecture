@@ -88,10 +88,6 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 // TODO: Verify the title of the GUI before doing actions. Just to make sure nothing has gone wrong.
 
 
-
-// TODO: Check if all GUI buttons still work. (after renaming direction and removing DIRECTION_OPEN).
-
-
 public class BigDoors extends JavaPlugin implements Listener
 {
     public static final boolean DEVBUILD = true;
