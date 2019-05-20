@@ -21,6 +21,7 @@ public class DrawbridgeCreator extends ToolUser
     {
         super(plugin, player, name, DoorType.DRAWBRIDGE);
         Util.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Init"));
+        engineSide = null;
         if (name == null)
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
         else
@@ -49,17 +50,56 @@ public class DrawbridgeCreator extends ToolUser
     // Check if the engine selection is valid.
     private boolean isEngineValid(Location loc)
     {
+        // One is always the bottom one, so this makes sure it's on the bottom row.
         if (loc.getBlockY() != one.getBlockY())
             return false;
 
-        // For a drawbridge, the engine should be on one of the four sides (min x || max x || min z || max z).
-        boolean validPos =  loc.getBlockX() == one.getBlockX() ||
-                            loc.getBlockX() == two.getBlockX() ||
-                            loc.getBlockZ() == one.getBlockZ() ||
-                            loc.getBlockZ() == two.getBlockZ();
-        // You cannot select the same block twice.
-        if (!validPos || (engine != null && loc.equals(engine)))
+        boolean onEdge = loc.getBlockX() == one.getBlockX() ||
+                         loc.getBlockX() == two.getBlockX() ||
+                         loc.getBlockZ() == one.getBlockZ() ||
+                         loc.getBlockZ() == two.getBlockZ();
+
+        boolean inArea = Util.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
+                         Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
+
+        if (!onEdge || !inArea || (engine != null && loc.equals(engine)))
             return false;
+
+        int xDepth = Math.abs(one.getBlockX() - two.getBlockX());
+        int yDepth = Math.abs(one.getBlockY() - two.getBlockY());
+        int zDepth = Math.abs(one.getBlockZ() - two.getBlockZ());
+
+        if (yDepth == 0)
+        {
+            if (xDepth == 0)
+            {
+                if (loc.equals(one))
+                {
+                    engine = one;
+                    engineSide = DoorDirection.NORTH;
+                }
+                else if (loc.equals(two))
+                {
+                    engine = two;
+                    engineSide = DoorDirection.SOUTH;
+                }
+                return engineSide != null;
+            }
+            else if (zDepth == 0)
+            {
+                if (loc.equals(one))
+                {
+                    engine = one;
+                    engineSide = DoorDirection.WEST;
+                }
+                else if (loc.equals(two))
+                {
+                    engine = two;
+                    engineSide = DoorDirection.EAST;
+                }
+                return engineSide != null;
+            }
+        }
 
         // Check if there is any ambiguity. This happens when a corner was selected.
         if (engine == null)
@@ -156,11 +196,9 @@ public class DrawbridgeCreator extends ToolUser
         int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());
         int zDepth = Math.abs(one.getBlockZ() - loc.getBlockZ());
 
-        int count = 0;
-        count += xDepth > 0 ? 1 : 0;
-        count += yDepth > 0 ? 1 : 0;
-        count += zDepth > 0 ? 1 : 0;
-        return count == 2;
+        if (yDepth == 0)
+            return xDepth != 0 || zDepth != 0;
+        return xDepth != 0 ^ zDepth != 0;
     }
 
     // Take care of the selection points.

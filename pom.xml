@@ -41,13 +41,13 @@
         </repository>
     </repositories>
 
-    <dependencies> <!-- -->
+    <dependencies> <!-- -->        
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-1.11</artifactId>
             <version>1.11.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-1.12</artifactId>
@@ -72,12 +72,13 @@
             <version>1.13.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency> 
-        <dependency>
+        <dependency> 
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-1.14</artifactId>
             <version>1.14-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        
 
         <!-- bStats -->
         <dependency>
@@ -121,21 +122,22 @@
             <version>1.7</version>
             <scope>provided</scope>
         </dependency>
-        
-        <dependency>
-            <artifactId>commons-io</artifactId>
-            <groupId>commons-io</groupId>
-            <scope>compile</scope>
-            <version>2.5</version>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
                 <groupId>org.apache.maven.plugins</groupId>
-                <version>3.0.0</version>
+                <version>3.2.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
