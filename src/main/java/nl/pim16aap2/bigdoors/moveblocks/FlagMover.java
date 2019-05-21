@@ -34,8 +34,9 @@ public class FlagMover implements BlockMover
     private int           yMax, zMin, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
 
-    public FlagMover(BigDoors plugin, World world, double time, Door door)
+    public FlagMover(BigDoors plugin, World world, double time, Door door, @SuppressWarnings("unused") double multiplier)
     {
+        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.plugin = plugin;
         this.world  = world;
         this.door   = door;
@@ -72,16 +73,10 @@ public class FlagMover implements BlockMover
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
                     Block vBlock  = world.getBlockAt(xAxis, yAxis, zAxis);
                     Material mat  = vBlock.getType();
-                    if (!mat.equals(Material.AIR))
+
+                    if (Util.isAllowedBlock(vBlock))
                     {
-
                         NMSBlock_Vall block  = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
-
-                        // Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
-                        if (Util.isAllowedBlock(vBlock))
-                            vBlock.setType(Material.AIR);
-                        else
-                            mat = Material.AIR;
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
@@ -89,7 +84,7 @@ public class FlagMover implements BlockMover
                         savedBlocks.add(index, new MyBlockData(mat, fBlock, 0, block, 0, startLocation));
                     }
                     else
-                        savedBlocks.add(index, new MyBlockData(Material.AIR));
+                        savedBlocks.add(index, null);
                     ++index;
                 }
                 ++zAxis;
@@ -98,6 +93,11 @@ public class FlagMover implements BlockMover
             ++yAxis;
         }
         while (yAxis <= yMax);
+
+
+        for (MyBlockData mbd : savedBlocks)
+            if (mbd.getBlock() != null)
+                mbd.getBlock().deleteOriginalBlock();
 
         if (!instantOpen)
             rotateEntities();
@@ -147,7 +147,7 @@ public class FlagMover implements BlockMover
 
         // Tell the door object it has been opened and what its new coordinates are.
         if (!onDisable)
-            plugin.removeBlockMover(this);
+            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
 
         // Change door availability to true, so it can be opened again.
         // Wait for a bit if instantOpen is enabled.

@@ -14,4 +14,6 @@ public interface NMSBlock_Vall
 
     @Override
     public String toString();
+
+    public void deleteOriginalBlock();
 }

@@ -39,8 +39,9 @@ public class SlidingMover implements BlockMover
     private int           yMax, zMin, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
 
-    public SlidingMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove, RotateDirection openDirection)
+    public SlidingMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove, RotateDirection openDirection, double multiplier)
     {
+        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.plugin        = plugin;
         this.world         = world;
         this.door          = door;
@@ -61,19 +62,21 @@ public class SlidingMover implements BlockMover
         moveZ = NS ? this.blocksToMove : 0;
 
         double speed  = 1;
-        double pcMult = plugin.getConfigLoader().pcMultiplier();
+        double pcMult = multiplier;
         pcMult = pcMult == 0.0 ? 1.0 : pcMult;
         int maxSpeed  = 6;
+
         // If the time isn't default, calculate speed.
         if (time != 0.0)
         {
-            speed     = Math.abs(blocksToMove) / time * pcMult;
+            speed     = Math.abs(blocksToMove) / time;
             this.time = time;
         }
 
         // If the non-default exceeds the max-speed or isn't set, calculate default speed.
-        if (time == 0.0 || Math.abs(blocksToMove) / time > maxSpeed)
+        if (time == 0.0 || speed > maxSpeed)
         {
+            speed     = 1.4 * pcMult;
             speed     = speed > maxSpeed ? maxSpeed : speed;
             this.time = Math.abs(blocksToMove) / speed;
         }
@@ -96,15 +99,10 @@ public class SlidingMover implements BlockMover
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
                     Block vBlock  = world.getBlockAt(xAxis, yAxis, zAxis);
                     Material mat  = vBlock.getType();
-                    if (!mat.equals(Material.AIR))
+
+                    if (Util.isAllowedBlock(vBlock))
                     {
                         NMSBlock_Vall block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
-
-                        // Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
-                        if (Util.isAllowedBlock(vBlock))
-                            vBlock.setType(Material.AIR);
-                        else
-                            mat = Material.AIR;
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
@@ -112,7 +110,7 @@ public class SlidingMover implements BlockMover
                         savedBlocks.add(index, new MyBlockData(mat, fBlock, 0, block, 0, startLocation));
                     }
                     else
-                        savedBlocks.add(index, new MyBlockData(Material.AIR));
+                        savedBlocks.add(index, null);
                     ++index;
                 }
                 ++zAxis;
@@ -121,6 +119,10 @@ public class SlidingMover implements BlockMover
             ++yAxis;
         }
         while (yAxis <= yMax);
+
+        for (MyBlockData mbd : savedBlocks)
+            if (mbd.getBlock() != null)
+                mbd.getBlock().deleteOriginalBlock();
 
         if (!instantOpen)
             rotateEntities();
@@ -172,7 +174,7 @@ public class SlidingMover implements BlockMover
         updateCoords(door, null, openDirection, blocksToMove);
         toggleOpen  (door);
         if (!onDisable)
-            plugin.removeBlockMover(this);
+            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
 
         // Change door availability to true, so it can be opened again.
         // Wait for a bit if instantOpen is enabled.

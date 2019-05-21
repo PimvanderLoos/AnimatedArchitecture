@@ -27,10 +27,13 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
     private IBlockData blockData;
     private BlockData bukkitBlockData;
     private Material mat;
+    private Location loc;
 
     public NMSBlock_V1_14_R1(org.bukkit.World world, int x, int y, int z)
     {
         super(net.minecraft.server.v1_14_R1.Block.Info.a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
+
+        loc = new Location(world, x, y, z);
 
         bukkitBlockData = world.getBlockAt(x, y, z).getBlockData();
         if (bukkitBlockData instanceof Waterlogged)
@@ -255,39 +258,16 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
             loc.getWorld().getBlockAt(loc).setType(mat);
         }
     }
-//
-//    @Override
-//    public void rotateBlockUpDown(boolean NS)
-//    {
-//        EnumAxis axis    = blockData.get(BlockRotatable.AXIS);
-//        EnumAxis newAxis = axis;
-//        switch(axis)
-//        {
-//        case X:
-//            newAxis = NS ? EnumAxis.X : EnumAxis.Y;
-//            break;
-//        case Y:
-//            newAxis = NS ? EnumAxis.Z : EnumAxis.X;
-//            break;
-//        case Z:
-//            newAxis = NS ? EnumAxis.Y : EnumAxis.Z;
-//            break;
-//        }
-//        blockData = blockData.set(BlockRotatable.AXIS, newAxis);
-//    }
-////
-////    @Override
-////    public void rotateCylindrical(RotateDirection rotDir)
-////    {
-////        if (rotDir.equals(RotateDirection.CLOCKWISE))
-////            blockData = blockData.a(EnumBlockRotation.CLOCKWISE_90);
-////        else
-////            blockData = blockData.a(EnumBlockRotation.COUNTERCLOCKWISE_90);
-////    }
 
     @Override
     public String toString()
     {
         return blockData.toString();
+    }
+
+    @Override
+    public void deleteOriginalBlock()
+    {
+        loc.getBlock().setType(Material.AIR);
     }
 }

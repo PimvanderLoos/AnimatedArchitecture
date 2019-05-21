@@ -254,13 +254,13 @@ public class BridgeOpener implements Opener
                 instantOpen = true;
 
         // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
-        if (!plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()))
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null)
             return DoorOpenResult.NOPERMISSION;
 
         // Change door availability so it cannot be opened again (just temporarily, don't worry!).
         plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-        plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen));
+        plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen, plugin.getConfigLoader().dbMultiplier()));
 
         return DoorOpenResult.SUCCESS;
     }

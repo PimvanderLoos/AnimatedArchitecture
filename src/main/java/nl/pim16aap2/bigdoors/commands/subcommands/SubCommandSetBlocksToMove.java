@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
@@ -20,11 +21,10 @@ public class SubCommandSetBlocksToMove implements ISubCommand
     protected final BigDoors plugin;
     protected final CommandManager commandManager;
 
-    private static final String name = "setblockstomove";
-    private static final String permission = "bigdoors.user.setblockstomove";
     private static final String help = "Change the number of blocks the door will attempt to move in the provided direction";
     private static final String argsHelp = "{doorUID/Name} <blocks>";
     private static final int minArgCount = 3;
+    private static final CommandData command = CommandData.SETBLOCKSTOMOVE;
 
     public SubCommandSetBlocksToMove(final BigDoors plugin, final CommandManager commandManager)
     {
@@ -62,7 +62,7 @@ public class SubCommandSetBlocksToMove implements ISubCommand
         if (sender instanceof Player)
         {
             WaitForCommand cw = plugin.isCommandWaiter((Player) sender);
-            if (cw != null && cw.getCommand().equals(name))
+            if (cw != null && cw.getCommand().equals(getName()))
             {
                 if (args.length == minArgCount)
                     return cw.executeCommand(args);
@@ -85,20 +85,26 @@ public class SubCommandSetBlocksToMove implements ISubCommand
     }
 
     @Override
+    public int getMinArgCount()
+    {
+        return minArgCount;
+    }
+
+    @Override
+    public CommandData getCommandData()
+    {
+        return command;
+    }
+
+    @Override
     public String getPermission()
     {
-        return permission;
+        return CommandData.getPermission(command);
     }
 
     @Override
     public String getName()
     {
-        return name;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
+        return CommandData.getCommandName(command);
     }
 }

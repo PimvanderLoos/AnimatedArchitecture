@@ -39,7 +39,7 @@ public class CylindricalMover implements BlockMover
     private final BigDoors plugin;
     private final int tickRate;
     private double endStepSum;
-    private final double multiplier;
+    private double multiplier;
     private final boolean instantOpen;
     private double startStepSum;
     private final RotateDirection rotDirection;
@@ -51,8 +51,9 @@ public class CylindricalMover implements BlockMover
     private final List<MyBlockData> savedBlocks = new ArrayList<>();
 
     public CylindricalMover(BigDoors plugin, World world, RotateDirection rotDirection, double time,
-        Location pointOpposite, MyBlockFace currentDirection, Door door, boolean instantOpen)
+        Location pointOpposite, MyBlockFace currentDirection, Door door, boolean instantOpen, double multiplier)
     {
+        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.rotDirection = rotDirection;
         this.currentDirection = currentDirection;
         this.plugin = plugin;
@@ -78,10 +79,10 @@ public class CylindricalMover implements BlockMover
         int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
         int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
         int doorSize = Math.max(xLen, zLen) + 1;
-        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().bdMultiplier(), 3.7);
+        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 3.7);
         this.time = vars[0];
         tickRate = (int) vars[1];
-        multiplier = vars[2];
+        this.multiplier = vars[2];
 
         dx = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
         dz = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
@@ -109,25 +110,17 @@ public class CylindricalMover implements BlockMover
                     Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                     Material mat = vBlock.getType();
 
-                    if (!mat.equals(Material.AIR))
+                    if (Util.isAllowedBlock(vBlock))
                     {
                         NMSBlock_Vall block = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                         NMSBlock_Vall block2 = null;
                         boolean canRotate = false;
 
-                        // Certain blocks cannot be used the way normal blocks can (heads, (ender)
-                        // chests etc).
-                        if (Util.isAllowedBlock(vBlock))
+                        if (block.canRotate())
                         {
-                            if (block.canRotate())
-                            {
-                                block2 = block;
-                                block2.rotateBlock(rotDirection);
-                            }
-                            vBlock.setType(Material.AIR);
+                            block2 = block;
+                            block2.rotateBlock(rotDirection);
                         }
-                        else
-                            mat = Material.AIR;
 
                         CustomCraftFallingBlock_Vall fBlock = null;
 
@@ -173,6 +166,10 @@ public class CylindricalMover implements BlockMover
             break;
         }
 
+        for (MyBlockData mbd : savedBlocks)
+            if (mbd.getBlock() != null)
+                mbd.getBlock().deleteOriginalBlock();
+
         if (!instantOpen)
             rotateEntities();
         else
@@ -215,7 +212,7 @@ public class CylindricalMover implements BlockMover
         updateCoords(door, currentDirection, rotDirection, -1);
         toggleOpen(door);
         if (!onDisable)
-            plugin.removeBlockMover(this);
+            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
 
         // Change door availability to true, so it can be opened again.
         // Wait for a bit if instantOpen is enabled.

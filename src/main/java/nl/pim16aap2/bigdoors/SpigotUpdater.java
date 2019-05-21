@@ -11,7 +11,6 @@ import java.net.URL;
 import java.time.Instant;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.libs.org.apache.commons.io.IOUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONArray;
@@ -99,12 +98,22 @@ public class SpigotUpdater
 
     // Get update history. Then go through all of them until on is found that is both newer than the current version
     // And old enough that it's allowed to be downloaded (as set in the config file).
+    @SuppressWarnings("deprecation")
     private boolean getNewVersion() throws MalformedURLException, ParseException, IOException
     {
         int MIN_AGE = plugin.getConfigLoader().downloadDelay() * 60;
         int age = -1000; // Default 1 second, so 0 or negative seconds = don't wait.
-        @SuppressWarnings("deprecation")
-        JSONArray versionsArray = (JSONArray) JSONValue.parseWithException(IOUtils.toString(new URL(String.valueOf(VERSIONS_URL))));
+        JSONArray versionsArray = null;
+        // Old Spigot versions (< 1.14) allow "org.apache.commons.io.IOUtils", 1.14 only allows "org.bukkit.craftbukkit.libs.org.apache.commons.io.IOUtils".
+        try
+        {
+            versionsArray = (JSONArray) JSONValue.parseWithException(org.bukkit.craftbukkit.libs.org.apache.commons.io.IOUtils.toString(new URL(String.valueOf(VERSIONS_URL))));
+        }
+        catch (NoClassDefFoundError e)
+        {
+            // Currently not compiling for old versions.
+//            versionsArray = (JSONArray) JSONValue.parseWithException(org.apache.commons.io.IOUtils.toString(new URL(String.valueOf(VERSIONS_URL))));
+        }
         int count = 0;
         newVersion   = "";
         newVersionID = -1;

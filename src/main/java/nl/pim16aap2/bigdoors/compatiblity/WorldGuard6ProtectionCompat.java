@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 
 public class WorldGuard6ProtectionCompat implements ProtectionCompat
 {
-    @SuppressWarnings("unused")
     private final BigDoors plugin;
     private final WorldGuardPlugin worldGuard;
     private boolean success = false;
@@ -58,6 +57,7 @@ public class WorldGuard6ProtectionCompat implements ProtectionCompat
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
+            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
             e.printStackTrace();
         }
         return false;
@@ -94,5 +94,11 @@ public class WorldGuard6ProtectionCompat implements ProtectionCompat
     public JavaPlugin getPlugin()
     {
         return worldGuard;
+    }
+
+    @Override
+    public String getName()
+    {
+        return worldGuard.getName();
     }
 }

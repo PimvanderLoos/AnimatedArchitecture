@@ -54,7 +54,16 @@ public class ElevatorCreator extends ToolUser
     public void selector(Location loc)
     {
         if (name == null)
+        {
+            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
+        }
+        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
+        if (canBreakBlock != null)
+        {
+            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
+            return;
+        }
 
         if (one == null)
         {

@@ -13,4 +13,6 @@ public interface ProtectionCompat
     public boolean success();
 
     public JavaPlugin getPlugin();
+
+    public String getName();
 }

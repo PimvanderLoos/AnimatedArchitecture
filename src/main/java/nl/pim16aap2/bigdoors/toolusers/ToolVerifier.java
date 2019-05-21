@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -14,11 +16,12 @@ public class ToolVerifier
     }
 
     // Check if the provided itemstack is a selection tool.
-    public boolean isTool(ItemStack is)
+    public boolean isTool(@Nullable ItemStack is)
     {
-        return  is.getType() == Material.STICK                &&
-                is.getEnchantmentLevel(Enchantment.LUCK) == 1 &&
-                is.getItemMeta().getDisplayName() != null     &&
-                is.getItemMeta().getDisplayName().toString().equals(toolName);
+        return is != null                                    &&
+               is.getType() == Material.STICK                &&
+               is.getEnchantmentLevel(Enchantment.LUCK) == 1 &&
+               is.getItemMeta().getDisplayName() != null     &&
+               is.getItemMeta().getDisplayName().toString().equals(toolName);
     }
 }

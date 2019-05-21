@@ -19,6 +19,8 @@ import nl.pim16aap2.bigdoors.util.IRestartable;
 
 public class ProtectionCompatManager implements Listener, IRestartable
 {
+    private static final String BYPASSPERMISSION = "bigdoors.admin.bypasscompat";
+
     private final BigDoors plugin;
     private final ArrayList<ProtectionCompat> protectionCompats;
     private FakePlayerCreator fakePlayerCreator;
@@ -36,11 +38,11 @@ public class ProtectionCompatManager implements Listener, IRestartable
      * for plugin enables events, so it can also load plugins loaded after BD.
      */
 
-    public ProtectionCompatManager(BigDoors plugin)
+    public ProtectionCompatManager(final BigDoors plugin)
     {
         this.plugin = plugin;
         plugin.registerRestartable(this);
-        fakePlayerCreator = new FakePlayerCreator();
+        fakePlayerCreator = new FakePlayerCreator(plugin);
         protectionCompats = new ArrayList<>();
         loadLoadedPlugins(true);
     }
@@ -59,6 +61,17 @@ public class ProtectionCompatManager implements Listener, IRestartable
         loadPlotSquared(silent);
     }
 
+    private boolean canByPass(Player player)
+    {
+        if (player.isOp())
+            return true;
+
+         // offline players don't have permissions, so use Vault if that's the case.
+        if (player.hasMetadata(FakePlayerCreator.FAKEPLAYERMETADATA))
+            return player.hasPermission(BYPASSPERMISSION);
+        return plugin.getVaultManager().hasPermission(player, BYPASSPERMISSION);
+    }
+
     private Player getPlayer(UUID playerUUID, World world)
     {
         Player player = Bukkit.getPlayer(playerUUID);
@@ -67,34 +80,42 @@ public class ProtectionCompatManager implements Listener, IRestartable
         return player;
     }
 
-    public boolean canBreakBlock(UUID playerUUID, Location loc)
+    public String canBreakBlock(UUID playerUUID, Location loc)
     {
+        Player fakePlayer = getPlayer(playerUUID, loc.getWorld());
+        if (canByPass(fakePlayer))
+            return null;
+
         for (ProtectionCompat compat : protectionCompats)
             try
             {
-                if (!compat.canBreakBlock(getPlayer(playerUUID, loc.getWorld()), loc))
-                    return false;
+                if (!compat.canBreakBlock(fakePlayer, loc))
+                    return compat.getName();
             }
             catch(Exception e)
             {
                 plugin.handleMyStackTrace(new MyException(e, "Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
             }
-        return true;
+        return null;
     }
 
-    public boolean canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
+    public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
     {
+        Player fakePlayer = getPlayer(playerUUID, loc1.getWorld());
+        if (canByPass(fakePlayer))
+            return null;
+
         for (ProtectionCompat compat : protectionCompats)
             try
             {
-                if (!compat.canBreakBlocksBetweenLocs(getPlayer(playerUUID, loc1.getWorld()), loc1, loc2))
-                    return false;
+                if (!compat.canBreakBlocksBetweenLocs(fakePlayer, loc1, loc2))
+                    return compat.getName();
             }
             catch(Exception e)
             {
                 plugin.handleMyStackTrace(new MyException(e, "Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
             }
-        return true;
+        return null;
     }
 
     private <T> boolean protectionAlreadyLoaded(Class<T> compatType)
@@ -177,7 +198,7 @@ public class ProtectionCompatManager implements Listener, IRestartable
             }
             catch (NullPointerException e)
             {
-                plugin.getMyLogger().logMessageToConsole("Could not find WorldGuard! Hook not enabled!");
+                plugin.getMyLogger().logMessageToConsoleOnly("Could not find WorldGuard! Hook not enabled!");
             }
             catch (Exception e)
             {
@@ -228,7 +249,7 @@ public class ProtectionCompatManager implements Listener, IRestartable
             }
             catch (NullPointerException e)
             {
-                plugin.getMyLogger().logMessageToConsole("Could not find PlotSquared! Hook not enabled!");
+                plugin.getMyLogger().logMessageToConsoleOnly("Could not find PlotSquared! Hook not enabled!");
             }
             catch (Exception e)
             {

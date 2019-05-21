@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
@@ -18,11 +19,10 @@ public class SubCommandListPlayerDoors implements ISubCommand
     protected final BigDoors plugin;
     protected final CommandManager commandManager;
 
-    private static final String name = "listplayerdoors";
-    private static final String permission = "bigdoors.admin.listplayerdoors";
     private static final String help = "Returns a list of all doors owned by a given player";
     private static final String argsHelp = "<player> [doorName]";
     private static final int minArgCount = 2;
+    private static final CommandData command = CommandData.LISTPLAYERDOORS;
 
     public SubCommandListPlayerDoors(final BigDoors plugin, final CommandManager commandManager)
     {
@@ -68,20 +68,26 @@ public class SubCommandListPlayerDoors implements ISubCommand
     }
 
     @Override
+    public int getMinArgCount()
+    {
+        return minArgCount;
+    }
+
+    @Override
+    public CommandData getCommandData()
+    {
+        return command;
+    }
+
+    @Override
     public String getPermission()
     {
-        return permission;
+        return CommandData.getPermission(command);
     }
 
     @Override
     public String getName()
     {
-        return name;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
+        return CommandData.getCommandName(command);
     }
 }

@@ -10,10 +10,17 @@ import nl.pim16aap2.bigdoors.util.Util;
 public class CommandMenu extends SubCommandMenu
 {
     protected static final String name = "bdm";
+    private static final CommandData command = CommandData.BDM;
 
     public CommandMenu(final BigDoors plugin, final CommandManager commandManager)
     {
         super(plugin, commandManager);
+    }
+
+    @Override
+    public int getMinArgCount()
+    {
+        return 0;
     }
 
     @Override
@@ -30,14 +37,20 @@ public class CommandMenu extends SubCommandMenu
     }
 
     @Override
+    public CommandData getCommandData()
+    {
+        return command;
+    }
+
+    @Override
     public String getPermission()
     {
-        return super.getPermission();
+        return CommandData.getPermission(command);
     }
 
     @Override
     public String getName()
     {
-        return name;
+        return CommandData.getCommandName(command);
     }
 }

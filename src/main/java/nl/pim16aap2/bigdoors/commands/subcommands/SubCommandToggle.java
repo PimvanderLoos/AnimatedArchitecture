@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
@@ -24,11 +25,10 @@ public class SubCommandToggle implements ISubCommand
     protected final BigDoors plugin;
     protected final CommandManager commandManager;
 
-    private final String name = "toggle";
-    private final String permission = "bigdoors.user.toggle";
     private final String help = "Toggle a door";
     protected static final String argsHelp = "<doorUID/Name1> <doorUID/Name2> ... [time (decimal!)]";
     protected static final int minArgCount = 2;
+    private static final CommandData command = CommandData.TOGGLE;
 
     public SubCommandToggle(final BigDoors plugin, final CommandManager commandManager)
     {
@@ -124,20 +124,26 @@ public class SubCommandToggle implements ISubCommand
     }
 
     @Override
+    public int getMinArgCount()
+    {
+        return minArgCount;
+    }
+
+    @Override
+    public CommandData getCommandData()
+    {
+        return command;
+    }
+
+    @Override
     public String getPermission()
     {
-        return permission;
+        return CommandData.getPermission(command);
     }
 
     @Override
     public String getName()
     {
-        return name;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
+        return CommandData.getCommandName(command);
     }
 }

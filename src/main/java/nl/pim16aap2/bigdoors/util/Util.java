@@ -258,6 +258,7 @@ public final class Util
 
     public static boolean isAirOrWater(Block block)
     {
+        // Empty means it's air.
         return block.isLiquid() || block.isEmpty();
     }
 
@@ -304,7 +305,7 @@ public final class Util
     // Certain blocks don't work in doors, so don't allow their usage.
     public static boolean isAllowedBlock(Block block)
     {
-        if (block == null)
+        if (block == null || isAirOrWater(block))
             return false;
 
         Material mat = block.getType();
@@ -362,8 +363,6 @@ public final class Util
 
         switch (mat)
         {
-        case AIR:
-
         case WALL_TORCH:
 
         case PAINTING:

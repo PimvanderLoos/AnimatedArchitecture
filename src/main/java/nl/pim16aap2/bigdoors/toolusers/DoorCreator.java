@@ -59,14 +59,15 @@ public class DoorCreator extends ToolUser
     {
         if (loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY())
             return false;
+
         // For a regular door, the engine should be on one of the outer pillars of the
         // door.
         int xDepth = Math.abs(one.getBlockX() - two.getBlockX());
         int zDepth = Math.abs(one.getBlockZ() - two.getBlockZ());
 
-        if (xDepth == 0)
+        if (xDepth == 0 && loc.getBlockX() == one.getBlockX())
             return loc.getBlockZ() == one.getBlockZ() || loc.getBlockZ() == two.getBlockZ();
-        if (zDepth == 0)
+        else if (zDepth == 0 && loc.getBlockZ() == one.getBlockZ())
             return loc.getBlockX() == one.getBlockX() || loc.getBlockX() == two.getBlockX();
         return false;
     }
@@ -95,9 +96,10 @@ public class DoorCreator extends ToolUser
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
-        if (!plugin.canBreakBlock(player.getUniqueId(), loc))
+        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
+        if (canBreakBlock != null)
         {
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere"));
+            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
             return;
         }
 

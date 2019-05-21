@@ -8,9 +8,8 @@ public enum DoorAttribute
     DELETE              (0),
     RELOCATEPOWERBLOCK  (1),
     CHANGETIMER         (1),
-    DIRECTION_OPEN      (1),
-    DIRECTION_GO        (1),
-    DIRECTION_NSEW_LOOK (1),
+    DIRECTION_STRAIGHT  (1),
+    DIRECTION_ROTATE    (DoorAttribute.DIRECTION_STRAIGHT.permissionLevel),
     BLOCKSTOMOVE        (1),
     ADDOWNER            (0),
     REMOVEOWNER         (0);

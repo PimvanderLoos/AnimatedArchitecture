@@ -68,7 +68,7 @@ public class PortcullisOpener implements Opener
         int blocksToMove = getBlocksToMove(door);
 
         // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
-        if (!plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()))
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null)
             return DoorOpenResult.NOPERMISSION;
 
         if (blocksToMove != 0)
@@ -76,7 +76,7 @@ public class PortcullisOpener implements Opener
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-            plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove));
+            plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove, plugin.getConfigLoader().pcMultiplier()));
         }
         return DoorOpenResult.SUCCESS;
     }

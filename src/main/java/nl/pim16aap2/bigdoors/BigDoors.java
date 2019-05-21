@@ -32,12 +32,12 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandChangePowerBlock;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandClose;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDebug;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDelete;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandFillDoor;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandFill;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInspectPowerBlock;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandListDoors;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandListPlayerDoors;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandMenu;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNameDoor;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandOpen;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandPause;
@@ -45,6 +45,7 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRestart;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetName;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetRotation;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandStop;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
@@ -102,6 +103,10 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Use Event for restart command. Then let stuff that needs to do stuff on restart subscribe.
 // TODO: Rename RotateDirection to moveDirection. Lifts don't rotate. They lift.
 // TODO: Update rotatable blocks after finishing rotation etc.
+// TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
+// TODO: Create Creator superclass that all door creators extend from. Clean up tool user to get rid of all doorcreation-specific stuff.
+// TODO: ConfigLoader should figure out which resource pack version to use on its own.
+// TODO: Figure out what the players map in the Commander is used for.
 
 /*
  * GUI
@@ -119,6 +124,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: See if inserting into doors works when adding another question mark for the UUID (but leaving it empty).
 //       Then +1 won't have to be appended to everything.
 // TODO: Use proper COUNT operation for getting the number of doors.
+// TODO: Merge isOpen and isLocked into single FLAG value.
+// TODO: Look into why engineSide is always either 1 or -1.
 
 /*
  * Commands
@@ -141,6 +148,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Add "success()" method to commands. To print messages like "you've successfully deleted the door!" etc.
 // TODO: Do not use the commander for anything command-related that isn't strict database abstraction.
 // TODO: Modify the system so that you can have as many subcommands as you want.
+// TODO: Get rid of permissions stored in DoorType. System should be SubCommandNew.getPermission() + doorType.name().
+//       Also, move startCreator to SubCommandNew.
 
 /*
  * Openers / Movers
@@ -151,8 +160,10 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       free location, automatically set the openDirection for this door. HOWEVER, this value must be reset when it is
 //       closed again, but ONLY if it used to be unset. So instead of storing value, add flag for un/intentionally set.
 // TODO: Rotate Sea Pickle and turtle egg.
-// TODO: Don't do any replacing by air stuff in the openers/movers. Instead, do it in the NMSBlock part. Also make sure
-//       to copy all rotational blockdata stuff properly!
+// TODO: Only replace blocks by air AFTER they have all been constructed. This makes sure the correct data is stored.
+// TODO: Get rid of the index variable in the savedBlocks stuff.
+// TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
+// TODO: Consider using HashSet for blocks. It's faster: https://stackoverflow.com/questions/10196343/hash-set-and-array-list-performances
 
 /*
  * ToolUsers
@@ -170,13 +181,10 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 /* "Rewrite" todo list
 
 - Get rid of the commander.
-- Get rid of the command handler.
-- Give every GUI page its own class.
 - Rewrite all block movers etc.
   - When rewriting, make sure that absolutely 0 implementation-specific code ends up in the new movers.
 - Use Maven modules to be able to support multiple versions and perhaps even Forge / Sponge / whatever.
 - Clean up SQL class. Try to move as many shared items to private classes and/or use single statements.
-- Allow 1-wide drawbridges. Finally.
  */
 
 public class BigDoors extends JavaPlugin implements Listener
@@ -184,42 +192,39 @@ public class BigDoors extends JavaPlugin implements Listener
     public static final boolean DEVBUILD = true;
 
 
-    private ToolVerifier                     tf;
-    private SQLiteJDBCDriverConnection       db;
-    private FallingBlockFactory_Vall       fabf;
-    private ConfigLoader                 config;
-    private MyLogger                     logger;
-    private SpigotUpdater               updater;
-    private Metrics                     metrics;
-    private File                        logFile;
-    private Messages                   messages;
-    private Commander                 commander = null;
-    private Vector<WaitForCommand>   cmdWaiters;
-    private DoorOpener               doorOpener;
-    private Vector<BlockMover>      blockMovers;
-    private BridgeOpener           bridgeOpener;
-//    private CommandHandler       commandHandler;
+    private ToolVerifier tf;
+    private SQLiteJDBCDriverConnection db;
+    private FallingBlockFactory_Vall fabf;
+    private ConfigLoader config;
+    private MyLogger logger;
+    private SpigotUpdater updater;
+    private Metrics metrics;
+    private File logFile;
+    private Messages messages;
+    private Commander commander = null;
+    private Vector<WaitForCommand> cmdWaiters;
+    private DoorOpener doorOpener;
+    private Vector<BlockMover> blockMovers;
+    private BridgeOpener bridgeOpener;
     private SlidingDoorOpener slidingDoorOpener;
-    private PortcullisOpener   portcullisOpener;
-    private RedstoneHandler     redstoneHandler;
-    private ElevatorOpener       elevatorOpener;
-    private boolean                validVersion;
-    private String                  loginString;
-    private CommandManager       commandManager;
+    private PortcullisOpener portcullisOpener;
+    private RedstoneHandler redstoneHandler;
+    private ElevatorOpener elevatorOpener;
+    private boolean validVersion;
+    private String loginString;
+    private CommandManager commandManager;
     @SuppressWarnings("unused")
-    private FlagOpener               flagOpener;
-    private HashMap<UUID, ToolUser>   toolUsers;
-    private HashMap<UUID, GUI>       playerGUIs;
-    private List<IRestartable>     restartables;
-    private boolean              is1_13 = false;
-
+    private FlagOpener flagOpener;
+    private HashMap<UUID, ToolUser> toolUsers;
+    private HashMap<UUID, GUI> playerGUIs;
+    private List<IRestartable> restartables;
+    private boolean is1_13 = false;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
-    //                 Chunk         Location DoorUID
-    private TimedCache<Long, HashMap<Long,    Long>> pbCache = null;
+    private TimedCache<Long /*Chunk*/, HashMap<Long /*Loc*/, Long /*doorUID*/>> pbCache = null;
     private HeadManager headManager;
-
-    private EconomyManager economyManager;
+    private VaultManager vaultManager;
+    private AutoCloseScheduler autoCloseScheduler;
 
     @Override
     public void onEnable()
@@ -247,25 +252,24 @@ public class BigDoors extends JavaPlugin implements Listener
 
             init();
             headManager.init();
-            economyManager    = new EconomyManager(this);
+            vaultManager = new VaultManager(this);
+            autoCloseScheduler = new AutoCloseScheduler(this);
 
-            Bukkit.getPluginManager().registerEvents(new EventHandlers      (this), this);
-            Bukkit.getPluginManager().registerEvents(new GUIHandler         (this), this);
-            Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler (this), this);
+            Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
+            Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
+            Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler(this), this);
             // No need to put these in init, as they should not be reloaded.
-            pbCache           = new TimedCache<>(this, config.cacheTimeout());
-            protCompatMan     = new ProtectionCompatManager(this);
+            pbCache = new TimedCache<>(this, config.cacheTimeout());
+            protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
-            db                = new SQLiteJDBCDriverConnection(this, config.dbFile());
-            commander         = new Commander(this, db);
-            doorOpener        = new DoorOpener(this);
-            flagOpener        = new FlagOpener(this);
-            bridgeOpener      = new BridgeOpener(this);
-            bridgeOpener      = new BridgeOpener(this);
-            elevatorOpener    = new ElevatorOpener(this);
-            portcullisOpener  = new PortcullisOpener(this);
+            db = new SQLiteJDBCDriverConnection(this, config.dbFile());
+            commander = new Commander(this, db);
+            doorOpener = new DoorOpener(this);
+            flagOpener = new FlagOpener(this);
+            bridgeOpener = new BridgeOpener(this);
+            elevatorOpener = new ElevatorOpener(this);
+            portcullisOpener = new PortcullisOpener(this);
             slidingDoorOpener = new SlidingDoorOpener(this);
-
 
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
@@ -276,12 +280,13 @@ public class BigDoors extends JavaPlugin implements Listener
                 commandBigDoors.registerSubCommand(new SubCommandClose(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandDebug(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandDelete(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandFillDoor(this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandFill(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandInfo(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandInspectPowerBlock(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandListDoors(this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandListPlayerDoors(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandMenu(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandNameDoor(this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandSetName(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandNew(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandOpen(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandPause(this, commandManager));
@@ -383,12 +388,12 @@ public class BigDoors extends JavaPlugin implements Listener
         }
     }
 
-    public boolean canBreakBlock(UUID playerUUID, Location loc)
+    public String canBreakBlock(UUID playerUUID, Location loc)
     {
         return protCompatMan.canBreakBlock(playerUUID, loc);
     }
 
-    public boolean canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
+    public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
     {
         return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
     }
@@ -469,6 +474,11 @@ public class BigDoors extends JavaPlugin implements Listener
     public BigDoors getPlugin()
     {
         return this;
+    }
+
+    public AutoCloseScheduler getAutoCloseScheduler()
+    {
+        return autoCloseScheduler;
     }
 
     public Opener getDoorOpener(DoorType type)
@@ -606,9 +616,9 @@ public class BigDoors extends JavaPlugin implements Listener
         return config;
     }
 
-    public EconomyManager getEconomyManager()
+    public VaultManager getVaultManager()
     {
-        return economyManager;
+        return vaultManager;
     }
 
     // Get the ToolVerifier.

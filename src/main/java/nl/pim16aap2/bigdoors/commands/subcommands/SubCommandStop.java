@@ -4,6 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 
 public class SubCommandStop implements ISubCommand
@@ -11,11 +12,10 @@ public class SubCommandStop implements ISubCommand
     protected final BigDoors plugin;
     protected final CommandManager commandManager;
 
-    private static final String name = "stop";
-    private static final String permission = "bigdoors.admin.stopdoors";
     private static final String help = "Forces all doors to finish instantly.";
     private static final String argsHelp = null;
     private static final int minArgCount = 1;
+    private static final CommandData command = CommandData.STOP;
 
     public SubCommandStop(final BigDoors plugin, final CommandManager commandManager)
     {
@@ -43,20 +43,26 @@ public class SubCommandStop implements ISubCommand
     }
 
     @Override
+    public int getMinArgCount()
+    {
+        return minArgCount;
+    }
+
+    @Override
+    public CommandData getCommandData()
+    {
+        return command;
+    }
+
+    @Override
     public String getPermission()
     {
-        return permission;
+        return CommandData.getPermission(command);
     }
 
     @Override
     public String getName()
     {
-        return name;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
+        return CommandData.getCommandName(command);
     }
 }

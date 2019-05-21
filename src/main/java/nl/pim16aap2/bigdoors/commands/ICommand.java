@@ -16,4 +16,6 @@ public interface ICommand
     public String getName();
 
     public int getMinArgCount();
+
+    public CommandData getCommandData();
 }

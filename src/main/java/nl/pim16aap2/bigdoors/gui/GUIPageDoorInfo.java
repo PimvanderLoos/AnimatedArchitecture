@@ -76,9 +76,8 @@ public class GUIPageDoorInfo implements IGUIPage
             plugin.getCommander().startPowerBlockRelocator(player, door);
             gui.close();
             break;
-        case DIRECTION_OPEN:
-        case DIRECTION_GO:
-        case DIRECTION_NSEW_LOOK:
+        case DIRECTION_STRAIGHT:
+        case DIRECTION_ROTATE:
             changeOpenDir(player, door);
             break;
         case CHANGETIMER:
@@ -222,21 +221,14 @@ public class GUIPageDoorInfo implements IGUIPage
             ret = new GUIItem(GUI.CHANGETIMEMAT, desc, lore, count);
             break;
 
-        case DIRECTION_OPEN:
-            desc = messages.getString("GUI.Direction.Name");
-            loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
-            lore.add(loreStr);
-            ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
-            break;
-
-        case DIRECTION_GO:
+        case DIRECTION_STRAIGHT:
             desc = messages.getString("GUI.Direction.Name");
             loreStr = messages.getString("GUI.Direction.ThisDoorGoes") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             lore.add(loreStr);
             ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
             break;
 
-        case DIRECTION_NSEW_LOOK:
+        case DIRECTION_ROTATE:
             desc = messages.getString("GUI.Direction.Name");
             loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             lore.add(loreStr);

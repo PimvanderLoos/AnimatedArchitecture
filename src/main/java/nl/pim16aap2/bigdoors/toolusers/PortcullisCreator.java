@@ -48,22 +48,6 @@ public class PortcullisCreator extends ToolUser
         engine = new Location(one.getWorld(), xMid, yMin, zMid);
     }
 
-    // Make sure the second position is not the same as the first position
-    // And that the portcullis is only 1 block deep.
-    private boolean isPositionValid(Location loc)
-    {
-        if (one == null && two == null)
-            return true;
-        if (one.equals(loc))
-            return false;
-
-        int xDepth, zDepth;
-        xDepth = Math.abs(loc.getBlockX() - one.getBlockX());
-        zDepth = Math.abs(loc.getBlockZ() - one.getBlockZ());
-
-        return xDepth == 0 ^ zDepth == 0;
-    }
-
     // Take care of the selection points.
     @Override
     public void selector(Location loc)
@@ -73,14 +57,13 @@ public class PortcullisCreator extends ToolUser
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
-        if (!plugin.canBreakBlock(player.getUniqueId(), loc))
+        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
+        if (canBreakBlock != null)
         {
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere"));
+            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
             return;
         }
 
-        if (!isPositionValid(loc))
-            return;
         if (one == null)
         {
             one = loc;

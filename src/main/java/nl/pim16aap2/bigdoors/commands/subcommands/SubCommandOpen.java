@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
@@ -16,9 +17,8 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public class SubCommandOpen extends SubCommandToggle
 {
-    private final String name = "open";
-    private final String permission = "bigdoors.user.toggle";
     private final String help = "Open a door";
+    private static final CommandData command = CommandData.OPEN;
 
     public SubCommandOpen(final BigDoors plugin, final CommandManager commandManager)
     {
@@ -60,20 +60,26 @@ public class SubCommandOpen extends SubCommandToggle
     }
 
     @Override
+    public int getMinArgCount()
+    {
+        return minArgCount;
+    }
+
+    @Override
+    public CommandData getCommandData()
+    {
+        return command;
+    }
+
+    @Override
     public String getPermission()
     {
-        return permission;
+        return CommandData.getPermission(command);
     }
 
     @Override
     public String getName()
     {
-        return name;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
+        return CommandData.getCommandName(command);
     }
 }

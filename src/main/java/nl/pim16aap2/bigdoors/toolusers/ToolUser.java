@@ -30,7 +30,7 @@ public abstract class ToolUser extends Abortable
     protected Player player;
     protected long doorUID;
     protected final Messages messages;
-    protected MyBlockFace engineSide;
+    protected MyBlockFace engineSide = null;
     protected boolean done = false;
     protected boolean isOpen = false;
     protected Location one, two, engine;
@@ -75,9 +75,10 @@ public abstract class ToolUser extends Abortable
             Location engine = new Location(world, this.engine.getBlockX(), this.engine.getBlockY(), this.engine.getBlockZ());
             Location powerB = new Location(world, this.engine.getBlockX(), this.engine.getBlockY() - 1, this.engine.getBlockZ());
 
-            if (!plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max))
+            String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max);
+            if (canBreakBlock != null)
             {
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere"));
+                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
                 this.abort(false);
                 return;
             }
@@ -90,7 +91,7 @@ public abstract class ToolUser extends Abortable
 
             if (sizeLimit >= 0 && sizeLimit <= doorSize)
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);
-            else if (plugin.getEconomyManager().buyDoor(player, type, doorSize))
+            else if (plugin.getVaultManager().buyDoor(player, type, doorSize))
             {
                 plugin.getCommander().addDoor(door);
                 if (message != null)
@@ -140,10 +141,11 @@ public abstract class ToolUser extends Abortable
     // Take any selection tools in the player's inventory from them.
     public final void takeToolFromPlayer()
     {
-        for (ItemStack is : player.getInventory())
-            if (is != null)
-                if (plugin.getTF().isTool(is))
-                    is.setAmount(0);
+        player.getInventory().forEach(K ->
+        {
+            if (plugin.getTF().isTool(K))
+                K.setAmount(0);
+        });
     }
 
     // Make sure position "one" contains the minimum values, "two" the maximum

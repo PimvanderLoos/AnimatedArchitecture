@@ -20,12 +20,14 @@
 	
     <target name="compile" depends="init">
         <jar jarfile="${basedir}/Jars/BigDoors.jar" basedir="./target/classes" includes="**/*">
-        <zipgroupfileset dir="${lib}/" includes="java-cup-11b-runtime.jar"/>
+        <!---->
+    	<zipgroupfileset dir="${lib}/" includes="java-cup-11b-runtime.jar"/>
         <zipgroupfileset dir="${lib}/" includes="JCalculator.jar"/>
         <manifest>
             <attribute name="Main-Class" value="nl.pim16aap2.jcalculator.JCalculator" />
             <attribute name="Class-Path" value="java-cup-11b-runtime.jar" /> 
-        </manifest>
+        </manifest> 
+        	
         </jar>
     </target>
     

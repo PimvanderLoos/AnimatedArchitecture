@@ -9,12 +9,12 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.bigdoors.util.DoorType;
-import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
 
-public class EconomyManager implements IRestartable
+public class VaultManager
 {
     // Try to store the price of the doors as integers, because that's faster than
     // evaluating the formula.
@@ -23,15 +23,17 @@ public class EconomyManager implements IRestartable
     private final BigDoors plugin;
     private final HashMap<Long, Double> menu;
     private Economy economy = null;
+    private Permission perms = null;
     private final boolean vaultEnabled;
 
-    public EconomyManager(BigDoors plugin)
+    public VaultManager(BigDoors plugin)
     {
         this.plugin = plugin;
         menu = new HashMap<>();
         init();
         vaultEnabled = setupEconomy();
-        plugin.registerRestartable(this);
+        if (vaultEnabled)
+            setupPermissions();
     }
 
     public boolean buyDoor(Player player, DoorType type, int blockCount)
@@ -106,6 +108,11 @@ public class EconomyManager implements IRestartable
         {
             flagPrice = null;
         }
+    }
+
+    public boolean hasPermission(Player player, String permission)
+    {
+        return vaultEnabled && perms.playerHas(player.getWorld().getName(), player, permission);
     }
 
     private double evaluateFormula(String formula, int blockCount)
@@ -233,9 +240,10 @@ public class EconomyManager implements IRestartable
         return (economy != null);
     }
 
-    @Override
-    public void restart()
+    private boolean setupPermissions()
     {
-        init();
+        RegisteredServiceProvider<Permission> rsp = plugin.getServer().getServicesManager().getRegistration(Permission.class);
+        perms = rsp.getProvider();
+        return perms != null;
     }
 }

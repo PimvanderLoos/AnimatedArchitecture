@@ -54,8 +54,9 @@ public class BridgeMover implements BlockMover
     private List<MyBlockData> savedBlocks = new ArrayList<>();
 
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
-            MyBlockFace openDirection, boolean instantOpen)
+            MyBlockFace openDirection, boolean instantOpen, double multiplier)
     {
+        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         fabf = plugin.getFABF();
         engineSide = door.getEngSide();
         NS = engineSide == MyBlockFace.NORTH || engineSide == MyBlockFace.SOUTH;
@@ -76,10 +77,10 @@ public class BridgeMover implements BlockMover
         int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
         int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
         int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, plugin.getConfigLoader().dbMultiplier(), 5.2);
+        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
         this.time = vars[0];
         tickRate = (int) vars[1];
-        multiplier = vars[2];
+        this.multiplier = vars[2];
 
         // Regarding dx, dz. These variables determine whether loops get incremented (1) or decremented (-1)
         // When looking in the direction of the opposite point from the engine side, the blocks should get
@@ -221,24 +222,19 @@ public class BridgeMover implements BlockMover
 
                     Block vBlock  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                     Material mat  = vBlock.getType();
-                    if (!mat.equals(Material.AIR))
+
+                    if (Util.isAllowedBlock(vBlock))
                     {
                         NMSBlock_Vall block  = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                         NMSBlock_Vall block2 = null;
 
                         boolean canRotate = false;
-                        // Certain blocks cannot be used the way normal blocks can (heads, (ender) chests etc).
-                        if (Util.isAllowedBlock(vBlock))
+
+                        if (block.canRotate())
                         {
-                            if (block.canRotate())
-                            {
-                                block2 = block;
-                                block2.rotateBlock(RotateDirection.valueOf(openDirection.toString()));
-                            }
-                            vBlock.setType(Material.AIR);
+                            block2 = block;
+                            block2.rotateBlock(RotateDirection.valueOf(openDirection.toString()));
                         }
-                        else
-                            mat = Material.AIR;
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
@@ -247,7 +243,7 @@ public class BridgeMover implements BlockMover
                         savedBlocks.add(index, new MyBlockData(mat, fBlock, radius, block2 == null ? block : block2, canRotate ? 0 : 1, startLocation));
                     }
                     else
-                        savedBlocks.add(index, new MyBlockData(Material.AIR));
+                        savedBlocks.add(index, null);
                     index++;
                 }
                 zAxis += dz;
@@ -275,6 +271,10 @@ public class BridgeMover implements BlockMover
             plugin.dumpStackTrace("Invalid openDirection for bridge mover: " + openDirection.toString());
             break;
         }
+
+        for (MyBlockData mbd : savedBlocks)
+            if (mbd.getBlock() != null)
+                mbd.getBlock().deleteOriginalBlock();
 
         if (!instantOpen)
             rotateEntities();
@@ -331,7 +331,7 @@ public class BridgeMover implements BlockMover
         updateCoords(door, openDirection, upDown, -1);
         toggleOpen  (door);
         if (!onDisable)
-            plugin.removeBlockMover(this);
+            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
 
         // Change door availability to true, so it can be opened again.
         // Wait for a bit if instantOpen is enabled.

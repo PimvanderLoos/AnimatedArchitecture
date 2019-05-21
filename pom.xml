@@ -12,6 +12,12 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        
+        <!-- JCalculator -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
 
         <!-- bStats -->
         <repository>
@@ -92,12 +98,12 @@
             <scope>provided</scope>
         </dependency>
         
+        <!-- JCalculator 
         <dependency>
-            <artifactId>commons-io</artifactId>
-            <groupId>commons-io</groupId>
-            <scope>compile</scope>
-            <version>2.5</version>
-        </dependency>
+            <groupId>com.github.PimvanderLoos</groupId>
+            <artifactId>JCalculator</artifactId>
+            <version>v1.0</version>
+        </dependency>-->
         
     </dependencies>
 

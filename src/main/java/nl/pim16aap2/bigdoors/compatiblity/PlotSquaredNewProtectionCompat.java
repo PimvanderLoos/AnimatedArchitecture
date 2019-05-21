@@ -110,6 +110,12 @@ public class PlotSquaredNewProtectionCompat implements ProtectionCompat
     {
         return plotSquaredPlugin;
     }
+
+    @Override
+    public String getName()
+    {
+        return plotSquaredPlugin.getName();
+    }
 }
 
 
