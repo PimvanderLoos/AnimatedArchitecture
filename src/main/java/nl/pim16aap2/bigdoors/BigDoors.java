@@ -107,6 +107,9 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Create Creator superclass that all door creators extend from. Clean up tool user to get rid of all doorcreation-specific stuff.
 // TODO: ConfigLoader should figure out which resource pack version to use on its own.
 // TODO: Figure out what the players map in the Commander is used for.
+// TODO: Cache all doors. Instead of constantly getting updated doors etc from the database, just get a cached door.
+//       This also means that a set of owners (and their permission) should be stored in a door object.
+//       Add a sync() method to sync any changes to the door with the database or send changes via commander. Might be faster.
 
 /*
  * GUI
@@ -164,6 +167,10 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Get rid of the index variable in the savedBlocks stuff.
 // TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
 // TODO: Consider using HashSet for blocks. It's faster: https://stackoverflow.com/questions/10196343/hash-set-and-array-list-performances
+// TODO: Don't do any replacing by air stuff in the openers/movers. Instead, do it in the NMSBlock part. Also make sure
+//       to copy all rotational blockdata stuff properly!
+// TODO: Add door opening/closing scheduler. This should
+// TODO: Schedule doorAutoCloseTimer properly. When it is closed manually, the timer should be cancelled!
 
 /*
  * ToolUsers
