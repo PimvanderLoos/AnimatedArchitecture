@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.gui;
 import java.util.ArrayList;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDelete;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorType;
@@ -50,7 +51,7 @@ public class GUIPageDeleteConfirmation implements IGUIPage
     {
         if (!plugin.getCommander().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), DoorAttribute.DELETE))
             return;
-        ((SubCommandDelete) plugin.getCommand("bigdoors", "delete")).execute(gui.getPlayer(), gui.getDoor());
+        ((SubCommandDelete) plugin.getCommand(CommandData.DELETE)).execute(gui.getPlayer(), gui.getDoor());
         gui.removeSelectedDoor();
     }
 

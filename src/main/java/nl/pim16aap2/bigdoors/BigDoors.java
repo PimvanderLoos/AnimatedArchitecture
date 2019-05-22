@@ -140,7 +140,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
 // TODO: Allow adding owners to doors from console.
 // TODO: When the plugin fails to initialize properly, register alternative command handler to display this info.
-// TODO: Differentiate between cancelling and timing out on an abortable.
 // TODO: Move stuff such as StartTimerForAbortable into appropriate command classes.
 // TODO: When retrieving player argument (SubCommandAddOwner, SubCommandListPlayerDoors) don't just try to convert
 //       the provided playerArg to a UUID. That's not very user friendly at all.
@@ -148,7 +147,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Fix openndoor <uid> as a user still returning that it could not be found, even if it was found.
 // TODO: Test permissions.
 // TODO: Check if force unlock door as admin still exists.
-// TODO: Create enum of commands, so I don't have to use strings.
 // TODO: Add "success()" method to commands. To print messages like "you've successfully deleted the door!" etc.
 // TODO: Do not use the commander for anything command-related that isn't strict database abstraction.
 // TODO: Modify the system so that you can have as many subcommands as you want.
@@ -356,14 +354,6 @@ public class BigDoors extends JavaPlugin implements Listener
 
         if (commander != null)
             commander.setCanGo(true);
-    }
-
-    public ICommand getCommand(String name, String ...subCommandNames)
-    {
-        ICommand command = commandManager.getCommand(name);
-        for (String subCommandName : subCommandNames)
-            command = ((SuperCommand) command).getCommand(subCommandName);
-        return command;
     }
 
     public ICommand getCommand(CommandData command)

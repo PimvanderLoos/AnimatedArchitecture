@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -64,10 +65,10 @@ public class GUIPageDoorInfo implements IGUIPage
             refresh();
             break;
         case TOGGLE:
-            ((SubCommandToggle) plugin.getCommand("bigdoors", "toggle")).execute(player, door);
+            ((SubCommandToggle) plugin.getCommand(CommandData.TOGGLE)).execute(player, door);
             break;
         case INFO:
-            ((SubCommandInfo) plugin.getCommand("bigdoors", "info")).execute(player, door);
+            ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, door);
             break;
         case DELETE:
             gui.setGUIPage(new GUIPageDeleteConfirmation(plugin, gui));
