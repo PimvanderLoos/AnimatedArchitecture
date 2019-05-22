@@ -17,12 +17,13 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public class SubCommandOpen extends SubCommandToggle
 {
-    private final String help = "Open a door";
-    private static final CommandData command = CommandData.OPEN;
+    protected final String help = "Open a door";
+    protected static final CommandData command = CommandData.OPEN;
 
     public SubCommandOpen(final BigDoors plugin, final CommandManager commandManager)
     {
         super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     public boolean readyToOpen(Door door)
@@ -45,41 +46,5 @@ public class SubCommandOpen extends SubCommandToggle
                                                     plugin.getMessages().getString("GENERAL.Door") + " \"" + door.getName() +
                                                     "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
         return doors.size() > 0;
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

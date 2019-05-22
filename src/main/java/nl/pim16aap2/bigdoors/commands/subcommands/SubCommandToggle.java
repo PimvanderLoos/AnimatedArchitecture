@@ -20,20 +20,17 @@ import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class SubCommandToggle implements ISubCommand
+public class SubCommandToggle extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private final String help = "Toggle a door";
-    protected static final String argsHelp = "<doorUID/Name1> <doorUID/Name2> ... [time (decimal!)]";
-    protected static final int minArgCount = 2;
-    private static final CommandData command = CommandData.TOGGLE;
+    protected final String help = "Toggle a door";
+    protected final String argsHelp = "<doorUID/Name1> <doorUID/Name2> ... [time (decimal!)]";
+    protected final int minArgCount = 2;
+    protected final CommandData command = CommandData.TOGGLE;
 
     public SubCommandToggle(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     public void execute(CommandSender sender, Door door)
@@ -109,41 +106,5 @@ public class SubCommandToggle implements ISubCommand
         for (Door door : doors)
             execute(sender, door, time);
         return doors.size() > 0;
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

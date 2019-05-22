@@ -12,20 +12,17 @@ import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class SubCommandSetName implements ISubCommand
+public class SubCommandSetName extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Set the name of the door in the door creation process.";
-    private static final String argsHelp = "<doorName>";
-    private static final int minArgCount = 2;
-    private static final CommandData command = CommandData.SETNAME;
+    protected static final String help = "Set the name of the door in the door creation process.";
+    protected static final String argsHelp = "<doorName>";
+    protected static final int minArgCount = 2;
+    protected static final CommandData command = CommandData.SETNAME;
 
     public SubCommandSetName(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     @Override
@@ -39,7 +36,7 @@ public class SubCommandSetName implements ISubCommand
         ToolUser tu = plugin.getToolUser(player);
         if (tu != null)
         {
-            if (args.length == 1 && Util.isValidDoorName(args[0]))
+            if (args.length == getMinArgCount() && Util.isValidDoorName(args[0]))
             {
                 tu.setName(args[0]);
                 return true;
@@ -48,41 +45,5 @@ public class SubCommandSetName implements ISubCommand
         }
         Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.NotBusy"));
         return true;
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

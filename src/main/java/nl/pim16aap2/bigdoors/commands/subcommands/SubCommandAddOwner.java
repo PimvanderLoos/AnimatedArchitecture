@@ -20,20 +20,17 @@ import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
-public class SubCommandAddOwner implements ISubCommand
+public class SubCommandAddOwner extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Add another owner for a door.";
-    private static final String argsHelp = "{doorUID/Name} <player> [permissionLevel]";
-    private static final int minArgCount = 3;
-    private static final CommandData command = CommandData.ADDOWNER;
+    protected final String help = "Add another owner for a door.";
+    protected final String argsHelp = "{doorUID/Name} <player> [permissionLevel]";
+    protected final int minArgCount = 3;
+    protected CommandData command = CommandData.ADDOWNER;
 
     public SubCommandAddOwner(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     public boolean execute(CommandSender sender, Door door, String playerArg, int permission)
@@ -90,123 +87,5 @@ public class SubCommandAddOwner implements ISubCommand
             }
         }
         return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2], getPermissionFromArgs(sender, args, 3));
-    }
-
-
-
-//        Door door = null;
-//        if (sender instanceof Player)
-//        {
-//            Player player = (Player) sender;
-//
-//            WaitForCommand cw = plugin.isCommandWaiter(player);
-//            if (cw != null && cw.getCommand().equals(name))
-//            {
-//                // If the plugin is waiting for this player to execute this command via the
-//                // waiter system and the
-//                // Number of arguments is correct, do that. If not, cancel that waiter and use
-//                // this instead.
-//                if (args.length == 2)
-//                {
-//                    cw.executeCommand(args);
-//                    return true;
-//                }
-//                cw.abortSilently();
-//            }
-//
-//            door = plugin.getCommander().getDoor(args[1], player);
-//            if (door == null)
-//            {
-//                plugin.getMyLogger()
-//                    .returnToSender(sender, Level.INFO, ChatColor.RED,
-//                                    "\"" + args[1] + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
-//                return true;
-//            }
-//
-//            if (plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.ADDOWNER))
-//                return true;
-//        }
-//        else
-//            try
-//            {
-//                long doorUID = Long.parseLong(args[0]);
-//                door = plugin.getCommander().getDoor(doorUID);
-//            }
-//            // If it can't convert to a long, get all doors from the player with the
-//            // provided name.
-//            // If there is more than one, tell the player that they are going to have to
-//            // make a choice.
-//            catch (NumberFormatException e)
-//            {
-//                plugin.getMyLogger().returnToSender(sender, null,
-//                                                    "Failed to add owner. \"" + args[0] + "\" is not a valid doorUID.");
-//                return false;
-//            }
-//
-//        UUID playerUUID = plugin.getCommander().playerUUIDFromName(args[2]);
-//        int permission = 1; // Default value
-//        if (args.length == 4)
-//            try
-//            {
-//                permission = Integer.parseInt(args[3]);
-//            }
-//            catch (Exception uncaught)
-//            {
-//                plugin.getMyLogger().returnToSender(sender, ChatColor.RED, "\"" + args[3] + "\" "
-//                    + Messages.getString("GENERAL.COMMAND.InvalidPermissionValue"));
-//            }
-//
-//        if (playerUUID != null)
-//        {
-//            if (plugin.getCommander().addOwner(playerUUID, door, permission))
-//            {
-//                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
-//                                                    plugin.getMessages().getString("COMMAND.AddOwner.Success"));
-//                return true;
-//            }
-//            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
-//                                                plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
-//            return false;
-//        }
-//        plugin.getMyLogger()
-//            .returnToSender(sender, Level.INFO, ChatColor.RED,
-//                            plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[2] + "\"");
-//        return false;
-//    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

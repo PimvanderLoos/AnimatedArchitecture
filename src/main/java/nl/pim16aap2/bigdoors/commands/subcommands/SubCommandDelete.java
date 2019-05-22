@@ -17,20 +17,17 @@ import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 
-public class SubCommandDelete implements ISubCommand
+public class SubCommandDelete extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Delete the specified door";
-    private static final String argsHelp = "<doorUID/Name>";
-    private static final int minArgCount = 2;
-    private static final CommandData command = CommandData.DELETE;
+    protected static final String help = "Delete the specified door";
+    protected static final String argsHelp = "<doorUID/Name>";
+    protected static final int minArgCount = 2;
+    protected static final CommandData command = CommandData.DELETE;
 
     public SubCommandDelete(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     public boolean execute(CommandSender sender, Door door)
@@ -90,41 +87,5 @@ public class SubCommandDelete implements ISubCommand
         if (!execute(sender, door))
             return false;
         return true;
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

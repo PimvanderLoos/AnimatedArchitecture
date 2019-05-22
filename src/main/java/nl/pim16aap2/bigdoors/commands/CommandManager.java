@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class CommandManager implements CommandExecutor
@@ -19,22 +20,35 @@ public class CommandManager implements CommandExecutor
 
     private final BigDoors plugin;
     private HashMap<String, ICommand> commands;
+    private HashMap<CommandData, ICommand> commandsShortcut;
 
     public CommandManager(final BigDoors plugin)
     {
         this.plugin = plugin;
         commands = new HashMap<>();
+        commandsShortcut = new HashMap<>();
     }
 
     public void registerCommand(ICommand command)
     {
         commands.put(command.getName().toLowerCase(), command);
+        commandsShortcut.put(command.getCommandData(), command);
         plugin.getCommand(command.getName()).setExecutor(this);
+    }
+
+    public void registerCommandShortcut(SubCommand subCommand)
+    {
+        commandsShortcut.put(subCommand.getCommandData(), subCommand);
     }
 
     public ICommand getCommand(String name)
     {
         return commands.get(name);
+    }
+
+    public ICommand getCommand(CommandData command)
+    {
+        return commandsShortcut.get(command);
     }
 
     @Override

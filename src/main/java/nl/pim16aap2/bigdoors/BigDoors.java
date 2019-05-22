@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigdoors.commands.CommandBigDoors;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandMenu;
 import nl.pim16aap2.bigdoors.commands.ICommand;
@@ -151,8 +152,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Add "success()" method to commands. To print messages like "you've successfully deleted the door!" etc.
 // TODO: Do not use the commander for anything command-related that isn't strict database abstraction.
 // TODO: Modify the system so that you can have as many subcommands as you want.
-// TODO: Get rid of permissions stored in DoorType. System should be SubCommandNew.getPermission() + doorType.name().
-//       Also, move startCreator to SubCommandNew.
 
 /*
  * Openers / Movers
@@ -181,18 +180,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Create "creator" abstract class as subclass of ToolUser from which all creators can be derived, so
 //       the finishUp() method can be safely used from all class types.
 
-
-
-
-
-/* "Rewrite" todo list
-
-- Get rid of the commander.
-- Rewrite all block movers etc.
-  - When rewriting, make sure that absolutely 0 implementation-specific code ends up in the new movers.
-- Use Maven modules to be able to support multiple versions and perhaps even Forge / Sponge / whatever.
-- Clean up SQL class. Try to move as many shared items to private classes and/or use single statements.
- */
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -377,6 +364,11 @@ public class BigDoors extends JavaPlugin implements Listener
         for (String subCommandName : subCommandNames)
             command = ((SuperCommand) command).getCommand(subCommandName);
         return command;
+    }
+
+    public ICommand getCommand(CommandData command)
+    {
+        return commandManager.getCommand(command);
     }
 
     public void addCommandWaiter(final Class<WaitForCommand> waiterClass)

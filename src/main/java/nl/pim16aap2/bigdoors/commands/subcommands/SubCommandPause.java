@@ -9,20 +9,17 @@ import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 
-public class SubCommandPause implements ISubCommand
+public class SubCommandPause extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Pauses all door movement until the command is run again.";
-    private static final String argsHelp = null;
-    private static final int minArgCount = 1;
-    private static final CommandData command = CommandData.PAUSE;
+    protected static final String help = "Pauses all door movement until the command is run again.";
+    protected static final String argsHelp = null;
+    protected static final int minArgCount = 1;
+    protected static final CommandData command = CommandData.PAUSE;
 
     public SubCommandPause(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     @Override
@@ -31,41 +28,5 @@ public class SubCommandPause implements ISubCommand
     {
         plugin.getMyLogger().returnToSender(sender, null, getHelp(sender));
         return true;
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

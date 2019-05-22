@@ -10,20 +10,17 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 
-public class SubCommandVersion implements ISubCommand
+public class SubCommandVersion extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Get the version of this plugin.";
-    private static final String argsHelp = null;
-    private static final int minArgCount = 1;
-    private static final CommandData command = CommandData.VERSION;
+    protected static final String help = "Get the version of this plugin.";
+    protected static final String argsHelp = null;
+    protected static final int minArgCount = 1;
+    protected static final CommandData command = CommandData.VERSION;
 
     public SubCommandVersion(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     @Override
@@ -33,41 +30,5 @@ public class SubCommandVersion implements ISubCommand
             .returnToSender(sender, Level.INFO, ChatColor.GREEN,
                             "This server uses version " + plugin.getDescription().getVersion() + " of this plugin!");
         return true;
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

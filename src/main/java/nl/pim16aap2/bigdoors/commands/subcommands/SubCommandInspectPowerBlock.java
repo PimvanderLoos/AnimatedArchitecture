@@ -12,20 +12,17 @@ import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 
-public class SubCommandInspectPowerBlock implements ISubCommand
+public class SubCommandInspectPowerBlock extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Figure out to which door a powerblock location belongs";
-    private static final String argsHelp = null;
-    private static final int minArgCount = 1;
-    private static final CommandData command = CommandData.INSPECTPOWERBLOCK;
+    protected static final String help = "Figure out to which door a powerblock location belongs";
+    protected static final String argsHelp = null;
+    protected static final int minArgCount = 1;
+    protected static final CommandData command = CommandData.INSPECTPOWERBLOCK;
 
     public SubCommandInspectPowerBlock(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     public boolean execute(Player player)
@@ -47,41 +44,5 @@ public class SubCommandInspectPowerBlock implements ISubCommand
             tu.abortSilently();
         execute(player);
         return true;
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

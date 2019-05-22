@@ -13,20 +13,17 @@ import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 
-public class SubCommandChangePowerBlock implements ISubCommand
+public class SubCommandChangePowerBlock extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Change the location of the powerblock of a door.";
-    private static final String argsHelp = "<doorUID/Name>";
-    private static final int minArgCount = 2;
-    private static final CommandData command = CommandData.CHANGEPOWERBLOCK;
+    protected static final String help = "Change the location of the powerblock of a door.";
+    protected static final String argsHelp = "<doorUID/Name>";
+    protected static final int minArgCount = 2;
+    protected static final CommandData command = CommandData.CHANGEPOWERBLOCK;
 
     public SubCommandChangePowerBlock(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     public boolean execute(Player player, Door door) throws CommandActionNotAllowedException
@@ -46,41 +43,5 @@ public class SubCommandChangePowerBlock implements ISubCommand
 
         Player player = (Player) sender;
         return execute(player, plugin.getCommander().getDoor(args[0], player));
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

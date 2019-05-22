@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.commands.CommandData;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
 import nl.pim16aap2.bigdoors.gui.GUI.SortType;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
@@ -81,7 +83,7 @@ public class GUIPageDoorList implements IGUIPage
 
     protected void addCreationBook(DoorType type, int idx, String message)
     {
-        if (gui.getPlayer().hasPermission(DoorType.getPermission(type)))
+        if (SubCommandNew.hasCreationPermission(gui.getPlayer(), type))
         {
             ArrayList<String> lore = new ArrayList<>();
             lore.add(messages.getString("GUI.NewObjectLong") + messages.getString(message));
@@ -139,7 +141,7 @@ public class GUIPageDoorList implements IGUIPage
     private void startCreationProcess(Player player, DoorType type)
     {
         player.closeInventory();
-        plugin.getCommander().startCreator(player, null, type);
+        ((SubCommandNew) plugin.getCommand(CommandData.NEW)).execute(player, null, type);
     }
 
     @Override

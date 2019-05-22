@@ -9,7 +9,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,18 +20,10 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
-import nl.pim16aap2.bigdoors.toolusers.DoorCreator;
-import nl.pim16aap2.bigdoors.toolusers.DrawbridgeCreator;
-import nl.pim16aap2.bigdoors.toolusers.ElevatorCreator;
-import nl.pim16aap2.bigdoors.toolusers.FlagCreator;
-import nl.pim16aap2.bigdoors.toolusers.PortcullisCreator;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockRelocator;
-import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
-import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.util.Abortable;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -89,14 +80,6 @@ public class Commander
         updateDoorAutoClose(doorUID, autoClose);
     }
 
-    private boolean isPlayerBusy(Player player)
-    {
-        boolean isBusy = (plugin.getToolUser(player) != null || plugin.isCommandWaiter(player) != null);
-        if (isBusy)
-            Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
-        return isBusy;
-    }
-
     public void stopDoors()
     {
         setCanGo(false);
@@ -119,48 +102,6 @@ public class Commander
         return playerUUID;
     }
 
-    // Create a new door.
-    public void startCreator(Player player, String name, DoorType type)
-    {
-        if (!player.hasPermission(DoorType.getPermission(type)))
-        {
-            Util.messagePlayer(player, ChatColor.RED,
-                               plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
-            return;
-        }
-
-        long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
-        int maxCount = Util.getMaxDoorsForPlayer(player);
-        if (maxCount >= 0 && doorCount >= maxCount)
-        {
-            Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.TooManyDoors"));
-            return;
-        }
-
-        if (name != null && !Util.isValidDoorName(name))
-        {
-            Util.messagePlayer(player, ChatColor.RED,
-                               "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
-            return;
-        }
-
-        if (isPlayerBusy(player))
-            return;
-
-        // These are disabled.
-        if (type == DoorType.FLAG)
-            return;
-
-        ToolUser tu = type == DoorType.DOOR ? new DoorCreator(plugin, player, name) :
-                           type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
-                           type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) :
-                           type == DoorType.ELEVATOR ? new ElevatorCreator(plugin, player, name) :
-                           type == DoorType.FLAG ? new FlagCreator(plugin, player, name) :
-                           type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
-
-        startTimerForAbortable(tu, 60 * 20);
-    }
-
     public void startTimerForAbortable(Abortable abortable, int time)
     {
         BukkitTask task = new BukkitRunnable()
@@ -173,11 +114,6 @@ public class Commander
         }.runTaskLater(plugin, time);
         abortable.setTask(task);
     }
-
-//    public void listDoorInfo(Player player, Door door)
-//    {
-//
-//    }
 
     public void startPowerBlockRelocator(Player player, Door door)
     {

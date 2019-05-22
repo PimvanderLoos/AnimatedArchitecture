@@ -14,20 +14,17 @@ import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 
-public class SubCommandListDoors implements ISubCommand
+public class SubCommandListDoors extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Returns a list of all your doors";
-    private static final String argsHelp = "[doorName]";
-    private static final int minArgCount = 1;
-    private static final CommandData command = CommandData.LISTDOORS;
+    protected static final String help = "Returns a list of all your doors";
+    protected static final String argsHelp = "[doorName]";
+    protected static final int minArgCount = 1;
+    protected static final CommandData command = CommandData.LISTDOORS;
 
     public SubCommandListDoors(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     public boolean execute(CommandSender sender, ArrayList<Door> doors)
@@ -67,41 +64,5 @@ public class SubCommandListDoors implements ISubCommand
         else
             return false;
         return execute(sender, doors);
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

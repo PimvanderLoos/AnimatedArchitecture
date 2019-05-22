@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import javax.annotation.Nullable;
+
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -9,23 +12,82 @@ import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.toolusers.DoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.DrawbridgeCreator;
+import nl.pim16aap2.bigdoors.toolusers.ElevatorCreator;
+import nl.pim16aap2.bigdoors.toolusers.FlagCreator;
+import nl.pim16aap2.bigdoors.toolusers.PortcullisCreator;
+import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class SubCommandNew implements ISubCommand
+public class SubCommandNew extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Create a new door from selection with name \"doorName\". Defaults to a regular door.";
-    private static final String argsHelp = "[-pc/-db/-bd/-el/-fl] <doorName>";
-    private static final int minArgCount = 2;
-    private static final CommandData command = CommandData.NEW;
+    protected static final String help = "Create a new door from selection with name \"doorName\". Defaults to a regular door.";
+    protected static final String argsHelp = "[-pc/-db/-bd/-el/-fl] <doorName>";
+    protected static final int minArgCount = 2;
+    protected static final CommandData command = CommandData.NEW;
 
     public SubCommandNew(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
+    }
+
+    public static boolean hasCreationPermission(Player player, DoorType type)
+    {
+        return player.hasPermission(CommandData.getPermission(CommandData.NEW) + type.toString().toLowerCase());
+    }
+
+    private boolean isPlayerBusy(Player player)
+    {
+        boolean isBusy = (plugin.getToolUser(player) != null || plugin.isCommandWaiter(player) != null);
+        if (isBusy)
+            Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
+        return isBusy;
+    }
+
+    // Create a new door.
+    public void execute(Player player, @Nullable String name, DoorType type)
+    {
+        if (!hasCreationPermission(player, type))
+        {
+            Util.messagePlayer(player, ChatColor.RED,
+                               plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
+            return;
+        }
+
+        long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
+        int maxCount = Util.getMaxDoorsForPlayer(player);
+        if (maxCount >= 0 && doorCount >= maxCount)
+        {
+            Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.TooManyDoors"));
+            return;
+        }
+
+        if (name != null && !Util.isValidDoorName(name))
+        {
+            Util.messagePlayer(player, ChatColor.RED,
+                               "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+            return;
+        }
+
+        if (isPlayerBusy(player))
+            return;
+
+        // These are disabled.
+        if (type == DoorType.FLAG)
+            return;
+
+        ToolUser tu = type == DoorType.DOOR ? new DoorCreator(plugin, player, name) :
+                      type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
+                      type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) :
+                      type == DoorType.ELEVATOR ? new ElevatorCreator(plugin, player, name) :
+                      type == DoorType.FLAG ? new FlagCreator(plugin, player, name) :
+                      type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
+
+         plugin.getCommander().startTimerForAbortable(tu, 60 * 20);
     }
 
     @Override
@@ -45,7 +107,7 @@ public class SubCommandNew implements ISubCommand
             if (type == null)
                 return false;
         }
-        plugin.getCommander().startCreator((Player) sender, name, type);
+        execute((Player) sender, name, type);
         return true;
     }
 

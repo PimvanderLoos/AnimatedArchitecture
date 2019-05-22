@@ -25,23 +25,20 @@ import nl.pim16aap2.bigdoors.util.Util;
  * permission node (so it isn't accidentally included by bigdoors.*).
  * I would hardcode my own username, but I think that that'd be a bit much.
  */
-public class SubCommandDebug implements ISubCommand
+public class SubCommandDebug extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Do not use this unless you are me... What?";
-    private static final String argsHelp = null;
-    private static final int minArgCount = 1;
-    private static final CommandData command = CommandData.DEBUG;
+    protected static final String help = "Do not use this unless you are me... What?";
+    protected static final String argsHelp = null;
+    protected static final int minArgCount = 1;
+    protected static final CommandData command = CommandData.DEBUG;
 
     public SubCommandDebug(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(@SuppressWarnings("unused") CommandSender sender)
+    public boolean execute(CommandSender sender)
     {
         if (sender instanceof Player)
         {
@@ -183,41 +180,5 @@ public class SubCommandDebug implements ISubCommand
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         return execute(sender);
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

@@ -7,20 +7,17 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandManager;
 
-public class SubCommandStop implements ISubCommand
+public class SubCommandStop extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Forces all doors to finish instantly.";
-    private static final String argsHelp = null;
-    private static final int minArgCount = 1;
-    private static final CommandData command = CommandData.STOP;
+    protected static final String help = "Forces all doors to finish instantly.";
+    protected static final String argsHelp = null;
+    protected static final int minArgCount = 1;
+    protected static final CommandData command = CommandData.STOP;
 
     public SubCommandStop(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     @Override
@@ -28,41 +25,5 @@ public class SubCommandStop implements ISubCommand
     {
         plugin.getCommander().stopDoors();
         return true;
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

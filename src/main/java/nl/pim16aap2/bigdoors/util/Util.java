@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
 
@@ -43,6 +44,23 @@ public final class Util
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    public static <T> T[] concatArrays(T[] first, T[] second)
+    {
+        T[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
+    }
+
+    public static<T> T[] doubleArraySize(T[] arr)
+    {
+        return Arrays.copyOf(arr, arr.length * 2);
+    }
+
+    public static<T> T[] truncateArray(T[] arr, int newLength)
+    {
+        return Arrays.copyOf(arr, newLength);
     }
 
     public static void broadcastMessage(String message)

@@ -16,20 +16,17 @@ import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
-public class SubCommandSetBlocksToMove implements ISubCommand
+public class SubCommandSetBlocksToMove extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Change the number of blocks the door will attempt to move in the provided direction";
-    private static final String argsHelp = "{doorUID/Name} <blocks>";
-    private static final int minArgCount = 3;
-    private static final CommandData command = CommandData.SETBLOCKSTOMOVE;
+    protected static final String help = "Change the number of blocks the door will attempt to move in the provided direction";
+    protected static final String argsHelp = "{doorUID/Name} <blocks>";
+    protected static final int minArgCount = 3;
+    protected static final CommandData command = CommandData.SETBLOCKSTOMOVE;
 
     public SubCommandSetBlocksToMove(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     public boolean execute(CommandSender sender, Door door, String blocksToMoveArg)
@@ -70,41 +67,5 @@ public class SubCommandSetBlocksToMove implements ISubCommand
             }
         }
         return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2]);
-    }
-
-    @Override
-    public String getHelp(CommandSender sender)
-    {
-        return help;
-    }
-
-    @Override
-    public String getHelpArguments()
-    {
-        return argsHelp;
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return minArgCount;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
     }
 }

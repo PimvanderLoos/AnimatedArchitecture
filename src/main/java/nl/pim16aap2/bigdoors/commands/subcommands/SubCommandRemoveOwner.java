@@ -18,20 +18,17 @@ import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
-public class SubCommandRemoveOwner implements ISubCommand
+public class SubCommandRemoveOwner extends SubCommand
 {
-    protected final BigDoors plugin;
-    protected final CommandManager commandManager;
-
-    private static final String help = "Remove another owner for a door.";
-    private static final String helpArgs = "{door} <player>";
-    private static final int minArgCount = 3;
-    private static final CommandData command = CommandData.REMOVEOWNER;
+    protected static final String help = "Remove another owner for a door.";
+    protected static final String helpArgs = "{door} <player>";
+    protected static final int minArgCount = 3;
+    protected static final CommandData command = CommandData.REMOVEOWNER;
 
     public SubCommandRemoveOwner(final BigDoors plugin, final CommandManager commandManager)
     {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+        super(plugin, commandManager);
+        init(help, argsHelp, minArgCount, command);
     }
 
     public boolean execute(CommandSender sender, Door door, String playerArg)

@@ -6,7 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.subcommands.ISubCommand;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public abstract class SuperCommand implements ICommand
@@ -16,7 +16,7 @@ public abstract class SuperCommand implements ICommand
 
     private final String name;
     private final String permission;
-    protected HashMap<String, ISubCommand> subCommands;
+    protected HashMap<String, SubCommand> subCommands;
 
     public SuperCommand(final BigDoors plugin, final CommandManager commandManager, final String name,
         final String permission)
@@ -28,9 +28,10 @@ public abstract class SuperCommand implements ICommand
         subCommands = new HashMap<>();
     }
 
-    public void registerSubCommand(ISubCommand subCommand)
+    public void registerSubCommand(SubCommand subCommand)
     {
         subCommands.put(subCommand.getName().toLowerCase(), subCommand);
+        commandManager.registerCommandShortcut(subCommand);
     }
 
     public ICommand getCommand(String name)
@@ -49,7 +50,7 @@ public abstract class SuperCommand implements ICommand
             return true;
         }
 
-        ISubCommand command = subCommands.get(args[0].toLowerCase());
+        SubCommand command = subCommands.get(args[0].toLowerCase());
         if (command == null)
             return false;
         if (!CommandManager.permissionForCommand(sender, command))
@@ -75,7 +76,7 @@ public abstract class SuperCommand implements ICommand
         return builder.toString();
     }
 
-    private String getHelpOfSubCommand(CommandSender sender, ISubCommand subCommand)
+    private String getHelpOfSubCommand(CommandSender sender, SubCommand subCommand)
     {
         String help = subCommand.getHelp(sender);
         String args = subCommand.getHelpArguments();
