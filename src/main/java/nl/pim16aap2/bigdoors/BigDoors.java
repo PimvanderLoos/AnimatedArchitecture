@@ -23,7 +23,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigdoors.commands.CommandBigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandMenu;
 import nl.pim16aap2.bigdoors.commands.ICommand;
 import nl.pim16aap2.bigdoors.commands.SuperCommand;
@@ -59,6 +58,9 @@ import nl.pim16aap2.bigdoors.handlers.GUIHandler;
 import nl.pim16aap2.bigdoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigdoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigdoors.handlers.RedstoneHandler;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.VaultManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeOpener;
 import nl.pim16aap2.bigdoors.moveblocks.DoorOpener;
@@ -100,17 +102,12 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       So lookup becomes linear, so that's just a waste of performance.
 // TODO: Update version checker. Start using the new format. Also, decide what the new format will be. R200? 200R? %100 = Stable?
 // TODO: Version-specific isAllowedBlock etc.
-// TODO: Instead of a commander, use a database manager. Or nothing at all.
-// TODO: Use Event for restart command. Then let stuff that needs to do stuff on restart subscribe.
 // TODO: Rename RotateDirection to moveDirection. Lifts don't rotate. They lift.
 // TODO: Update rotatable blocks after finishing rotation etc.
 // TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
 // TODO: Create Creator superclass that all door creators extend from. Clean up tool user to get rid of all doorcreation-specific stuff.
 // TODO: ConfigLoader should figure out which resource pack version to use on its own.
-// TODO: Figure out what the players map in the Commander is used for.
-// TODO: Cache all doors. Instead of constantly getting updated doors etc from the database, just get a cached door.
-//       This also means that a set of owners (and their permission) should be stored in a door object.
-//       Add a sync() method to sync any changes to the door with the database or send changes via commander. Might be faster.
+// TODO: Move all non-database related stuff out of DatabaseManager.
 
 /*
  * GUI
@@ -193,7 +190,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private Metrics metrics;
     private File logFile;
     private Messages messages;
-    private Commander commander = null;
+    private DatabaseManager databaseManager = null;
     private Vector<WaitForCommand> cmdWaiters;
     private DoorOpener doorOpener;
     private Vector<BlockMover> blockMovers;
@@ -255,7 +252,7 @@ public class BigDoors extends JavaPlugin implements Listener
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             db = new SQLiteJDBCDriverConnection(this, config.dbFile());
-            commander = new Commander(this, db);
+            databaseManager = new DatabaseManager(this, db);
             doorOpener = new DoorOpener(this);
             flagOpener = new FlagOpener(this);
             bridgeOpener = new BridgeOpener(this);
@@ -352,8 +349,8 @@ public class BigDoors extends JavaPlugin implements Listener
         else
             updater = null;
 
-        if (commander != null)
-            commander.setCanGo(true);
+        if (databaseManager != null)
+            databaseManager.setCanGo(true);
     }
 
     public ICommand getCommand(CommandData command)
@@ -419,7 +416,7 @@ public class BigDoors extends JavaPlugin implements Listener
             return;
 
         // Stop all toolUsers and take all BigDoor tools from players.
-        commander.setCanGo(false);
+        databaseManager.setCanGo(false);
 
         Iterator<Entry<UUID, ToolUser>> it = toolUsers.entrySet().iterator();
         while (it.hasNext())
@@ -582,9 +579,9 @@ public class BigDoors extends JavaPlugin implements Listener
     }
 
     // Get the commander (class executing commands).
-    public Commander getCommander()
+    public DatabaseManager getDatabaseManager()
     {
-        return commander;
+        return databaseManager;
     }
 
     // Get the logger.
@@ -683,21 +680,21 @@ public class BigDoors extends JavaPlugin implements Listener
     // Toggle a door from a doorUID and instantly or not.
     public boolean toggleDoor(long doorUID, boolean instantOpen)
     {
-        final Door door = getCommander().getDoor(null, doorUID);
+        final Door door = getDatabaseManager().getDoor(null, doorUID);
         return toggleDoor(door, 0.0, instantOpen) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID and a given time.
     public boolean toggleDoor(long doorUID, double time)
     {
-        final Door door = getCommander().getDoor(null, doorUID);
+        final Door door = getDatabaseManager().getDoor(null, doorUID);
         return toggleDoor(door, time, false) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID using default values.
     public boolean toggleDoor(long doorUID)
     {
-        final Door door = getCommander().getDoor(null, doorUID);
+        final Door door = getDatabaseManager().getDoor(null, doorUID);
         return toggleDoor(door, 0.0, false) == DoorOpenResult.SUCCESS;
     }
 
@@ -710,7 +707,7 @@ public class BigDoors extends JavaPlugin implements Listener
     // Check the open-status of a door from a doorUID.
     public boolean isOpen (long doorUID)
     {
-        final Door door = getCommander().getDoor(null, doorUID);
+        final Door door = getDatabaseManager().getDoor(null, doorUID);
         return this.isOpen(door);
     }
 

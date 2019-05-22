@@ -7,9 +7,9 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public class SubCommandFill extends SubCommand
 {
@@ -26,7 +26,7 @@ public class SubCommandFill extends SubCommand
 
     public boolean execute(Door door)
     {
-        plugin.getCommander().fillDoor(door);
+        plugin.getDatabaseManager().fillDoor(door);
         return true;
     }
 
@@ -34,6 +34,6 @@ public class SubCommandFill extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandInvalidVariableException
     {
-        return execute(plugin.getCommander().getDoor(CommandManager.getLongFromArg(args[1])));
+        return execute(plugin.getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1])));
     }
 }

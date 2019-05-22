@@ -112,7 +112,7 @@ public class GUIPageRemoveOwner implements IGUIPage
     @Override
     public void refresh()
     {
-        owners = plugin.getCommander().getDoorOwners(gui.getDoor().getDoorUID(), gui.getPlayer().getUniqueId());
+        owners = plugin.getDatabaseManager().getDoorOwners(gui.getDoor().getDoorUID(), gui.getPlayer().getUniqueId());
         Collections.sort(owners, Comparator.comparing(DoorOwner::getPlayerName));
         maxDoorOwnerPageCount = owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
 
@@ -140,7 +140,7 @@ public class GUIPageRemoveOwner implements IGUIPage
 
     private void removeOwner(DoorOwner owner)
     {
-        plugin.getCommander().removeOwner(owner.getDoorUID(), owner.getPlayerUUID());
+        plugin.getDatabaseManager().removeOwner(owner.getDoorUID(), owner.getPlayerUUID());
         owners.remove(owners.indexOf(owner));
     }
 }

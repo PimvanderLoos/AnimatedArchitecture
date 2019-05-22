@@ -160,11 +160,11 @@ public class FlagMover implements BlockMover
                 @Override
                 public void run()
                 {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
                 }
             }.runTaskLater(plugin, timer);
         else
-            plugin.getCommander().setDoorAvailable(door.getDoorUID());
+            plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
 
         if (!onDisable)
             goAgain();
@@ -201,12 +201,12 @@ public class FlagMover implements BlockMover
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
                 long msSinceStart = (currentTime - startTime) / 1000000;
-                if (!plugin.getCommander().isPaused())
+                if (!plugin.getDatabaseManager().isPaused())
                     counter = msSinceStart / (50 * tickRate);
                 else
                     startTime += currentTime - lastTime;
 
-                if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (int idx = 0; idx < savedBlocks.size(); ++idx)

@@ -24,7 +24,7 @@ public class RedstoneHandler implements Listener
 
     public boolean checkDoor(Location loc)
     {
-        Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
+        Door door = plugin.getDatabaseManager().doorFromPowerBlockLoc(loc);
 
         if (door != null && !door.isLocked())
             return plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, true) == DoorOpenResult.SUCCESS;

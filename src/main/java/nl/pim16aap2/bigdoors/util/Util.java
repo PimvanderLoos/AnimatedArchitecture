@@ -159,31 +159,39 @@ public final class Util
         return playerUUID == null ? null : playerUUID.toString();
     }
 
-    public static UUID playerUUIDFromString(String input)
+    /*
+     * Try to get a player's UUID from a given name.
+     * First try to get it from an online player, then try
+     * an offline player, as the first is faster.
+     * Check if the resulting player's name is a match to the
+     * provided playerName, because player retrieval from a
+     * name is not exact. "pim" would match "pim16aap2", for example.
+     */
+    public static UUID playerUUIDFromString(String playerName)
     {
         Player player = null;
-        player = Bukkit.getPlayer(input);
+        player = Bukkit.getPlayer(playerName);
         if (player == null)
             try
             {
-                player = Bukkit.getPlayer(UUID.fromString(input));
+                player = Bukkit.getPlayer(UUID.fromString(playerName));
             }
             catch (Exception dontcare)
             {
             }
         if (player != null)
-            return player.getName().equals(input) ? player.getUniqueId() : null;
+            return player.getName().equals(playerName) ? player.getUniqueId() : null;
 
         OfflinePlayer offPlayer = null;
         try
         {
-            offPlayer = Bukkit.getOfflinePlayer(UUID.fromString(input));
+            offPlayer = Bukkit.getOfflinePlayer(UUID.fromString(playerName));
         }
         catch (Exception dontcare)
         {
         }
         if (offPlayer != null)
-            return offPlayer.getName().equals(input) ? offPlayer.getUniqueId() : null;
+            return offPlayer.getName().equals(playerName) ? offPlayer.getUniqueId() : null;
         return null;
     }
 

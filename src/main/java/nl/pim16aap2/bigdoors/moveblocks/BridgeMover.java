@@ -344,11 +344,11 @@ public class BridgeMover implements BlockMover
                 @Override
                 public void run()
                 {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
                 }
             }.runTaskLater(plugin, timer);
         else
-            plugin.getCommander().setDoorAvailable(door.getDoorUID());
+            plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
 
         if (!onDisable)
             goAgain();
@@ -365,8 +365,8 @@ public class BridgeMover implements BlockMover
             @Override
             public void run()
             {
-                plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()), time, instantOpen, false);
+                plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
+                plugin.getDoorOpener(door.getType()).openDoor(plugin.getDatabaseManager().getDoor(null, door.getDoorUID()), time, instantOpen, false);
             }
         }.runTaskLater(plugin, autoCloseTimer * 20);
     }
@@ -397,7 +397,7 @@ public class BridgeMover implements BlockMover
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
                 long msSinceStart = (currentTime - startTime) / 1000000;
-                if (!plugin.getCommander().isPaused())
+                if (!plugin.getDatabaseManager().isPaused())
                     counter = msSinceStart / (50 * tickRate);
                 else
                     startTime += currentTime - lastTime;
@@ -411,7 +411,7 @@ public class BridgeMover implements BlockMover
                 if (counter == replaceCount)
                     replace = true;
 
-                if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (int idx = 0; idx < savedBlocks.size(); ++idx)
@@ -573,7 +573,7 @@ public class BridgeMover implements BlockMover
         door.setMinimum(newMin);
         door.setEngineSide(newEngSide);
 
-        plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
+        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
     }
 
     private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, NMSBlock_Vall block)

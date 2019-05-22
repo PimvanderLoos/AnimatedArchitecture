@@ -224,11 +224,11 @@ public class CylindricalMover implements BlockMover
                 @Override
                 public void run()
                 {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
                 }
             }.runTaskLater(plugin, timer);
         else
-            plugin.getCommander().setDoorAvailable(door.getDoorUID());
+            plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
 
         if (!onDisable)
             goAgain();
@@ -245,8 +245,8 @@ public class CylindricalMover implements BlockMover
             @Override
             public void run()
             {
-                plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()),
+                plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
+                plugin.getDoorOpener(door.getType()).openDoor(plugin.getDatabaseManager().getDoor(null, door.getDoorUID()),
                                                               time, instantOpen, false);
             }
         }.runTaskLater(plugin, autoCloseTimer * 20);
@@ -278,7 +278,7 @@ public class CylindricalMover implements BlockMover
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
                 long msSinceStart = (currentTime - startTime) / 1000000;
-                if (!plugin.getCommander().isPaused())
+                if (!plugin.getDatabaseManager().isPaused())
                     counter = msSinceStart / (50 * tickRate);
                 else
                     startTime += currentTime - lastTime;
@@ -292,7 +292,7 @@ public class CylindricalMover implements BlockMover
                 if (counter == replaceCount)
                     replace = true;
 
-                if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
                 {
                     Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
                     for (MyBlockData savedBlock : savedBlocks)
@@ -444,7 +444,7 @@ public class CylindricalMover implements BlockMover
         door.setMaximum(newMax);
         door.setMinimum(newMin);
 
-        plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(),
+        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(),
                                                newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
                                                newMax.getBlockY(), newMax.getBlockZ());
     }

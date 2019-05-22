@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors;
+package nl.pim16aap2.bigdoors.managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +15,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
@@ -34,23 +36,24 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetTime;
 
-public class Commander
+public class DatabaseManager
 {
     private final BigDoors plugin;
     private HashSet<Long> busyDoors;
+    // Players map stores players for faster UUID / Name matching.
     private HashMap<UUID, String> players;
-    private boolean goOn   = true;
+    private boolean goOn = true;
     private boolean paused = false;
     private SQLiteJDBCDriverConnection db;
     private Messages messages;
 
-    public Commander(BigDoors plugin, SQLiteJDBCDriverConnection db)
+    public DatabaseManager(BigDoors plugin, SQLiteJDBCDriverConnection db)
     {
         this.plugin = plugin;
-        this.db     = db;
-        busyDoors   = new HashSet<>();
-        messages    = plugin.getMessages();
-        players     = new HashMap<>();
+        this.db = db;
+        busyDoors = new HashSet<>();
+        messages = plugin.getMessages();
+        players = new HashMap<>();
     }
 
     // Check if a door is busy
@@ -143,7 +146,7 @@ public class Commander
 
     public void setDoorBlocksToMove(long doorUID, int autoClose)
     {
-        plugin.getCommander().updateDoorBlocksToMove(doorUID, autoClose);
+        plugin.getDatabaseManager().updateDoorBlocksToMove(doorUID, autoClose);
     }
 
     // Check if the doors are paused.
@@ -223,7 +226,7 @@ public class Commander
             newDoor.setPlayerUUID(player.getUniqueId());
         if (newDoor.getPermission() != permission)
             newDoor.setPermission(permission);
-        db.insert(newDoor);
+        addDoor(newDoor);
     }
 
     // Add a door to the db of doors.

@@ -73,7 +73,7 @@ public class GUI
         page = 0;
         items = new HashMap<>();
 
-        doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), null);
+        doors = plugin.getDatabaseManager().getDoors(player.getUniqueId().toString(), null);
         sort();
         guiPage = new GUIPageDoorList(plugin, this);
         update();
@@ -95,7 +95,7 @@ public class GUI
 
     public boolean isStillOwner()
     {
-        if (door != null && plugin.getCommander().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
+        if (door != null && plugin.getDatabaseManager().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
         {
             doors.remove(door);
             door = null;

@@ -46,13 +46,13 @@ public class EventHandlers implements Listener
     @EventHandler
     public void onLogin(final PlayerLoginEvent event)
     {
-        plugin.getCommander().updatePlayer(event.getPlayer());
+        plugin.getDatabaseManager().updatePlayer(event.getPlayer());
     }
 
     @EventHandler
     public void onLogout(final PlayerQuitEvent event)
     {
-        plugin.getCommander().removePlayer(event.getPlayer());
+        plugin.getDatabaseManager().removePlayer(event.getPlayer());
         ToolUser tu = plugin.getToolUser(event.getPlayer());
         if (tu != null)
             tu.abort();

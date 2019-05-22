@@ -41,7 +41,7 @@ public class DoorOwner
     public String getPlayerName()
     {
         if (name == null)
-            name = plugin.getCommander().playerNameFromUUID(playerUUID);
+            name = plugin.getDatabaseManager().playerNameFromUUID(playerUUID);
         return name;
     }
 }

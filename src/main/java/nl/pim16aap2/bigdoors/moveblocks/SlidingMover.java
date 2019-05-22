@@ -187,11 +187,11 @@ public class SlidingMover implements BlockMover
                 @Override
                 public void run()
                 {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
                 }
             }.runTaskLater(plugin, timer);
         else
-            plugin.getCommander().setDoorAvailable(door.getDoorUID());
+            plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
 
         if (!onDisable)
             goAgain();
@@ -208,8 +208,8 @@ public class SlidingMover implements BlockMover
             @Override
             public void run()
             {
-                plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()), time, instantOpen, false);
+                plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
+                plugin.getDoorOpener(door.getType()).openDoor(plugin.getDatabaseManager().getDoor(null, door.getDoorUID()), time, instantOpen, false);
             }
         }.runTaskLater(plugin, autoCloseTimer * 20);
     }
@@ -243,7 +243,7 @@ public class SlidingMover implements BlockMover
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
                 long msSinceStart = (currentTime - startTime) / 1000000;
-                if (!plugin.getCommander().isPaused())
+                if (!plugin.getDatabaseManager().isPaused())
                     counter = msSinceStart / (50 * tickRate);
                 else
                     startTime += currentTime - lastTime;
@@ -253,7 +253,7 @@ public class SlidingMover implements BlockMover
                 else
                     stepSum = blocksToMove;
 
-                if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks || firstBlockData == null)
+                if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks || firstBlockData == null)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (int idx = 0; idx < savedBlocks.size(); ++idx)
@@ -309,7 +309,7 @@ public class SlidingMover implements BlockMover
         door.setMaximum(newMax);
         door.setMinimum(newMin);
 
-        plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
+        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
     }
 
     private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, NMSBlock_Vall block)

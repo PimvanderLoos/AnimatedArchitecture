@@ -4,8 +4,8 @@ import org.bukkit.command.CommandSender;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.ICommand;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public abstract class SubCommand implements ICommand
 {

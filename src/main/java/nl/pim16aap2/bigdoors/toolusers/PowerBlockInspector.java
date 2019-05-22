@@ -37,7 +37,7 @@ public class PowerBlockInspector extends ToolUser
     public void selector(Location loc)
     {
         done = true;
-        Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
+        Door door = plugin.getDatabaseManager().doorFromPowerBlockLoc(loc);
         if (door != null)
         {
             ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, door);

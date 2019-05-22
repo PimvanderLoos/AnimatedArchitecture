@@ -28,7 +28,7 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (one != null)
         {
-            plugin.getCommander().updatePowerBlockLoc(doorUID, one);
+            plugin.getDatabaseManager().updatePowerBlockLoc(doorUID, one);
             Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Success"));
         }
         finishUp(null);
@@ -38,7 +38,7 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     public void selector(Location loc)
     {
-        if (plugin.getCommander().isPowerBlockLocationValid(loc))
+        if (plugin.getDatabaseManager().isPowerBlockLocationValid(loc))
         {
             done = true;
             one  = loc;

@@ -52,8 +52,8 @@ public class AutoCloseScheduler
             {
                 if (door.isOpen())
                 {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                    plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()),
+                    plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
+                    plugin.getDoorOpener(door.getType()).openDoor(plugin.getDatabaseManager().getDoor(null, door.getDoorUID()),
                                                                   time, instantOpen, false);
                 }
                 deleteTimer(door.getDoorUID());

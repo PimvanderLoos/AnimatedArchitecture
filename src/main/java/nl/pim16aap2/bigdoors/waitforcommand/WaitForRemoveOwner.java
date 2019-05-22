@@ -27,7 +27,7 @@ public class WaitForRemoveOwner extends WaitForCommand
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Init"));
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.ListOfOwners"));
 
-        ArrayList<DoorOwner> doorOwners = plugin.getCommander().getDoorOwners(door.getDoorUID(), player.getUniqueId());
+        ArrayList<DoorOwner> doorOwners = plugin.getDatabaseManager().getDoorOwners(door.getDoorUID(), player.getUniqueId());
         StringBuilder builder = new StringBuilder();
         for (DoorOwner owner : doorOwners)
             builder.append(owner.getPlayerName() + ", ");

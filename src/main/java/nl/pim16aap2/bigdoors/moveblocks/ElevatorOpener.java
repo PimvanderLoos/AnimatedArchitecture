@@ -47,7 +47,7 @@ public class ElevatorOpener implements Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getDatabaseManager().isDoorBusy(door.getDoorUID()))
         {
             if (!silent)
                 plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
@@ -72,7 +72,7 @@ public class ElevatorOpener implements Opener
         if (blocksToMove != 0)
         {
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
-            plugin.getCommander().setDoorBusy(door.getDoorUID());
+            plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
 
             plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove, plugin.getConfigLoader().elMultiplier()));
         }

@@ -9,9 +9,9 @@ import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
@@ -30,7 +30,7 @@ public class SubCommandSetRotation extends SubCommand
 
     public void execute(CommandSender sender, Door door, RotateDirection openDir)
     {
-        plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), openDir);
+        plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), openDir);
     }
 
     @Override
@@ -38,11 +38,11 @@ public class SubCommandSetRotation extends SubCommand
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandInvalidVariableException,
         CommandActionNotAllowedException
     {
-        Door door = plugin.getCommander().getDoor(args[1], sender instanceof Player ? (Player) sender : null);
+        Door door = plugin.getDatabaseManager().getDoor(args[1], sender instanceof Player ? (Player) sender : null);
         if (door == null)
             throw new CommandInvalidVariableException(args[1], "door");
 
-        if (sender instanceof Player && !plugin.getCommander()
+        if (sender instanceof Player && !plugin.getDatabaseManager()
             .hasPermissionForAction(((Player) sender), door.getDoorUID(),
                                     DoorAttribute.DIRECTION_STRAIGHT))
             throw new CommandActionNotAllowedException();

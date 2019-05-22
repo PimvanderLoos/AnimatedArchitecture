@@ -13,8 +13,8 @@ import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
@@ -36,10 +36,10 @@ public class SubCommandRemoveOwner extends SubCommand
     {
         UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
 
-        if (sender instanceof Player && plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.REMOVEOWNER))
+        if (sender instanceof Player && plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.REMOVEOWNER))
             throw new CommandActionNotAllowedException();
 
-        if (plugin.getCommander().removeOwner(door, playerUUID))
+        if (plugin.getDatabaseManager().removeOwner(door, playerUUID))
         {
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
                                                 plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));

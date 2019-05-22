@@ -49,7 +49,7 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
     private void deleteDoor()
     {
-        if (!plugin.getCommander().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), DoorAttribute.DELETE))
+        if (!plugin.getDatabaseManager().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), DoorAttribute.DELETE))
             return;
         ((SubCommandDelete) plugin.getCommand(CommandData.DELETE)).execute(gui.getPlayer(), gui.getDoor());
         gui.removeSelectedDoor();

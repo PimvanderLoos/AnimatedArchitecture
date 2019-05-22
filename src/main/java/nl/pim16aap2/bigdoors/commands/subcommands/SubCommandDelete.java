@@ -12,9 +12,9 @@ import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 
 public class SubCommandDelete extends SubCommand
@@ -34,7 +34,7 @@ public class SubCommandDelete extends SubCommand
     {
         String name = door.getName();
         long doorUID = door.getDoorUID();
-        plugin.getCommander().removeDoor(door.getDoorUID());
+        plugin.getDatabaseManager().removeDoor(door.getDoorUID());
         plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
                                             plugin.getMessages().getString("GENERAL.COMMAND.DoorIsDeleted") + " " + name
                                                 + " (" + doorUID + ")");
@@ -55,8 +55,8 @@ public class SubCommandDelete extends SubCommand
         catch (CommandInvalidVariableException e)
         {
             int count = sender instanceof Player ?
-                plugin.getCommander().countDoors(((Player) sender).getUniqueId().toString(), args[1]) :
-                plugin.getCommander().countDoors(args[1]);
+                plugin.getDatabaseManager().countDoors(((Player) sender).getUniqueId().toString(), args[1]) :
+                plugin.getDatabaseManager().countDoors(args[1]);
 
             if (count > 1)
             {
@@ -72,13 +72,13 @@ public class SubCommandDelete extends SubCommand
             }
 
             if (sender instanceof Player)
-                door = plugin.getCommander().getDoor(args[1], (Player) sender);
+                door = plugin.getDatabaseManager().getDoor(args[1], (Player) sender);
             else
-                door = plugin.getCommander().getDoor(args[1], null);
+                door = plugin.getDatabaseManager().getDoor(args[1], null);
         }
 
         if (sender instanceof Player
-            && !plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.DELETE))
+            && !plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.DELETE))
             throw new CommandActionNotAllowedException();
 
         if (door == null)

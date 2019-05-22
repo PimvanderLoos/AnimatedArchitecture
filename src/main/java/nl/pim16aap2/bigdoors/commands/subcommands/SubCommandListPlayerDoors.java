@@ -9,10 +9,10 @@ import org.bukkit.command.CommandSender;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public class SubCommandListPlayerDoors extends SubCommand
 {
@@ -48,7 +48,7 @@ public class SubCommandListPlayerDoors extends SubCommand
         ArrayList<Door> doors = new ArrayList<>();
         UUID playerUUID = CommandManager.getPlayerFromArg(args[0]);
         String name = args.length > 1 ? args[1] : null;
-        doors.addAll(plugin.getCommander().getDoors(playerUUID.toString(), name));
+        doors.addAll(plugin.getDatabaseManager().getDoors(playerUUID.toString(), name));
         return execute(sender, doors);
     }
 }

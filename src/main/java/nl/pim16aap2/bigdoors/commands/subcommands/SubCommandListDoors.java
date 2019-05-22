@@ -10,9 +10,9 @@ import org.bukkit.entity.Player;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public class SubCommandListDoors extends SubCommand
 {
@@ -48,17 +48,17 @@ public class SubCommandListDoors extends SubCommand
         ArrayList<Door> doors = new ArrayList<>();
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
         if (sender instanceof Player)
-            doors.addAll(plugin.getCommander().getDoors(((Player) sender).getUniqueId().toString(), name));
+            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId().toString(), name));
         else if (name != null)
         {
-            doors.addAll(plugin.getCommander().getDoors(name));
+            doors.addAll(plugin.getDatabaseManager().getDoors(name));
             // If no door with the provided name could be found, list all doors owned by the player with that name instead.
             if (doors.size() == 0)
             {
-                UUID playerUUID = plugin.getCommander().getPlayerUUIDFromString(name);
+                UUID playerUUID = plugin.getDatabaseManager().getPlayerUUIDFromString(name);
                 if (playerUUID == null)
                     return true;
-                doors.addAll(plugin.getCommander().getDoors(playerUUID.toString(), null));
+                doors.addAll(plugin.getDatabaseManager().getDoors(playerUUID.toString(), null));
             }
         }
         else

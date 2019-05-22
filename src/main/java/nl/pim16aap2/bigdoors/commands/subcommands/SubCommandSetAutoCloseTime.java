@@ -9,10 +9,10 @@ import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
@@ -32,12 +32,12 @@ public class SubCommandSetAutoCloseTime extends SubCommand
     public boolean execute(CommandSender sender, Door door, String timeArg)
         throws CommandActionNotAllowedException, CommandInvalidVariableException
     {
-        if (sender instanceof Player && plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.CHANGETIMER))
+        if (sender instanceof Player && plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.CHANGETIMER))
             throw new CommandActionNotAllowedException();
 
         int time = CommandManager.getIntegerFromArg(timeArg);
 
-        plugin.getCommander().setDoorOpenTime(door.getDoorUID(), time);
+        plugin.getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
         if (time != -1)
             plugin.getMyLogger().returnToSender(sender, null,
                                                 plugin.getMessages().getString("COMMAND.SetTime.Success") + time + "s.");

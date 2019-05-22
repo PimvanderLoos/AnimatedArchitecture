@@ -6,9 +6,9 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 
@@ -27,7 +27,7 @@ public class SubCommandInspectPowerBlock extends SubCommand
 
     public boolean execute(Player player)
     {
-        plugin.getCommander().startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), 20 * 20);
+        plugin.getDatabaseManager().startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), 20 * 20);
         return true;
     }
 

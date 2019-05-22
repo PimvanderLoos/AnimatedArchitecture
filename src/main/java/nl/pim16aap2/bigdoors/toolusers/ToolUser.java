@@ -93,7 +93,7 @@ public abstract class ToolUser extends Abortable
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);
             else if (plugin.getVaultManager().buyDoor(player, type, doorSize))
             {
-                plugin.getCommander().addDoor(door);
+                plugin.getDatabaseManager().addDoor(door);
                 if (message != null)
                     Util.messagePlayer(player, message);
             }

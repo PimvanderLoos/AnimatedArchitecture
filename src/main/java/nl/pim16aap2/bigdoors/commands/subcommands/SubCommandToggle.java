@@ -12,9 +12,9 @@ import org.bukkit.entity.Player;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
@@ -41,13 +41,13 @@ public class SubCommandToggle extends SubCommand
     public void execute(CommandSender sender, Door door, double time)
     {
         if (sender instanceof Player
-            && !plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE))
+            && !plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE))
             return;
 
         UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         // Get a new instance of the door to make sure the locked / unlocked status is
         // recent.
-        Door newDoor = plugin.getCommander().getDoor(playerUUID, door.getDoorUID());
+        Door newDoor = plugin.getDatabaseManager().getDoor(playerUUID, door.getDoorUID());
 
         if (newDoor == null)
         {
@@ -84,7 +84,7 @@ public class SubCommandToggle extends SubCommand
         Player player = sender instanceof Player ? (Player) sender : null;
         while (index --> 1)
         {
-            Door door = plugin.getCommander().getDoor(args[index], player);
+            Door door = plugin.getDatabaseManager().getDoor(args[index], player);
             if (door == null)
             {
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" "

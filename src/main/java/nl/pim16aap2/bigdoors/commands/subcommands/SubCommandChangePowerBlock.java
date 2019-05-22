@@ -8,9 +8,9 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 
 public class SubCommandChangePowerBlock extends SubCommand
@@ -28,9 +28,9 @@ public class SubCommandChangePowerBlock extends SubCommand
 
     public boolean execute(Player player, Door door) throws CommandActionNotAllowedException
     {
-        if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.RELOCATEPOWERBLOCK))
+        if (!plugin.getDatabaseManager().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.RELOCATEPOWERBLOCK))
             throw new CommandActionNotAllowedException();
-        plugin.getCommander().startPowerBlockRelocator(player, door);
+        plugin.getDatabaseManager().startPowerBlockRelocator(player, door);
         return true;
     }
 
@@ -42,6 +42,6 @@ public class SubCommandChangePowerBlock extends SubCommand
             throw new CommandSenderNotPlayerException();
 
         Player player = (Player) sender;
-        return execute(player, plugin.getCommander().getDoor(args[0], player));
+        return execute(player, plugin.getDatabaseManager().getDoor(args[0], player));
     }
 }

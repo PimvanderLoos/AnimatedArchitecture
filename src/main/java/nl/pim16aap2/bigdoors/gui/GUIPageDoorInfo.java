@@ -48,7 +48,7 @@ public class GUIPageDoorInfo implements IGUIPage
         if (interactionIDX < 9)
             return;
 
-        if (!plugin.getCommander().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), gui.getItem(interactionIDX).getDoorAttribute()))
+        if (!plugin.getDatabaseManager().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), gui.getItem(interactionIDX).getDoorAttribute()))
         {
             refresh();
             return;
@@ -61,7 +61,7 @@ public class GUIPageDoorInfo implements IGUIPage
         {
         case LOCK:
             door.setLock(!door.isLocked());
-            plugin.getCommander().setLock(door.getDoorUID(), door.isLocked());
+            plugin.getDatabaseManager().setLock(door.getDoorUID(), door.isLocked());
             refresh();
             break;
         case TOGGLE:
@@ -74,7 +74,7 @@ public class GUIPageDoorInfo implements IGUIPage
             gui.setGUIPage(new GUIPageDeleteConfirmation(plugin, gui));
             break;
         case RELOCATEPOWERBLOCK:
-            plugin.getCommander().startPowerBlockRelocator(player, door);
+            plugin.getDatabaseManager().startPowerBlockRelocator(player, door);
             gui.close();
             break;
         case DIRECTION_STRAIGHT:
@@ -82,16 +82,16 @@ public class GUIPageDoorInfo implements IGUIPage
             changeOpenDir(player, door);
             break;
         case CHANGETIMER:
-            plugin.getCommander().startTimerSetter(player, door);
+            plugin.getDatabaseManager().startTimerSetter(player, door);
             gui.close();
             break;
         case BLOCKSTOMOVE:
 
-            plugin.getCommander().startBlocksToMoveSetter(player, door);
+            plugin.getDatabaseManager().startBlocksToMoveSetter(player, door);
             gui.close();
             break;
         case ADDOWNER:
-            plugin.getCommander().startAddOwner(player, door);
+            plugin.getDatabaseManager().startAddOwner(player, door);
             gui.close();
             break;
         case REMOVEOWNER:
@@ -159,7 +159,7 @@ public class GUIPageDoorInfo implements IGUIPage
                          curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
                                                                    RotateDirection.NONE;
 
-        plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
+        plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
         int idx = gui.indexOfDoor(door);
         gui.getDoor(idx).setOpenDir(newOpenDir);
         gui.setDoor(gui.getDoor(idx));

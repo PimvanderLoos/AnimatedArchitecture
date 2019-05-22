@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public class CommandBigDoors extends SuperCommand
 {

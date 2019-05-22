@@ -9,9 +9,9 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.toolusers.DoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.DrawbridgeCreator;
 import nl.pim16aap2.bigdoors.toolusers.ElevatorCreator;
@@ -58,7 +58,7 @@ public class SubCommandNew extends SubCommand
             return;
         }
 
-        long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
+        long doorCount = plugin.getDatabaseManager().countDoors(player.getUniqueId().toString(), null);
         int maxCount = Util.getMaxDoorsForPlayer(player);
         if (maxCount >= 0 && doorCount >= maxCount)
         {
@@ -87,7 +87,7 @@ public class SubCommandNew extends SubCommand
                       type == DoorType.FLAG ? new FlagCreator(plugin, player, name) :
                       type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
 
-         plugin.getCommander().startTimerForAbortable(tu, 60 * 20);
+         plugin.getDatabaseManager().startTimerForAbortable(tu, 60 * 20);
     }
 
     @Override

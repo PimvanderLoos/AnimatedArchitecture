@@ -159,7 +159,7 @@ public class DoorOpener implements Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getDatabaseManager().isDoorBusy(door.getDoorUID()))
         {
             if (!silent)
                 plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
@@ -220,7 +220,7 @@ public class DoorOpener implements Opener
             return DoorOpenResult.NOPERMISSION;
 
         // Change door availability so it cannot be opened again (just temporarily, don't worry!).
-        plugin.getCommander().setDoorBusy(door.getDoorUID());
+        plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
 
         plugin.addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), rotDirection, time, oppositePoint, currentDirection, door, instantOpen, plugin.getConfigLoader().bdMultiplier()));
 

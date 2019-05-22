@@ -8,9 +8,9 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
-import nl.pim16aap2.bigdoors.commands.CommandManager;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 
 public class SubCommandInfo extends SubCommand
@@ -39,7 +39,7 @@ public class SubCommandInfo extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandInvalidVariableException
     {
-        Door door = plugin.getCommander().getDoor(args[minArgCount - 1], sender instanceof Player ? (Player) sender : null);
+        Door door = plugin.getDatabaseManager().getDoor(args[minArgCount - 1], sender instanceof Player ? (Player) sender : null);
         if (door == null)
         {
             plugin.getMyLogger().returnToSender(sender, null, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
