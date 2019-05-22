@@ -13,7 +13,7 @@ public class PowerBlockInspector extends ToolUser
 {
     public PowerBlockInspector(BigDoors plugin, Player player, long doorUID)
     {
-        super(plugin, player, null, null);
+        super(plugin, player);
         this.doorUID = doorUID;
         Util.messagePlayer(player, messages.getString("CREATOR.PBINSPECTOR.Init"));
         triggerGiveTool();
@@ -29,7 +29,7 @@ public class PowerBlockInspector extends ToolUser
     @Override
     protected void triggerFinishUp()
     {
-        finishUp(null);
+        finishUp();
     }
 
     // Take care of the selection points.
@@ -43,11 +43,5 @@ public class PowerBlockInspector extends ToolUser
             ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, door);
             setIsDone(true);
         }
-    }
-
-    @Override
-    protected boolean isReadyToCreateDoor()
-    {
-        return false;
     }
 }

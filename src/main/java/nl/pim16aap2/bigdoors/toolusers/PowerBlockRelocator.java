@@ -8,9 +8,11 @@ import nl.pim16aap2.bigdoors.util.Util;
 
 public class PowerBlockRelocator extends ToolUser
 {
+    protected Location newLoc = null;
+
     public PowerBlockRelocator(BigDoors plugin, Player player, long doorUID)
     {
-        super(plugin, player, null, null);
+        super(plugin, player);
         this.doorUID = doorUID;
         Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Init"));
         triggerGiveTool();
@@ -26,12 +28,12 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     protected void triggerFinishUp()
     {
-        if (one != null)
+        if (newLoc != null)
         {
-            plugin.getDatabaseManager().updatePowerBlockLoc(doorUID, one);
+            plugin.getDatabaseManager().updatePowerBlockLoc(doorUID, newLoc);
             Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Success"));
         }
-        finishUp(null);
+        finishUp();
     }
 
     // Take care of the selection points.
@@ -40,17 +42,10 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (plugin.getDatabaseManager().isPowerBlockLocationValid(loc))
         {
-            done = true;
-            one  = loc;
+            newLoc = loc;
             setIsDone(true);
         }
         else
             Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.LocationInUse"));
-    }
-
-    @Override
-    protected boolean isReadyToCreateDoor()
-    {
-        return false;
     }
 }

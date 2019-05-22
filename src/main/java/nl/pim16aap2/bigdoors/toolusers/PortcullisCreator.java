@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class PortcullisCreator extends ToolUser
+public class PortcullisCreator extends Creator
 {
     public PortcullisCreator(BigDoors plugin, Player player, String name)
     {

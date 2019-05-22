@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class SlidingDoorCreator extends ToolUser
+public class SlidingDoorCreator extends Creator
 {
     public SlidingDoorCreator(BigDoors plugin, Player player, String name)
     {

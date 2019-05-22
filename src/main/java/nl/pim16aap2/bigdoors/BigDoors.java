@@ -98,16 +98,14 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
 // TODO: Split up project POM into modules. Use API to get all implementation (Bukkit, Forge, different versions) specific stuff.
 //       https://bukkit.org/threads/support-multiple-minecraft-versions-with-abstraction-maven.115810/
-// TODO: When using HashMaps/HashTables, make sure that the keys are actually properly hashable. By default the hashCode method returns 1,
-//       So lookup becomes linear, so that's just a waste of performance.
 // TODO: Update version checker. Start using the new format. Also, decide what the new format will be. R200? 200R? %100 = Stable?
-// TODO: Version-specific isAllowedBlock etc.
 // TODO: Rename RotateDirection to moveDirection. Lifts don't rotate. They lift.
 // TODO: Update rotatable blocks after finishing rotation etc.
 // TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
 // TODO: Create Creator superclass that all door creators extend from. Clean up tool user to get rid of all doorcreation-specific stuff.
 // TODO: ConfigLoader should figure out which resource pack version to use on its own.
 // TODO: Move all non-database related stuff out of DatabaseManager.
+// TODO: OPs and people with bigdoors.admin.bypass should bypass permissions check for allowing options.
 
 /*
  * GUI
@@ -115,6 +113,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Look into playerheads for GUI buttons. Example: https://minecraft-heads.com/player-heads/alphabet/2762-arrow-left
 // TODO: Make GUI options always use the correct subCommand.
 // TODO: Get rid of repeated initialization for stuff like the options in the GUIPageDoorInfo. Just initialize it once in the constructor.
+// TODO: Store 2 player objects: 1) Subject (the owner of all the doors), and 2) InventoryHolder (who is looking at the inventory).
 
 /*
  * SQL
@@ -131,7 +130,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 /*
  * Commands
  */
-// TODO: Add help menu for every command separately. Use that when a mistake was made.
 // TODO: Add /BDM [PlayerName (when online) || PlayerUUID || Server] to open a doorMenu for a specific player
 // TODO: Make invalid input stuff more informative (e.g. int, float etc).
 // TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
@@ -140,20 +138,15 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Move stuff such as StartTimerForAbortable into appropriate command classes.
 // TODO: When retrieving player argument (SubCommandAddOwner, SubCommandListPlayerDoors) don't just try to convert
 //       the provided playerArg to a UUID. That's not very user friendly at all.
-// TODO: Add CommandNotFoundException for when a subCommand could not be found.
-// TODO: Fix openndoor <uid> as a user still returning that it could not be found, even if it was found.
-// TODO: Test permissions.
 // TODO: Check if force unlock door as admin still exists.
-// TODO: Add "success()" method to commands. To print messages like "you've successfully deleted the door!" etc.
-// TODO: Do not use the commander for anything command-related that isn't strict database abstraction.
-// TODO: Modify the system so that you can have as many subcommands as you want.
+// TODO: Do not use the commander for anything command-related that isn't strictly database abstraction.
 
 /*
  * Openers / Movers
  */
 // TODO: Rewrite Openers to get rid of code duplication.
 // TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
-// TODO: When a door isn't set to open in a specific direction and therefor naively tries to find the first possible
+// TODO: When a door isn't set to open in a specific direction and therefore naively tries to find the first possible
 //       free location, automatically set the openDirection for this door. HOWEVER, this value must be reset when it is
 //       closed again, but ONLY if it used to be unset. So instead of storing value, add flag for un/intentionally set.
 // TODO: Rotate Sea Pickle and turtle egg.
@@ -162,18 +155,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
 // TODO: Consider using HashSet for blocks. It's faster: https://stackoverflow.com/questions/10196343/hash-set-and-array-list-performances
 // TODO: Don't do any replacing by air stuff in the openers/movers. Instead, do it in the NMSBlock part. Also make sure
-//       to copy all rotational blockdata stuff properly!
-// TODO: Add door opening/closing scheduler. This should
-// TODO: Schedule doorAutoCloseTimer properly. When it is closed manually, the timer should be cancelled!
-
-/*
- * ToolUsers
- */
-// TODO: Make sure the abortable's BukkitTask isn't null. -When would it be?? What is this?
-// TODO: Make sure timers don't give an error when the player disconnects before finishing it.
-// TODO: Maybe check all player inventories on login/logout to make sure they don't have any leftover creators sticks.
-// TODO: Create "creator" abstract class as subclass of ToolUser from which all creators can be derived, so
-//       the finishUp() method can be safely used from all class types.
+//       to copy all rotational blockdata stuff properly!Do so by only removing the block after all blocks copied their blockdata.
 
 
 public class BigDoors extends JavaPlugin implements Listener

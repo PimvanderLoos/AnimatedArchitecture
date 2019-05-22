@@ -15,7 +15,7 @@ import nl.pim16aap2.bigdoors.util.Util;
  * that is left-clicking is a DoorCreator && tell this class a left-click
  * happened.
  **/
-public class DoorCreator extends ToolUser
+public class DoorCreator extends Creator
 {
     protected String typeString;
 
@@ -116,7 +116,7 @@ public class DoorCreator extends ToolUser
                 two = loc;
                 String[] message = messages.getString("CREATOR." + typeString + ".Step2").split("\n");
                 Util.messagePlayer(player, message);
-                minMaxFix();
+                super.minMaxFix();
             }
             else
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));

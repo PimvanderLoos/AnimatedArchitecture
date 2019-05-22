@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.toolusers.Creator;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -34,11 +35,11 @@ public class SubCommandSetName extends SubCommand
 
         Player player = (Player) sender;
         ToolUser tu = plugin.getToolUser(player);
-        if (tu != null)
+        if (tu != null && tu instanceof Creator)
         {
             if (args.length == getMinArgCount() && Util.isValidDoorName(args[0]))
             {
-                tu.setName(args[0]);
+                ((Creator) tu).setName(args[0]);
                 return true;
             }
             return false;

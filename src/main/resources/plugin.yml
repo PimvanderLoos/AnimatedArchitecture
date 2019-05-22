@@ -1,6 +1,6 @@
 name: BigDoors
 main: nl.pim16aap2.bigdoors.BigDoors
-version: 0.2
+version: 200
 author: pim16aap2
 api-version: 1.14
 loadbefore: [PlotSquared]

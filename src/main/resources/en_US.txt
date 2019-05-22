@@ -37,6 +37,7 @@ GENERAL.COMMAND.NoPermission=§cYou do not have the required permissions to exec
 GENERAL.COMMAND.NotPlayer=§cOnly players can execute this command!
 GENERAL.COMMAND.InvalidPermissionValue=§cis not a valid permission value! Defaulting to permission level 1.
 GENERAL.COMMAND.DoorIsDeleted=§aYou have successfully deleted door:
+GENERAL.COMMAND.NotFound=§cCommand not found!
 GUI.NAME.DoorList=Door Menu
 GUI.NAME.SubMenu=Door Sub-Menu
 GUI.NAME.ConfirmMenu=Confirmation Menu

@@ -15,7 +15,7 @@ import nl.pim16aap2.bigdoors.util.Util;
  * The creation process has been completed successfully or the timer ran out. In EventHandlers this class is used
  * To check whether a user that is left-clicking is a DoorCreator && tell this class a left-click happened.
  */
-public class DrawbridgeCreator extends ToolUser
+public class DrawbridgeCreator extends Creator
 {
     public DrawbridgeCreator(BigDoors plugin, Player player, String name)
     {

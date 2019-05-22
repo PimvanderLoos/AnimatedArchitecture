@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class ElevatorCreator extends ToolUser
+public class ElevatorCreator extends Creator
 {
     public ElevatorCreator(BigDoors plugin, Player player, String name)
     {
