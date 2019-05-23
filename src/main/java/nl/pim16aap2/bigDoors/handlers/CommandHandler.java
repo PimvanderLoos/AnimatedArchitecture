@@ -583,7 +583,7 @@ public class CommandHandler implements CommandExecutor
                 for (int j = door.getMinimum().getBlockY(); j <= door.getMaximum().getBlockY(); ++j)
                     for (int k = door.getMinimum().getBlockZ(); k <= door.getMaximum().getBlockZ(); ++k)
                         door.getWorld().getBlockAt(i, j, k).setType(XMaterial.STONE.parseMaterial());
-            door.getPowerBlockLoc().getBlock().setType(XMaterial.GOLD_BLOCK.parseMaterial());
+            door.getPowerBlockLoc().getBlock().setType(plugin.getConfigLoader().getPowerBlockTypes().iterator().next());
             return true;
         }
 
