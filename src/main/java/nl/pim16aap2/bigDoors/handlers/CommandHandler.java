@@ -5,7 +5,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -575,6 +574,7 @@ public class CommandHandler implements CommandExecutor
         {
             if (args.length != 1)
                 return false;
+
             Door door = plugin.getCommander().getDoor(args[0], player);
             if (door == null)
                 return false;
@@ -584,6 +584,13 @@ public class CommandHandler implements CommandExecutor
                     for (int k = door.getMinimum().getBlockZ(); k <= door.getMaximum().getBlockZ(); ++k)
                         door.getWorld().getBlockAt(i, j, k).setType(XMaterial.STONE.parseMaterial());
             door.getPowerBlockLoc().getBlock().setType(plugin.getConfigLoader().getPowerBlockTypes().iterator().next());
+            return true;
+        }
+
+        if (cmd.getName().equalsIgnoreCase("recalculatepowerblocks"))
+        {
+            plugin.getCommander().recalculatePowerBlockHashes();
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "power block hashes have been regenerated!");
             return true;
         }
 
@@ -833,15 +840,20 @@ public class CommandHandler implements CommandExecutor
     // Used for various debugging purposes (you don't say!).
     public void doorDebug(Player player)
     {
-        Location loc = new Location(player.getWorld(), 444, 74, -5122);
+        Util.broadcastMessage("Currently in powerBlock cache: ");
+        Util.broadcastMessage(plugin.getPBCache().toString());
 
-        Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
-        if (door == null)
-            Util.broadcastMessage("No doors found at the given location!");
-        else
-            Util.broadcastMessage("Found door " + door.getDoorUID() + " at the given location!");
 
-        plugin.getCommander().recalculatePowerBlockHashes();
+
+//        Location loc = new Location(player.getWorld(), 444, 74, -5122);
+//
+//        Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
+//        if (door == null)
+//            Util.broadcastMessage("No doors found at the given location!");
+//        else
+//            Util.broadcastMessage("Found door " + door.getDoorUID() + " at the given location!");
+//
+//        plugin.getCommander().recalculatePowerBlockHashes();
     }
 
     private String helpFormat(String command, String explanation)

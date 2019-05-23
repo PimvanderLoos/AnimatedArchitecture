@@ -20,9 +20,24 @@ public class TimedCache<K, V>
 
     public TimedCache(BigDoors plugin, int time)
     {
-        hashtable = new Hashtable<K, Value<V>>();
+        hashtable = new Hashtable<>();
         this.plugin = plugin;
         reinit(time);
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        hashtable.forEach((K, V) ->
+        {
+            sb.append(K.toString() + "=" + V.toString() + ", ");
+        });
+        if (sb.length() > 3)
+            sb.delete(sb.length() - 1, sb.length() - 3);
+        sb.append("}");
+        return sb.toString();
     }
 
     public void reinit(int time)
@@ -54,7 +69,7 @@ public class TimedCache<K, V>
     {
         if (timeout < 0)
             return;
-        hashtable.put(key, new Value<V>(value));
+        hashtable.put(key, new Value<>(value));
     }
 
     public V get(K key)
@@ -88,8 +103,7 @@ public class TimedCache<K, V>
         }
     }
 
-    // TODO: Make private again.
-    public final class Value<T>
+    private final class Value<T>
     {
         public final long insertTime;
         public final T value;

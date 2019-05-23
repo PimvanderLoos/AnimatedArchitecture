@@ -174,6 +174,7 @@ public class BigDoors extends JavaPlugin implements Listener
             portcullisOpener = new PortcullisOpener(this);
             slidingDoorOpener = new SlidingDoorOpener(this);
 
+            registerCommand("recalculatepowerblocks");
             registerCommand("inspectpowerblockloc");
             registerCommand("changepowerblockloc");
             registerCommand("setautoclosetime");

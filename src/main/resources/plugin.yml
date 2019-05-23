@@ -109,3 +109,7 @@ commands:
     description: Fills a door with stones. 
     usage: /filldoor <doorName || doorUID>
     permission: bigdoors.admin.fillDoor
+  recalculatepowerblocks:
+    description: Regenerate Power Block Hashes.
+    usage: /recalculatepowerblocks
+    permission: bigdoors.admin.recalculatepowerblocks
