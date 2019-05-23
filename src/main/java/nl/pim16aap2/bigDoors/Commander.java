@@ -109,7 +109,7 @@ public class Commander
         {
             if (player == null)
                 return null;
-            ArrayList<Door> doors = new ArrayList<Door>();
+            ArrayList<Door> doors = new ArrayList<>();
             doors = db.getDoors(player.getUniqueId().toString(), doorStr);
             if (doors.size() == 1)
                 return doors.get(0);
@@ -335,6 +335,7 @@ public class Commander
     {
         long chunkHash = Util.chunkHashFromLocation(loc);
         HashMap<Long, Long> powerBlockData = plugin.getPBCache().get(chunkHash);
+
         if (powerBlockData == null)
         {
             powerBlockData = db.getPowerBlockData(chunkHash);
@@ -343,6 +344,11 @@ public class Commander
 
         Long doorUID = powerBlockData.get(Util.locationHash(loc));
         return doorUID == null ? null : db.getDoor(null, doorUID);
+    }
+
+    public void recalculatePowerBlockHashes()
+    {
+        db.recalculatePowerBlockHashes();
     }
 
     // Change the location of a powerblock.

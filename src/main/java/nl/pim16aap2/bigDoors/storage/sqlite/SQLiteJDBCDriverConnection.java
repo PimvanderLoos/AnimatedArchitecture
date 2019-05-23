@@ -846,6 +846,48 @@ public class SQLiteJDBCDriverConnection
         return doors;
     }
 
+    public void recalculatePowerBlockHashes()
+    {
+        Connection conn = null;
+        try
+        {
+            conn = getConnection();
+            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
+            ResultSet rs1 = ps1.executeQuery();
+            String update;
+
+            while (rs1.next())
+            {
+                long UID = rs1.getLong(DOOR_ID);
+                UUID worldUUID = UUID.fromString(rs1.getString(DOOR_WORLD));
+                int x    = rs1.getInt(DOOR_POWER_X);
+                int z    = rs1.getInt(DOOR_POWER_Z);
+
+                update   = "UPDATE doors SET "
+                         +   "chunkHash='" + Util.chunkHashFromLocation(x, z, worldUUID)
+                         + "' WHERE id = '"  + UID + "';";
+                conn.prepareStatement(update).executeUpdate();
+            }
+            ps1.close();
+            rs1.close();
+        }
+        catch(SQLException e)
+        {
+            logMessage("893", e);
+        }
+        finally
+        {
+            try
+            {
+                conn.close();
+            }
+            catch (SQLException e)
+            {
+                logMessage("903", e);
+            }
+        }
+    }
+
     public void updateDoorBlocksToMove(final long doorID, final int blocksToMove)
     {
         Connection conn = null;

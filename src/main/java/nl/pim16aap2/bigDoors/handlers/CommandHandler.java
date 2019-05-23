@@ -5,7 +5,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,7 +16,6 @@ import org.bukkit.scheduler.BukkitTask;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.GUI.GUI;
-import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.toolUsers.DoorCreator;
 import nl.pim16aap2.bigDoors.toolUsers.DrawbridgeCreator;
@@ -584,6 +583,7 @@ public class CommandHandler implements CommandExecutor
                 for (int j = door.getMinimum().getBlockY(); j <= door.getMaximum().getBlockY(); ++j)
                     for (int k = door.getMinimum().getBlockZ(); k <= door.getMaximum().getBlockZ(); ++k)
                         door.getWorld().getBlockAt(i, j, k).setType(XMaterial.STONE.parseMaterial());
+            door.getPowerBlockLoc().getBlock().setType(XMaterial.GOLD_BLOCK.parseMaterial());
             return true;
         }
 
@@ -833,63 +833,15 @@ public class CommandHandler implements CommandExecutor
     // Used for various debugging purposes (you don't say!).
     public void doorDebug(Player player)
     {
-        Util.broadcastMessage("Loaded chunks: " + player.getLocation().getWorld().getLoadedChunks().length);
-        for (BlockMover bm : plugin.getBlockMovers())
-        {
-            Chunk chunk = bm.getDoor().getPowerBlockLoc().getChunk();
-            Util.broadcastMessage("Active chunk: " + chunk.getX() + ":" + chunk.getZ());
-        }
+        Location loc = new Location(player.getWorld(), 444, 74, -5122);
 
+        Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
+        if (door == null)
+            Util.broadcastMessage("No doors found at the given location!");
+        else
+            Util.broadcastMessage("Found door " + door.getDoorUID() + " at the given location!");
 
-//        Door d1 = plugin.getCommander().getDoor (player.getUniqueId(), 10);
-//        Door d2 = plugin.getCommander().getDoor2(player.getUniqueId(), 10);
-
-//        long startTime = System.nanoTime();
-//
-//        for (int idx = 0; idx < 100000; ++idx)
-//            plugin.getCommander().getDoor(player.getUniqueId(), 10);
-//
-//        long endTime = System.nanoTime();
-//        long timeElapsed = endTime - startTime;
-//        Util.broadcastMessage("Method 1 took " + timeElapsed);
-//
-//
-//
-//        startTime = System.nanoTime();
-//
-//
-//        endTime = System.nanoTime();
-//        timeElapsed = endTime - startTime;
-//        Util.broadcastMessage("Method 2 took " + timeElapsed);
-
-//        Util.broadcastMessage("Going to display cache stats now!");
-//        long doorCount = 0;
-//
-//        ArrayList<Long> chunks = plugin.getPBCache().getKeys();
-//        if (chunks == null)
-//            Util.broadcastMessage("No chunks in cache!");
-//        else
-//        {
-//            for (Long chunkHash : chunks)
-//                doorCount += plugin.getPBCache().get(chunkHash).size();
-//
-//            Util.broadcastMessage("# of doors in cache: " + doorCount + " in " + plugin.getPBCache().getChunkCount() + " chunks.");
-//
-//            String doorsStr = "";
-//
-//            for (Long chunkHash : chunks)
-//            {
-//                HashMap<Long, Long> doors = plugin.getPBCache().get(chunkHash);
-//                Iterator<Entry<Long, Long>> it = doors.entrySet().iterator();
-//                while (it.hasNext())
-//                {
-//                    Entry<Long, Long> entry = it.next();
-//                    Door door = plugin.getCommander().getDoor(player.getUniqueId(), entry.getValue());
-//                    doorsStr += entry.getValue() + " (" + door.getPowerBlockLoc() + " = " + door.getPowerBlockChunkHash() + "), ";
-//                }
-//            }
-//            Util.broadcastMessage("Doors found: " + doorsStr);
-//        }
+        plugin.getCommander().recalculatePowerBlockHashes();
     }
 
     private String helpFormat(String command, String explanation)
