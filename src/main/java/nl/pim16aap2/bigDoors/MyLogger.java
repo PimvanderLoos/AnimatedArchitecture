@@ -109,4 +109,9 @@ public class MyLogger
     {
         myLogger(Level.WARNING, str);
     }
+
+    public static void logMessage(Level level, String pluginName, String message)
+    {
+        Bukkit.getLogger().log(level, "[" + pluginName + "] " + message);
+    }
 }

@@ -100,7 +100,8 @@ public class NMSBlock_V1_13_R2 extends net.minecraft.server.v1_13_R2.Block imple
             else if (otherBlock.getType().isSolid())
             {
                 ((MultipleFacing) craftBlockData).setFace(K, true);
-                if (otherBlock.getType().equals(xmat.parseMaterial()) && otherData instanceof MultipleFacing)
+                if (otherData instanceof MultipleFacing && (otherBlock.getType().equals(xmat.parseMaterial()) ||
+                    (craftBlockData instanceof org.bukkit.block.data.type.Fence && otherData instanceof org.bukkit.block.data.type.Fence)))
                     if (((MultipleFacing) otherData).getAllowedFaces().contains(K.getOppositeFace()))
                     {
                         ((MultipleFacing) otherData).setFace(K.getOppositeFace(), true);
