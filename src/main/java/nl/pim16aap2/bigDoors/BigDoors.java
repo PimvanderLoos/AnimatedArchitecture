@@ -61,31 +61,10 @@ import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
-// TODO: Add success message for changing door opendirection.
-// TODO: Add "Server" as door owner.
-// TODO: Add /BDM [PlayerName (when online) || PlayerUUID || Server] to open a doorMenu for a specific player.
-// TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
-// TODO: Rewrite Openers to get rid of code duplication.
-// TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
-// TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
-// TODO: Use generics for ConfigOption.
-// TODO: Make sure the abortable's BukkitTask isn't null. -When would it be?? What is this?
-// TODO: Make invalid input stuff more informative (e.g. int, float etc).
-// TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
-// TODO: Split up SQL functions into 2: One taking a connection and one without the connection, to get rid of code duplication.
-// TODO: Add help menu for every command separately. Use that when a mistake was made.
-// TODO: Add option to delete yourself as owner from a door you're not the creator of.
-// TODO: SQL: Use nested statements.
-// TODO: SQL: Use preparedStatements for everything (with values(?,?,?) etc).
-// TODO: SQL: See if inserting into doors works when adding another question mark for the UUID (but leaving it empty).
-//            Then +1 won't have to be appended to everything.
-// TODO: SQL: Use proper COUNT operation for getting the number of doors.
-// TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
-//       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
-// TODO: Create "creator" abstract class as subclass of ToolUser from which all creators can be derived, so
-//       the finishUp() method can be safely used from all class types.
-// TODO: Allow adding owners to doors from console.
-// TODO: Verify the title of the GUI before doing actions. Just to make sure nothing has gone wrong.
+
+// TODO: Make door cache cache per-world (hash world UUID), then cache per chunk
+//       (new caching method that ignores world name) and then the relative locations
+//       So cache location (x % 16, y, z % 16). Again, no world needed.
 
 
 public class BigDoors extends JavaPlugin implements Listener
