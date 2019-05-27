@@ -134,7 +134,7 @@ public abstract class BlockMover
 
         // Change door availability to true, so it can be opened again.
         // Wait for a bit if instantOpen is enabled.
-        int timer = onDisable ? 0 : instantOpen ? 40 : 10 + plugin.getConfigLoader().coolDown() * 20;
+        int timer = onDisable ? 0 : instantOpen ? 40 : Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
 
         if (timer > 0)
             new BukkitRunnable()

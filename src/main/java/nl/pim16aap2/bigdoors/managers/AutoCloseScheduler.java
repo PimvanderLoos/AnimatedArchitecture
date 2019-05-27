@@ -61,6 +61,7 @@ public class AutoCloseScheduler
                 }
                 deleteTimer(door.getDoorUID());
             }
-        }.runTaskLater(plugin, Math.min(10, autoCloseTimer * 20)));
+            // Hard-code 2 tick delay on top of MinimumDoorDelay, to make sure it's fully updated after the last toggle.
+        }.runTaskLater(plugin, Math.min(plugin.getMinimumDoorDelay() + 2, autoCloseTimer * 20)));
     }
 }

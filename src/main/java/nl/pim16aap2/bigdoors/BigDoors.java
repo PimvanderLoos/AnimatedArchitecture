@@ -172,9 +172,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       Currently, connected blocks will only be connected to blocks that have already been processed.
 // TODO: SERIOUS ISSUE: Doors can sometimes open twice at the same time or something. They appear to move twice as fast and data is fucked up afterwards.
 //       This might be fixed now. Not sure.
-// TODO: A new variable was introduced that describes the minimum delay between putting blocks and goAgain. This is hard-coded in 2 places (BlockMover::putBlocks() and
-//       AutoCloseScheduler::scheduleAutoClose). Store this in main instead. Also, goAgain's minimum delay should be higher than setAvailable, so hard-code additional 2 tick
-//       delay or something.
 // TODO: DO NOT STORE newMin and newMax variables in the door. It most definitely does not belong in there! Figure out why it needs to be there in the first
 //       Place. If it's really needed, just use references.
 // TODO: Test and finish flag type.
@@ -193,7 +190,10 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 public class BigDoors extends JavaPlugin implements Listener
 {
     public static final boolean DEVBUILD = true;
-
+    // Minimum number of ticks a door needs to cool down before it can be
+    // toggled again. A slight delay prevents issues with doors being toggled
+    // before they're fully ready (data race?).
+    private static final int MINIMUMDOORDELAY = 10;
 
     private ToolVerifier tf;
     private SQLiteJDBCDriverConnection db;
@@ -386,6 +386,11 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             getMyLogger().handleMyStackTrace(new MyException(e));
         }
+    }
+
+    public int getMinimumDoorDelay()
+    {
+        return MINIMUMDOORDELAY;
     }
 
     public String canBreakBlock(UUID playerUUID, Location loc)
