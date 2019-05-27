@@ -10,23 +10,25 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public abstract class SuperCommand implements ICommand
+public class SuperCommand implements ICommand
 {
     protected final BigDoors plugin;
     protected final CommandManager commandManager;
-
-    private final String name;
-    private final String permission;
     protected HashMap<String, SubCommand> subCommands;
+    protected int minArgCount;
+    protected CommandData command;
 
-    public SuperCommand(final BigDoors plugin, final CommandManager commandManager, final String name,
-        final String permission)
+    protected SuperCommand(final BigDoors plugin, final CommandManager commandManager)
     {
         this.plugin = plugin;
         this.commandManager = commandManager;
-        this.name = name;
-        this.permission = permission;
         subCommands = new HashMap<>();
+    }
+
+    protected final void init(int minArgCount, CommandData command)
+    {
+        this.minArgCount = minArgCount;
+        this.command = command;
     }
 
     public void registerSubCommand(SubCommand subCommand)
@@ -92,19 +94,31 @@ public abstract class SuperCommand implements ICommand
         String help = subCommand.getHelp(sender);
         String args = subCommand.getHelpArguments();
         if (help != null)
-            return Util.helpFormat(name + " " + subCommand.getName() + (args == null ? "" : " " + args), help);
+            return Util.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args), help);
         return null;
     }
 
     @Override
     public String getPermission()
     {
-        return permission;
+        return CommandData.getPermission(command);
     }
 
     @Override
     public String getName()
     {
-        return name;
+        return CommandData.getCommandName(command);
+    }
+
+    @Override
+    public int getMinArgCount()
+    {
+        return minArgCount;
+    }
+
+    @Override
+    public CommandData getCommandData()
+    {
+        return command;
     }
 }

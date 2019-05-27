@@ -99,7 +99,7 @@ public class Door
     public boolean isOpen()             {  return isOpen;        }  // Check if this door is in the open or closed state.
     public int getPermission()          {  return permission;    }  // Check permission level of current owner.
     public UUID getPlayerUUID()         {  return player;        }  // Get UUID of the owner of the door. Might be null!
-    public MyBlockFace getEngSide()   {  return engineSide;    }  // Get this door's (or drawbridge's, in this case) engine side.
+    public MyBlockFace getEngSide()     {  return engineSide;    }  // Get this door's (or drawbridge's, in this case) engine side.
     public boolean canGo()              {  return canGo;         }  // Check if this door can still be opened or not.
     public RotateDirection getOpenDir() {  return openDir;       }  // Get the open direction of this door.
     public int getAutoClose()           {  return autoClose;     }  // Get the auto close time.

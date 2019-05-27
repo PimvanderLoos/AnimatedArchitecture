@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.moveblocks.bridge.getnewlocation;
+package nl.pim16aap2.bigdoors.moveblocks.getnewlocation;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -7,16 +7,16 @@ import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 @SuppressWarnings("unused")
-public class GetNewLocationEast implements GetNewLocation
+public class GNLVerticalRotWest implements GetNewLocation
 {
     private World world;
-    private RotateDirection upDown;
-    private MyBlockFace openDirection;
+    private MyBlockFace upDown;
+    private RotateDirection openDirection;
     private int xMin, yMin, zMin;
     private int xMax, yMax, zMax;
 
-    public GetNewLocationEast(World world, int xMin, int xMax, int yMin, int yMax, int zMin, int zMax,
-        RotateDirection upDown, MyBlockFace openDirection)
+    public GNLVerticalRotWest(World world, int xMin, int xMax, int yMin, int yMax, int zMin, int zMax,
+                               MyBlockFace upDown, RotateDirection openDirection)
     {
         this.openDirection = openDirection;
         this.upDown = upDown;
@@ -34,11 +34,11 @@ public class GetNewLocationEast implements GetNewLocation
     {
         Location newPos = null;
 
-        if (upDown == RotateDirection.UP)
-            newPos = new Location(world, xMax, yMin + radius, zPos);
-        else if (openDirection.equals(MyBlockFace.WEST))
+        if (upDown == MyBlockFace.UP)
+            newPos = new Location(world, xMin, yMin + radius, zPos);
+        else if (openDirection.equals(RotateDirection.WEST))
             newPos = new Location(world, xPos - radius, yMin, zPos);
-        else if (openDirection.equals(MyBlockFace.EAST))
+        else if (openDirection.equals(RotateDirection.EAST))
             newPos = new Location(world, xPos + radius, yMin, zPos);
         return newPos;
     }

@@ -24,11 +24,13 @@ public class SubCommandRemoveOwner extends SubCommand
     protected static final String helpArgs = "{door} <player>";
     protected static final int minArgCount = 3;
     protected static final CommandData command = CommandData.REMOVEOWNER;
+    private int actualMinArgCount;
 
     public SubCommandRemoveOwner(final BigDoors plugin, final CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
+        actualMinArgCount = getMinArgCount();
     }
 
     public boolean execute(CommandSender sender, Door door, String playerArg)
@@ -64,7 +66,7 @@ public class SubCommandRemoveOwner extends SubCommand
                 cw.abortSilently();
             }
         }
-        return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2]);
+        return execute(sender, commandManager.getDoorFromArg(sender, args[getMinArgCount() - 2]), args[getMinArgCount() - 1]);
     }
 
     @Override

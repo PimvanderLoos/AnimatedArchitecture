@@ -47,16 +47,16 @@ public class SubCommandDelete extends SubCommand
         CommandActionNotAllowedException
     {
         Door door = null;
-
+        String doorArg = args[getMinArgCount() - 1];
         try
         {
-            door = commandManager.getDoorFromArg(sender, args[1]);
+            door = commandManager.getDoorFromArg(sender, doorArg);
         }
         catch (CommandInvalidVariableException e)
         {
             int count = sender instanceof Player ?
-                plugin.getDatabaseManager().countDoors(((Player) sender).getUniqueId().toString(), args[1]) :
-                plugin.getDatabaseManager().countDoors(args[1]);
+                plugin.getDatabaseManager().countDoors(((Player) sender).getUniqueId().toString(), doorArg) :
+                plugin.getDatabaseManager().countDoors(doorArg);
 
             if (count > 1)
             {
@@ -72,9 +72,9 @@ public class SubCommandDelete extends SubCommand
             }
 
             if (sender instanceof Player)
-                door = plugin.getDatabaseManager().getDoor(args[1], (Player) sender);
+                door = plugin.getDatabaseManager().getDoor(doorArg, (Player) sender);
             else
-                door = plugin.getDatabaseManager().getDoor(args[1], null);
+                door = plugin.getDatabaseManager().getDoor(doorArg, null);
         }
 
         if (sender instanceof Player
@@ -82,7 +82,7 @@ public class SubCommandDelete extends SubCommand
             throw new CommandActionNotAllowedException();
 
         if (door == null)
-            throw new CommandInvalidVariableException(args[1], "door");
+            throw new CommandInvalidVariableException(doorArg, "door");
 
         if (!execute(sender, door))
             return false;

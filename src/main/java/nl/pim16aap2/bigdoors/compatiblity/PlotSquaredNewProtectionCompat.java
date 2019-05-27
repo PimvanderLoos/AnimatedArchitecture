@@ -17,7 +17,7 @@ import com.github.intellectualsites.plotsquared.plot.object.Plot;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
-public class PlotSquaredNewProtectionCompat implements ProtectionCompat
+class PlotSquaredNewProtectionCompat implements ProtectionCompat
 {
     @SuppressWarnings("unused")
     private final BigDoors plugin;

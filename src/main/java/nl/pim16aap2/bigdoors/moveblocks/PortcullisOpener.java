@@ -12,33 +12,11 @@ import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class PortcullisOpener implements Opener
+public class PortcullisOpener extends Opener
 {
-    private final BigDoors plugin;
-
     public PortcullisOpener(BigDoors plugin)
     {
-        this.plugin = plugin;
-    }
-
-    // Check if the chunks at the minimum and maximum locations of the door are loaded.
-    private boolean chunksLoaded(Door door)
-    {
-        // Return true if the chunk at the max and at the min of the chunks were loaded correctly.
-        if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \""    + door.getName().toString() + "\"",          true, false);
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
-
-        return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
-    }
-
-    @Override
-    public DoorOpenResult openDoor(Door door, double time)
-    {
-        return openDoor(door, time, false, false);
+        super(plugin);
     }
 
     // Open a door.
@@ -54,7 +32,8 @@ public class PortcullisOpener implements Opener
 
         if (!chunksLoaded(door))
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!", true, false);
+            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
+                                            true, false);
             return DoorOpenResult.ERROR;
         }
 
@@ -62,21 +41,24 @@ public class PortcullisOpener implements Opener
         // If it does, open the door instantly.
         int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
         if (maxDoorSize != -1)
-            if(door.getBlockCount() > maxDoorSize)
+            if (door.getBlockCount() > maxDoorSize)
                 instantOpen = true;
 
         int blocksToMove = getBlocksToMove(door);
 
-        // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
+        // The door's owner does not have permission to move the door into the new
+        // position (e.g. worldguard doens't allow it.
         if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null)
             return DoorOpenResult.NOPERMISSION;
 
         if (blocksToMove != 0)
         {
-            // Change door availability so it cannot be opened again (just temporarily, don't worry!).
+            // Change door availability so it cannot be opened again (just temporarily,
+            // don't worry!).
             plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
 
-            plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove, plugin.getConfigLoader().pcMultiplier()));
+            plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
+                                                   plugin.getConfigLoader().pcMultiplier()));
         }
         return DoorOpenResult.SUCCESS;
     }
@@ -91,7 +73,7 @@ public class PortcullisOpener implements Opener
         yMax = door.getMaximum().getBlockY();
         zMax = door.getMaximum().getBlockZ();
         yLen = yMax - yMin + 1;
-//        int distanceToCheck = door.getOpenDir() == RotateDirection.NONE || door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
+
         int distanceToCheck = door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
 
         int xAxis, yAxis, zAxis, yGoal;
@@ -106,7 +88,7 @@ public class PortcullisOpener implements Opener
                 for (zAxis = zMin; zAxis <= zMax; ++zAxis)
                     if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis)))
                         return blocksUp;
-            yAxis    += delta;
+            yAxis += delta;
             blocksUp += delta;
         }
         return blocksUp;
@@ -114,11 +96,13 @@ public class PortcullisOpener implements Opener
 
     private int getBlocksToMove(Door door)
     {
-        int blocksUp     = getBlocksInDir(door, RotateDirection.UP  );
-        int blocksDown   = getBlocksInDir(door, RotateDirection.DOWN);
+        int blocksUp = getBlocksInDir(door, RotateDirection.UP);
+        int blocksDown = getBlocksInDir(door, RotateDirection.DOWN);
         int blocksToMove = blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
-        door.setNewMin(new Location(door.getWorld(), door.getMinimum().getBlockX(), door.getMinimum().getBlockY() + blocksToMove, door.getMinimum().getBlockZ()));
-        door.setNewMax(new Location(door.getWorld(), door.getMaximum().getBlockX(), door.getMaximum().getBlockY() + blocksToMove, door.getMaximum().getBlockZ()));
+        door.setNewMin(new Location(door.getWorld(), door.getMinimum().getBlockX(),
+                                    door.getMinimum().getBlockY() + blocksToMove, door.getMinimum().getBlockZ()));
+        door.setNewMax(new Location(door.getWorld(), door.getMaximum().getBlockX(),
+                                    door.getMaximum().getBlockY() + blocksToMove, door.getMaximum().getBlockZ()));
         return blocksToMove;
     }
 }

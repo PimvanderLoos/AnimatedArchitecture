@@ -24,7 +24,7 @@ public class MyLogger
 
     public MyLogger(BigDoors plugin, File logFile)
     {
-        this.plugin  = plugin;
+        this.plugin = plugin;
         this.logFile = logFile;
         loadLog();
     }
@@ -43,6 +43,29 @@ public class MyLogger
                 myLogger(Level.SEVERE, "File write error: " + logFile);
                 e.printStackTrace();
             }
+    }
+
+    public void dumpStackTrace(@Nullable String message)
+    {
+        logMessage((message == null ? "" : message + "\n") + Util.exceptionToString(new Exception()), true,
+                   true);
+    }
+
+    public void dumpStackTraceShort(@Nullable String message, int numberOfLines)
+    {
+        StackTraceElement[] stackTrace = new Exception().getStackTrace();
+        StringBuilder sb = new StringBuilder();
+        for (int idx = 1; idx < (numberOfLines + 1) && idx < stackTrace.length; ++idx)
+            sb.append(stackTrace[idx] + "\n");
+        logMessage((message == null ? "" : message + "\n") + sb.toString(), true, true);
+    }
+
+    public void handleMyStackTrace(MyException e)
+    {
+        if (e.hasWarningMessage())
+            warn(e.getWarningMessage());
+        e.printStackTrace();
+        logMessageToLogFile(Util.exceptionToString(e));
     }
 
     // Print a string to the console.
@@ -94,7 +117,8 @@ public class MyLogger
         }
     }
 
-    // Log a message to the logfile. Does not print to console or add newlines in front of the actual message.
+    // Log a message to the logfile. Does not print to console or add newlines in
+    // front of the actual message.
     public void logMessageToLogFile(String msg)
     {
         logMessage(msg, false, false);

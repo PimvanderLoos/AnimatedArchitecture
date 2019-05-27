@@ -14,7 +14,7 @@ import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 
-public class GUIItem
+class GUIItem
 {
     private ItemStack is;
     private Door door;

@@ -2,12 +2,12 @@ package nl.pim16aap2.bigdoors.commands;
 
 public class CommandInvalidVariableException extends Exception
 {
-    private final String doorArg;
+    private final String valueArg;
     private final String type;
 
-    public CommandInvalidVariableException(final String doorArg, final String type)
+    public CommandInvalidVariableException(final String valueArg, final String type)
     {
-        this.doorArg = doorArg;
+        this.valueArg = valueArg;
         this.type = type;
     }
 
@@ -16,12 +16,12 @@ public class CommandInvalidVariableException extends Exception
     @Override
     public String getMessage()
     {
-        return getDoorArg() + " is not a valid " + getType();
+        return getValueArg() + " is not a valid " + getType();
     }
 
-    public String getDoorArg()
+    public String getValueArg()
     {
-        return doorArg;
+        return valueArg;
     }
 
     public String getType()

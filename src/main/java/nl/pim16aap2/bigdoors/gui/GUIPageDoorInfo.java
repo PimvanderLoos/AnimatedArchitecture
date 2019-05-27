@@ -22,7 +22,7 @@ public class GUIPageDoorInfo implements IGUIPage
     protected final GUI gui;
     protected final Messages messages;
 
-    public GUIPageDoorInfo(final BigDoors plugin, final GUI gui)
+    protected GUIPageDoorInfo(final BigDoors plugin, final GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;
@@ -77,9 +77,11 @@ public class GUIPageDoorInfo implements IGUIPage
             plugin.getDatabaseManager().startPowerBlockRelocator(player, door);
             gui.close();
             break;
-        case DIRECTION_STRAIGHT:
-        case DIRECTION_ROTATE:
-            changeOpenDir(player, door);
+        case DIRECTION_STRAIGHT_HORIZONTAL:
+        case DIRECTION_STRAIGHT_VERTICAL:
+        case DIRECTION_ROTATE_HORIZONTAL:
+        case DIRECTION_ROTATE_VERTICAL:
+            changeOpenDir(door);
             break;
         case CHANGETIMER:
             plugin.getDatabaseManager().startTimerSetter(player, door);
@@ -140,24 +142,35 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     // Changes the opening direction for a door.
-    private void changeOpenDir(Player player, Door door)
+    private void changeOpenDir(Door door)
     {
         RotateDirection curOpenDir = door.getOpenDir();
-        RotateDirection newOpenDir;
+        RotateDirection newOpenDir = null;
 
-        // TODO: Use DoorAttribute here.
-        if (door.getType() == DoorType.SLIDINGDOOR)
-            newOpenDir = curOpenDir == RotateDirection.NONE  ? RotateDirection.NORTH :
-                         curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST  :
-                         curOpenDir == RotateDirection.EAST  ? RotateDirection.SOUTH :
-                         curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST  :
-                                                               RotateDirection.NONE;
-        else if (door.getType() == DoorType.ELEVATOR)
-            newOpenDir = curOpenDir == RotateDirection.UP ? RotateDirection.DOWN : RotateDirection.UP;
-        else
-            newOpenDir = curOpenDir == RotateDirection.NONE      ? RotateDirection.CLOCKWISE :
-                         curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
-                                                                   RotateDirection.NONE;
+        DoorAttribute[] attributes = DoorType.getAttributes(door.getType());
+
+        outerLoop: for (int idx = 0; idx != attributes.length; ++idx)
+        {
+            switch(attributes[idx])
+            {
+            case DIRECTION_ROTATE_HORIZONTAL:
+            case DIRECTION_ROTATE_VERTICAL:
+                newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.CLOCKWISE :
+                    curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE : RotateDirection.NONE;
+                break outerLoop;
+            case DIRECTION_STRAIGHT_HORIZONTAL:
+                newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.NORTH :
+                    curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST :
+                    curOpenDir == RotateDirection.EAST ? RotateDirection.SOUTH :
+                    curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST : RotateDirection.NONE;
+                break outerLoop;
+            case DIRECTION_STRAIGHT_VERTICAL:
+                newOpenDir = curOpenDir == RotateDirection.UP ? RotateDirection.DOWN : RotateDirection.UP;
+                break outerLoop;
+            default:
+                break;
+            }
+        }
 
         plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
         int idx = gui.indexOfDoor(door);
@@ -222,21 +235,29 @@ public class GUIPageDoorInfo implements IGUIPage
             ret = new GUIItem(GUI.CHANGETIMEMAT, desc, lore, count);
             break;
 
-        case DIRECTION_STRAIGHT:
+        case DIRECTION_STRAIGHT_HORIZONTAL:
+        case DIRECTION_STRAIGHT_VERTICAL:
             desc = messages.getString("GUI.Direction.Name");
             loreStr = messages.getString("GUI.Direction.ThisDoorGoes") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             lore.add(loreStr);
             ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
             break;
 
-        case DIRECTION_ROTATE:
+        case DIRECTION_ROTATE_VERTICAL:
             desc = messages.getString("GUI.Direction.Name");
             loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             lore.add(loreStr);
             lore.add(messages.getString("GUI.Direction.Looking") +
-                    (door.getType()       == DoorType.DOOR     ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
-                     door.getLookingDir() == MyBlockFace.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
-                                                                 messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
+                     (door.getLookingDir() == MyBlockFace.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
+                                                                  messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
+            ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
+            break;
+
+        case DIRECTION_ROTATE_HORIZONTAL:
+            desc = messages.getString("GUI.Direction.Name");
+            loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
+            lore.add(loreStr);
+            lore.add(messages.getString("GUI.Direction.Looking") + messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)));
             ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
             break;
 

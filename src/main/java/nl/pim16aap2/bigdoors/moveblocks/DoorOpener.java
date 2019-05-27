@@ -12,13 +12,11 @@ import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class DoorOpener implements Opener
+public class DoorOpener extends Opener
 {
-    private final BigDoors plugin;
-
     public DoorOpener(BigDoors plugin)
     {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     // Check if the block on the north/east/south/west side of the location is free.
@@ -65,7 +63,7 @@ public class DoorOpener implements Opener
             endZ   = engLoc.getBlockZ();
             break;
         default:
-            plugin.dumpStackTrace("Invalid direction for door opener: " + direction.toString());
+            plugin.getMyLogger().dumpStackTrace("Invalid direction for door opener: " + direction.toString());
             break;
         }
 
@@ -116,7 +114,7 @@ public class DoorOpener implements Opener
                 return RotateDirection.COUNTERCLOCKWISE;
             break;
         default:
-            plugin.dumpStackTrace("Invalid currentDir for door opener: " + currentDir.toString());
+            plugin.getMyLogger().dumpStackTrace("Invalid currentDir for door opener: " + currentDir.toString());
             break;
         }
         return null;
@@ -125,37 +123,16 @@ public class DoorOpener implements Opener
     // Get the direction the door is currently facing as seen from the engine to the end of the door.
     private MyBlockFace getCurrentDirection(Door door)
     {
-        // MinZ != EngineZ => North
-        // MaxX != EngineX => East
-        // MaxZ != EngineZ => South
-        // MinX != EngineX => West
+        // MinZ != EngineZ => Pointing North
+        // MaxX != EngineX => Pointing East
+        // MaxZ != EngineZ => Pointing South
+        // MinX != EngineX => Pointing West
         return  door.getEngine().getBlockZ() != door.getMinimum().getBlockZ() ? MyBlockFace.NORTH :
                 door.getEngine().getBlockX() != door.getMaximum().getBlockX() ? MyBlockFace.EAST  :
                 door.getEngine().getBlockZ() != door.getMaximum().getBlockZ() ? MyBlockFace.SOUTH :
                 door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? MyBlockFace.WEST  : null;
     }
 
-    // Check if the chunks at the minimum and maximum locations of the door are loaded.
-    private boolean chunksLoaded(Door door)
-    {
-        // Return true if the chunk at the max and at the min of the chunks were loaded correctly.
-        if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \""    + door.getName().toString() + "\"",          true, false);
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
-
-        return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
-    }
-
-    @Override
-    public DoorOpenResult openDoor(Door door, double time)
-    {
-        return openDoor(door, time, false, false);
-    }
-
-    // Open a door.
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
@@ -186,28 +163,6 @@ public class DoorOpener implements Opener
             return DoorOpenResult.NODIRECTION;
         }
 
-        int xOpposite, yOpposite, zOpposite;
-        // If the xMax is not the same value as the engineX, then xMax is xOpposite.
-        if (door.getMaximum().getBlockX() != door.getEngine().getBlockX())
-            xOpposite = door.getMaximum().getBlockX();
-        else
-            xOpposite = door.getMinimum().getBlockX();
-
-        // If the zMax is not the same value as the engineZ, then zMax is zOpposite.
-        if (door.getMaximum().getBlockZ() != door.getEngine().getBlockZ())
-            zOpposite = door.getMaximum().getBlockZ();
-        else
-            zOpposite = door.getMinimum().getBlockZ();
-
-        // If the yMax is not the same value as the engineY, then yMax is yOpposite.
-        if (door.getMaximum().getBlockY() != door.getEngine().getBlockY())
-            yOpposite = door.getMaximum().getBlockY();
-        else
-            yOpposite = door.getMinimum().getBlockY();
-
-        // Finalise the oppositePoint location.
-        Location oppositePoint = new Location(door.getWorld(), xOpposite, yOpposite, zOpposite);
-
         // Make sure the doorSize does not exceed the total doorSize.
         // If it does, open the door instantly.
         int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
@@ -222,7 +177,7 @@ public class DoorOpener implements Opener
         // Change door availability so it cannot be opened again (just temporarily, don't worry!).
         plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
 
-        plugin.addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), rotDirection, time, oppositePoint, currentDirection, door, instantOpen, plugin.getConfigLoader().bdMultiplier()));
+        plugin.addBlockMover(new CylindricalMover(plugin, door.getWorld(), rotDirection, time, currentDirection, door, instantOpen, plugin.getConfigLoader().bdMultiplier()));
 
         return DoorOpenResult.SUCCESS;
     }

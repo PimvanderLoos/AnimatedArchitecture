@@ -8,17 +8,19 @@ public enum DoorType
     DOOR        (0, "-BD", "GENERAL.DOORTYPE.Door",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE}),
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_HORIZONTAL}),
 
 
     DRAWBRIDGE  (1, "-DB", "GENERAL.DOORTYPE.DrawBridge",
-                 DoorType.DOOR.attributes),
+                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
+                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL}),
 
 
     PORTCULLIS  (2, "-PC", "GENERAL.DOORTYPE.Portcullis",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT, DoorAttribute.BLOCKSTOMOVE}),
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT_VERTICAL, DoorAttribute.BLOCKSTOMOVE}),
 
 
     ELEVATOR    (3, "-EL", "GENERAL.DOORTYPE.Elevator",
@@ -26,7 +28,9 @@ public enum DoorType
 
 
     SLIDINGDOOR (4, "-SD", "GENERAL.DOORTYPE.SlidingDoor",
-                 DoorType.PORTCULLIS.attributes),
+                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
+                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT_HORIZONTAL, DoorAttribute.BLOCKSTOMOVE}),
 
 
     FLAG        (5, "-FL", "GENERAL.DOORTYPE.Flag",

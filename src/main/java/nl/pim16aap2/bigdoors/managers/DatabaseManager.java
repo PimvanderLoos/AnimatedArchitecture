@@ -56,7 +56,6 @@ public class DatabaseManager
         players = new HashMap<>();
     }
 
-    // Check if a door is busy
     public boolean isDoorBusy(long doorUID)
     {
         return busyDoors.contains(doorUID);
@@ -67,13 +66,11 @@ public class DatabaseManager
         busyDoors.clear();
     }
 
-    // Change the busy-status of a door.
     public void setDoorBusy(long doorUID)
     {
         busyDoors.add(doorUID);
     }
 
-    // Set the availability of the door.
     public void setDoorAvailable(long doorUID)
     {
         busyDoors.remove(doorUID);

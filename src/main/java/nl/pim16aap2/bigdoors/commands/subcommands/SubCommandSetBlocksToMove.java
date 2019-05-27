@@ -32,7 +32,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
     public boolean execute(CommandSender sender, Door door, String blocksToMoveArg)
         throws CommandActionNotAllowedException, CommandInvalidVariableException
     {
-        if (sender instanceof Player && plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE))
+        if (sender instanceof Player && !plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE))
             throw new CommandActionNotAllowedException();
 
         int blocksToMove = CommandManager.getIntegerFromArg(blocksToMoveArg);

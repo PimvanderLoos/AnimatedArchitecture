@@ -21,7 +21,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
  * some kind of event that uses an online player.
  * (e.g. blockbreakevent).
  */
-public class FakePlayerCreator
+class FakePlayerCreator
 {
     public static final String FAKEPLAYERMETADATA = "isBigDoorsFakePlayer";
 

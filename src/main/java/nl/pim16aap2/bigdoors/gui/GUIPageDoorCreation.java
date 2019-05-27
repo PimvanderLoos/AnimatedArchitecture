@@ -13,7 +13,7 @@ public class GUIPageDoorCreation implements IGUIPage
     protected final Messages messages;
 
     @Deprecated
-    public GUIPageDoorCreation(final BigDoors plugin, final GUI gui)
+    protected GUIPageDoorCreation(final BigDoors plugin, final GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;

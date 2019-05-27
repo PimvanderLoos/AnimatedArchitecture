@@ -12,16 +12,12 @@ public class CommandMenu extends SubCommandMenu
 {
     protected static final String name = "bdm";
     private static final CommandData command = CommandData.BDM;
+    private static final int minArgCount = 0;
 
     public CommandMenu(final BigDoors plugin, final CommandManager commandManager)
     {
         super(plugin, commandManager);
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return 0;
+        init(help, argsHelp, minArgCount, command);
     }
 
     @Override

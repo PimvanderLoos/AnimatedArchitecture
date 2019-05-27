@@ -20,7 +20,7 @@ public abstract class Creator extends ToolUser
     protected Location one, two, engine;
     protected RotateDirection openDir = null;
 
-    public Creator(BigDoors plugin, Player player, String name, DoorType type)
+    protected Creator(BigDoors plugin, Player player, String name, DoorType type)
     {
         super(plugin, player);
         this.name = name;

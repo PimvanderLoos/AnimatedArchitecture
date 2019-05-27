@@ -7,14 +7,14 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 
-public class SubCommandStop extends SubCommand
+public class SubCommandStopDoors extends SubCommand
 {
     protected static final String help = "Forces all doors to finish instantly.";
     protected static final String argsHelp = null;
     protected static final int minArgCount = 1;
     protected static final CommandData command = CommandData.STOP;
 
-    public SubCommandStop(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandStopDoors(final BigDoors plugin, final CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);

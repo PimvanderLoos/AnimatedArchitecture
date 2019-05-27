@@ -1,10 +1,13 @@
-package nl.pim16aap2.bigdoors;
+package nl.pim16aap2.bigdoors.managers;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.Door;
 
 public class AutoCloseScheduler
 {
@@ -58,6 +61,6 @@ public class AutoCloseScheduler
                 }
                 deleteTimer(door.getDoorUID());
             }
-        }.runTaskLater(plugin, autoCloseTimer * 20));
+        }.runTaskLater(plugin, Math.min(10, autoCloseTimer * 20)));
     }
 }

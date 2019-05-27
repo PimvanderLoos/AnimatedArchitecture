@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.nms.v1_14_R1;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import org.bukkit.Axis;
 import org.bukkit.Location;
@@ -51,6 +52,11 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
         blockData = ((CraftBlockData) bukkitBlockData).getState();
     }
 
+    public IBlockData getMyBlockData()
+    {
+        return blockData;
+    }
+
     @Override
     public boolean canRotate()
     {
@@ -65,9 +71,9 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
         BlockData bd = bukkitBlockData;
         // When rotating stairs vertically, they need to be rotated twice, as they cannot
         // point up/down.
-        if (bd instanceof Stairs && rotDir.equals(RotateDirection.NORTH) ||
+        if (bd instanceof Stairs && (rotDir.equals(RotateDirection.NORTH) ||
             rotDir.equals(RotateDirection.EAST) || rotDir.equals(RotateDirection.SOUTH) ||
-            rotDir.equals(RotateDirection.WEST))
+            rotDir.equals(RotateDirection.WEST)))
             rotateDirectional((Directional) bd, rotDir, 2);
         else if (bd instanceof Orientable)
             rotateOrientable((Orientable) bd, rotDir);
@@ -89,6 +95,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
     {
         Axis currentAxis = bd.getAxis();
         Axis newAxis = currentAxis;
+        // Every 2 steps results in the same outcome.
         steps = steps % 2;
         if (steps == 0)
             return;
@@ -128,19 +135,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
 
     private void rotateDirectional(Directional bd, RotateDirection dir, int steps)
     {
-        BlockFace newFace = bd.getFacing();
-        if (dir.equals(RotateDirection.NORTH))
-            newFace = MyBlockFace.getBukkitFace(rotateVerticallyNorth(MyBlockFace.getMyBlockFace(newFace), steps));
-        else if (dir.equals(RotateDirection.EAST))
-            newFace = MyBlockFace.getBukkitFace(rotateVerticallyEast(MyBlockFace.getMyBlockFace(newFace), steps));
-        else if (dir.equals(RotateDirection.SOUTH))
-            newFace = MyBlockFace.getBukkitFace(rotateVerticallySouth(MyBlockFace.getMyBlockFace(newFace), steps));
-        else if (dir.equals(RotateDirection.WEST))
-            newFace = MyBlockFace.getBukkitFace(rotateVerticallyWest(MyBlockFace.getMyBlockFace(newFace), steps));
-        else if (dir.equals(RotateDirection.CLOCKWISE))
-            newFace = MyBlockFace.getBukkitFace(rotateClockwise(MyBlockFace.getMyBlockFace(newFace), steps));
-        else if (dir.equals(RotateDirection.COUNTERCLOCKWISE))
-            newFace = MyBlockFace.getBukkitFace(rotateCounterClockwise(MyBlockFace.getMyBlockFace(newFace), steps));
+        BlockFace newFace = MyBlockFace.getBukkitFace(rotate(MyBlockFace.getMyBlockFace(bd.getFacing()), steps, getDirFun(dir)));
         if (bd.getFaces().contains(newFace))
             bd.setFacing(newFace);
     }
@@ -157,93 +152,50 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
         currentFaces.forEach((K) -> bd.setFace(K, false));
         currentFaces.forEach((K) ->
         {
-            BlockFace newFace = null;
-            if (dir.equals(RotateDirection.NORTH))
-                newFace = MyBlockFace.getBukkitFace(rotateVerticallyNorth(MyBlockFace.getMyBlockFace(K), steps));
-            else if (dir.equals(RotateDirection.EAST))
-                newFace = MyBlockFace.getBukkitFace(rotateVerticallyEast(MyBlockFace.getMyBlockFace(K), steps));
-            else if (dir.equals(RotateDirection.SOUTH))
-                newFace = MyBlockFace.getBukkitFace(rotateVerticallySouth(MyBlockFace.getMyBlockFace(K), steps));
-            else if (dir.equals(RotateDirection.WEST))
-                newFace = MyBlockFace.getBukkitFace(rotateVerticallyWest(MyBlockFace.getMyBlockFace(K), steps));
-            else if (dir.equals(RotateDirection.CLOCKWISE))
-                newFace = MyBlockFace.getBukkitFace(rotateClockwise(MyBlockFace.getMyBlockFace(K), steps));
-            else if (dir.equals(RotateDirection.COUNTERCLOCKWISE))
-                newFace = MyBlockFace.getBukkitFace(rotateCounterClockwise(MyBlockFace.getMyBlockFace(K), steps));
+            BlockFace newFace = MyBlockFace.getBukkitFace(rotate(MyBlockFace.getMyBlockFace(K), steps, getDirFun(dir)));
             if (allowedFaces.contains(newFace))
                 bd.setFace(newFace, true);
         });
+
+        // This should never be disabled. The center column of a cobble wall, for example, would be invisible otherwise.
+        if (allowedFaces.contains(BlockFace.UP))
+            bd.setFace(BlockFace.UP, true);
     }
 
-    private MyBlockFace rotateVerticallyNorth(MyBlockFace mbf, int steps)
+    private Function<MyBlockFace, MyBlockFace> getDirFun(RotateDirection rotDir)
     {
+        switch(rotDir)
+        {
+        case NORTH:
+            return MyBlockFace::rotateVerticallyNorth;
+        case EAST:
+            return MyBlockFace::rotateVerticallyEast;
+        case SOUTH:
+            return MyBlockFace::rotateVerticallySouth;
+        case WEST:
+            return MyBlockFace::rotateVerticallyWest;
+        case CLOCKWISE:
+            return MyBlockFace::rotateClockwise;
+        case COUNTERCLOCKWISE:
+            return MyBlockFace::rotateCounterClockwise;
+        case DOWN:
+        case UP:
+        case NONE:
+        default:
+            return null;
+        }
+    }
+
+    private MyBlockFace rotate(MyBlockFace mbf, int steps, Function<MyBlockFace, MyBlockFace> dir)
+    {
+        // Every 4 steps results in the same outcome.
         steps = steps % 4;
         if (steps == 0)
             return mbf;
 
         MyBlockFace newFace = mbf;
         while (steps --> 0)
-            newFace = MyBlockFace.rotateVerticallyNorth(newFace);
-        return newFace;
-    }
-
-    private MyBlockFace rotateVerticallyEast(MyBlockFace mbf, int steps)
-    {
-        steps = steps % 4;
-        if (steps == 0)
-            return mbf;
-
-        MyBlockFace newFace = mbf;
-        while (steps --> 0)
-            newFace = MyBlockFace.rotateVerticallyEast(newFace);
-        return newFace;
-    }
-
-    private MyBlockFace rotateVerticallySouth(MyBlockFace mbf, int steps)
-    {
-        steps = steps % 4;
-        if (steps == 0)
-            return mbf;
-
-        MyBlockFace newFace = mbf;
-        while (steps --> 0)
-            newFace = MyBlockFace.rotateVerticallySouth(newFace);
-        return newFace;
-    }
-
-    private MyBlockFace rotateVerticallyWest(MyBlockFace mbf, int steps)
-    {
-        steps = steps % 4;
-        if (steps == 0)
-            return mbf;
-
-        MyBlockFace newFace = mbf;
-        while (steps --> 0)
-            newFace = MyBlockFace.rotateVerticallyWest(newFace);
-        return newFace;
-    }
-
-    private MyBlockFace rotateClockwise(MyBlockFace mbf, int steps)
-    {
-        steps = steps % 4;
-        if (steps == 0)
-            return mbf;
-
-        MyBlockFace newFace = mbf;
-        while (steps --> 0)
-            newFace = MyBlockFace.rotateClockwise(newFace);
-        return newFace;
-    }
-
-    private MyBlockFace rotateCounterClockwise(MyBlockFace mbf, int steps)
-    {
-        steps = steps % 4;
-        if (steps == 0)
-            return mbf;
-
-        MyBlockFace newFace = mbf;
-        while (steps --> 0)
-            newFace = MyBlockFace.rotateCounterClockwise(newFace);
+            newFace = dir.apply(mbf);
         return newFace;
     }
 

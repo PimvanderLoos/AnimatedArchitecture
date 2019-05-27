@@ -14,7 +14,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class WorldGuard6ProtectionCompat implements ProtectionCompat
+class WorldGuard6ProtectionCompat implements ProtectionCompat
 {
     private final BigDoors plugin;
     private final WorldGuardPlugin worldGuard;

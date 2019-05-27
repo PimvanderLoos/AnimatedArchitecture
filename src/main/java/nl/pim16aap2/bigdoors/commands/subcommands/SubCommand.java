@@ -45,7 +45,7 @@ public abstract class SubCommand implements ICommand
     @Override
     public int getMinArgCount()
     {
-        return minArgCount;
+        return commandManager.getCommand(CommandData.getSuperCommand(command)).getMinArgCount() + minArgCount;
     }
 
     @Override

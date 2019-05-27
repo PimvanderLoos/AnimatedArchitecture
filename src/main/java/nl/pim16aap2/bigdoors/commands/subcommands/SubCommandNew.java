@@ -102,7 +102,6 @@ public class SubCommandNew extends SubCommand
 
         if (args.length == minArgCount + 1)
         {
-            Util.broadcastMessage("TypeStr = " + args[args.length - 2]);
             type = DoorType.valueOfFlag(args[args.length - 2].toUpperCase());
             if (type == null)
                 return false;

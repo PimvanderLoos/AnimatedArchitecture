@@ -7,33 +7,11 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 
-public class FlagOpener implements Opener
+public class FlagOpener extends Opener
 {
-    private final BigDoors plugin;
-
     public FlagOpener(BigDoors plugin)
     {
-        this.plugin = plugin;
-    }
-
-    // Check if the chunks at the minimum and maximum locations of the door are loaded.
-    private boolean chunksLoaded(Door door)
-    {
-        // Return true if the chunk at the max and at the min of the chunks were loaded correctly.
-        if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \""    + door.getName().toString() + "\"",          true, false);
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
-
-        return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
-    }
-
-    @Override
-    public DoorOpenResult openDoor(Door door, double time)
-    {
-        return openDoor(door, time, false, false);
+        super(plugin);
     }
 
     // Open a door.

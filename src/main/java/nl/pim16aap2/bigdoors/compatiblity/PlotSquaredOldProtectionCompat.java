@@ -16,7 +16,7 @@ import com.plotsquared.bukkit.listeners.PlayerEvents;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
-public class PlotSquaredOldProtectionCompat implements ProtectionCompat
+class PlotSquaredOldProtectionCompat implements ProtectionCompat
 {
     @SuppressWarnings("unused")
     private final BigDoors plugin;

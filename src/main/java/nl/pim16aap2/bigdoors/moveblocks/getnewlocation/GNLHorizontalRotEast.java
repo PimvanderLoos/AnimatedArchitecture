@@ -1,18 +1,18 @@
-package nl.pim16aap2.bigdoors.moveblocks.cylindrical.getnewlocation;
+package nl.pim16aap2.bigdoors.moveblocks.getnewlocation;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
-public class GetNewLocationNorth implements GetNewLocation
+public class GNLHorizontalRotEast implements GetNewLocation
 {
     @SuppressWarnings("unused")
     private int xMin, xMax, zMin, zMax;
     private World world;
     private RotateDirection rotDir;
 
-    public GetNewLocationNorth(World world, int xMin, int xMax, int zMin, int zMax, RotateDirection rotDir)
+    public GNLHorizontalRotEast(World world, int xMin, int xMax, int zMin, int zMax, RotateDirection rotDir)
     {
         this.rotDir = rotDir;
         this.world  = world;
@@ -22,7 +22,7 @@ public class GetNewLocationNorth implements GetNewLocation
         this.zMax   = zMax;
     }
 
-    public GetNewLocationNorth()
+    public GNLHorizontalRotEast()
     {}
 
     @Override
@@ -31,9 +31,9 @@ public class GetNewLocationNorth implements GetNewLocation
         Location oldPos = new Location(world, xPos, yPos, zPos);
         Location newPos = oldPos;
 
-        newPos.setX(oldPos.getX() + (rotDir == RotateDirection.CLOCKWISE ? radius : -radius));
+        newPos.setX(xMin);
         newPos.setY(oldPos.getY());
-        newPos.setZ(zMax);
+        newPos.setZ(oldPos.getZ() + (rotDir == RotateDirection.CLOCKWISE ? radius : -radius));
         return newPos;
     }
 }

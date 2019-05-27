@@ -23,7 +23,7 @@ public class GUIPageRemoveOwner implements IGUIPage
 
     private ArrayList<DoorOwner> owners;
 
-    public GUIPageRemoveOwner(final BigDoors plugin, final GUI gui)
+    protected GUIPageRemoveOwner(final BigDoors plugin, final GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;

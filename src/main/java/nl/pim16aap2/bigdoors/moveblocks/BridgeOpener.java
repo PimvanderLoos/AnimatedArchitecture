@@ -13,23 +13,21 @@ import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class BridgeOpener implements Opener
+public class BridgeOpener extends Opener
 {
-    private final BigDoors plugin;
-
     public BridgeOpener(BigDoors plugin)
     {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     // Check if the new position is free.
-    private boolean isNewPosFree(Door door, RotateDirection upDown, MyBlockFace cardinal)
+    private boolean isNewPosFree(Door door, MyBlockFace upDown, MyBlockFace cardinal)
     {
         int startX  = 0, startY = 0, startZ = 0;
         int endX    = 0, endY   = 0, endZ   = 0;
         World world = door.getWorld();
 
-        if (upDown.equals(RotateDirection.UP))
+        if (upDown.equals(MyBlockFace.UP))
             switch (cardinal)
             {
             // North West = Min X, Min Z
@@ -80,7 +78,7 @@ public class BridgeOpener implements Opener
                 endZ   = door.getMaximum().getBlockZ();
                 break;
             default:
-                plugin.dumpStackTrace("Invalid rotation for bridge opener: " + cardinal.toString());
+                plugin.getMyLogger().dumpStackTrace("Invalid rotation for bridge opener: " + cardinal.toString());
                 break;
             }
         else
@@ -134,7 +132,7 @@ public class BridgeOpener implements Opener
                 endZ   = door.getMaximum().getBlockZ();
                 break;
             default:
-                plugin.dumpStackTrace("Invalid rotation for bridge opener: " + cardinal.toString());
+                plugin.getMyLogger().dumpStackTrace("Invalid rotation for bridge opener: " + cardinal.toString());
                 break;
             }
 
@@ -151,62 +149,43 @@ public class BridgeOpener implements Opener
     }
 
     // Check if the bridge should go up or down.
-    public RotateDirection getUpDown(Door door)
+    public MyBlockFace getUpDown(Door door)
     {
         int height = Math.abs(door.getMinimum().getBlockY() - door.getMaximum().getBlockY());
         if (height > 0)
-            return RotateDirection.DOWN;
-        return RotateDirection.UP;
+            return MyBlockFace.DOWN;
+        return MyBlockFace.UP;
     }
 
     // Figure out which way the bridge should go.
-    private MyBlockFace getOpenDirection(Door door)
+    private RotateDirection getOpenDirection(Door door)
     {
-        RotateDirection upDown = getUpDown(door);
-        MyBlockFace cDir     = getCurrentDirection(door);
-        boolean NS  = cDir    == MyBlockFace.NORTH || cDir == MyBlockFace.SOUTH;
+        MyBlockFace upDown = getUpDown(door);
+        MyBlockFace cDir   = getCurrentDirection(door);
+        boolean NS  = cDir == MyBlockFace.NORTH || cDir == MyBlockFace.SOUTH;
 
-        if (upDown.equals(RotateDirection.UP))
-            return isNewPosFree(door, upDown, door.getEngSide()) ? door.getEngSide() : null;
+        if (upDown.equals(MyBlockFace.UP))
+            return isNewPosFree(door, upDown, door.getEngSide()) ? RotateDirection.valueOf(door.getEngSide().toString()) : null;
 
         if (door.getOpenDir().equals(RotateDirection.CLOCKWISE       ) && !door.isOpen() ||
             door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) &&  door.isOpen())
-            return  NS && isNewPosFree(door, upDown, MyBlockFace.SOUTH) ? MyBlockFace.SOUTH :
-                   !NS && isNewPosFree(door, upDown, MyBlockFace.EAST ) ? MyBlockFace.EAST  : null;
+            return  NS && isNewPosFree(door, upDown, MyBlockFace.SOUTH) ? RotateDirection.SOUTH :
+                   !NS && isNewPosFree(door, upDown, MyBlockFace.EAST ) ? RotateDirection.EAST  : null;
         if (door.getOpenDir().equals(RotateDirection.CLOCKWISE       ) &&  door.isOpen() ||
             door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
-            return  NS && isNewPosFree(door, upDown, MyBlockFace.NORTH) ? MyBlockFace.NORTH :
-                   !NS && isNewPosFree(door, upDown, MyBlockFace.WEST ) ? MyBlockFace.WEST  : null;
+            return  NS && isNewPosFree(door, upDown, MyBlockFace.NORTH) ? RotateDirection.NORTH :
+                   !NS && isNewPosFree(door, upDown, MyBlockFace.WEST ) ? RotateDirection.WEST  : null;
 
-        return   NS && isNewPosFree(door, upDown, MyBlockFace.NORTH) ? MyBlockFace.NORTH :
-                !NS && isNewPosFree(door, upDown, MyBlockFace.EAST ) ? MyBlockFace.EAST  :
-                 NS && isNewPosFree(door, upDown, MyBlockFace.SOUTH) ? MyBlockFace.SOUTH :
-                !NS && isNewPosFree(door, upDown, MyBlockFace.WEST ) ? MyBlockFace.WEST  : null;
+        return   NS && isNewPosFree(door, upDown, MyBlockFace.NORTH) ? RotateDirection.NORTH :
+                !NS && isNewPosFree(door, upDown, MyBlockFace.EAST ) ? RotateDirection.EAST  :
+                 NS && isNewPosFree(door, upDown, MyBlockFace.SOUTH) ? RotateDirection.SOUTH :
+                !NS && isNewPosFree(door, upDown, MyBlockFace.WEST ) ? RotateDirection.WEST  : null;
     }
 
     // Get the "current direction". In this context this means on which side of the drawbridge the engine is.
     private MyBlockFace getCurrentDirection(Door door)
     {
         return door.getEngSide();
-    }
-
-    private boolean chunksLoaded(Door door)
-    {
-        // Return true if the chunk at the max and at the min of the chunks were loaded correctly.
-        if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \""    + door.getName().toString() + "\"",          true, false);
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
-
-        return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
-    }
-
-    @Override
-    public DoorOpenResult openDoor(Door door, double time)
-    {
-        return openDoor(door, time, false, false);
     }
 
     @Override
@@ -232,14 +211,14 @@ public class BridgeOpener implements Opener
             return DoorOpenResult.ERROR;
         }
 
-        RotateDirection upDown = getUpDown(door);
+        MyBlockFace upDown = getUpDown(door);
         if (upDown == null)
         {
             plugin.getMyLogger().logMessage("UpDown direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
             return DoorOpenResult.ERROR;
         }
 
-        MyBlockFace openDirection = getOpenDirection(door);
+        RotateDirection openDirection = getOpenDirection(door);
         if (openDirection == null)
         {
             plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);

@@ -35,7 +35,7 @@ public class SubCommandInspectPowerBlock extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
-        if ((sender instanceof Player))
+        if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
         Player player = (Player) sender;
 

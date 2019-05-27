@@ -37,9 +37,9 @@ public class SubCommandSetName extends SubCommand
         ToolUser tu = plugin.getToolUser(player);
         if (tu != null && tu instanceof Creator)
         {
-            if (args.length == getMinArgCount() && Util.isValidDoorName(args[0]))
+            if (args.length == getMinArgCount() && Util.isValidDoorName(args[getMinArgCount() - 1]))
             {
-                ((Creator) tu).setName(args[0]);
+                ((Creator) tu).setName(args[getMinArgCount() - 1]);
                 return true;
             }
             return false;

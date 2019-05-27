@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public interface ProtectionCompat
+interface ProtectionCompat
 {
     public boolean canBreakBlock(Player player, Location loc);
 

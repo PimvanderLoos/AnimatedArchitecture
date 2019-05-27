@@ -20,7 +20,7 @@ public class GUIPageDoorList implements IGUIPage
     protected final GUI gui;
     protected final Messages messages;
 
-    public GUIPageDoorList(final BigDoors plugin, final GUI gui)
+    protected GUIPageDoorList(final BigDoors plugin, final GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;

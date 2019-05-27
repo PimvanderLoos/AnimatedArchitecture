@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.moveblocks.bridge.getnewlocation;
+package nl.pim16aap2.bigdoors.moveblocks.getnewlocation;
 
 import org.bukkit.Location;
 

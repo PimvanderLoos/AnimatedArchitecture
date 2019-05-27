@@ -110,8 +110,6 @@ public abstract class ToolUser extends Abortable
         cancelTask();
         plugin.removeToolUser(this);
         if (!done)
-            // TODO: This is dumb. Casting player to CommandSender and then checking if it's
-            // a player or console.
             plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED,
                                                 messages.getString("CREATOR.GENERAL.TimeUp"));
     }

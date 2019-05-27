@@ -5,36 +5,12 @@ import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public class CommandBigDoors extends SuperCommand
 {
-    private static final String name = "bigdoors";
-    private static final String permission = "bigdoors.user";
     private static final CommandData command = CommandData.BIGDOORS;
+    private static final int minArgCount = 0;
 
     public CommandBigDoors(final BigDoors plugin, final CommandManager commandManager)
     {
-        super(plugin, commandManager, name, permission);
-    }
-
-    @Override
-    public int getMinArgCount()
-    {
-        return 1;
-    }
-
-    @Override
-    public CommandData getCommandData()
-    {
-        return command;
-    }
-
-    @Override
-    public String getPermission()
-    {
-        return CommandData.getPermission(command);
-    }
-
-    @Override
-    public String getName()
-    {
-        return CommandData.getCommandName(command);
+        super(plugin, commandManager);
+        init(minArgCount, command);
     }
 }

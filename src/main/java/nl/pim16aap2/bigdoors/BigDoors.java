@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -10,8 +9,6 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.logging.Level;
-
-import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -47,7 +44,7 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetName;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetRotation;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandStop;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandStopDoors;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
@@ -58,6 +55,7 @@ import nl.pim16aap2.bigdoors.handlers.GUIHandler;
 import nl.pim16aap2.bigdoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigdoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigdoors.handlers.RedstoneHandler;
+import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.VaultManager;
@@ -86,6 +84,12 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 /*
+ * Modules
+ */
+// TODO: Split up project POM into modules. Use API to get all implementation (Bukkit, Forge, different versions) specific stuff.
+//       https://bukkit.org/threads/support-multiple-minecraft-versions-with-abstraction-maven.115810/
+
+/*
  * General
  */
 // TODO: Put @Nullable everywhere where applicable.
@@ -96,16 +100,21 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
 // TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
-// TODO: Split up project POM into modules. Use API to get all implementation (Bukkit, Forge, different versions) specific stuff.
-//       https://bukkit.org/threads/support-multiple-minecraft-versions-with-abstraction-maven.115810/
 // TODO: Update version checker. Start using the new format. Also, decide what the new format will be. R200? 200R? %100 = Stable?
 // TODO: Rename RotateDirection to moveDirection. Lifts don't rotate. They lift.
 // TODO: Update rotatable blocks after finishing rotation etc.
 // TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
-// TODO: Create Creator superclass that all door creators extend from. Clean up tool user to get rid of all doorcreation-specific stuff.
 // TODO: ConfigLoader should figure out which resource pack version to use on its own.
 // TODO: Move all non-database related stuff out of DatabaseManager.
-// TODO: OPs and people with bigdoors.admin.bypass should bypass permissions check for allowing options.
+// TODO: OPs and people with bigdoors.admin.bypass.attribute should bypass permissions check for allowing options.
+// TODO: Rename region bypass permission to bigdoors.admin.bypass.region.
+// TODO: CustomEntityFallingBlock: Clean this damn class up!
+// TODO: Make door cache cache per-world (hash world UUID), then cache per chunk
+//       (new caching method that ignores world name) and then the relative locations
+//       So cache location (x % 16, y, z % 16). Again, no world needed.
+// TODO: Portcullis info prints it'll open going North when looking east. That's not right.
+//       Same issue for regular doors.
+// TODO: blocksToMove isn't printed by door full info.
 
 /*
  * GUI
@@ -114,6 +123,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Make GUI options always use the correct subCommand.
 // TODO: Get rid of repeated initialization for stuff like the options in the GUIPageDoorInfo. Just initialize it once in the constructor.
 // TODO: Store 2 player objects: 1) Subject (the owner of all the doors), and 2) InventoryHolder (who is looking at the inventory).
+// TODO: Cannot toggle openDirection for portcullis type. Might be related to the fact that it says that the portcullis openDirectoin is North instead of Up/Down.
+// TODO: Implement
 
 /*
  * SQL
@@ -140,23 +151,45 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       the provided playerArg to a UUID. That's not very user friendly at all.
 // TODO: Check if force unlock door as admin still exists.
 // TODO: Do not use the commander for anything command-related that isn't strictly database abstraction.
+// TODO: Store actual minArgCount in subCommands so it doesn't have to be calculated constantly.
+// TODO: Make sure there are no commands that use hard coded argument positions.
+// TODO: SetblocksToMove commandWaiter doesn't work. Possibly issue with minArgCount.
+// TODO: NPE thrown when trying to use direct command after initiating a commandWaiter a while ago (should've been cancelled already!).
+//       Might be related to the issue listed above (regarding setBlocksToMove commandWaiter).
+// TODO: Explain why there are 2 hashMaps storing seemingly the same data in the CommandManager.
+// TODO: Make sure super command can be chained.
 
 /*
  * Openers / Movers
  */
-// TODO: Rewrite Openers to get rid of code duplication.
-// TODO: Use lambda for block movement to get rid of code duplication (all the iterators).
 // TODO: When a door isn't set to open in a specific direction and therefore naively tries to find the first possible
 //       free location, automatically set the openDirection for this door. HOWEVER, this value must be reset when it is
 //       closed again, but ONLY if it used to be unset. So instead of storing value, add flag for un/intentionally set.
 // TODO: Rotate Sea Pickle and turtle egg.
-// TODO: Only replace blocks by air AFTER they have all been constructed. This makes sure the correct data is stored.
-// TODO: Get rid of the index variable in the savedBlocks stuff.
-// TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
+// TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away. Should be a method of fabf.
 // TODO: Consider using HashSet for blocks. It's faster: https://stackoverflow.com/questions/10196343/hash-set-and-array-list-performances
-// TODO: Don't do any replacing by air stuff in the openers/movers. Instead, do it in the NMSBlock part. Also make sure
-//       to copy all rotational blockdata stuff properly!Do so by only removing the block after all blocks copied their blockdata.
+// TODO: Do second pass (possibly remove first pass) after placing all blocks to make sure that all connected blocks are actually connected.
+//       Currently, connected blocks will only be connected to blocks that have already been processed.
+// TODO: SERIOUS ISSUE: Doors can sometimes open twice at the same time or something. They appear to move twice as fast and data is fucked up afterwards.
+//       This might be fixed now. Not sure.
+// TODO: A new variable was introduced that describes the minimum delay between putting blocks and goAgain. This is hard-coded in 2 places (BlockMover::putBlocks() and
+//       AutoCloseScheduler::scheduleAutoClose). Store this in main instead. Also, goAgain's minimum delay should be higher than setAvailable, so hard-code additional 2 tick
+//       delay or something.
+// TODO: DO NOT STORE newMin and newMax variables in the door. It most definitely does not belong in there! Figure out why it needs to be there in the first
+//       Place. If it's really needed, just use references.
+// TODO: Test and finish flag type.
+// TODO: Implement new types: Garage door, windmill
+// TODO: Rewrite parts of the drawBridge opener and mover. The upDown etc stuff should not be used.
+// TODO: ElevatorOpener should extend PortcullisOpener.
+// TODO: ElevatorOpener and PortcullisOpener should respect setOpenDirection and min/max world height (0, 256).
+// TODO: BlockMover should set default min/max values by default.
+// TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the x,y,z values, but the entire block and blocksMoved. Then
+//       they can figure it out for themselves.
+// TODO: Get rid of "default constructors" in GNL classes.
 
+
+
+// TODO: Test changeOpenDir in GUIPageDoorInfo.
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -266,7 +299,7 @@ public class BigDoors extends JavaPlugin implements Listener
                 commandBigDoors.registerSubCommand(new SubCommandSetAutoCloseTime(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandSetBlocksToMove(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandSetRotation(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandStop(this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandStopDoors(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandToggle(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandVersion(this, commandManager));
             }
@@ -348,11 +381,11 @@ public class BigDoors extends JavaPlugin implements Listener
         }
         catch (InstantiationException e)
         {
-            handleMyStackTrace(new MyException(e));
+            getMyLogger().handleMyStackTrace(new MyException(e));
         }
         catch (IllegalAccessException e)
         {
-            handleMyStackTrace(new MyException(e));
+            getMyLogger().handleMyStackTrace(new MyException(e));
         }
     }
 
@@ -413,20 +446,6 @@ public class BigDoors extends JavaPlugin implements Listener
         toolUsers.clear();
         cmdWaiters.clear();
         blockMovers.clear();
-    }
-
-    public void dumpStackTrace(@Nullable String message)
-    {
-        getMyLogger().logMessage((message == null ? "" : message + "\n") +
-                                 Arrays.toString((new Exception()).getStackTrace()), true, true);
-    }
-
-    public void handleMyStackTrace(MyException e)
-    {
-        if (e.hasWarningMessage())
-            getMyLogger().warn(e.getWarningMessage());
-        e.printStackTrace();
-        getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
     }
 
     public TimedCache<Long, HashMap<Long, Long>> getPBCache()

@@ -44,7 +44,7 @@ public class SubCommandSetRotation extends SubCommand
 
         if (sender instanceof Player && !plugin.getDatabaseManager()
             .hasPermissionForAction(((Player) sender), door.getDoorUID(),
-                                    DoorAttribute.DIRECTION_STRAIGHT))
+                                    DoorAttribute.DIRECTION_STRAIGHT_VERTICAL))
             throw new CommandActionNotAllowedException();
 
         RotateDirection openDir = RotateDirection.valueOf(args[2].toUpperCase());

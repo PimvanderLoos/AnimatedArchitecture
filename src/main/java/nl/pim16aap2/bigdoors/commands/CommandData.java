@@ -28,7 +28,7 @@ public enum CommandData
     SETBLOCKSTOMOVE ("setblockstomove", "bigdoors.user.setblockstomove", CommandData.BIGDOORS),
     SETNAME ("setname", CommandData.NEW.permission, CommandData.NEW.superCommand),
     SETROTATION ("setrotation", "bigdoors.user.setrotation", CommandData.BIGDOORS),
-    STOP ("stop", "bigdoors.admin.stop", CommandData.BIGDOORS),
+    STOP ("stopdoors", "bigdoors.admin.stopdoors", CommandData.BIGDOORS),
     TOGGLE ("toggle", "bigdoors.user.toggle", CommandData.BIGDOORS),
     VERSION ("version", "bigdoors.admin.version", CommandData.BIGDOORS);
 

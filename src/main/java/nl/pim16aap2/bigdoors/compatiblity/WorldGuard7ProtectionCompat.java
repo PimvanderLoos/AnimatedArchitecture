@@ -15,7 +15,7 @@ import com.sk89q.worldguard.protection.regions.RegionQuery;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
-public class WorldGuard7ProtectionCompat implements ProtectionCompat
+class WorldGuard7ProtectionCompat implements ProtectionCompat
 {
     @SuppressWarnings("unused")
     private final BigDoors plugin;

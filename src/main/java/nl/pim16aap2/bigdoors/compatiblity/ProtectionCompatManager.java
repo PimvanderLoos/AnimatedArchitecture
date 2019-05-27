@@ -94,7 +94,7 @@ public class ProtectionCompatManager implements Listener, IRestartable
             }
             catch(Exception e)
             {
-                plugin.handleMyStackTrace(new MyException(e, "Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
+                plugin.getMyLogger().handleMyStackTrace(new MyException(e, "Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
             }
         return null;
     }
@@ -113,7 +113,7 @@ public class ProtectionCompatManager implements Listener, IRestartable
             }
             catch(Exception e)
             {
-                plugin.handleMyStackTrace(new MyException(e, "Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
+                plugin.getMyLogger().handleMyStackTrace(new MyException(e, "Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
             }
         return null;
     }

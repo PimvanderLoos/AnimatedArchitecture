@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
+import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
@@ -36,12 +37,17 @@ public class SubCommandChangePowerBlock extends SubCommand
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, CommandActionNotAllowedException
+        throws CommandSenderNotPlayerException, CommandPermissionException, CommandActionNotAllowedException,
+        CommandInvalidVariableException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
 
         Player player = (Player) sender;
-        return execute(player, plugin.getDatabaseManager().getDoor(args[0], player));
+        String doorArg = args[getMinArgCount() - 1];
+        Door door = plugin.getDatabaseManager().getDoor(doorArg, player);
+        if (door == null)
+            throw new CommandInvalidVariableException(doorArg, "door");
+        return execute(player, door);
     }
 }

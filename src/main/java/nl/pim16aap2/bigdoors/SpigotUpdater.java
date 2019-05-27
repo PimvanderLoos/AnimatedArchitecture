@@ -20,7 +20,7 @@ import org.json.simple.parser.ParseException;
 
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class SpigotUpdater
+class SpigotUpdater
 {
     final static String DOWNLOAD_URL = "https://api.spiget.org/v2/resources/58669/versions/";
     final static String VERSIONS_URL = "https://api.spiget.org/v2/resources/58669/versions?size=" +

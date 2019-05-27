@@ -16,7 +16,7 @@ public class GUIPageDeleteConfirmation implements IGUIPage
     protected final GUI gui;
     protected final Messages messages;
 
-    public GUIPageDeleteConfirmation(final BigDoors plugin, final GUI gui)
+    protected GUIPageDeleteConfirmation(final BigDoors plugin, final GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;

@@ -1,18 +1,18 @@
-package nl.pim16aap2.bigdoors.moveblocks.cylindrical.getnewlocation;
+package nl.pim16aap2.bigdoors.moveblocks.getnewlocation;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
-public class GetNewLocationSouth implements GetNewLocation
+public class GNLHorizontalRotSouth implements GetNewLocation
 {
     @SuppressWarnings("unused")
     private int xMin, xMax, zMin, zMax;
     private World world;
     private RotateDirection rotDir;
 
-    public GetNewLocationSouth(World world, int xMin, int xMax, int zMin, int zMax, RotateDirection rotDir)
+    public GNLHorizontalRotSouth(World world, int xMin, int xMax, int zMin, int zMax, RotateDirection rotDir)
     {
         this.rotDir = rotDir;
         this.world  = world;
@@ -22,7 +22,7 @@ public class GetNewLocationSouth implements GetNewLocation
         this.zMax   = zMax;
     }
 
-    public GetNewLocationSouth()
+    public GNLHorizontalRotSouth()
     {}
 
     @Override
