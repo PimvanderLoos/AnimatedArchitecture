@@ -35,7 +35,6 @@ class CylindricalMover extends BlockMover
         final boolean instantOpen, final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1);
-        super.initDefaultMinMax();
 
         turningPoint = door.getEngine();
         stepMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
@@ -194,12 +193,6 @@ class CylindricalMover extends BlockMover
     @Override
     protected void updateCoords(Door door, MyBlockFace currentDirection, RotateDirection rotDirection, int moved)
     {
-        int xMin = door.getMinimum().getBlockX();
-        int yMin = door.getMinimum().getBlockY();
-        int zMin = door.getMinimum().getBlockZ();
-        int xMax = door.getMaximum().getBlockX();
-        int yMax = door.getMaximum().getBlockY();
-        int zMax = door.getMaximum().getBlockZ();
         int xLen = xMax - xMin;
         int zLen = zMax - zMin;
         Location newMax = null;

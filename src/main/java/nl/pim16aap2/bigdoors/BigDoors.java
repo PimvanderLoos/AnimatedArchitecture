@@ -185,7 +185,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: BlockMover should set default min/max values by default.
 // TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the x,y,z values, but the entire block and blocksMoved. Then
 //       they can figure it out for themselves.
-// TODO: Get rid of "default constructors" in GNL classes.
 
 
 

@@ -22,9 +22,6 @@ public class GNLHorizontalRotNorth implements GetNewLocation
         this.zMax   = zMax;
     }
 
-    public GNLHorizontalRotNorth()
-    {}
-
     @Override
     public Location getNewLocation(double radius, double xPos, double yPos, double zPos)
     {

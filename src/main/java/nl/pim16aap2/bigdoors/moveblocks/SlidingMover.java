@@ -24,7 +24,6 @@ class SlidingMover extends BlockMover
         final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, null, null, blocksToMove);
-        super.initDefaultMinMax();
 
         NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 

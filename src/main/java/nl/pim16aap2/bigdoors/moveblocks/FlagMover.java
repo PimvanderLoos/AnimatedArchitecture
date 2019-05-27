@@ -24,7 +24,6 @@ class FlagMover extends BlockMover
         final double multiplier)
     {
         super(plugin, world, door, time, false, null, null, -1);
-        super.initDefaultMinMax();
 
         int xLen = Math.abs(xMax - xMin) + 1;
         int zLen = Math.abs(zMax - zMin) + 1;

@@ -50,10 +50,7 @@ public abstract class BlockMover
         this.blocksMoved = blocksMoved;
         fabf = plugin.getFABF();
         savedBlocks = new ArrayList<>();
-    }
 
-    protected void initDefaultMinMax()
-    {
         xMin = door.getMinimum().getBlockX();
         yMin = door.getMinimum().getBlockY();
         zMin = door.getMinimum().getBlockZ();

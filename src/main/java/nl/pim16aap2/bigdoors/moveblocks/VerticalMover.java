@@ -21,7 +21,6 @@ class VerticalMover extends BlockMover
         final boolean instantOpen, final int blocksToMove, final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, null, null, blocksToMove);
-        super.initDefaultMinMax();
 
         double speed = 1;
         double pcMult = multiplier;

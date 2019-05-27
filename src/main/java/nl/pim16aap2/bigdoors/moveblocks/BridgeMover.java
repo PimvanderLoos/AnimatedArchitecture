@@ -36,7 +36,6 @@ class BridgeMover extends BlockMover
         final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, upDown, openDirection, -1);
-        super.initDefaultMinMax();
 
         engineSide = door.getEngSide();
         NS = engineSide == MyBlockFace.NORTH || engineSide == MyBlockFace.SOUTH;
@@ -274,12 +273,6 @@ class BridgeMover extends BlockMover
     @Override
     protected void updateCoords(Door door, MyBlockFace openDirection, RotateDirection rotDir, int moved)
     {
-        int xMin = door.getMinimum().getBlockX();
-        int yMin = door.getMinimum().getBlockY();
-        int zMin = door.getMinimum().getBlockZ();
-        int xMax = door.getMaximum().getBlockX();
-        int yMax = door.getMaximum().getBlockY();
-        int zMax = door.getMaximum().getBlockZ();
         int xLen = xMax - xMin;
         int yLen = yMax - yMin;
         int zLen = zMax - zMin;
