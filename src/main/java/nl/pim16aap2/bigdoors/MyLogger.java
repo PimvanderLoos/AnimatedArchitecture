@@ -117,6 +117,12 @@ public class MyLogger
         }
     }
 
+
+    public void logMessage(String msg, boolean printToConsole)
+    {
+        logMessage(msg, printToConsole, false);
+    }
+
     // Log a message to the logfile. Does not print to console or add newlines in
     // front of the actual message.
     public void logMessageToLogFile(String msg)

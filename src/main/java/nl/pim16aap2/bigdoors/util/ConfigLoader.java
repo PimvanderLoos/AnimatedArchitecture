@@ -28,14 +28,6 @@ public class ConfigLoader
     private boolean makeBackup;
     private boolean allowStats;
     private int maxDoorSize;
-//    private double pcMultiplier = 1.0;
-//    private double dbMultiplier = 1.0;
-//    private double bdMultiplier = 1.0;
-//    private double sdMultiplier = 1.0;
-//    private double flMultiplier = 1.0;
-//    private double elMultiplier = 1.0;
-//    private double gdMultiplier = 1.0;
-//    private double wmMultiplier = 1.0;
     private String resourcePack;
     private String languageFile;
     private int maxDoorCount;
@@ -48,7 +40,6 @@ public class ConfigLoader
     private boolean checkForUpdates;
     private boolean plotSquaredHook;
     private int headCacheTimeout;
-//    private String doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice, garageDoorPrice, windMillPrice;
     private final ArrayList<ConfigOption<?>> configOptionsList;
     public static boolean DEBUG = false;
     private final BigDoors plugin;
@@ -78,7 +69,7 @@ public class ConfigLoader
         String[] powerBlockTypeComment = { "Choose the type of the power block that is used to open doors using redstone.",
                                            "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
                                            "This is the block that will open the door attached to it when it receives a redstone signal.",
-                                           "Multiple types are allowed."};
+                                           "Multiple types are allowed." };
         String[] maxDoorCountComment = { "Maximum number of doors a player can own. -1 = infinite." };
         String[] languageFileComment = { "Specify a language file to be used. Note that en_US.txt will get regenerated!" };
         String[] dbFileComment = { "Pick the name (and location if you want) of the database." };
@@ -143,12 +134,15 @@ public class ConfigLoader
 
         DoorType[] doorTypes = DoorType.values();
         for (int idx = 0; idx != doorTypes.length; ++idx)
-            doorMultipliers.put(doorTypes[idx], addNewConfigOption(config, DoorType.getCodeName(doorTypes[idx]) + "Multiplier", 0.0D, idx == 0 ? multiplierComment : null));
+            doorMultipliers.put(doorTypes[idx],
+                                addNewConfigOption(config, "multiplierOf" + DoorType.getCodeName(doorTypes[idx]), 0.0D,
+                                                   idx == 0 ? multiplierComment : null));
 
         for (int idx = 0; idx != doorTypes.length; ++idx)
-            doorPrices.put(doorTypes[idx], addNewConfigOption(config, DoorType.getCodeName(doorTypes[idx]) + "Price", "0", idx == 0 ? pricesComment : null));
+            doorPrices.put(doorTypes[idx], addNewConfigOption(config, "priceOf" + DoorType.getCodeName(doorTypes[idx]),
+                                                              "0", idx == 0 ? pricesComment : null));
 
-        // This is a bit special, as it's public static (for util debug messages).
+        // This is a bit special, as it's public static (for Util debug messages).
         ConfigLoader.DEBUG = addNewConfigOption(config, "DEBUG", false, debugComment);
 
         writeConfig();
@@ -210,7 +204,6 @@ public class ConfigLoader
 
         addNewConfigOption(config, "powerBlockTypes", materials, powerBlockTypeComment);
 
-
         plugin.getMyLogger().logMessageToConsoleOnly("Power Block Types:");
         powerBlockTypesMap.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K.toString()));
     }
@@ -249,8 +242,8 @@ public class ConfigLoader
             for (int idx = 0; idx < configOptionsList.size(); ++idx)
                 pw.println(configOptionsList.get(idx).toString() +
                 // Only print an additional newLine if the next config option has a comment.
-                    (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? ""
-                                                                                                               : "\n"));
+                    (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? "" :
+                        "\n"));
 
             pw.flush();
             pw.close();

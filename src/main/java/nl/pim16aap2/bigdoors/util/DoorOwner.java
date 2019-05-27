@@ -44,4 +44,22 @@ public class DoorOwner
             name = plugin.getDatabaseManager().playerNameFromUUID(playerUUID);
         return name;
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("doorUID: ");
+        sb.append(doorUID);
+
+        sb.append(". playerUUID: ");
+        sb.append(playerUUID.toString());
+
+        sb.append(". Permission: ");
+        sb.append(permission);
+
+        sb.append(". Name: ");
+        sb.append(name);
+        return sb.toString();
+    }
 }

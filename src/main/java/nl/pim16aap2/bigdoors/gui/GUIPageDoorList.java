@@ -2,12 +2,8 @@ package nl.pim16aap2.bigdoors.gui;
 
 import java.util.ArrayList;
 
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
-import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
 import nl.pim16aap2.bigdoors.gui.GUI.SortType;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
@@ -37,7 +33,6 @@ class GUIPageDoorList implements IGUIPage
     @Override
     public void handleInput(int interactionIDX)
     {
-        boolean header = Util.between(interactionIDX, 0, 8);
         if (interactionIDX == 0)
         {
             gui.setPage(gui.getPage() - 1);
@@ -48,24 +43,12 @@ class GUIPageDoorList implements IGUIPage
             gui.setNextSortType();
             gui.update();
         }
+        else if (interactionIDX == 4)
+            gui.setGUIPage(new GUIPageDoorCreation(plugin, gui));
         else if (interactionIDX == 8)
         {
             gui.setPage(gui.getPage() + 1);
             gui.update();
-        }
-        else if (header)
-        {
-            String itemName = gui.getItem(interactionIDX).getName();
-            if (itemName.equals(messages.getString("GUI.NewDoor")))
-                startCreationProcess(gui.getPlayer(), DoorType.DOOR);
-            else if (itemName.equals(messages.getString("GUI.NewPortcullis")))
-                startCreationProcess(gui.getPlayer(), DoorType.PORTCULLIS);
-            else if (itemName.equals(messages.getString("GUI.NewDrawbridge")))
-                startCreationProcess(gui.getPlayer(), DoorType.DRAWBRIDGE);
-            else if (itemName.equals(messages.getString("GUI.NewElevator")))
-                startCreationProcess(gui.getPlayer(), DoorType.ELEVATOR);
-            else if (itemName.equals(messages.getString("GUI.NewSlidingDoor")))
-                startCreationProcess(gui.getPlayer(), DoorType.SLIDINGDOOR);
         }
         else
         {
@@ -78,16 +61,6 @@ class GUIPageDoorList implements IGUIPage
             }
             if (gui.isStillOwner())
                 gui.setGUIPage(new GUIPageDoorInfo(plugin, gui));
-        }
-    }
-
-    protected void addCreationBook(DoorType type, int idx, String message)
-    {
-        if (SubCommandNew.hasCreationPermission(gui.getPlayer(), type))
-        {
-            ArrayList<String> lore = new ArrayList<>();
-            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString(message));
-            gui.addItem(idx, new GUIItem(GUI.NEWDOORMAT, messages.getString(message), lore, gui.getPage() + 1));
         }
     }
 
@@ -106,11 +79,8 @@ class GUIPageDoorList implements IGUIPage
         gui.addItem(1, new GUIItem(GUI.TOGGLEDOORMAT, messages.getString("GUI.SORT.Change"), lore, 1));
         lore.clear();
 
-        addCreationBook(DoorType.ELEVATOR,    2, "GUI.NewElevator"   );
-        addCreationBook(DoorType.DRAWBRIDGE,  3, "GUI.NewDrawbridge" );
-        addCreationBook(DoorType.DOOR,        4, "GUI.NewDoor"       );
-        addCreationBook(DoorType.PORTCULLIS,  5, "GUI.NewPortcullis" );
-        addCreationBook(DoorType.SLIDINGDOOR, 6, "GUI.NewSlidingDoor");
+        lore.add(messages.getString("GUI.GoToNewDoorMenu"));
+        gui.addItem(4, new GUIItem(GUI.NEWDOORMAT, messages.getString("GUI.GoToNewDoorMenuShort"), lore, 1));
 
         if ((page + 1) < gui.getMaxPageCount())
         {
@@ -136,12 +106,6 @@ class GUIPageDoorList implements IGUIPage
             gui.addItem(idx + 9, item);
             lore.clear();
         }
-    }
-
-    private void startCreationProcess(Player player, DoorType type)
-    {
-        player.closeInventory();
-        ((SubCommandNew) plugin.getCommand(CommandData.NEW)).execute(player, null, type);
     }
 
     @Override

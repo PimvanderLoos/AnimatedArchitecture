@@ -127,10 +127,10 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
  */
 // TODO: Look into playerheads for GUI buttons. Example: https://minecraft-heads.com/player-heads/alphabet/2762-arrow-left
 // TODO: Make GUI options always use the correct subCommand.
-// TODO: Get rid of repeated initialization for stuff like the options in the GUIPageDoorInfo. Just initialize it once in the constructor.
+// TODO: Create ItemManager that stores repeatedly used items (such as door creation books and doorInfo stuff).
 // TODO: Store 2 player objects: 1) Subject (the owner of all the doors), and 2) InventoryHolder (who is looking at the inventory).
-// TODO: Cannot toggle openDirection for portcullis type. Might be related to the fact that it says that the portcullis openDirectoin is North instead of Up/Down.
-// TODO: Implement
+// TODO: Cannot toggle openDirection for portcullis type. Might be related to the fact that it says that the portcullis openDirection is North instead of Up/Down.
+// TODO: Use ButtonAction GUI and GUIItem::specialValue to phase out raw interactionIDX stuff for getting actions.
 
 /*
  * SQL

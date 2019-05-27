@@ -25,25 +25,57 @@ class GUIItem
     private DoorOwner doorOwner = null;
     private boolean missingHeadTexture;
     private DoorAttribute attribute = null;
+    private Object specialValue;
 
-    public GUIItem(Material mat, String name, ArrayList<String> lore, int count)
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("GUIItem: ");
+        if (is != null)
+            sb.append("\nItemStack: " + is.toString());
+        if (doorOwner != null)
+            sb.append("\nDoorOwner: " + doorOwner.toString());
+        if (specialValue != null)
+            sb.append("\nSpecialValue: " + specialValue);
+        if (lore != null)
+            sb.append("\nLore: " + lore.toString());
+        if (name != null)
+            sb.append("\nName: " + name);
+
+        return sb.toString();
+    }
+
+    public GUIItem(Material mat, String name, ArrayList<String> lore, int count, Object specialValue)
     {
         this.name = name;
         this.mat = mat;
         this.lore = lore;
         this.count = count;
+        this.specialValue = specialValue;
         is = new ItemStack(mat, count);
         construct();
     }
 
-    public GUIItem(ItemStack is, String name, ArrayList<String> lore, int count)
+    public GUIItem(Material mat, String name, ArrayList<String> lore, int count)
+    {
+        this(mat, name, lore, count, null);
+    }
+
+    public GUIItem(ItemStack is, String name, ArrayList<String> lore, int count, Object specialValue)
     {
         this.name = name;
         this.lore = lore;
         this.count = count;
         this.is = is;
+        this.specialValue = specialValue;
         is.setAmount(count);
         construct();
+    }
+
+    public GUIItem(ItemStack is, String name, ArrayList<String> lore, int count)
+    {
+        this(is, name, lore, count, null);
     }
 
     public GUIItem(BigDoors plugin, DoorOwner doorOwner, Player guiOwner)
@@ -130,5 +162,15 @@ class GUIItem
     public DoorOwner getDoorOwner()
     {
         return doorOwner;
+    }
+
+    public Object getSpecialValue()
+    {
+        return specialValue;
+    }
+
+    public void setSpecialValue(Object specialValue)
+    {
+        this.specialValue = specialValue;
     }
 }

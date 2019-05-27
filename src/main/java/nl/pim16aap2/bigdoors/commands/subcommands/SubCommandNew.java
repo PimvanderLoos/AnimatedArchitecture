@@ -51,6 +51,9 @@ public class SubCommandNew extends SubCommand
     // Create a new door.
     public void execute(Player player, @Nullable String name, DoorType type)
     {
+        if (!DoorType.isEnabled(type))
+            return;
+
         if (!hasCreationPermission(player, type))
         {
             Util.messagePlayer(player, ChatColor.RED,
@@ -76,16 +79,18 @@ public class SubCommandNew extends SubCommand
         if (isPlayerBusy(player))
             return;
 
-        // These are disabled.
-        if (type == DoorType.FLAG)
-            return;
-
         ToolUser tu = type == DoorType.DOOR ? new DoorCreator(plugin, player, name) :
                       type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
                       type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) :
                       type == DoorType.ELEVATOR ? new ElevatorCreator(plugin, player, name) :
                       type == DoorType.FLAG ? new FlagCreator(plugin, player, name) :
                       type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
+
+        if (tu == null)
+        {
+            plugin.getMyLogger().logMessage("Failed to initiate door creation process for door type: " + type.toString(), true);
+            return;
+        }
 
          plugin.getDatabaseManager().startTimerForAbortable(tu, 60 * 20);
     }
