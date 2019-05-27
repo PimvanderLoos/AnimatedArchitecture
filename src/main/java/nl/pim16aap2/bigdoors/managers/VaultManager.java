@@ -12,32 +12,36 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
 
-public class VaultManager
+public class VaultManager implements IRestartable
 {
     // Try to store the price of the doors as integers, because that's faster than
     // evaluating the formula.
-    Integer doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice;
+    Integer doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice, garageDoorPrice, windMillPrice;
 
     private final BigDoors plugin;
     private final HashMap<Long, Double> menu;
+    private final HashMap<DoorType, Integer> flatPrices;
     private Economy economy = null;
     private Permission perms = null;
     private final boolean vaultEnabled;
 
-    public VaultManager(BigDoors plugin)
+    public VaultManager(final BigDoors plugin)
     {
         this.plugin = plugin;
         menu = new HashMap<>();
+        flatPrices = new HashMap<>();
         init();
         vaultEnabled = setupEconomy();
         if (vaultEnabled)
             setupPermissions();
+        plugin.registerRestartable(this);
     }
 
-    public boolean buyDoor(Player player, DoorType type, int blockCount)
+    public boolean buyDoor(final Player player, final DoorType type, final int blockCount)
     {
         if (!vaultEnabled)
             return true;
@@ -53,70 +57,32 @@ public class VaultManager
         return false;
     }
 
-    public void init()
+    private void addPrice(final DoorType type)
     {
-        menu.clear();
+        Integer price;
         try
         {
-            doorPrice = Integer.parseInt(plugin.getConfigLoader().doorPrice());
+            price = Integer.parseInt(plugin.getConfigLoader().getPrice(DoorType.DOOR));
         }
         catch(Exception e)
         {
-            doorPrice = null;
+            price = null;
         }
-
-        try
-        {
-            drawbridgePrice = Integer.parseInt(plugin.getConfigLoader().drawbridgePrice());
-        }
-        catch(Exception e)
-        {
-            drawbridgePrice = null;
-        }
-
-        try
-        {
-            portcullisPrice = Integer.parseInt(plugin.getConfigLoader().portcullisPrice());
-        }
-        catch(Exception e)
-        {
-            portcullisPrice = null;
-        }
-
-        try
-        {
-            elevatorPrice = Integer.parseInt(plugin.getConfigLoader().elevatorPrice());
-        }
-        catch(Exception e)
-        {
-            elevatorPrice = null;
-        }
-
-        try
-        {
-            slidingDoorPrice = Integer.parseInt(plugin.getConfigLoader().slidingDoorPrice());
-        }
-        catch(Exception e)
-        {
-            slidingDoorPrice = null;
-        }
-
-        try
-        {
-            flagPrice = Integer.parseInt(plugin.getConfigLoader().flagPrice());
-        }
-        catch(Exception e)
-        {
-            flagPrice = null;
-        }
+        flatPrices.put(type, price);
     }
 
-    public boolean hasPermission(Player player, String permission)
+    private void init()
+    {
+        for (DoorType type : DoorType.values())
+            addPrice(type);
+    }
+
+    public boolean hasPermission(final Player player, final String permission)
     {
         return vaultEnabled && perms.playerHas(player.getWorld().getName(), player, permission);
     }
 
-    private double evaluateFormula(String formula, int blockCount)
+    private double evaluateFormula(String formula, final int blockCount)
     {
         formula = java.util.regex.Pattern.compile("blockCount").matcher(formula).replaceAll(Integer.toString(blockCount));
 
@@ -126,13 +92,13 @@ public class VaultManager
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logMessageToConsole("Failed to determine door creation price! Please contact pim16aap2! Include this: \"" + formula + "\"");
+            plugin.getMyLogger().logMessageToConsole("Failed to determine door creation price! Please contact pim16aap2! Include this: \"" + formula + "\" and this:");
             e.printStackTrace();
-            return 0;
+            return 0.0d;
         }
     }
 
-    public double getPrice(DoorType type, int blockCount)
+    public double getPrice(final DoorType type, final int blockCount)
     {
         if (!vaultEnabled)
             return 0;
@@ -144,50 +110,8 @@ public class VaultManager
 
         double price = 0;
 
-        switch(type)
-        {
-        case DOOR:
-            if (doorPrice != null)
-                price = doorPrice;
-            else
-                price = evaluateFormula(plugin.getConfigLoader().doorPrice(), blockCount);
-            break;
-
-        case DRAWBRIDGE:
-            if (drawbridgePrice != null)
-                price = drawbridgePrice;
-            else
-                price = evaluateFormula(plugin.getConfigLoader().drawbridgePrice(), blockCount);
-            break;
-
-        case ELEVATOR:
-            if (elevatorPrice != null)
-                price = elevatorPrice;
-            else
-                price = evaluateFormula(plugin.getConfigLoader().elevatorPrice(), blockCount);
-            break;
-
-        case FLAG:
-            if (flagPrice != null)
-                price = flagPrice;
-            else
-                price = evaluateFormula(plugin.getConfigLoader().flagPrice(), blockCount);
-            break;
-
-        case PORTCULLIS:
-            if (portcullisPrice != null)
-                price = portcullisPrice;
-            else
-                price = evaluateFormula(plugin.getConfigLoader().portcullisPrice(), blockCount);
-            break;
-
-        case SLIDINGDOOR:
-            if (slidingDoorPrice != null)
-                price = slidingDoorPrice;
-            else
-                price = evaluateFormula(plugin.getConfigLoader().slidingDoorPrice(), blockCount);
-            break;
-        }
+        Integer flatPrice = flatPrices.get(type);
+        price = flatPrice != null ? flatPrice : evaluateFormula(plugin.getConfigLoader().getPrice(type), blockCount);
 
         // Negative values aren't allowed.
         price = Math.max(0, price);
@@ -195,7 +119,7 @@ public class VaultManager
         return price;
     }
 
-    private boolean has(OfflinePlayer player, double amount)
+    private boolean has(final OfflinePlayer player, final double amount)
     {
         try
         {
@@ -209,7 +133,7 @@ public class VaultManager
         return true;
     }
 
-    private boolean withdrawPlayer(OfflinePlayer player, String worldName, double amount)
+    private boolean withdrawPlayer(final OfflinePlayer player, final String worldName, final double amount)
     {
         try
         {
@@ -225,7 +149,7 @@ public class VaultManager
         return true;
     }
 
-    private boolean withdrawPlayer(Player player, String worldName, double amount)
+    private boolean withdrawPlayer(final Player player, final String worldName, final double amount)
     {
         return withdrawPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()), worldName, amount);
     }
@@ -246,5 +170,13 @@ public class VaultManager
         RegisteredServiceProvider<Permission> rsp = plugin.getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();
         return perms != null;
+    }
+
+    @Override
+    public void restart()
+    {
+        menu.clear();
+        flatPrices.clear();
+        init();
     }
 }

@@ -6,6 +6,7 @@ import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorType;
 
 public class FlagOpener extends Opener
 {
@@ -27,7 +28,8 @@ public class FlagOpener extends Opener
 
         if (!chunksLoaded(door))
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!", true, false);
+            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
+                                            true, false);
             return DoorOpenResult.ERROR;
         }
 
@@ -35,16 +37,18 @@ public class FlagOpener extends Opener
         // If it does, open the door instantly.
         int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
         if (maxDoorSize != -1)
-            if(door.getBlockCount() > maxDoorSize)
+            if (door.getBlockCount() > maxDoorSize)
             {
                 plugin.getMyLogger().myLogger(Level.INFO, "Flag " + door.getName() + " is too big!");
                 return DoorOpenResult.ERROR;
             }
 
-        // Change door availability so it cannot be opened again (just temporarily, don't worry!).
+        // Change door availability so it cannot be opened again (just temporarily,
+        // don't worry!).
         plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
 
-        plugin.addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door, plugin.getConfigLoader().flMultiplier()));
+        plugin.addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door,
+                                           plugin.getConfigLoader().getMultiplier(DoorType.FLAG)));
 
         return DoorOpenResult.SUCCESS;
     }

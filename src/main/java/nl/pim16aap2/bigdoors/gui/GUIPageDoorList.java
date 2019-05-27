@@ -14,7 +14,7 @@ import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.PageType;
 import nl.pim16aap2.bigdoors.util.Util;
 
-public class GUIPageDoorList implements IGUIPage
+class GUIPageDoorList implements IGUIPage
 {
     protected final BigDoors plugin;
     protected final GUI gui;

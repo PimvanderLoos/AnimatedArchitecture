@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,12 +28,14 @@ public class ConfigLoader
     private boolean makeBackup;
     private boolean allowStats;
     private int maxDoorSize;
-    private double pcMultiplier = 1.0;
-    private double dbMultiplier = 1.0;
-    private double bdMultiplier = 1.0;
-    private double sdMultiplier = 1.0;
-    private double flMultiplier = 1.0;
-    private double elMultiplier = 1.0;
+//    private double pcMultiplier = 1.0;
+//    private double dbMultiplier = 1.0;
+//    private double bdMultiplier = 1.0;
+//    private double sdMultiplier = 1.0;
+//    private double flMultiplier = 1.0;
+//    private double elMultiplier = 1.0;
+//    private double gdMultiplier = 1.0;
+//    private double wmMultiplier = 1.0;
     private String resourcePack;
     private String languageFile;
     private int maxDoorCount;
@@ -45,16 +48,21 @@ public class ConfigLoader
     private boolean checkForUpdates;
     private boolean plotSquaredHook;
     private int headCacheTimeout;
-    private String doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice;
+//    private String doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice, garageDoorPrice, windMillPrice;
     private final ArrayList<ConfigOption<?>> configOptionsList;
     public static boolean DEBUG = false;
     private final BigDoors plugin;
 
-    public ConfigLoader(BigDoors plugin)
+    private final HashMap<DoorType, String> doorPrices;
+    private final HashMap<DoorType, Double> doorMultipliers;
+
+    public ConfigLoader(final BigDoors plugin)
     {
         this.plugin = plugin;
         configOptionsList = new ArrayList<>();
         powerBlockTypesMap = new HashSet<>();
+        doorPrices = new HashMap<>();
+        doorMultipliers = new HashMap<>();
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
         makeConfig();
     }
@@ -128,21 +136,17 @@ public class ConfigLoader
         plotSquaredHook = addNewConfigOption(config, "plotSquared", true, null);
         resourcePack = addNewConfigOption(config, "resourcePack", plugin.is1_13() ? defResPackUrl1_13 : defResPackUrl,
                                           resourcePackComment);
-        bdMultiplier = addNewConfigOption(config, "bdMultiplier", 0.0D, multiplierComment);
-        pcMultiplier = addNewConfigOption(config, "pcMultiplier", 0.0D, null);
-        dbMultiplier = addNewConfigOption(config, "dbMultiplier", 0.0D, null);
-        sdMultiplier = addNewConfigOption(config, "sdMultiplier", 0.0D, null);
-        flMultiplier = addNewConfigOption(config, "flMultiplier", 0.0D, null);
-        elMultiplier = addNewConfigOption(config, "elMultiplier", 0.0D, null);
+
         coolDown = addNewConfigOption(config, "coolDown", 0, coolDownComment);
         makeBackup = addNewConfigOption(config, "makeBackup", true, backupComment);
         cacheTimeout = addNewConfigOption(config, "cacheTimeout", 0, cacheTimeoutComment);
-        doorPrice = addNewConfigOption(config, "doorPrice", "0", pricesComment);
-        drawbridgePrice = addNewConfigOption(config, "drawbridgePrice", "0", null);
-        portcullisPrice = addNewConfigOption(config, "portcullisPrice", "0", null);
-        elevatorPrice = addNewConfigOption(config, "elevatorPrice", "0", null);
-        slidingDoorPrice = addNewConfigOption(config, "slidingDoorPrice", "0", null);
-        flagPrice = addNewConfigOption(config, "flagPrice", "0", null);
+
+        DoorType[] doorTypes = DoorType.values();
+        for (int idx = 0; idx != doorTypes.length; ++idx)
+            doorMultipliers.put(doorTypes[idx], addNewConfigOption(config, DoorType.getCodeName(doorTypes[idx]) + "Multiplier", 0.0D, idx == 0 ? multiplierComment : null));
+
+        for (int idx = 0; idx != doorTypes.length; ++idx)
+            doorPrices.put(doorTypes[idx], addNewConfigOption(config, DoorType.getCodeName(doorTypes[idx]) + "Price", "0", idx == 0 ? pricesComment : null));
 
         // This is a bit special, as it's public static (for util debug messages).
         ConfigLoader.DEBUG = addNewConfigOption(config, "DEBUG", false, debugComment);
@@ -290,36 +294,6 @@ public class ConfigLoader
         return cacheTimeout;
     }
 
-    public double pcMultiplier()
-    {
-        return pcMultiplier;
-    }
-
-    public double dbMultiplier()
-    {
-        return dbMultiplier;
-    }
-
-    public double bdMultiplier()
-    {
-        return bdMultiplier;
-    }
-
-    public double sdMultiplier()
-    {
-        return sdMultiplier;
-    }
-
-     public double flMultiplier()
-    {
-        return flMultiplier;
-    }
-
-     public double elMultiplier()
-    {
-        return elMultiplier;
-    }
-
     public String resourcePack()
     {
         return resourcePack;
@@ -375,33 +349,13 @@ public class ConfigLoader
         return headCacheTimeout;
     }
 
-    public String doorPrice()
+    public String getPrice(DoorType type)
     {
-        return doorPrice;
+        return doorPrices.get(type);
     }
 
-    public String drawbridgePrice()
+    public double getMultiplier(DoorType type)
     {
-        return drawbridgePrice;
-    }
-
-    public String portcullisPrice()
-    {
-        return portcullisPrice;
-    }
-
-    public String elevatorPrice()
-    {
-        return elevatorPrice;
-    }
-
-    public String slidingDoorPrice()
-    {
-        return slidingDoorPrice;
-    }
-
-    public String flagPrice()
-    {
-        return flagPrice;
+        return doorMultipliers.get(type);
     }
 }

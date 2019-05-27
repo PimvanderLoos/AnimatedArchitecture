@@ -8,6 +8,7 @@ import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -55,7 +56,7 @@ public class ElevatorOpener extends Opener
             plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
 
             plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
-                                                   plugin.getConfigLoader().elMultiplier()));
+                                                   plugin.getConfigLoader().getMultiplier(DoorType.ELEVATOR)));
         }
         return DoorOpenResult.SUCCESS;
     }
@@ -93,8 +94,8 @@ public class ElevatorOpener extends Opener
     private int getBlocksToMove(Door door)
     {
         int blocksUp = 0, blocksDown = 0;
-        if (door.getOpenDir() == RotateDirection.UP && !door.isOpen()
-            || door.getOpenDir() == RotateDirection.DOWN && door.isOpen())
+        if (door.getOpenDir() == RotateDirection.UP && !door.isOpen() ||
+            door.getOpenDir() == RotateDirection.DOWN && door.isOpen())
             blocksUp = getBlocksInDir(door, RotateDirection.UP);
         else
             blocksDown = getBlocksInDir(door, RotateDirection.DOWN);

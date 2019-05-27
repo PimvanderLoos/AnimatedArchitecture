@@ -8,6 +8,7 @@ import org.bukkit.World;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -33,7 +34,8 @@ public class SlidingDoorOpener extends Opener
 
         if (!chunksLoaded(door))
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!", true, false);
+            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
+                                            true, false);
             return DoorOpenResult.ERROR;
         }
 
@@ -41,16 +43,19 @@ public class SlidingDoorOpener extends Opener
         // If it does, open the door instantly.
         int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
         if (maxDoorSize != -1)
-            if(door.getBlockCount() > maxDoorSize)
+            if (door.getBlockCount() > maxDoorSize)
                 instantOpen = true;
 
         int blocksToMove = getBlocksToMove(door);
 
         if (blocksToMove != 0)
         {
-            // Change door availability so it cannot be opened again (just temporarily, don't worry!).
+            // Change door availability so it cannot be opened again (just temporarily,
+            // don't worry!).
             plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
-            plugin.addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove, moveDirection, plugin.getConfigLoader().sdMultiplier()));
+            plugin.addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
+                                                  moveDirection,
+                                                  plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR)));
         }
         return DoorOpenResult.SUCCESS;
     }
@@ -75,34 +80,34 @@ public class SlidingDoorOpener extends Opener
 
         int startX, startY, startZ, endX, endY, endZ;
         startY = yMin;
-        endY   = yMax;
+        endY = yMax;
         if (slideDir == RotateDirection.NORTH)
         {
             startZ = zMin - 1;
-            endZ   = zMin - zLen - 1;
+            endZ = zMin - zLen - 1;
             startX = xMin;
-            endX   = xMax;
+            endX = xMax;
         }
         else if (slideDir == RotateDirection.SOUTH)
         {
             startZ = zMax + 1;
-            endZ   = zMax + zLen + 1;
+            endZ = zMax + zLen + 1;
             startX = xMin;
-            endX   = xMax;
+            endX = xMax;
         }
         else if (slideDir == RotateDirection.WEST)
         {
             startZ = zMin;
-            endZ   = zMax;
+            endZ = zMax;
             startX = xMin - 1;
-            endX   = xMin - xLen - 1;
+            endX = xMin - xLen - 1;
         }
         else if (slideDir == RotateDirection.EAST)
         {
             startZ = zMin;
-            endZ   = zMax;
+            endZ = zMax;
             startX = xMax + 1;
-            endX   = xMax + xLen + 1;
+            endX = xMax + xLen + 1;
         }
         else
             return 0;
@@ -137,24 +142,33 @@ public class SlidingDoorOpener extends Opener
         {
             blocksNorth = getBlocksInDir(door, RotateDirection.NORTH);
             blocksSouth = getBlocksInDir(door, RotateDirection.SOUTH);
-            blocksEast  = getBlocksInDir(door, RotateDirection.EAST );
-            blocksWest  = getBlocksInDir(door, RotateDirection.WEST );
+            blocksEast = getBlocksInDir(door, RotateDirection.EAST);
+            blocksWest = getBlocksInDir(door, RotateDirection.WEST);
         }
         else if (door.getOpenDir().equals(RotateDirection.NORTH) && !door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.SOUTH) &&  door.isOpen())
+                 door.getOpenDir().equals(RotateDirection.SOUTH) && door.isOpen())
+        {
             blocksNorth = getBlocksInDir(door, RotateDirection.NORTH);
-        else if (door.getOpenDir().equals(RotateDirection.NORTH) &&  door.isOpen() ||
+        }
+        else if (door.getOpenDir().equals(RotateDirection.NORTH) && door.isOpen() ||
                  door.getOpenDir().equals(RotateDirection.SOUTH) && !door.isOpen())
+        {
             blocksSouth = getBlocksInDir(door, RotateDirection.SOUTH);
-        else if (door.getOpenDir().equals(RotateDirection.EAST ) && !door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.WEST ) &&  door.isOpen())
-            blocksEast  = getBlocksInDir(door, RotateDirection.EAST);
-        else if (door.getOpenDir().equals(RotateDirection.EAST ) &&  door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.WEST ) && !door.isOpen())
-            blocksWest  = getBlocksInDir(door, RotateDirection.WEST);
+        }
+        else if (door.getOpenDir().equals(RotateDirection.EAST) && !door.isOpen() ||
+                 door.getOpenDir().equals(RotateDirection.WEST) && door.isOpen())
+        {
+            blocksEast = getBlocksInDir(door, RotateDirection.EAST);
+        }
+        else if (door.getOpenDir().equals(RotateDirection.EAST) && door.isOpen() ||
+                 door.getOpenDir().equals(RotateDirection.WEST) && !door.isOpen())
+        {
+            blocksWest = getBlocksInDir(door, RotateDirection.WEST);
+        }
         else
+        {
             return 0;
-
+        }
 
         int maxVal = Math.max(Math.abs(blocksNorth), Math.max(blocksEast, Math.max(blocksSouth, Math.abs(blocksWest))));
 

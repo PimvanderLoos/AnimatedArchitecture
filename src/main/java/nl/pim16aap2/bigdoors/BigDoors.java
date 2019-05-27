@@ -93,6 +93,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
  * General
  */
 // TODO: Put @Nullable everywhere where applicable.
+//       More info about which to use: https://stackoverflow.com/questions/4963300/which-notnull-java-annotation-should-i-use
 // TODO: Put all listeners and command stuff (basically everything users can interact with) in try-catch blocks, so I can
 //       Dump more errors into the log file.
 // TODO: Add command to upload log file to PasteBin or something.
@@ -115,6 +116,11 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Portcullis info prints it'll open going North when looking east. That's not right.
 //       Same issue for regular doors.
 // TODO: blocksToMove isn't printed by door full info.
+// TODO: Redo all messages. Create enum to store them, to prevent typos and to use for string replacing.
+//       Then get a replace function to insert variables. Example: getMessage(Message.PAGENUM, new String(currentPage), new String(nextPage)).
+//       Store the variables that will be replaced in the enum or something. Also, get some software or unit test to make sure the number of arguments matches.
+//       More info about asserts: https://stackoverflow.com/questions/998553/how-to-assert-something-at-compile-time-in-java
+//       Also remove nameKeys from DoorTypes enum.
 
 /*
  * GUI

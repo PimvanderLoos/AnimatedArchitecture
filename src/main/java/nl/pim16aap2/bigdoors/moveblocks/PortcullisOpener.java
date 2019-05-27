@@ -9,6 +9,7 @@ import org.bukkit.World;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -58,7 +59,7 @@ public class PortcullisOpener extends Opener
             plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
 
             plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
-                                                   plugin.getConfigLoader().pcMultiplier()));
+                                                   plugin.getConfigLoader().getMultiplier(DoorType.PORTCULLIS)));
         }
         return DoorOpenResult.SUCCESS;
     }
