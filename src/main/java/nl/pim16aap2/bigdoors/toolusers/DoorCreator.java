@@ -55,7 +55,7 @@ public class DoorCreator extends Creator
     }
 
     // Check if the engine selection is valid.
-    private boolean isEngineValid(Location loc)
+    protected boolean isEngineValid(Location loc)
     {
         if (loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY())
             return false;
@@ -73,7 +73,7 @@ public class DoorCreator extends Creator
     }
 
     // Check if the second position is valid (door is 1 deep).
-    private boolean isPosTwoValid(Location loc)
+    protected boolean isPosTwoValid(Location loc)
     {
         int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
         int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());
@@ -85,6 +85,12 @@ public class DoorCreator extends Creator
         // Check if it's only 1 deep in exactly 1 direction (single moving pillar is
         // useless).
         return xDepth == 0 ^ zDepth == 0;
+    }
+
+    // The engine should be at the very bottom, so put it there once created.
+    protected void updateEngineLoc()
+    {
+        engine.setY(one.getBlockY());
     }
 
     // Take care of the selection points.
@@ -128,9 +134,8 @@ public class DoorCreator extends Creator
             if (isEngineValid(loc))
             {
                 engine = loc;
-                engine.setY(one.getY());
+                updateEngineLoc();
                 setIsDone(true);
-                engine.setY(one.getBlockY());
             }
             else
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));

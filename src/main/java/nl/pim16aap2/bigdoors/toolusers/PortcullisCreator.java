@@ -40,7 +40,7 @@ public class PortcullisCreator extends Creator
     }
 
     // Make sure the power point is in the middle.
-    private void setEngine()
+    protected void setEngine()
     {
         int xMid = one.getBlockX() + (two.getBlockX() - one.getBlockX()) / 2;
         int zMid = one.getBlockZ() + (two.getBlockZ() - one.getBlockZ()) / 2;

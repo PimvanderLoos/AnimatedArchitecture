@@ -47,7 +47,7 @@ public class DrawbridgeCreator extends Creator
     }
 
     // Check if the engine selection is valid.
-    private boolean isEngineValid(Location loc)
+    protected boolean isEngineValid(Location loc)
     {
      // One is always the bottom one, so this makes sure it's on the bottom row.
         if (loc.getBlockY() != one.getBlockY())
@@ -176,7 +176,7 @@ public class DrawbridgeCreator extends Creator
     }
 
     // Make sure the power point is in the middle.
-    private void drawBridgeEngineFix()
+    protected void drawBridgeEngineFix()
     {
         if (engineSide == null || engine == null)
             return;
@@ -189,7 +189,7 @@ public class DrawbridgeCreator extends Creator
     }
 
     // Check if the second position is valid.
-    private boolean isPosTwoValid(Location loc)
+    protected boolean isPosTwoValid(Location loc)
     {
         int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
         int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());

@@ -10,6 +10,8 @@ import java.util.UUID;
 import java.util.Vector;
 import java.util.logging.Level;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -121,6 +123,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       Store the variables that will be replaced in the enum or something. Also, get some software or unit test to make sure the number of arguments matches.
 //       More info about asserts: https://stackoverflow.com/questions/998553/how-to-assert-something-at-compile-time-in-java
 //       Also remove nameKeys from DoorTypes enum.
+// TODO: Look into Unit testing: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
+// TODO: Don't use TypeString for DoorCreator, but use DoorType codeName instead. Also, the entire format is pretty stupid. Lots of repetition in the language file for every type.
 
 /*
  * GUI
@@ -185,7 +189,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Rewrite parts of the drawBridge opener and mover. The upDown etc stuff should not be used.
 // TODO: ElevatorOpener should extend PortcullisOpener.
 // TODO: ElevatorOpener and PortcullisOpener should respect setOpenDirection and min/max world height (0, 256).
-// TODO: BlockMover should set default min/max values by default.
 // TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the x,y,z values, but the entire block and blocksMoved. Then
 //       they can figure it out for themselves.
 
@@ -478,8 +481,14 @@ public class BigDoors extends JavaPlugin implements Listener
         return autoCloseScheduler;
     }
 
-    public Opener getDoorOpener(DoorType type)
+    public @Nullable Opener getDoorOpener(DoorType type)
     {
+        if (!DoorType.isEnabled(type))
+        {
+            getMyLogger().logMessage("Trying to open door of type: \"" + type.toString() + "\", but this type is not enabled!", true);
+            return null;
+        }
+
         switch (type)
         {
         case DOOR:

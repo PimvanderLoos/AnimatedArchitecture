@@ -19,6 +19,7 @@ import nl.pim16aap2.bigdoors.toolusers.FlagCreator;
 import nl.pim16aap2.bigdoors.toolusers.PortcullisCreator;
 import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
+import nl.pim16aap2.bigdoors.toolusers.WindmillCreator;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -52,7 +53,10 @@ public class SubCommandNew extends SubCommand
     public void execute(Player player, @Nullable String name, DoorType type)
     {
         if (!DoorType.isEnabled(type))
+        {
+            plugin.getMyLogger().logMessage("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!", true);
             return;
+        }
 
         if (!hasCreationPermission(player, type))
         {
@@ -79,16 +83,39 @@ public class SubCommandNew extends SubCommand
         if (isPlayerBusy(player))
             return;
 
-        ToolUser tu = type == DoorType.DOOR ? new DoorCreator(plugin, player, name) :
-                      type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
-                      type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) :
-                      type == DoorType.ELEVATOR ? new ElevatorCreator(plugin, player, name) :
-                      type == DoorType.FLAG ? new FlagCreator(plugin, player, name) :
-                      type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
+        ToolUser tu = null;
+        switch (type)
+        {
+        case DOOR:
+            tu = new DoorCreator(plugin, player, name);
+            break;
+        case DRAWBRIDGE:
+            tu = new DrawbridgeCreator(plugin, player, name);
+            break;
+        case PORTCULLIS:
+            tu = new PortcullisCreator(plugin, player, name);
+            break;
+        case ELEVATOR:
+            tu = new ElevatorCreator(plugin, player, name);
+            break;
+        case SLIDINGDOOR:
+            tu = new SlidingDoorCreator(plugin, player, name);
+            break;
+        case FLAG:
+            tu = new FlagCreator(plugin, player, name);
+            break;
+        case WINDMILL:
+            tu = new WindmillCreator(plugin, player, name);
+            break;
+        case GARAGEDOOR:
+        case REVOLVING:
+        default:
+            break;
+        }
 
         if (tu == null)
         {
-            plugin.getMyLogger().logMessage("Failed to initiate door creation process for door type: " + type.toString(), true);
+            plugin.getMyLogger().logMessage("Failed to initiate door creation process for door type: \"" + type.toString() + "\"", true);
             return;
         }
 

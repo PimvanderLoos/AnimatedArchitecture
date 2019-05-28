@@ -38,10 +38,15 @@ public class GUI
     {
         Material.OAK_DOOR,     // Door
         Material.OAK_TRAPDOOR, // DrawBridge
-        Material.IRON_DOOR,    // Portcullis
+        Material.OAK_FENCE,    // Portcullis
         Material.OAK_BOAT,     // Elevator
         Material.PISTON,       // Sliding Door
-        Material.PURPLE_CARPET // Flag
+        Material.BLUE_BANNER,  // Flag
+        Material.MINECART,     // Garage door
+        Material.ELYTRA,       // Windmill
+        Material.BARRIER,      // UNUSED
+        Material.BARRIER,      // UNUSED
+        Material.BARRIER,      // UNUSED
     };
 
     private IGUIPage guiPage;

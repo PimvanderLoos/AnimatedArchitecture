@@ -134,13 +134,16 @@ public class ConfigLoader
 
         DoorType[] doorTypes = DoorType.values();
         for (int idx = 0; idx != doorTypes.length; ++idx)
-            doorMultipliers.put(doorTypes[idx],
-                                addNewConfigOption(config, "multiplierOf" + DoorType.getCodeName(doorTypes[idx]), 0.0D,
-                                                   idx == 0 ? multiplierComment : null));
+            if (DoorType.isEnabled(doorTypes[idx]))
+                doorMultipliers.put(doorTypes[idx],
+                                    addNewConfigOption(config, "multiplierOf" + DoorType.getCodeName(doorTypes[idx]),
+                                                       0.0D, idx == 0 ? multiplierComment : null));
 
         for (int idx = 0; idx != doorTypes.length; ++idx)
-            doorPrices.put(doorTypes[idx], addNewConfigOption(config, "priceOf" + DoorType.getCodeName(doorTypes[idx]),
-                                                              "0", idx == 0 ? pricesComment : null));
+            if (DoorType.isEnabled(doorTypes[idx]))
+                doorPrices.put(doorTypes[idx],
+                               addNewConfigOption(config, "priceOf" + DoorType.getCodeName(doorTypes[idx]), "0",
+                                                  idx == 0 ? pricesComment : null));
 
         // This is a bit special, as it's public static (for Util debug messages).
         ConfigLoader.DEBUG = addNewConfigOption(config, "DEBUG", false, debugComment);

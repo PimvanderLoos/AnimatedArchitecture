@@ -44,10 +44,13 @@ public enum DoorType
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
                                       DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL}),
 
-    WINDMILL    (7, false, "-WM", "Windmill", "GENERAL.DOORTYPE.Windmill",
+    WINDMILL    (7, true, "-WM", "Windmill", "GENERAL.DOORTYPE.Windmill",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER,
                                       DoorAttribute.DIRECTION_ROTATE_VERTICAL}),
+
+    REVOLVING   (8, false, "-RD", "RevolvingDoor", "GENERAL.DOORTYPE.RevolvingDoor",
+                 DoorType.DOOR.attributes),
     ;
 
     private final int val;

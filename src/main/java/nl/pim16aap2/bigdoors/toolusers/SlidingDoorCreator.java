@@ -39,7 +39,7 @@ public class SlidingDoorCreator extends Creator
     }
 
     // Make sure the power point is in the middle.
-    private void setEngine()
+    protected void setEngine()
     {
         int xMid = one.getBlockX() + (two.getBlockX() - one.getBlockX()) / 2;
         int zMid = one.getBlockZ() + (two.getBlockZ() - one.getBlockZ()) / 2;
@@ -48,7 +48,7 @@ public class SlidingDoorCreator extends Creator
     }
 
     // Make sure the second position is not the same as the first position
-    private boolean isPositionValid(Location loc)
+    protected boolean isPositionValid(Location loc)
     {
         if (one == null && two == null)
             return true;
