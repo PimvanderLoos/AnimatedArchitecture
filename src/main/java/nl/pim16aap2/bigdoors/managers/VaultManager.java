@@ -18,10 +18,6 @@ import nl.pim16aap2.jcalculator.JCalculator;
 
 public class VaultManager extends Restartable
 {
-    // Try to store the price of the doors as integers, because that's faster than
-    // evaluating the formula.
-    Integer doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice, garageDoorPrice, windMillPrice;
-
     private final HashMap<Long, Double> menu;
     private final HashMap<DoorType, Integer> flatPrices;
     private Economy economy = null;

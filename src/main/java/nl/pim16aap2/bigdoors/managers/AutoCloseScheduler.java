@@ -8,15 +8,15 @@ import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.util.Restartable;
 
-public class AutoCloseScheduler
+public class AutoCloseScheduler extends Restartable
 {
-    private final BigDoors plugin;
-    private Map<Long, BukkitTask> timers;
+    private final Map<Long, BukkitTask> timers;
 
     public AutoCloseScheduler(final BigDoors plugin)
     {
-        this.plugin = plugin;
+        super(plugin);
         timers = new HashMap<>();
     }
 
@@ -63,5 +63,12 @@ public class AutoCloseScheduler
             }
             // Hard-code 2 tick delay on top of MinimumDoorDelay, to make sure it's fully updated after the last toggle.
         }.runTaskLater(plugin, Math.min(plugin.getMinimumDoorDelay() + 2, autoCloseTimer * 20)));
+    }
+
+    @Override
+    public void restart()
+    {
+        timers.forEach((K, V) -> V.cancel());
+        timers.clear();
     }
 }

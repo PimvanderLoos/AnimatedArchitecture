@@ -79,9 +79,9 @@ import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
 import nl.pim16aap2.bigdoors.util.ConfigLoader;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.DoorType;
-import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.Metrics;
+import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.TimedCache;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
@@ -126,6 +126,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       Also remove nameKeys from DoorTypes enum.
 // TODO: Look into Unit testing: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
 // TODO: Don't use TypeString for DoorCreator, but use DoorType codeName instead. Also, the entire format is pretty stupid. Lots of repetition in the language file for every type.
+// TODO: Look into restartables interface. Perhaps it's a good idea to split restart() into stop() and init().
+//       This way, it can call all init()s in BigDoors::onEnable and all stop()s in BigDoors::onDisable.
 
 /*
  * GUI
