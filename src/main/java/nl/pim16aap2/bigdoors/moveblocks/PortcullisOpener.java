@@ -1,8 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import java.util.logging.Level;
-
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -24,26 +21,13 @@ public class PortcullisOpener extends Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        if (plugin.getDatabaseManager().isDoorBusy(door.getDoorUID()))
-        {
-            if (!silent)
-                plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
-        }
+        DoorOpenResult isOpenable = super.isOpenable(door, silent);
+        if (isOpenable != DoorOpenResult.SUCCESS)
+            return isOpenable;
+        super.setBusy(door);
 
-        if (!chunksLoaded(door))
-        {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
-                                            true, false);
-            return DoorOpenResult.ERROR;
-        }
-
-        // Make sure the doorSize does not exceed the total doorSize.
-        // If it does, open the door instantly.
-        int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
-        if (maxDoorSize != -1)
-            if (door.getBlockCount() > maxDoorSize)
-                instantOpen = true;
+        if (super.isTooBig(door))
+            instantOpen = true;
 
         int blocksToMove = getBlocksToMove(door);
 
@@ -53,14 +37,10 @@ public class PortcullisOpener extends Opener
             return DoorOpenResult.NOPERMISSION;
 
         if (blocksToMove != 0)
-        {
-            // Change door availability so it cannot be opened again (just temporarily,
-            // don't worry!).
-            plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
-
             plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
                                                    plugin.getConfigLoader().getMultiplier(DoorType.PORTCULLIS)));
-        }
+        else
+            return DoorOpenResult.NODIRECTION;
         return DoorOpenResult.SUCCESS;
     }
 

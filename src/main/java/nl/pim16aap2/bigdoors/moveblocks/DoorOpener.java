@@ -1,8 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import java.util.logging.Level;
-
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -139,19 +136,13 @@ public class DoorOpener extends Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        if (plugin.getDatabaseManager().isDoorBusy(door.getDoorUID()))
-        {
-            if (!silent)
-                plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
-        }
+        DoorOpenResult isOpenable = super.isOpenable(door, silent);
+        if (isOpenable != DoorOpenResult.SUCCESS)
+            return isOpenable;
+        super.setBusy(door);
 
-        if (!chunksLoaded(door))
-        {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
-                                            true, false);
-            return DoorOpenResult.ERROR;
-        }
+        if (super.isTooBig(door))
+            instantOpen = true;
 
         MyBlockFace currentDirection = getCurrentDirection(door);
         if (currentDirection == null)
@@ -171,21 +162,10 @@ public class DoorOpener extends Opener
             return DoorOpenResult.NODIRECTION;
         }
 
-        // Make sure the doorSize does not exceed the total doorSize.
-        // If it does, open the door instantly.
-        int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
-        if (maxDoorSize != -1)
-            if (door.getBlockCount() > maxDoorSize)
-                instantOpen = true;
-
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
         if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null)
             return DoorOpenResult.NOPERMISSION;
-
-        // Change door availability so it cannot be opened again (just temporarily,
-        // don't worry!).
-        plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
 
         plugin.addBlockMover(new CylindricalMover(plugin, door.getWorld(), rotDirection, time, currentDirection, door,
                                                   instantOpen, plugin.getConfigLoader().getMultiplier(DoorType.DOOR)));

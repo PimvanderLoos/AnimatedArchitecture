@@ -5,9 +5,9 @@ import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.DoorType;
 
-public class FlagOpener extends Opener
+public class WindmillOpener extends Opener
 {
-    public FlagOpener(BigDoors plugin)
+    public WindmillOpener(BigDoors plugin)
     {
         super(plugin);
     }
@@ -24,7 +24,7 @@ public class FlagOpener extends Opener
         if (super.isTooBig(door))
             return DoorOpenResult.ERROR;
 
-        plugin.addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door,
+        plugin.addBlockMover(new WindmillMover(plugin, door.getWorld(), 60, door,
                                            plugin.getConfigLoader().getMultiplier(DoorType.FLAG)));
 
         return DoorOpenResult.SUCCESS;

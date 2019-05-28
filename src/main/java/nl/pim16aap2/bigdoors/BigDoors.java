@@ -69,6 +69,7 @@ import nl.pim16aap2.bigdoors.moveblocks.FlagOpener;
 import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.moveblocks.PortcullisOpener;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingDoorOpener;
+import nl.pim16aap2.bigdoors.moveblocks.WindmillOpener;
 import nl.pim16aap2.bigdoors.nms.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigdoors.nms.v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigdoors.nms.v1_14_R1.SkullCreator_V1_14_R1;
@@ -215,18 +216,20 @@ public class BigDoors extends JavaPlugin implements Listener
     private Messages messages;
     private DatabaseManager databaseManager = null;
     private Vector<WaitForCommand> cmdWaiters;
-    private DoorOpener doorOpener;
     private Vector<BlockMover> blockMovers;
+
+    private DoorOpener doorOpener;
     private BridgeOpener bridgeOpener;
     private SlidingDoorOpener slidingDoorOpener;
     private PortcullisOpener portcullisOpener;
     private RedstoneHandler redstoneHandler;
     private ElevatorOpener elevatorOpener;
+    private WindmillOpener windmillOpener;
+    private FlagOpener flagOpener;
+
     private boolean validVersion;
     private String loginString;
     private CommandManager commandManager;
-    @SuppressWarnings("unused")
-    private FlagOpener flagOpener;
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
     private List<IRestartable> restartables;
@@ -276,12 +279,14 @@ public class BigDoors extends JavaPlugin implements Listener
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             db = new SQLiteJDBCDriverConnection(this, config.dbFile());
             databaseManager = new DatabaseManager(this, db);
+
             doorOpener = new DoorOpener(this);
             flagOpener = new FlagOpener(this);
             bridgeOpener = new BridgeOpener(this);
             elevatorOpener = new ElevatorOpener(this);
             portcullisOpener = new PortcullisOpener(this);
             slidingDoorOpener = new SlidingDoorOpener(this);
+            windmillOpener = new WindmillOpener(this);
 
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
@@ -502,6 +507,9 @@ public class BigDoors extends JavaPlugin implements Listener
         case ELEVATOR:
             return elevatorOpener;
         case FLAG:
+            return flagOpener;
+        case WINDMILL:
+            return windmillOpener;
         default:
             return null;
         }
