@@ -8,18 +8,17 @@ import org.bukkit.inventory.ItemStack;
 
 import com.google.gson.JsonObject;
 
-import nl.pim16aap2.bigdoors.util.IRestartable;
+import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.TimedCache;
 
-public abstract class HeadManager implements IRestartable
+public abstract class HeadManager extends Restartable
 {
-    protected final BigDoors plugin;
     protected TimedCache<UUID, ItemStack> headMap;
     protected TimedCache<String, JsonObject> map;
 
-    public HeadManager(BigDoors plugin)
+    public HeadManager(final BigDoors plugin)
     {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     public void init()

@@ -15,13 +15,12 @@ import org.bukkit.plugin.Plugin;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.MyException;
-import nl.pim16aap2.bigdoors.util.IRestartable;
+import nl.pim16aap2.bigdoors.util.Restartable;
 
-public class ProtectionCompatManager implements Listener, IRestartable
+public class ProtectionCompatManager extends Restartable implements Listener
 {
     private static final String BYPASSPERMISSION = "bigdoors.admin.bypasscompat";
 
-    private final BigDoors plugin;
     private final ArrayList<ProtectionCompat> protectionCompats;
     private FakePlayerCreator fakePlayerCreator;
 
@@ -40,8 +39,7 @@ public class ProtectionCompatManager implements Listener, IRestartable
 
     public ProtectionCompatManager(final BigDoors plugin)
     {
-        this.plugin = plugin;
-        plugin.registerRestartable(this);
+        super(plugin);
         fakePlayerCreator = new FakePlayerCreator(plugin);
         protectionCompats = new ArrayList<>();
         loadLoadedPlugins(true);

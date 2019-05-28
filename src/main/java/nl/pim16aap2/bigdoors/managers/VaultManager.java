@@ -12,17 +12,16 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.DoorType;
-import nl.pim16aap2.bigdoors.util.IRestartable;
+import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
 
-public class VaultManager implements IRestartable
+public class VaultManager extends Restartable
 {
     // Try to store the price of the doors as integers, because that's faster than
     // evaluating the formula.
     Integer doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice, garageDoorPrice, windMillPrice;
 
-    private final BigDoors plugin;
     private final HashMap<Long, Double> menu;
     private final HashMap<DoorType, Integer> flatPrices;
     private Economy economy = null;
@@ -31,14 +30,13 @@ public class VaultManager implements IRestartable
 
     public VaultManager(final BigDoors plugin)
     {
-        this.plugin = plugin;
+        super(plugin);
         menu = new HashMap<>();
         flatPrices = new HashMap<>();
         init();
         vaultEnabled = setupEconomy();
         if (vaultEnabled)
             setupPermissions();
-        plugin.registerRestartable(this);
     }
 
     public boolean buyDoor(final Player player, final DoorType type, final int blockCount)

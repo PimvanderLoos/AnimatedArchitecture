@@ -79,7 +79,7 @@ import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
 import nl.pim16aap2.bigdoors.util.ConfigLoader;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.DoorType;
-import nl.pim16aap2.bigdoors.util.IRestartable;
+import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.Metrics;
 import nl.pim16aap2.bigdoors.util.TimedCache;
@@ -192,6 +192,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: ElevatorOpener and PortcullisOpener should respect setOpenDirection and min/max world height (0, 256).
 // TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the x,y,z values, but the entire block and blocksMoved. Then
 //       they can figure it out for themselves.
+// TODO: Make some kind of interface TravelingDoor, that includes the updateCoords and getNewLocation methods. Then movers that don't actually move the object (flag, windmill)
+//       Don't need to include those methods.
 
 
 
@@ -232,7 +234,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private CommandManager commandManager;
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
-    private List<IRestartable> restartables;
+    private List<Restartable> restartables;
     private boolean is1_13 = false;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
@@ -417,7 +419,7 @@ public class BigDoors extends JavaPlugin implements Listener
         return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
     }
 
-    public void registerRestartable(IRestartable restartable)
+    public void registerRestartable(Restartable restartable)
     {
         restartables.add(restartable);
     }

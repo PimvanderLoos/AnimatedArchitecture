@@ -11,19 +11,17 @@ import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
-public class TimedCache<K, V> implements IRestartable
+public class TimedCache<K, V> extends Restartable
 {
-    private final BigDoors plugin;
     private int timeout = -1;
     private Hashtable<K, Value<V>> hashtable;
     private BukkitTask verifyTask;
 
-    public TimedCache(BigDoors plugin, int time)
+    public TimedCache(final BigDoors plugin, int time)
     {
+        super(plugin);
         hashtable = new Hashtable<>();
-        this.plugin = plugin;
         reinit(time);
-        plugin.registerRestartable(this);
     }
 
     public void reinit(int time)
