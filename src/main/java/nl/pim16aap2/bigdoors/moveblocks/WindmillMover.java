@@ -65,29 +65,46 @@ class WindmillMover extends BlockMover
         return Math.atan2(door.getEngine().getBlockZ() - block.getStartZ(), door.getEngine().getBlockY() - block.getStartY());
     }
 
+    private double getStartAngleEW(MyBlockData block)
+    {
+        return Math.atan2(door.getEngine().getBlockX() - block.getStartX(), door.getEngine().getBlockY() - block.getStartY());
+    }
+
     // Implement this one first.
     private Vector getGoalPosNorth(MyBlockData block, double counter, double step)
     {
         double startAngle = getStartAngleNS(block);
         double posX = block.getFBlock().getLocation().getX();
-        double posY = door.getEngine().getY() + block.getRadius() * Math.cos(startAngle + step * counter);
-        double posZ = door.getEngine().getZ() + block.getRadius() * Math.sin(startAngle + step * counter);
+        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - step * counter);
+        double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle - step * counter);
         return new Vector(posX, posY, posZ + 0.5);
     }
 
     private Vector getGoalPosEast(MyBlockData block, double counter, double step)
     {
-        return null;
+        double startAngle = getStartAngleEW(block);
+        double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - step * counter);
+        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - step * counter);
+        double posZ = block.getFBlock().getLocation().getZ();
+        return new Vector(posX + 0.5, posY, posZ);
     }
 
     private Vector getGoalPosSouth(MyBlockData block, double counter, double step)
     {
-        return null;
+        double startAngle = getStartAngleNS(block);
+        double posX = block.getFBlock().getLocation().getX();
+        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + step * counter);
+        double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle + step * counter);
+        return new Vector(posX, posY, posZ + 0.5);
     }
 
     private Vector getGoalPosWest(MyBlockData block, double counter, double step)
     {
-        return null;
+        double startAngle = getStartAngleEW(block);
+        double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + step * counter);
+        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + step * counter);
+        double posZ = block.getFBlock().getLocation().getZ();
+        return new Vector(posX + 0.5, posY, posZ);
     }
 
     @Override

@@ -49,7 +49,7 @@ public enum DoorType
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER,
                                       DoorAttribute.DIRECTION_ROTATE_VERTICAL2}),
 
-    REVOLVING   (8, false, "-RD", "RevolvingDoor", "GENERAL.DOORTYPE.RevolvingDoor",
+    REVOLVINGDOOR (8, true, "-RD", "RevolvingDoor", "GENERAL.DOORTYPE.RevolvingDoor",
                  DoorType.DOOR.attributes),
     ;
 

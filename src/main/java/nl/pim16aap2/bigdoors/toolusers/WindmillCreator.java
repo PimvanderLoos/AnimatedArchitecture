@@ -37,7 +37,7 @@ public class WindmillCreator extends DoorCreator
     }
 
     // Check if the engine selection is valid. In the case of a windmill, all this
-    // means is that the selected block should be withint x/y/z bounds.
+    // means is that the selected block should be within x/y/z bounds.
     @Override
     protected boolean isEngineValid(Location loc)
     {

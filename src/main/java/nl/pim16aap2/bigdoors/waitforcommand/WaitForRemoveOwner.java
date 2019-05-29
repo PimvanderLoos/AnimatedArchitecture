@@ -32,8 +32,6 @@ public class WaitForRemoveOwner extends WaitForCommand
         for (DoorOwner owner : doorOwners)
             builder.append(owner.getPlayerName() + ", ");
         Util.messagePlayer(player, builder.toString());
-
-        plugin.addCommandWaiter(this);
     }
 
     @Override

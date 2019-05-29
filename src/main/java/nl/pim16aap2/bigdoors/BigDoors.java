@@ -179,6 +179,9 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: When a door isn't set to open in a specific direction and therefore naively tries to find the first possible
 //       free location, automatically set the openDirection for this door. HOWEVER, this value must be reset when it is
 //       closed again, but ONLY if it used to be unset. So instead of storing value, add flag for un/intentionally set.
+// TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick. Then set the direction
+//       in the creator.
+// TODO: Remove NONE openDirection. Replace all of those in the database by the correct one.
 // TODO: Rotate Sea Pickle and turtle egg.
 // TODO: Replace current time/speed/tickRate system. It's a mess.
 // TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away. Should be a method of fabf.
@@ -203,6 +206,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Windmill: Allow perpetual movement (or at least while players are nearby AND chunks are loaded).
 // TODO: Windmill: Allow setting rotational speed (seconds per rotation).
 // TODO: Windmill: Get rid of initial "mirror jump" at the start of the animation.
+// TODO: Drawbridge: Learn from WindmillMover and simplify the class.
 
 
 
