@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.util.Abortable;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -14,10 +15,12 @@ public abstract class WaitForCommand extends Abortable
     protected Player player;
     protected final BigDoors plugin;
     protected boolean isFinished = false;
+    protected final SubCommand subCommand;
 
-    protected WaitForCommand(final BigDoors plugin)
+    protected WaitForCommand(final BigDoors plugin, final SubCommand subCommand)
     {
         this.plugin = plugin;
+        this.subCommand = subCommand;
     }
 
     @Override
@@ -39,7 +42,10 @@ public abstract class WaitForCommand extends Abortable
         abort();
     }
 
-    public abstract String getCommand();
+    public final String getCommand()
+    {
+        return subCommand.getName();
+    }
 
     public abstract boolean executeCommand(String[] args) throws CommandPlayerNotFoundException, CommandActionNotAllowedException, CommandInvalidVariableException;
 

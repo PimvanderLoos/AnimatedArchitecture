@@ -16,7 +16,7 @@ public class WaitForAddOwner extends WaitForCommand
 
     public WaitForAddOwner(final BigDoors plugin, final SubCommandAddOwner subCommand, final Player player, final Door door)
     {
-        super(plugin);
+        super(plugin, subCommand);
         this.player = player;
         this.subCommand = subCommand;
         this.door = door;
@@ -29,11 +29,5 @@ public class WaitForAddOwner extends WaitForCommand
     {
         abortSilently();
         return subCommand.execute(player, door, args[1], subCommand.getPermissionFromArgs(player, args, 2));
-    }
-
-    @Override
-    public String getCommand()
-    {
-        return subCommand.getName();
     }
 }

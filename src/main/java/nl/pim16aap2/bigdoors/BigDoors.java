@@ -202,7 +202,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Windmill: Store startAngle in MyBlockData.
 // TODO: Windmill: Allow perpetual movement (or at least while players are nearby AND chunks are loaded).
 // TODO: Windmill: Allow setting rotational speed (seconds per rotation).
-// TODO:
+// TODO: Windmill: Get rid of initial "mirror jump" at the start of the animation.
 
 
 

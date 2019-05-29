@@ -20,7 +20,7 @@ public class WaitForRemoveOwner extends WaitForCommand
 
     public WaitForRemoveOwner(final BigDoors plugin, final SubCommandRemoveOwner subCommand, final Player player, final Door door)
     {
-        super(plugin);
+        super(plugin, subCommand);
         this.subCommand = subCommand;
         this.player = player;
         this.door = door;
@@ -41,11 +41,5 @@ public class WaitForRemoveOwner extends WaitForCommand
     {
         abortSilently();
         return subCommand.execute(player, door, args[2]);
-    }
-
-    @Override
-    public String getCommand()
-    {
-        return subCommand.getName();
     }
 }

@@ -18,7 +18,7 @@ public class WaitForSetTime extends WaitForCommand
     public WaitForSetTime(final BigDoors plugin, final SubCommandSetAutoCloseTime subCommand, final Player player,
         final Door door)
     {
-        super(plugin);
+        super(plugin, subCommand);
         this.player = player;
         this.subCommand = subCommand;
         this.door = door;
@@ -32,11 +32,5 @@ public class WaitForSetTime extends WaitForCommand
     {
         abortSilently();
         return subCommand.execute(player, door, args[1]);
-    }
-
-    @Override
-    public String getCommand()
-    {
-        return subCommand.getName();
     }
 }

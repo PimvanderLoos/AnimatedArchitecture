@@ -18,7 +18,7 @@ public class WaitForSetBlocksToMove extends WaitForCommand
     public WaitForSetBlocksToMove(final BigDoors plugin, final SubCommandSetBlocksToMove subCommand,
         final Player player, final Door door)
     {
-        super(plugin);
+        super(plugin, subCommand);
         this.subCommand = subCommand;
         this.player = player;
         this.door = door;
@@ -32,11 +32,5 @@ public class WaitForSetBlocksToMove extends WaitForCommand
     {
         abortSilently();
         return subCommand.execute(player, door, args[1]);
-    }
-
-    @Override
-    public String getCommand()
-    {
-        return subCommand.getName();
     }
 }
