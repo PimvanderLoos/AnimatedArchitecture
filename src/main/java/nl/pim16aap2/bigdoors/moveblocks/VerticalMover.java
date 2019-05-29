@@ -150,4 +150,10 @@ class VerticalMover extends BlockMover
     {
         return -1;
     }
+
+    @Override
+    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    {
+        return 0;
+    }
 }

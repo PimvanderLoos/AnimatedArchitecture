@@ -88,11 +88,12 @@ public abstract class BlockMover
                         }
 
                         float radius = getRadius(xAxis, yAxis, zAxis);
+                        float startAngle = getStartAngle(xAxis, yAxis, zAxis);
 
                         CustomCraftFallingBlock_Vall fBlock = instantOpen ? null :
                             fallingBlockFactory(newFBlockLocation, block);
                         savedBlocks.add(new MyBlockData(fBlock, radius, block2 == null ? block : block2, canRotate,
-                                                        startLocation));
+                                                        startLocation, startAngle));
                     }
                 }
         for (MyBlockData mbd : savedBlocks)
@@ -108,6 +109,8 @@ public abstract class BlockMover
     protected abstract void animateEntities();
 
     protected abstract float getRadius(int xAxis, int yAxis, int zAxis);
+
+    protected abstract float getStartAngle(int xAxis, int yAxis, int zAxis);
 
     // Put blocks in their final position.
     // Use onDisable = false to make it safe to use during onDisable().
@@ -134,7 +137,8 @@ public abstract class BlockMover
 
         // Change door availability to true, so it can be opened again.
         // Wait for a bit if instantOpen is enabled.
-        int timer = onDisable ? 0 : instantOpen ? 40 : Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
+        int timer = onDisable ? 0 : instantOpen ? 40 :
+            Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
 
         if (timer > 0)
             new BukkitRunnable()

@@ -68,6 +68,7 @@ import nl.pim16aap2.bigdoors.moveblocks.ElevatorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.FlagOpener;
 import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.moveblocks.PortcullisOpener;
+import nl.pim16aap2.bigdoors.moveblocks.RevolvingDoorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingDoorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.WindmillOpener;
 import nl.pim16aap2.bigdoors.nms.FallingBlockFactory_Vall;
@@ -201,12 +202,13 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       Don't need to include those methods.
 // TODO: Move rotation/respawning block code out of runnables. Perhaps even into BLockMover. Same goes for termination conditions.
 // TODO: Windmill: Remove magic values in endCount and Stap variables in WindmillMover::animateEntities();
-// TODO: Windmill: Implement East/South/West rotations.
-// TODO: Windmill: Store startAngle in MyBlockData.
 // TODO: Windmill: Allow perpetual movement (or at least while players are nearby AND chunks are loaded).
 // TODO: Windmill: Allow setting rotational speed (seconds per rotation).
-// TODO: Windmill: Get rid of initial "mirror jump" at the start of the animation.
-// TODO: Drawbridge: Learn from WindmillMover and simplify the class.
+// TODO: Drawbridge: Learn from WindmillMover and simplify the class. Also applies to CylindricalMover.
+// TODO: Clamp angles to [-2PI ; 2PI].
+// TODO: Either use time or ticks. Not both.
+
+
 
 
 
@@ -252,6 +254,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private ElevatorOpener elevatorOpener;
     private WindmillOpener windmillOpener;
     private FlagOpener flagOpener;
+    private RevolvingDoorOpener revolvingDoorOpener;
 
     private boolean validVersion;
     private String loginString;
@@ -312,6 +315,8 @@ public class BigDoors extends JavaPlugin implements Listener
             portcullisOpener = new PortcullisOpener(this);
             slidingDoorOpener = new SlidingDoorOpener(this);
             windmillOpener = new WindmillOpener(this);
+            revolvingDoorOpener = new RevolvingDoorOpener(this);
+
 
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
@@ -535,6 +540,8 @@ public class BigDoors extends JavaPlugin implements Listener
             return flagOpener;
         case WINDMILL:
             return windmillOpener;
+        case REVOLVINGDOOR:
+            return revolvingDoorOpener;
         default:
             return null;
         }

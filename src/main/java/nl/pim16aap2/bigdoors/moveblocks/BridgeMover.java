@@ -384,4 +384,10 @@ class BridgeMover extends BlockMover
         plugin.getMyLogger().dumpStackTrace("Invalid BridgeMover direction \"" + currentDirection.toString() + "\"");
         return -1;
     }
+
+    @Override
+    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    {
+        return 0;
+    }
 }

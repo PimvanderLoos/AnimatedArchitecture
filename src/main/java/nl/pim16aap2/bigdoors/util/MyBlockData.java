@@ -12,15 +12,17 @@ public class MyBlockData
     private float radius;
     private CustomCraftFallingBlock_Vall fBlock;
     private Location startLocation;
+    private float startAngle;
 
     public MyBlockData(CustomCraftFallingBlock_Vall fBlock, float radius, NMSBlock_Vall block,
-        boolean canRot, Location startLocation)
+        boolean canRot, Location startLocation, float startAngle)
     {
         this.block = block;
         this.fBlock = fBlock;
         this.radius = radius;
         this.canRot = canRot;
         this.startLocation = startLocation;
+        this.startAngle = startAngle;
     }
 
     public void setFBlock(CustomCraftFallingBlock_Vall block)
@@ -74,6 +76,16 @@ public class MyBlockData
     public double getStartZ()
     {
         return startLocation.getZ();
+    }
+
+    public float getStartAngle()
+    {
+        return startAngle;
+    }
+
+    public void setStartAngle(float newVal)
+    {
+        startAngle = newVal;
     }
 
     @Override

@@ -134,7 +134,7 @@ class CylindricalMover extends BlockMover
                 }
                 else
                 {
-                    // It is not pssible to edit falling block blockdata (client won't update it),
+                    // It is not possible to edit falling block blockdata (client won't update it),
                     // so delete the current fBlock and replace it by one that's been rotated.
                     // Also, this stuff needs to be done on the main thread.
                     if (replace)
@@ -275,5 +275,11 @@ class CylindricalMover extends BlockMover
         // Get the radius of this pillar.
         return Math.abs(xAxis - turningPoint.getBlockX()) > Math.abs(zAxis - turningPoint.getBlockZ()) ?
             Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
+    }
+
+    @Override
+    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    {
+        return 0;
     }
 }

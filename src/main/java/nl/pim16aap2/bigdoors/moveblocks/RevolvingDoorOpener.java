@@ -6,23 +6,19 @@ import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
-public class WindmillOpener extends Opener
+public class RevolvingDoorOpener extends Opener
 {
-    public WindmillOpener(BigDoors plugin)
+    public RevolvingDoorOpener(BigDoors plugin)
     {
         super(plugin);
     }
 
     private RotateDirection getOpenDirection(Door door)
     {
-        // First check if the user has already specified a direction for the windmill to
-        // turn. If not, default to North if positioned along the Z axis, or East with
-        // positioned along the x axis.
+        // Default to Clockwise rotation when nothing else has bee specified.
         if (door.getOpenDir().equals(RotateDirection.NONE))
         {
-            // Check if the door is positioned along the North/South axis. I.e.: zDepth > 1.
-            boolean NS = Math.abs(door.getMinimum().getBlockZ() - door.getMaximum().getBlockZ()) != 0;
-            RotateDirection newDirection = NS ? RotateDirection.NORTH : RotateDirection.EAST;
+            RotateDirection newDirection = RotateDirection.CLOCKWISE;
             plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), newDirection);
             door.setOpenDir(newDirection);
         }
@@ -40,9 +36,9 @@ public class WindmillOpener extends Opener
         if (super.isTooBig(door))
             return DoorOpenResult.ERROR;
 
-        plugin.addBlockMover(new WindmillMover(plugin, door.getWorld(), door,
-                                               plugin.getConfigLoader().getMultiplier(DoorType.WINDMILL),
-                                               getOpenDirection(door)));
+        plugin.addBlockMover(new RevolvingDoorMover(plugin, door.getWorld(), door, time,
+                                                    plugin.getConfigLoader().getMultiplier(DoorType.REVOLVINGDOOR),
+                                                    getOpenDirection(door)));
         return DoorOpenResult.SUCCESS;
     }
 }
