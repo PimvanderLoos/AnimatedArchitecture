@@ -23,7 +23,6 @@ public class WaitForSetTime extends WaitForCommand
         this.subCommand = subCommand;
         this.door = door;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Init"));
-        plugin.addCommandWaiter(this);
     }
 
     @Override

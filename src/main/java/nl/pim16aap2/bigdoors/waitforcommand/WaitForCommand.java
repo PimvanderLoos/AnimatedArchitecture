@@ -21,6 +21,7 @@ public abstract class WaitForCommand extends Abortable
     {
         this.plugin = plugin;
         this.subCommand = subCommand;
+        plugin.addCommandWaiter(this);
     }
 
     @Override

@@ -21,7 +21,6 @@ public class WaitForAddOwner extends WaitForCommand
         this.subCommand = subCommand;
         this.door = door;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.AddOwner.Init"));
-        plugin.addCommandWaiter(this);
     }
 
     @Override

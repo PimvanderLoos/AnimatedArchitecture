@@ -23,7 +23,6 @@ public class WaitForSetBlocksToMove extends WaitForCommand
         this.player = player;
         this.door = door;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Init"));
-        plugin.addCommandWaiter(this);
     }
 
     @Override
