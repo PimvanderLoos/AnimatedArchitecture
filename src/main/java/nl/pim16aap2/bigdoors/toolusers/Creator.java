@@ -31,6 +31,11 @@ public abstract class Creator extends ToolUser
         this.type = type;
     }
 
+    protected Location getPowerBlockLoc(World world)
+    {
+        return new Location(world, engine.getBlockX(), engine.getBlockY() - 1, engine.getBlockZ());
+    }
+
     // Final cleanup and door creation.
     protected void finishUp(String message)
     {
@@ -40,7 +45,7 @@ public abstract class Creator extends ToolUser
             Location min    = new Location(world, one.getBlockX(), one.getBlockY(), one.getBlockZ());
             Location max    = new Location(world, two.getBlockX(), two.getBlockY(), two.getBlockZ());
             Location engine = new Location(world, this.engine.getBlockX(), this.engine.getBlockY(), this.engine.getBlockZ());
-            Location powerB = new Location(world, this.engine.getBlockX(), this.engine.getBlockY() - 1, this.engine.getBlockZ());
+            Location powerB = getPowerBlockLoc(world);
 
             String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max);
             if (canBreakBlock != null)

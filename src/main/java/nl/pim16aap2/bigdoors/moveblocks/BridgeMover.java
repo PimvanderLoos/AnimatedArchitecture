@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.nms.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigdoors.util.MyBlockData;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.TriFunction;
 import nl.pim16aap2.bigdoors.util.Util;
 
 class BridgeMover extends BlockMover
@@ -29,6 +30,7 @@ class BridgeMover extends BlockMover
     private Location turningPoint;
     private double startStepSum;
     private int stepMultiplier;
+    private final TriFunction<MyBlockData, Double, Location, Vector> getDelta;
     private final GetNewLocation gnl;
 
     public BridgeMover(final BigDoors plugin, final World world, final double time, final Door door,
@@ -39,7 +41,6 @@ class BridgeMover extends BlockMover
 
         engineSide = door.getEngSide();
         NS = engineSide == MyBlockFace.NORTH || engineSide == MyBlockFace.SOUTH;
-
 
         int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
         int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
@@ -145,23 +146,44 @@ class BridgeMover extends BlockMover
         {
         case NORTH:
             gnl = new GNLVerticalRotNorth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+            getDelta = this::getDeltaNS;
             break;
         case EAST:
             gnl = new GNLVerticalRotEast (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+            getDelta = this::getDeltaEW;
             break;
         case SOUTH:
             gnl = new GNLVerticalRotSouth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+            getDelta = this::getDeltaNS;
             break;
         case WEST:
             gnl = new GNLVerticalRotWest (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+            getDelta = this::getDeltaEW;
             break;
         default:
-            plugin.getMyLogger().dumpStackTrace("Invalid openDirection for bridge mover: " + openDirection.toString());
+            plugin.getMyLogger().logMessage("Failed to open door \"" + getDoorUID() + "\". Reason: Invalid rotateDirection \"" + openDirection.toString() + "\"", true);
             gnl = null;
-            break;
+            getDelta = null;
+            return;
         }
 
         super.constructFBlocks();
+    }
+
+    private Vector getDeltaNS(MyBlockData block, double stepSum, Location center)
+    {
+        double posX = block.getFBlock().getLocation().getX();
+        double posY = center.getY() + block.getRadius() * Math.cos(stepSum);
+        double posZ = center.getZ() + block.getRadius() * Math.sin(stepSum);
+        return new Vector(posX, posY, posZ);
+    }
+
+    private Vector getDeltaEW(MyBlockData block, double stepSum, Location center)
+    {
+        double posX = center.getX() + block.getRadius() * Math.sin(stepSum);
+        double posY = center.getY() + block.getRadius() * Math.cos(stepSum);
+        double posZ = block.getFBlock().getLocation().getZ();
+        return new Vector(posX, posY, posZ);
     }
 
     // Method that takes care of the rotation aspect.
@@ -208,8 +230,8 @@ class BridgeMover extends BlockMover
                 if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (int idx = 0; idx < savedBlocks.size(); ++idx)
-                        savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
+                    for (MyBlockData block : savedBlocks)
+                        block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
                         putBlocks(false);
@@ -246,20 +268,7 @@ class BridgeMover extends BlockMover
                         double radius = block.getRadius();
                         if (radius != 0)
                         {
-                            double posX, posY, posZ;
-                            posY = center.getY() + radius * Math.cos(stepSum);
-                            if (!NS)
-                            {
-                                posX = center.getX() + radius * Math.sin(stepSum);
-                                posZ = block.getFBlock().getLocation().getZ();
-                            }
-                            else
-                            {
-                                posX = block.getFBlock().getLocation().getX();
-                                posZ = center.getZ() + radius * Math.sin(stepSum);
-                            }
-                            Location loc = new Location(null, posX, posY, posZ);
-                            Vector vec   = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
+                            Vector vec = getDelta.apply(block, stepSum, center).subtract(block.getFBlock().getLocation().toVector());
                             vec.multiply(0.101);
                             block.getFBlock().setVelocity(vec);
                         }

@@ -42,12 +42,12 @@ public enum DoorType
     GARAGEDOOR  (6, false, "-GD", "GarageDoor", "GENERAL.DOORTYPE.GarageDoor",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL}),
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2}),
 
     WINDMILL    (7, true, "-WM", "Windmill", "GENERAL.DOORTYPE.Windmill",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER,
-                                      DoorAttribute.DIRECTION_ROTATE_VERTICAL}),
+                                      DoorAttribute.DIRECTION_ROTATE_VERTICAL2}),
 
     REVOLVING   (8, false, "-RD", "RevolvingDoor", "GENERAL.DOORTYPE.RevolvingDoor",
                  DoorType.DOOR.attributes),

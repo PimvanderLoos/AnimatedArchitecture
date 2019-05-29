@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.DoorType;
-import nl.pim16aap2.bigdoors.util.Util;
 
 /**
  * This class represents players in the process of creating doors. Objects of
@@ -30,6 +30,12 @@ public class WindmillCreator extends DoorCreator
     protected void updateEngineLoc()
     {}
 
+    @Override
+    protected Location getPowerBlockLoc(World world)
+    {
+        return engine;
+    }
+
     // Check if the engine selection is valid. In the case of a windmill, all this
     // means is that the selected block should be withint x/y/z bounds.
     @Override
@@ -51,10 +57,6 @@ public class WindmillCreator extends DoorCreator
         int zDepth = Math.abs(one.getBlockZ() - loc.getBlockZ());
 
         // Check if it's only 1 deep in exactly 1 direction.
-        Util.broadcastMessage("Windmill checking pos2 validity: xDepth: " + xDepth + ", yDepth: " + yDepth + ", zDepth: " + zDepth);
-        Util.broadcastMessage("Check1 (xDepth == 0 ^ zDepth == 0 ^ yDepth == 0): " + (xDepth == 0 ^ zDepth == 0 ^ yDepth == 0));
-//        Util.broadcastMessage("Check2 (xDepth > 1 || yDepth > 1 || zDepth > 1: " + (xDepth > 1 || yDepth > 1 || zDepth > 1));
-//        Util.broadcastMessage("Result: " + ((xDepth == 0 ^ zDepth == 0) && (xDepth > 1 || yDepth > 1 || zDepth > 1)));
         return (xDepth == 0 ^ zDepth == 0 ^ yDepth == 0);
     }
 }

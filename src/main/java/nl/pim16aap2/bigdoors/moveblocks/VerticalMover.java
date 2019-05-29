@@ -93,8 +93,8 @@ class VerticalMover extends BlockMover
                     || firstBlockData == null)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (int idx = 0; idx < savedBlocks.size(); ++idx)
-                        savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
+                    for (MyBlockData block : savedBlocks)
+                        block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
                         putBlocks(false);

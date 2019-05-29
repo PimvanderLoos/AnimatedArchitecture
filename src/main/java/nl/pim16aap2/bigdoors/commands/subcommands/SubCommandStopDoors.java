@@ -12,7 +12,7 @@ public class SubCommandStopDoors extends SubCommand
     protected static final String help = "Forces all doors to finish instantly.";
     protected static final String argsHelp = null;
     protected static final int minArgCount = 1;
-    protected static final CommandData command = CommandData.STOP;
+    protected static final CommandData command = CommandData.STOPDOORS;
 
     public SubCommandStopDoors(final BigDoors plugin, final CommandManager commandManager)
     {

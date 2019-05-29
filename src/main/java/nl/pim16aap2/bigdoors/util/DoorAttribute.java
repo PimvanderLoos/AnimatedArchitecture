@@ -11,6 +11,7 @@ public enum DoorAttribute
     DIRECTION_STRAIGHT_VERTICAL   (1),
     DIRECTION_STRAIGHT_HORIZONTAL (DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
     DIRECTION_ROTATE_VERTICAL     (DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
+    DIRECTION_ROTATE_VERTICAL2    (DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
     DIRECTION_ROTATE_HORIZONTAL   (DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
     BLOCKSTOMOVE                  (1),
     ADDOWNER                      (0),

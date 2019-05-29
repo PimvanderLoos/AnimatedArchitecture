@@ -138,6 +138,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Store 2 player objects: 1) Subject (the owner of all the doors), and 2) InventoryHolder (who is looking at the inventory).
 // TODO: Cannot toggle openDirection for portcullis type. Might be related to the fact that it says that the portcullis openDirection is North instead of Up/Down.
 // TODO: Use ButtonAction GUI and GUIItem::specialValue to phase out raw interactionIDX stuff for getting actions.
+// TODO: Update items in inventory instead of opening a completely new inventory. No longer requires dirty code to check is it's refreshing etc. Bweugh.
 
 /*
  * SQL
@@ -179,16 +180,15 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       free location, automatically set the openDirection for this door. HOWEVER, this value must be reset when it is
 //       closed again, but ONLY if it used to be unset. So instead of storing value, add flag for un/intentionally set.
 // TODO: Rotate Sea Pickle and turtle egg.
+// TODO: Replace current time/speed/tickRate system. It's a mess.
 // TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away. Should be a method of fabf.
 // TODO: Consider using HashSet for blocks. It's faster: https://stackoverflow.com/questions/10196343/hash-set-and-array-list-performances
 // TODO: Do second pass (possibly remove first pass) after placing all blocks to make sure that all connected blocks are actually connected.
 //       Currently, connected blocks will only be connected to blocks that have already been processed.
-// TODO: SERIOUS ISSUE: Doors can sometimes open twice at the same time or something. They appear to move twice as fast and data is fucked up afterwards.
-//       This might be fixed now. Not sure.
 // TODO: DO NOT STORE newMin and newMax variables in the door. It most definitely does not belong in there! Figure out why it needs to be there in the first
 //       Place. If it's really needed, just use references.
 // TODO: Test and finish flag type.
-// TODO: Implement new types: Garage door, windmill
+// TODO: Implement new types: Garage door
 // TODO: Rewrite parts of the drawBridge opener and mover. The upDown etc stuff should not be used.
 // TODO: ElevatorOpener should extend PortcullisOpener.
 // TODO: ElevatorOpener and PortcullisOpener should respect setOpenDirection and min/max world height (0, 256).
@@ -196,10 +196,28 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       they can figure it out for themselves.
 // TODO: Make some kind of interface TravelingDoor, that includes the updateCoords and getNewLocation methods. Then movers that don't actually move the object (flag, windmill)
 //       Don't need to include those methods.
+// TODO: Move rotation/respawning block code out of runnables. Perhaps even into BLockMover. Same goes for termination conditions.
+// TODO: Windmill: Remove magic values in endCount and Stap variables in WindmillMover::animateEntities();
+// TODO: Windmill: Implement East/South/West rotations.
+// TODO: Windmill: Store startAngle in MyBlockData.
+// TODO: Windmill: Allow perpetual movement (or at least while players are nearby AND chunks are loaded).
+// TODO: Windmill: Allow setting rotational speed (seconds per rotation).
+// TODO:
 
 
 
+/*
+ * Manual Testing
+ */
 // TODO: Test changeOpenDir in GUIPageDoorInfo.
+// TODO: Test WindmillCreator. Make sure it cannot be fucked up.
+
+/*
+ * Unit tests
+ */
+// TODO: Test that Creators and Openers of all enabled types can be properly retrieved (e.g. in BigDoors::getDoorOpener(DoorType type);
+//       And that they are properly initialized.
+
 
 public class BigDoors extends JavaPlugin implements Listener
 {
@@ -236,7 +254,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private CommandManager commandManager;
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
-    private List<Restartable> restartables;
+    private List<Restartable> restartables = new ArrayList<>();
     private boolean is1_13 = false;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
@@ -249,7 +267,7 @@ public class BigDoors extends JavaPlugin implements Listener
     public void onEnable()
     {
         logFile = new File(getDataFolder(), "log.txt");
-        logger  = new MyLogger(this, logFile);
+        logger = new MyLogger(this, logFile);
 
         try
         {
@@ -267,7 +285,6 @@ public class BigDoors extends JavaPlugin implements Listener
                 return;
             }
 
-            restartables = new ArrayList<>();
 
             init();
             headManager.init();

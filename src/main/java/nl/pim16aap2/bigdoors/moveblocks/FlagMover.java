@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import java.util.function.BiFunction;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -15,8 +17,9 @@ import nl.pim16aap2.bigdoors.util.Util;
 
 class FlagMover extends BlockMover
 {
-    private final boolean NS;
+    private final BiFunction<MyBlockData, Double, Vector> getGoalPos;
     private int tickRate;
+    private final boolean NS;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
 
@@ -27,7 +30,8 @@ class FlagMover extends BlockMover
 
         int xLen = Math.abs(xMax - xMin) + 1;
         int zLen = Math.abs(zMax - zMin) + 1;
-        NS = zLen > xLen ? true : false;
+        NS = zLen > xLen;
+        getGoalPos = NS ? this::getGoalPosNS : this::getGoalPosEW;
 
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : speed < minSpeed ? minSpeed : speed;
@@ -36,6 +40,30 @@ class FlagMover extends BlockMover
         tickRate = 3;
 
         super.constructFBlocks();
+    }
+
+    private double getOffset(double counter, float distanceToEng, float radius)
+    {
+        double baseOffset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + distanceToEng);
+        double maxVal = 0.25 * radius;
+        maxVal = maxVal > 0.75 ? 0.75 : maxVal;
+        return baseOffset > maxVal ? maxVal : baseOffset;
+    }
+
+    private Vector getGoalPosNS(MyBlockData block, double counter)
+    {
+        double xOff = 3 - 1 / (tickRate / 20); // WTF is this?
+        if (block.getRadius() > 0)
+            xOff = getOffset(counter, block.getRadius(), block.getRadius());
+        return new Vector(block.getStartX() + xOff, block.getStartY(), block.getStartZ());
+    }
+
+    private Vector getGoalPosEW(MyBlockData block, double counter)
+    {
+        double zOff = 3 - 1 / (tickRate / 20); // WTF is this?
+        if (block.getRadius() > 0)
+            zOff = getOffset(counter, block.getRadius(), block.getRadius());
+        return new Vector(block.getStartX(), block.getStartY(), block.getStartZ() + zOff);
     }
 
     @Override
@@ -60,12 +88,10 @@ class FlagMover extends BlockMover
             @Override
             public void run()
             {
-//                if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
-//                    Util.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
-
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
                 long msSinceStart = (currentTime - startTime) / 1000000;
+
                 if (!plugin.getDatabaseManager().isPaused())
                     counter = msSinceStart / (50 * tickRate);
                 else
@@ -73,9 +99,8 @@ class FlagMover extends BlockMover
 
                 if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
                 {
-                    Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (int idx = 0; idx < savedBlocks.size(); ++idx)
-                        savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
+                    for (MyBlockData block : savedBlocks)
+                        block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
                         putBlocks(false);
@@ -86,34 +111,7 @@ class FlagMover extends BlockMover
                 else
                     for (MyBlockData block : savedBlocks)
                     {
-                        double xOff = 0;
-                        double zOff = 0;
-                        if (NS)
-                        {
-                            xOff = 3 - 1 / (tickRate / 20);
-                            int distanceToEng = Math.abs(block.getStartLocation().getBlockZ() - door.getEngine().getBlockZ());
-                            if (distanceToEng > 0)
-                            {
-                                double offset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + distanceToEng);
-                                double maxVal   = 0.25   *   distanceToEng;
-                                maxVal = maxVal > 0.75   ? 0.75   : maxVal;
-                                xOff   = offset > maxVal ? maxVal : offset;
-                            }
-                        }
-                        else
-                        {
-                            int distanceToEng = Math.abs(block.getStartLocation().getBlockX() - door.getEngine().getBlockX());
-                            if (distanceToEng > 0)
-                            {
-                                double offset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + distanceToEng);
-                                double maxVal   = 0.25   *   distanceToEng;
-                                maxVal = maxVal > 0.75   ? 0.75   : maxVal;
-                                zOff   = offset > maxVal ? maxVal : offset;
-                            }
-                        }
-                        Location loc = block.getStartLocation();
-                        loc.add(xOff, 0, zOff);
-                        Vector vec   = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
+                        Vector vec = getGoalPos.apply(block, counter).subtract(block.getFBlock().getLocation().toVector());
                         vec.multiply(0.101);
                         block.getFBlock().setVelocity(vec);
                     }
@@ -130,6 +128,8 @@ class FlagMover extends BlockMover
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return -1;
+        if (NS)
+            return Math.abs(zAxis - door.getEngine().getBlockZ());
+        return Math.abs(xAxis - door.getEngine().getBlockX());
     }
 }

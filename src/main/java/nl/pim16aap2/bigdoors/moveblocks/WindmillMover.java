@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.MyBlockData;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.TriFunction;
 import nl.pim16aap2.bigdoors.util.Util;
 
 class WindmillMover extends BlockMover
@@ -19,11 +20,12 @@ class WindmillMover extends BlockMover
     private int tickRate;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
+    private final TriFunction<MyBlockData, Double, Double, Vector> getGoalPos;
 
-    public WindmillMover(final BigDoors plugin, final World world, final double time, final Door door,
-        final double multiplier)
+    public WindmillMover(final BigDoors plugin, final World world, final Door door, final double multiplier,
+        final RotateDirection rotateDirection)
     {
-        super(plugin, world, door, time, false, null, null, -1);
+        super(plugin, world, door, 30, false, null, null, -1);
 
         int xLen = Math.abs(xMax - xMin) + 1;
         int zLen = Math.abs(zMax - zMin) + 1;
@@ -31,11 +33,61 @@ class WindmillMover extends BlockMover
 
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : speed < minSpeed ? minSpeed : speed;
-        this.time = time;
         tickRate = Util.tickRateFromSpeed(speed);
         tickRate = 3;
 
+        switch (rotateDirection)
+        {
+        case NORTH:
+            getGoalPos = this::getGoalPosNorth;
+            break;
+        case EAST:
+            getGoalPos = this::getGoalPosEast;
+            break;
+        case SOUTH:
+            getGoalPos = this::getGoalPosSouth;
+            break;
+        case WEST:
+            getGoalPos = this::getGoalPosWest;
+            break;
+        default:
+            getGoalPos = null;
+            plugin.getMyLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
+                + "\". Reason: Invalid rotateDirection \"" + rotateDirection.toString() + "\"");
+            return;
+        }
+
         super.constructFBlocks();
+    }
+
+    private double getStartAngleNS(MyBlockData block)
+    {
+        return Math.atan2(door.getEngine().getBlockZ() - block.getStartZ(), door.getEngine().getBlockY() - block.getStartY());
+    }
+
+    // Implement this one first.
+    private Vector getGoalPosNorth(MyBlockData block, double counter, double step)
+    {
+        double startAngle = getStartAngleNS(block);
+        double posX = block.getFBlock().getLocation().getX();
+        double posY = door.getEngine().getY() + block.getRadius() * Math.cos(startAngle + step * counter);
+        double posZ = door.getEngine().getZ() + block.getRadius() * Math.sin(startAngle + step * counter);
+        return new Vector(posX, posY, posZ + 0.5);
+    }
+
+    private Vector getGoalPosEast(MyBlockData block, double counter, double step)
+    {
+        return null;
+    }
+
+    private Vector getGoalPosSouth(MyBlockData block, double counter, double step)
+    {
+        return null;
+    }
+
+    private Vector getGoalPosWest(MyBlockData block, double counter, double step)
+    {
+        return null;
     }
 
     @Override
@@ -50,12 +102,15 @@ class WindmillMover extends BlockMover
     {
         new BukkitRunnable()
         {
-            double counter   = 0;
-            int endCount     = (int) (20 / tickRate * time);
-            int totalTicks   = (int) (endCount * 1.1);
-            long startTime   = System.nanoTime();
+            double counter = 0;
+            int endCount = (int) (20 / tickRate * time) * 4;
+            int totalTicks = (int) (endCount * 1.1);
+            long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
+
+            double step = (Math.PI / 2) / (endCount / 4) * -1 * 6;
+//            double stepSum = 0.0d;
 
             @Override
             public void run()
@@ -71,8 +126,8 @@ class WindmillMover extends BlockMover
                 if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (int idx = 0; idx < savedBlocks.size(); ++idx)
-                        savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
+                    for (MyBlockData block : savedBlocks)
+                        block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
                         putBlocks(false);
@@ -81,39 +136,18 @@ class WindmillMover extends BlockMover
                     cancel();
                 }
                 else
+                {
                     for (MyBlockData block : savedBlocks)
                     {
-                        double xOff = 0;
-                        double zOff = 0;
-                        if (NS)
+                        if (Math.abs(block.getRadius()) > 2 * Double.MIN_VALUE)
                         {
-                            xOff = 3 - 1 / (tickRate / 20);
-                            int distanceToEng = Math.abs(block.getStartLocation().getBlockZ() - door.getEngine().getBlockZ());
-                            if (distanceToEng > 0)
-                            {
-                                double offset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + distanceToEng);
-                                double maxVal   = 0.25   *   distanceToEng;
-                                maxVal = maxVal > 0.75   ? 0.75   : maxVal;
-                                xOff   = offset > maxVal ? maxVal : offset;
-                            }
+                            Vector vec = getGoalPos.apply(block, counter, step)
+                                .subtract(block.getFBlock().getLocation().toVector());
+                            vec.multiply(0.101);
+                            block.getFBlock().setVelocity(vec);
                         }
-                        else
-                        {
-                            int distanceToEng = Math.abs(block.getStartLocation().getBlockX() - door.getEngine().getBlockX());
-                            if (distanceToEng > 0)
-                            {
-                                double offset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + distanceToEng);
-                                double maxVal   = 0.25   *   distanceToEng;
-                                maxVal = maxVal > 0.75   ? 0.75   : maxVal;
-                                zOff   = offset > maxVal ? maxVal : offset;
-                            }
-                        }
-                        Location loc = block.getStartLocation();
-                        loc.add(xOff, 0, zOff);
-                        Vector vec   = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
-                        vec.multiply(0.101);
-                        block.getFBlock().setVelocity(vec);
                     }
+                }
             }
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
@@ -127,6 +161,8 @@ class WindmillMover extends BlockMover
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return -1;
+        double deltaA = (door.getEngine().getY() - yAxis);
+        double deltaB = NS ? (door.getEngine().getZ() - zAxis) : (door.getEngine().getX() - xAxis);
+        return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 }

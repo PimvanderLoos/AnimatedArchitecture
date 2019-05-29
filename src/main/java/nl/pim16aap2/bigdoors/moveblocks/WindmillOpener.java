@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public class WindmillOpener extends Opener
 {
@@ -12,7 +13,22 @@ public class WindmillOpener extends Opener
         super(plugin);
     }
 
-    // Open a door.
+    private RotateDirection getOpenDirection(Door door)
+    {
+        // First check if the user has already specified a direction for the windmill to
+        // turn. If not, default to North if positioned along the Z axis, or East with
+        // positioned along the x axis.
+        if (door.getOpenDir().equals(RotateDirection.NONE))
+        {
+            // Check if the door is positioned along the North/South axis. I.e.: zDepth > 1.
+            boolean NS = Math.abs(door.getMinimum().getBlockZ() - door.getMaximum().getBlockZ()) != 0;
+            RotateDirection newDirection = NS ? RotateDirection.NORTH : RotateDirection.EAST;
+            plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), newDirection);
+            door.setOpenDir(newDirection);
+        }
+        return door.getOpenDir();
+    }
+
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
@@ -24,8 +40,11 @@ public class WindmillOpener extends Opener
         if (super.isTooBig(door))
             return DoorOpenResult.ERROR;
 
-        plugin.addBlockMover(new WindmillMover(plugin, door.getWorld(), 60, door,
-                                           plugin.getConfigLoader().getMultiplier(DoorType.FLAG)));
+        RotateDirection rotateDirection = getOpenDirection(door);
+
+        plugin.addBlockMover(new WindmillMover(plugin, door.getWorld(), door,
+                                               plugin.getConfigLoader().getMultiplier(DoorType.WINDMILL),
+                                               rotateDirection));
 
         return DoorOpenResult.SUCCESS;
     }

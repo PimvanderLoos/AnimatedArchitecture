@@ -17,24 +17,24 @@ import nl.pim16aap2.bigdoors.util.PageType;
 
 public class GUI
 {
-    public static final Material   PAGESWITCHMAT  = Material.ARROW;
-    public static final Material   CURRDOORMAT    = Material.BOOK;
-    public static final Material   CHANGETIMEMAT  = Material.CLOCK;
-    public static final Material   NEWDOORMAT     = Material.WRITABLE_BOOK;
-    public static final Material   LOCKDOORMAT    = Material.GREEN_STAINED_GLASS_PANE;
-    public static final Material   UNLOCKDOORMAT  = Material.RED_STAINED_GLASS_PANE;
-    public static final Material   CONFIRMMAT     = Material.GREEN_STAINED_GLASS_PANE;
-    public static final Material   NOTCONFIRMMAT  = Material.RED_STAINED_GLASS_PANE;
-    public static final Material   TOGGLEDOORMAT  = Material.LEVER;
-    public static final Material   INFOMAT        = Material.BOOKSHELF;
-    public static final Material   DELDOORMAT     = Material.BARRIER;
-    public static final Material   RELOCATEPBMAT  = Material.LEATHER_BOOTS;
-    public static final Material   SETOPENDIRMAT  = Material.COMPASS;
-    public static final Material   SETBTMOVEMAT   = Material.STICKY_PISTON;
-    public static final Material   ADDOWNERMAT    = Material.PLAYER_HEAD;
-    public static final Material   REMOVEOWNERMAT = Material.SKELETON_SKULL;
-    public static final int        CHESTSIZE      = 45;
-    public static final Material[] DOORTYPES      =
+    static final Material   PAGESWITCHMAT  = Material.ARROW;
+    static final Material   CURRDOORMAT    = Material.BOOK;
+    static final Material   CHANGETIMEMAT  = Material.CLOCK;
+    static final Material   NEWDOORMAT     = Material.WRITABLE_BOOK;
+    static final Material   LOCKDOORMAT    = Material.GREEN_STAINED_GLASS_PANE;
+    static final Material   UNLOCKDOORMAT  = Material.RED_STAINED_GLASS_PANE;
+    static final Material   CONFIRMMAT     = Material.GREEN_STAINED_GLASS_PANE;
+    static final Material   NOTCONFIRMMAT  = Material.RED_STAINED_GLASS_PANE;
+    static final Material   TOGGLEDOORMAT  = Material.LEVER;
+    static final Material   INFOMAT        = Material.BOOKSHELF;
+    static final Material   DELDOORMAT     = Material.BARRIER;
+    static final Material   RELOCATEPBMAT  = Material.LEATHER_BOOTS;
+    static final Material   SETOPENDIRMAT  = Material.COMPASS;
+    static final Material   SETBTMOVEMAT   = Material.STICKY_PISTON;
+    static final Material   ADDOWNERMAT    = Material.PLAYER_HEAD;
+    static final Material   REMOVEOWNERMAT = Material.SKELETON_SKULL;
+    static final int        CHESTSIZE      = 45;
+    static final Material[] DOORTYPES      =
     {
         Material.OAK_DOOR,     // Door
         Material.OAK_TRAPDOOR, // DrawBridge
@@ -84,7 +84,13 @@ public class GUI
         update();
     }
 
-    public void update()
+    void updateItem(int index, GUIItem guiItem)
+    {
+        items.put(index, guiItem);
+        getInventory().setItem(index, guiItem.getItemStack());
+    }
+
+    void update()
     {
         isRefreshing = true;
         items.clear();
@@ -98,7 +104,7 @@ public class GUI
         isRefreshing = false;
     }
 
-    public boolean isStillOwner()
+    boolean isStillOwner()
     {
         if (door != null && plugin.getDatabaseManager().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
         {
@@ -110,7 +116,7 @@ public class GUI
         return true;
     }
 
-    public void setGUIPage(IGUIPage guiPage)
+    void setGUIPage(IGUIPage guiPage)
     {
         this.guiPage = guiPage;
         update();
@@ -122,7 +128,7 @@ public class GUI
             guiPage.handleInput(interactionIDX);
     }
 
-    public void sort()
+    void sort()
     {
         Collections.sort(doors, SortType.getComparator(sortType));
     }
@@ -139,12 +145,12 @@ public class GUI
         return isRefreshing;
     }
 
-    public void setRefreshing(boolean value)
+    void setRefreshing(boolean value)
     {
         isRefreshing = value;
     }
 
-    public void resetRefreshing()
+    void resetRefreshing()
     {
         isRefreshing = false;
     }
@@ -159,84 +165,84 @@ public class GUI
         return player;
     }
 
-    public Door getDoor()
+    Door getDoor()
     {
         return door;
     }
 
-    public void setDoor(Door door)
+    void setDoor(Door door)
     {
         this.door = door;
     }
 
-    public int getPage()
+    int getPage()
     {
         return page;
     }
 
-    public void setPage(int page)
+    void setPage(int page)
     {
         this.page = page;
     }
 
-    public int getDoorOwnerPage()
+    int getDoorOwnerPage()
     {
         return doorOwnerPage;
     }
 
-    public int getMaxPageCount()
+    int getMaxPageCount()
     {
         return maxPageCount;
     }
 
-    public Door getDoor(int index)
+    Door getDoor(int index)
     {
         return doors.get(index);
     }
 
-    public void removeSelectedDoor()
+    void removeSelectedDoor()
     {
         doors.remove(door);
         door = null;
     }
 
-    public int indexOfDoor(Door door)
+    int indexOfDoor(Door door)
     {
         return doors.indexOf(door);
     }
 
-    public int getDoorsSize()
+    int getDoorsSize()
     {
         return doors.size();
     }
 
-    public void addItem(int index, GUIItem guiItem)
+    void addItem(int index, GUIItem guiItem)
     {
         items.put(index, guiItem);
     }
 
-    public GUIItem getItem(int index)
+    GUIItem getItem(int index)
     {
         return items.get(index);
     }
 
-    public Inventory getInventory()
+    Inventory getInventory()
     {
         return inventory;
     }
 
-    public void setSortType(SortType sortType)
+    void setSortType(SortType sortType)
     {
         this.sortType = sortType;
         sort();
     }
 
-    public void setNextSortType()
+    void setNextSortType()
     {
         setSortType(sortType.next());
     }
 
-    public SortType getSortType()
+    SortType getSortType()
     {
         return sortType;
     }
@@ -248,7 +254,7 @@ public class GUI
         TYPE ("GUI.SORT.Typically",      Comparator.comparing(Door::getType))
         {
             @Override
-            public SortType next()
+            SortType next()
             {
                 return values()[0];
             }
@@ -263,17 +269,17 @@ public class GUI
             this.comparator = comparator;
         }
 
-        public static String getName(SortType sortType)
+        static String getName(SortType sortType)
         {
             return sortType.name;
         }
 
-        public static Comparator<Door> getComparator(SortType sortType)
+        static Comparator<Door> getComparator(SortType sortType)
         {
             return sortType.comparator;
         }
 
-        public SortType next()
+        SortType next()
         {
             return values()[ordinal() + 1];
         }

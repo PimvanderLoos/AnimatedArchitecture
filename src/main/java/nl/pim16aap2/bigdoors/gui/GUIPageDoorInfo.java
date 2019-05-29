@@ -50,7 +50,7 @@ public class GUIPageDoorInfo implements IGUIPage
 
         if (!plugin.getDatabaseManager().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), gui.getItem(interactionIDX).getDoorAttribute()))
         {
-            refresh();
+            gui.update();
             return;
         }
 
@@ -62,7 +62,7 @@ public class GUIPageDoorInfo implements IGUIPage
         case LOCK:
             door.setLock(!door.isLocked());
             plugin.getDatabaseManager().setLock(door.getDoorUID(), door.isLocked());
-            refresh();
+            gui.updateItem(interactionIDX, getGUIItem(door, DoorAttribute.LOCK));
             break;
         case TOGGLE:
             ((SubCommandToggle) plugin.getCommand(CommandData.TOGGLE)).execute(player, door);
@@ -77,11 +77,12 @@ public class GUIPageDoorInfo implements IGUIPage
             plugin.getDatabaseManager().startPowerBlockRelocator(player, door);
             gui.close();
             break;
+        case DIRECTION_ROTATE_VERTICAL2:
         case DIRECTION_STRAIGHT_HORIZONTAL:
         case DIRECTION_STRAIGHT_VERTICAL:
         case DIRECTION_ROTATE_HORIZONTAL:
         case DIRECTION_ROTATE_VERTICAL:
-            changeOpenDir(door);
+            changeOpenDir(door, interactionIDX);
             break;
         case CHANGETIMER:
             plugin.getDatabaseManager().startTimerSetter(player, door);
@@ -142,29 +143,39 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     // Changes the opening direction for a door.
-    private void changeOpenDir(Door door)
+    private void changeOpenDir(Door door, int index)
     {
         RotateDirection curOpenDir = door.getOpenDir();
         RotateDirection newOpenDir = null;
 
         DoorAttribute[] attributes = DoorType.getAttributes(door.getType());
+        DoorAttribute openTypeAttribute = null;
 
         outerLoop: for (int idx = 0; idx != attributes.length; ++idx)
         {
             switch(attributes[idx])
             {
             case DIRECTION_ROTATE_HORIZONTAL:
+                openTypeAttribute = DoorAttribute.DIRECTION_ROTATE_HORIZONTAL;
+                //$FALL-THROUGH$
             case DIRECTION_ROTATE_VERTICAL:
+                openTypeAttribute = DoorAttribute.DIRECTION_ROTATE_VERTICAL;
                 newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.CLOCKWISE :
                     curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE : RotateDirection.NONE;
                 break outerLoop;
+
+            case DIRECTION_ROTATE_VERTICAL2:
+                openTypeAttribute = DoorAttribute.DIRECTION_ROTATE_VERTICAL2;
+                //$FALL-THROUGH$
             case DIRECTION_STRAIGHT_HORIZONTAL:
+                openTypeAttribute = DoorAttribute.DIRECTION_STRAIGHT_HORIZONTAL;
                 newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.NORTH :
                     curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST :
                     curOpenDir == RotateDirection.EAST ? RotateDirection.SOUTH :
                     curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST : RotateDirection.NONE;
                 break outerLoop;
             case DIRECTION_STRAIGHT_VERTICAL:
+                openTypeAttribute = DoorAttribute.DIRECTION_STRAIGHT_VERTICAL;
                 newOpenDir = curOpenDir == RotateDirection.UP ? RotateDirection.DOWN : RotateDirection.UP;
                 break outerLoop;
             default:
@@ -176,7 +187,7 @@ public class GUIPageDoorInfo implements IGUIPage
         int idx = gui.indexOfDoor(door);
         gui.getDoor(idx).setOpenDir(newOpenDir);
         gui.setDoor(gui.getDoor(idx));
-        refresh();
+        gui.updateItem(index, getGUIItem(door, openTypeAttribute));
     }
 
     private GUIItem getGUIItem(Door door, DoorAttribute atr)
@@ -235,6 +246,7 @@ public class GUIPageDoorInfo implements IGUIPage
             ret = new GUIItem(GUI.CHANGETIMEMAT, desc, lore, count);
             break;
 
+        case DIRECTION_ROTATE_VERTICAL2:
         case DIRECTION_STRAIGHT_HORIZONTAL:
         case DIRECTION_STRAIGHT_VERTICAL:
             desc = messages.getString("GUI.Direction.Name");
@@ -281,6 +293,8 @@ public class GUIPageDoorInfo implements IGUIPage
             desc = messages.getString("GUI.REMOVEOWNER");
             lore.add(desc);
             ret = new GUIItem(GUI.REMOVEOWNERMAT, desc, lore, 1);
+            break;
+        default:
             break;
         }
         if (ret != null)

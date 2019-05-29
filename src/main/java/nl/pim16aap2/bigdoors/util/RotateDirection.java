@@ -9,10 +9,14 @@ public enum RotateDirection
     EAST             (1, "GUI.Direction.East"),
     SOUTH            (2, "GUI.Direction.South"),
     WEST             (3, "GUI.Direction.West"),
+    @Deprecated
     UP               (4, "GUI.Direction.Up"),
+    @Deprecated
     DOWN             (5, "GUI.Direction.Down"),
     NONE             (6, "GUI.Direction.Any"),
+    @Deprecated
     CLOCKWISE        (7, "GUI.Direction.Clock"),
+    @Deprecated
     COUNTERCLOCKWISE (8, "GUI.Direction.Counter");
 
     private int val;

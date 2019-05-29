@@ -55,21 +55,24 @@ public class SuperCommand implements ICommand
 
         if (args.length == 2 && args[0].toLowerCase().equals("help"))
         {
-            SubCommand command = subCommands.get(args[1].toLowerCase());
-            if (command == null)
+            SubCommand helpCommand = subCommands.get(args[1].toLowerCase());
+            if (helpCommand == null)
                 plugin.getMyLogger().returnToSender(sender, null, plugin.getMessages().getString("GENERAL.COMMAND.NotFound"));
             else
-                plugin.getMyLogger().returnToSender(sender, null, getHelpOfSubCommand(sender, command));
+                plugin.getMyLogger().returnToSender(sender, null, getHelpOfSubCommand(sender, helpCommand));
             return true;
         }
 
-        SubCommand command = subCommands.get(args[0].toLowerCase());
-        if (command == null)
-            return false;
-        if (!CommandManager.permissionForCommand(sender, command))
+        SubCommand subCommand = subCommands.get(args[0].toLowerCase());
+        if (subCommand == null)
+        {
+            plugin.getMyLogger().returnToSender(sender, null, getHelp(sender));
+            return true;
+        }
+        if (!CommandManager.permissionForCommand(sender, subCommand))
             throw new CommandPermissionException();
-        if (args.length < command.getMinArgCount() || !command.onCommand(sender, cmd, label, args))
-            plugin.getMyLogger().returnToSender(sender, null, getHelpOfSubCommand(sender, command));
+        if (args.length < subCommand.getMinArgCount() || !subCommand.onCommand(sender, cmd, label, args))
+            plugin.getMyLogger().returnToSender(sender, null, getHelpOfSubCommand(sender, subCommand));
         return true;
     }
 
