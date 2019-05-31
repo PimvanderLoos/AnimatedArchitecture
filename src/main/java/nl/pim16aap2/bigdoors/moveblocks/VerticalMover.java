@@ -144,16 +144,4 @@ class VerticalMover extends BlockMover
     {
         return new Location(world, xAxis, yAxis + blocksMoved, zAxis);
     }
-
-    @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
-    {
-        return -1;
-    }
-
-    @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
-    {
-        return 0;
-    }
 }

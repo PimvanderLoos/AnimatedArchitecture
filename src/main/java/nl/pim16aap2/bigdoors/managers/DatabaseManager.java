@@ -29,6 +29,7 @@ import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
@@ -36,9 +37,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetTime;
 
-public class DatabaseManager
+public class DatabaseManager extends Restartable
 {
-    private final BigDoors plugin;
     private HashSet<Long> busyDoors;
     // Players map stores players for faster UUID / Name matching.
     private HashMap<UUID, String> players;
@@ -49,11 +49,18 @@ public class DatabaseManager
 
     public DatabaseManager(BigDoors plugin, SQLiteJDBCDriverConnection db)
     {
-        this.plugin = plugin;
+        super(plugin);
         this.db = db;
         busyDoors = new HashSet<>();
         messages = plugin.getMessages();
         players = new HashMap<>();
+    }
+
+    @Override
+    public void restart()
+    {
+        busyDoors.clear();
+        messages = plugin.getMessages();
     }
 
     public boolean isDoorBusy(long doorUID)

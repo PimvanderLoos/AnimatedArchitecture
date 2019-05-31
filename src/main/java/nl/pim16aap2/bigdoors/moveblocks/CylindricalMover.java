@@ -276,10 +276,4 @@ class CylindricalMover extends BlockMover
         return Math.abs(xAxis - turningPoint.getBlockX()) > Math.abs(zAxis - turningPoint.getBlockZ()) ?
             Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
     }
-
-    @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
-    {
-        return 0;
-    }
 }

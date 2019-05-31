@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.toolusers.DoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.DrawbridgeCreator;
 import nl.pim16aap2.bigdoors.toolusers.ElevatorCreator;
 import nl.pim16aap2.bigdoors.toolusers.FlagCreator;
+import nl.pim16aap2.bigdoors.toolusers.GarageDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.PortcullisCreator;
 import nl.pim16aap2.bigdoors.toolusers.RevolvingDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
@@ -112,6 +113,8 @@ public class SubCommandNew extends SubCommand
             tu = new RevolvingDoorCreator(plugin, player, name);
             break;
         case GARAGEDOOR:
+            tu = new GarageDoorCreator(plugin, player, name);
+            break;
         default:
             break;
         }

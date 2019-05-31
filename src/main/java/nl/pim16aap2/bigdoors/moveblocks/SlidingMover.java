@@ -156,16 +156,4 @@ class SlidingMover extends BlockMover
 
         plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
     }
-
-    @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
-    {
-        return -1;
-    }
-
-    @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
-    {
-        return 0;
-    }
 }

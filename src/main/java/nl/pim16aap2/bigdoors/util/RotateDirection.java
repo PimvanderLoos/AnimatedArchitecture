@@ -49,4 +49,30 @@ public enum RotateDirection
         for (RotateDirection dir : RotateDirection.values())
             map.put(dir.val, dir);
     }
+
+    public static RotateDirection getOpposite(RotateDirection dir)
+    {
+        switch (dir)
+        {
+        case DOWN:
+            return RotateDirection.UP;
+        case EAST:
+            return RotateDirection.WEST;
+        case NORTH:
+            return RotateDirection.SOUTH;
+        case SOUTH:
+            return RotateDirection.NORTH;
+        case UP:
+            return RotateDirection.DOWN;
+        case WEST:
+            return RotateDirection.EAST;
+        case CLOCKWISE:
+            return RotateDirection.COUNTERCLOCKWISE;
+        case COUNTERCLOCKWISE:
+            return RotateDirection.CLOCKWISE;
+        case NONE:
+        default:
+            return null;
+        }
+    }
 }

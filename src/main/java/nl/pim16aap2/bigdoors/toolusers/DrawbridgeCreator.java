@@ -274,4 +274,11 @@ public class DrawbridgeCreator extends Creator
         else
             setIsDone(true);
     }
+
+    @Override
+    protected void setOpenDirection()
+    {
+        // TODO Auto-generated method stub
+
+    }
 }

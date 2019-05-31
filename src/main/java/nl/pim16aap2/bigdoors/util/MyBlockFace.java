@@ -28,6 +28,27 @@ public enum MyBlockFace
         this.dir = dir;
     }
 
+    public static MyBlockFace getOpposite(MyBlockFace dir)
+    {
+        switch (dir)
+        {
+        case DOWN:
+            return MyBlockFace.UP;
+        case EAST:
+            return MyBlockFace.WEST;
+        case NORTH:
+            return MyBlockFace.SOUTH;
+        case SOUTH:
+            return MyBlockFace.NORTH;
+        case UP:
+            return MyBlockFace.DOWN;
+        case WEST:
+            return MyBlockFace.EAST;
+        default:
+            return null;
+        }
+    }
+
     public static int getValue(MyBlockFace dir)
     {
         return dir.val;

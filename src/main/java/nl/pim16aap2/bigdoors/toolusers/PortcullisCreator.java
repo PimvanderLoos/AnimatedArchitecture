@@ -10,21 +10,29 @@ import nl.pim16aap2.bigdoors.util.Util;
 
 public class PortcullisCreator extends Creator
 {
-    public PortcullisCreator(BigDoors plugin, Player player, String name)
+    private String typeString;
+
+    public PortcullisCreator(BigDoors plugin, Player player, String name, String typeString)
     {
         super(plugin, player, name, DoorType.PORTCULLIS);
-        Util.messagePlayer(player, messages.getString("CREATOR.PORTCULLIS.Init"));
+        this.typeString = typeString;
+        Util.messagePlayer(player, messages.getString("CREATOR." + typeString + ".Init"));
         if (name == null)
             Util.messagePlayer(player, ChatColor.GREEN, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
         else
             triggerGiveTool();
     }
 
+    public PortcullisCreator(BigDoors plugin, Player player, String name)
+    {
+        this(plugin, player, name, "PORTCULLIS");
+    }
+
     @Override
     protected void triggerGiveTool()
     {
-        giveToolToPlayer(messages.getString("CREATOR.PORTCULLIS.StickLore"    ).split("\n"),
-                         messages.getString("CREATOR.PORTCULLIS.StickReceived").split("\n"));
+        giveToolToPlayer(messages.getString("CREATOR." + typeString + ".StickLore"    ).split("\n"),
+                         messages.getString("CREATOR." + typeString + ".StickReceived").split("\n"));
     }
 
     @Override
@@ -36,7 +44,7 @@ public class PortcullisCreator extends Creator
     @Override
     protected void triggerFinishUp()
     {
-        finishUp(messages.getString("CREATOR.PORTCULLIS.Success"));
+        finishUp(messages.getString("CREATOR." + typeString + ".Success"));
     }
 
     // Make sure the power point is in the middle.
@@ -46,6 +54,12 @@ public class PortcullisCreator extends Creator
         int zMid = one.getBlockZ() + (two.getBlockZ() - one.getBlockZ()) / 2;
         int yMin = one.getBlockY();
         engine = new Location(one.getWorld(), xMid, yMin, zMid);
+    }
+
+    // Check if the second position is valid (door is 1 deep).
+    protected boolean isPosTwoValid(Location loc)
+    {
+        return true;
     }
 
     // Take care of the selection points.
@@ -67,10 +81,15 @@ public class PortcullisCreator extends Creator
         if (one == null)
         {
             one = loc;
-            Util.messagePlayer(player, messages.getString("CREATOR.PORTCULLIS.Step1"));
+            Util.messagePlayer(player, messages.getString("CREATOR." + typeString + ".Step1"));
         }
         else
-            two = loc;
+        {
+            if (isPosTwoValid(loc))
+                two = loc;
+            else
+                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
+        }
 
         if (one != null && two != null)
         {
@@ -78,5 +97,12 @@ public class PortcullisCreator extends Creator
             setEngine();
             setIsDone(true);
         }
+    }
+
+    @Override
+    protected void setOpenDirection()
+    {
+        // TODO Auto-generated method stub
+
     }
 }

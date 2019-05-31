@@ -197,7 +197,7 @@ public class BridgeOpener extends Opener
     {
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
-            return isOpenable;
+            return abort(door, isOpenable);
         super.setBusy(door);
 
         if (super.isTooBig(door))
@@ -209,7 +209,7 @@ public class BridgeOpener extends Opener
             plugin.getMyLogger()
                 .logMessage("Current direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!",
                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(door, DoorOpenResult.ERROR);
         }
 
         MyBlockFace upDown = getUpDown(door);
@@ -218,7 +218,7 @@ public class BridgeOpener extends Opener
             plugin.getMyLogger()
                 .logMessage("UpDown direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!",
                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(door, DoorOpenResult.ERROR);
         }
 
         RotateDirection openDirection = getOpenDirection(door);
@@ -226,13 +226,13 @@ public class BridgeOpener extends Opener
         {
             plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.getName() + " ("
                 + door.getDoorUID() + ")!", true, false);
-            return DoorOpenResult.NODIRECTION;
+            return abort(door, DoorOpenResult.NODIRECTION);
         }
 
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
         if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null)
-            return DoorOpenResult.NOPERMISSION;
+            return abort(door, DoorOpenResult.NOPERMISSION);
 
         plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen,
                                              plugin.getConfigLoader().getMultiplier(DoorType.DRAWBRIDGE)));

@@ -23,6 +23,13 @@ public abstract class Opener
         plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
     }
 
+    protected final DoorOpenResult abort(Door door, DoorOpenResult result)
+    {
+        if (!result.equals(DoorOpenResult.BUSY))
+            plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
+        return result;
+    }
+
     protected final boolean isTooBig(Door door)
     {
         // Make sure the doorSize does not exceed the total doorSize.

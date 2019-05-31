@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -60,12 +61,14 @@ import nl.pim16aap2.bigdoors.handlers.RedstoneHandler;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.HeadManagerv2;
 import nl.pim16aap2.bigdoors.managers.VaultManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeOpener;
 import nl.pim16aap2.bigdoors.moveblocks.DoorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.ElevatorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.FlagOpener;
+import nl.pim16aap2.bigdoors.moveblocks.GarageDoorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.moveblocks.PortcullisOpener;
 import nl.pim16aap2.bigdoors.moveblocks.RevolvingDoorOpener;
@@ -129,6 +132,13 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Don't use TypeString for DoorCreator, but use DoorType codeName instead. Also, the entire format is pretty stupid. Lots of repetition in the language file for every type.
 // TODO: Look into restartables interface. Perhaps it's a good idea to split restart() into stop() and init().
 //       This way, it can call all init()s in BigDoors::onEnable and all stop()s in BigDoors::onDisable.
+// TODO: Every door type needs its own class. This is getting too messy. A lot of the Opener stuff can be moved to those specialized classes. Might not even need openers anymore.
+//       Wouldn't that be nice? This also means that doors cannot be created in the Creator superClass. Instead, it'll need an abstract finishUp() method.
+// TODO: Allow position etc validation code to be used on existing doors one way or another.
+// TODO: Creators: updateEngineLoc from DoorCreator() and setEngine() should be the same and declared as abstract method in Creator.
+// TODO: GarageDoorCreator: Should extend DrawBridgeCreator.
+// TODO: Store MyBlockFace in rotateDirection so I don't have to cast it via strings. ew.
+// TODO: Make it possible to send an Opener to the autoCloseScheduler. That would make it easier to scheduler stuff.
 
 /*
  * GUI
@@ -140,6 +150,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Cannot toggle openDirection for portcullis type. Might be related to the fact that it says that the portcullis openDirection is North instead of Up/Down.
 // TODO: Use ButtonAction GUI and GUIItem::specialValue to phase out raw interactionIDX stuff for getting actions.
 // TODO: Update items in inventory instead of opening a completely new inventory. No longer requires dirty code to check is it's refreshing etc. Bweugh.
+// TODO: Make sure all player head construction is handled on a secondary thread. Only getting from hashMap should be done on the main thread.
 
 /*
  * SQL
@@ -151,7 +162,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       Then +1 won't have to be appended to everything.
 // TODO: Use proper COUNT operation for getting the number of doors.
 // TODO: Merge isOpen and isLocked into single FLAG value.
-// TODO: Look into why engineSide is always either 1 or -1.
 
 /*
  * Commands
@@ -173,6 +183,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       Might be related to the issue listed above (regarding setBlocksToMove commandWaiter).
 // TODO: Explain why there are 2 hashMaps storing seemingly the same data in the CommandManager.
 // TODO: Make sure super command can be chained.
+// TODO: Fix bigdoors doorinfo in console.
 
 /*
  * Openers / Movers
@@ -192,7 +203,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: DO NOT STORE newMin and newMax variables in the door. It most definitely does not belong in there! Figure out why it needs to be there in the first
 //       Place. If it's really needed, just use references.
 // TODO: Test and finish flag type.
-// TODO: Implement new types: Garage door
 // TODO: Rewrite parts of the drawBridge opener and mover. The upDown etc stuff should not be used.
 // TODO: ElevatorOpener should extend PortcullisOpener.
 // TODO: ElevatorOpener and PortcullisOpener should respect setOpenDirection and min/max world height (0, 256).
@@ -207,16 +217,19 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Drawbridge: Learn from WindmillMover and simplify the class. Also applies to CylindricalMover.
 // TODO: Clamp angles to [-2PI ; 2PI].
 // TODO: Either use time or ticks. Not both.
-
-
+// TODO: Use the GetNewLocation code to check new pos etc.
+// TODO: Make sure the new types don't just open instantly without a provided time parameter    !!!!!!!!
+// TODO: Rename variables in updateCoords to avoid confusion. Perhaps a complete removal altogether would be nice as well.
+// TODO: Get rid of the GNL interface etc. The movers class can handle it on its own using Function interface.
+// TODO: Move getBlocksMoved() to Mover.
+// TODO: GarageDoorCreator: Fix having to double click last block.
 
 
 
 /*
  * Manual Testing
  */
-// TODO: Test changeOpenDir in GUIPageDoorInfo.
-// TODO: Test WindmillCreator. Make sure it cannot be fucked up.
+// TODO: Test new creatores: Windmill, RevolvingDoor, GarageDoor. Make sure it cannot be fucked up.
 
 /*
  * Unit tests
@@ -255,6 +268,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private WindmillOpener windmillOpener;
     private FlagOpener flagOpener;
     private RevolvingDoorOpener revolvingDoorOpener;
+    private GarageDoorOpener garageDoorOpener;
 
     private boolean validVersion;
     private String loginString;
@@ -269,6 +283,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private HeadManager headManager;
     private VaultManager vaultManager;
     private AutoCloseScheduler autoCloseScheduler;
+
+    private HeadManagerv2 headManagerv2;
 
     @Override
     public void onEnable()
@@ -298,6 +314,10 @@ public class BigDoors extends JavaPlugin implements Listener
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
 
+
+            headManagerv2 = new HeadManagerv2(this);
+
+
             Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
             Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler(this), this);
@@ -316,6 +336,7 @@ public class BigDoors extends JavaPlugin implements Listener
             slidingDoorOpener = new SlidingDoorOpener(this);
             windmillOpener = new WindmillOpener(this);
             revolvingDoorOpener = new RevolvingDoorOpener(this);
+            garageDoorOpener = new GarageDoorOpener(this);
 
 
             commandManager = new CommandManager(this);
@@ -542,6 +563,8 @@ public class BigDoors extends JavaPlugin implements Listener
             return windmillOpener;
         case REVOLVINGDOOR:
             return revolvingDoorOpener;
+        case GARAGEDOOR:
+            return garageDoorOpener;
         default:
             return null;
         }
@@ -720,9 +743,15 @@ public class BigDoors extends JavaPlugin implements Listener
         loginString = str;
     }
 
-    public ItemStack getPlayerHead(UUID playerUUID, String playerName, int x, int y, int z, Player player)
+//    public ItemStack getPlayerHead(UUID playerUUID, String playerName, int x, int y, int z, Player player)
+//    {
+//        return headManager.getPlayerHead(playerUUID, playerName, x, y, z, player);
+//    }
+
+    public ItemStack getPlayerHead(UUID playerUUID, String displayName, OfflinePlayer oPlayer)
     {
-        return headManager.getPlayerHead(playerUUID, playerName, x, y, z, player);
+//        return headManager.getPlayerHead(playerUUID, playerName, x, y, z, player);
+        return headManagerv2.getPlayerHead(playerUUID, displayName, oPlayer);
     }
 
 

@@ -39,7 +39,7 @@ public enum DoorType
                                       DoorAttribute.REMOVEOWNER}),
 
 
-    GARAGEDOOR  (6, false, "-GD", "GarageDoor", "GENERAL.DOORTYPE.GarageDoor",
+    GARAGEDOOR  (6, true, "-GD", "GarageDoor", "GENERAL.DOORTYPE.GarageDoor",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
                                       DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2}),

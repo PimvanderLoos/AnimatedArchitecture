@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.gui;
 
 import java.util.ArrayList;
 
-import org.bukkit.Location;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -84,9 +84,10 @@ class GUIItem
         count = doorOwner.getPermission() == 0 ? 1 : doorOwner.getPermission();
         name = doorOwner.getPlayerName() == null ? doorOwner.getPlayerUUID().toString() : doorOwner.getPlayerName();
 
-        Location loc = guiOwner.getLocation();
-        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(), loc.getBlockX(),
-                                            loc.getBlockY(), loc.getBlockZ(), guiOwner);
+//        Location loc = guiOwner.getLocation();
+//        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(), loc.getBlockX(),
+//                                  loc.getBlockY(), loc.getBlockZ(), guiOwner);
+        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(), Bukkit.getOfflinePlayer(doorOwner.getPlayerUUID()));
         if (is == null)
         {
             is = new ItemStack(Material.PLAYER_HEAD, 1);

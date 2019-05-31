@@ -23,7 +23,7 @@ public class PortcullisOpener extends Opener
     {
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
-            return isOpenable;
+            return abort(door, isOpenable);
         super.setBusy(door);
 
         if (super.isTooBig(door))
@@ -34,13 +34,13 @@ public class PortcullisOpener extends Opener
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
         if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null)
-            return DoorOpenResult.NOPERMISSION;
+            return abort(door, DoorOpenResult.NOPERMISSION);
 
         if (blocksToMove != 0)
             plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
                                                    plugin.getConfigLoader().getMultiplier(DoorType.PORTCULLIS)));
         else
-            return DoorOpenResult.NODIRECTION;
+            return abort(door, DoorOpenResult.NODIRECTION);
         return DoorOpenResult.SUCCESS;
     }
 

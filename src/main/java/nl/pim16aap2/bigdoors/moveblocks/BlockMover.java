@@ -108,9 +108,19 @@ public abstract class BlockMover
 
     protected abstract void animateEntities();
 
-    protected abstract float getRadius(int xAxis, int yAxis, int zAxis);
+    // Can be overriden to get the radius of the block at the given coordinates.
+    @SuppressWarnings("unused")
+    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    {
+        return -1;
+    }
 
-    protected abstract float getStartAngle(int xAxis, int yAxis, int zAxis);
+    // Can be overriden to get the start angle of the block at the given coordinates.
+    @SuppressWarnings("unused")
+    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    {
+        return -1;
+    }
 
     // Put blocks in their final position.
     // Use onDisable = false to make it safe to use during onDisable().

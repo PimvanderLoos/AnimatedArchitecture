@@ -80,4 +80,11 @@ public class SlidingDoorCreator extends Creator
             setIsDone(true);
         }
     }
+
+    @Override
+    protected void setOpenDirection()
+    {
+        // TODO Auto-generated method stub
+
+    }
 }

@@ -80,4 +80,11 @@ public class ElevatorCreator extends Creator
             setIsDone(true);
         }
     }
+
+    @Override
+    protected void setOpenDirection()
+    {
+        // TODO Auto-generated method stub
+
+    }
 }

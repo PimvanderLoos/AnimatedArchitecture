@@ -132,10 +132,4 @@ class FlagMover extends BlockMover
             return Math.abs(zAxis - door.getEngine().getBlockZ());
         return Math.abs(xAxis - door.getEngine().getBlockX());
     }
-
-    @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
-    {
-        return 0;
-    }
 }

@@ -18,11 +18,11 @@ public class FlagOpener extends Opener
     {
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
-            return isOpenable;
+            return abort(door, isOpenable);
         super.setBusy(door);
 
         if (super.isTooBig(door))
-            return DoorOpenResult.ERROR;
+            return abort(door, DoorOpenResult.ERROR);
 
         plugin.addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door,
                                            plugin.getConfigLoader().getMultiplier(DoorType.FLAG)));

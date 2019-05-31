@@ -24,7 +24,7 @@ public class SlidingDoorOpener extends Opener
     {
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
-            return isOpenable;
+            return abort(door, isOpenable);
         super.setBusy(door);
 
         if (super.isTooBig(door))
@@ -37,7 +37,7 @@ public class SlidingDoorOpener extends Opener
                                                   moveDirection,
                                                   plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR)));
         else
-            return DoorOpenResult.NODIRECTION;
+            return abort(door, DoorOpenResult.NODIRECTION);
         return DoorOpenResult.SUCCESS;
     }
 

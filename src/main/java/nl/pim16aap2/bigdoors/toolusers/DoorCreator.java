@@ -120,8 +120,13 @@ public class DoorCreator extends Creator
             if (isPosTwoValid(loc) && one != loc)
             {
                 two = loc;
-                String[] message = messages.getString("CREATOR." + typeString + ".Step2").split("\n");
-                Util.messagePlayer(player, message);
+                // extending classes might want to have this be optional. This way they can just set engine
+                // in isPosTwoValid() if possible, in which case the next print statement is skipped.
+                if (engine == null)
+                {
+                    String[] message = messages.getString("CREATOR." + typeString + ".Step2").split("\n");
+                    Util.messagePlayer(player, message);
+                }
                 super.minMaxFix();
             }
             else
@@ -142,5 +147,12 @@ public class DoorCreator extends Creator
         }
         else
             setIsDone(true);
+    }
+
+    @Override
+    protected void setOpenDirection()
+    {
+        // TODO Auto-generated method stub
+
     }
 }

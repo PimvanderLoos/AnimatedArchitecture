@@ -36,9 +36,12 @@ public abstract class Creator extends ToolUser
         return new Location(world, engine.getBlockX(), engine.getBlockY() - 1, engine.getBlockZ());
     }
 
+    protected abstract void setOpenDirection();
+
     // Final cleanup and door creation.
     protected void finishUp(String message)
     {
+        setOpenDirection();
         if (isReadyToCreateDoor() && !aborting)
         {
             World world     = one.getWorld();

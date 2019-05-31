@@ -21,7 +21,7 @@ class WindmillMover extends BlockMover
     private int tickRate;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
-    private final BiFunction<MyBlockData, Double, Vector> getGoalPos;
+    private final BiFunction<MyBlockData, Double, Vector> getVector;
 
     public WindmillMover(final BigDoors plugin, final World world, final Door door, final double multiplier,
         final RotateDirection rotateDirection)
@@ -40,19 +40,19 @@ class WindmillMover extends BlockMover
         switch (rotateDirection)
         {
         case NORTH:
-            getGoalPos = this::getGoalPosNorth;
+            getVector = this::getVectorNorth;
             break;
         case EAST:
-            getGoalPos = this::getGoalPosEast;
+            getVector = this::getVectorEast;
             break;
         case SOUTH:
-            getGoalPos = this::getGoalPosSouth;
+            getVector = this::getVectorSouth;
             break;
         case WEST:
-            getGoalPos = this::getGoalPosWest;
+            getVector = this::getVectorWest;
             break;
         default:
-            getGoalPos = null;
+            getVector = null;
             plugin.getMyLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
                 + "\". Reason: Invalid rotateDirection \"" + rotateDirection.toString() + "\"");
             return;
@@ -61,8 +61,7 @@ class WindmillMover extends BlockMover
         super.constructFBlocks();
     }
 
-    // Implement this one first.
-    private Vector getGoalPosNorth(MyBlockData block, double stepSum)
+    private Vector getVectorNorth(MyBlockData block, double stepSum)
     {
         double startAngle = block.getStartAngle();
         double posX = block.getFBlock().getLocation().getX();
@@ -71,7 +70,7 @@ class WindmillMover extends BlockMover
         return new Vector(posX, posY, posZ + 0.5);
     }
 
-    private Vector getGoalPosEast(MyBlockData block, double stepSum)
+    private Vector getVectorEast(MyBlockData block, double stepSum)
     {
         double startAngle = block.getStartAngle();
         double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - stepSum);
@@ -80,7 +79,7 @@ class WindmillMover extends BlockMover
         return new Vector(posX + 0.5, posY, posZ);
     }
 
-    private Vector getGoalPosSouth(MyBlockData block, double stepSum)
+    private Vector getVectorSouth(MyBlockData block, double stepSum)
     {
         float startAngle = block.getStartAngle();
         double posX = block.getFBlock().getLocation().getX();
@@ -89,7 +88,7 @@ class WindmillMover extends BlockMover
         return new Vector(posX, posY, posZ + 0.5);
     }
 
-    private Vector getGoalPosWest(MyBlockData block, double stepSum)
+    private Vector getVectorWest(MyBlockData block, double stepSum)
     {
         float startAngle = block.getStartAngle();
         double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + stepSum);
@@ -150,7 +149,7 @@ class WindmillMover extends BlockMover
                         if (Math.abs(block.getRadius()) > 2 * Double.MIN_VALUE)
                         {
                             double stepSum = step * counter;
-                            Vector vec = getGoalPos.apply(block, stepSum)
+                            Vector vec = getVector.apply(block, stepSum)
                                 .subtract(block.getFBlock().getLocation().toVector());
                             vec.multiply(0.101);
                             block.getFBlock().setVelocity(vec);
@@ -182,5 +181,4 @@ class WindmillMover extends BlockMover
         float deltaB = door.getEngine().getBlockY() - yAxis;
         return (float) Math.atan2(deltaA, deltaB);
     }
-
 }
