@@ -160,7 +160,7 @@ public class GarageDoorOpener extends Opener
         }
 
         RotateDirection rotDirection = getRotationDirection(door, currentDirection);
-        Util.broadcastMessage("curDir: " + currentDirection.toString() + ", rotDir: " + rotDirection.toString());
+
         Location newMin = new Location(door.getWorld(), 0, 0, 0);
         Location newMax = new Location(door.getWorld(), 0, 0, 0);
 
@@ -185,7 +185,7 @@ public class GarageDoorOpener extends Opener
 
         // TODO: Get rid of this.
         if (time < 0.5)
-            time = 10;
+            time = 5;
 
         plugin.addBlockMover(new GarageDoorMover(plugin, door.getWorld(), door, time,
                                                  plugin.getConfigLoader().getMultiplier(DoorType.DOOR),

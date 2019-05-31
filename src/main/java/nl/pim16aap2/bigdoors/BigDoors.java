@@ -184,6 +184,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Explain why there are 2 hashMaps storing seemingly the same data in the CommandManager.
 // TODO: Make sure super command can be chained.
 // TODO: Fix bigdoors doorinfo in console.
+// TODO: Cancelling command can result in NPE. possible after timeout.
+// TODO: SetBlocksToMove: Waiter is cancelled both by the subCommand and the waiter. Make sure all commandWaiters are disabled in the waiter.
 
 /*
  * Openers / Movers
@@ -223,6 +225,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Get rid of the GNL interface etc. The movers class can handle it on its own using Function interface.
 // TODO: Move getBlocksMoved() to Mover.
 // TODO: GarageDoorCreator: Fix having to double click last block.
+// TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
+// TODO: Allow blocks with inventories to be moved.
 
 
 

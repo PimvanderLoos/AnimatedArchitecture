@@ -29,7 +29,7 @@ public class WaitForSetBlocksToMove extends WaitForCommand
     public boolean executeCommand(String[] args)
         throws CommandPlayerNotFoundException, CommandActionNotAllowedException, CommandInvalidVariableException
     {
-        abortSilently();
+//        abortSilently();
         return subCommand.execute(player, door, args[1]);
     }
 }

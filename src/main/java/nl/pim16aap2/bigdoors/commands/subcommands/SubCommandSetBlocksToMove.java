@@ -20,7 +20,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
 {
     protected static final String help = "Change the number of blocks the door will attempt to move in the provided direction";
     protected static final String argsHelp = "{doorUID/Name} <blocks>";
-    protected static final int minArgCount = 3;
+    protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.SETBLOCKSTOMOVE;
 
     public SubCommandSetBlocksToMove(final BigDoors plugin, final CommandManager commandManager)

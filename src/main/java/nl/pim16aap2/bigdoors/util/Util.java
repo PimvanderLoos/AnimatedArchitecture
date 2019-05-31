@@ -341,49 +341,35 @@ public final class Util
         BlockData blockData  = block.getBlockData();
         BlockState blockState = block.getState();
 
-        if (
-               blockState instanceof org.bukkit.inventory.InventoryHolder
-            || blockState instanceof org.bukkit.block.CreatureSpawner
-            )
-            return false;
-
-        if (
-               blockData instanceof org.bukkit.block.data.type.Stairs
-            || blockData instanceof org.bukkit.block.data.type.Gate
-
-            )
+        if (blockData instanceof org.bukkit.block.data.type.Stairs ||
+            blockData instanceof org.bukkit.block.data.type.Gate)
             return true;
 
         if (
-            // DaylightDetector, RedstoneWire
-               blockData instanceof org.bukkit.block.data.AnaloguePowerable
-            // Bamboo, Cocoa, Fire
-            || blockData instanceof org.bukkit.block.data.Ageable
+               blockState instanceof org.bukkit.inventory.InventoryHolder
             // Door, Stairs, TrapDoor, sunflower, tall grass, tall seagrass, large fern, peony, rose bush, lilac,
-            //
             || blockData instanceof org.bukkit.block.data.Bisected
-            // Campfire, Furnace, RedstoneWallTorch
-            || blockData instanceof org.bukkit.block.data.Lightable
-            // Comparator, Door, Gate, Lectern, NoteBlock, Observer, RedstoneRail, Repeater,
-            // Switch, TrapDoor, Tripwire, TripwireHook
-            || blockData instanceof org.bukkit.block.data.Powerable
             || blockData instanceof org.bukkit.block.data.Rail
+            // Cauldron, Composter, Water, Lava
+            || blockData instanceof org.bukkit.block.data.Levelled
 
             || blockData instanceof org.bukkit.block.data.type.Bed
             || blockData instanceof org.bukkit.block.data.type.BrewingStand
             || blockData instanceof org.bukkit.block.data.type.Cake
             || blockData instanceof org.bukkit.block.data.type.CommandBlock
             || blockData instanceof org.bukkit.block.data.type.EnderChest
-            || blockData instanceof org.bukkit.block.data.type.EndPortalFrame
-            // Cauldron, Composter, Water, Lava
-            || blockData instanceof org.bukkit.block.data.Levelled
-            || blockData instanceof org.bukkit.block.data.type.Jukebox
             || blockData instanceof org.bukkit.block.data.type.Ladder
-            || blockData instanceof org.bukkit.block.data.type.Piston
             || blockData instanceof org.bukkit.block.data.type.Sapling
             || blockData instanceof org.bukkit.block.data.type.Sign
             || blockData instanceof org.bukkit.block.data.type.TechnicalPiston
             || blockData instanceof org.bukkit.block.data.type.WallSign
+            || blockData instanceof org.bukkit.block.data.type.RedstoneWire
+            || blockData instanceof org.bukkit.block.data.type.RedstoneWallTorch
+            || blockData instanceof org.bukkit.block.data.type.Tripwire
+            || blockData instanceof org.bukkit.block.data.type.TripwireHook
+            || blockData instanceof org.bukkit.block.data.type.Repeater
+            || blockData instanceof org.bukkit.block.data.type.Switch
+            || blockData instanceof org.bukkit.block.data.type.Comparator
             )
             return false;
 
