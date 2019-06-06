@@ -61,12 +61,6 @@ import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
-
-// TODO: Make door cache cache per-world (hash world UUID), then cache per chunk
-//       (new caching method that ignores world name) and then the relative locations
-//       So cache location (x % 16, y, z % 16). Again, no world needed.
-
-
 public class BigDoors extends JavaPlugin implements Listener
 {
     public static final boolean DEVBUILD = true;

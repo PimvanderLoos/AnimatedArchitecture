@@ -1,3 +1,6 @@
+Alpha 0.1.8.9
+- Introduced "/killbigdoorsentities" command to kill all entities created by this plugin.
+
 Alpha 0.1.8.8
 - Fixed bounds checking for rotation point of doors and drawbridges. Thanks, @Blaster76606 for the bug report.
 - Fixed incorrect import. Auto-updater will work again. Thanks, @Auroman for the bug report!

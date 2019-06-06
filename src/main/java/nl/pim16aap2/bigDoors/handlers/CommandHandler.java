@@ -344,6 +344,7 @@ public class CommandHandler implements CommandExecutor
         {
             killAllBigDoorsEntities();
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "All entities have been removed!");
+            return true;
         }
         else if (cmd.getName().equalsIgnoreCase("bigdoors"))
         {
