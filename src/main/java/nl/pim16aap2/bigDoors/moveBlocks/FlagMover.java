@@ -274,8 +274,6 @@ public class FlagMover implements BlockMover
     {
         CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
         Entity bukkitEntity = (Entity) entity;
-        bukkitEntity.setCustomName("BigDoorsEntity");
-        bukkitEntity.setCustomNameVisible(false);
         return entity;
     }
 

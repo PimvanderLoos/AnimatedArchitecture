@@ -154,6 +154,7 @@ public class BigDoors extends JavaPlugin implements Listener
             slidingDoorOpener = new SlidingDoorOpener(this);
 
             registerCommand("recalculatepowerblocks");
+            registerCommand("killbigdoorsentities");
             registerCommand("inspectpowerblockloc");
             registerCommand("changepowerblockloc");
             registerCommand("setautoclosetime");

@@ -20,8 +20,10 @@ public class FallingBlockFactory_V1_13_R2 implements FallingBlockFactory_Vall
     {
         IBlockData blockData = ((Block) block).getBlockData();
         CustomEntityFallingBlock_V1_13_R2 fBlockNMS = new CustomEntityFallingBlock_V1_13_R2(plugin, loc.getWorld(), loc.getX(), loc.getY(), loc.getZ(), blockData);
-        CustomCraftFallingBlock_V1_13_R2 ret = new CustomCraftFallingBlock_V1_13_R2(Bukkit.getServer(), fBlockNMS);
-        return ret;
+        CustomCraftFallingBlock_V1_13_R2 entity = new CustomCraftFallingBlock_V1_13_R2(Bukkit.getServer(), fBlockNMS);
+        entity.setCustomName("BigDoorsEntity");
+        entity.setCustomNameVisible(false);
+        return entity;
     }
 
     @Override

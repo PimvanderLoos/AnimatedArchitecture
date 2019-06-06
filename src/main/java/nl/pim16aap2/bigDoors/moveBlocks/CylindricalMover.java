@@ -188,7 +188,7 @@ public class CylindricalMover implements BlockMover
             endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? Math.PI : 0;
             break;
         }
-        
+
         // This is only supported on 1.13
         if (plugin.is1_13())
             for (MyBlockData mbd : savedBlocks)
@@ -536,8 +536,6 @@ public class CylindricalMover implements BlockMover
     {
         CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
         Entity bukkitEntity = (Entity) entity;
-        bukkitEntity.setCustomName("BigDoorsEntity");
-        bukkitEntity.setCustomNameVisible(false);
         return entity;
     }
 

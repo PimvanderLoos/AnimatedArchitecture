@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -323,13 +326,26 @@ public class CommandHandler implements CommandExecutor
         startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID), 20 * 20);
     }
 
+    public void killAllBigDoorsEntities()
+    {
+        for (World world : Bukkit.getWorlds())
+            for (Entity entity : world.getEntities())
+                if (entity.getCustomName() != null && entity.getCustomName().equals("BigDoorsEntity"))
+                    entity.remove();
+    }
+
     // Handle commands.
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
         Player player = sender instanceof Player ? (Player) sender : null;
 
-        if (cmd.getName().equalsIgnoreCase("bigdoors"))
+        if (cmd.getName().equalsIgnoreCase("killbigdoorsentities"))
+        {
+            killAllBigDoorsEntities();
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "All entities have been removed!");
+        }
+        else if (cmd.getName().equalsIgnoreCase("bigdoors"))
         {
             String firstCommand = args.length == 0 ? "" : args[0].toLowerCase();
 
