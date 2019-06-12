@@ -855,6 +855,13 @@ public enum XMaterial
     ZOMBIE_WALL_HEAD(0, "SKULL","SKULL_ITEM"),
 
 
+    /* 1.13 Update start */
+    SEA_GRASS(0, "STONE"),
+    TALL_SEA_GRASS(0, "STONE"),
+    /* 1.13 Update end */
+
+
+
     /* 1.14 Update start */
     LILY_OF_THE_VALLEY(0, "STONE"),
     WITHER_ROSE(0, "STONE"),

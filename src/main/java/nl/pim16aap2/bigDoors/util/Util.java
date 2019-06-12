@@ -378,13 +378,15 @@ public final class Util
         if (name.endsWith("SLAB") || name.endsWith("STAIRS") || name.endsWith("WALL"))
             return true;
 
+        if (name.endsWith("TULIP"))
+            return false;
+
         XMaterial xmat = XMaterial.fromString(name);
         if (xmat == null)
         {
             Util.broadcastMessage("Could not determine material of mat: " + name);
             return false;
         }
-
 
         switch(xmat)
         {
@@ -439,16 +441,22 @@ public final class Util
         case CREEPER_HEAD:
         case CREEPER_WALL_HEAD:
         case DRAGON_HEAD:
+        case DRAGON_WALL_HEAD:
         case PISTON_HEAD:
         case PLAYER_HEAD:
         case PLAYER_WALL_HEAD:
         case ZOMBIE_HEAD:
         case ZOMBIE_WALL_HEAD:
+        case SKELETON_SKULL:
+        case SKELETON_WALL_SKULL:
+        case WITHER_SKELETON_SKULL:
+        case WITHER_SKELETON_WALL_SKULL:
 
         case RAIL:
         case DETECTOR_RAIL:
         case ACTIVATOR_RAIL:
         case POWERED_RAIL:
+        case LEVER:
 
         case REDSTONE:
         case REDSTONE_WIRE:
@@ -458,6 +466,14 @@ public final class Util
         case REDSTONE_TORCH:
         case REDSTONE_WALL_TORCH:
         case TORCH:
+        case WALL_TORCH:
+
+        case BROWN_MUSHROOM:
+        case RED_MUSHROOM:
+        case DEAD_BUSH:
+        case FERN:
+        case LARGE_FERN:
+        case CONDUIT:
 
         case BLACK_CARPET:
         case BLUE_CARPET:
@@ -498,6 +514,24 @@ public final class Util
         case CHORUS_FRUIT:
         case CHORUS_PLANT:
         case SUNFLOWER:
+
+        case REPEATER:
+        case COMMAND_BLOCK:
+        case COMMAND_BLOCK_MINECART:
+        case COMPARATOR:
+        case SEA_PICKLE:
+
+        case POPPY:
+        case BLUE_ORCHID:
+        case ALLIUM:
+        case AZURE_BLUET:
+        case OXEYE_DAISY:
+        case LILAC:
+        case PEONY:
+        case GRASS:
+        case TALL_GRASS:
+        case SEA_GRASS:
+        case TALL_SEA_GRASS:
 
         case ACACIA_SAPLING:
         case BIRCH_SAPLING:
