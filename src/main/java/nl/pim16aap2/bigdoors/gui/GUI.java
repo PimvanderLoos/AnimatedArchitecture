@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.PageType;
 
@@ -44,7 +44,7 @@ public class GUI
         Material.BLUE_BANNER,  // Flag
         Material.MINECART,     // Garage door
         Material.ELYTRA,       // Windmill
-        Material.BARRIER,      // UNUSED
+        Material.END_CRYSTAL,  // Revolving door
         Material.BARRIER,      // UNUSED
         Material.BARRIER,      // UNUSED
     };
@@ -59,13 +59,13 @@ public class GUI
 
     private Messages messages;
     private int page;
-    private final ArrayList<Door> doors;
+    private final ArrayList<DoorBase> doorBases;
     private int doorOwnerPage = 0;
     private SortType sortType = SortType.ID;
     private Inventory inventory = null;
     private final HashMap<Integer, GUIItem> items;
     private int maxPageCount;
-    private Door door = null;
+    private DoorBase door = null;
 
     public GUI(final BigDoors plugin, final Player player)
     {
@@ -78,7 +78,7 @@ public class GUI
         page = 0;
         items = new HashMap<>();
 
-        doors = plugin.getDatabaseManager().getDoors(player.getUniqueId().toString(), null);
+        doorBases = plugin.getDatabaseManager().getDoors(player.getUniqueId().toString(), null);
         sort();
         guiPage = new GUIPageDoorList(plugin, this);
         update();
@@ -94,7 +94,7 @@ public class GUI
     {
         isRefreshing = true;
         items.clear();
-        maxPageCount = doors.size() / (CHESTSIZE - 9) + ((doors.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
+        maxPageCount = doorBases.size() / (CHESTSIZE - 9) + ((doorBases.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
         guiPage.refresh();
 
         inventory = Bukkit.createInventory(player, CHESTSIZE, messages.getString(PageType.getMessage(guiPage.getPageType())));
@@ -108,7 +108,7 @@ public class GUI
     {
         if (door != null && plugin.getDatabaseManager().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
         {
-            doors.remove(door);
+            doorBases.remove(door);
             door = null;
             setGUIPage(new GUIPageDoorList(plugin, this));
             return false;
@@ -130,7 +130,7 @@ public class GUI
 
     void sort()
     {
-        Collections.sort(doors, SortType.getComparator(sortType));
+        Collections.sort(doorBases, SortType.getComparator(sortType));
     }
 
     public void close()
@@ -165,12 +165,12 @@ public class GUI
         return player;
     }
 
-    Door getDoor()
+    DoorBase getDoor()
     {
         return door;
     }
 
-    void setDoor(Door door)
+    void setDoor(DoorBase door)
     {
         this.door = door;
     }
@@ -195,25 +195,25 @@ public class GUI
         return maxPageCount;
     }
 
-    Door getDoor(int index)
+    DoorBase getDoor(int index)
     {
-        return doors.get(index);
+        return doorBases.get(index);
     }
 
     void removeSelectedDoor()
     {
-        doors.remove(door);
+        doorBases.remove(door);
         door = null;
     }
 
-    int indexOfDoor(Door door)
+    int indexOfDoor(DoorBase door)
     {
-        return doors.indexOf(door);
+        return doorBases.indexOf(door);
     }
 
     int getDoorsSize()
     {
-        return doors.size();
+        return doorBases.size();
     }
 
     void addItem(int index, GUIItem guiItem)
@@ -249,9 +249,9 @@ public class GUI
 
     protected static enum SortType
     {
-        ID   ("GUI.SORT.Numerically",    Comparator.comparing(Door::getDoorUID)),
-        NAME ("GUI.SORT.Alphabetically", Comparator.comparing(Door::getName)),
-        TYPE ("GUI.SORT.Typically",      Comparator.comparing(Door::getType))
+        ID   ("GUI.SORT.Numerically",    Comparator.comparing(DoorBase::getDoorUID)),
+        NAME ("GUI.SORT.Alphabetically", Comparator.comparing(DoorBase::getName)),
+        TYPE ("GUI.SORT.Typically",      Comparator.comparing(DoorBase::getType))
         {
             @Override
             SortType next()
@@ -261,9 +261,9 @@ public class GUI
         };
 
         private String name;
-        private Comparator<Door> comparator;
+        private Comparator<DoorBase> comparator;
 
-        SortType(String name, Comparator<Door> comparator)
+        SortType(String name, Comparator<DoorBase> comparator)
         {
             this.name = name;
             this.comparator = comparator;
@@ -274,7 +274,7 @@ public class GUI
             return sortType.name;
         }
 
-        static Comparator<Door> getComparator(SortType sortType)
+        static Comparator<DoorBase> getComparator(SortType sortType)
         {
             return sortType.comparator;
         }

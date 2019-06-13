@@ -2,28 +2,55 @@ package nl.pim16aap2.bigdoors.util;
 
 import org.bukkit.scheduler.BukkitTask;
 
+/**
+ * Represents an abortable BukkitTask.
+ *
+ * @author Pim
+ */
 public abstract class Abortable
 {
     private BukkitTask bukkitTask;
 
-    // When disabling, some aborting logic might need to be different
-    // (e.g. cannot launch new tasks). When implementing this, it NEEDS
-    // to call cancelTask();
+    /**
+     * Abort this bukkitTask. Aborting allows the abortable to finish up gracefully.
+     * <p>
+     * Implementations HAVE TO CALL {@link #cancelTask()}.
+     *
+     * @param Set to true if called when the plugin is being disabled.
+     */
     public abstract void abort(boolean onDisable);
 
-    protected void cancelTask()
+    /**
+     * Kill this bukkitTask.
+     */
+    protected final void killTask()
     {
         bukkitTask.cancel();
     }
 
+    /**
+     * Abort this bukkitTask.
+     * <p>
+     * Aborting allows the abortable to finish up gracefully.
+     */
     public final void abort()
     {
         abort(false);
     }
 
+    /**
+     * Abort this bukkitTask without notifying the user.
+     * <p>
+     * Aborting allows the abortable to finish up gracefully.
+     */
     public abstract void abortSilently();
 
-    public void setTask(BukkitTask task)
+    /**
+     * Set the BukkitTask of this abortable.
+     *
+     * @param task The BukkitTask.
+     */
+    public final void setTask(final BukkitTask task)
     {
         bukkitTask = task;
     }

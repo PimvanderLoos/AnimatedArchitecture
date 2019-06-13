@@ -18,6 +18,8 @@ public class FallingBlockFactory_V1_14_R1 implements FallingBlockFactory_Vall
         CustomEntityFallingBlock_V1_14_R1 fBlockNMS = new CustomEntityFallingBlock_V1_14_R1(plugin, loc.getWorld(), loc
             .getX(), loc.getY(), loc.getZ(), ((NMSBlock_V1_14_R1) block).getMyBlockData());
         CustomCraftFallingBlock_V1_14_R1 ret = new CustomCraftFallingBlock_V1_14_R1(Bukkit.getServer(), fBlockNMS);
+        ret.setCustomName("BigDoorsEntity");
+        ret.setCustomNameVisible(false);
         return ret;
     }
 

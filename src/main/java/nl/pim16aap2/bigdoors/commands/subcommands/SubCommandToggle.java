@@ -10,10 +10,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -33,12 +33,12 @@ public class SubCommandToggle extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public void execute(CommandSender sender, Door door)
+    public void execute(CommandSender sender, DoorBase door)
     {
         execute(sender, door, 0.0D);
     }
 
-    public void execute(CommandSender sender, Door door, double time)
+    public void execute(CommandSender sender, DoorBase door, double time)
     {
         if (sender instanceof Player
             && !plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE))
@@ -47,7 +47,7 @@ public class SubCommandToggle extends SubCommand
         UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         // Get a new instance of the door to make sure the locked / unlocked status is
         // recent.
-        Door newDoor = plugin.getDatabaseManager().getDoor(playerUUID, door.getDoorUID());
+        DoorBase newDoor = plugin.getDatabaseManager().getDoor(playerUUID, door.getDoorUID());
 
         if (newDoor == null)
         {
@@ -70,7 +70,7 @@ public class SubCommandToggle extends SubCommand
         }
     }
 
-    public double parseDoorsAndTime(CommandSender sender, String[] args, ArrayList<Door> doors)
+    public double parseDoorsAndTime(CommandSender sender, String[] args, ArrayList<DoorBase> doors)
     {
         String lastStr = args[args.length - 1];
         // Last argument sets speed if it's a double.
@@ -84,7 +84,7 @@ public class SubCommandToggle extends SubCommand
         Player player = sender instanceof Player ? (Player) sender : null;
         while (index --> 1)
         {
-            Door door = plugin.getDatabaseManager().getDoor(args[index], player);
+            DoorBase door = plugin.getDatabaseManager().getDoor(args[index], player);
             if (door == null)
             {
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" "
@@ -100,10 +100,10 @@ public class SubCommandToggle extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
-        ArrayList<Door> doors = new ArrayList<>();
+        ArrayList<DoorBase> doors = new ArrayList<>();
         double time = parseDoorsAndTime(sender, args, doors);
 
-        for (Door door : doors)
+        for (DoorBase door : doors)
             execute(sender, door, time);
         return doors.size() > 0;
     }

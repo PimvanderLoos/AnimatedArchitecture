@@ -107,7 +107,7 @@ public abstract class ToolUser extends Abortable
         takeToolFromPlayer();
         if (onDisable)
             return;
-        cancelTask();
+        killTask();
         plugin.removeToolUser(this);
         if (!done)
             plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED,

@@ -6,6 +6,8 @@ import java.util.HashSet;
 
 import org.junit.Test;
 
+import nl.pim16aap2.bigdoors.doors.DoorType;
+
 public class DoorTypeTest
 {
     HashSet<Integer> doorTypeValues = new HashSet<>();

@@ -5,25 +5,33 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
+/**
+ * Represents a ToolUser that creates new doors.
+ *
+ * @author Pim
+ * @see ToolUser
+ */
 public abstract class Creator extends ToolUser
 {
     protected DoorType type;
-    protected String name;
+    protected String doorName;
     protected MyBlockFace engineSide = null;
     protected boolean isOpen = false;
     protected Location one, two, engine;
     protected RotateDirection openDir = null;
 
-    protected Creator(BigDoors plugin, Player player, String name, DoorType type)
+    protected Creator(BigDoors plugin, Player player, String doorName, DoorType type)
     {
         super(plugin, player);
-        this.name = name;
+        doorUID = -1;
+        this.doorName = doorName;
         one = null;
         two = null;
         engine = null;
@@ -31,11 +39,22 @@ public abstract class Creator extends ToolUser
         this.type = type;
     }
 
+    /**
+     * Calculate the location of the power block.
+     *
+     * @param world The world the power block should be in.
+     * @return The location of the power block.
+     */
     protected Location getPowerBlockLoc(World world)
     {
         return new Location(world, engine.getBlockX(), engine.getBlockY() - 1, engine.getBlockZ());
     }
 
+    /**
+     * Set the openDirection of the door.
+     * @deprecated This should use {@link nl.pim16aap2.bigdoors.doors.DoorBase#setDefaultOpenDirection()}.
+     */
+    @Deprecated
     protected abstract void setOpenDirection();
 
     // Final cleanup and door creation.
@@ -47,8 +66,6 @@ public abstract class Creator extends ToolUser
             World world     = one.getWorld();
             Location min    = new Location(world, one.getBlockX(), one.getBlockY(), one.getBlockZ());
             Location max    = new Location(world, two.getBlockX(), two.getBlockY(), two.getBlockZ());
-            Location engine = new Location(world, this.engine.getBlockX(), this.engine.getBlockY(), this.engine.getBlockZ());
-            Location powerB = getPowerBlockLoc(world);
 
             String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max);
             if (canBreakBlock != null)
@@ -58,8 +75,21 @@ public abstract class Creator extends ToolUser
                 return;
             }
 
-            Door door = new Door(player.getUniqueId(), world, min, max, engine, name, isOpen, -1, false,
-                                 0, type, engineSide, powerB, openDir, -1);
+            DoorBase door = type.getNewDoor(plugin, doorUID);
+            DoorOwner owner = new DoorOwner(doorUID, player.getUniqueId(), player.getName(), 0);
+            door.setName(doorName);
+            door.setWorld(world);
+            door.setDoorOwner(owner);
+            door.setMinimum(min);
+            door.setMaximum(max);
+            if (engineSide != null)
+                door.setEngineSide(engineSide);
+            door.setEngineLocation(new Location(world, engine.getBlockX(), engine.getBlockY(), engine.getBlockZ()));
+            door.setPowerBlockLocation(getPowerBlockLoc(world));
+            door.setAutoClose(-1);
+            door.setOpenStatus(isOpen);
+
+            door.setDefaultOpenDirection();
 
             int doorSize = door.getBlockCount();
             int sizeLimit = Util.getMaxDoorSizeForPlayer(player);
@@ -68,7 +98,7 @@ public abstract class Creator extends ToolUser
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);
             else if (plugin.getVaultManager().buyDoor(player, type, doorSize))
             {
-                plugin.getDatabaseManager().addDoor(door);
+                plugin.getDatabaseManager().addDoorBase(door);
                 if (message != null)
                     Util.messagePlayer(player, message);
             }
@@ -78,13 +108,13 @@ public abstract class Creator extends ToolUser
 
     public final void setName(String newName)
     {
-        name = newName;
+        doorName = newName;
         triggerGiveTool();
     }
 
     public final String getName()
     {
-        return name;
+        return doorName;
     }
 
     // Make sure position "one" contains the minimum values, "two" the maximum

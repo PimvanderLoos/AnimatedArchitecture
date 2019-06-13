@@ -4,9 +4,9 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class PowerBlockInspector extends ToolUser
@@ -37,7 +37,7 @@ public class PowerBlockInspector extends ToolUser
     public void selector(Location loc)
     {
         done = true;
-        Door door = plugin.getDatabaseManager().doorFromPowerBlockLoc(loc);
+        DoorBase door = plugin.getDatabaseManager().doorFromPowerBlockLoc(loc);
         if (door != null)
         {
             ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, door);

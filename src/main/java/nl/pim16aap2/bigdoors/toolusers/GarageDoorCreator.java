@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -18,7 +18,7 @@ import nl.pim16aap2.bigdoors.util.Vector3D;
  * that is left-clicking is a DoorCreator && tell this class a left-click
  * happened.
  **/
-public class GarageDoorCreator extends DoorCreator
+public class GarageDoorCreator extends BigDoorCreator
 {
     protected String typeString;
 
@@ -48,9 +48,8 @@ public class GarageDoorCreator extends DoorCreator
             int dX = engine.getBlockX() - one.getBlockX();
             int dZ = engine.getBlockZ() - one.getBlockZ();
 
-
             Vector3D dir = new Vector3D(dX < 0 ? -1 : dX > 0 ? 1 : 0, 0, dZ < 0 ? -1 : dZ > 0 ? 1 : 0);
-            Util.broadcastMessage("Found dir: " + dir.toString());
+            Util.broadcastMessage("GarageDoorCreator: Found dir: " + dir.toString());
 
             MyBlockFace mbf = MyBlockFace.faceFromDir(new Vector3D(dX < 0 ? -1 : dX > 0 ? 1 : 0, 0, dZ < 0 ? -1 : dZ > 0 ? 1 : 0));
             openDir = RotateDirection.valueOf(mbf.toString());

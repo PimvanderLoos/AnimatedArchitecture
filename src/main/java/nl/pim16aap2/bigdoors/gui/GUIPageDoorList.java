@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors.gui;
 import java.util.ArrayList;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.gui.GUI.SortType;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.PageType;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -97,7 +97,7 @@ class GUIPageDoorList implements IGUIPage
         ArrayList<String> lore = new ArrayList<>();
         for (int idx = 0; idx < endCount; ++idx)
         {
-            Door currentDoor = gui.getDoor(offset + idx);
+            DoorBase currentDoor = gui.getDoor(offset + idx);
             DoorType doorType = currentDoor.getType();
             lore.add(messages.getString("GUI.DoorHasID") + currentDoor.getDoorUID());
             lore.add(messages.getString(DoorType.getNameKey(doorType)));

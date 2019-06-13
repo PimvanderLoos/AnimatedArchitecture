@@ -5,20 +5,20 @@ import java.util.ArrayList;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class WaitForRemoveOwner extends WaitForCommand
 {
-    private final Door door;
+    private final DoorBase door;
     private final SubCommandRemoveOwner subCommand;
 
-    public WaitForRemoveOwner(final BigDoors plugin, final SubCommandRemoveOwner subCommand, final Player player, final Door door)
+    public WaitForRemoveOwner(final BigDoors plugin, final SubCommandRemoveOwner subCommand, final Player player, final DoorBase door)
     {
         super(plugin, subCommand);
         this.subCommand = subCommand;

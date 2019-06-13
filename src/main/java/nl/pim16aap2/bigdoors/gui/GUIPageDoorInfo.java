@@ -5,14 +5,13 @@ import java.util.ArrayList;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.PageType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
@@ -54,7 +53,7 @@ public class GUIPageDoorInfo implements IGUIPage
             return;
         }
 
-        Door door = gui.getDoor();
+        DoorBase door = gui.getDoor();
         Player player = gui.getPlayer();
 
         switch(gui.getItem(interactionIDX).getDoorAttribute())
@@ -89,7 +88,6 @@ public class GUIPageDoorInfo implements IGUIPage
             gui.close();
             break;
         case BLOCKSTOMOVE:
-
             plugin.getDatabaseManager().startBlocksToMoveSetter(player, door);
             gui.close();
             break;
@@ -143,7 +141,7 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     // Changes the opening direction for a door.
-    private void changeOpenDir(Door door, int index)
+    private void changeOpenDir(DoorBase door, int index)
     {
         RotateDirection curOpenDir = door.getOpenDir();
         RotateDirection newOpenDir = null;
@@ -161,7 +159,7 @@ public class GUIPageDoorInfo implements IGUIPage
             case DIRECTION_ROTATE_VERTICAL:
                 openTypeAttribute = DoorAttribute.DIRECTION_ROTATE_VERTICAL;
                 newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.CLOCKWISE :
-                    curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE : RotateDirection.NONE;
+                    curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
                 break outerLoop;
 
             case DIRECTION_ROTATE_VERTICAL2:
@@ -172,7 +170,7 @@ public class GUIPageDoorInfo implements IGUIPage
                 newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.NORTH :
                     curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST :
                     curOpenDir == RotateDirection.EAST ? RotateDirection.SOUTH :
-                    curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST : RotateDirection.NONE;
+                    curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST : RotateDirection.NORTH;
                 break outerLoop;
             case DIRECTION_STRAIGHT_VERTICAL:
                 openTypeAttribute = DoorAttribute.DIRECTION_STRAIGHT_VERTICAL;
@@ -190,7 +188,7 @@ public class GUIPageDoorInfo implements IGUIPage
         gui.updateItem(index, getGUIItem(door, openTypeAttribute));
     }
 
-    private GUIItem getGUIItem(Door door, DoorAttribute atr)
+    private GUIItem getGUIItem(DoorBase door, DoorAttribute atr)
     {
         // If the permission level is higher than the
         if (door.getPermission() > DoorAttribute.getPermissionLevel(atr))
@@ -259,9 +257,6 @@ public class GUIPageDoorInfo implements IGUIPage
             desc = messages.getString("GUI.Direction.Name");
             loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             lore.add(loreStr);
-            lore.add(messages.getString("GUI.Direction.Looking") +
-                     (door.getLookingDir() == MyBlockFace.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
-                                                                  messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
             ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
             break;
 

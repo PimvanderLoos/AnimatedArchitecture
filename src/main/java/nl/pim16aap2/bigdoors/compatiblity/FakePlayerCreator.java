@@ -90,7 +90,7 @@ class FakePlayerCreator
         }
         catch (ClassNotFoundException | NoSuchMethodException | SecurityException | NoSuchFieldException e)
         {
-            e.printStackTrace();
+            plugin.getMyLogger().logException(e);
             return;
         }
         success = true;
@@ -119,7 +119,7 @@ class FakePlayerCreator
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e)
         {
-            e.printStackTrace();
+            plugin.getMyLogger().logException(e);
         }
 
         if (player != null)

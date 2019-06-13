@@ -7,11 +7,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
-public class Messages
+public final class Messages
 {
     private HashMap<String, String> messageMap = new HashMap<>();
     private final BigDoors plugin;
@@ -23,7 +22,7 @@ public class Messages
         textFile = new File(plugin.getDataFolder(), plugin.getConfigLoader().languageFile() + ".txt");
         if (!textFile.exists())
         {
-            plugin.getMyLogger().logMessage("Failed to load language file: \"" + textFile + "\": File not found! Using default file instead!", true, false);
+            plugin.getMyLogger().warn("Failed to load language file: \"" + textFile + "\": File not found! Using default file instead!");
             textFile = new File(plugin.getDataFolder(), "en_US.txt");
         }
         readFile();
@@ -33,7 +32,7 @@ public class Messages
     {
         File defaultFile = new File(plugin.getDataFolder(), "en_US.txt");
         if (defaultFile.exists() && !defaultFile.setWritable(true))
-            plugin.getMyLogger().myLogger(Level.SEVERE, "Failed to make file \"" + defaultFile + "\" writable!");
+            plugin.getMyLogger().severe("Failed to make file \"" + defaultFile + "\" writable!");
 
         // Load the default en_US from the resources folder.
         plugin.saveResource("en_US.txt", true);
@@ -71,12 +70,11 @@ public class Messages
         }
         catch (FileNotFoundException e)
         {
-            plugin.getMyLogger().myLogger(Level.SEVERE, "Locale file \"" + textFile + "\" does not exist!");
+            plugin.getMyLogger().logException(e, "Locale file \"" + textFile + "\" does not exist!");
         }
         catch (IOException e)
         {
-            plugin.getMyLogger().myLogger(Level.SEVERE, "Could not read locale file! \"" + textFile + "\"");
-            e.printStackTrace();
+            plugin.getMyLogger().logException(e, "Could not read locale file! \"" + textFile + "\"");
         }
     }
 
@@ -87,7 +85,7 @@ public class Messages
         if (value == null)
         {
             value = "BigDoors: Translation not found! Contact server admin!";
-            plugin.getMyLogger().logMessageToConsole("Failed to get the translation for key " + key);
+            plugin.getMyLogger().warn("Failed to get the translation for key " + key);
         }
         return value;
     }

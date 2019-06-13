@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -7,6 +8,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -14,6 +17,7 @@ import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.nms.NMSBlock_Vall;
 import nl.pim16aap2.bigdoors.util.Util;
 
 /*
@@ -51,6 +55,27 @@ public class SubCommandDebug extends SubCommand
             {
                 Util.broadcastMessage("Shape: " + ((Stairs) bd).getShape().toString() + " Facing: " + ((Stairs) bd).getFacing() + " Half: " + ((Stairs) bd).getHalf());
             }
+
+            Location loc2 = loc.clone();
+            loc2.add(0, 5, 0);
+
+            NMSBlock_Vall nmsBlock = plugin.getFABF().nmsBlockFactory(world, 49, 77, 191);
+            plugin.getFABF().fallingBlockFactory(plugin, loc2, nmsBlock);
+
+            for (Entity ent : world.getEntities())
+            {
+                if (ent.getCustomName() != null && ent.getCustomName().equals("BigDoorsEntity"))
+                {
+                    Bukkit.broadcastMessage("BigDoorsEntity: " + Util.locIntToString(ent.getLocation()));
+                    ent.remove();
+                }
+                else if (ent instanceof FallingBlock)
+                {
+                    Bukkit.broadcastMessage("Entity is a falling block! Loc: " + Util.locIntToString(ent.getLocation()));
+                    ent.remove();
+                }
+            }
+
 
 //            if (! (block.getBlockData() instanceof Directional))
 //            {

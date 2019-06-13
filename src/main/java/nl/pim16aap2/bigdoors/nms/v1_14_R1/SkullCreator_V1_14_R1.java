@@ -124,7 +124,7 @@ public class SkullCreator_V1_14_R1 extends HeadManager
                 }
                 catch (Exception e)
                 {
-//                    Util.broadcastMessage("1: Failed to get for player: " + p.getUniqueId() + " (\"" + p.getName() + "\")");
+                    plugin.getMyLogger().logException(e, "Failed to get for player: " + p.getUniqueId() + " (\"" + p.getName() + "\")");
                 }
             }
             else
@@ -137,8 +137,7 @@ public class SkullCreator_V1_14_R1 extends HeadManager
         }
         catch (IOException e)
         {
-            System.err.println("Could not get skin data from session servers!");
-            e.printStackTrace();
+            plugin.getMyLogger().logException(e, "Could not get skin data from session servers!");
             return null;
         }
         return null;

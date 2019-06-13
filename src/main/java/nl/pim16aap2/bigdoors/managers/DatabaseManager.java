@@ -16,12 +16,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.Abortable;
@@ -123,29 +123,29 @@ public class DatabaseManager extends Restartable
         abortable.setTask(task);
     }
 
-    public void startPowerBlockRelocator(Player player, Door door)
+    public void startPowerBlockRelocator(Player player, DoorBase door)
     {
         startTimerForAbortable(new PowerBlockRelocator(plugin, player, door.getDoorUID()), 20 * 20);
     }
 
-    public void startTimerSetter(Player player, Door door)
+    public void startTimerSetter(Player player, DoorBase door)
     {
-        plugin.addCommandWaiter(new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand(CommandData.SETAUTOCLOSETIME), player, door));
+        startTimerForAbortable(new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand(CommandData.SETAUTOCLOSETIME), player, door), 20 * 20);
     }
 
-    public void startBlocksToMoveSetter(Player player, Door door)
+    public void startBlocksToMoveSetter(Player player, DoorBase door)
     {
-        plugin.addCommandWaiter(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin.getCommand(CommandData.SETBLOCKSTOMOVE), player, door));
+        startTimerForAbortable(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin.getCommand(CommandData.SETBLOCKSTOMOVE), player, door), 20 * 20);
     }
 
-    public void startAddOwner(Player player, Door door)
+    public void startAddOwner(Player player, DoorBase door)
     {
-        plugin.addCommandWaiter(new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand(CommandData.ADDOWNER), player, door));
+        startTimerForAbortable(new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand(CommandData.ADDOWNER), player, door), 20 * 20);
     }
 
-    public void startRemoveOwner(Player player, Door door)
+    public void startRemoveOwner(Player player, DoorBase door)
     {
-        plugin.addCommandWaiter(new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand(CommandData.REMOVEOWNER), player, door));
+        startTimerForAbortable(new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand(CommandData.REMOVEOWNER), player, door), 20 * 20);
     }
 
     public void setDoorBlocksToMove(long doorUID, int autoClose)
@@ -179,19 +179,19 @@ public class DatabaseManager extends Restartable
     }
 
     // Print an ArrayList of doors to a player.
-    public void printDoors(Player player, ArrayList<Door> doors)
+    public void printDoors(Player player, ArrayList<DoorBase> doors)
     {
-        for (Door door : doors)
+        for (DoorBase door : doors)
             Util.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
     }
 
-    public Door getDoor(long doorUID)
+    public DoorBase getDoor(long doorUID)
     {
         return db.getDoor(null, doorUID);
     }
 
     // Get the door from the string. Can be use with a doorUID or a doorName.
-    public Door getDoor(String doorStr, @Nullable Player player)
+    public DoorBase getDoor(String doorStr, @Nullable Player player)
     {
         // First try converting the doorStr to a doorUID.
         try
@@ -205,7 +205,7 @@ public class DatabaseManager extends Restartable
         {
             if (player == null)
                 return null;
-            ArrayList<Door> doors = new ArrayList<>();
+            ArrayList<DoorBase> doors = new ArrayList<>();
             doors = db.getDoors(player.getUniqueId().toString(), doorStr);
             if (doors.size() == 1)
                 return doors.get(0);
@@ -219,24 +219,21 @@ public class DatabaseManager extends Restartable
         }
     }
 
-    public void addDoor(Door newDoor)
+    public void addDoorBase(DoorBase newDoor)
     {
         db.insert(newDoor);
     }
 
-    public void addDoor(Door newDoor, Player player, int permission)
+    public void addDoorBase(DoorBase newDoor, Player player, int permission)
     {
-        if (newDoor.getPlayerUUID() != player.getUniqueId())
-            newDoor.setPlayerUUID(player.getUniqueId());
-        if (newDoor.getPermission() != permission)
-            newDoor.setPermission(permission);
-        addDoor(newDoor);
+        newDoor.setDoorOwner(new DoorOwner(newDoor.getDoorUID(), player.getUniqueId(), player.getName(), permission));
+        addDoorBase(newDoor);
     }
 
     // Add a door to the db of doors.
-    public void addDoor(Door newDoor, Player player)
+    public void addDoorBase(DoorBase newDoor, Player player)
     {
-        addDoor(newDoor, player, 0);
+        addDoorBase(newDoor, player, 0);
     }
 
     public void removeDoor(long doorUID)
@@ -262,31 +259,25 @@ public class DatabaseManager extends Restartable
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
-    public ArrayList<Door> getDoors(String playerUUID, @Nullable String name)
+    public ArrayList<DoorBase> getDoors(String playerUUID, @Nullable String name)
     {
         return db.getDoors(playerUUID, name);
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null),
     // and where the player has a higher permission node (lower number) than specified.
-    public ArrayList<Door> getDoors(String playerUUID, @Nullable String name, int maxPermission)
+    public ArrayList<DoorBase> getDoors(String playerUUID, @Nullable String name, int maxPermission)
     {
         return db.getDoors(playerUUID, name, maxPermission);
     }
 
     // Returns an ArrayList of doors with a specific name.
-    public ArrayList<Door> getDoors(String name)
+    public ArrayList<DoorBase> getDoors(String name)
     {
         return db.getDoors(name);
     }
 
-    // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
-    public ArrayList<Door> getDoorsInRange(String playerUUID, @Nullable String name, int start, int end)
-    {
-        return db.getDoors(playerUUID, name, start, end, Integer.MAX_VALUE);
-    }
-
-    public void fillDoor(Door door)
+    public void fillDoor(DoorBase door)
     {
         for (int i = door.getMinimum().getBlockX(); i <= door.getMaximum().getBlockX(); ++i)
             for (int j = door.getMinimum().getBlockY(); j <= door.getMaximum().getBlockY(); ++j)
@@ -351,7 +342,7 @@ public class DatabaseManager extends Restartable
     }
 
     // Get a door with a specific doorUID.
-    public Door getDoor(@Nullable UUID playerUUID, long doorUID)
+    public DoorBase getDoor(@Nullable UUID playerUUID, long doorUID)
     {
         return db.getDoor(playerUUID, doorUID);
     }
@@ -411,12 +402,12 @@ public class DatabaseManager extends Restartable
                             blockZMax, newEngSide);
     }
 
-    public void addOwner(Door door, UUID playerUUID)
+    public void addOwner(DoorBase door, UUID playerUUID)
     {
         addOwner(door, playerUUID, 1);
     }
 
-    public boolean addOwner(Door door, UUID playerUUID, int permission)
+    public boolean addOwner(DoorBase door, UUID playerUUID, int permission)
     {
         if (permission < 1 || permission > 2 || door.getPermission() != 0 || door.getPlayerUUID().equals(playerUUID))
             return false;
@@ -425,7 +416,7 @@ public class DatabaseManager extends Restartable
         return true;
     }
 
-    public boolean removeOwner(Door door, UUID playerUUID)
+    public boolean removeOwner(DoorBase door, UUID playerUUID)
     {
         return removeOwner(door.getDoorUID(), playerUUID);
     }
@@ -437,7 +428,7 @@ public class DatabaseManager extends Restartable
         return db.removeOwner(doorUID, playerUUID);
     }
 
-    public ArrayList<DoorOwner> getDoorOwners(long doorUID, @Nullable UUID playerUUID)
+    public ArrayList<DoorOwner> getDoorOwners(long doorUID, UUID playerUUID)
     {
         return db.getOwnersOfDoor(doorUID, playerUUID);
     }
@@ -464,7 +455,7 @@ public class DatabaseManager extends Restartable
     }
 
     // Get a door from the x,y,z coordinates of its power block.
-    public Door doorFromPowerBlockLoc(Location loc)
+    public DoorBase doorFromPowerBlockLoc(Location loc)
     {
         long chunkHash = Util.chunkHashFromLocation(loc);
         HashMap<Long, Long> powerBlockData = plugin.getPBCache().get(chunkHash);
@@ -474,7 +465,7 @@ public class DatabaseManager extends Restartable
             plugin.getPBCache().put(chunkHash, powerBlockData);
         }
 
-        Long doorUID = powerBlockData.get(Util.locationHash(loc));
+        Long doorUID = powerBlockData.get((long) loc.hashCode());
         return doorUID == null ? null : db.getDoor(null, doorUID);
     }
 

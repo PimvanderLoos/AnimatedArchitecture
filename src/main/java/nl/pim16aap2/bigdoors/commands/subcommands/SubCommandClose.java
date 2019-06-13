@@ -8,10 +8,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
@@ -26,7 +26,7 @@ public class SubCommandClose extends SubCommandToggle
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean readyToClose(Door door)
+    public boolean readyToClose(DoorBase door)
     {
         return (door.getOpenDir().equals(RotateDirection.NONE) || door.isOpen());
     }
@@ -35,10 +35,10 @@ public class SubCommandClose extends SubCommandToggle
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
-        ArrayList<Door> doors = new ArrayList<>();
+        ArrayList<DoorBase> doors = new ArrayList<>();
         double time = parseDoorsAndTime(sender, args, doors);
 
-        for (Door door : doors)
+        for (DoorBase door : doors)
             if (readyToClose(door))
                 execute(sender, door, time);
             else

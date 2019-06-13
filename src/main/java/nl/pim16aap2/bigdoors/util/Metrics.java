@@ -32,7 +32,7 @@ import org.json.simple.JSONObject;
  *
  * Check out https://bStats.org/ to learn more about bStats!
  */
-public class Metrics {
+public final class Metrics {
 
     static {
         // You can use the property to disable the check in your test environment

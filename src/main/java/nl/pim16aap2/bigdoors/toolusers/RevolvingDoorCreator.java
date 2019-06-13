@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 
 /**
  * This class represents players in the process of creating doors. Objects of
@@ -14,7 +14,7 @@ import nl.pim16aap2.bigdoors.util.DoorType;
  * that is left-clicking is a DoorCreator && tell this class a left-click
  * happened.
  **/
-public class RevolvingDoorCreator extends DoorCreator
+public class RevolvingDoorCreator extends BigDoorCreator
 {
     protected String typeString;
 

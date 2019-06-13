@@ -9,9 +9,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.MyBlockData;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -23,7 +22,7 @@ class WindmillMover extends BlockMover
     private static final double minSpeed = 0.1;
     private final BiFunction<MyBlockData, Double, Vector> getVector;
 
-    public WindmillMover(final BigDoors plugin, final World world, final Door door, final double multiplier,
+    public WindmillMover(final BigDoors plugin, final World world, final DoorBase door, final double multiplier,
         final RotateDirection rotateDirection)
     {
         super(plugin, world, door, 30, false, null, null, -1);
@@ -130,7 +129,7 @@ class WindmillMover extends BlockMover
                 else
                     startTime += currentTime - lastTime;
 
-                if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (MyBlockData block : savedBlocks)
@@ -158,12 +157,6 @@ class WindmillMover extends BlockMover
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
-    }
-
-    @Override
-    protected void updateCoords(Door door, MyBlockFace openDirection, RotateDirection upDown, int moved)
-    {
-        return;
     }
 
     @Override

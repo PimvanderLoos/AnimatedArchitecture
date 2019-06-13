@@ -11,8 +11,9 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-import nl.pim16aap2.bigdoors.toolusers.DoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.BigDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.DrawbridgeCreator;
 import nl.pim16aap2.bigdoors.toolusers.ElevatorCreator;
 import nl.pim16aap2.bigdoors.toolusers.FlagCreator;
@@ -22,13 +23,12 @@ import nl.pim16aap2.bigdoors.toolusers.RevolvingDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.WindmillCreator;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class SubCommandNew extends SubCommand
 {
     protected static final String help = "Create a new door from selection with name \"doorName\". Defaults to a regular door.";
-    protected static final String argsHelp = "[-pc/-db/-bd/-el/-fl] <doorName>";
+    protected static final String argsHelp = "[-pc/-db/-bd/-el/-fl/-sd/-gd] <doorName>";
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.NEW;
 
@@ -56,7 +56,7 @@ public class SubCommandNew extends SubCommand
     {
         if (!DoorType.isEnabled(type))
         {
-            plugin.getMyLogger().logMessage("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!", true);
+            plugin.getMyLogger().severe("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!");
             return;
         }
 
@@ -88,8 +88,8 @@ public class SubCommandNew extends SubCommand
         ToolUser tu = null;
         switch (type)
         {
-        case DOOR:
-            tu = new DoorCreator(plugin, player, name);
+        case BIGDOOR:
+            tu = new BigDoorCreator(plugin, player, name);
             break;
         case DRAWBRIDGE:
             tu = new DrawbridgeCreator(plugin, player, name);
@@ -121,11 +121,11 @@ public class SubCommandNew extends SubCommand
 
         if (tu == null)
         {
-            plugin.getMyLogger().logMessage("Failed to initiate door creation process for door type: \"" + type.toString() + "\"", true);
+            plugin.getMyLogger().warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
             return;
         }
 
-         plugin.getDatabaseManager().startTimerForAbortable(tu, 60 * 20);
+        plugin.getDatabaseManager().startTimerForAbortable(tu, 60 * 20);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class SubCommandNew extends SubCommand
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
 
-        DoorType type = DoorType.DOOR;
+        DoorType type = DoorType.BIGDOOR;
         String name = args[args.length - 1];
 
         if (args.length == minArgCount + 1)

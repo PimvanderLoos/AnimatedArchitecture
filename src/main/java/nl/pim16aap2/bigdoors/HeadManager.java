@@ -23,7 +23,7 @@ public abstract class HeadManager extends Restartable
 
     public void init()
     {
-        map = new TimedCache<> (plugin, plugin.getConfigLoader().headCacheTimeout());
+        map = new TimedCache<>(plugin, plugin.getConfigLoader().headCacheTimeout());
         headMap = new TimedCache<>(plugin, plugin.getConfigLoader().headCacheTimeout());
     }
 
@@ -44,7 +44,9 @@ public abstract class HeadManager extends Restartable
     }
 
     protected abstract String[] getFromPlayer(Player playerBukkit);
+
     protected abstract void createSkull(int x, int y, int z, String name, UUID playerUUID, Player p);
+
     protected abstract String[] getFromName(String name, Player p);
 
     private long start;
@@ -72,9 +74,6 @@ public abstract class HeadManager extends Restartable
         end = 0;
     }
 
-
-
-
     public static <T> FieldAccessor<T> getField(Class<?> target, String name, Class<T> fieldType)
     {
         return getField(target, name, fieldType, 0);
@@ -88,8 +87,8 @@ public abstract class HeadManager extends Restartable
     private static <T> FieldAccessor<T> getField(Class<?> target, String name, Class<T> fieldType, int index)
     {
         for (final Field field : target.getDeclaredFields())
-            if ((name == null || field.getName().equals(name)) && fieldType.isAssignableFrom(field.getType())
-                && index-- <= 0)
+            if ((name == null || field.getName().equals(name)) && fieldType.isAssignableFrom(field.getType()) &&
+                index-- <= 0)
             {
                 field.setAccessible(true);
 

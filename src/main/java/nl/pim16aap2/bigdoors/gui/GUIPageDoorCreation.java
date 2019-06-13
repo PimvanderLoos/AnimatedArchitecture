@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.PageType;
 
@@ -47,8 +47,8 @@ public class GUIPageDoorCreation implements IGUIPage
 
         if (!(item.getSpecialValue() instanceof DoorType))
         {
-            plugin.getMyLogger().logMessage("Something went wrong constructing the selected GUIItem at "
-                + interactionIDX + ":\n" + item.toString(), true);
+            plugin.getMyLogger().warn("Something went wrong constructing the selected GUIItem at " + interactionIDX
+                + ":\n" + item.toString());
             return;
         }
         startCreationProcess(gui.getPlayer(), (DoorType) item.getSpecialValue());

@@ -2,49 +2,73 @@ package nl.pim16aap2.bigdoors.util;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
-
-import nl.pim16aap2.bigdoors.BigDoors;
-
+/**
+ * Contains all details needed about a doorOwner.
+ *
+ * @author Pim
+ */
 public class DoorOwner
 {
     private UUID playerUUID;
     private long doorUID;
     private int permission;
-    private String name;
-    private final BigDoors plugin;
+    private String playerName;
 
-    public DoorOwner(BigDoors plugin, long doorUID, UUID playerUUID, int permission, @Nullable String name)
+    public DoorOwner(long doorUID, UUID playerUUID, String playerName, int permission)
     {
-        this.plugin = plugin;
         this.doorUID = doorUID;
         this.playerUUID = playerUUID;
         this.permission = permission;
-        this.name = name;
+        this.playerName = playerName;
+        if (playerUUID == null)
+            throw new NullPointerException();
+        if (playerName == null)
+            throw new NullPointerException();
     }
 
+    /**
+     * Get the UID of the door.
+     *
+     * @return the UID of the door.
+     */
     public long getDoorUID()
     {
         return doorUID;
     }
 
+    /**
+     * Get the UUID of the player.
+     *
+     * @return The UUID of the player.
+     */
     public UUID getPlayerUUID()
     {
         return playerUUID;
     }
 
+    /**
+     * Get the permission level of the owner of the door.
+     *
+     * @return The permission level of the owner.
+     */
     public int getPermission()
     {
         return permission;
     }
 
+    /**
+     * Get the name of the player.
+     *
+     * @return The name of the player.
+     */
     public String getPlayerName()
     {
-        if (name == null)
-            name = plugin.getDatabaseManager().playerNameFromUUID(playerUUID);
-        return name;
+        return playerName;
     }
 
+    /**
+     * Get a basic overview of this door owner. Useful for debugging.
+     */
     @Override
     public String toString()
     {
@@ -58,8 +82,8 @@ public class DoorOwner
         sb.append(". Permission: ");
         sb.append(permission);
 
-        sb.append(". Name: ");
-        sb.append(name);
+        sb.append(". PlayerName: ");
+        sb.append(playerName);
         return sb.toString();
     }
 }

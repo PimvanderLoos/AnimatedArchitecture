@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -21,31 +21,38 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 
 public final class Util
 {
-    // Send a message to a player in a specific color.
-    public static void messagePlayer(Player player, ChatColor color, String s)
+    /**
+     * Send a colored message to a specific player.
+     *
+     * @param player The player that will receive the message.
+     * @param color  Color of the message
+     * @param msg    The message to be sent.
+     */
+    public static void messagePlayer(Player player, ChatColor color, String msg)
     {
-        player.sendMessage(color + s);
+        player.sendMessage(color + msg);
     }
 
+    /**
+     * Convert a command and its explanation to the help format.
+     *
+     * @param command     Name of the command.
+     * @param explanation Explanation of how to use the command.
+     * @return String in the helperformat.
+     */
     public static String helpFormat(String command, String explanation)
     {
         return String.format(ChatColor.GREEN + "/%s: " + ChatColor.BLUE + "%s\n", command, explanation);
     }
 
-    public static String errorToString(Error e)
-    {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        return sw.toString();
-    }
-
-    public static String exceptionToString(Exception e)
-    {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        return sw.toString();
-    }
-
+    /**
+     * Concatenate two arrays.
+     *
+     * @param <T>
+     * @param first  First array.
+     * @param second Second array.
+     * @return A single concatenated array.
+     */
     public static <T> T[] concatArrays(T[] first, T[] second)
     {
         T[] result = Arrays.copyOf(first, first.length + second.length);
@@ -53,37 +60,86 @@ public final class Util
         return result;
     }
 
-    public static<T> T[] doubleArraySize(T[] arr)
+    /**
+     * Double the size of a provided array
+     *
+     * @param <T>
+     * @param arr Array to be doubled in size
+     * @return A copy of the array but with doubled size.
+     */
+    public static <T> T[] doubleArraySize(T[] arr)
     {
         return Arrays.copyOf(arr, arr.length * 2);
     }
 
-    public static<T> T[] truncateArray(T[] arr, int newLength)
+    /**
+     * Truncate an array after a provided new length.
+     *
+     * @param <T>
+     * @param arr       The array to truncate
+     * @param newLength The new length of the array.
+     * @return A truncated array
+     */
+    public static <T> T[] truncateArray(T[] arr, int newLength)
     {
         return Arrays.copyOf(arr, newLength);
     }
 
+    /**
+     * Broadcast a message if debugging is enabled in the config.
+     *
+     * @param message The message to broadcast.
+     */
     public static void broadcastMessage(String message)
     {
-//        if (ConfigLoader.DEBUG)
-        Bukkit.broadcastMessage(message);
+        if (ConfigLoader.DEBUG)
+            Bukkit.broadcastMessage(message);
     }
 
+    /**
+     * Convert a location to a nicely formatted string of x:y:z using integers.
+     *
+     * @param loc The location to convert to a string.
+     * @return A string of the coordinates of the location.
+     */
     public static String locIntToString(Location loc)
     {
         return String.format("(%d;%d;%d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 
+    /**
+     * Convert a location to a nicely formatted string of x:y:z using doubles
+     * rounded to 2 decimals.
+     *
+     * @param loc The location to convert to a string.
+     * @return A string of the coordinates of the location.
+     */
     public static String locDoubleToString(Location loc)
     {
         return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
     }
 
+    /**
+     * Get the hash of the location of the chunk that the provided location lies in.
+     *
+     * @param loc The location to get the chunk Hash of.
+     * @return The hash of the chunk
+     */
     public static long chunkHashFromLocation(Location loc)
     {
         return chunkHashFromLocation(loc.getBlockX(), loc.getBlockZ(), loc.getWorld().getUID());
     }
 
+    /**
+     * Get the hash of a Chunk location.
+     *
+     * @param x         The X-coordinate of the position in the world (NOT the chunk
+     *                  coordinate!).
+     * @param z         The Z-coordinate of the position in the world (NOT the chunk
+     *                  coordinate!).
+     * @param worldUUID The UUID of the world.
+     * @return The hash of the Chunk location.
+     */
     public static long chunkHashFromLocation(int x, int z, UUID worldUUID)
     {
         int chunk_X = x >> 4;
@@ -95,13 +151,18 @@ public final class Util
         return hash;
     }
 
-    // Doors aren't allowed to have numerical names, to differentiate doorNames from
-    // doorUIDs.
+    /**
+     * Check if a given string is a valid door name. Numerical names aren't allowed,
+     * to make sure they don't get confused for doorUIDs.
+     *
+     * @param name The name to test for validity,
+     * @return True if the name is allowed.
+     */
     public static boolean isValidDoorName(String name)
     {
         try
         {
-            Integer.parseInt(name);
+            Long.parseLong(name);
             return false;
         }
         catch (NumberFormatException e)
@@ -110,21 +171,31 @@ public final class Util
         }
     }
 
-    public static long locationHash(Location loc)
-    {
-        return loc.hashCode();
-    }
-
+    /**
+     * Generate the hash of a location.
+     *
+     * @param x         X-coordinate.
+     * @param y         Y-coordinate.
+     * @param z         Z-coordinate.
+     * @param worldUUID UUID of the world.
+     * @return Hash of the location.
+     */
     public static long locationHash(int x, int y, int z, UUID worldUUID)
     {
-        return locationHash(new Location(Bukkit.getWorld(worldUUID), x, y, z));
+        return new Location(Bukkit.getWorld(worldUUID), x, y, z).hashCode();
     }
 
     static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     static SecureRandom srnd = new SecureRandom();
     static Random rnd = new Random();
 
-    public static String randomString(int length)
+    /**
+     * Generate an insecure random alphanumeric string of a given length.
+     *
+     * @param length Length of the resulting string
+     * @return An insecure random alphanumeric string.
+     */
+    public static String randomInsecureString(int length)
     {
         StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
@@ -132,6 +203,12 @@ public final class Util
         return sb.toString();
     }
 
+    /**
+     * Generate a secure random alphanumeric string of a given length.
+     *
+     * @param length Length of the resulting string
+     * @return A secure random alphanumeric string.
+     */
     public static String secureRandomString(int length)
     {
         StringBuilder sb = new StringBuilder(length);
@@ -153,21 +230,17 @@ public final class Util
         return output;
     }
 
-    public static String playerUUIDStrFromString(String input)
-    {
-        UUID playerUUID = playerUUIDFromString(input);
-        return playerUUID == null ? null : playerUUID.toString();
-    }
-
-    /*
+    /**
      * Try to get a player's UUID from a given name.
-     * First try to get it from an online player, then try
-     * an offline player, as the first is faster.
-     * Check if the resulting player's name is a match to the
-     * provided playerName, because player retrieval from a
-     * name is not exact. "pim" would match "pim16aap2", for example.
+     *
+     * @param playerName Name of the player.
+     * @return UUID of the player if one was found, otherwise null.
      */
-    public static UUID playerUUIDFromString(String playerName)
+    /*
+     * First try to get the UUID from an online player, then try an offline player;
+     * the first option is faster.
+     */
+    public static @Nullable UUID playerUUIDFromString(String playerName)
     {
         Player player = null;
         player = Bukkit.getPlayer(playerName);
@@ -180,6 +253,11 @@ public final class Util
             {
             }
         if (player != null)
+            /*
+             * Check if the resulting player's name is a match to the provided playerName,
+             * because player retrieval from a name is not exact. "pim" would match
+             * "pim16aap2", for example.
+             */
             return player.getName().equals(playerName) ? player.getUniqueId() : null;
 
         OfflinePlayer offPlayer = null;
@@ -195,7 +273,15 @@ public final class Util
         return null;
     }
 
-    // Play sound at a location.
+    /**
+     * Play a sound for all players in a range of 15 blocks around the provided
+     * location.
+     *
+     * @param loc    The location of the sound.
+     * @param sound  The name of the sound.
+     * @param volume The volume
+     * @param pitch  The pitch
+     */
     public static void playSound(Location loc, String sound, float volume, float pitch)
     {
         for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
@@ -203,6 +289,12 @@ public final class Util
                 ((Player) ent).playSound(loc, sound, volume, pitch);
     }
 
+    /**
+     * Retrieve the number of doors a given player is allowed to won.
+     *
+     * @param player The player for whom to retrieve the limit.
+     * @return The limit if one was found, or -1 if unlimited.
+     */
     public static int getMaxDoorsForPlayer(Player player)
     {
         if (player.isOp())
@@ -210,6 +302,13 @@ public final class Util
         return getHighestPermissionSuffix(player, "bigdoors.own.");
     }
 
+    /**
+     * Retrieve the limit of the door size (measured in blocks) a given player can
+     * own.
+     *
+     * @param player The player for whom to retrieve the limit.
+     * @return The limit if one was found, or -1 if unlimited.
+     */
     public static int getMaxDoorSizeForPlayer(Player player)
     {
         if (player.isOp())
@@ -217,6 +316,16 @@ public final class Util
         return getHighestPermissionSuffix(player, "bigdoors.maxsize.");
     }
 
+    /**
+     * Get the highest value of a variable in a permission node of a player.
+     * <p>
+     * For example, retrieve '8' from 'permission.node.8'.
+     *
+     * @param player         The player whose permissions to check.
+     * @param permissionNode The base permission node.
+     * @return The highest value of the variable suffix of the permission node or -1
+     *         if none was found.
+     */
     private static int getHighestPermissionSuffix(Player player, String permissionNode)
     {
         int ret = -1;
@@ -232,6 +341,15 @@ public final class Util
         return ret;
     }
 
+    /**
+     * Try to convert a string to a double. Use the default value in case of
+     * failure.
+     *
+     * @param input      The string to be converted to a double.
+     * @param defaultVal The value that is to be used as backup.
+     * @return Double converted from the string if possible, and defaultVal
+     *         otherwise.
+     */
     public static double doubleFromString(String input, double defaultVal)
     {
         try
@@ -244,6 +362,13 @@ public final class Util
         }
     }
 
+    /**
+     * Try to convert a string to a long. Use the default value in case of failure.
+     *
+     * @param input      The string to be converted to a long.
+     * @param defaultVal The value that is to be used as backup.
+     * @return Long converted from the string if possible, and defaultVal otherwise.
+     */
     public static long longFromString(String input, long defaultVal)
     {
         try
@@ -256,12 +381,23 @@ public final class Util
         }
     }
 
-    // Send a message to a player.
-    public static void messagePlayer(Player player, String s)
+    /**
+     * Send a white message to a player.
+     *
+     * @param player Player to receive the message.
+     * @param msg    The message.
+     */
+    public static void messagePlayer(Player player, String msg)
     {
-        messagePlayer(player, ChatColor.WHITE, s);
+        messagePlayer(player, ChatColor.WHITE, msg);
     }
 
+    /**
+     * Convert an array of strings to a single string.
+     *
+     * @param strings Input array of string
+     * @return Resulting concatenated string.
+     */
     public static String stringFromArray(String[] strings)
     {
         StringBuilder builder = new StringBuilder();
@@ -270,24 +406,49 @@ public final class Util
         return builder.toString();
     }
 
-    // Send an array of messages to a player.
-    public static void messagePlayer(Player player, String[] str)
+    /**
+     * Send a number message to a player.
+     *
+     * @param player The player that will receive the message
+     * @param str    The messages
+     */
+    public static void messagePlayer(Player player, String[] msg)
     {
-        messagePlayer(player, stringFromArray(str));
+        messagePlayer(player, stringFromArray(msg));
     }
 
-    // Send an array of messages to a player.
-    public static void messagePlayer(Player player, ChatColor color, String[] str)
+    /**
+     * Send a number of messages to a player.
+     *
+     * @param player The player that will receive the message
+     * @param color  The color of the message
+     * @param msg    The messages
+     */
+    public static void messagePlayer(Player player, ChatColor color, String[] msg)
     {
-        messagePlayer(player, color, stringFromArray(str));
+        messagePlayer(player, color, stringFromArray(msg));
     }
 
-    public static boolean isAirOrWater(Block block)
+    /**
+     * Check if a block if air or liquid (water, lava).
+     *
+     * @param block The block to be checked.
+     * @return True if it is air or liquid.
+     */
+    public static boolean isAirOrLiquid(Block block)
     {
         // Empty means it's air.
         return block.isLiquid() || block.isEmpty();
     }
 
+    /**
+     * Certain material types need to be refreshed when being placed down.
+     *
+     * @param mat Material to be checked.
+     * @return True if it needs to be refreshed.
+     * @deprecated I'm pretty sure this is no longer needed.
+     */
+    @Deprecated
     public static boolean needsRefresh(Material mat)
     {
         switch (mat)
@@ -328,49 +489,53 @@ public final class Util
         }
     }
 
-    // Certain blocks don't work in doors, so don't allow their usage.
+    /**
+     * Check if a block is on the blacklist of types/materials that is not allowed
+     * for animations.
+     *
+     * @param block The block to be checked
+     * @return True if the block can be used for animations.
+     */
     public static boolean isAllowedBlock(Block block)
     {
-        if (block == null || isAirOrWater(block))
+        if (block == null || isAirOrLiquid(block))
             return false;
 
         Material mat = block.getType();
         if (mat == null)
             return false;
 
-        BlockData blockData  = block.getBlockData();
+        BlockData blockData = block.getBlockData();
         BlockState blockState = block.getState();
 
         if (blockData instanceof org.bukkit.block.data.type.Stairs ||
             blockData instanceof org.bukkit.block.data.type.Gate)
             return true;
 
-        if (
-               blockState instanceof org.bukkit.inventory.InventoryHolder
-            // Door, Stairs, TrapDoor, sunflower, tall grass, tall seagrass, large fern, peony, rose bush, lilac,
-            || blockData instanceof org.bukkit.block.data.Bisected
-            || blockData instanceof org.bukkit.block.data.Rail
+        if (blockState instanceof org.bukkit.inventory.InventoryHolder
+        // Door, Stairs, TrapDoor, sunflower, tall grass, tall seagrass, large fern,
+        // peony, rose bush, lilac,
+            || blockData instanceof org.bukkit.block.data.Bisected || blockData instanceof org.bukkit.block.data.Rail
             // Cauldron, Composter, Water, Lava
             || blockData instanceof org.bukkit.block.data.Levelled
 
-            || blockData instanceof org.bukkit.block.data.type.Bed
-            || blockData instanceof org.bukkit.block.data.type.BrewingStand
-            || blockData instanceof org.bukkit.block.data.type.Cake
-            || blockData instanceof org.bukkit.block.data.type.CommandBlock
-            || blockData instanceof org.bukkit.block.data.type.EnderChest
-            || blockData instanceof org.bukkit.block.data.type.Ladder
-            || blockData instanceof org.bukkit.block.data.type.Sapling
-            || blockData instanceof org.bukkit.block.data.type.Sign
-            || blockData instanceof org.bukkit.block.data.type.TechnicalPiston
-            || blockData instanceof org.bukkit.block.data.type.WallSign
-            || blockData instanceof org.bukkit.block.data.type.RedstoneWire
-            || blockData instanceof org.bukkit.block.data.type.RedstoneWallTorch
-            || blockData instanceof org.bukkit.block.data.type.Tripwire
-            || blockData instanceof org.bukkit.block.data.type.TripwireHook
-            || blockData instanceof org.bukkit.block.data.type.Repeater
-            || blockData instanceof org.bukkit.block.data.type.Switch
-            || blockData instanceof org.bukkit.block.data.type.Comparator
-            )
+            || blockData instanceof org.bukkit.block.data.type.Bed ||
+            blockData instanceof org.bukkit.block.data.type.BrewingStand ||
+            blockData instanceof org.bukkit.block.data.type.Cake ||
+            blockData instanceof org.bukkit.block.data.type.CommandBlock ||
+            blockData instanceof org.bukkit.block.data.type.EnderChest ||
+            blockData instanceof org.bukkit.block.data.type.Ladder ||
+            blockData instanceof org.bukkit.block.data.type.Sapling ||
+            blockData instanceof org.bukkit.block.data.type.Sign ||
+            blockData instanceof org.bukkit.block.data.type.TechnicalPiston ||
+            blockData instanceof org.bukkit.block.data.type.WallSign ||
+            blockData instanceof org.bukkit.block.data.type.RedstoneWire ||
+            blockData instanceof org.bukkit.block.data.type.RedstoneWallTorch ||
+            blockData instanceof org.bukkit.block.data.type.Tripwire ||
+            blockData instanceof org.bukkit.block.data.type.TripwireHook ||
+            blockData instanceof org.bukkit.block.data.type.Repeater ||
+            blockData instanceof org.bukkit.block.data.type.Switch ||
+            blockData instanceof org.bukkit.block.data.type.Comparator)
             return false;
 
         switch (mat)
@@ -402,21 +567,27 @@ public final class Util
         // Potted stuff will always work.
         if (matName.startsWith("POTTED"))
             return true;
-        if (
-               matName.endsWith("TULIP")
-            || matName.endsWith("BANNER")
-            || matName.endsWith("CARPET")
-            || matName.endsWith("HEAD")
-            )
+        if (matName.endsWith("TULIP") || matName.endsWith("BANNER") || matName.endsWith("CARPET") ||
+            matName.endsWith("HEAD"))
             return false;
         return true;
     }
 
-    public static boolean between(int value, int start, int end)
+    /**
+     * Check if a given value is between two other values. Matches inclusively.
+     *
+     * @param test Value to be compared.
+     * @param low  Minimum value.
+     * @param high Maximum value.
+     * @return True if the value is in the provided range or if it equals the low
+     *         and/or the high value.
+     */
+    public static boolean between(int test, int low, int high)
     {
-        return value <= end && value >= start;
+        return test <= high && test >= low;
     }
 
+    @Deprecated
     public static int tickRateFromSpeed(double speed)
     {
         int tickRate;
@@ -432,6 +603,7 @@ public final class Util
     }
 
     // Return {time, tickRate, distanceMultiplier} for a given door size.
+    @Deprecated
     public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
     {
         double ret[] = new double[3];
@@ -450,15 +622,9 @@ public final class Util
         if (speed > maxSpeed || speed <= 0)
             time = distance / maxSpeed;
 
-        double distanceMultiplier = speed > 4     ? 1.01 :
-                                    speed > 3.918 ? 1.08 :
-                                    speed > 3.916 ? 1.10 :
-                                    speed > 2.812 ? 1.12 :
-                                    speed > 2.537 ? 1.19 :
-                                    speed > 2.2   ? 1.22 :
-                                    speed > 2.0   ? 1.23 :
-                                    speed > 1.770 ? 1.25 :
-                                    speed > 1.570 ? 1.28 : 1.30;
+        double distanceMultiplier = speed > 4 ? 1.01 : speed > 3.918 ? 1.08 : speed > 3.916 ? 1.10 :
+            speed > 2.812 ? 1.12 : speed > 2.537 ? 1.19 : speed > 2.2 ? 1.22 : speed > 2.0 ? 1.23 :
+            speed > 1.770 ? 1.25 : speed > 1.570 ? 1.28 : 1.30;
         ret[0] = time;
         ret[1] = tickRateFromSpeed(speed);
         ret[2] = distanceMultiplier;

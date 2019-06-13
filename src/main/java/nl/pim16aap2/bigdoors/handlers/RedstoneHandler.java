@@ -1,8 +1,5 @@
 package nl.pim16aap2.bigdoors.handlers;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -10,7 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 
 public class RedstoneHandler implements Listener
@@ -24,7 +21,7 @@ public class RedstoneHandler implements Listener
 
     public boolean checkDoor(Location loc)
     {
-        Door door = plugin.getDatabaseManager().doorFromPowerBlockLoc(loc);
+        DoorBase door = plugin.getDatabaseManager().doorFromPowerBlockLoc(loc);
 
         if (door != null && !door.isLocked())
             return plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, true) == DoorOpenResult.SUCCESS;
@@ -66,10 +63,7 @@ public class RedstoneHandler implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logMessage("Exception thrown while handling redstone event!", true, false);
-            StringWriter sw = new StringWriter();
-            e.printStackTrace(new PrintWriter(sw));
-            plugin.getMyLogger().logMessageToLogFile("79 " + sw.toString());
+            plugin.getMyLogger().logException(e, "Exception thrown while handling redstone event!");
         }
     }
 }

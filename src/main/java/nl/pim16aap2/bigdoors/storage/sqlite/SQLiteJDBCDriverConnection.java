@@ -23,9 +23,9 @@ import org.bukkit.World;
 import com.google.common.io.Files;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -94,12 +94,12 @@ public class SQLiteJDBCDriverConnection
     {
         if (!enabled)
         {
-            plugin.getMyLogger().logMessage("Database disabled! This probably means an upgrade failed! Please contact pim16aap2.", true, false);
+            plugin.getMyLogger().severe("Database disabled! This probably means an upgrade failed! Please contact pim16aap2.");
             return null;
         }
         if (locked.get())
         {
-            plugin.getMyLogger().logMessage("Database locked! Please try again later! Please contact pim16aap2 if the issue persists.", true, false);
+            plugin.getMyLogger().severe("Database locked! Please try again later! Please contact pim16aap2 if the issue persists.");
             return null;
         }
         Connection conn = null;
@@ -111,11 +111,11 @@ public class SQLiteJDBCDriverConnection
         }
         catch (SQLException ex)
         {
-            plugin.getMyLogger().logMessage("53: Failed to open connection!", true, false);
+            plugin.getMyLogger().severe("53: Failed to open connection!");
         }
         catch (ClassNotFoundException e)
         {
-            plugin.getMyLogger().logMessage("57: Failed to open connection: CLass not found!!", true, false);
+            plugin.getMyLogger().severe("57: Failed to open connection: CLass not found!!");
         }
         return conn;
     }
@@ -127,11 +127,11 @@ public class SQLiteJDBCDriverConnection
             try
             {
                 dbFile.createNewFile();
-                plugin.getMyLogger().logMessageToLogFile("New file created at " + dbFile);
+                plugin.getMyLogger().warn("New file created at " + dbFile);
             }
             catch (IOException e)
             {
-                plugin.getMyLogger().logMessageToLogFile("File write error: " + dbFile);
+                plugin.getMyLogger().warn("File write error: " + dbFile);
             }
 
         // Table creation
@@ -217,7 +217,7 @@ public class SQLiteJDBCDriverConnection
     {
         long playerID = -1;
         PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
-        ResultSet rs1         = ps1.executeQuery();
+        ResultSet rs1 = ps1.executeQuery();
         while (rs1.next())
             playerID = rs1.getLong(PLAYERS_ID);
         ps1.close();
@@ -265,22 +265,28 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Construct a new door from a resultset.
-    private Door newDoorFromRS(final ResultSet rs, final long doorUID, final int permission, final UUID playerUUID)
+    private DoorBase newDoorBaseFromRS(final ResultSet rs, final DoorOwner doorOwner)
     {
         try
         {
-            World world     = Bukkit.getServer().getWorld(UUID.fromString(rs.getString(DOOR_WORLD)));
-            Location min    = new Location(world, rs.getInt(DOOR_MIN_X),   rs.getInt(DOOR_MIN_Y),   rs.getInt(DOOR_MIN_Z));
-            Location max    = new Location(world, rs.getInt(DOOR_MAX_X),   rs.getInt(DOOR_MAX_Y),   rs.getInt(DOOR_MAX_Z));
-            Location engine = new Location(world, rs.getInt(DOOR_ENG_X),   rs.getInt(DOOR_ENG_Y),   rs.getInt(DOOR_ENG_Z));
-            Location powerB = new Location(world, rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z));
+            DoorBase door = DoorType.valueOf(rs.getInt(DOOR_TYPE)).getNewDoor(plugin, doorOwner.getDoorUID());
 
-            Door door = new Door(playerUUID, world, min, max, engine, rs.getString(DOOR_NAME), (rs.getInt(DOOR_OPEN) == 1 ? true : false),
-                                 doorUID, (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(DOOR_TYPE)),
-                                 MyBlockFace.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
-                                 rs.getInt(DOOR_AUTO_CLOSE));
+            World world = Bukkit.getServer().getWorld(UUID.fromString(rs.getString(DOOR_WORLD)));
+            door.setWorld(world);
+            door.setMinimum(new Location(world, rs.getInt(DOOR_MIN_X), rs.getInt(DOOR_MIN_Y), rs.getInt(DOOR_MIN_Z)));
+            door.setMaximum(new Location(world, rs.getInt(DOOR_MAX_X),   rs.getInt(DOOR_MAX_Y),   rs.getInt(DOOR_MAX_Z)));
+            door.setEngineSide(MyBlockFace.valueOf(rs.getInt(DOOR_ENG_SIDE)));
+            door.setEngineLocation(new Location(world, rs.getInt(DOOR_ENG_X),   rs.getInt(DOOR_ENG_Y),   rs.getInt(DOOR_ENG_Z)));
+            door.setPowerBlockLocation(new Location(world, rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z)));
 
+            door.setName(rs.getString(DOOR_NAME));
+            door.setOpenStatus(rs.getInt(DOOR_OPEN) == 1 ? true : false);
+            door.setLock(rs.getInt(DOOR_LOCKED) == 1 ? true : false);
+            door.setDoorOwner(doorOwner);
+            door.setOpenDir(RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)));
+            door.setAutoClose(rs.getInt(DOOR_AUTO_CLOSE));
             door.setBlocksToMove(rs.getInt(DOOR_BLOCKS_TO_MOVE));
+
             return door;
         }
         catch (SQLException e)
@@ -304,7 +310,7 @@ public class SQLiteJDBCDriverConnection
         }
         catch(SQLException e)
         {
-            plugin.getMyLogger().logMessageToLogFile("271: " + Util.exceptionToString(e));
+            plugin.getMyLogger().logException(e, String.valueOf(271));
         }
         finally
         {
@@ -361,166 +367,42 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
-//    @Deprecated
-//    public Door getDoor2(@Nullable UUID playerUUID, long doorUID)
-//    {
-//        Util.broadcastMessage("getDoor2()");
-//        Door door = null;
-//        Connection conn = null;
-//        try
-//        {
-//            // SQLite joins work a little differently, check this: http://www.sqlitetutorial.net/sqlite-inner-join/
-//            conn = getConnection();
-//
-//
-//            String execute;
-//
-//            if (playerUUID != null )
-//                execute =
-////                "SELECT DOOR.*, UN.permission" +
-////                "FROM doors DOOR, sqlUnion UN, " +
-////                "        (SELECT P.id" +
-////                "         FROM players P" +
-////                "         WHERE P.playerUUID = '" + playerUUID.toString() + "') P" +
-////                "WHERE P.id = UN.playerID AND UN.doorUID = '" + doorUID + "';";
-//                "SELECT DOOR.*, UN.permission" +
-//                "FROM doors AS DOOR, sqlUnion AS UN, " +
-//                "        (SELECT P.id" +
-//                "         FROM players P" +
-//                "         WHERE P.playerUUID = '" + playerUUID.toString() + "') AS PL" +
-//                "INNER JOIN players ON PL. " +
-//                "WHERE PL.id = UN.playerID AND UN.doorUID = '" + doorUID + "';";
-//            else
-//                execute = "";
-//
-//            PreparedStatement ps = conn.prepareStatement(execute);
-//            ResultSet rs         = ps.executeQuery();
-//
-//            String result = ""; // doors
-//            result += rs.getInt("id");
-//            result += "  ";
-//            result += rs.getString("name");
-//            result += "  ";
-//            result += rs.getString("world") + ".  ";
-//            result += "isOpen: " + rs.getInt("isOpen") + "  ";
-//            result += "  ";
-//
-//            result += "min: ";
-//            result += rs.getInt("xMin");
-//            result += ", ";
-//            result += rs.getInt("yMin");
-//            result += ", ";
-//            result += rs.getInt("zMin");
-//            result += ".    ";
-//
-//            result += "max: ";
-//            result += rs.getInt("xMax");
-//            result += ", ";
-//            result += rs.getInt("yMax");
-//            result += ", ";
-//            result += rs.getInt("zMax");
-//            result += ".    ";
-//
-//            result += "eng: ";
-//            result += rs.getInt("engineX");
-//            result += ", ";
-//            result += rs.getInt("engineY");
-//            result += ", ";
-//            result += rs.getInt("engineZ");
-//            result += ".    ";
-//
-//            result += "pb: ";
-//            result += rs.getInt("powerBlockX");
-//            result += ", ";
-//            result += rs.getInt("powerBlockY");
-//            result += ", ";
-//            result += rs.getInt("powerBlockZ");
-//            result += ".    ";
-//
-//            result += "locked: " + rs.getInt("openDirection") + "  ";
-//            result += "autoClose: " + rs.getInt("autoClose") + "  ";
-//            result += "chunkHash: " + rs.getInt("chunkHash") + "  ";
-//            result += "blocksToMove: " + rs.getInt("blocksToMove") + "  ";
-//            result += "permission: " + rs.getInt("permission");
-//            Util.broadcastMessage(result);
-//
-//            World world     = Bukkit.getServer().getWorld(UUID.fromString(rs.getString(DOOR_WORLD)));
-//            Location min    = new Location(world, rs.getInt(DOOR_MIN_X),   rs.getInt(DOOR_MIN_Y),   rs.getInt(DOOR_MIN_Z));
-//            Location max    = new Location(world, rs.getInt(DOOR_MAX_X),   rs.getInt(DOOR_MAX_Y),   rs.getInt(DOOR_MAX_Z));
-//            Location engine = new Location(world, rs.getInt(DOOR_ENG_X),   rs.getInt(DOOR_ENG_Y),   rs.getInt(DOOR_ENG_Z));
-//            Location powerB = new Location(world, rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z));
-//
-//            int permission = rs.getInt(DOOR_BLOCKS_TO_MOVE + 1);
-//
-//            door = new Door(playerUUID, world, min, max, engine, rs.getString(DOOR_NAME), (rs.getInt(DOOR_OPEN) == 1 ? true : false),
-//                            doorUID, (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(DOOR_TYPE)),
-//                            MyBlockFace.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
-//                            rs.getInt(DOOR_AUTO_CLOSE));
-//        }
-//        catch (SQLException e)
-//        {
-//            plugin.getMyLogger().logMessageToLogFile("382: " + Util.exceptionToString(e));
-//        }
-//        finally
-//        {
-//            try
-//            {
-//                conn.close();
-//            }
-//            catch (SQLException e)
-//            {
-//                plugin.getMyLogger().logMessageToLogFile("392: " + Util.exceptionToString(e));
-//            }
-//        }
-//        return door;
-//    }
-
     // Get Door from a doorID.
-    public Door getDoor(@Nullable UUID playerUUID, final long doorUID)
+//    public DoorBase getDoor(Optional<UUID> playerUUID, final long doorUID)
+    public DoorBase getDoor(@Nullable UUID playerUUID, final long doorUID)
     {
-//        return getDoor2(playerUUID, doorUID);
-        Door door = null;
+        DoorBase door = null;
 
         Connection conn = null;
         try
         {
             conn = getConnection();
-            int permission = -1;
 
+            DoorOwner doorOwner = null;
             // If no player is specified, get the lowest tier permission and the original creator.
             if (playerUUID == null)
-            {
-                permission = 2;
-                playerUUID = getOwnerOfDoor(conn, doorUID).getPlayerUUID();
-            }
+                doorOwner = getOwnerOfDoor(conn, doorUID);
             else
+                doorOwner = getOwnerOfDoor(conn, doorUID, playerUUID);
+
+//            // If no player is specified, get the lowest tier permission and the original creator.
+//            if (playerUUID.isPresent())
+//                doorOwner = getOwnerOfDoor(conn, doorUID, playerUUID.get());
+//            else
+//                doorOwner = getOwnerOfDoor(conn, doorUID);
+
+
+            if (doorOwner != null)
             {
-                long playerID = getPlayerID(conn, playerUUID.toString());
-                if (playerID == -1)
-                    return null;
+                PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + doorUID + "';");
+                ResultSet rs3 = ps3.executeQuery();
 
-                // Select all doors from the sqlUnion table that have the previously found player as owner.
-                PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND doorUID = '" + doorUID + "';");
-                ResultSet rs2         = ps2.executeQuery();
+                if (rs3.next())
+                    door = newDoorBaseFromRS(rs3, doorOwner);
 
-                while (rs2.next())
-                    permission = rs2.getInt(UNION_PERM);
-
-                ps2.close();
-                rs2.close();
-
-                if (permission == -1)
-                    return null;
+                ps3.close();
+                rs3.close();
             }
-
-            PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + doorUID + "';");
-            ResultSet rs3         = ps3.executeQuery();
-
-            while (rs3.next())
-                door = newDoorFromRS(rs3, doorUID, permission, playerUUID);
-
-            ps3.close();
-            rs3.close();
         }
         catch (SQLException e)
         {
@@ -541,21 +423,15 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Get ALL doors owned by a given playerUUID.
-    public ArrayList<Door> getDoors(final String playerUUID, @Nullable final String name)
+    public ArrayList<DoorBase> getDoors(final String playerUUID, @Nullable final String name)
     {
-        return getDoors(playerUUID, name, 0, Long.MAX_VALUE, Integer.MAX_VALUE);
-    }
-
-    // Get ALL doors owned by a given playerUUID.
-    public ArrayList<Door> getDoors(final String playerUUID, @Nullable final String name, int maxPermission)
-    {
-        return getDoors(playerUUID, name, 0, Long.MAX_VALUE, maxPermission);
+        return getDoors(playerUUID, name, 0);
     }
 
     // Get all doors with a given name.
-    public ArrayList<Door> getDoors(final String name)
+    public ArrayList<DoorBase> getDoors(final String name)
     {
-        ArrayList<Door> doors = new ArrayList<>();
+        ArrayList<DoorBase> doors = new ArrayList<>();
 
         Connection conn = null;
         try
@@ -584,7 +460,9 @@ public class SQLiteJDBCDriverConnection
                 ps2.close();
                 rs2.close();
 
-                doors.add(newDoorFromRS(rs1, rs1.getLong(DOOR_ID), permission, UUID.fromString(foundPlayerUUID)));
+                DoorOwner owner = this.getOwnerOfDoor(conn, rs1.getLong(DOOR_ID), UUID.fromString(foundPlayerUUID), permission);
+                if (owner != null)
+                    doors.add(newDoorBaseFromRS(rs1, owner));
             }
             ps1.close();
             rs1.close();
@@ -608,9 +486,9 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Get all doors associated with this player in a given range. Name can be null
-    public ArrayList<Door> getDoors(final String playerUUID, @Nullable final String name, final long start, final long end, int maxPermission)
+    public ArrayList<DoorBase> getDoors(final String playerUUID, @Nullable final String doorName, int maxPermission)
     {
-        ArrayList<Door> doors = new ArrayList<>();
+        ArrayList<DoorBase> doors = new ArrayList<>();
 
         Connection conn = null;
         try
@@ -620,7 +498,7 @@ public class SQLiteJDBCDriverConnection
 
             PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND permission <= '" + maxPermission + "';");
             ResultSet rs2         = ps2.executeQuery();
-            int count             = 0;
+
             while (rs2.next())
             {
                 PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + rs2.getInt(UNION_DOOR_ID) + "';");
@@ -628,9 +506,12 @@ public class SQLiteJDBCDriverConnection
 
                 while (rs3.next())
                 {
-                    if ((name == null || rs3.getString(DOOR_NAME).equals(name)) && count >= start && count <= end)
-                        doors.add(newDoorFromRS(rs3, rs3.getLong(DOOR_ID), rs2.getInt(UNION_PERM), UUID.fromString(playerUUID)));
-                    ++count;
+                    if ((doorName == null || rs3.getString(DOOR_NAME).equals(doorName)))
+                    {
+                        DoorOwner doorOwner = this.getOwnerOfDoor(conn, rs3.getLong(DOOR_ID), UUID.fromString(playerUUID), rs2.getInt(UNION_PERM));
+                        if (doorOwner != null)
+                            doors.add(newDoorBaseFromRS(rs3, doorOwner));
+                    }
                 }
                 ps3.close();
                 rs3.close();
@@ -794,6 +675,59 @@ public class SQLiteJDBCDriverConnection
         return playerName;
     }
 
+    private DoorOwner getOwnerOfDoor(final Connection conn, final long doorUID, UUID playerUUID, int permission) throws SQLException
+    {
+        PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
+        ResultSet rs1 = ps1.executeQuery();
+
+        if (!rs1.next())
+        {
+            ps1.close();
+            rs1.close();
+            return null;
+        }
+
+        DoorOwner doorOwner = new DoorOwner(doorUID, playerUUID, rs1.getString(PLAYERS_NAME), permission);
+
+        ps1.close();
+        rs1.close();
+        return doorOwner;
+    }
+
+    private DoorOwner getOwnerOfDoor(final Connection conn, final long doorUID, UUID playerUUID) throws SQLException
+    {
+        PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
+        ResultSet rs1 = ps1.executeQuery();
+
+        if (!rs1.next())
+        {
+            ps1.close();
+            rs1.close();
+            return null;
+        }
+
+        PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + doorUID +
+                                                      "' AND playerID = '" + rs1.getInt(PLAYERS_ID) + "';");
+        ResultSet rs2 = ps2.executeQuery();
+
+        if (!rs2.next())
+        {
+            ps1.close();
+            rs1.close();
+            ps2.close();
+            rs2.close();
+            return null;
+        }
+
+        DoorOwner doorOwner = new DoorOwner(doorUID, UUID.fromString(rs1.getString(PLAYERS_UUID)), rs1.getString(PLAYERS_NAME), rs2.getInt(UNION_PERM));
+
+        ps1.close();
+        rs1.close();
+        ps2.close();
+        rs2.close();
+        return doorOwner;
+    }
+
     private DoorOwner getOwnerOfDoor(final Connection conn, final long doorUID) throws SQLException
     {
         DoorOwner doorOwner = null;
@@ -808,8 +742,8 @@ public class SQLiteJDBCDriverConnection
             PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM players WHERE id = '" + rs1.getInt(UNION_PLAYER_ID) + "';");
             ResultSet rs2         = ps2.executeQuery();
             while(rs2.next())
-                doorOwner = new DoorOwner(plugin, doorUID, UUID.fromString(rs2.getString(PLAYERS_UUID)),
-                                          rs1.getInt(UNION_PERM), rs2.getString(PLAYERS_NAME));
+                doorOwner = new DoorOwner(doorUID, UUID.fromString(rs2.getString(PLAYERS_UUID)),
+                                          rs2.getString(PLAYERS_NAME), rs1.getInt(UNION_PERM));
             ps2.close();
             rs2.close();
         }
@@ -823,6 +757,7 @@ public class SQLiteJDBCDriverConnection
         DoorOwner doorOwner = null;
 
         Connection conn = null;
+//      plugin.getMyLogger().warn("271: " + Util.exceptionToString(e));
         try
         {
             conn = getConnection();
@@ -1124,7 +1059,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Insert a new door in the db.
-    public void insert(final Door door)
+    public void insert(final DoorBase door)
     {
         Connection conn = null;
         try
@@ -1168,7 +1103,7 @@ public class SQLiteJDBCDriverConnection
             doorstatement.setInt(DOOR_LOCKED - 1,          door.isLocked() == true ? 1 : 0);
             doorstatement.setInt(DOOR_TYPE - 1,            DoorType.getValue(door.getType()));
             // Set -1 if the door has no engineSide (normal doors don't use it)
-            doorstatement.setInt(DOOR_ENG_SIDE - 1,        door.getEngSide() == null ? -1 : MyBlockFace.getValue(door.getEngSide()));
+            doorstatement.setInt(DOOR_ENG_SIDE - 1,        door.getEngineSide() == null ? -1 : MyBlockFace.getValue(door.getEngineSide()));
             doorstatement.setInt(DOOR_POWER_X - 1,         door.getEngine().getBlockX());
             doorstatement.setInt(DOOR_POWER_Y - 1,         door.getEngine().getBlockY() - 1); // Power Block Location is 1 block below the engine, by default.
             doorstatement.setInt(DOOR_POWER_Z - 1,         door.getEngine().getBlockZ());
@@ -1220,8 +1155,8 @@ public class SQLiteJDBCDriverConnection
             long playerID = getPlayerID(conn, playerUUID.toString());
 
             if (playerID == -1)
-                plugin.getMyLogger().logMessage("Trying to remove player " + playerUUID.toString() +
-                                                " as ownwer of door " + doorUID + ". But player does not exist!" , true, false);
+                plugin.getMyLogger().severe("Trying to remove player " + playerUUID.toString() +
+                                            " as ownwer of door " + doorUID + ". But player does not exist!");
             else
             {
                 PreparedStatement ps2 = conn.prepareStatement("DELETE FROM sqlUnion WHERE " +
@@ -1253,7 +1188,7 @@ public class SQLiteJDBCDriverConnection
         return true;
     }
 
-    public ArrayList<DoorOwner> getOwnersOfDoor(final long doorUID, @Nullable final UUID playerUUID)
+    public ArrayList<DoorOwner> getOwnersOfDoor(final long doorUID, final UUID playerUUID)
     {
         ArrayList<DoorOwner> ret = new ArrayList<>();
         Connection conn = null;
@@ -1264,12 +1199,14 @@ public class SQLiteJDBCDriverConnection
             ResultSet rs1         = ps1.executeQuery();
             while (rs1.next())
             {
-                PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM players WHERE id = '" + rs1.getInt(UNION_PLAYER_ID) + "';");
-                ResultSet rs2         = ps2.executeQuery();
-                if (playerUUID == null || !UUID.fromString(rs2.getString(PLAYERS_UUID)).equals(playerUUID))
-                    ret.add(new DoorOwner(plugin, doorUID, UUID.fromString(rs2.getString(PLAYERS_UUID)), rs1.getInt(UNION_PERM), rs2.getString(PLAYERS_NAME)));
-                ps2.close();
-                rs2.close();
+                DoorOwner owner = getOwnerOfDoor(conn, doorUID, playerUUID, rs1.getInt(UNION_PERM));
+                if (owner == null)
+                {
+                    plugin.getMyLogger().warn(String.format("Could not find owners for doorUID: %d", doorUID) +
+                                              String.format("Offending playerUUID: \"%s\".", playerUUID.toString()));
+                }
+                else
+                    ret.add(owner);
             }
             ps1.close();
             rs1.close();
@@ -1512,9 +1449,8 @@ public class SQLiteJDBCDriverConnection
         }
         catch (IOException e)
         {
-            plugin.getMyLogger().logMessage("Failed to create backup of the database! "
-                + "Database upgrade aborted and access is disabled!" + Util.exceptionToString(e), true, true);
-            e.printStackTrace();
+            plugin.getMyLogger().logException(e, "Failed to create backup of the database! "
+                + "Database upgrade aborted and access is disabled!");
             enabled = false;
             return false;
         }
@@ -1544,7 +1480,7 @@ public class SQLiteJDBCDriverConnection
 
             if (!rs.next())
             {
-                plugin.getMyLogger().logMessage("Upgrading database! Adding type!", true, true);
+                plugin.getMyLogger().warn("Upgrading database! Adding type!");
                 addColumn = "ALTER TABLE doors "
                           + "ADD COLUMN type int NOT NULL DEFAULT 0";
                 conn.createStatement().execute(addColumn);
@@ -1554,7 +1490,7 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "engineSide");
             if (!rs.next())
             {
-                plugin.getMyLogger().logMessage("Upgrading database! Adding engineSide!", true, true);
+                plugin.getMyLogger().warn("Upgrading database! Adding engineSide!");
                 addColumn = "ALTER TABLE doors "
                           + "ADD COLUMN engineSide int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
@@ -1564,7 +1500,7 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "powerBlockX");
             if (!rs.next())
             {
-                plugin.getMyLogger().logMessage("Upgrading database! Adding powerBlockLoc!", true, true);
+                plugin.getMyLogger().warn("Upgrading database! Adding powerBlockLoc!");
                 addColumn = "ALTER TABLE doors "
                           + "ADD COLUMN powerBlockX int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
@@ -1600,13 +1536,13 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "openDirection");
             if (!rs.next())
             {
-                plugin.getMyLogger().logMessage("Upgrading database! Adding openDirection!", true, true);
+                plugin.getMyLogger().warn("Upgrading database! Adding openDirection!");
                 addColumn = "ALTER TABLE doors "
                           + "ADD COLUMN openDirection int NOT NULL DEFAULT 0";
                 conn.createStatement().execute(addColumn);
 
 
-                plugin.getMyLogger().logMessage("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!", true, true);
+                plugin.getMyLogger().warn("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!");
                 String update = "UPDATE doors SET "
                               +   "isOpen='" + 2
                               + "' WHERE isOpen = '" + 0 + "' AND type = '" + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
@@ -1625,7 +1561,7 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "autoClose");
             if (!rs.next())
             {
-                plugin.getMyLogger().logMessage("Upgrading database! Adding autoClose!", true, true);
+                plugin.getMyLogger().warn("Upgrading database! Adding autoClose!");
                 addColumn = "ALTER TABLE doors "
                           + "ADD COLUMN autoClose int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
@@ -1635,7 +1571,7 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "chunkHash");
             if (!rs.next())
             {
-                plugin.getMyLogger().logMessage("Upgrading database! Adding chunkHash!", true, true);
+                plugin.getMyLogger().warn("Upgrading database! Adding chunkHash!");
                 addColumn = "ALTER TABLE doors "
                           + "ADD COLUMN chunkHash int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
@@ -1660,7 +1596,7 @@ public class SQLiteJDBCDriverConnection
                 rs1.close();
             }
             rs.close();
-            plugin.getMyLogger().logMessage("Database has been upgraded to V1!", true, true);
+            plugin.getMyLogger().warn("Database has been upgraded to V1!");
         }
         catch (SQLException e)
         {
@@ -1673,7 +1609,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             String addColumn;
-            plugin.getMyLogger().logMessage("Upgrading database to V2! Adding blocksToMove!", true, true);
+            plugin.getMyLogger().warn("Upgrading database to V2! Adding blocksToMove!");
             addColumn = "ALTER TABLE doors "
                       + "ADD COLUMN blocksToMove int NOT NULL DEFAULT 0";
             conn.createStatement().execute(addColumn);
@@ -1701,7 +1637,7 @@ public class SQLiteJDBCDriverConnection
     {
         try
         {
-            plugin.getMyLogger().logMessage("Upgrading database to V3! Recreating sqlUnion!", true, true);
+            plugin.getMyLogger().warn("Upgrading database to V3! Recreating sqlUnion!");
             conn.setAutoCommit(false);
             // Rename sqlUnion.
             conn.createStatement().execute("ALTER TABLE sqlUnion RENAME TO sqlUnion_old;");
@@ -1741,7 +1677,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             String addColumn;
-            plugin.getMyLogger().logMessage("Upgrading database to V4! Adding playerName!", true, true);
+            plugin.getMyLogger().warn("Upgrading database to V4! Adding playerName!");
             addColumn = "ALTER TABLE players "
                       + "ADD COLUMN playerName TEXT DEFAULT NULL";
             conn.createStatement().execute(addColumn);
@@ -1764,7 +1700,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             conn = getConnection();
-            plugin.getMyLogger().logMessageToLogFile("Upgrading database to V5!");
+            plugin.getMyLogger().warn("Upgrading database to V5!");
 
             String countStr = "SELECT COUNT(*) AS total FROM players WHERE playerName IS NULL";
             int count = conn.createStatement().executeQuery(countStr).getInt("total");
@@ -1775,7 +1711,7 @@ public class SQLiteJDBCDriverConnection
                 // First, find a name that does not exist in the database already.
                 // Do this by generating random strings and checking if it exists until
                 // We encounter one that doesn't.
-                String fakeName = Util.randomString(12);
+                String fakeName = Util.randomInsecureString(12);
                 boolean exists = true;
                 while (exists)
                 {
@@ -1786,9 +1722,9 @@ public class SQLiteJDBCDriverConnection
                     ps.close();
                     rs.close();
                     if (exists)
-                        fakeName = Util.randomString(12);
+                        fakeName = Util.randomInsecureString(12);
                 }
-                plugin.getMyLogger().logMessageToLogFile("UpgradeToV5: Using fakeName = " + fakeName);
+                plugin.getMyLogger().warn("UpgradeToV5: Using fakeName = " + fakeName);
 
                 Statement stmt = conn.createStatement();
                 String sql     = "INSERT INTO players (playerUUID, playerName) "
@@ -1929,8 +1865,8 @@ public class SQLiteJDBCDriverConnection
     private void logMessage(String str, Exception e)
     {
         if (!locked.get())
-            plugin.getMyLogger().logMessageToLogFile(str + " " + Util.exceptionToString(e));
+            plugin.getMyLogger().logException(e, str);
         else
-            plugin.getMyLogger().logMessageToLogFile("Database locked! Failed at: " + str + ". Message: " + e.getMessage());
+            plugin.getMyLogger().warn("Database locked! Failed at: " + str + ". Message: " + e.getMessage());
     }
 }

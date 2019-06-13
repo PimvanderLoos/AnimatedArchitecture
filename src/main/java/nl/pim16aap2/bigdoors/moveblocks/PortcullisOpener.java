@@ -4,9 +4,9 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -19,7 +19,7 @@ public class PortcullisOpener extends Opener
 
     // Open a door.
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
+    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
     {
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
@@ -29,11 +29,13 @@ public class PortcullisOpener extends Opener
         if (super.isTooBig(door))
             instantOpen = true;
 
-        int blocksToMove = getBlocksToMove(door);
+        Location newMin = door.getMinimum().clone();
+        Location newMax = door.getMaximum().clone();
+        int blocksToMove = getBlocksToMove(door, newMin, newMax);
 
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null)
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), newMin, newMax) != null)
             return abort(door, DoorOpenResult.NOPERMISSION);
 
         if (blocksToMove != 0)
@@ -44,7 +46,7 @@ public class PortcullisOpener extends Opener
         return DoorOpenResult.SUCCESS;
     }
 
-    private int getBlocksInDir(Door door, RotateDirection upDown)
+    private int getBlocksInDir(DoorBase door, RotateDirection upDown)
     {
         int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksUp = 0, delta;
         xMin = door.getMinimum().getBlockX();
@@ -67,7 +69,7 @@ public class PortcullisOpener extends Opener
         {
             for (xAxis = xMin; xAxis <= xMax; ++xAxis)
                 for (zAxis = zMin; zAxis <= zMax; ++zAxis)
-                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis)))
+                    if (!Util.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
                         return blocksUp;
             yAxis += delta;
             blocksUp += delta;
@@ -75,15 +77,15 @@ public class PortcullisOpener extends Opener
         return blocksUp;
     }
 
-    private int getBlocksToMove(Door door)
+    private int getBlocksToMove(DoorBase door, Location newMin, Location newMax)
     {
         int blocksUp = getBlocksInDir(door, RotateDirection.UP);
         int blocksDown = getBlocksInDir(door, RotateDirection.DOWN);
         int blocksToMove = blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
-        door.setNewMin(new Location(door.getWorld(), door.getMinimum().getBlockX(),
-                                    door.getMinimum().getBlockY() + blocksToMove, door.getMinimum().getBlockZ()));
-        door.setNewMax(new Location(door.getWorld(), door.getMaximum().getBlockX(),
-                                    door.getMaximum().getBlockY() + blocksToMove, door.getMaximum().getBlockZ()));
+
+        newMin.add(0, blocksToMove, 0);
+        newMax.add(0, blocksToMove, 0);
+
         return blocksToMove;
     }
 }

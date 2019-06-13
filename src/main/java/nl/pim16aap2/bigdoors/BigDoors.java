@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.Vector;
-import java.util.logging.Level;
 
 import javax.annotation.Nullable;
 
@@ -51,6 +50,8 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandStopDoors;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.gui.GUI;
 import nl.pim16aap2.bigdoors.handlers.ChunkUnloadHandler;
 import nl.pim16aap2.bigdoors.handlers.EventHandlers;
@@ -82,7 +83,6 @@ import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
 import nl.pim16aap2.bigdoors.util.ConfigLoader;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.Metrics;
 import nl.pim16aap2.bigdoors.util.Restartable;
@@ -97,8 +97,56 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       https://bukkit.org/threads/support-multiple-minecraft-versions-with-abstraction-maven.115810/
 
 /*
+ * Experimental
+ */
+// TODO: Use custom events for door opening. Perhaps allow other plugins (keys?) to hook into those plugins.
+// TODO: Look into allowing people to set a max size in RAM for certain caches.
+//       Example: https://www.javaworld.com/article/2074458/estimating-java-object-sizes-with-instrumentation.html
+//       Simpler example: https://stackoverflow.com/questions/52353/in-java-what-is-the-best-way-to-determine-the-size-of-an-object#
+//       Another: https://javamagic.blog/2018/07/11/how-to-find-size-of-java-object-in-memory-using-jol/
+//       Also: https://www.baeldung.com/java-size-of-object
+// TODO: Fix violation of Liskov Substituion Problem in certain subclasses of Door (i.e. Revovlving Door, as it has no lookingDir).
+//       Though, thinking about it, DoorBase doesn't really need this function anyway, if all opener code is put in the doorClass anyway.
+// TODO: Fix violation of LSP for doorAttributes. Instead of having a switch per type in the GUI, override a return in the DoorAttribute enum.
+// TODO: NEVER use something like this: private final HashMap<Object>; Instead, use this: private final Map<Object>; So it doesn't
+//       violate LSP. Same goes for lists and what-not.
+// TODO: Data is duplicated a lot! Currently, the falling block has the IBlockData, and so does MyBlockData. If the block can rotate, it has it twice, even!
+//       This is a huge waste of Ram. The falling block should be the only place to store the block data.
+// TODO: Instead of killing the FBlock, rotating it and then respawning it, rotate the FBlockData and then send the appropriate packets to the appropriate players.
+// TODO: Async logging: https://www.javaworld.com/article/2077526/java-tip-29--how-to-decouple-the-observer-observable-object-model.html
+//       Use this: LinkedBlockingQueue
+// TODO: Async database operations, perhaps in combination with an event queue or something. So queue a door open operation and execute it once the door has been retrieved.
+// TODO: Add command to upload error log to pastebin or something similar.
+// TODO: Look into FutureTask.
+// TODO: Add config option to limit logging file size.
+// TODO: Properly use PlotSquared's API.
+// TODO: Look into previously-blacklisted material. Torches, for example, work just fine in 1.13. They just need to be removed first and placed last.
+// TODO: Replace the enum of DoorTypes by a static list. Types should then statically register themselves.
+// TODO: Figure out a way to use Interfaces or something to generate 2 separate builds: Premium and non-premium.
+// TODO: Redo all messages. Create enum to store them, to prevent typos and to use for string replacing.
+//       Then get a replace function to insert variables. Example: getMessage(Message.PAGENUM, new String(currentPage), new String(nextPage)).
+//       Store the variables that will be replaced in the enum or something. Also, get some software or unit test to make sure the number of arguments matches.
+//       More info about asserts: https://stackoverflow.com/questions/998553/how-to-assert-something-at-compile-time-in-java
+//       Also look at this: https://stackoverflow.com/questions/36538133/can-i-use-java-annotations-to-define-compile-time-checks
+//       And this: https://stackoverflow.com/questions/42644170/compile-time-validation-of-method-arguments
+//       And this: https://www.logicbig.com/tutorials/core-java-tutorial/java-se-annotation-processing-api/annotation-processor-validation.html
+//       Also, remove nameKeys from DoorTypes enum.
+//       In the new ENUM, perhaps have a method getMessage(MessageEnum msg, Object ...). Every message should be something like
+//       NextPage("GUI.nextPage", {Integer.class, Integer.class}); Then, verify using an interface that the passed objects
+//       are of the correct type and count. (in this case, the result should be messages.getMessage(Message.NextPage, currentPage, nextPage);
+// TODO: Look into Aikar's command system to replace everything I just made myself: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
+// TODO: Add 1 block depth requirement to assertValidCoords() in HorizontalAxisAlignedBase.
+// TODO: Check if Util::needsRefresh(Material mat) is still needed.
+// TODO: Door pooling. When a door is requested from the database, store it in a timedCache. Only get the creator by default, but store
+//       the other owners if needed. Add a Door::Sync function to sync (new) data with the database.
+// TODO: Make sure that all writing to the log file is done from the correct thread!
+// TODO: Get rid of the DoorType enum. Instead, allow dynamic registration of door types.
+// TODO: Stop naming all animatable objects "doors". An elevator is hardly a door.
+
+/*
  * General
  */
+// TODO: Use Optional where applicable: https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html
 // TODO: Put @Nullable everywhere where applicable.
 //       More info about which to use: https://stackoverflow.com/questions/4963300/which-notnull-java-annotation-should-i-use
 // TODO: Put all listeners and command stuff (basically everything users can interact with) in try-catch blocks, so I can
@@ -117,17 +165,9 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: OPs and people with bigdoors.admin.bypass.attribute should bypass permissions check for allowing options.
 // TODO: Rename region bypass permission to bigdoors.admin.bypass.region.
 // TODO: CustomEntityFallingBlock: Clean this damn class up!
-// TODO: Make door cache cache per-world (hash world UUID), then cache per chunk
-//       (new caching method that ignores world name) and then the relative locations
-//       So cache location (x % 16, y, z % 16). Again, no world needed.
 // TODO: Portcullis info prints it'll open going North when looking east. That's not right.
 //       Same issue for regular doors.
 // TODO: blocksToMove isn't printed by door full info.
-// TODO: Redo all messages. Create enum to store them, to prevent typos and to use for string replacing.
-//       Then get a replace function to insert variables. Example: getMessage(Message.PAGENUM, new String(currentPage), new String(nextPage)).
-//       Store the variables that will be replaced in the enum or something. Also, get some software or unit test to make sure the number of arguments matches.
-//       More info about asserts: https://stackoverflow.com/questions/998553/how-to-assert-something-at-compile-time-in-java
-//       Also remove nameKeys from DoorTypes enum.
 // TODO: Look into Unit testing: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
 // TODO: Don't use TypeString for DoorCreator, but use DoorType codeName instead. Also, the entire format is pretty stupid. Lots of repetition in the language file for every type.
 // TODO: Look into restartables interface. Perhaps it's a good idea to split restart() into stop() and init().
@@ -137,8 +177,16 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Allow position etc validation code to be used on existing doors one way or another.
 // TODO: Creators: updateEngineLoc from DoorCreator() and setEngine() should be the same and declared as abstract method in Creator.
 // TODO: GarageDoorCreator: Should extend DrawBridgeCreator.
-// TODO: Store MyBlockFace in rotateDirection so I don't have to cast it via strings. ew.
-// TODO: Make it possible to send an Opener to the autoCloseScheduler. That would make it easier to scheduler stuff.
+// TODO: Store MyBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
+// TODO: Make sure ALL players stored in hashMaps are cleaned up when they leave to avoid a memory leak!!
+// TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
+// TODO: When returning null after unexpected input, just fucking thrown an IllegalArgumentException. Will make debugging a lot easier.
+// TODO: Use Functional interface for the ProtectionCompatManager. Too much code duplication.
+// TODO: Look into exceptions a bit more. "MyStackTrace" seems rather dumb and superfluous.
+// TODO: Improve calculateChunkRange() methods. Drawbridge, for example, could be much smaller.
+// TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
+// TODO: When truncating exceptions etc, make sure to write it down in the log.
+// TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
 
 /*
  * GUI
@@ -151,6 +199,9 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Use ButtonAction GUI and GUIItem::specialValue to phase out raw interactionIDX stuff for getting actions.
 // TODO: Update items in inventory instead of opening a completely new inventory. No longer requires dirty code to check is it's refreshing etc. Bweugh.
 // TODO: Make sure all player head construction is handled on a secondary thread. Only getting from hashMap should be done on the main thread.
+// TODO: Once door pooling is implemented, use Observers to update doors in the GUI when needed.
+// TODO: Move rotation cycling away from GUI and into the Door class.
+// TODO: Put all GUI buttons and whatnot in try/catch blocks.
 
 /*
  * SQL
@@ -162,6 +213,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       Then +1 won't have to be appended to everything.
 // TODO: Use proper COUNT operation for getting the number of doors.
 // TODO: Merge isOpen and isLocked into single FLAG value.
+// TODO: Switch RotateDirection values to line up with MyBlockFace.
+// TODO: Remove all NONE RotateDirection values from the database.
 
 /*
  * Commands
@@ -186,6 +239,11 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Fix bigdoors doorinfo in console.
 // TODO: Cancelling command can result in NPE. possible after timeout.
 // TODO: SetBlocksToMove: Waiter is cancelled both by the subCommand and the waiter. Make sure all commandWaiters are disabled in the waiter.
+// TODO: CommandWaiters should register themselves in the CommandManager class. No outside class should even know about this stuff. Especially not
+//       the fucking DatabaseManager.
+// TODO: Make more liberal use of IllegalArgumentException.
+// TODO: Put all command related stuff in try/catch blocks.
+// TODO: SubCommandSetRotation should be updated/removed, as it doesn't work properly with types that do not go (counter)clockwise.
 
 /*
  * Openers / Movers
@@ -202,8 +260,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Consider using HashSet for blocks. It's faster: https://stackoverflow.com/questions/10196343/hash-set-and-array-list-performances
 // TODO: Do second pass (possibly remove first pass) after placing all blocks to make sure that all connected blocks are actually connected.
 //       Currently, connected blocks will only be connected to blocks that have already been processed.
-// TODO: DO NOT STORE newMin and newMax variables in the door. It most definitely does not belong in there! Figure out why it needs to be there in the first
-//       Place. If it's really needed, just use references.
 // TODO: Test and finish flag type.
 // TODO: Rewrite parts of the drawBridge opener and mover. The upDown etc stuff should not be used.
 // TODO: ElevatorOpener should extend PortcullisOpener.
@@ -227,13 +283,33 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: GarageDoorCreator: Fix having to double click last block.
 // TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
 // TODO: Allow blocks with inventories to be moved.
+// TODO: GarageDoor: Use EngineSide to figure out what the current direction is.
+// TODO: Do not update engine position when opening doors that actually change position: Portcullis, Elevator, Sliding door, etc.
+//       This way, the original position is still stored after opening it.
+// TODO: Do not allow setting of invalid rotation directions. If a garage door is positioned along the z axis, only North and South are valid options.
+// TODO: Instead of creating and running the runnables in the animateEntities method, create the runnable earlier and store it. Then call animateEntities()
+//       from BlockMover. Then let BlockMover extend Restartable and/or abortable, so that the it can cancel all movers etc on restart, so this code doesn't have to be part
+//       of the runnable anymore. Much cleaner.
+// TODO: Drawbridge: Do not use Clockwise / CounterClockwise. Use cardinal directions instead (as seen from up-position).
+// TODO: BigDoor: Do not use Clockwise / CounterClockwise here either. This one should also use cardinal directions.
+// TODO: Make setDefaultOpenDirection() smarter by checking which side is actually available.
+// TODO: Movers: updateCoords should be final and use the DoorBase::getNewLocations method to get the new min/max.
+// TODO: GarageDoor: The pivot point offset (where it starts pivoting), should depend on the radius. The higher the radius of the block compared
+//       to the total radius, the smaller the offset should be. This way, the final blocks will line up better with the final position.
+//       radius = maxRadius -> offset = 0. Should probably only look at the last 3 blocks. e.g.: offset = Min((offset / 4) * (totalRadius - radius)).
+// TODO: Drawbridge: Cleanup #getNewLocation().
+// TODO: When checking if a door's chunks are loaded, use the door's chunkRange variables.
+
 
 
 
 /*
  * Manual Testing
  */
-// TODO: Test new creatores: Windmill, RevolvingDoor, GarageDoor. Make sure it cannot be fucked up.
+// TODO: Test new creators: Windmill, RevolvingDoor, GarageDoor. Make sure it cannot be fucked up.
+// TODO: Test new chunkInRange methods. Especially sliding door.
+// TODO: Make sure that new lines in the messages work (check Util::stringFromArray).
+// TODO: Fix no permission to set AutoCloseTime from GUI.
 
 /*
  * Unit tests
@@ -300,15 +376,15 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
             if (DEVBUILD)
-                setLoginString("[BigDoors] Warning: You are running a devbuild!");
+                setLoginString("[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!");
 
             validVersion = compatibleMCVer();
             // Load the files for the correct version of Minecraft.
             if (!validVersion)
             {
-                logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! (\""  +
+                logger.severe("Trying to load the plugin on an incompatible version of Minecraft! (\""  +
                     (Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3]) +
-                                  "\"). This plugin will NOT be enabled!", true, true);
+                                  "\"). This plugin will NOT be enabled!");
                 return;
             }
 
@@ -373,11 +449,15 @@ public class BigDoors extends JavaPlugin implements Listener
             }
             commandManager.registerCommand(commandBigDoors);
             commandManager.registerCommand(new CommandMenu(this, commandManager));
+
+
+
+
+            logger.info("Successfully enabled BigDoors " + getDescription().getVersion());
         }
         catch(Exception exception)
         {
-            exception.printStackTrace();
-            logger.logMessage(Util.exceptionToString(exception), true, true);
+            logger.logException(exception);
         }
     }
 
@@ -412,7 +492,7 @@ public class BigDoors extends JavaPlugin implements Listener
         // Load stats collector if allowed, otherwise unload it if needed or simply don't load it in the first place.
         if (config.allowStats())
         {
-            logger.myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
+            logger.info("Enabling stats! Thanks, it really helps!");
             if (metrics == null)
                 metrics = new Metrics(this);
         }
@@ -420,7 +500,7 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             // Y u do dis? :(
             metrics = null;
-            logger.myLogger(Level.INFO, "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
+            logger.info("Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
         }
 
         // Load update checker if allowed, otherwise unload it if needed or simply don't load it in the first place.
@@ -439,22 +519,6 @@ public class BigDoors extends JavaPlugin implements Listener
     public ICommand getCommand(CommandData command)
     {
         return commandManager.getCommand(command);
-    }
-
-    public void addCommandWaiter(final Class<WaitForCommand> waiterClass)
-    {
-        try
-        {
-            this.addCommandWaiter(waiterClass.newInstance());
-        }
-        catch (InstantiationException e)
-        {
-            getMyLogger().handleMyStackTrace(new MyException(e));
-        }
-        catch (IllegalAccessException e)
-        {
-            getMyLogger().handleMyStackTrace(new MyException(e));
-        }
     }
 
     public int getMinimumDoorDelay()
@@ -545,13 +609,13 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         if (!DoorType.isEnabled(type))
         {
-            getMyLogger().logMessage("Trying to open door of type: \"" + type.toString() + "\", but this type is not enabled!", true);
+            getMyLogger().severe("Trying to open door of type: \"" + type.toString() + "\", but this type is not enabled!");
             return null;
         }
 
         switch (type)
         {
-        case DOOR:
+        case BIGDOOR:
             return doorOpener;
         case DRAWBRIDGE:
             return bridgeOpener;
@@ -722,15 +786,15 @@ public class BigDoors extends JavaPlugin implements Listener
         }
         catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
-            useAVersionMentionedInTheDescriptionPleaseException.printStackTrace();
+            getMyLogger().logException(useAVersionMentionedInTheDescriptionPleaseException);
             return false;
         }
 
         fabf  = null;
         if (version.equals("v1_14_R1"))
         {
-            is1_13      = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
-            fabf        = new FallingBlockFactory_V1_14_R1();
+            is1_13 = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
+            fabf = new FallingBlockFactory_V1_14_R1();
             headManager = new SkullCreator_V1_14_R1(this);
         }
         // Return true if compatible.
@@ -747,14 +811,8 @@ public class BigDoors extends JavaPlugin implements Listener
         loginString = str;
     }
 
-//    public ItemStack getPlayerHead(UUID playerUUID, String playerName, int x, int y, int z, Player player)
-//    {
-//        return headManager.getPlayerHead(playerUUID, playerName, x, y, z, player);
-//    }
-
     public ItemStack getPlayerHead(UUID playerUUID, String displayName, OfflinePlayer oPlayer)
     {
-//        return headManager.getPlayerHead(playerUUID, playerName, x, y, z, player);
         return headManagerv2.getPlayerHead(playerUUID, displayName, oPlayer);
     }
 
@@ -765,7 +823,7 @@ public class BigDoors extends JavaPlugin implements Listener
      */
 
     // (Instantly?) Toggle a door with a given time.
-    private DoorOpenResult toggleDoor(Door door, double time, boolean instantOpen)
+    private DoorOpenResult toggleDoor(DoorBase door, double time, boolean instantOpen)
     {
         return getDoorOpener(door.getType()).openDoor(door, time, instantOpen, false);
     }
@@ -773,34 +831,34 @@ public class BigDoors extends JavaPlugin implements Listener
     // Toggle a door from a doorUID and instantly or not.
     public boolean toggleDoor(long doorUID, boolean instantOpen)
     {
-        final Door door = getDatabaseManager().getDoor(null, doorUID);
+        final DoorBase door = getDatabaseManager().getDoor(null, doorUID);
         return toggleDoor(door, 0.0, instantOpen) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID and a given time.
     public boolean toggleDoor(long doorUID, double time)
     {
-        final Door door = getDatabaseManager().getDoor(null, doorUID);
+        final DoorBase door = getDatabaseManager().getDoor(null, doorUID);
         return toggleDoor(door, time, false) == DoorOpenResult.SUCCESS;
     }
 
     // Toggle a door from a doorUID using default values.
     public boolean toggleDoor(long doorUID)
     {
-        final Door door = getDatabaseManager().getDoor(null, doorUID);
+        final DoorBase door = getDatabaseManager().getDoor(null, doorUID);
         return toggleDoor(door, 0.0, false) == DoorOpenResult.SUCCESS;
     }
 
     // Check the open-status of a door.
-    private boolean isOpen (Door door)
+    private boolean isOpen(DoorBase door)
     {
         return door.isOpen();
     }
 
     // Check the open-status of a door from a doorUID.
-    public boolean isOpen (long doorUID)
+    public boolean isOpen(long doorUID)
     {
-        final Door door = getDatabaseManager().getDoor(null, doorUID);
+        final DoorBase door = getDatabaseManager().getDoor(null, doorUID);
         return this.isOpen(door);
     }
 

@@ -7,17 +7,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.MyBlockData;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
 class VerticalMover extends BlockMover
 {
     private int tickRate;
 
-    public VerticalMover(final BigDoors plugin, final World world, final double time, final Door door,
+    public VerticalMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
         final boolean instantOpen, final int blocksToMove, final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, null, null, blocksToMove);
@@ -89,8 +87,8 @@ class VerticalMover extends BlockMover
                 else
                     stepSum = getBlocksMoved();
 
-                if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks
-                    || firstBlockData == null)
+                if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || firstBlockData == null ||
+                    isAborted.get())
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (MyBlockData block : savedBlocks)
@@ -114,29 +112,6 @@ class VerticalMover extends BlockMover
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
-    }
-
-    // Update the coordinates of a door based on its location, direction it's
-    // pointing in and rotation direction.
-    @Override
-    protected void updateCoords(Door door, MyBlockFace currentDirection, RotateDirection rotDirection, int moved)
-    {
-        int xMin = door.getMinimum().getBlockX();
-        int yMin = door.getMinimum().getBlockY();
-        int zMin = door.getMinimum().getBlockZ();
-        int xMax = door.getMaximum().getBlockX();
-        int yMax = door.getMaximum().getBlockY();
-        int zMax = door.getMaximum().getBlockZ();
-
-        Location newMax = new Location(door.getWorld(), xMax, yMax + moved, zMax);
-        Location newMin = new Location(door.getWorld(), xMin, yMin + moved, zMin);
-
-        door.setMaximum(newMax);
-        door.setMinimum(newMin);
-
-        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(),
-                                                     newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
-                                                     newMax.getBlockY(), newMax.getBlockZ());
     }
 
     @Override

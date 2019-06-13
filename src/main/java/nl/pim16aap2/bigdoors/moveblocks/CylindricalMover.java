@@ -7,7 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotEast;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotNorth;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotSouth;
@@ -31,7 +31,7 @@ class CylindricalMover extends BlockMover
     private final GetNewLocation gnl;
 
     public CylindricalMover(final BigDoors plugin, final World world, final RotateDirection rotDirection,
-        final double time, final MyBlockFace currentDirection, final Door door,
+        final double time, final MyBlockFace currentDirection, final DoorBase door,
         final boolean instantOpen, final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1);
@@ -119,7 +119,7 @@ class CylindricalMover extends BlockMover
                 if (counter == replaceCount)
                     replace = true;
 
-                if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
                     Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
                     for (MyBlockData savedBlock : savedBlocks)
@@ -186,81 +186,6 @@ class CylindricalMover extends BlockMover
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
-    }
-
-    // Update the coordinates of a door based on its location, direction it's
-    // pointing in and rotation direction.
-    @Override
-    protected void updateCoords(Door door, MyBlockFace currentDirection, RotateDirection rotDirection, int moved)
-    {
-        int xLen = xMax - xMin;
-        int zLen = zMax - zMin;
-        Location newMax = null;
-        Location newMin = null;
-
-        switch (currentDirection)
-        {
-        case NORTH:
-            if (rotDirection == RotateDirection.CLOCKWISE)
-            {
-                newMin = new Location(door.getWorld(), xMin, yMin, zMax);
-                newMax = new Location(door.getWorld(), (xMin + zLen), yMax, zMax);
-            }
-            else
-            {
-                newMin = new Location(door.getWorld(), (xMin - zLen), yMin, zMax);
-                newMax = new Location(door.getWorld(), xMax, yMax, zMax);
-            }
-            break;
-
-        case EAST:
-            if (rotDirection == RotateDirection.CLOCKWISE)
-            {
-                newMin = new Location(door.getWorld(), xMin, yMin, zMin);
-                newMax = new Location(door.getWorld(), xMin, yMax, (zMax + xLen));
-            }
-            else
-            {
-                newMin = new Location(door.getWorld(), xMin, yMin, (zMin - xLen));
-                newMax = new Location(door.getWorld(), xMin, yMax, zMin);
-            }
-            break;
-
-        case SOUTH:
-            if (rotDirection == RotateDirection.CLOCKWISE)
-            {
-                newMin = new Location(door.getWorld(), (xMin - zLen), yMin, zMin);
-                newMax = new Location(door.getWorld(), xMax, yMax, zMin);
-            }
-            else
-            {
-                newMin = new Location(door.getWorld(), xMin, yMin, zMin);
-                newMax = new Location(door.getWorld(), (xMin + zLen), yMax, zMin);
-            }
-            break;
-
-        case WEST:
-            if (rotDirection == RotateDirection.CLOCKWISE)
-            {
-                newMin = new Location(door.getWorld(), xMax, yMin, (zMin - xLen));
-                newMax = new Location(door.getWorld(), xMax, yMax, zMax);
-            }
-            else
-            {
-                newMin = new Location(door.getWorld(), xMax, yMin, zMin);
-                newMax = new Location(door.getWorld(), xMax, yMax, (zMax + xLen));
-            }
-            break;
-        default:
-            plugin.getMyLogger().dumpStackTrace("Invalid currentDirection for cylindrical mover: " + currentDirection.toString());
-            return;
-        }
-        door.setMaximum(newMax);
-        door.setMinimum(newMin);
-
-        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(),
-                                               newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
-                                               newMax.getBlockY(), newMax.getBlockZ());
     }
 
     @Override

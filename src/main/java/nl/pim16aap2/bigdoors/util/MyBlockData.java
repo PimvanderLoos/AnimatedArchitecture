@@ -5,7 +5,7 @@ import org.bukkit.Location;
 import nl.pim16aap2.bigdoors.nms.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigdoors.nms.NMSBlock_Vall;
 
-public class MyBlockData
+public final class MyBlockData
 {
     private NMSBlock_Vall block;
     private boolean canRot;

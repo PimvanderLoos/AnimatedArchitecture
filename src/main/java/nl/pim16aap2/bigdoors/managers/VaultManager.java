@@ -11,7 +11,7 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
@@ -56,7 +56,7 @@ public class VaultManager extends Restartable
         Integer price;
         try
         {
-            price = Integer.parseInt(plugin.getConfigLoader().getPrice(DoorType.DOOR));
+            price = Integer.parseInt(plugin.getConfigLoader().getPrice(DoorType.BIGDOOR));
         }
         catch(Exception e)
         {
@@ -86,8 +86,8 @@ public class VaultManager extends Restartable
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logMessageToConsole("Failed to determine door creation price! Please contact pim16aap2! Include this: \"" + formula + "\" and this:");
-            e.printStackTrace();
+            plugin.getMyLogger().logException(e, "Failed to determine door creation price! Please contact pim16aap2! "
+                + "Include this: \"" + formula + "\" and this:");
             return 0.0d;
         }
     }
@@ -121,8 +121,8 @@ public class VaultManager extends Restartable
         }
         catch(Exception e)
         {
-            plugin.getMyLogger().warn("Failed to check balance of player \"" + player.getName() + "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logException(e, "Failed to check balance of player \"" + player.getName() +
+                                              "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
         return true;
     }
@@ -137,8 +137,8 @@ public class VaultManager extends Restartable
         }
         catch(Exception e)
         {
-            plugin.getMyLogger().warn("Failed to subtract money from player \"" + player.getName() + "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logException(e, "Failed to subtract money from player \"" + player.getName() +
+                                              "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
         return true;
     }

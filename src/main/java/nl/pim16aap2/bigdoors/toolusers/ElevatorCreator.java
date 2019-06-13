@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -53,7 +53,7 @@ public class ElevatorCreator extends Creator
     @Override
     public void selector(Location loc)
     {
-        if (name == null)
+        if (doorName == null)
         {
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;

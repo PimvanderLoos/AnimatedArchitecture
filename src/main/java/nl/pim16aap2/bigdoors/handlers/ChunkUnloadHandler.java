@@ -11,7 +11,6 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.Util;
 
 public class ChunkUnloadHandler implements Listener
 {
@@ -50,9 +49,7 @@ public class ChunkUnloadHandler implements Listener
         catch (NoSuchMethodException | SecurityException e)
         {
             success = false;
-            plugin.getMyLogger().logMessage("Serious error encountered! Unloading chunks with active doors IS UNSAFE!", true, true);
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
-            e.printStackTrace();
+            plugin.getMyLogger().logException(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
         }
     }
 
@@ -62,7 +59,7 @@ public class ChunkUnloadHandler implements Listener
         // If this class couldn't figure out reflection properly, give up.
         if (!success)
         {
-            plugin.getMyLogger().warn("ChunkUnloadHandler was not able to initialize properly! Please contact pim16aap2.");
+            plugin.getMyLogger().warn("ChunkUnloadHandler was not initialized properly! Please contact pim16aap2.");
             return;
         }
 
@@ -73,8 +70,8 @@ public class ChunkUnloadHandler implements Listener
         // Find any and all doors currently operating in the chunk that's to be unloaded.
         for (BlockMover bm : plugin.getBlockMovers())
             if (bm.getDoor().chunkInRange(event.getChunk()))
-                // Abort currently running chunks.
-                bm.getDoor().setCanGo(false);
+                // Abort currently running blockMovers.
+                bm.abort();
     }
 
     private boolean isChunkUnloadCancelled(ChunkUnloadEvent event)
@@ -87,9 +84,7 @@ public class ChunkUnloadHandler implements Listener
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
-            plugin.getMyLogger().logMessage("Serious error encountered! Unloading chunks with active doors IS UNSAFE!", true, true);
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
-            e.printStackTrace();
+            plugin.getMyLogger().logException(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
             return false;
         }
     }

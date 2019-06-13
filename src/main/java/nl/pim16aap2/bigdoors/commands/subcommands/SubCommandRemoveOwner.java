@@ -9,11 +9,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
@@ -33,7 +33,7 @@ public class SubCommandRemoveOwner extends SubCommand
         actualMinArgCount = getMinArgCount();
     }
 
-    public boolean execute(CommandSender sender, Door door, String playerArg)
+    public boolean execute(CommandSender sender, DoorBase door, String playerArg)
         throws CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
         UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);

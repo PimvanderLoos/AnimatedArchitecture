@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public class RevolvingDoorOpener extends Opener
@@ -13,7 +13,7 @@ public class RevolvingDoorOpener extends Opener
         super(plugin);
     }
 
-    private RotateDirection getOpenDirection(Door door)
+    private RotateDirection getOpenDirection(DoorBase door)
     {
         // Default to Clockwise rotation when nothing else has bee specified.
         if (door.getOpenDir().equals(RotateDirection.NONE))
@@ -26,7 +26,7 @@ public class RevolvingDoorOpener extends Opener
     }
 
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
+    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
     {
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)

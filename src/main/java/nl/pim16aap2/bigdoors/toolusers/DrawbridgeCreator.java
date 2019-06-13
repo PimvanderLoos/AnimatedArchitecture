@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -204,7 +204,7 @@ public class DrawbridgeCreator extends Creator
     @Override
     public void selector(Location loc)
     {
-        if (name == null)
+        if (doorName == null)
         {
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
@@ -239,7 +239,6 @@ public class DrawbridgeCreator extends Creator
             }
             else
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
-
         }
         // If the engine position has not been determined yet
         else if (engine == null)

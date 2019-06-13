@@ -5,12 +5,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 
@@ -27,7 +27,7 @@ public class SubCommandChangePowerBlock extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(Player player, Door door) throws CommandActionNotAllowedException
+    public boolean execute(Player player, DoorBase door) throws CommandActionNotAllowedException
     {
         if (!plugin.getDatabaseManager().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.RELOCATEPOWERBLOCK))
             throw new CommandActionNotAllowedException();
@@ -45,7 +45,7 @@ public class SubCommandChangePowerBlock extends SubCommand
 
         Player player = (Player) sender;
         String doorArg = args[getMinArgCount() - 1];
-        Door door = plugin.getDatabaseManager().getDoor(doorArg, player);
+        DoorBase door = plugin.getDatabaseManager().getDoor(doorArg, player);
         if (door == null)
             throw new CommandInvalidVariableException(doorArg, "door");
         return execute(player, door);

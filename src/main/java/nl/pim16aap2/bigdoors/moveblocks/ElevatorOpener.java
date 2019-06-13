@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -21,7 +21,7 @@ public class ElevatorOpener extends Opener
 
     // Open a door.
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
+    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
     {
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
@@ -40,7 +40,7 @@ public class ElevatorOpener extends Opener
         return DoorOpenResult.SUCCESS;
     }
 
-    private int getBlocksInDir(Door door, RotateDirection upDown)
+    private int getBlocksInDir(DoorBase door, RotateDirection upDown)
     {
         int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksMoved = 0, step;
         xMin = door.getMinimum().getBlockX();
@@ -62,7 +62,7 @@ public class ElevatorOpener extends Opener
         {
             for (xAxis = xMin; xAxis <= xMax; ++xAxis)
                 for (zAxis = zMin; zAxis <= zMax; ++zAxis)
-                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis)))
+                    if (!Util.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
                         return blocksMoved;
             yAxis += step;
             blocksMoved += step;
@@ -70,7 +70,7 @@ public class ElevatorOpener extends Opener
         return blocksMoved;
     }
 
-    private int getBlocksToMove(Door door)
+    private int getBlocksToMove(DoorBase door)
     {
         int blocksUp = 0, blocksDown = 0;
         if (door.getOpenDir() == RotateDirection.UP && !door.isOpen() ||

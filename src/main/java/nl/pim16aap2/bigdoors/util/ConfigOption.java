@@ -6,13 +6,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
-/* This class represent a configuration option.
- * The general format is: the comment followed by
- * "<optionName>: <value>" on a new line for most options.
- * For Lists, every option appears on a new line after a '-'.
+/**
+ * Represents an option in a config file.
+ *
+ * @author Pim
  */
-
-public class ConfigOption<V>
+public final class ConfigOption<V>
 {
     private final BigDoors plugin;
     private final FileConfiguration config;
@@ -32,6 +31,9 @@ public class ConfigOption<V>
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * Set the value of this config option.
+     */
     private void setValue()
     {
         try
@@ -40,22 +42,39 @@ public class ConfigOption<V>
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logMessage("Failed to read config value of: \"" + optionName + "\"! Using default value instead!", true, false);
-            plugin.getMyLogger().logMessage(Util.exceptionToString(e), false, false);
+            plugin.getMyLogger()
+                .logException(e,
+                              "Failed to read config value of: \"" + optionName + "\"! Using default value instead!");
             value = defaultValue;
         }
     }
 
+    /**
+     * Get the value of this config option.
+     *
+     * @return The value of the config option.
+     */
     public V getValue()
     {
         return value;
     }
 
+    /**
+     * Get the comment of this config option.
+     *
+     * @return The comment of the config option.
+     */
     public String[] getComment()
     {
         return comment;
     }
 
+    /**
+     * Convert the comment, name and value(s) of this config option into a string
+     * that can be used for writing the config.
+     *
+     * @return The config option formatted for printing in the config file
+     */
     @Override
     public String toString()
     {
@@ -76,12 +95,12 @@ public class ConfigOption<V>
             builder.append("\n");
             int listSize = ((List<?>) value).size();
             for (int index = 0; index < listSize; ++index)
-                builder.append("  - " + ((List<?>) value).get(index) + (index == listSize - 1 ? "" : "\n")); // Don't print newline at the end
+                // Don't print newline at the end
+                builder.append("  - " + ((List<?>) value).get(index) + (index == listSize - 1 ? "" : "\n"));
             string += builder.toString();
         }
         else
-            string +=  value.toString();
-
+            string += value.toString();
         return string;
     }
 }

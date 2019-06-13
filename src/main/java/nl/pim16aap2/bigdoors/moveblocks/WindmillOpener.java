@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
-import nl.pim16aap2.bigdoors.util.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public class WindmillOpener extends Opener
@@ -13,7 +13,7 @@ public class WindmillOpener extends Opener
         super(plugin);
     }
 
-    private RotateDirection getOpenDirection(Door door)
+    private RotateDirection getOpenDirection(DoorBase door)
     {
         // First check if the user has already specified a direction for the windmill to
         // turn. If not, default to North if positioned along the Z axis, or East with
@@ -30,7 +30,7 @@ public class WindmillOpener extends Opener
     }
 
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
+    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
     {
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)

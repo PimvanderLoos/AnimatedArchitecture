@@ -9,7 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.MyBlockData;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -27,7 +27,7 @@ class GarageDoorMover extends BlockMover
     private final Vector3D directionVec;
     private int xLen, yLen, zLen;
 
-    public GarageDoorMover(final BigDoors plugin, final World world, final Door door, final double time,
+    public GarageDoorMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
         final double multiplier, final MyBlockFace currentDirection, final RotateDirection rotateDirection)
     {
         super(plugin, world, door, 30, false, currentDirection, rotateDirection, -1);
@@ -61,7 +61,7 @@ class GarageDoorMover extends BlockMover
             break;
         default:
             directionVec = null;
-            plugin.getMyLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
+            plugin.getMyLogger().dumpStackTrace("Failed to open garage door \"" + getDoorUID()
                 + "\". Reason: Invalid rotateDirection \"" + rotateDirection.toString() + "\"");
             return;
         }
@@ -254,7 +254,7 @@ class GarageDoorMover extends BlockMover
                 else
                     startTime += currentTime - lastTime;
 
-                if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (MyBlockData block : savedBlocks)
@@ -279,72 +279,6 @@ class GarageDoorMover extends BlockMover
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
-    }
-
-    @Override
-    protected void updateCoords(Door door, MyBlockFace openDirection, RotateDirection upDown, int moved)
-    {
-        // This works fine, but it's disabled to make it easier to test other stuff.
-        if (currentDirection.equals(MyBlockFace.UP))
-        {
-            yMin = yMax = door.getMaximum().getBlockY() + 1;
-
-            xMin += 1 * directionVec.getX();
-            xMax += (1 + yLen) * directionVec.getX();
-            zMin += 1 * directionVec.getZ();
-            zMax += (1 + yLen) * directionVec.getZ();
-        }
-        else
-        {
-            yMax = yMax - 1;
-            yMin -= Math.abs(directionVec.getX() * xLen);
-            yMin -= Math.abs(directionVec.getZ() * zLen);
-            yMin -= 1;
-
-            if (super.openDirection.equals(RotateDirection.SOUTH))
-            {
-                zMax = zMax + 1;
-                zMin = zMax;
-            }
-            else if (super.openDirection.equals(RotateDirection.NORTH))
-            {
-                zMax = zMin - 1;
-                zMin = zMax;
-            }
-            if (super.openDirection.equals(RotateDirection.EAST))
-            {
-                xMax = xMax + 1;
-                xMin = xMax;
-            }
-            else if (super.openDirection.equals(RotateDirection.WEST))
-            {
-                xMax = xMin - 1;
-                xMin = xMax;
-            }
-        }
-
-        if (xMin > xMax)
-        {
-            int tmp = xMin;
-            xMin = xMax;
-            xMax = tmp;
-        }
-        if (zMin > zMax)
-        {
-            int tmp = zMin;
-            zMin = zMax;
-            zMax = tmp;
-        }
-
-        Location newMax = new Location(world, xMax, yMax, zMax);
-        Location newMin = new Location(world, xMin, yMin, zMin);
-
-        door.setMaximum(newMax);
-        door.setMinimum(newMin);
-
-        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(),
-                                                     newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
-                                                     newMax.getBlockY(), newMax.getBlockZ());
     }
 
     @Override

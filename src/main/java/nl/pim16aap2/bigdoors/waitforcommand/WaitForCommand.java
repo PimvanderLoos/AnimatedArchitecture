@@ -29,7 +29,7 @@ public abstract class WaitForCommand extends Abortable
     {
         if (!onDisable)
         {
-            cancelTask();
+            killTask();
             plugin.removeCommandWaiter(this);
             if (!isFinished)
                 Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.TimeOutOrFail"));

@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class SlidingDoorCreator extends Creator
@@ -61,7 +61,7 @@ public class SlidingDoorCreator extends Creator
     @Override
     public void selector(Location loc)
     {
-        if (name == null)
+        if (doorName == null)
             return;
         if (!isPositionValid(loc))
             return;

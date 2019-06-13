@@ -10,15 +10,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
+import javax.annotation.Nullable;
+
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 
-public class ConfigLoader
+/**
+ * Represents the config loader.
+ *
+ * @author Pim
+ */
+public final class ConfigLoader
 {
     private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Arrays.asList("GOLD_BLOCK"));
 
@@ -82,7 +88,9 @@ public class ConfigLoader
         String[] allowStatsComment = { "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
                                        "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!" };
         String[] maxDoorSizeComment = { "Max. number of blocks allowed in a door.",
-                                        "If this number is exceeded, doors will open instantly and skip the animation." };
+                                        "If this number is exceeded, doors will open instantly and skip the animation.",
+                                        "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+                                        "\"bigdoors.maxsize.amount\". E.g.: \"bigdoors.maxsize.200\"" };
         String[] resourcePackComment = { "This plugin uses a support resource pack for things suchs as sound.",
                                          "You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
                                          "Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
@@ -116,7 +124,7 @@ public class ConfigLoader
         enableRedstone = addNewConfigOption(config, "allowRedstone", true, enableRedstoneComment);
         readPowerBlockConfig(config, powerBlockTypeComment);
         maxDoorCount = addNewConfigOption(config, "maxDoorCount", -1, maxDoorCountComment);
-        maxDoorSize = addNewConfigOption(config, "maxDoorSize", -1, maxDoorSizeComment);
+        maxDoorSize = addNewConfigOption(config, "maxDoorSize", 500, maxDoorSizeComment);
         languageFile = addNewConfigOption(config, "languageFile", "en_US", languageFileComment);
         dbFile = addNewConfigOption(config, "dbFile", "doorDB.db", dbFileComment);
         checkForUpdates = addNewConfigOption(config, "checkForUpdates", true, checkForUpdatesComment);
@@ -151,6 +159,14 @@ public class ConfigLoader
         writeConfig();
     }
 
+    /**
+     * Read the allowed powerBlockTypes from the config. Only valid materials are
+     * allowed on this list. Invalid materials are removed from the list and from
+     * the config.
+     *
+     * @param config                The config
+     * @param powerBlockTypeComment The comment of the powerBlockType option.
+     */
     private void readPowerBlockConfig(FileConfiguration config, String[] powerBlockTypeComment)
     {
         List<String> materials;
@@ -179,14 +195,13 @@ public class ConfigLoader
                 else
                 {
                     plugin.getMyLogger()
-                        .logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true,
-                                    false);
+                        .warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
                     it.remove();
                 }
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().logMessage("Failed to parse material: \"" + str + "\"", true, false);
+                plugin.getMyLogger().warn("Failed to parse material: \"" + str + "\"");
                 it.remove();
             }
         }
@@ -196,8 +211,7 @@ public class ConfigLoader
         {
             StringBuilder sb = new StringBuilder();
             DEFAULTPOWERBLOCK.forEach(K -> sb.append(K + " "));
-            plugin.getMyLogger().logMessage("No materials found for powerBlockType! Defaulting to:" + sb.toString(),
-                                            true, false);
+            plugin.getMyLogger().warn("No materials found for powerBlockType! Defaulting to:" + sb.toString());
             DEFAULTPOWERBLOCK.forEach(K ->
             {
                 powerBlockTypesMap.add(Material.valueOf(K));
@@ -206,19 +220,30 @@ public class ConfigLoader
         }
 
         addNewConfigOption(config, "powerBlockTypes", materials, powerBlockTypeComment);
-
-        plugin.getMyLogger().logMessageToConsoleOnly("Power Block Types:");
-        powerBlockTypesMap.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K.toString()));
+        plugin.getMyLogger().info("Power Block Types:");
+        powerBlockTypesMap.forEach(K -> plugin.getMyLogger().info(" - " + K.toString()));
     }
 
-    private <T> T addNewConfigOption(FileConfiguration config, String optionName, T defaultValue, String[] comment)
+    /**
+     * Read a new config option from the config if it exists. Otherwise, use the default value.
+     *
+     * @param <T>
+     * @param config The config.
+     * @param optionName The name of the option in the config file.
+     * @param defaultValue The default value of the option. To be used if no/invalid option is in the config already.
+     * @param comment The comment to accompany the option in the config.
+     * @return The value as read from the config file if it exists or the default value.
+     */
+    private <T> T addNewConfigOption(FileConfiguration config, String optionName, T defaultValue, @Nullable String[] comment)
     {
         ConfigOption<T> option = new ConfigOption<>(plugin, config, optionName, defaultValue, comment);
         configOptionsList.add(option);
         return option.getValue();
     }
 
-    // Write new config file.
+    /**
+     * Write the config file.
+     */
     private void writeConfig()
     {
         // Write all the config options to the config.yml.
@@ -253,10 +278,8 @@ public class ConfigLoader
         }
         catch (IOException e)
         {
-            Bukkit.getLogger()
-                .log(Level.SEVERE,
-                     "Could not save config.yml! Please contact pim16aap2 and show him the following code:");
-            e.printStackTrace();
+            plugin.getMyLogger().logException(e, "Could not save config.yml! "
+                + "Please contact pim16aap2 and show him the following code:");
         }
     }
 

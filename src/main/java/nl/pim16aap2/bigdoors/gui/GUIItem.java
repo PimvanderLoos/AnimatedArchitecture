@@ -10,14 +10,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 
 class GUIItem
 {
     private ItemStack is;
-    private Door door;
+    private DoorBase door;
     private ArrayList<String> lore;
     private int count;
     private String name;
@@ -130,12 +130,12 @@ class GUIItem
         return attribute;
     }
 
-    public void setDoor(Door door)
+    public void setDoor(DoorBase door)
     {
         this.door = door;
     }
 
-    public Door getDoor()
+    public DoorBase getDoor()
     {
         return door;
     }

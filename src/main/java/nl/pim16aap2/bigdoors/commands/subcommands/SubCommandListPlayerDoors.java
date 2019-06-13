@@ -7,11 +7,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public class SubCommandListPlayerDoors extends SubCommand
@@ -27,7 +27,7 @@ public class SubCommandListPlayerDoors extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, ArrayList<Door> doors)
+    public boolean execute(CommandSender sender, ArrayList<DoorBase> doors)
     {
         if (doors.size() == 0)
         {
@@ -35,7 +35,7 @@ public class SubCommandListPlayerDoors extends SubCommand
             return true;
         }
         StringBuilder builder = new StringBuilder();
-        for (Door door : doors)
+        for (DoorBase door : doors)
             builder.append(door.getBasicInfo());
         plugin.getMyLogger().returnToSender(sender, null, builder.toString());
         return true;
@@ -45,7 +45,7 @@ public class SubCommandListPlayerDoors extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException
     {
-        ArrayList<Door> doors = new ArrayList<>();
+        ArrayList<DoorBase> doors = new ArrayList<>();
         UUID playerUUID = CommandManager.getPlayerFromArg(args[0]);
         String name = args.length > 1 ? args[1] : null;
         doors.addAll(plugin.getDatabaseManager().getDoors(playerUUID.toString(), name));

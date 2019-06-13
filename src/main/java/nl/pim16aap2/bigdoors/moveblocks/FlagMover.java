@@ -9,10 +9,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.MyBlockData;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
 class FlagMover extends BlockMover
@@ -23,7 +21,7 @@ class FlagMover extends BlockMover
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
 
-    public FlagMover(final BigDoors plugin, final World world, final double time, final Door door,
+    public FlagMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
         final double multiplier)
     {
         super(plugin, world, door, time, false, null, null, -1);
@@ -97,7 +95,7 @@ class FlagMover extends BlockMover
                 else
                     startTime += currentTime - lastTime;
 
-                if (!plugin.getDatabaseManager().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
                     for (MyBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
@@ -117,12 +115,6 @@ class FlagMover extends BlockMover
                     }
             }
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
-    }
-
-    @Override
-    protected void updateCoords(Door door, MyBlockFace openDirection, RotateDirection upDown, int moved)
-    {
-        return;
     }
 
     @Override

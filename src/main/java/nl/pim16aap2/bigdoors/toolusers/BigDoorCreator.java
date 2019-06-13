@@ -4,24 +4,22 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 
 /**
- * This class represents players in the process of creating doors. Objects of
- * this class are instantiated when the createdoor command is used and they are
- * destroyed after The creation process has been completed successfully or the
- * timer ran out. In EventHandlers this class is used To check whether a user
- * that is left-clicking is a DoorCreator && tell this class a left-click
- * happened.
+ * Represents a user creating a Big Door.
+ *
+ * @author Pim
+ * @see Creator
  **/
-public class DoorCreator extends Creator
+public class BigDoorCreator extends Creator
 {
     protected String typeString;
 
-    public DoorCreator(BigDoors plugin, Player player, String name, String typeString)
+    public BigDoorCreator(BigDoors plugin, Player player, String name, String typeString)
     {
-        super(plugin, player, name, DoorType.DOOR);
+        super(plugin, player, name, DoorType.BIGDOOR);
         this.typeString = typeString;
         Util.messagePlayer(player, messages.getString("CREATOR." + typeString + ".Init"));
         if (name == null)
@@ -30,7 +28,7 @@ public class DoorCreator extends Creator
             triggerGiveTool();
     }
 
-    public DoorCreator(BigDoors plugin, Player player, String name)
+    public BigDoorCreator(BigDoors plugin, Player player, String name)
     {
         this(plugin, player, name, "DOOR");
     }
@@ -97,7 +95,7 @@ public class DoorCreator extends Creator
     @Override
     public void selector(Location loc)
     {
-        if (name == null)
+        if (doorName == null)
         {
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;

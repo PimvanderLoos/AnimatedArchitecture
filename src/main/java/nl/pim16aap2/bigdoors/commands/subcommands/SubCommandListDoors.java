@@ -8,10 +8,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public class SubCommandListDoors extends SubCommand
@@ -27,7 +27,7 @@ public class SubCommandListDoors extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, ArrayList<Door> doors)
+    public boolean execute(CommandSender sender, ArrayList<DoorBase> doors)
     {
         if (doors.size() == 0)
         {
@@ -35,7 +35,7 @@ public class SubCommandListDoors extends SubCommand
             return true;
         }
         StringBuilder builder = new StringBuilder();
-        for (Door door : doors)
+        for (DoorBase door : doors)
             builder.append(door.getBasicInfo() + "\n");
         plugin.getMyLogger().returnToSender(sender, null, builder.toString());
         return true;
@@ -45,7 +45,7 @@ public class SubCommandListDoors extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
-        ArrayList<Door> doors = new ArrayList<>();
+        ArrayList<DoorBase> doors = new ArrayList<>();
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
         if (sender instanceof Player)
             doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId().toString(), name));

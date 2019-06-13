@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -11,10 +12,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.nms.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigdoors.nms.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigdoors.nms.NMSBlock_Vall;
+import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.MyBlockData;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -26,7 +28,7 @@ public abstract class BlockMover
     protected final FallingBlockFactory_Vall fabf;
     protected final World world;
     protected List<MyBlockData> savedBlocks;
-    protected final Door door;
+    protected final DoorBase door;
     protected double time;
     protected boolean instantOpen;
     protected MyBlockFace currentDirection;
@@ -34,8 +36,9 @@ public abstract class BlockMover
     protected int blocksMoved;
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
+    protected AtomicBoolean isAborted = new AtomicBoolean(false);
 
-    protected BlockMover(final BigDoors plugin, final World world, final Door door, final double time,
+    protected BlockMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
         final boolean instantOpen, final MyBlockFace currentDirection, final RotateDirection openDirection,
         final int blocksMoved)
     {
@@ -57,6 +60,11 @@ public abstract class BlockMover
         xMax = door.getMaximum().getBlockX();
         yMax = door.getMaximum().getBlockY();
         zMax = door.getMaximum().getBlockZ();
+    }
+
+    public void abort()
+    {
+        isAborted.set(true);
     }
 
     protected void constructFBlocks()
@@ -140,6 +148,7 @@ public abstract class BlockMover
 
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door, currentDirection, openDirection, blocksMoved);
+
         if (!onDisable)
             plugin.removeBlockMover(this);
 
@@ -166,12 +175,32 @@ public abstract class BlockMover
             plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
-    protected abstract void updateCoords(Door door, MyBlockFace openDirection, RotateDirection upDown, int moved);
+    protected final void updateCoords(DoorBase door, MyBlockFace openDirection, RotateDirection rotateDirection, int moved)
+    {
+        Location newMin = new Location(world, 0, 0, 0);
+        Location newMax = new Location(world, 0, 0, 0);
+        Mutable<MyBlockFace> newEngineSide = new Mutable<>(null);
+
+        door.getNewLocations(openDirection, rotateDirection, newMin, newMax, moved, newEngineSide);
+
+        if (newMin.equals(door.getMinimum()) && newMax.equals(door.getMaximum()))
+            return;
+
+        door.setMaximum(newMax);
+        door.setMinimum(newMin);
+
+        if (newEngineSide.getVal() != null)
+            door.setEngineSide(newEngineSide.getVal());
+
+        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(),
+                                                     newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
+                                                     newMax.getBlockY(), newMax.getBlockZ(), newEngineSide.getVal());
+    }
 
     protected abstract Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
 
     // Toggle the open status of a drawbridge.
-    protected final void toggleOpen(Door door)
+    protected final void toggleOpen(DoorBase door)
     {
         door.setOpenStatus(!door.isOpen());
     }
@@ -190,7 +219,7 @@ public abstract class BlockMover
         return door.getDoorUID();
     }
 
-    public final Door getDoor()
+    public final DoorBase getDoor()
     {
         return door;
     }

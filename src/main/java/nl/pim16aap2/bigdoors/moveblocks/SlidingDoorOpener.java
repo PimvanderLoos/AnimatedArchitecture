@@ -1,18 +1,18 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
-import nl.pim16aap2.bigdoors.util.DoorType;
+import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class SlidingDoorOpener extends Opener
 {
-    private RotateDirection moveDirection;
-
     public SlidingDoorOpener(final BigDoors plugin)
     {
         super(plugin);
@@ -20,7 +20,7 @@ public class SlidingDoorOpener extends Opener
 
     // Open a door.
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
+    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
     {
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
@@ -30,18 +30,28 @@ public class SlidingDoorOpener extends Opener
         if (super.isTooBig(door))
             instantOpen = true;
 
-        int blocksToMove = getBlocksToMove(door);
+        Mutable<Integer> blocksToMove = new Mutable<>(null);
+        Mutable<RotateDirection> rotateDirection = new Mutable<>(null);
+        getBlocksToMove(door, blocksToMove, rotateDirection);
 
-        if (blocksToMove != 0)
-            plugin.addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
-                                                  moveDirection,
-                                                  plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR)));
-        else
+        if (blocksToMove.getVal() == null)
             return abort(door, DoorOpenResult.NODIRECTION);
+
+        Location newMin = door.getMinimum().clone();
+        Location newMax = door.getMaximum().clone();
+        door.getNewLocations(null, rotateDirection.getVal(), newMin, newMax, blocksToMove.getVal(), null);
+
+        // The door's owner does not have permission to move the door into the new
+        // position (e.g. worldguard doens't allow it.
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), newMin, newMax) != null)
+            return abort(door, DoorOpenResult.NOPERMISSION);
+
+        plugin.addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove.getVal(),
+                                              rotateDirection.getVal(), plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR)));
         return DoorOpenResult.SUCCESS;
     }
 
-    private int getBlocksInDir(Door door, RotateDirection slideDir)
+    private int getBlocksInDir(DoorBase door, RotateDirection slideDir)
     {
         int xMin, xMax, zMin, zMax, yMin, yMax, xLen, zLen, moveBlocks = 0, step;
         xMin = door.getMinimum().getBlockX();
@@ -99,7 +109,7 @@ public class SlidingDoorOpener extends Opener
             {
                 for (xAxis = startX; xAxis != endX + 1; ++xAxis)
                     for (yAxis = startY; yAxis != endY + 1; ++yAxis)
-                        if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis)))
+                        if (!Util.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
                             return moveBlocks;
                 moveBlocks += step;
             }
@@ -108,14 +118,14 @@ public class SlidingDoorOpener extends Opener
             {
                 for (zAxis = startZ; zAxis != endZ + 1; ++zAxis)
                     for (yAxis = startY; yAxis != endY + 1; ++yAxis)
-                        if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis)))
+                        if (!Util.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
                             return moveBlocks;
                 moveBlocks += step;
             }
         return moveBlocks;
     }
 
-    private int getBlocksToMove(Door door)
+    private void getBlocksToMove(DoorBase door, Mutable<Integer> blocksToMove, Mutable<RotateDirection> openDirection)
     {
         int blocksNorth = 0, blocksEast = 0, blocksSouth = 0, blocksWest = 0;
 
@@ -147,32 +157,30 @@ public class SlidingDoorOpener extends Opener
             blocksWest = getBlocksInDir(door, RotateDirection.WEST);
         }
         else
-        {
-            return 0;
-        }
+            return;
 
         int maxVal = Math.max(Math.abs(blocksNorth), Math.max(blocksEast, Math.max(blocksSouth, Math.abs(blocksWest))));
 
+
         if (Math.abs(blocksNorth) == maxVal)
         {
-            moveDirection = RotateDirection.NORTH;
-            return blocksNorth;
+            blocksToMove.setVal(blocksNorth);
+            openDirection.setVal(RotateDirection.NORTH);
         }
-        if (blocksEast == maxVal)
+        else if (blocksEast == maxVal)
         {
-            moveDirection = RotateDirection.EAST;
-            return blocksEast;
+            blocksToMove.setVal(blocksEast);
+            openDirection.setVal(RotateDirection.EAST);
         }
-        if (blocksSouth == maxVal)
+        else if (blocksSouth == maxVal)
         {
-            moveDirection = RotateDirection.SOUTH;
-            return blocksSouth;
+            blocksToMove.setVal(blocksSouth);
+            openDirection.setVal(RotateDirection.SOUTH);
         }
-        if (Math.abs(blocksWest) == maxVal)
+        else if (Math.abs(blocksWest) == maxVal)
         {
-            moveDirection = RotateDirection.WEST;
-            return blocksWest;
+            blocksToMove.setVal(blocksWest);
+            openDirection.setVal(RotateDirection.WEST);
         }
-        return -1;
     }
 }

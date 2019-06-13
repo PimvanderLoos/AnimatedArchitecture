@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
 import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
@@ -19,6 +18,7 @@ import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.commands.ICommand;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class CommandManager implements CommandExecutor
@@ -96,9 +96,9 @@ public class CommandManager implements CommandExecutor
         return true;
     }
 
-    public Door getDoorFromArg(CommandSender sender, String doorArg) throws CommandInvalidVariableException
+    public DoorBase getDoorFromArg(CommandSender sender, String doorArg) throws CommandInvalidVariableException
     {
-        Door door = null;
+        DoorBase door = null;
 
         if (sender instanceof Player)
             door = plugin.getDatabaseManager().getDoor(doorArg, (Player) sender);
@@ -109,8 +109,7 @@ public class CommandManager implements CommandExecutor
                 door = plugin.getDatabaseManager().getDoor(doorUID);
             }
             catch (NumberFormatException e)
-            {
-            }
+            {}
         if (door == null)
             throw new CommandInvalidVariableException(doorArg, "door");
         return door;

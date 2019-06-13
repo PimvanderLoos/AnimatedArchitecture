@@ -18,8 +18,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
-import nl.pim16aap2.bigdoors.util.Util;
-
 class SpigotUpdater
 {
     final static String DOWNLOAD_URL = "https://api.spiget.org/v2/resources/58669/versions/";
@@ -62,9 +60,8 @@ class SpigotUpdater
                 }
                 catch (Exception exc)
                 {
-                    plugin.getMyLogger().logMessageToConsole("Failed to check for updates!");
-                    plugin.getMyLogger().logMessage("Could not check for updates! Send this to pim16aap2: \n" +
-                            Util.exceptionToString(exc), false, false);
+                    plugin.getMyLogger().info("Failed to check for updates!");
+                    plugin.getMyLogger().logException(exc);
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 50, 288000);
@@ -161,12 +158,12 @@ class SpigotUpdater
         if (versionsAgo > 1)
         {
             success = false;
-            plugin.getMyLogger().logMessage("Update available! (" + newVersion
+            plugin.getMyLogger().info("Update available! (" + newVersion
                     + ", current version = " + plugin.getDescription().getVersion() + ")\n"
                     + "Cannot be downloaded automatically, as it is not the most recent version "
                     + "(the config doesn't allow me to download that!).\n"
                     + "You can download it manually at: " + (SpigotUpdater.DOWNLOAD_URL
-                    + newVersionID + "/download"), true, false);
+                    + newVersionID + "/download"));
             return;
         }
         File updateFolder = Bukkit.getUpdateFolderFile();

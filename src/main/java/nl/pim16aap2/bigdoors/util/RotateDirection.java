@@ -5,19 +5,15 @@ import java.util.Map;
 
 public enum RotateDirection
 {
-    NORTH            (0, "GUI.Direction.North"),
-    EAST             (1, "GUI.Direction.East"),
-    SOUTH            (2, "GUI.Direction.South"),
-    WEST             (3, "GUI.Direction.West"),
-    @Deprecated
-    UP               (4, "GUI.Direction.Up"),
-    @Deprecated
-    DOWN             (5, "GUI.Direction.Down"),
-    NONE             (6, "GUI.Direction.Any"),
-    @Deprecated
-    CLOCKWISE        (7, "GUI.Direction.Clock"),
-    @Deprecated
-    COUNTERCLOCKWISE (8, "GUI.Direction.Counter");
+    NONE             (0, "GUI.Direction.Any"),
+    CLOCKWISE        (1, "GUI.Direction.Clock"),
+    COUNTERCLOCKWISE (2, "GUI.Direction.Counter"),
+    UP               (3, "GUI.Direction.Up"),
+    DOWN             (4, "GUI.Direction.Down"),
+    NORTH            (5, "GUI.Direction.North"),
+    EAST             (6, "GUI.Direction.East"),
+    SOUTH            (7, "GUI.Direction.South"),
+    WEST             (8, "GUI.Direction.West");
 
     private int val;
     private String nameKey;

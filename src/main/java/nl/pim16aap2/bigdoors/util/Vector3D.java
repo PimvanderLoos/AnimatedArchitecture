@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
-public class Vector3D
+public final class Vector3D implements Cloneable
 {
     private int x, y, z;
 
@@ -82,10 +82,14 @@ public class Vector3D
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (this.getClass() != o.getClass()) return false;
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
+        if (this.getClass() != o.getClass())
+            return false;
         Vector3D other = (Vector3D) o;
         return x == other.x && y == other.y && z == other.z;
     }

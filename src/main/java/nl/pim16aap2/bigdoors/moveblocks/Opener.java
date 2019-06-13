@@ -1,10 +1,8 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import java.util.logging.Level;
-
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Door;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 
 public abstract class Opener
@@ -16,21 +14,21 @@ public abstract class Opener
         this.plugin = plugin;
     }
 
-    protected final void setBusy(Door door)
+    protected final void setBusy(DoorBase door)
     {
         // Change door availability so it cannot be opened again (just temporarily,
         // don't worry!).
         plugin.getDatabaseManager().setDoorBusy(door.getDoorUID());
     }
 
-    protected final DoorOpenResult abort(Door door, DoorOpenResult result)
+    protected final DoorOpenResult abort(DoorBase door, DoorOpenResult result)
     {
         if (!result.equals(DoorOpenResult.BUSY))
             plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
         return result;
     }
 
-    protected final boolean isTooBig(Door door)
+    protected final boolean isTooBig(DoorBase door)
     {
         // Make sure the doorSize does not exceed the total doorSize.
         // If it does, open the door instantly.
@@ -41,42 +39,50 @@ public abstract class Opener
         return false;
     }
 
-    protected final DoorOpenResult isOpenable(Door door, boolean silent)
+    protected final DoorOpenResult isOpenable(DoorBase door, boolean silent)
     {
         if (plugin.getDatabaseManager().isDoorBusy(door.getDoorUID()))
         {
             if (!silent)
-                plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+                plugin.getMyLogger().warn("Door " + door.getName() + " is not available right now!");
             return DoorOpenResult.BUSY;
         }
 
         if (!chunksLoaded(door))
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
-                                            true, false);
+            plugin.getMyLogger().warn(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!");
             return DoorOpenResult.ERROR;
         }
         return DoorOpenResult.SUCCESS;
     }
 
     // Check if the chunks at the minimum and maximum locations of the door are loaded.
-    protected final boolean chunksLoaded(final Door door)
+    protected final boolean chunksLoaded(final DoorBase door)
     {
         // Return true if the chunk at the max and at the min of the chunks were loaded correctly.
         if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \""    + door.getName().toString() + "\"",          true, false);
+        {
+            plugin.getMyLogger().warn("World is null for door \"" + door.getName().toString() + "\"");
+            return false;
+        }
         if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
+        {
+            plugin.getMyLogger().warn("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!");
+            return false;
+        }
         if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
+        {
+            plugin.getMyLogger().warn("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!");
+            return false;
+        }
 
         return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
     }
 
-    public DoorOpenResult openDoor(final Door door, final double time)
+    public DoorOpenResult openDoor(final DoorBase door, final double time)
     {
         return openDoor(door, time, false, false);
     }
 
-    public abstract DoorOpenResult openDoor(final Door door, final double time, final boolean instantOpen, final boolean silent);
+    public abstract DoorOpenResult openDoor(final DoorBase door, final double time, final boolean instantOpen, final boolean silent);
 }

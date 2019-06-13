@@ -132,7 +132,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
             plugin.getMyLogger().info("Successfully hooked into \"" + hook.getPlugin().getName() + "\"!");
         }
         else
-            plugin.getMyLogger().logMessageToConsole("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
+            plugin.getMyLogger().info("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -178,7 +178,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
                 }
                 else
                 {
-                    plugin.getMyLogger().logMessageToConsole("Version " +
+                    plugin.getMyLogger().warn("Version " +
                         WGVersion + " is not supported! If you believe this is in error, please contact pim16aap2.");
                     return;
                 }
@@ -188,23 +188,23 @@ public class ProtectionCompatManager extends Restartable implements Listener
             {
                 if (!silent)
                 {
-                    plugin.getMyLogger().logMessageToConsole("NoClassDefFoundError: "
+                    plugin.getMyLogger().severe("NoClassDefFoundError: "
                         + "Failed to initialize WorldGuard compatibility hook!");
-                    plugin.getMyLogger().logMessageToConsole(
+                    plugin.getMyLogger().info(
                           "Now resuming normal startup with Worldguard Compatibility Hook disabled!");
                 }
             }
             catch (NullPointerException e)
             {
-                plugin.getMyLogger().logMessageToConsoleOnly("Could not find WorldGuard! Hook not enabled!");
+                plugin.getMyLogger().warn("Could not find WorldGuard! Hook not enabled!");
             }
             catch (Exception e)
             {
                 if (!silent)
                 {
-                    plugin.getMyLogger().logMessageToConsole(
+                    plugin.getMyLogger().warn(
                           "Failed to initialize WorldGuard compatibility hook!");
-                    plugin.getMyLogger().logMessageToConsole(
+                    plugin.getMyLogger().info(
                           "Now resuming normal startup with Worldguard Compatibility Hook disabled!");
                 }
             }
@@ -239,23 +239,23 @@ public class ProtectionCompatManager extends Restartable implements Listener
             {
                 if (!silent)
                 {
-                    plugin.getMyLogger().logMessageToConsole("NoClassDefFoundError: "
+                    plugin.getMyLogger().severe("NoClassDefFoundError: "
                         + "Failed to initialize PlotSquared compatibility hook! Perhaps this version isn't supported? Check error.log for more info!");
-                    plugin.getMyLogger().logMessageToConsole(
+                    plugin.getMyLogger().info(
                           "Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
                 }
             }
             catch (NullPointerException e)
             {
-                plugin.getMyLogger().logMessageToConsoleOnly("Could not find PlotSquared! Hook not enabled!");
+                plugin.getMyLogger().warn("Could not find PlotSquared! Hook not enabled!");
             }
             catch (Exception e)
             {
                 if (!silent)
                 {
-                    plugin.getMyLogger().logMessageToConsole(
+                    plugin.getMyLogger().warn(
                           "Failed to initialize PlotSquared compatibility hook!");
-                    plugin.getMyLogger().logMessageToConsole(
+                    plugin.getMyLogger().info(
                           "Now resuming normal startup with PlotSquared Compatibility Hook disabled!");
                 }
             }
