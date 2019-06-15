@@ -142,6 +142,9 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Make sure that all writing to the log file is done from the correct thread!
 // TODO: Get rid of the DoorType enum. Instead, allow dynamic registration of door types.
 // TODO: Stop naming all animatable objects "doors". An elevator is hardly a door.
+// TODO: Add a system that can check the integrity of the plugin. If something goes wrong during startup, make sure OPs get a message on login.
+//       Tell them to use the command to run the self-check. Then it can say "not the latest version!", "Money formulas set, but Vault not enabled!",
+//       "Enabled PlotSquared support, but failed to initialize it!", "Trying to load on version X, but this version isn't supported!", etc.
 
 /*
  * General
@@ -187,6 +190,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
 // TODO: When truncating exceptions etc, make sure to write it down in the log.
 // TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
+// TODO: Do not enable PlotSquared and WorldGuard by default.
 
 /*
  * GUI
@@ -316,6 +320,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
  */
 // TODO: Test that Creators and Openers of all enabled types can be properly retrieved (e.g. in BigDoors::getDoorOpener(DoorType type);
 //       And that they are properly initialized.
+// TODO: Make sure the auto updater ALWAYS works.
 
 
 public class BigDoors extends JavaPlugin implements Listener
