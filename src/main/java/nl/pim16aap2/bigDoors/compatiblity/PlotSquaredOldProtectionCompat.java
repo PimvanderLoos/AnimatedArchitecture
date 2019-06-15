@@ -1,90 +1,137 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import java.lang.reflect.Method;
+import java.util.HashSet;
 
 import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.common.base.Optional;
 import com.intellectualcrafters.plot.api.PlotAPI;
+import com.intellectualcrafters.plot.config.C;
+import com.intellectualcrafters.plot.config.Settings;
+import com.intellectualcrafters.plot.flag.Flags;
 import com.intellectualcrafters.plot.object.Plot;
-import com.plotsquared.bukkit.listeners.PlayerEvents;
+import com.intellectualcrafters.plot.object.PlotArea;
+import com.intellectualcrafters.plot.object.PlotBlock;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 
 public class PlotSquaredOldProtectionCompat implements ProtectionCompat
 {
-    @SuppressWarnings("unused")
     private final BigDoors plugin;
     private final PlotAPI plotSquared;
     private boolean success = false;
     private final JavaPlugin plotSquaredPlugin;
-    private PlayerEvents playerEventsListener = null;
 
     public PlotSquaredOldProtectionCompat(BigDoors plugin)
     {
         this.plugin = plugin;
         plotSquared = new PlotAPI();
         plotSquaredPlugin = JavaPlugin.getPlugin(com.plotsquared.bukkit.BukkitMain.class);
-
-        for (RegisteredListener rl : HandlerList.getRegisteredListeners(plotSquaredPlugin))
-            for (Method method : rl.getListener().getClass().getDeclaredMethods())
-                if (method.toString().startsWith("public void com.plotsquared.bukkit.listeners.PlayerEvents.blockDestroy"))
-                    try
-                    {
-                        playerEventsListener = (PlayerEvents) rl.getListener();
-                        break;
-                    }
-                    catch (Exception uncaught)
-                    {
-                        continue;
-                    }
-        success = playerEventsListener != null;
+        success = plotSquaredPlugin != null;
     }
 
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        return canBreakBlock(player, plotSquared.getPlot(loc), loc.getWorld());
-    }
+        com.intellectualcrafters.plot.object.Location psLocation = com.plotsquared.bukkit.util.BukkitUtil.getLocation(loc);
+        com.intellectualcrafters.plot.object.PlotArea area = psLocation.getPlotArea();
 
-    private boolean canBreakBlock(Player player, Plot plot, World world)
-    {
-        if (plot == null)
+        if (area == null)
             return true;
-        com.intellectualcrafters.plot.object.Location center = plot.getCenter();
 
-        BlockBreakEvent blockBreakEvent = new BlockBreakEvent(new Location(world, center.getX(), center.getY(), center.getZ()).getBlock(), player);
-        playerEventsListener.blockDestroy(blockBreakEvent);
-        return !blockBreakEvent.isCancelled();
+        return canBreakBlock(player, area, area.getPlot(psLocation), loc);
     }
 
+    private boolean isHeightAllowed(Player player, PlotArea area, int height)
+    {
+        if (height == 0)
+        {
+            if (!plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.s()))
+                return false;
+        }
+        else if ((height > area.MAX_BUILD_HEIGHT || height < area.MIN_BUILD_HEIGHT) &&
+                 !plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s()))
+            return false;
+        return true;
+    }
+
+    // Check if a given player is allowed to build in a given plot.
+    // Adapted from: https://github.com/IntellectualSites/PlotSquared/blob/e4fbc23d08be268d14c8016ef1d928a2fee9b365/Bukkit/src/main/java/com/plotsquared/bukkit/listeners/PlayerEvents.java#L917
+    @SuppressWarnings("deprecation")
+    private boolean canBreakBlock(Player player, PlotArea area,
+                                  Plot plot, Location loc)
+    {
+        if (plot != null)
+        {
+            if (!isHeightAllowed(player, area, loc.getBlockY()))
+                return false;
+
+            if (!plot.hasOwner())
+                return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_UNOWNED.s());
+
+            if (!plot.isAdded(player.getUniqueId()))
+            {
+                Optional<HashSet<PlotBlock>> destroy = plot.getFlag(Flags.BREAK);
+                Block block = loc.getBlock();
+                // noinspection deprecation
+                if (destroy.isPresent() &&
+                    destroy.get().contains(PlotBlock.get((short) block.getTypeId(), block.getData())))
+                    return true;
+                if (plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_OTHER.s()))
+                    return true;
+                return false;
+            }
+            else if (Settings.Done.RESTRICT_BUILDING && plot.getFlags().containsKey(Flags.DONE))
+            {
+                if (!plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_BUILD_OTHER.s()))
+                    return false;
+            }
+            return true;
+        }
+
+        return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_ROAD.s());
+    }
+
+    @SuppressWarnings("deprecation")
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
 
+        if (!plotSquared.isPlotWorld(loc1.getWorld()))
+            return true;
+
+        com.intellectualcrafters.plot.object.Location psLocation = com.plotsquared.bukkit.util.BukkitUtil.getLocation(loc1);
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
+        int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
         int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX());
+        int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
         Plot checkPlot = null;
 
-        for (; x1 <= x2; ++x1)
-            for (; z1 <= z2; ++z1)
+        for (int xPos = x1; xPos <= x2; ++xPos)
+            for (int zPos = z1; zPos <= z2; ++zPos)
             {
-                Location loc = new Location(loc1.getWorld(), x1, 128, z1);
-                Plot newPlot = plotSquared.getPlot(loc);
-                if (checkPlot == null || checkPlot != newPlot)
+                Location loc = new Location(loc1.getWorld(), xPos, y1, zPos);
+                psLocation = com.plotsquared.bukkit.util.BukkitUtil.getLocation(loc);
+                PlotArea area = psLocation.getPlotArea();
+                if (area == null)
+                    continue;
+                if (!isHeightAllowed(player,area, y1) || !isHeightAllowed(player,area, y2))
+                    return false;
+                loc.setY(area.MAX_BUILD_HEIGHT - 1);
+
+                Plot newPlot = area.getPlot(psLocation);
+                if (checkPlot == null || !checkPlot.equals(newPlot))
                 {
                     checkPlot = newPlot;
-                    if (!canBreakBlock(player, checkPlot, loc.getWorld()))
+                    if (!canBreakBlock(player, area, checkPlot, loc))
                         return false;
                 }
             }

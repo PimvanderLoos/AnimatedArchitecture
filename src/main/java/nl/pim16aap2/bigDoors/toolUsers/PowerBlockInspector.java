@@ -38,7 +38,7 @@ public class PowerBlockInspector extends ToolUser
         Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
         if (door != null)
         {
-            plugin.getCommandHandler().listDoorInfo(player, door);
+            plugin.getCommandHandler().listDoorInfoIgnorePermission(player, door);
             setIsDone(true);
         }
     }

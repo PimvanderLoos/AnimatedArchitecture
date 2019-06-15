@@ -278,6 +278,7 @@ public class GUI
         {
             doors.remove(door);
             door = null;
+
             pageType = PageType.DOORLIST;
             return false;
         }
@@ -617,8 +618,8 @@ public class GUI
 
     private void deleteDoor()
     {
-        doors.remove(door);
-        plugin.getCommander().removeDoor(door.getDoorUID());
+        if (plugin.getCommander().removeDoor(getPlayer(), door.getDoorUID()))
+            doors.remove(door);
     }
 
     private void startCreationProcess(Player player, DoorType type)
@@ -656,7 +657,7 @@ public class GUI
 
     private void removeOwner(DoorOwner owner)
     {
-        plugin.getCommander().removeOwner(owner.getDoorUID(), owner.getPlayerUUID());
-        owners.remove(owners.indexOf(owner));
+        if (plugin.getCommander().removeOwner(owner.getDoorUID(), owner.getPlayerUUID(), getPlayer()))
+            owners.remove(owners.indexOf(owner));
     }
 }

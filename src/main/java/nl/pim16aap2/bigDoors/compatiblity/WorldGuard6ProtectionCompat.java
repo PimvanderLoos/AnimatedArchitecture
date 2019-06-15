@@ -76,10 +76,10 @@ public class WorldGuard6ProtectionCompat implements ProtectionCompat
         int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
-        for (; x1 <= x2; ++x1)
-            for (; y1 <= y2; ++y1)
-                for (; z1 <= z2; ++z1)
-                    if (!canBreakBlock(player, new Location(loc1.getWorld(), x1, y1, z1)))
+        for (int xPos = x1; xPos <= x2; ++xPos)
+            for (int yPos = y1; yPos <= y2; ++yPos)
+                for (int zPos = z1; zPos <= z2; ++zPos)
+                    if (!canBreakBlock(player, new Location(loc1.getWorld(), xPos, yPos, zPos)))
                         return false;
         return true;
     }

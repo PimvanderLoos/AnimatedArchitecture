@@ -124,12 +124,16 @@ public class CommandHandler implements CommandExecutor
     {
         long doorUID = Util.longFromString(name, -1L);
         if (doorUID != -1)
-            Util.messagePlayer(player, Util.getFullDoorInfo(plugin.getCommander().getDoor(player.getUniqueId(), doorUID)));
+        {
+            if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.INFO))
+                Util.messagePlayer(player, Util.getFullDoorInfo(plugin.getCommander().getDoor(player.getUniqueId(), doorUID)));
+        }
         else
         {
             ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
             for (Door door : doors)
-                Util.messagePlayer(player, Util.getFullDoorInfo(door));
+                if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.INFO))
+                    Util.messagePlayer(player, Util.getFullDoorInfo(door));
             if (doors.size() == 0)
                 Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
         }
@@ -139,6 +143,11 @@ public class CommandHandler implements CommandExecutor
     {
         if (plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.INFO))
             Util.messagePlayer(player, Util.getFullDoorInfo(door));
+    }
+
+    public void listDoorInfoIgnorePermission(Player player, Door door)
+    {
+        Util.messagePlayer(player, Util.getFullDoorInfo(door));
     }
 
     public void listDoorInfoFromConsole(String str)
@@ -456,7 +465,7 @@ public class CommandHandler implements CommandExecutor
 
                     if (playerUUID != null)
                     {
-                        if (plugin.getCommander().removeOwner(door, playerUUID))
+                        if (plugin.getCommander().removeOwner(door, playerUUID, player))
                         {
                             plugin.getMyLogger().returnToSender(sender, Level.INFO,
                                                                 ChatColor.RED, plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
@@ -513,6 +522,9 @@ public class CommandHandler implements CommandExecutor
                 if (door == null)
                     return false;
 
+                if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.CHANGETIMER))
+                    return true;
+
                 try
                 {
                     int time = Integer.parseInt(args[1]);
@@ -549,6 +561,9 @@ public class CommandHandler implements CommandExecutor
                 if (door == null)
                     return false;
 
+                if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE))
+                    return true;
+
                 try
                 {
                     int blocksToMove = Integer.parseInt(args[1]);
@@ -572,6 +587,9 @@ public class CommandHandler implements CommandExecutor
             Door door = plugin.getCommander().getDoor(args[0], player);
             if (door == null)
                 return false;
+
+            if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.DIRECTION_ROTATE))
+                return true;
 
             RotateDirection openDir = null;
             if (args[1].equalsIgnoreCase("CLOCK") || args[1].equalsIgnoreCase("CLOCKWISE"))
@@ -752,7 +770,8 @@ public class CommandHandler implements CommandExecutor
                 if (door == null)
                     return true;
                 long doorUID = door.getDoorUID();
-                startPowerBlockRelocator(player, doorUID);
+                if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.RELOCATEPOWERBLOCK))
+                    startPowerBlockRelocator(player, doorUID);
                 return true;
             }
 
@@ -821,37 +840,35 @@ public class CommandHandler implements CommandExecutor
         return false;
     }
 
-    public void delDoor(Player player, long doorUID)
-    {
-        plugin.getCommander().removeDoor(doorUID);
-    }
-
     public void delDoor(Player player, String doorName)
     {
-        CommandSender sender = player;
+        long doorUID = 0;
         try
         {
-            long doorUID     = Long.parseLong(doorName);
-            plugin.getCommander().removeDoor(doorUID);
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
-            return;
+            doorUID = Long.parseLong(doorName);
         }
         catch(NumberFormatException e)
         {}
 
         long doorCount = countDoors(player, doorName);
         if (doorCount == 0)
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "No door found by that name!");
+        {
+            Util.messagePlayer(player, ChatColor.RED, "No door found by that name!");
+            return;
+        }
         else if (doorCount == 1)
         {
-            plugin.getCommander().removeDoor(player.getUniqueId().toString(), doorName);
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "Door deleted!");
+            doorUID = plugin.getCommander().getDoor(doorName, player).getDoorUID();
         }
         else
         {
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "More than one door found with that name! Please use their ID instead:");
+            Util.messagePlayer(player, ChatColor.RED, "More than one door found with that name! Please use their ID instead:");
             listDoors(player, doorName);
+            return;
         }
+
+        if (plugin.getCommander().removeDoor(player, doorUID))
+            Util.messagePlayer(player, ChatColor.GREEN, "Door deleted!");
     }
 
     // Used for various debugging purposes (you don't say!).

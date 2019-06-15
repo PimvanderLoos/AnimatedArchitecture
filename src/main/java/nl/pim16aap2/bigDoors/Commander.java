@@ -143,14 +143,12 @@ public class Commander
         addDoor(newDoor, player, 0);
     }
 
-    public void removeDoor(long doorUID)
+    public boolean removeDoor(Player player, long doorUID)
     {
+        if (!hasPermissionForAction(player, doorUID, DoorAttribute.DELETE))
+            return false;
         db.removeDoor(doorUID);
-    }
-
-    public void removeDoor(String playerUUID, String doorName)
-    {
-        db.removeDoor(playerUUID, doorName);
+        return true;
     }
 
     // Returns the number of doors owner by a player and with a specific name, if provided (can be null).
@@ -248,9 +246,14 @@ public class Commander
 
     public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr)
     {
+        return hasPermissionForAction(player, doorUID, atr, true);
+    }
+
+    public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr, boolean printMessage)
+    {
         int playerPermission = getPermission(player.getUniqueId().toString(), doorUID);
         boolean hasPermission = playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);
-        if (!hasPermission)
+        if (!hasPermission && printMessage)
             Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
         return hasPermission;
     }
@@ -292,14 +295,16 @@ public class Commander
         return true;
     }
 
-    public boolean removeOwner(Door door, UUID playerUUID)
+    public boolean removeOwner(Door door, UUID playerUUID, Player executor)
     {
-        return removeOwner(door.getDoorUID(), playerUUID);
+        return removeOwner(door.getDoorUID(), playerUUID, executor);
     }
 
-    public boolean removeOwner(long doorUID, UUID playerUUID)
+    public boolean removeOwner(long doorUID, UUID playerUUID, Player executor)
     {
         if (db.getPermission(playerUUID.toString(), doorUID) == 0)
+            return false;
+        if (!hasPermissionForAction(executor, doorUID, DoorAttribute.REMOVEOWNER))
             return false;
         return db.removeOwner(doorUID, playerUUID);
     }

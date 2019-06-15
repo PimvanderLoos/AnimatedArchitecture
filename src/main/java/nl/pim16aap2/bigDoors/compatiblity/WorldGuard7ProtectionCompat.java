@@ -70,14 +70,14 @@ public class WorldGuard7ProtectionCompat implements ProtectionCompat
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
         LocalPlayer lPlayer = getLocalPlayer(player);
-        RegionQuery query   = worldGuard.getPlatform().getRegionContainer().createQuery();
+        RegionQuery query = worldGuard.getPlatform().getRegionContainer().createQuery();
         com.sk89q.worldedit.world.World wgWorld = BukkitAdapter.adapt(loc1.getWorld());
 
-        for (; x1 <= x2; ++x1)
-            for (; y1 <= y2; ++y1)
-                for (; z1 <= z2; ++z1)
+        for (int xPos = x1; xPos <= x2; ++xPos)
+            for (int yPos = y1; yPos <= y2; ++yPos)
+                for (int zPos = z1; zPos <= z2; ++zPos)
                 {
-                    com.sk89q.worldedit.util.Location wgLoc = new com.sk89q.worldedit.util.Location(wgWorld, x1, y1, z1);
+                    com.sk89q.worldedit.util.Location wgLoc = new com.sk89q.worldedit.util.Location(wgWorld, xPos, yPos, zPos);
                     if (!query.testState(wgLoc, lPlayer, Flags.BUILD))
                         return false;
                 }

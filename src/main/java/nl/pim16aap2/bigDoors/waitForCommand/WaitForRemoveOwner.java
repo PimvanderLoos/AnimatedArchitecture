@@ -46,7 +46,7 @@ public class WaitForRemoveOwner extends WaitForCommand
 
             if (playerUUID != null)
             {
-                if (plugin.getCommander().removeOwner(door, playerUUID))
+                if (plugin.getCommander().removeOwner(door, playerUUID, getPlayer()))
                 {
                     Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
                     isFinished = true;
