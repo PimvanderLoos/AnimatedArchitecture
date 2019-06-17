@@ -219,6 +219,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Merge isOpen and isLocked into single FLAG value.
 // TODO: Switch RotateDirection values to line up with MyBlockFace.
 // TODO: Remove all NONE RotateDirection values from the database.
+// TODO: When retrieving all doors for info, put them in a sorted map (treemap).
 
 /*
  * Commands
