@@ -1,0 +1,231 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>nl.pim16aap2.bigdoors</groupId>
+    <artifactId>bigdoors-core</artifactId>
+    <packaging>jar</packaging>
+    <description>Core of BigDoors</description>
+    <version>200</version>
+
+    <repositories>
+        <!-- JCalculator -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+
+        <!-- bStats -->
+        <repository>
+            <id>bstats-repo</id>
+            <url>http://repo.bstats.org/content/repositories/releases/</url>
+        </repository>
+
+        <!-- WorldGuard -->
+        <repository>
+            <id>sk89q-repo</id>
+            <url>http://maven.sk89q.com/repo/</url>
+        </repository>
+
+        <repository>
+            <id>redprotect-repo</id>
+            <url>https://raw.github.com/FabioZumbi12/RedProtect/mvn-repo/</url>
+        </repository>
+
+<!--        <repository>-->
+<!--            <id>Massive</id>-->
+<!--            <url>https://repo.dustplanet.de/artifactory/ext-release-local/</url>-->
+<!--        </repository>-->
+
+        <!-- Vault -->
+        <repository>
+            <id>vault-repo</id>
+            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+        </repository>
+
+<!--        &lt;!&ndash; PlotSquared Breaking &ndash;&gt;-->
+<!--        <repository>-->
+<!--            <id>PlotSquared-Breaking</id>-->
+<!--            <url>http://ci.athion.net/job/PlotSquared-Breaking/ws/mvn/</url>-->
+<!--        </repository>-->
+
+<!--        &lt;!&ndash; Old PlotSquared &ndash;&gt;-->
+<!--        <repository>-->
+<!--            <id>PlotSquared-Legacy</id>-->
+<!--            <url>http://ci.athion.net/job/PlotSquared-Legacy/ws/mvn/</url>-->
+<!--        </repository>-->
+    </repositories>
+
+
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-api</artifactId>
+            <version>200</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-util</artifactId>
+            <version>200</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-util</artifactId>
+            <version>200</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-v1_14_R1</artifactId>
+            <version>200</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.14.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+            <type>jar</type>
+        </dependency>
+
+
+        <!-- JCalculator -->
+        <dependency>
+<!--            <groupId>com.github.PimvanderLoos</groupId>-->
+<!--            <artifactId>JCalculator</artifactId>-->
+<!--            <version>v1.0</version>-->
+            <groupId>com.github.PimvanderLoos</groupId>
+            <artifactId>JCalculator</artifactId>
+            <version>test-SNAPSHOT</version>
+        </dependency>
+
+
+        <!-- bStats -->
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-legacy</artifactId>
+            <version>6.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-legacy</artifactId>
+            <version>7.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sk89q.worldedit</groupId>
+            <artifactId>worldedit-bukkit</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>br.net.fabiozumbi12.RedProtect</groupId>
+            <artifactId>RedProtect-Spigot-1.13</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Vault -->
+        <dependency>
+            <groupId>net.milkbowl.vault</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+
+<!--        &lt;!&ndash; Legacy PlotSquared &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.plotsquared</groupId>-->
+<!--            <artifactId>plotsquared-api</artifactId>-->
+<!--            <version>latest</version>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>com.plotsquared</groupId>
+            <artifactId>PlotSquared-Legacy</artifactId>
+            <scope>system</scope>
+            <version>latest</version>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-19.05.28-e4fbc23-769.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.intellectualsites.plotsquared</groupId>
+            <artifactId>PlotSquared-Breaking</artifactId>
+            <scope>system</scope>
+            <version>4.277</version>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-4.277.jar</systemPath>
+        </dependency>
+
+<!--        &lt;!&ndash; Breaking PlotSquared &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.github.intellectualsites.plotsquared</groupId>-->
+<!--            <artifactId>PlotSquared</artifactId>-->
+<!--            <version>4.130</version>-->
+<!--        </dependency>-->
+
+
+    </dependencies>
+
+    <build>
+        <directory>../target</directory>
+        <finalName>BigDoors</finalName>
+        <resources>
+            <resource>
+                <targetPath>.</targetPath>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>plugin.yml</include>
+                    <include>config.yml</include>
+                    <include>en_US.txt</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

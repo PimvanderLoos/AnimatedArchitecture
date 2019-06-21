@@ -1,0 +1,16 @@
+name: BigDoors
+main: nl.pim16aap2.bigdoors.BigDoors
+version: ${project.version}
+author: pim16aap2
+api-version: 1.14
+loadbefore: [PlotSquared]
+softdepend: [WorldGuard, Vault]
+commands:
+  bigdoors:
+    description: Base command
+    usage: /BigDoors
+    permission: bigdoors.user
+  bdm:
+    description: Alias of /BigDoors, Opens the BigDoors GUI.
+    usage: /BDM
+    permission: bigdoors.user
