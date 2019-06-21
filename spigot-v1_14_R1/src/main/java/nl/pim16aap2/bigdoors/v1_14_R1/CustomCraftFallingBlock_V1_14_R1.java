@@ -4,7 +4,9 @@ import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_14_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.EulerAngle;
@@ -12,7 +14,7 @@ import org.bukkit.util.Vector;
 
 public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements FallingBlock, CustomCraftFallingBlock_Vall
 {
-    public CustomCraftFallingBlock_V1_14_R1(Server server, nl.pim16aap2.bigdoors.v1_14_R1.CustomEntityFallingBlock_V1_14_R1 entity)
+    public CustomCraftFallingBlock_V1_14_R1(Server server, CustomEntityFallingBlock_V1_14_R1 entity)
     {
         super((org.bukkit.craftbukkit.v1_14_R1.CraftServer) server, entity);
         setVelocity(new Vector(0, 0, 0));
@@ -20,9 +22,9 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    public nl.pim16aap2.bigdoors.v1_14_R1.CustomEntityFallingBlock_V1_14_R1 getHandle()
+    public CustomEntityFallingBlock_V1_14_R1 getHandle()
     {
-        return (nl.pim16aap2.bigdoors.v1_14_R1.CustomEntityFallingBlock_V1_14_R1) entity;
+        return (CustomEntityFallingBlock_V1_14_R1) entity;
     }
 
     @Override
@@ -46,15 +48,13 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
     @Override
     public Material getMaterial()
     {
-        System.out.println("CustomFallingBlock.getMaterial() must not be used!");
-        return null;
+        return CraftMagicNumbers.getMaterial(this.getHandle().getBlock()).getItemType();
     }
 
     @Override
     public BlockData getBlockData()
     {
-        System.out.println("CustomFallingBlock.getBlockData() must not be used!");
-        return null;
+        return CraftBlockData.fromData(this.getHandle().getBlock());
     }
 
     @Override
