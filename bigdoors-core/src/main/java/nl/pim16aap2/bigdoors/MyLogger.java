@@ -68,12 +68,10 @@ public class MyLogger
         }
         catch (InterruptedException e)
         {
-            Bukkit.getScheduler().callSyncMethod(plugin, () ->
-            {
-                writeToConsole(Level.SEVERE, "Cannot write to log file! Please contact pim16aap2!");
-                e.printStackTrace();
-                return null;
-            });
+            // Yes, this can result in garbled text, as it's not run on the main thread.
+            // But it shouldn't ever be reached anyway.
+            System.out.println("Cannot write to log file! Please contact pim16aap2!");
+            e.printStackTrace();
         }
     }
 

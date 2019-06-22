@@ -141,6 +141,7 @@ import java.util.Map.Entry;
 // TODO: When truncating exceptions etc, make sure to write it down in the log.
 // TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
 // TODO: Do not enable PlotSquared and WorldGuard by default.
+// TODO: Make sure redstone block checking is within bounds.
 
 /*
  * GUI
@@ -156,6 +157,7 @@ import java.util.Map.Entry;
 // TODO: Once door pooling is implemented, use Observers to update doors in the GUI when needed.
 // TODO: Move rotation cycling away from GUI and into the Door class.
 // TODO: Put all GUI buttons and whatnot in try/catch blocks.
+// TODO: Get rid of the retarded isRefreshing bullshit. Instead of reopening an inventory, just replace the items. Simpler, faster, less demented.
 
 /*
  * SQL
@@ -316,7 +318,6 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
     private TimedCache<Long /*Chunk*/, HashMap<Long /*Loc*/, Long /*doorUID*/>> pbCache = null;
-    private HeadManager headManager;
     private VaultManager vaultManager;
     private AutoCloseScheduler autoCloseScheduler;
 
@@ -346,13 +347,10 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
 
 
             init();
-            headManager.init();
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
 
-
             headManagerv2 = new HeadManagerv2(this);
-
 
             Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
             Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);

@@ -21,18 +21,15 @@ class WindmillMover extends BlockMover
     private static final double minSpeed = 0.1;
     private final BiFunction<MyBlockData, Double, Vector> getVector;
 
-    public WindmillMover(final BigDoors plugin, final World world, final DoorBase door, final double multiplier,
+    public WindmillMover(final BigDoors plugin, final World world, final DoorBase door, final double time, final double multiplier,
         final RotateDirection rotateDirection)
     {
-        super(plugin, world, door, 30, false, null, null, -1);
+        super(plugin, world, door, time, false, null, null, -1);
 
         int xLen = Math.abs(xMax - xMin) + 1;
         int zLen = Math.abs(zMax - zMin) + 1;
         NS = zLen > xLen ? true : false;
 
-        double speed = 1 * multiplier;
-        speed = speed > maxSpeed ? 3 : speed < minSpeed ? minSpeed : speed;
-        tickRate = Util.tickRateFromSpeed(speed);
         tickRate = 3;
 
         switch (rotateDirection)

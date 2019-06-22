@@ -41,7 +41,7 @@ public class WindmillOpener extends Opener
         if (super.isTooBig(door))
             return abort(door, DoorOpenResult.ERROR);
 
-        plugin.addBlockMover(new WindmillMover(plugin, door.getWorld(), door,
+        plugin.addBlockMover(new WindmillMover(plugin, door.getWorld(), door, time,
                                                plugin.getConfigLoader().getMultiplier(DoorType.WINDMILL),
                                                getOpenDirection(door)));
         return DoorOpenResult.SUCCESS;
