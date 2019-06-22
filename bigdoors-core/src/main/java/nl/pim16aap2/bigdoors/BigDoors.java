@@ -257,8 +257,11 @@ import java.util.Map.Entry;
 // TODO: Drawbridge: Cleanup #getNewLocation().
 // TODO: When checking if a door's chunks are loaded, use the door's chunkRange variables.
 
+/*
 
 
+
+ */
 
 /*
  * Manual Testing
@@ -274,7 +277,6 @@ import java.util.Map.Entry;
 // TODO: Test that Creators and Openers of all enabled types can be properly retrieved (e.g. in BigDoors::getDoorOpener(DoorType type);
 //       And that they are properly initialized.
 // TODO: Make sure the auto updater ALWAYS works.
-
 
 public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
 {
@@ -317,11 +319,11 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     private boolean is1_13 = false;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
-    private TimedCache<Long /*Chunk*/, HashMap<Long /*Loc*/, Long /*doorUID*/>> pbCache = null;
+    private TimedCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
     private VaultManager vaultManager;
     private AutoCloseScheduler autoCloseScheduler;
 
-    private HeadManagerv2 headManagerv2;
+    private HeadManager headManager;
 
     @Override
     public void onEnable()
@@ -339,18 +341,17 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             // Load the files for the correct version of Minecraft.
             if (!validVersion)
             {
-                logger.severe("Trying to load the plugin on an incompatible version of Minecraft! (\""  +
-                    (Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3]) +
-                                  "\"). This plugin will NOT be enabled!");
+                logger.severe("Trying to load the plugin on an incompatible version of Minecraft! (\""
+                    + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3])
+                    + "\"). This plugin will NOT be enabled!");
                 return;
             }
-
 
             init();
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
 
-            headManagerv2 = new HeadManagerv2(this);
+            headManager = new HeadManager(this);
 
             Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
             Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
@@ -371,7 +372,6 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             windmillOpener = new WindmillOpener(this);
             revolvingDoorOpener = new RevolvingDoorOpener(this);
             garageDoorOpener = new GarageDoorOpener(this);
-
 
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
@@ -404,30 +404,26 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             commandManager.registerCommand(commandBigDoors);
             commandManager.registerCommand(new CommandMenu(this, commandManager));
 
-
-
-
             logger.info("Successfully enabled BigDoors " + getDescription().getVersion());
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
             logger.logException(exception);
         }
     }
 
-    @SuppressWarnings("unused")
     private void init()
     {
         if (!validVersion)
             return;
 
         readConfigValues();
-        messages    = new Messages(this);
-        toolUsers   = new HashMap<>();
-        playerGUIs  = new HashMap<>();
+        messages = new Messages(this);
+        toolUsers = new HashMap<>();
+        playerGUIs = new HashMap<>();
         blockMovers = new Vector<>(2);
-        cmdWaiters  = new Vector<>(2);
-        tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
+        cmdWaiters = new Vector<>(2);
+        tf = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
         loginString = "";
 
         if (config.enableRedstone())
@@ -438,12 +434,14 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         // If the resourcepack is set to "NONE", don't load it.
         if (!config.resourcePack().equals("NONE"))
         {
-            // If a resource pack was set for the current version of Minecraft, send that pack to the client on login.
+            // If a resource pack was set for the current version of Minecraft, send that
+            // pack to the client on login.
             rPackHandler = new LoginResourcePackHandler(this, config.resourcePack());
-            Bukkit.getPluginManager().registerEvents(rPackHandler,  this);
+            Bukkit.getPluginManager().registerEvents(rPackHandler, this);
         }
 
-        // Load stats collector if allowed, otherwise unload it if needed or simply don't load it in the first place.
+        // Load stats collector if allowed, otherwise unload it if needed or simply
+        // don't load it in the first place.
         if (config.allowStats())
         {
             logger.info("Enabling stats! Thanks, it really helps!");
@@ -454,24 +452,23 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         {
             // Y u do dis? :(
             metrics = null;
-            logger.info("Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
+            logger.info("Stats disabled, not laoding stats :(... Please consider enabling it! "
+                + "I am a simple man, seeing higher user numbers helps me stay motivated!");
         }
         logger.info("test 1");
 
-        // Load update checker if allowed, otherwise unload it if needed or simply don't load it in the first place.
+        // Load update checker if allowed, otherwise unload it if needed or simply don't
+        // load it in the first place.
         if (config.checkForUpdates() && !DEVBUILD)
         {
-            logger.info("test 2");
             if (updater == null)
                 updater = new SpigotUpdater(this, 58669);
         }
         else
             updater = null;
-        logger.info("test 3");
 
         if (databaseManager != null)
             databaseManager.setCanGo(true);
-        logger.info("test 4");
     }
 
     public ICommand getCommand(CommandData command)
@@ -506,7 +503,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         reloadConfig();
 
         onDisable();
-        playerGUIs.forEach((key,value) -> value.close());
+        playerGUIs.forEach((key, value) -> value.close());
         playerGUIs.clear();
 
         HandlerList.unregisterAll(redstoneHandler);
@@ -567,7 +564,8 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     {
         if (!DoorType.isEnabled(type))
         {
-            getMyLogger().severe("Trying to open door of type: \"" + type.toString() + "\", but this type is not enabled!");
+            getMyLogger()
+                .severe("Trying to open door of type: \"" + type.toString() + "\", but this type is not enabled!");
             return null;
         }
 
@@ -740,7 +738,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
 
         try
         {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
+            version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         }
         catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
@@ -748,7 +746,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             return false;
         }
 
-        fabf  = null;
+        fabf = null;
         if (version.equals("v1_14_R1"))
         {
             is1_13 = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
@@ -770,10 +768,8 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
 
     public ItemStack getPlayerHead(UUID playerUUID, String displayName, OfflinePlayer oPlayer)
     {
-        return headManagerv2.getPlayerHead(playerUUID, displayName, oPlayer);
+        return headManager.getPlayerHead(playerUUID, displayName, oPlayer);
     }
-
-
 
     /*
      * API Starts here.

@@ -9,13 +9,13 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class HeadManagerv2
+public class HeadManager
 {
     @SuppressWarnings("unused")
     private final BigDoors plugin;
     private final HashMap<UUID, ItemStack> headMap;
 
-    public HeadManagerv2(final BigDoors plugin)
+    public HeadManager(final BigDoors plugin)
     {
         this.plugin = plugin;
         headMap = new HashMap<>();
