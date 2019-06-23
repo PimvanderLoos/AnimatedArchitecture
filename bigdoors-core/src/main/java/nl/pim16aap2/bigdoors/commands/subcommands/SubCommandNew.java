@@ -1,19 +1,20 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import javax.annotation.Nullable;
+
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.*;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import javax.annotation.Nullable;
 
 public class SubCommandNew extends SubCommand
 {
@@ -37,7 +38,7 @@ public class SubCommandNew extends SubCommand
     {
         boolean isBusy = (plugin.getToolUser(player) != null || plugin.isCommandWaiter(player) != null);
         if (isBusy)
-            Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
+            SpigotUtil.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
         return isBusy;
     }
 
@@ -52,22 +53,22 @@ public class SubCommandNew extends SubCommand
 
         if (!hasCreationPermission(player, type))
         {
-            Util.messagePlayer(player, ChatColor.RED,
+            SpigotUtil.messagePlayer(player, ChatColor.RED,
                                plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
             return;
         }
 
         long doorCount = plugin.getDatabaseManager().countDoors(player.getUniqueId().toString(), null);
-        int maxCount = Util.getMaxDoorsForPlayer(player);
+        int maxCount = SpigotUtil.getMaxDoorsForPlayer(player);
         if (maxCount >= 0 && doorCount >= maxCount)
         {
-            Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.TooManyDoors"));
+            SpigotUtil.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.TooManyDoors"));
             return;
         }
 
-        if (name != null && !Util.isValidDoorName(name))
+        if (name != null && !SpigotUtil.isValidDoorName(name))
         {
-            Util.messagePlayer(player, ChatColor.RED,
+            SpigotUtil.messagePlayer(player, ChatColor.RED,
                                "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
             return;
         }

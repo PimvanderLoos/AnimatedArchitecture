@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-
-import javax.annotation.Nullable;
 
 public class ToolVerifier
 {

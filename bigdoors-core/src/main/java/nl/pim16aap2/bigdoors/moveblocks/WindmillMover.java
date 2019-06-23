@@ -1,17 +1,18 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import java.util.function.BiFunction;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.function.BiFunction;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 class WindmillMover extends BlockMover
 {
@@ -127,7 +128,7 @@ class WindmillMover extends BlockMover
 
                 if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
                 {
-                    Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
+                    SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (MyBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->

@@ -1,13 +1,14 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
-import nl.pim16aap2.bigdoors.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import java.util.HashMap;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import java.util.HashMap;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 public class SuperCommand implements ICommand
 {
@@ -96,7 +97,7 @@ public class SuperCommand implements ICommand
         String help = subCommand.getHelp(sender);
         String args = subCommand.getHelpArguments();
         if (help != null)
-            return Util.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args), help);
+            return SpigotUtil.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args), help);
         return null;
     }
 

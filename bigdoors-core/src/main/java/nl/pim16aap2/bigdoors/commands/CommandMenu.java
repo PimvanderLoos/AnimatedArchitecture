@@ -1,11 +1,12 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandMenu;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 public class CommandMenu extends SubCommandMenu
 {
@@ -29,7 +30,7 @@ public class CommandMenu extends SubCommandMenu
     @Override
     public String getHelp(CommandSender sender)
     {
-        return Util.helpFormat(name, super.getHelp(sender));
+        return SpigotUtil.helpFormat(name, super.getHelp(sender));
     }
 
     @Override

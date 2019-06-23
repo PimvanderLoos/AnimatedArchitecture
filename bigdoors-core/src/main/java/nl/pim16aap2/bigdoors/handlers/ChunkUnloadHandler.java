@@ -1,15 +1,16 @@
 package nl.pim16aap2.bigdoors.handlers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 
 public class ChunkUnloadHandler implements Listener
 {
@@ -55,22 +56,29 @@ public class ChunkUnloadHandler implements Listener
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChunkUnload(ChunkUnloadEvent event)
     {
-        // If this class couldn't figure out reflection properly, give up.
-        if (!success)
+        try
         {
-            plugin.getMyLogger().warn("ChunkUnloadHandler was not initialized properly! Please contact pim16aap2.");
-            return;
+            // If this class couldn't figure out reflection properly, give up.
+            if (!success)
+            {
+                plugin.getMyLogger().warn("ChunkUnloadHandler was not initialized properly! Please contact pim16aap2.");
+                return;
+            }
+
+            // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14), there's no need to interfere.
+            if (isChunkUnloadCancelled(event))
+                return;
+
+            // Find any and all doors currently operating in the chunk that's to be unloaded.
+            for (BlockMover bm : plugin.getBlockMovers())
+                if (bm.getDoor().chunkInRange(event.getChunk()))
+                    // Abort currently running blockMovers.
+                    bm.abort();
         }
-
-        // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14), there's no need to interfere.
-        if (isChunkUnloadCancelled(event))
-            return;
-
-        // Find any and all doors currently operating in the chunk that's to be unloaded.
-        for (BlockMover bm : plugin.getBlockMovers())
-            if (bm.getDoor().chunkInRange(event.getChunk()))
-                // Abort currently running blockMovers.
-                bm.abort();
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logException(e);
+        }
     }
 
     private boolean isChunkUnloadCancelled(ChunkUnloadEvent event)

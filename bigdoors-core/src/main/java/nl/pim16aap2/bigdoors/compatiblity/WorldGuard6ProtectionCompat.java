@@ -1,15 +1,17 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import nl.pim16aap2.bigdoors.BigDoors;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+
+import nl.pim16aap2.bigdoors.BigDoors;
 
 class WorldGuard6ProtectionCompat implements ProtectionCompat
 {

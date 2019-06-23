@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
@@ -7,8 +10,6 @@ import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 
 public class SubCommandFill extends SubCommand
 {

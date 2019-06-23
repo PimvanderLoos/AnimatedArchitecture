@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 
 public enum DoorType
 {

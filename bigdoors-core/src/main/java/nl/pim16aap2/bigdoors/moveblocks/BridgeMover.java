@@ -1,19 +1,20 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.*;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.TriFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
+import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.*;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.TriFunction;
 
 class BridgeMover extends BlockMover
 {
@@ -41,7 +42,7 @@ class BridgeMover extends BlockMover
         int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
         int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
         int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
+        double vars[] = SpigotUtil.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
         this.time = vars[0];
         tickRate = (int) vars[1];
         this.multiplier = vars[2];
@@ -204,7 +205,7 @@ class BridgeMover extends BlockMover
             public void run()
             {
                 if (counter == 0 || (counter < endCount - 45 / tickRate && counter % (6 * tickRate / 4) == 0))
-                    Util.playSound(door.getEngine(), "bd.drawbridge-rattling", 0.8f, 0.7f);
+                    SpigotUtil.playSound(door.getEngine(), "bd.drawbridge-rattling", 0.8f, 0.7f);
 
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
@@ -225,7 +226,7 @@ class BridgeMover extends BlockMover
 
                 if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
                 {
-                    Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
+                    SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (MyBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->

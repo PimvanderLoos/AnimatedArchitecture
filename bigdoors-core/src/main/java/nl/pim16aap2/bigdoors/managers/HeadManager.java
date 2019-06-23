@@ -1,13 +1,14 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import java.util.HashMap;
+import java.util.UUID;
+
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.HashMap;
-import java.util.UUID;
+import nl.pim16aap2.bigdoors.BigDoors;
 
 public class HeadManager
 {

@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.config;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import java.util.List;
+
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.List;
+import nl.pim16aap2.bigdoors.BigDoors;
 
 /**
  * Represents an option in a config file.

@@ -1,16 +1,17 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.Creator;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class SubCommandSetName extends SubCommand
 {
@@ -36,14 +37,14 @@ public class SubCommandSetName extends SubCommand
         ToolUser tu = plugin.getToolUser(player);
         if (tu != null && tu instanceof Creator)
         {
-            if (args.length == getMinArgCount() && Util.isValidDoorName(args[getMinArgCount() - 1]))
+            if (args.length == getMinArgCount() && SpigotUtil.isValidDoorName(args[getMinArgCount() - 1]))
             {
                 ((Creator) tu).setName(args[getMinArgCount() - 1]);
                 return true;
             }
             return false;
         }
-        Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.NotBusy"));
+        SpigotUtil.messagePlayer(player, plugin.getMessages().getString("GENERAL.NotBusy"));
         return true;
     }
 }

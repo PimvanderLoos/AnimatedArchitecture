@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 
 /**
  * This class represents players in the process of creating doors. Objects of

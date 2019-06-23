@@ -1,5 +1,21 @@
 package nl.pim16aap2.bigdoors;
 
+import java.io.File;
+import java.util.*;
+import java.util.Map.Entry;
+
+import javax.annotation.Nullable;
+
+import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import nl.pim16aap2.bigdoors.api.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigdoors.commands.*;
 import nl.pim16aap2.bigdoors.commands.subcommands.*;
@@ -12,46 +28,27 @@ import nl.pim16aap2.bigdoors.handlers.*;
 import nl.pim16aap2.bigdoors.managers.*;
 import nl.pim16aap2.bigdoors.moveblocks.*;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
-import nl.pim16aap2.bigdoors.util.Restartable;
+import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.RestartableHolder;
-import nl.pim16aap2.bigdoors.util.TimedCache;
+import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
-import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import javax.annotation.Nullable;
-import java.io.File;
-import java.util.*;
-import java.util.Map.Entry;
-
-/*
- * Modules
- */
-// TODO: Split up project POM into modules. Use API to get all implementation (Bukkit, Forge, different versions) specific stuff.
-//       https://bukkit.org/threads/support-multiple-minecraft-versions-with-abstraction-maven.115810/
 
 /*
  * Modules
  */
 // TODO: Use AbstractWorld and AbstractLocation etc for API related stuff.
-// TODO: Put Config-related stuff in Util and don't use Bukkit stuff for reading it. Just give it a regular file.
+// TODO: Put Config-related stuff in SpigotUtil and don't use Bukkit stuff for reading it. Just give it a regular file.
+// TODO: Create a way of implementation-specific logging (i.e. MessagePlayer and LogToConsole).
 
 /*
  * Experimental
  */
-// TODO: Use custom events for door opening. Perhaps allow other plugins (keys?) to hook into those plugins.
-// TODO: Look into allowing people to set a max size in RAM for certain caches.
+// TODO: Use custom events for door opening. Perhaps allow other plugins (keys-plugin?) to hook into those plugins.
+// TODO: Look into allowing people to set a (estimated) max size in RAM for certain caches.
 //       Example: https://www.javaworld.com/article/2074458/estimating-java-object-sizes-with-instrumentation.html
 //       Simpler example: https://stackoverflow.com/questions/52353/in-java-what-is-the-best-way-to-determine-the-size-of-an-object#
 //       Another: https://javamagic.blog/2018/07/11/how-to-find-size-of-java-object-in-memory-using-jol/
@@ -70,7 +67,6 @@ import java.util.Map.Entry;
 // TODO: Add command to upload error log to pastebin or something similar.
 // TODO: Look into FutureTask.
 // TODO: Add config option to limit logging file size.
-// TODO: Properly use PlotSquared's API.
 // TODO: Look into previously-blacklisted material. Torches, for example, work just fine in 1.13. They just need to be removed first and placed last.
 // TODO: Replace the enum of DoorTypes by a static list. Types should then statically register themselves.
 // TODO: Figure out a way to use Interfaces or something to generate 2 separate builds: Premium and non-premium.
@@ -87,7 +83,7 @@ import java.util.Map.Entry;
 //       are of the correct type and count. (in this case, the result should be messages.getMessage(Message.NextPage, currentPage, nextPage);
 // TODO: Look into Aikar's command system to replace everything I just made myself: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
 // TODO: Add 1 block depth requirement to assertValidCoords() in HorizontalAxisAlignedBase.
-// TODO: Check if Util::needsRefresh(Material mat) is still needed.
+// TODO: Check if SpigotUtil::needsRefresh(Material mat) is still needed.
 // TODO: Door pooling. When a door is requested from the database, store it in a timedCache. Only get the creator by default, but store
 //       the other owners if needed. Add a Door::Sync function to sync (new) data with the database.
 // TODO: Get rid of the DoorType enum. Instead, allow dynamic registration of door types.
@@ -102,8 +98,6 @@ import java.util.Map.Entry;
 // TODO: Use Optional where applicable: https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html
 // TODO: Put @Nullable everywhere where applicable.
 //       More info about which to use: https://stackoverflow.com/questions/4963300/which-notnull-java-annotation-should-i-use
-// TODO: Put all listeners and command stuff (basically everything users can interact with) in try-catch blocks, so I can
-//       Dump more errors into the log file.
 // TODO: Add command to upload log file to PasteBin or something.
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
@@ -115,18 +109,14 @@ import java.util.Map.Entry;
 // TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
 // TODO: ConfigLoader should figure out which resource pack version to use on its own.
 // TODO: Move all non-database related stuff out of DatabaseManager.
-// TODO: OPs and people with bigdoors.admin.bypass.attribute should bypass permissions check for allowing options.
 // TODO: Rename region bypass permission to bigdoors.admin.bypass.region.
 // TODO: CustomEntityFallingBlock: Clean this damn class up!
 // TODO: Portcullis info prints it'll open going North when looking east. That's not right.
 //       Same issue for regular doors.
 // TODO: blocksToMove isn't printed by door full info.
-// TODO: Look into Unit testing: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
 // TODO: Don't use TypeString for DoorCreator, but use DoorType codeName instead. Also, the entire format is pretty stupid. Lots of repetition in the language file for every type.
 // TODO: Look into restartables interface. Perhaps it's a good idea to split restart() into stop() and init().
 //       This way, it can call all init()s in BigDoors::onEnable and all stop()s in BigDoors::onDisable.
-// TODO: Every door type needs its own class. This is getting too messy. A lot of the Opener stuff can be moved to those specialized classes. Might not even need openers anymore.
-//       Wouldn't that be nice? This also means that doors cannot be created in the Creator superClass. Instead, it'll need an abstract finishUp() method.
 // TODO: Allow position etc validation code to be used on existing doors one way or another.
 // TODO: Creators: updateEngineLoc from DoorCreator() and setEngine() should be the same and declared as abstract method in Creator.
 // TODO: GarageDoorCreator: Should extend DrawBridgeCreator.
@@ -142,6 +132,7 @@ import java.util.Map.Entry;
 // TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
 // TODO: Do not enable PlotSquared and WorldGuard by default.
 // TODO: Make sure redstone block checking is within bounds.
+// TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
 
 /*
  * GUI
@@ -188,7 +179,6 @@ import java.util.Map.Entry;
 // TODO: Do not use the commander for anything command-related that isn't strictly database abstraction.
 // TODO: Store actual minArgCount in subCommands so it doesn't have to be calculated constantly.
 // TODO: Make sure there are no commands that use hard coded argument positions.
-// TODO: SetblocksToMove commandWaiter doesn't work. Possibly issue with minArgCount.
 // TODO: NPE thrown when trying to use direct command after initiating a commandWaiter a while ago (should've been cancelled already!).
 //       Might be related to the issue listed above (regarding setBlocksToMove commandWaiter).
 // TODO: Explain why there are 2 hashMaps storing seemingly the same data in the CommandManager.
@@ -199,7 +189,6 @@ import java.util.Map.Entry;
 // TODO: CommandWaiters should register themselves in the CommandManager class. No outside class should even know about this stuff. Especially not
 //       the fucking DatabaseManager.
 // TODO: Make more liberal use of IllegalArgumentException.
-// TODO: Put all command related stuff in try/catch blocks.
 // TODO: SubCommandSetRotation should be updated/removed, as it doesn't work properly with types that do not go (counter)clockwise.
 
 /*
@@ -268,7 +257,7 @@ import java.util.Map.Entry;
  */
 // TODO: Test new creators: Windmill, RevolvingDoor, GarageDoor. Make sure it cannot be fucked up.
 // TODO: Test new chunkInRange methods. Especially sliding door.
-// TODO: Make sure that new lines in the messages work (check Util::stringFromArray).
+// TODO: Make sure that new lines in the messages work (check SpigotUtil::stringFromArray).
 // TODO: Fix no permission to set AutoCloseTime from GUI.
 
 /*
@@ -315,11 +304,11 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     private CommandManager commandManager;
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
-    private List<Restartable> restartables = new ArrayList<>();
+    private List<IRestartable> restartables = new ArrayList<>();
     private boolean is1_13 = false;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
-    private TimedCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
+    private TimedMapCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
     private VaultManager vaultManager;
     private AutoCloseScheduler autoCloseScheduler;
 
@@ -357,7 +346,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler(this), this);
             // No need to put these in init, as they should not be reloaded.
-            pbCache = new TimedCache<>(this, config.cacheTimeout());
+            pbCache = new TimedMapCache<>(this, Hashtable::new, config.cacheTimeout());
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             db = new SQLiteJDBCDriverConnection(this, config.dbFile());
@@ -491,7 +480,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
     }
 
-    public void registerRestartable(Restartable restartable)
+    public void registerRestartable(IRestartable restartable)
     {
         restartables.add(restartable);
     }
@@ -540,7 +529,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         blockMovers.clear();
     }
 
-    public TimedCache<Long, HashMap<Long, Long>> getPBCache()
+    public TimedMapCache<Long, HashMap<Long, Long>> getPBCache()
     {
         return pbCache;
     }
@@ -631,7 +620,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     {
         boolean isBusy = (getToolUser(player) != null || isCommandWaiter(player) != null);
         if (isBusy)
-            Util.messagePlayer(player, getMessages().getString("GENERAL.IsBusy"));
+            SpigotUtil.messagePlayer(player, getMessages().getString("GENERAL.IsBusy"));
         return isBusy;
     }
 

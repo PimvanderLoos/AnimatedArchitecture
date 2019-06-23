@@ -1,16 +1,17 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import java.util.function.BiFunction;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.function.BiFunction;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 class FlagMover extends BlockMover
 {
@@ -33,7 +34,7 @@ class FlagMover extends BlockMover
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : speed < minSpeed ? minSpeed : speed;
         this.time = time;
-        tickRate = Util.tickRateFromSpeed(speed);
+        tickRate = SpigotUtil.tickRateFromSpeed(speed);
         tickRate = 3;
 
         super.constructFBlocks();

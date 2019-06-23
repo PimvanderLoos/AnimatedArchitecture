@@ -1,18 +1,5 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
-import com.google.common.io.Files;
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
@@ -20,6 +7,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.annotation.Nullable;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+
+import com.google.common.io.Files;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 @SuppressWarnings("null") // Eclipse likes to complain about connections potentially being null,
                           // but it's not a problem.
@@ -748,7 +751,7 @@ public class SQLiteJDBCDriverConnection
         DoorOwner doorOwner = null;
 
         Connection conn = null;
-//      plugin.getMyLogger().warn("271: " + Util.exceptionToString(e));
+//      plugin.getMyLogger().warn("271: " + SpigotUtil.exceptionToString(e));
         try
         {
             conn = getConnection();
@@ -785,7 +788,7 @@ public class SQLiteJDBCDriverConnection
             ResultSet rs = ps.executeQuery();
             while (rs.next())
             {
-                long locationHash = Util.locationHash(rs.getInt(DOOR_POWER_X),
+                long locationHash = SpigotUtil.locationHash(rs.getInt(DOOR_POWER_X),
                                                       rs.getInt(DOOR_POWER_Y),
                                                       rs.getInt(DOOR_POWER_Z),
                                                       UUID.fromString(rs.getString(DOOR_WORLD)));
@@ -953,7 +956,7 @@ public class SQLiteJDBCDriverConnection
                           +   "powerBlockX='" + xPos
                           + "',powerBlockY='" + yPos
                           + "',powerBlockZ='" + zPos
-                          + "',chunkHash='"   + Util.chunkHashFromLocation(xPos, zPos, worldUUID)
+                          + "',chunkHash='"   + SpigotUtil.chunkHashFromLocation(xPos, zPos, worldUUID)
                           + "' WHERE id = '"  + doorID + "';";
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
@@ -1063,7 +1066,7 @@ public class SQLiteJDBCDriverConnection
             {
                 Statement stmt2 = conn.createStatement();
                 String sql2     = "INSERT INTO players (playerUUID, playerName) "
-                                + "VALUES ('" + door.getPlayerUUID().toString() + "', '" + Util.nameFromUUID(door.getPlayerUUID()) + "');";
+                                + "VALUES ('" + door.getPlayerUUID().toString() + "', '" + SpigotUtil.nameFromUUID(door.getPlayerUUID()) + "');";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
@@ -1234,7 +1237,7 @@ public class SQLiteJDBCDriverConnection
             {
                 Statement stmt2 = conn.createStatement();
                 String sql2     = "INSERT INTO players (playerUUID, playerName) "
-                                + "VALUES ('" + playerUUID.toString() + "', '" + Util.nameFromUUID(playerUUID) + "');";
+                                + "VALUES ('" + playerUUID.toString() + "', '" + SpigotUtil.nameFromUUID(playerUUID) + "');";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
@@ -1579,7 +1582,7 @@ public class SQLiteJDBCDriverConnection
                     int z    = rs1.getInt(DOOR_POWER_Z);
 
                     update   = "UPDATE doors SET "
-                             +   "chunkHash='" + Util.chunkHashFromLocation(x, z, worldUUID)
+                             +   "chunkHash='" + SpigotUtil.chunkHashFromLocation(x, z, worldUUID)
                              + "' WHERE id = '"  + UID + "';";
                     conn.prepareStatement(update).executeUpdate();
                 }
@@ -1702,7 +1705,7 @@ public class SQLiteJDBCDriverConnection
                 // First, find a name that does not exist in the database already.
                 // Do this by generating random strings and checking if it exists until
                 // We encounter one that doesn't.
-                String fakeName = Util.randomInsecureString(12);
+                String fakeName = SpigotUtil.randomInsecureString(12);
                 boolean exists = true;
                 while (exists)
                 {
@@ -1713,7 +1716,7 @@ public class SQLiteJDBCDriverConnection
                     ps.close();
                     rs.close();
                     if (exists)
-                        fakeName = Util.randomInsecureString(12);
+                        fakeName = SpigotUtil.randomInsecureString(12);
                 }
                 plugin.getMyLogger().warn("UpgradeToV5: Using fakeName = " + fakeName);
 

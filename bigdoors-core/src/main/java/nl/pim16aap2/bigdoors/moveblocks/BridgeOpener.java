@@ -1,14 +1,15 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import org.bukkit.Location;
+import org.bukkit.World;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.bukkit.Location;
-import org.bukkit.World;
 
 public class BridgeOpener extends Opener
 {
@@ -136,7 +137,7 @@ public class BridgeOpener extends Opener
         for (int xAxis = startX; xAxis <= endX; ++xAxis)
             for (int yAxis = startY; yAxis <= endY; ++yAxis)
                 for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
-                    if (!Util.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
+                    if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
                         return false;
 
         newMin.setX(startX);

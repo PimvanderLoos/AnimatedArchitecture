@@ -1,11 +1,12 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 /**
  * Represents a user creating a Big Door.
@@ -21,9 +22,9 @@ public class BigDoorCreator extends Creator
     {
         super(plugin, player, name, DoorType.BIGDOOR);
         this.typeString = typeString;
-        Util.messagePlayer(player, messages.getString("CREATOR." + typeString + ".Init"));
+        SpigotUtil.messagePlayer(player, messages.getString("CREATOR." + typeString + ".Init"));
         if (name == null)
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
         else
             triggerGiveTool();
     }
@@ -97,13 +98,13 @@ public class BigDoorCreator extends Creator
     {
         if (doorName == null)
         {
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
         String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
         if (canBreakBlock != null)
         {
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
             return;
         }
 
@@ -111,7 +112,7 @@ public class BigDoorCreator extends Creator
         {
             one = loc;
             String[] message = messages.getString("CREATOR." + typeString + ".Step1").split("\n");
-            Util.messagePlayer(player, message);
+            SpigotUtil.messagePlayer(player, message);
         }
         else if (two == null)
         {
@@ -123,12 +124,12 @@ public class BigDoorCreator extends Creator
                 if (engine == null)
                 {
                     String[] message = messages.getString("CREATOR." + typeString + ".Step2").split("\n");
-                    Util.messagePlayer(player, message);
+                    SpigotUtil.messagePlayer(player, message);
                 }
                 super.minMaxFix();
             }
             else
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
+                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
 
         }
         // If the engine position has not been determined yet
@@ -141,7 +142,7 @@ public class BigDoorCreator extends Creator
                 setIsDone(true);
             }
             else
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
+                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
         }
         else
             setIsDone(true);

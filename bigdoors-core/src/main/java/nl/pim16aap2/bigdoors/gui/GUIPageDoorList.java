@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.gui;
 
+import java.util.ArrayList;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Messages;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.gui.GUI.SortType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-
-import java.util.ArrayList;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 class GUIPageDoorList implements IGUIPage
 {
@@ -55,7 +55,7 @@ class GUIPageDoorList implements IGUIPage
             gui.setDoor(gui.getItem(interactionIDX).getDoor());
             if (gui.getDoor() == null)
             {
-                Util.messagePlayer(gui.getPlayer(), "An unexpected error occurred while trying to open a sub-menu for a door! Try again!");
+                SpigotUtil.messagePlayer(gui.getPlayer(), "An unexpected error occurred while trying to open a sub-menu for a door! Try again!");
                 gui.close();
                 return;
             }

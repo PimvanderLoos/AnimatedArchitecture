@@ -1,19 +1,20 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 public class SlidingDoorCreator extends Creator
 {
     public SlidingDoorCreator(BigDoors plugin, Player player, String name)
     {
         super(plugin, player, name, DoorType.SLIDINGDOOR);
-        Util.messagePlayer(player, messages.getString("CREATOR.SLIDINGDOOR.Init"));
+        SpigotUtil.messagePlayer(player, messages.getString("CREATOR.SLIDINGDOOR.Init"));
         if (name == null)
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
         else
             triggerGiveTool();
     }
@@ -67,7 +68,7 @@ public class SlidingDoorCreator extends Creator
         if (one == null)
         {
             one = loc;
-            Util.messagePlayer(player, messages.getString("CREATOR.SLIDINGDOOR.Step1"));
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.SLIDINGDOOR.Step1"));
         }
         else
             two = loc;

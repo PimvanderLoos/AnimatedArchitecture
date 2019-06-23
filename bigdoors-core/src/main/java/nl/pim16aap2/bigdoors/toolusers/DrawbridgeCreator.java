@@ -1,12 +1,13 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 
 /*
  * This class represents players in the process of creating doors.
@@ -19,9 +20,9 @@ public class DrawbridgeCreator extends Creator
     public DrawbridgeCreator(BigDoors plugin, Player player, String name)
     {
         super(plugin, player, name, DoorType.DRAWBRIDGE);
-        Util.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Init"));
+        SpigotUtil.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Init"));
         if (name == null)
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
         else
             triggerGiveTool();
     }
@@ -57,8 +58,8 @@ public class DrawbridgeCreator extends Creator
                          loc.getBlockZ() == one.getBlockZ() ||
                          loc.getBlockZ() == two.getBlockZ();
 
-        boolean inArea = Util.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
-                         Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
+        boolean inArea = SpigotUtil.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
+                         SpigotUtil.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
 
         if (!onEdge || !inArea || (engine != null && loc.equals(engine)))
             return false;
@@ -205,13 +206,13 @@ public class DrawbridgeCreator extends Creator
     {
         if (doorName == null)
         {
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
         String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
         if (canBreakBlock != null)
         {
-            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
             return;
         }
 
@@ -219,7 +220,7 @@ public class DrawbridgeCreator extends Creator
         {
             one = loc;
             String[] message = messages.getString("CREATOR.DRAWBRIDGE.Step1").split("\n");
-            Util.messagePlayer(player, message);
+            SpigotUtil.messagePlayer(player, message);
         }
         else if (two == null)
         {
@@ -233,11 +234,11 @@ public class DrawbridgeCreator extends Creator
                     isOpen = true;
 
                 String[] message = messages.getString("CREATOR.DRAWBRIDGE.Step2").split("\n");
-                Util.messagePlayer(player, message);
+                SpigotUtil.messagePlayer(player, message);
                 minMaxFix();
             }
             else
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
+                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
         }
         // If the engine position has not been determined yet
         else if (engine == null)
@@ -253,10 +254,10 @@ public class DrawbridgeCreator extends Creator
                 }
                 // If the engine side could not be determined, branch out for additional information.
                 else
-                    Util.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Step3"));
+                    SpigotUtil.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Step3"));
             }
             else
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
+                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
         }
         // If it's a draw bridge and the engine side wasn't determined yet.
         else if (engineSide == null)
@@ -267,7 +268,7 @@ public class DrawbridgeCreator extends Creator
                 setIsDone(true);
             }
             else
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
+                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
         }
         else
             setIsDone(true);

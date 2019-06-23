@@ -1,10 +1,11 @@
 package nl.pim16aap2.bigdoors.handlers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import nl.pim16aap2.bigdoors.BigDoors;
 
 public class LoginResourcePackHandler implements Listener
 {
@@ -20,15 +21,22 @@ public class LoginResourcePackHandler implements Listener
     @EventHandler
     public void onLogin(PlayerLoginEvent event)
     {
-        // Slight delay so the player actually fully exists.
-        new BukkitRunnable()
+        try
         {
-            @Override
-            public void run()
+            // Slight delay so the player actually fully exists.
+            new BukkitRunnable()
             {
-                if (event.getPlayer() != null)
-                    event.getPlayer().setResourcePack(url);
-            }
-        }.runTaskLater(plugin, 10);
+                @Override
+                public void run()
+                {
+                    if (event.getPlayer() != null)
+                        event.getPlayer().setResourcePack(url);
+                }
+            }.runTaskLater(plugin, 10);
+        }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logException(e);
+        }
     }
 }

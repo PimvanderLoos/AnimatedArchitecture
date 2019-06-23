@@ -1,15 +1,16 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 class SlidingMover extends BlockMover
 {
@@ -48,7 +49,7 @@ class SlidingMover extends BlockMover
             this.time = Math.abs(blocksToMove) / speed;
         }
 
-        tickRate = Util.tickRateFromSpeed(speed);
+        tickRate = SpigotUtil.tickRateFromSpeed(speed);
 
         super.constructFBlocks();
     }
@@ -84,7 +85,7 @@ class SlidingMover extends BlockMover
             public void run()
             {
                 if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
-                    Util.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
+                    SpigotUtil.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
 
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
@@ -101,7 +102,7 @@ class SlidingMover extends BlockMover
 
                 if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks || firstBlockData == null)
                 {
-                    Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
+                    SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (int idx = 0; idx < savedBlocks.size(); ++idx)
                         savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->

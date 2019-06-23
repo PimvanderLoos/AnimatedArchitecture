@@ -1,11 +1,8 @@
 package nl.pim16aap2.bigdoors.v1_14_R1;
 
-import net.minecraft.server.v1_14_R1.BlockPosition;
-import net.minecraft.server.v1_14_R1.IBlockData;
-import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import java.util.Set;
+import java.util.function.Function;
+
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,8 +12,12 @@ import org.bukkit.block.data.type.Stairs;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 
-import java.util.Set;
-import java.util.function.Function;
+import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_14_R1.IBlockData;
+import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block implements NMSBlock_Vall
 {
@@ -130,7 +131,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
 
     private void rotateDirectional(Directional bd, RotateDirection dir, int steps)
     {
-        BlockFace newFace = Util.getBukkitFace(rotate(Util.getMyBlockFace(bd.getFacing()), steps, getDirFun(dir)));
+        BlockFace newFace = SpigotUtil.getBukkitFace(rotate(SpigotUtil.getMyBlockFace(bd.getFacing()), steps, getDirFun(dir)));
         if (bd.getFaces().contains(newFace))
             bd.setFacing(newFace);
     }
@@ -147,7 +148,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
         currentFaces.forEach((K) -> bd.setFace(K, false));
         currentFaces.forEach((K) ->
         {
-            BlockFace newFace = Util.getBukkitFace(rotate(Util.getMyBlockFace(K), steps, getDirFun(dir)));
+            BlockFace newFace = SpigotUtil.getBukkitFace(rotate(SpigotUtil.getMyBlockFace(K), steps, getDirFun(dir)));
             if (allowedFaces.contains(newFace))
                 bd.setFace(newFace, true);
         });
@@ -199,7 +200,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
     {
         ((CraftWorld) loc.getWorld()).getHandle().setTypeAndData(
                 new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), blockData, 1);
-        if (Util.needsRefresh(mat))
+        if (SpigotUtil.needsRefresh(mat))
         {
             loc.getWorld().getBlockAt(loc).setType(Material.AIR);
             loc.getWorld().getBlockAt(loc).setType(mat);

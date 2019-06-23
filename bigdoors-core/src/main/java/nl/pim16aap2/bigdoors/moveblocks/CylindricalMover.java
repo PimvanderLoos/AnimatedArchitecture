@@ -1,19 +1,20 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigdoors.api.MyBlockData;
 import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.*;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 class CylindricalMover extends BlockMover
 {
@@ -37,7 +38,7 @@ class CylindricalMover extends BlockMover
         int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
         int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
         int doorLength = Math.max(xLen, zLen) + 1;
-        double vars[] = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
+        double vars[] = SpigotUtil.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
         this.time = vars[0];
         tickRate = (int) vars[1];
         this.multiplier = vars[2];
@@ -95,7 +96,7 @@ class CylindricalMover extends BlockMover
             public void run()
             {
                 if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
-                    Util.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
+                    SpigotUtil.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
 
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
@@ -116,7 +117,7 @@ class CylindricalMover extends BlockMover
 
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
-                    Util.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
+                    SpigotUtil.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
                     for (MyBlockData savedBlock : savedBlocks)
                         savedBlock.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
 

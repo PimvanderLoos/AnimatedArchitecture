@@ -1,13 +1,14 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import javax.annotation.Nonnull;
+
+import org.bukkit.Location;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
-import org.bukkit.Location;
-
-import javax.annotation.Nonnull;
 
 /**
  * Represents a Sliding Door doorType.

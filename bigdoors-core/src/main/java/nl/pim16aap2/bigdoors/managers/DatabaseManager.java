@@ -1,5 +1,19 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Messages;
 import nl.pim16aap2.bigdoors.commands.CommandData;
@@ -11,31 +25,23 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetTime;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-
-import javax.annotation.Nullable;
-import java.util.*;
 
 public class DatabaseManager extends Restartable
 {
     private HashSet<Long> busyDoors;
     // Players map stores players for faster UUID / Name matching.
-    private HashMap<UUID, String> players;
+    private TimedMapCache<UUID, String> players;
     private boolean goOn = true;
     private boolean paused = false;
     private SQLiteJDBCDriverConnection db;
@@ -49,7 +55,7 @@ public class DatabaseManager extends Restartable
         this.plugin = plugin;
         busyDoors = new HashSet<>();
         messages = plugin.getMessages();
-        players = new HashMap<>();
+        players = new TimedMapCache<>(plugin, HashMap::new, 1400);
     }
 
     @Override
@@ -100,7 +106,7 @@ public class DatabaseManager extends Restartable
 
     public UUID getPlayerUUIDFromString(String playerStr)
     {
-        UUID playerUUID = Util.playerUUIDFromString(playerStr);
+        UUID playerUUID = SpigotUtil.playerUUIDFromString(playerStr);
         if (playerUUID == null)
             playerUUID = db.getPlayerUUID(playerStr);
         return playerUUID;
@@ -178,7 +184,7 @@ public class DatabaseManager extends Restartable
     public void printDoors(Player player, ArrayList<DoorBase> doors)
     {
         for (DoorBase door : doors)
-            Util.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
+            SpigotUtil.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
     }
 
     public DoorBase getDoor(long doorUID)
@@ -207,9 +213,9 @@ public class DatabaseManager extends Restartable
                 return doors.get(0);
 
             if (doors.size() == 0)
-                Util.messagePlayer(player, messages.getString("GENERAL.NoDoorsFound"));
+                SpigotUtil.messagePlayer(player, messages.getString("GENERAL.NoDoorsFound"));
             else
-                Util.messagePlayer(player, messages.getString("GENERAL.MoreThan1DoorFound"));
+                SpigotUtil.messagePlayer(player, messages.getString("GENERAL.MoreThan1DoorFound"));
             printDoors(player, doors);
             return null;
         }
@@ -283,19 +289,15 @@ public class DatabaseManager extends Restartable
 
     public UUID playerUUIDFromName(String playerName)
     {
-        UUID uuid = players.entrySet().stream()
-            .filter(e -> e.getValue().equals(playerName))
-            .map(Map.Entry::getKey)
-            .findFirst()
-            .orElse(null);
+        String uuidStr = players.get(playerName);
+        if (uuidStr != null)
+            return UUID.fromString(uuidStr);
+
+        UUID uuid = db.getUUIDFromName(playerName);
         if (uuid != null)
             return uuid;
 
-        uuid = db.getUUIDFromName(playerName);
-        if (uuid != null)
-            return uuid;
-
-        uuid = Util.playerUUIDFromString(playerName);
+        uuid = SpigotUtil.playerUUIDFromString(playerName);
         if (uuid != null)
             updatePlayer(uuid, playerName);
         return uuid;
@@ -315,7 +317,7 @@ public class DatabaseManager extends Restartable
         if (name != null)
             return name;
         // As a last resort, try to get the name from an offline player. This is slow af, so last resort.
-        name = Util.nameFromUUID(playerUUID);
+        name = SpigotUtil.nameFromUUID(playerUUID);
         // Then place the UUID/String combo in the db. Need moar data!
         updatePlayer(playerUUID, name);
         return name;
@@ -359,7 +361,7 @@ public class DatabaseManager extends Restartable
     {
         boolean hasPermission = hasPermissionForAction(playerUUID, doorUID, atr);
         if (!hasPermission)
-            Util.messagePlayer(Bukkit.getPlayer(playerUUID), plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+            SpigotUtil.messagePlayer(Bukkit.getPlayer(playerUUID), plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
         return hasPermission;
     }
 
@@ -453,7 +455,7 @@ public class DatabaseManager extends Restartable
     // Get a door from the x,y,z coordinates of its power block.
     public DoorBase doorFromPowerBlockLoc(Location loc)
     {
-        long chunkHash = Util.chunkHashFromLocation(loc);
+        long chunkHash = SpigotUtil.chunkHashFromLocation(loc);
         HashMap<Long, Long> powerBlockData = plugin.getPBCache().get(chunkHash);
         if (powerBlockData == null)
         {
@@ -470,7 +472,7 @@ public class DatabaseManager extends Restartable
     {
         plugin.getPBCache().invalidate(db.getDoor(null, doorUID).getPowerBlockChunkHash());
         db.updateDoorPowerBlockLoc(doorUID, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getUID());
-        plugin.getPBCache().invalidate(Util.chunkHashFromLocation(loc));
+        plugin.getPBCache().invalidate(SpigotUtil.chunkHashFromLocation(loc));
     }
 
     public boolean isPowerBlockLocationValid(Location loc)

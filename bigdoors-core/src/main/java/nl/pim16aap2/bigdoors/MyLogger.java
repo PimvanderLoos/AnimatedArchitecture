@@ -1,15 +1,5 @@
 package nl.pim16aap2.bigdoors;
 
-import nl.pim16aap2.bigdoors.config.ConfigLoader;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -20,6 +10,18 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import nl.pim16aap2.bigdoors.config.ConfigLoader;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 /**
  * Represents my logger. Logs to the console synchronously and to the log file
@@ -161,7 +163,7 @@ public class MyLogger
                                final @Nonnull String str)
     {
         if (sender instanceof Player)
-            Util.messagePlayer((Player) sender, (color != null ? color : "") + str);
+            SpigotUtil.messagePlayer((Player) sender, (color != null ? color : "") + str);
         else
             writeToConsole(level, ChatColor.stripColor(str));
     }

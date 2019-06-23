@@ -1,7 +1,8 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;
+
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public interface NMSBlock_Vall
 {

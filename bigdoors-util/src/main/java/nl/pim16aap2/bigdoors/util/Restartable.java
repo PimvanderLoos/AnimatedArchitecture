@@ -5,7 +5,7 @@ package nl.pim16aap2.bigdoors.util;
  *
  * @author Pim
  */
-public abstract class Restartable
+public abstract class Restartable implements IRestartable
 {
     protected final RestartableHolder holder;
 
@@ -14,9 +14,4 @@ public abstract class Restartable
         this.holder = holder;
         holder.registerRestartable(this);
     }
-
-    /**
-     * Handle a restart.
-     */
-    public abstract void restart();
 }

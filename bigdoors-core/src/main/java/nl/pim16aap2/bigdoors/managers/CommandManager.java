@@ -1,22 +1,24 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.*;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import java.util.HashMap;
+import java.util.UUID;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.UUID;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.*;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 public class CommandManager implements CommandExecutor
 {
-    private static final String helpMessage = ChatColor.BLUE + "{}: Not required when used from GUI, <>: always required, []: optional\n";
+    private static final String helpMessage = ChatColor.BLUE
+        + "{}: Not required when used from GUI, <>: always required, []: optional\n";
 
     private final BigDoors plugin;
     private HashMap<String, ICommand> commands;
@@ -86,6 +88,15 @@ public class CommandManager implements CommandExecutor
             plugin.getMyLogger().returnToSender(sender, ChatColor.RED,
                                                 plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
         }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().returnToSender(sender, ChatColor.RED, plugin.getMessages().getString("GENERAL.Error"));
+            StringBuilder sb = new StringBuilder();
+            for (String str : args)
+                sb.append(str + (str.equals(args[args.length - 1]) ? "" : ", "));
+            plugin.getMyLogger().logException(e, "An exception occurred while processing command \"" + cmd.getName()
+                + "\" with args: \"" + sb.toString() + "\"!");
+        }
         return true;
     }
 
@@ -102,7 +113,8 @@ public class CommandManager implements CommandExecutor
                 door = plugin.getDatabaseManager().getDoor(doorUID);
             }
             catch (NumberFormatException e)
-            {}
+            {
+            }
         if (door == null)
             throw new CommandInvalidVariableException(doorArg, "door");
         return door;
@@ -110,7 +122,7 @@ public class CommandManager implements CommandExecutor
 
     public static UUID getPlayerFromArg(String playerArg) throws CommandPlayerNotFoundException
     {
-        UUID playerUUID = Util.playerUUIDFromString(playerArg);
+        UUID playerUUID = SpigotUtil.playerUUIDFromString(playerArg);
         if (playerUUID == null)
             throw new CommandPlayerNotFoundException(playerArg);
         return playerUUID;
@@ -118,8 +130,8 @@ public class CommandManager implements CommandExecutor
 
     public static boolean permissionForCommand(CommandSender sender, ICommand command)
     {
-        return (sender instanceof Player ? ((Player) sender).hasPermission(command.getPermission())
-            || ((Player) sender).isOp() : true);
+        return (sender instanceof Player ?
+            ((Player) sender).hasPermission(command.getPermission()) || ((Player) sender).isOp() : true);
     }
 
     public static long getLongFromArg(String timeArg) throws CommandInvalidVariableException

@@ -1,16 +1,17 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
 
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 /**
  * Represents a ToolUser that creates new doors.
@@ -70,7 +71,7 @@ public abstract class Creator extends ToolUser
             String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max);
             if (canBreakBlock != null)
             {
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
+                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
                 this.abort(false);
                 return;
             }
@@ -92,15 +93,15 @@ public abstract class Creator extends ToolUser
             door.setDefaultOpenDirection();
 
             int doorSize = door.getBlockCount();
-            int sizeLimit = Util.getMaxDoorSizeForPlayer(player);
+            int sizeLimit = SpigotUtil.getMaxDoorSizeForPlayer(player);
 
             if (sizeLimit >= 0 && sizeLimit <= doorSize)
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);
+                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);
             else if (plugin.getVaultManager().buyDoor(player, type, doorSize))
             {
                 plugin.getDatabaseManager().addDoorBase(door);
                 if (message != null)
-                    Util.messagePlayer(player, message);
+                    SpigotUtil.messagePlayer(player, message);
             }
         }
         super.finishUp();

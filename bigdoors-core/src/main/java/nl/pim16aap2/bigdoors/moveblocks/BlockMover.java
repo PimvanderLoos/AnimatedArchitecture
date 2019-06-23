@@ -1,15 +1,9 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
-import nl.pim16aap2.bigdoors.api.FallingBlockFactory_Vall;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
-import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.Mutable;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -17,9 +11,16 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
+import nl.pim16aap2.bigdoors.api.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.Mutable;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public abstract class BlockMover
 {
@@ -75,7 +76,7 @@ public abstract class BlockMover
                     Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Block vBlock = world.getBlockAt(xAxis, yAxis, zAxis);
 
-                    if (Util.isAllowedBlock(vBlock))
+                    if (SpigotUtil.isAllowedBlock(vBlock))
                     {
                         Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
                         // Move the lowest blocks up a little, so the client won't predict they're

@@ -1,16 +1,19 @@
 package nl.pim16aap2.bigdoors.config;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
-
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+
+import javax.annotation.Nullable;
+
+import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 /**
  * Represents the config loader.
@@ -146,10 +149,10 @@ public final class ConfigLoader
                                addNewConfigOption(config, "priceOf" + DoorType.getCodeName(doorTypes[idx]), "0",
                                                   idx == 0 ? pricesComment : null));
 
-        // This is a bit special, as it's public static (for Util debug messages).
+        // This is a bit special, as it's public static (for SpigotUtil debug messages).
         ConfigLoader.DEBUG = addNewConfigOption(config, "DEBUG", false, debugComment);
         if (ConfigLoader.DEBUG)
-            nl.pim16aap2.bigdoors.spigotutil.Util.printDebugMessages = true;
+            SpigotUtil.printDebugMessages = true;
 
         writeConfig();
     }

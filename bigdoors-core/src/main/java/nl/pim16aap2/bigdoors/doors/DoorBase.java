@@ -1,16 +1,18 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.*;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.UUID;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.*;
 
 /**
  * Represents an unspecialized door.
@@ -139,8 +141,8 @@ public abstract class DoorBase
     public final boolean chunkInRange(Chunk chunk)
     {
         verifyChunkRange();
-        return Util.between(chunk.getX(), minChunkCoords.getX(), maxChunkCoords.getX()) &&
-               Util.between(chunk.getZ(), minChunkCoords.getY(), maxChunkCoords.getY());
+        return SpigotUtil.between(chunk.getX(), minChunkCoords.getX(), maxChunkCoords.getX()) &&
+               SpigotUtil.between(chunk.getZ(), minChunkCoords.getY(), maxChunkCoords.getY());
         // It's a Vector2D, so there's no z. Instead of Z, use the second value (Y).
     }
 
@@ -668,7 +670,7 @@ public abstract class DoorBase
      */
     public long getPowerBlockChunkHash()
     {
-        return Util.chunkHashFromLocation(powerBlock.getBlockX(), powerBlock.getBlockZ(), world.getUID());
+        return SpigotUtil.chunkHashFromLocation(powerBlock.getBlockX(), powerBlock.getBlockZ(), world.getUID());
     }
 
     /**
@@ -691,9 +693,9 @@ public abstract class DoorBase
         StringBuilder builder = new StringBuilder();
         builder.append(doorUID + ": " + name + "\n");
         builder.append("Type: " + doorType.toString() + ". Permission: " + getPermission() + "\n");
-        builder.append("Min: " + Util.locIntToString(min) + ", Max: " + Util.locIntToString(max) + ", Engine: "
-            + Util.locIntToString(engine) + "\n");
-        builder.append("PowerBlock location: " + Util.locIntToString(powerBlock) + ". Hash: " + getPowerBlockChunkHash()
+        builder.append("Min: " + SpigotUtil.locIntToString(min) + ", Max: " + SpigotUtil.locIntToString(max) + ", Engine: "
+            + SpigotUtil.locIntToString(engine) + "\n");
+        builder.append("PowerBlock location: " + SpigotUtil.locIntToString(powerBlock) + ". Hash: " + getPowerBlockChunkHash()
             + "\n");
         builder.append("This door is " + (isLocked ? "" : "NOT ") + "locked. ");
         builder.append("This door is " + (isOpen ? "Open.\n" : "Closed.\n"));

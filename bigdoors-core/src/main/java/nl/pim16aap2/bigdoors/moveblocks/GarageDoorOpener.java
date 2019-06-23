@@ -1,14 +1,15 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import org.bukkit.Location;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
-import org.bukkit.Location;
 
 public class GarageDoorOpener extends Opener
 {
@@ -107,7 +108,7 @@ public class GarageDoorOpener extends Opener
         for (int xAxis = minX; xAxis <= maxX; ++xAxis)
             for (int yAxis = minY; yAxis <= maxY; ++yAxis)
                 for (int zAxis = minZ; zAxis <= maxZ; ++zAxis)
-                    if (!Util.isAirOrLiquid(door.getWorld().getBlockAt(xAxis, yAxis, zAxis)))
+                    if (!SpigotUtil.isAirOrLiquid(door.getWorld().getBlockAt(xAxis, yAxis, zAxis)))
                         return false;
         return true;
     }

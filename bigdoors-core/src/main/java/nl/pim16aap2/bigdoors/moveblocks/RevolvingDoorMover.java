@@ -1,17 +1,18 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import java.util.function.BiFunction;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.function.BiFunction;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 class RevolvingDoorMover extends BlockMover
 {
@@ -29,7 +30,7 @@ class RevolvingDoorMover extends BlockMover
 
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : speed < minSpeed ? minSpeed : speed;
-        tickRate = Util.tickRateFromSpeed(speed);
+        tickRate = SpigotUtil.tickRateFromSpeed(speed);
         tickRate = 3;
 
         switch (rotateDirection)
@@ -103,7 +104,7 @@ class RevolvingDoorMover extends BlockMover
 
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
-                    Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
+                    SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (MyBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->

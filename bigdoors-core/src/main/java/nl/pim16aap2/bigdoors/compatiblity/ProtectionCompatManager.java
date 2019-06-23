@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.MyException;
-import nl.pim16aap2.bigdoors.util.Restartable;
+import java.util.ArrayList;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -13,8 +13,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.MyException;
+import nl.pim16aap2.bigdoors.util.Restartable;
 
 public class ProtectionCompatManager extends Restartable implements Listener
 {

@@ -1,15 +1,16 @@
 package nl.pim16aap2.bigdoors.gui;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import org.bukkit.scheduler.BukkitRunnable;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.Messages;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 public class GUIPageRemoveOwner implements IGUIPage
 {

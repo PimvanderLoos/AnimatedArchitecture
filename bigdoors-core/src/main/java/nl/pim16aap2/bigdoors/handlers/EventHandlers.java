@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.handlers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +11,9 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 
 public class EventHandlers implements Listener
 {
@@ -27,30 +28,51 @@ public class EventHandlers implements Listener
     @EventHandler
     public void onLeftClick(final PlayerInteractEvent event)
     {
-        if (event.getAction() == Action.LEFT_CLICK_BLOCK && plugin.getTF().isTool(event.getPlayer().getInventory().getItemInMainHand()))
+        try
         {
-            ToolUser tu = plugin.getToolUser(event.getPlayer());
-            if (tu == null)
+            if (event.getAction() == Action.LEFT_CLICK_BLOCK && plugin.getTF().isTool(event.getPlayer().getInventory().getItemInMainHand()))
+            {
+                ToolUser tu = plugin.getToolUser(event.getPlayer());
+                if (tu == null)
+                    return;
+                tu.selector(event.getClickedBlock().getLocation());
+                event.setCancelled(true);
                 return;
-            tu.selector(event.getClickedBlock().getLocation());
-            event.setCancelled(true);
-            return;
+            }
+        }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logException(e);
         }
     }
 
     @EventHandler
     public void onLogin(final PlayerLoginEvent event)
     {
-        plugin.getDatabaseManager().updatePlayer(event.getPlayer());
+        try
+        {
+            plugin.getDatabaseManager().updatePlayer(event.getPlayer());
+        }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logException(e);
+        }
     }
 
     @EventHandler
     public void onLogout(final PlayerQuitEvent event)
     {
-        plugin.getDatabaseManager().removePlayer(event.getPlayer());
-        ToolUser tu = plugin.getToolUser(event.getPlayer());
-        if (tu != null)
-            tu.abort();
+        try
+        {
+            plugin.getDatabaseManager().removePlayer(event.getPlayer());
+            ToolUser tu = plugin.getToolUser(event.getPlayer());
+            if (tu != null)
+                tu.abort();
+        }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logException(e);
+        }
     }
 
     // Do not allow the player to drop the door creation tool.
@@ -59,13 +81,20 @@ public class EventHandlers implements Listener
     @EventHandler
     public void onItemDropEvent(PlayerDropItemEvent event)
     {
-        if (plugin.getTF().isTool(event.getItemDrop().getItemStack()))
+        try
         {
-            ToolUser tu = plugin.getToolUser(event.getPlayer());
-            if (tu == null)
-                event.getItemDrop().remove();
-            else
-                event.setCancelled(true);
+            if (plugin.getTF().isTool(event.getItemDrop().getItemStack()))
+            {
+                ToolUser tu = plugin.getToolUser(event.getPlayer());
+                if (tu == null)
+                    event.getItemDrop().remove();
+                else
+                    event.setCancelled(true);
+            }
+        }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logException(e);
         }
     }
 
@@ -74,19 +103,28 @@ public class EventHandlers implements Listener
     @EventHandler
     public void inventoryClickEvent(InventoryClickEvent event)
     {
-        if (!plugin.getTF().isTool(event.getCurrentItem()))
-            return;
-        if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) || !event.getClickedInventory().getType().equals(InventoryType.PLAYER))
+        try
         {
-            if (event.getWhoClicked() instanceof Player)
+            if (!plugin.getTF().isTool(event.getCurrentItem()))
+                return;
+            if (event.getAction().equals(
+                    InventoryAction.MOVE_TO_OTHER_INVENTORY) || !event.getClickedInventory().getType().equals(
+                    InventoryType.PLAYER))
             {
-                ToolUser tu = plugin.getToolUser((Player) event.getWhoClicked());
-                if (tu == null)
-                    event.getInventory().removeItem(event.getCurrentItem());
-                else
-                    event.setCancelled(true);
+                if (event.getWhoClicked() instanceof Player)
+                {
+                    ToolUser tu = plugin.getToolUser((Player) event.getWhoClicked());
+                    if (tu == null)
+                        event.getInventory().removeItem(event.getCurrentItem());
+                    else
+                        event.setCancelled(true);
+                }
+                event.setCancelled(true);
             }
-            event.setCancelled(true);
+        }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logException(e);
         }
     }
 
@@ -95,11 +133,18 @@ public class EventHandlers implements Listener
     @EventHandler
     public void inventoryDragEvent(InventoryDragEvent event)
     {
-        event.getNewItems().forEach((K,V) ->
+        try
         {
-            if (plugin.getTF().isTool(V))
-                event.setCancelled(true);
-        });
+            event.getNewItems().forEach((K, V) ->
+            {
+                if (plugin.getTF().isTool(V))
+                    event.setCancelled(true);
+            });
+        }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logException(e);
+        }
     }
 
     // Do not allow moving selection tools
@@ -109,19 +154,26 @@ public class EventHandlers implements Listener
     @EventHandler
     public void onItemMoved(InventoryMoveItemEvent event)
     {
-        if (!plugin.getTF().isTool(event.getItem()))
-            return;
-
-        Inventory src = event.getSource();
-        if (src instanceof PlayerInventory && ((PlayerInventory) src).getHolder() instanceof Player)
+        try
         {
-            ToolUser tu = plugin.getToolUser((Player) ((PlayerInventory) src).getHolder());
-            if (tu != null)
-            {
-                event.setCancelled(true);
+            if (!plugin.getTF().isTool(event.getItem()))
                 return;
+
+            Inventory src = event.getSource();
+            if (src instanceof PlayerInventory && ((PlayerInventory) src).getHolder() instanceof Player)
+            {
+                ToolUser tu = plugin.getToolUser((Player) ((PlayerInventory) src).getHolder());
+                if (tu != null)
+                {
+                    event.setCancelled(true);
+                    return;
+                }
             }
+            src.removeItem(event.getItem());
         }
-        src.removeItem(event.getItem());
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logException(e);
+        }
     }
 }

@@ -1,6 +1,10 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import java.security.SecureRandom;
+import java.util.*;
+
+import javax.annotation.Nullable;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -10,11 +14,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import javax.annotation.Nullable;
-import java.security.SecureRandom;
-import java.util.*;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
 
-public final class Util
+public final class SpigotUtil
 {
     /**
      * Send a colored message to a specific player.

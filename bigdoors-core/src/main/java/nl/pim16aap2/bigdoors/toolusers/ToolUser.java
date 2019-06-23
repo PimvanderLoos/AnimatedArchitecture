@@ -1,9 +1,8 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Messages;
-import nl.pim16aap2.bigdoors.spigotutil.Abortable;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import java.util.Arrays;
+import java.util.logging.Level;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,8 +12,10 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
-import java.util.logging.Level;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.Messages;
+import nl.pim16aap2.bigdoors.spigotutil.Abortable;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 public abstract class ToolUser extends Abortable
 {
@@ -67,7 +68,7 @@ public abstract class ToolUser extends Abortable
         else
             player.getInventory().addItem(tool);
 
-        Util.messagePlayer(player, message);
+        SpigotUtil.messagePlayer(player, message);
     }
 
     public final Player getPlayer()

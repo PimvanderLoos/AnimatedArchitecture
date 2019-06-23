@@ -1,5 +1,9 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
@@ -7,9 +11,6 @@ import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class SubCommandInspectPowerBlock extends SubCommand
 {

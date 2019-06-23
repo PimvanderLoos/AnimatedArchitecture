@@ -1,5 +1,14 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.logging.Level;
+
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
@@ -9,15 +18,7 @@ import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.logging.Level;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 public class SubCommandToggle extends SubCommand
 {
@@ -73,7 +74,7 @@ public class SubCommandToggle extends SubCommand
     {
         String lastStr = args[args.length - 1];
         // Last argument sets speed if it's a double.
-        double time = Util.longFromString(lastStr, -1L) == -1L ? Util.doubleFromString(lastStr, 0.0D) : 0.0D;
+        double time = SpigotUtil.longFromString(lastStr, -1L) == -1L ? SpigotUtil.doubleFromString(lastStr, 0.0D) : 0.0D;
         int index = args.length;
         // If the time variable was specified, decrement endIDX by 1, as the last
         // argument is not a door!

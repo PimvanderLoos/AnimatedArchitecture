@@ -1,19 +1,20 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Vector3D;
+import java.util.function.BiFunction;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.function.BiFunction;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 
 class GarageDoorMover extends BlockMover
 {
@@ -34,7 +35,7 @@ class GarageDoorMover extends BlockMover
 
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : speed < minSpeed ? minSpeed : speed;
-        tickRate = Util.tickRateFromSpeed(speed);
+        tickRate = SpigotUtil.tickRateFromSpeed(speed);
         tickRate = 3;
 
         resultHeight = door.getMaximum().getBlockY() + 1;
@@ -176,7 +177,7 @@ class GarageDoorMover extends BlockMover
             yMod = -Math.max(0, stepSum - block.getRadius() + 0.5);
         }
 
-        Util.broadcastMessage(String.format(
+        SpigotUtil.broadcastMessage(String.format(
                                             "%.5b: goalX: %.2f, pivotX: %.2f, currentX: %.2f, stepSum: %.2f, "
                                                 + "yMod: %.2f, xMod: %.2f, radius: %.2f, startX: %.2f, BTM: %.1f, test: %.2f",
                                             test, goalX, pivotX, currentX, stepSum, yMod, xMod, block.getRadius(),
@@ -217,7 +218,7 @@ class GarageDoorMover extends BlockMover
 
 //        Location newLoc = new Location(world, newX, newY, newZ);
 //        newLoc.getBlock().setType(Material.LAPIS_BLOCK);
-//        Util.broadcastMessage("newLoc: " + Util.locIntToString(newLoc));
+//        SpigotUtil.broadcastMessage("newLoc: " + SpigotUtil.locIntToString(newLoc));
 //        return new Location(world, xAxis, yAxis, zAxis);
     }
 
@@ -255,7 +256,7 @@ class GarageDoorMover extends BlockMover
 
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
-                    Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
+                    SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (MyBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->

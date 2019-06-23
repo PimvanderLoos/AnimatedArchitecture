@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 public class PowerBlockRelocator extends ToolUser
 {
@@ -13,7 +14,7 @@ public class PowerBlockRelocator extends ToolUser
     {
         super(plugin, player);
         this.doorUID = doorUID;
-        Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Init"));
+        SpigotUtil.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Init"));
         triggerGiveTool();
     }
 
@@ -30,7 +31,7 @@ public class PowerBlockRelocator extends ToolUser
         if (newLoc != null)
         {
             plugin.getDatabaseManager().updatePowerBlockLoc(doorUID, newLoc);
-            Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Success"));
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Success"));
         }
         finishUp();
     }
@@ -45,6 +46,6 @@ public class PowerBlockRelocator extends ToolUser
             setIsDone(true);
         }
         else
-            Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.LocationInUse"));
+            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.LocationInUse"));
     }
 }

@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.moveblocks.getnewlocation;
 
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.bukkit.World;
+
+import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 @SuppressWarnings("unused")
 public class GNLVerticalRotSouth implements GetNewLocation

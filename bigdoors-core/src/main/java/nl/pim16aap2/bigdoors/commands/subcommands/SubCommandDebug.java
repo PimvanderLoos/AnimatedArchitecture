@@ -1,13 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
-import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.CommandManager;
-import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -18,6 +10,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
+
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
+import nl.pim16aap2.bigdoors.commands.CommandData;
+import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
+import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 /*
  * This class really does whatever I want to test at a given point.
@@ -52,7 +52,7 @@ public class SubCommandDebug extends SubCommand
 
             if (bd instanceof Stairs)
             {
-                Util.broadcastMessage("Shape: " + ((Stairs) bd).getShape().toString() + " Facing: " + ((Stairs) bd).getFacing() + " Half: " + ((Stairs) bd).getHalf());
+                SpigotUtil.broadcastMessage("Shape: " + ((Stairs) bd).getShape().toString() + " Facing: " + ((Stairs) bd).getFacing() + " Half: " + ((Stairs) bd).getHalf());
             }
 
             Location loc2 = loc.clone();
@@ -65,12 +65,12 @@ public class SubCommandDebug extends SubCommand
             {
                 if (ent.getCustomName() != null && ent.getCustomName().equals("BigDoorsEntity"))
                 {
-                    Bukkit.broadcastMessage("BigDoorsEntity: " + Util.locIntToString(ent.getLocation()));
+                    SpigotUtil.broadcastMessage("BigDoorsEntity: " + SpigotUtil.locIntToString(ent.getLocation()));
                     ent.remove();
                 }
                 else if (ent instanceof FallingBlock)
                 {
-                    Bukkit.broadcastMessage("Entity is a falling block! Loc: " + Util.locIntToString(ent.getLocation()));
+                    SpigotUtil.broadcastMessage("Entity is a falling block! Loc: " + SpigotUtil.locIntToString(ent.getLocation()));
                     ent.remove();
                 }
             }
@@ -78,7 +78,7 @@ public class SubCommandDebug extends SubCommand
 
 //            if (! (block.getBlockData() instanceof Directional))
 //            {
-//                Util.broadcastMessage("Not a Directional block! " + block.toString());
+//                SpigotUtil.broadcastMessage("Not a Directional block! " + block.toString());
 //                return true;
 //            }
 //            Set<BlockFace> allowedFaces = ((Directional) block.getBlockData()).getFaces();
@@ -111,7 +111,7 @@ public class SubCommandDebug extends SubCommand
 //
 //
 //                        Material mat = newLoc.getBlock().getType();
-//                        Util.broadcastMessage("Material: " + mat.toString());
+//                        SpigotUtil.broadcastMessage("Material: " + mat.toString());
 //
 //                        switch(mat)
 //                        {
@@ -137,12 +137,12 @@ public class SubCommandDebug extends SubCommand
 //                        {
 //                            StringBuilder builder = new StringBuilder();
 //                            currentFaces.forEach((K) -> builder.append(" " + K.toString()));
-//                            Util.broadcastMessage("Old faces:" + builder.toString());
+//                            SpigotUtil.broadcastMessage("Old faces:" + builder.toString());
 //                        }
 //                        {
 //                            StringBuilder builder = new StringBuilder();
 //                            newFaces.forEach((K) -> builder.append(" (" + K.toString() + "): " + " " + MyBlockFace.getBukkitFace(K).toString()));
-//                            Util.broadcastMessage("New faces:" + builder.toString());
+//                            SpigotUtil.broadcastMessage("New faces:" + builder.toString());
 //                        }
 //
 ////                        currentFaces.forEach((K) -> mf.setFace(K, false));
@@ -151,7 +151,7 @@ public class SubCommandDebug extends SubCommand
 //                            if (allowedFaces.contains(MyBlockFace.getBukkitFace(K)))
 //                                mf.setFacing(MyBlockFace.getBukkitFace(K));
 //                            else
-//                                Util.broadcastMessage("\"" + MyBlockFace.getBukkitFace(K).toString() + "\" is not an allowed face!");
+//                                SpigotUtil.broadcastMessage("\"" + MyBlockFace.getBukkitFace(K).toString() + "\" is not an allowed face!");
 //                        });
 //                        block.setBlockData(mf);
 //                    }
@@ -171,8 +171,8 @@ public class SubCommandDebug extends SubCommand
 //        int yMax = door.getMaximum().getBlockY();
 //        int zMax = door.getMaximum().getBlockZ();
 //
-//        Util.broadcastMessage("Min = " + door.getMinimum());
-//        Util.broadcastMessage("Max = " + door.getMaximum());
+//        SpigotUtil.broadcastMessage("Min = " + door.getMinimum());
+//        SpigotUtil.broadcastMessage("Max = " + door.getMaximum());
 //
 //        StringBuilder builder = new StringBuilder();
 //        builder.append("\n");
@@ -191,11 +191,11 @@ public class SubCommandDebug extends SubCommand
 //                        break;
 //                    Block block = world.getBlockAt(x, y, z);
 //                    if (!block.getType().equals(Material.AIR))
-//                        builder.append(String.format("%-24s: %5s\n", block.getType().toString(), String.valueOf(Util.isAllowedBlock(block))));
+//                        builder.append(String.format("%-24s: %5s\n", block.getType().toString(), String.valueOf(SpigotUtil.isAllowedBlock(block))));
 //                }
 //            }
 //        }
-//        Util.broadcastMessage(builder.toString());
+//        SpigotUtil.broadcastMessage(builder.toString());
         return true;
     }
 

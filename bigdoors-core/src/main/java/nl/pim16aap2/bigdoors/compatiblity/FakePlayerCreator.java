@@ -1,17 +1,19 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import com.mojang.authlib.GameProfile;
-import nl.pim16aap2.bigdoors.BigDoors;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import com.mojang.authlib.GameProfile;
+
+import nl.pim16aap2.bigdoors.BigDoors;
 
 /* This class is used to create a fake online player
  * from a provided offline player in a provided world.

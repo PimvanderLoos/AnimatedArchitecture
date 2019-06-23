@@ -1,13 +1,14 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.Util;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 /**
  * This class represents players in the process of creating doors. Objects of
@@ -48,7 +49,7 @@ public class GarageDoorCreator extends BigDoorCreator
             int dZ = engine.getBlockZ() - one.getBlockZ();
 
             Vector3D dir = new Vector3D(dX < 0 ? -1 : dX > 0 ? 1 : 0, 0, dZ < 0 ? -1 : dZ > 0 ? 1 : 0);
-            Util.broadcastMessage("GarageDoorCreator: Found dir: " + dir.toString());
+            SpigotUtil.broadcastMessage("GarageDoorCreator: Found dir: " + dir.toString());
 
             MyBlockFace mbf = MyBlockFace.faceFromDir(new Vector3D(dX < 0 ? -1 : dX > 0 ? 1 : 0, 0, dZ < 0 ? -1 : dZ > 0 ? 1 : 0));
             openDir = RotateDirection.valueOf(mbf.toString());

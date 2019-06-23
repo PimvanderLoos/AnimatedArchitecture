@@ -1,8 +1,9 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import org.bukkit.Location;
+
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.*;
-import org.bukkit.Location;
 
 /**
  * Represents a DrawBrige doorType.

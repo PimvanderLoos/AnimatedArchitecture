@@ -1,13 +1,14 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.managers.CommandManager;
+import java.util.logging.Level;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import java.util.logging.Level;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.CommandData;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public class SubCommandVersion extends SubCommand
 {
