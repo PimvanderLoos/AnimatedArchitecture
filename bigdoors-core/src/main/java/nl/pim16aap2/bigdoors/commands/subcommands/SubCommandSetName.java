@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,6 +12,7 @@ import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.Creator;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
+import nl.pim16aap2.bigdoors.util.Util;
 
 public class SubCommandSetName extends SubCommand
 {
@@ -36,7 +36,7 @@ public class SubCommandSetName extends SubCommand
 
         Player player = (Player) sender;
         ToolUser tu = plugin.getToolUser(player);
-        if (tu != null && tu instanceof Creator)
+        if (tu instanceof Creator)
         {
             if (args.length == getMinArgCount() && Util.isValidDoorName(args[getMinArgCount() - 1]))
             {

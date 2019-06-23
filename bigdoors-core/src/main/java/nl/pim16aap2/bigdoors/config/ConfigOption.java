@@ -20,6 +20,15 @@ public final class ConfigOption<V>
     private final V defaultValue;
     private final String[] comment;
 
+    /**
+     * ConfigOption Constructor.
+     * 
+     * @param plugin       The instance of {@link BigDoors}.
+     * @param config       The config file to read from.
+     * @param optionName   The name of this option as used in the config file.
+     * @param defaultValue The default value of this option.
+     * @param comment      The comment that will preceed this option.
+     */
     public ConfigOption(BigDoors plugin, FileConfiguration config, String optionName, V defaultValue, String[] comment)
     {
         this.plugin = plugin;
@@ -32,7 +41,8 @@ public final class ConfigOption<V>
 
     @SuppressWarnings("unchecked")
     /**
-     * Set the value of this config option.
+     * Read the value of this config option from the config. If it fails, the
+     * default value is used instead.
      */
     private void setValue()
     {

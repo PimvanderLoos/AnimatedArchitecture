@@ -223,16 +223,20 @@ public final class ConfigLoader
     }
 
     /**
-     * Read a new config option from the config if it exists. Otherwise, use the default value.
+     * Read a new config option from the config if it exists. Otherwise, use the
+     * default value.
      *
      * @param <T>
-     * @param config The config.
-     * @param optionName The name of the option in the config file.
-     * @param defaultValue The default value of the option. To be used if no/invalid option is in the config already.
-     * @param comment The comment to accompany the option in the config.
-     * @return The value as read from the config file if it exists or the default value.
+     * @param config       The config.
+     * @param optionName   The name of the option in the config file.
+     * @param defaultValue The default value of the option. To be used if no/invalid
+     *                     option is in the config already.
+     * @param comment      The comment to accompany the option in the config.
+     * @return The value as read from the config file if it exists or the default
+     *         value.
      */
-    private <T> T addNewConfigOption(FileConfiguration config, String optionName, T defaultValue, @Nullable String[] comment)
+    private <T> T addNewConfigOption(FileConfiguration config, String optionName, T defaultValue,
+                                     @Nullable String[] comment)
     {
         ConfigOption<T> option = new ConfigOption<>(plugin, config, optionName, defaultValue, comment);
         configOptionsList.add(option);

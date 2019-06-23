@@ -470,9 +470,9 @@ public class DatabaseManager extends Restartable
     // Change the location of a powerblock.
     public void updatePowerBlockLoc(long doorUID, Location loc)
     {
-        plugin.getPBCache().invalidate(db.getDoor(null, doorUID).getPowerBlockChunkHash());
+        plugin.getPBCache().remove(db.getDoor(null, doorUID).getPowerBlockChunkHash());
         db.updateDoorPowerBlockLoc(doorUID, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getUID());
-        plugin.getPBCache().invalidate(SpigotUtil.chunkHashFromLocation(loc));
+        plugin.getPBCache().remove(SpigotUtil.chunkHashFromLocation(loc));
     }
 
     public boolean isPowerBlockLocationValid(Location loc)

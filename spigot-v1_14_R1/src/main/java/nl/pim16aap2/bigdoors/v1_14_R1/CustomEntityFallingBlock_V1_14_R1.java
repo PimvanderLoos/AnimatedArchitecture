@@ -11,7 +11,14 @@ import com.google.common.collect.Lists;
 import net.minecraft.server.v1_14_R1.*;
 import nl.pim16aap2.bigdoors.api.CustomEntityFallingBlock_Vall;
 
-public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.EntityFallingBlock implements CustomEntityFallingBlock_Vall
+/**
+ * V1_14_R1 implementation of {@link CustomEntityFallingBlock_Vall}.
+ *
+ * @author Pim
+ * @see CustomEntityFallingBlock_Vall
+ */
+public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.EntityFallingBlock
+    implements CustomEntityFallingBlock_Vall
 {
     private IBlockData block;
     public int ticksLived;
@@ -21,10 +28,12 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
     private int fallHurtMax;
     private float fallHurtAmount;
     public NBTTagCompound tileEntityData;
-    protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class, DataWatcherRegistry.l);
+    protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
+                                                                              DataWatcherRegistry.l);
     private org.bukkit.World bukkitWorld;
 
-    public CustomEntityFallingBlock_V1_14_R1(org.bukkit.World world, double d0, double d1, double d2, IBlockData iblockdata)
+    public CustomEntityFallingBlock_V1_14_R1(org.bukkit.World world, double d0, double d1, double d2,
+        IBlockData iblockdata)
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
         bukkitWorld = world;
@@ -72,18 +81,16 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
     @SuppressWarnings("unused")
     private List<Entity> getFallingBlocksOnSide(AxisAlignedBB bb, EnumDirection dir)
     {
-        /** AxisAlignedBB:
-         *  a/d = min/max x
-         *  b/e = min/max y
-         *  c/f = min/max z
-        **/
+        /**
+         * AxisAlignedBB: a/d = min/max x, b/e = min/max y, c/f = min/max z.
+         **/
         double minX = bb.minX;
         double minY = bb.minY;
         double minZ = bb.minZ;
         double maxX = bb.maxX;
         double maxY = bb.maxY;
         double maxZ = bb.maxZ;
-        switch(dir)
+        switch (dir)
         {
         case DOWN:
             minY -= 1;
@@ -116,8 +123,8 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
         }
 
         AxisAlignedBB newBB = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
-        List<Entity> list   = world.getEntities(this, newBB);
-        List<Entity> ret    = Lists.newArrayList();
+        List<Entity> list = world.getEntities(this, newBB);
+        List<Entity> ret = Lists.newArrayList();
         if (!list.isEmpty())
         {
             Iterator<Entity> iterator = list.iterator();
@@ -161,15 +168,20 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
                 blockposition = new BlockPosition(this);
                 boolean isConcretePowder = this.block.getBlock() instanceof BlockConcretePowder;
                 // TODO: Look into this. Is this really needed? Might it interfere??
-                boolean flag1 = isConcretePowder && world.getFluid(blockposition).a(TagsFluid.WATER); // Concrete in powder?
+                boolean flag1 = isConcretePowder && world.getFluid(blockposition).a(TagsFluid.WATER); // Concrete in
+                                                                                                      // powder?
                 Vec3D mot = getMot();
                 double d0 = mot.x * mot.x + mot.y * mot.y + mot.z * mot.z;
 
                 if (isConcretePowder && d0 > 1.0D)
                 {
-                    MovingObjectPositionBlock movingobjectpositionblock = world.rayTrace(new RayTrace(new Vec3D(lastX, lastY, lastZ), new Vec3D(locX, locY, locZ), RayTrace.BlockCollisionOption.COLLIDER, RayTrace.FluidCollisionOption.SOURCE_ONLY, this));
+                    MovingObjectPositionBlock movingobjectpositionblock = world
+                        .rayTrace(new RayTrace(new Vec3D(lastX, lastY, lastZ), new Vec3D(locX, locY, locZ),
+                                               RayTrace.BlockCollisionOption.COLLIDER,
+                                               RayTrace.FluidCollisionOption.SOURCE_ONLY, this));
 
-                    if (movingobjectpositionblock.getType() != MovingObjectPosition.EnumMovingObjectType.MISS && world.getFluid(movingobjectpositionblock.getBlockPosition()).a(TagsFluid.WATER))
+                    if (movingobjectpositionblock.getType() != MovingObjectPosition.EnumMovingObjectType.MISS &&
+                        world.getFluid(movingobjectpositionblock.getBlockPosition()).a(TagsFluid.WATER))
                     {
                         blockposition = movingobjectpositionblock.getBlockPosition();
                         flag1 = true;
@@ -179,9 +191,11 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
                 if (!onGround && !flag1)
                 {
 //                    if (this.ticksLived > 100 && !this.world.isClientSide && (blockposition.getY() < 1 || blockposition.getY() > 256) || this.ticksLived > 600)
-                    // PIM: Changed to make them live longer (12k ticks instead of 600 -> 10min instead of .5min).
-                    if (ticksLived > 100 && !world.isClientSide && (blockposition.getY() < 1 || blockposition.getY() > 256) || ticksLived > 12000)
-                        //                        if (this.dropItem && this.world.getGameRules().getBoolean("doEntityDrops"))
+                    // PIM: Changed to make them live longer (12k ticks instead of 600 -> 10min
+                    // instead of .5min).
+                    if (ticksLived > 100 && !world.isClientSide &&
+                        (blockposition.getY() < 1 || blockposition.getY() > 256) || ticksLived > 12000)
+                        // if (this.dropItem && this.world.getGameRules().getBoolean("doEntityDrops"))
 //                            this.a((IMaterial) block);
                         die();
                 }
@@ -337,7 +351,6 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
 //                }
 //            }
 //        }
-
 
 //        {
 //        AxisAlignedBB Oldbb = this.getBoundingBox();

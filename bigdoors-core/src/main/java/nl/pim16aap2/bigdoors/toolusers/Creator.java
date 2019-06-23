@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 /**
  * Represents a ToolUser that creates new doors.
@@ -26,7 +25,6 @@ public abstract class Creator extends ToolUser
     protected MyBlockFace engineSide = null;
     protected boolean isOpen = false;
     protected Location one, two, engine;
-    protected RotateDirection openDir = null;
 
     protected Creator(BigDoors plugin, Player player, String doorName, DoorType type)
     {
@@ -51,17 +49,9 @@ public abstract class Creator extends ToolUser
         return new Location(world, engine.getBlockX(), engine.getBlockY() - 1, engine.getBlockZ());
     }
 
-    /**
-     * Set the openDirection of the door.
-     * @deprecated This should use {@link nl.pim16aap2.bigdoors.doors.DoorBase#setDefaultOpenDirection()}.
-     */
-    @Deprecated
-    protected abstract void setOpenDirection();
-
     // Final cleanup and door creation.
     protected void finishUp(String message)
     {
-        setOpenDirection();
         if (isReadyToCreateDoor() && !aborting)
         {
             World world     = one.getWorld();

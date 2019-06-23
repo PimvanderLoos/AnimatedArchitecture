@@ -13,6 +13,12 @@ import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
 
+/**
+ * V1_14_R1 implementation of {@link CustomCraftFallingBlock_Vall}.
+ *
+ * @author Pim
+ * @see CustomCraftFallingBlock_Vall
+ */
 public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements FallingBlock, CustomCraftFallingBlock_Vall
 {
     public CustomCraftFallingBlock_V1_14_R1(Server server, CustomEntityFallingBlock_V1_14_R1 entity)
@@ -47,6 +53,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
     }
 
     @Override
+    @Deprecated
     public Material getMaterial()
     {
         return CraftMagicNumbers.getMaterial(this.getHandle().getBlock()).getItemType();
@@ -97,10 +104,25 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @deprecated Not currently implemented.
+     */
+    @Deprecated
     @Override
-    public void setHeadPose(EulerAngle pose) {}
+    public void setHeadPose(EulerAngle pose)
+    {
+    }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @deprecated Not currently implemented.
+     */
+    @Deprecated
     @Override
-    public void setBodyPose(EulerAngle eulerAngle) {}
+    public void setBodyPose(EulerAngle eulerAngle)
+    {
+    }
 }
-

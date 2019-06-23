@@ -13,6 +13,12 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
+/**
+ * Compatibility hook for version 6 of WorldGuard.
+ *
+ * @see ProtectionCompat
+ * @author Pim
+ */
 class WorldGuard6ProtectionCompat implements ProtectionCompat
 {
     private final BigDoors plugin;

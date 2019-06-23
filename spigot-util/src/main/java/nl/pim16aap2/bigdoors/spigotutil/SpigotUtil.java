@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
-import java.security.SecureRandom;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -16,7 +16,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.Util;
 
+/**
+ * Represents various small and Spigot-specific utility functions.
+ *
+ * @author Pim
+ */
 public final class SpigotUtil
 {
     /**
@@ -56,9 +62,11 @@ public final class SpigotUtil
     }
 
     /**
-     * Get the {@link nl.pim16aap2.bigdoors.util.MyBlockFace} parallel to the given {@link org.bukkit.block.BlockFace}.
+     * Get the {@link nl.pim16aap2.bigdoors.util.MyBlockFace} parallel to the given
+     * {@link org.bukkit.block.BlockFace}.
      *
-     * @param mbf {@link nl.pim16aap2.bigdoors.util.MyBlockFace} that will be converted.
+     * @param mbf {@link nl.pim16aap2.bigdoors.util.MyBlockFace} that will be
+     *            converted.
      * @return The parallel {@link org.bukkit.block.BlockFace}.
      */
     public static BlockFace getBukkitFace(MyBlockFace mbf)
@@ -67,7 +75,8 @@ public final class SpigotUtil
     }
 
     /**
-     * Get the {@link org.bukkit.block.BlockFace} parallel to the given {@link nl.pim16aap2.bigdoors.util.MyBlockFace}.
+     * Get the {@link org.bukkit.block.BlockFace} parallel to the given
+     * {@link nl.pim16aap2.bigdoors.util.MyBlockFace}.
      *
      * @param bf {@link org.bukkit.block.BlockFace} that will be converted.
      * @return The parallel {@link nl.pim16aap2.bigdoors.util.MyBlockFace}.
@@ -78,6 +87,7 @@ public final class SpigotUtil
     }
 
     public static boolean printDebugMessages = false;
+
     /**
      * Broadcast a message if debugging is enabled in the config.
      *

@@ -18,6 +18,12 @@ import com.github.intellectualsites.plotsquared.plot.object.PlotBlock;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
+/**
+ * Compatibility hook for the new version of PlotSquared.
+ *
+ * @see ProtectionCompat
+ * @author Pim
+ */
 public class PlotSquaredNewProtectionCompat implements ProtectionCompat
 {
     private final BigDoors plugin;

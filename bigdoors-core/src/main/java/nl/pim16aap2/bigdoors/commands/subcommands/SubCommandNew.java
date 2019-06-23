@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.commands.subcommands;
 
 import javax.annotation.Nullable;
 
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,6 +15,7 @@ import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.*;
+import nl.pim16aap2.bigdoors.util.Util;
 
 public class SubCommandNew extends SubCommand
 {

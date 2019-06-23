@@ -3,6 +3,11 @@ package nl.pim16aap2.bigdoors.util;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents all directions a door can rotate in.
+ *
+ * @author Pim
+ */
 public enum RotateDirection
 {
     NONE             (0, "GUI.Direction.Any"),
@@ -19,7 +24,7 @@ public enum RotateDirection
     private String nameKey;
     private static Map<Integer, RotateDirection> map = new HashMap<>();
 
-    private RotateDirection(int val, String nameKey)
+    RotateDirection(int val, String nameKey)
     {
         this.val = val;
         this.nameKey = nameKey;
@@ -46,6 +51,14 @@ public enum RotateDirection
             map.put(dir.val, dir);
     }
 
+    /**
+     * Get the {@link RotateDirection} that's the exact opposite of the provided one.
+     * For example, the opposite side of {@link RotateDirection#UP} is
+     * {@link RotateDirection#DOWN}.
+     *
+     * @param dir The current {@link RotateDirection}
+     * @return The opposite direction of the current {@link RotateDirection}.
+     */
     public static RotateDirection getOpposite(RotateDirection dir)
     {
         switch (dir)

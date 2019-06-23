@@ -255,6 +255,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Test new chunkInRange methods. Especially sliding door.
 // TODO: Make sure that new lines in the messages work (check SpigotUtil::stringFromArray).
 // TODO: Fix no permission to set AutoCloseTime from GUI.
+// TODO: Check if TimedCache#containsValue() works properly.
 
 /*
  * Unit tests

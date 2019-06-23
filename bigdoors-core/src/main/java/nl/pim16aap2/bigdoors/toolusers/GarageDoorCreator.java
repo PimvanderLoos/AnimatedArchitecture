@@ -5,10 +5,6 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Vector3D;
 
 /**
  * This class represents players in the process of creating doors. Objects of
@@ -26,34 +22,6 @@ public class GarageDoorCreator extends BigDoorCreator
     {
         super(plugin, player, name, "GARAGEDOOR");
         type = DoorType.GARAGEDOOR;
-    }
-
-    @Override
-    protected void setOpenDirection()
-    {
-        int xDepth = Math.abs(one.getBlockX() - two.getBlockX());
-        int yDepth = Math.abs(one.getBlockY() - two.getBlockY());
-
-        // If the height is 1 or more, it means the garage door is currently standing upright (closed).
-        if (yDepth > 0)
-        {
-            if (xDepth > 0)
-                openDir = RotateDirection.NORTH;
-            else
-                openDir = RotateDirection.EAST;
-        }
-        // This part isn't yet allowed by isPosTwoValid and updateEngineLoc, but it might be later on.
-        else
-        {
-            int dX = engine.getBlockX() - one.getBlockX();
-            int dZ = engine.getBlockZ() - one.getBlockZ();
-
-            Vector3D dir = new Vector3D(dX < 0 ? -1 : dX > 0 ? 1 : 0, 0, dZ < 0 ? -1 : dZ > 0 ? 1 : 0);
-            SpigotUtil.broadcastMessage("GarageDoorCreator: Found dir: " + dir.toString());
-
-            MyBlockFace mbf = MyBlockFace.faceFromDir(new Vector3D(dX < 0 ? -1 : dX > 0 ? 1 : 0, 0, dZ < 0 ? -1 : dZ > 0 ? 1 : 0));
-            openDir = RotateDirection.valueOf(mbf.toString());
-        }
     }
 
     // TODO: When an "open" garage door (i.e. flat against the ceiling) is created,

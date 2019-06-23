@@ -8,9 +8,17 @@ import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigdoors.api.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
 
+/**
+ * V1_14_R1 implementation of {@link FallingBlockFactory_Vall}.
+ *
+ * @author Pim
+ * @see FallingBlockFactory_Vall
+ */
 public class FallingBlockFactory_V1_14_R1 implements FallingBlockFactory_Vall
 {
-    // Make a falling block.
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, NMSBlock_Vall block)
     {
@@ -22,6 +30,9 @@ public class FallingBlockFactory_V1_14_R1 implements FallingBlockFactory_Vall
         return ret;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public NMSBlock_Vall nmsBlockFactory(World world, int x, int y, int z)
     {

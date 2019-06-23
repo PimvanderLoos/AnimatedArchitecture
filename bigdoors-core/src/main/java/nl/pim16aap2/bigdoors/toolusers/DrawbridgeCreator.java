@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -9,6 +8,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.Util;
 
 /*
  * This class represents players in the process of creating doors.
@@ -273,12 +273,5 @@ public class DrawbridgeCreator extends Creator
         }
         else
             setIsDone(true);
-    }
-
-    @Override
-    protected void setOpenDirection()
-    {
-        // TODO Auto-generated method stub
-
     }
 }

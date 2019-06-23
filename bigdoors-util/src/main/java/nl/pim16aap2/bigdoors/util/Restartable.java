@@ -1,9 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 /**
- * Represents an object with special behavior on plugin restart.
- *
- * @author Pim
+ * {@inheritDoc}
  */
 public abstract class Restartable implements IRestartable
 {

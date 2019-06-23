@@ -14,6 +14,14 @@ public class DoorOwner
     private int permission;
     private String playerName;
 
+    /**
+     * Constructor of {@link DoorOwner}.
+     * 
+     * @param doorUID    The UID of the DoorBase.
+     * @param playerUUID The UUID of the player that owns the given door.
+     * @param playerName The name of the player that owns the given door.
+     * @param permission The permission level at which the player owns the door.
+     */
     public DoorOwner(long doorUID, UUID playerUUID, String playerName, int permission)
     {
         this.doorUID = doorUID;

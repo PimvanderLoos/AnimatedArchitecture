@@ -1,5 +1,10 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
+/**
+ * Represent the possible outcomes of trying to open a door.
+ *
+ * @author Pim
+ */
 public enum DoorOpenResult
 {
     SUCCESS       (""),
@@ -14,11 +19,16 @@ public enum DoorOpenResult
 
     private String message;
 
-    private DoorOpenResult(String message)
+    DoorOpenResult(String message)
     {
         this.message = message;
     }
 
+    /**
+     * Get the Key for the translation of this {@link DoorOpenResult}.
+     * @param result The {@link DoorOpenResult}.
+     * @return The Key for the translation of this {@link DoorOpenResult}.
+     */
     public static String getMessage(DoorOpenResult result)
     {
         return result.message;

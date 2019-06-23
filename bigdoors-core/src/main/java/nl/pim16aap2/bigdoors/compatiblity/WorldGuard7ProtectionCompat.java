@@ -15,6 +15,12 @@ import com.sk89q.worldguard.protection.regions.RegionQuery;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
+/**
+ * Compatibility hook for version 7 of WorldGuard.
+ *
+ * @see ProtectionCompat
+ * @author Pim
+ */
 class WorldGuard7ProtectionCompat implements ProtectionCompat
 {
     @SuppressWarnings("unused")

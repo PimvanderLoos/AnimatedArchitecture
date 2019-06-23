@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public class ElevatorCreator extends Creator
 {
@@ -19,7 +18,6 @@ public class ElevatorCreator extends Creator
             SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
         else
             triggerGiveTool();
-        openDir = RotateDirection.UP;
     }
 
     @Override
@@ -80,12 +78,5 @@ public class ElevatorCreator extends Creator
             setEngine();
             setIsDone(true);
         }
-    }
-
-    @Override
-    protected void setOpenDirection()
-    {
-        // TODO Auto-generated method stub
-
     }
 }

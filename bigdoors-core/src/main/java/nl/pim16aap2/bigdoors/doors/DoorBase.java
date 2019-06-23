@@ -71,15 +71,15 @@ public abstract class DoorBase
     }
 
     /**
-     * Calculate the {@link MyBlockFace} of the side the
-     * door is on relative to its engine.
+     * Calculate the {@link MyBlockFace} of the side the door is on relative to its
+     * engine.
      * <p>
      * When taking a {@link nl.pim16aap2.bigdoors.doors.BigDoor} as an example, it
      * would return NORTH if the door was positioned along the x-axis (North /
      * South) and the engine was on the south-most point of the door.
      *
-     * @return The {@link MyBlockFace} of the side the
-     *         door is on relative to its engine.
+     * @return The {@link MyBlockFace} of the side the door is on relative to its
+     *         engine.
      */
     public abstract MyBlockFace calculateCurrentDirection();
 
@@ -94,8 +94,8 @@ public abstract class DoorBase
 
     /**
      * Find out the default open direction for the current setup and use
-     * {@link #setOpenDir(RotateDirection)} to set the open direction to the default one. Useful
-     * when trying to open a door before an open direction was set.
+     * {@link #setOpenDir(RotateDirection)} to set the open direction to the default
+     * one. Useful when trying to open a door before an open direction was set.
      * <p>
      * There is no universal default because the default depends on the type and
      * current orientation of the door.
@@ -110,8 +110,7 @@ public abstract class DoorBase
      * Get the new min and max values of the door and the new engine side when
      * opened according to the specified variables.
      *
-     * @param openDirection   The {@link MyBlockFace} the
-     *                        door will open in.
+     * @param openDirection   The {@link MyBlockFace} the door will open in.
      * @param rotateDirection The {@link nl.pim16aap2.bigdoors.util.RotateDirection}
      *                        the door will rotate in.
      * @param newMin          The new minimum location (mutable) of the door. x,y,z
@@ -121,9 +120,9 @@ public abstract class DoorBase
      * @param blocksMoved     The number of blocks the door actually moved. Note
      *                        that this differs from the suggested number of blocks
      *                        to move!
-     * @param newEngineSide   The new {@link MyBlockFace}
-     *                        describing the side the engine would be on if opened
-     *                        according to the provided variables. Using
+     * @param newEngineSide   The new {@link MyBlockFace} describing the side the
+     *                        engine would be on if opened according to the provided
+     *                        variables. Using
      *                        {@link nl.pim16aap2.bigdoors.util.Mutable} to make it
      *                        mutable.
      */
@@ -568,8 +567,7 @@ public abstract class DoorBase
     /**
      * Change the engineSide of this door.
      *
-     * @param newEngineSide The new {@link MyBlockFace}
-     *                   engine side of this door
+     * @param newEngineSide The new {@link MyBlockFace} engine side of this door
      */
     public void setEngineSide(MyBlockFace newEngineSide)
     {
@@ -693,10 +691,10 @@ public abstract class DoorBase
         StringBuilder builder = new StringBuilder();
         builder.append(doorUID + ": " + name + "\n");
         builder.append("Type: " + doorType.toString() + ". Permission: " + getPermission() + "\n");
-        builder.append("Min: " + SpigotUtil.locIntToString(min) + ", Max: " + SpigotUtil.locIntToString(max) + ", Engine: "
-            + SpigotUtil.locIntToString(engine) + "\n");
-        builder.append("PowerBlock location: " + SpigotUtil.locIntToString(powerBlock) + ". Hash: " + getPowerBlockChunkHash()
-            + "\n");
+        builder.append("Min: " + SpigotUtil.locIntToString(min) + ", Max: " + SpigotUtil.locIntToString(max)
+            + ", Engine: " + SpigotUtil.locIntToString(engine) + "\n");
+        builder.append("PowerBlock location: " + SpigotUtil.locIntToString(powerBlock) + ". Hash: "
+            + getPowerBlockChunkHash() + "\n");
         builder.append("This door is " + (isLocked ? "" : "NOT ") + "locked. ");
         builder.append("This door is " + (isOpen ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: " + openDir.toString() + "; Current Dir: " + getCurrentDirection() + "\n");

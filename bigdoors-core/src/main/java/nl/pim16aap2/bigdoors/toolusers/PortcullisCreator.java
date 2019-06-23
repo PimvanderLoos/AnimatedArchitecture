@@ -98,11 +98,4 @@ public class PortcullisCreator extends Creator
             setIsDone(true);
         }
     }
-
-    @Override
-    protected void setOpenDirection()
-    {
-        // TODO Auto-generated method stub
-
-    }
 }

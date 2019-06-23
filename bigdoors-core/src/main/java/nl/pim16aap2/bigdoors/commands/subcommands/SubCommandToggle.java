@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,7 +18,7 @@ import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.Util;
 
 public class SubCommandToggle extends SubCommand
 {

@@ -1,5 +1,10 @@
 package nl.pim16aap2.bigdoors.util;
 
+/**
+ * Represents an Integer vector or vertex in 2D space.
+ * 
+ * @autor Pim
+ */
 public final class Vector2D implements Cloneable
 {
     private int x, y;

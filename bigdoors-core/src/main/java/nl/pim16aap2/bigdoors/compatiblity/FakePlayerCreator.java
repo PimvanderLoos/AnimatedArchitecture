@@ -15,11 +15,10 @@ import com.mojang.authlib.GameProfile;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 
-/* This class is used to create a fake online player
- * from a provided offline player in a provided world.
- * This can be used when trying to use an offline player in
- * some kind of event that uses an online player.
- * (e.g. blockbreakevent).
+/**
+ * Class used to create a fake-online player who is actually offline.
+ *
+ * @author Pim
  */
 class FakePlayerCreator
 {
@@ -61,7 +60,8 @@ class FakePlayerCreator
         this.plugin = plugin;
 
         NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-        CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
+        CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
+            + ".";
         try
         {
             CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
@@ -70,7 +70,8 @@ class FakePlayerCreator
             EntityPlayer = getNMSClass("EntityPlayer");
             MinecraftServer = getNMSClass("MinecraftServer");
             PlayerInteractManager = getNMSClass("PlayerInteractManager");
-            EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class, PlayerInteractManager);
+            EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class,
+                                                                  PlayerInteractManager);
             getBukkitEntity = EntityPlayer.getMethod("getBukkitEntity");
             getHandle = CraftWorld.getMethod("getHandle");
             getProfile = CraftOfflinePlayer.getMethod("getProfile");
@@ -96,6 +97,14 @@ class FakePlayerCreator
         success = true;
     }
 
+    /**
+     * Construct a fake-online {@link Player} from an {@link OfflinePlayer}.
+     * 
+     * @param oPlayer The {@link OfflinePlayer} to use as base for the fake online
+     *                {@link Player}.
+     * @param world   The world the fake {@link Player} is supposedly in.
+     * @return The fake-online {@link Player}
+     */
     public Player getFakePlayer(OfflinePlayer oPlayer, World world)
     {
         if (!success || oPlayer == null || world == null)
@@ -113,7 +122,8 @@ class FakePlayerCreator
             Object minecraftServer = getServer.invoke(worldServer);
             Object playerInteractManager = PlayerInteractManagerConstructor.newInstance(worldServer);
 
-            Object ePlayer = EntityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile, playerInteractManager);
+            Object ePlayer = EntityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile,
+                                                                 playerInteractManager);
             uuid.set(ePlayer, oPlayer.getUniqueId());
             player = (Player) getBukkitEntity.invoke(ePlayer);
         }
