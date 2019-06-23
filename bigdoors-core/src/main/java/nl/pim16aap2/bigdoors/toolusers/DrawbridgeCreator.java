@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -58,8 +59,8 @@ public class DrawbridgeCreator extends Creator
                          loc.getBlockZ() == one.getBlockZ() ||
                          loc.getBlockZ() == two.getBlockZ();
 
-        boolean inArea = SpigotUtil.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
-                         SpigotUtil.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
+        boolean inArea = Util.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
+                         Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
 
         if (!onEdge || !inArea || (engine != null && loc.equals(engine)))
             return false;

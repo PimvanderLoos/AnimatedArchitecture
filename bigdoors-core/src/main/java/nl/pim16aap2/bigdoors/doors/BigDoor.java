@@ -50,11 +50,8 @@ public class BigDoor extends DoorBase
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated BigDoor shouldn't use ClockWise and CounterClockwise.
      */
     @Override
-    @Deprecated
     public void setDefaultOpenDirection()
     {
         openDir = RotateDirection.CLOCKWISE;

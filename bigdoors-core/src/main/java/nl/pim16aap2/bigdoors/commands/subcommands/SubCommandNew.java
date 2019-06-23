@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.commands.subcommands;
 
 import javax.annotation.Nullable;
 
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -66,7 +67,7 @@ public class SubCommandNew extends SubCommand
             return;
         }
 
-        if (name != null && !SpigotUtil.isValidDoorName(name))
+        if (name != null && !Util.isValidDoorName(name))
         {
             SpigotUtil.messagePlayer(player, ChatColor.RED,
                                "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -74,7 +75,7 @@ public class SubCommandToggle extends SubCommand
     {
         String lastStr = args[args.length - 1];
         // Last argument sets speed if it's a double.
-        double time = SpigotUtil.longFromString(lastStr, -1L) == -1L ? SpigotUtil.doubleFromString(lastStr, 0.0D) : 0.0D;
+        double time = Util.longFromString(lastStr, -1L) == -1L ? Util.doubleFromString(lastStr, 0.0D) : 0.0D;
         int index = args.length;
         // If the time variable was specified, decrement endIDX by 1, as the last
         // argument is not a door!

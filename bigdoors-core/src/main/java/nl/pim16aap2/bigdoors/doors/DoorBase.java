@@ -141,8 +141,8 @@ public abstract class DoorBase
     public final boolean chunkInRange(Chunk chunk)
     {
         verifyChunkRange();
-        return SpigotUtil.between(chunk.getX(), minChunkCoords.getX(), maxChunkCoords.getX()) &&
-               SpigotUtil.between(chunk.getZ(), minChunkCoords.getY(), maxChunkCoords.getY());
+        return Util.between(chunk.getX(), minChunkCoords.getX(), maxChunkCoords.getX()) &&
+               Util.between(chunk.getZ(), minChunkCoords.getY(), maxChunkCoords.getY());
         // It's a Vector2D, so there's no z. Instead of Z, use the second value (Y).
     }
 

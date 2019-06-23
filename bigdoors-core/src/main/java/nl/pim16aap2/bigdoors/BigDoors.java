@@ -194,15 +194,12 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 /*
  * Openers / Movers
  */
-// TODO: When a door isn't set to open in a specific direction and therefore naively tries to find the first possible
-//       free location, automatically set the openDirection for this door. HOWEVER, this value must be reset when it is
-//       closed again, but ONLY if it used to be unset. So instead of storing value, add flag for un/intentionally set.
 // TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick. Then set the direction
 //       in the creator.
-// TODO: Remove NONE openDirection. Replace all of those in the database by the correct one.
+// TODO: Remove NONE openDirection. Update all doors that currently have this property in the database using DoorBase#setDefaultOpenDirection()
 // TODO: Rotate Sea Pickle and turtle egg.
 // TODO: Replace current time/speed/tickRate system. It's a mess.
-// TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away. Should be a method of fabf.
+// TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
 // TODO: Consider using HashSet for blocks. It's faster: https://stackoverflow.com/questions/10196343/hash-set-and-array-list-performances
 // TODO: Do second pass (possibly remove first pass) after placing all blocks to make sure that all connected blocks are actually connected.
 //       Currently, connected blocks will only be connected to blocks that have already been processed.
@@ -237,7 +234,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       from BlockMover. Then let BlockMover extend Restartable and/or abortable, so that the it can cancel all movers etc on restart, so this code doesn't have to be part
 //       of the runnable anymore. Much cleaner.
 // TODO: Drawbridge: Do not use Clockwise / CounterClockwise. Use cardinal directions instead (as seen from up-position).
-// TODO: BigDoor: Do not use Clockwise / CounterClockwise here either. This one should also use cardinal directions.
 // TODO: Make setDefaultOpenDirection() smarter by checking which side is actually available.
 // TODO: Movers: updateCoords should be final and use the DoorBase::getNewLocations method to get the new min/max.
 // TODO: GarageDoor: The pivot point offset (where it starts pivoting), should depend on the radius. The higher the radius of the block compared

@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
 
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -1705,7 +1706,7 @@ public class SQLiteJDBCDriverConnection
                 // First, find a name that does not exist in the database already.
                 // Do this by generating random strings and checking if it exists until
                 // We encounter one that doesn't.
-                String fakeName = SpigotUtil.randomInsecureString(12);
+                String fakeName = Util.randomInsecureString(12);
                 boolean exists = true;
                 while (exists)
                 {
@@ -1716,7 +1717,7 @@ public class SQLiteJDBCDriverConnection
                     ps.close();
                     rs.close();
                     if (exists)
-                        fakeName = SpigotUtil.randomInsecureString(12);
+                        fakeName = Util.randomInsecureString(12);
                 }
                 plugin.getMyLogger().warn("UpgradeToV5: Using fakeName = " + fakeName);
 
