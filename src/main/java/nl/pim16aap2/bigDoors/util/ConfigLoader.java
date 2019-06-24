@@ -42,6 +42,7 @@ public class ConfigLoader
     private HashSet<Material> powerBlockTypesMap;
 
     private boolean worldGuardHook;
+    private boolean griefPreventionHook;
     private boolean checkForUpdates;
     private boolean plotSquaredHook;
     private int headCacheTimeout;
@@ -151,6 +152,9 @@ public class ConfigLoader
 
         plotSquaredHook = config.getBoolean("plotSquared", true);
         configOptionsList.add(new ConfigOption("plotSquared", plotSquaredHook, null));
+
+        griefPreventionHook = config.getBoolean("griefPrevention", true);
+        configOptionsList.add(new ConfigOption("griefPrevention", griefPreventionHook, null));
 
         maxDoorSize = config.getInt("maxDoorSize", -1);
         configOptionsList.add(new ConfigOption("maxDoorSize", maxDoorSize, maxDoorSizeComment));
@@ -400,11 +404,6 @@ public class ConfigLoader
         return enableRedstone;
     }
 
-//    public String powerBlockType()
-//    {
-//        return powerBlockType;
-//    }
-
     public HashSet<Material> getPowerBlockTypes()
     {
         return powerBlockTypesMap;
@@ -413,6 +412,11 @@ public class ConfigLoader
     public boolean worldGuardHook()
     {
         return worldGuardHook;
+    }
+
+    public boolean griefPreventionHook()
+    {
+        return griefPreventionHook;
     }
 
     public boolean checkForUpdates()

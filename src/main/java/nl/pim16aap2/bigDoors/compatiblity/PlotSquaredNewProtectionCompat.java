@@ -18,11 +18,19 @@ import com.github.intellectualsites.plotsquared.plot.object.PlotBlock;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 
-public class PlotSquaredNewProtectionCompat implements ProtectionCompat
+/**
+ * Compatibility hook for the new version of PlotSquared.
+ *
+ * @see IProtectionCompat
+ * @author Pim
+ */
+public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 {
     private final BigDoors plugin;
     private boolean success = false;
     private final JavaPlugin plotSquaredPlugin;
+    @SuppressWarnings("unused")
+    private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
 
     public PlotSquaredNewProtectionCompat(BigDoors plugin)
     {
@@ -149,6 +157,5 @@ public class PlotSquaredNewProtectionCompat implements ProtectionCompat
         return getPlugin().getName();
     }
 }
-
 
 

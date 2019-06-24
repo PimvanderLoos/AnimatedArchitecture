@@ -1,26 +1,27 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+import com.mojang.authlib.GameProfile;
+import nl.pim16aap2.bigDoors.BigDoors;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 
-import com.mojang.authlib.GameProfile;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import nl.pim16aap2.bigDoors.BigDoors;
-
-/* This class is used to create a fake online player
- * from a provided online player in a provided world.
+/**
+ * Class used to create a fake-online player who is actually offline.
+ *
+ * @author Pim
  */
 public class FakePlayerCreator
 {
     public static final String FAKEPLAYERMETADATA = "isBigDoorsFakePlayer";
+
     private final String NMSbase;
     private final String CraftBase;
     private Class<?> CraftOfflinePlayer;
@@ -38,6 +39,8 @@ public class FakePlayerCreator
     private Constructor<?> PlayerInteractManagerConstructor;
     private Field uuid;
 
+    private final BigDoors plugin;
+
     private boolean success = false;
 
     private Class<?> getNMSClass(String name) throws ClassNotFoundException
@@ -50,14 +53,13 @@ public class FakePlayerCreator
         return Class.forName(CraftBase + name);
     }
 
-    private final BigDoors plugin;
-
     public FakePlayerCreator(final BigDoors plugin)
     {
         this.plugin = plugin;
 
         NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-        CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
+        CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
+            + ".";
         try
         {
             CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
@@ -66,7 +68,8 @@ public class FakePlayerCreator
             EntityPlayer = getNMSClass("EntityPlayer");
             MinecraftServer = getNMSClass("MinecraftServer");
             PlayerInteractManager = getNMSClass("PlayerInteractManager");
-            EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class, PlayerInteractManager);
+            EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class,
+                                                                  PlayerInteractManager);
             getBukkitEntity = EntityPlayer.getMethod("getBukkitEntity");
             getHandle = CraftWorld.getMethod("getHandle");
             getProfile = CraftOfflinePlayer.getMethod("getProfile");
@@ -92,6 +95,14 @@ public class FakePlayerCreator
         success = true;
     }
 
+    /**
+     * Construct a fake-online {@link Player} from an {@link OfflinePlayer}.
+     *
+     * @param oPlayer The {@link OfflinePlayer} to use as base for the fake online
+     *                {@link Player}.
+     * @param world   The world the fake {@link Player} is supposedly in.
+     * @return The fake-online {@link Player}
+     */
     public Player getFakePlayer(OfflinePlayer oPlayer, World world)
     {
         if (!success || oPlayer == null || world == null)
@@ -109,7 +120,8 @@ public class FakePlayerCreator
             Object minecraftServer = getServer.invoke(worldServer);
             Object playerInteractManager = PlayerInteractManagerConstructor.newInstance(worldServer);
 
-            Object ePlayer = EntityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile, playerInteractManager);
+            Object ePlayer = EntityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile,
+                                                                 playerInteractManager);
             uuid.set(ePlayer, oPlayer.getUniqueId());
             player = (Player) getBukkitEntity.invoke(ePlayer);
         }
@@ -117,8 +129,10 @@ public class FakePlayerCreator
         {
             e.printStackTrace();
         }
+
         if (player != null)
             player.setMetadata(FAKEPLAYERMETADATA, new FixedMetadataValue(plugin, true));
+
         return player;
     }
 }

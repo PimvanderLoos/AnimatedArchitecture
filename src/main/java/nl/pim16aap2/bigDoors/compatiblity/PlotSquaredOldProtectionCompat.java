@@ -1,29 +1,32 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import java.util.HashSet;
-
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.google.common.base.Optional;
 import com.intellectualcrafters.plot.api.PlotAPI;
 import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.config.Settings;
 import com.intellectualcrafters.plot.flag.Flags;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotArea;
-import com.intellectualcrafters.plot.object.PlotBlock;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 
-public class PlotSquaredOldProtectionCompat implements ProtectionCompat
+/**
+ * Compatibility hook for the old version of PlotSquared.
+ *
+ * @see IProtectionCompat
+ * @author Pim
+ */
+public class PlotSquaredOldProtectionCompat implements IProtectionCompat
 {
     private final BigDoors plugin;
     private final PlotAPI plotSquared;
     private boolean success = false;
     private final JavaPlugin plotSquaredPlugin;
+    @SuppressWarnings("unused")
+    private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
 
     public PlotSquaredOldProtectionCompat(BigDoors plugin)
     {
@@ -33,6 +36,9 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
         success = plotSquaredPlugin != null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
@@ -45,6 +51,9 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
         return canBreakBlock(player, area, area.getPlot(psLocation), loc);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     private boolean isHeightAllowed(Player player, PlotArea area, int height)
     {
         if (height == 0)
@@ -58,9 +67,11 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     // Check if a given player is allowed to build in a given plot.
     // Adapted from: https://github.com/IntellectualSites/PlotSquared/blob/e4fbc23d08be268d14c8016ef1d928a2fee9b365/Bukkit/src/main/java/com/plotsquared/bukkit/listeners/PlayerEvents.java#L917
-    @SuppressWarnings("deprecation")
     private boolean canBreakBlock(Player player, PlotArea area,
                                   Plot plot, Location loc)
     {
@@ -74,12 +85,6 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
 
             if (!plot.isAdded(player.getUniqueId()))
             {
-                Optional<HashSet<PlotBlock>> destroy = plot.getFlag(Flags.BREAK);
-                Block block = loc.getBlock();
-                // noinspection deprecation
-                if (destroy.isPresent() &&
-                    destroy.get().contains(PlotBlock.get((short) block.getTypeId(), block.getData())))
-                    return true;
                 if (plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_OTHER.s()))
                     return true;
                 return false;
@@ -95,6 +100,9 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
         return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_ROAD.s());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("deprecation")
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
@@ -138,22 +146,30 @@ public class PlotSquaredOldProtectionCompat implements ProtectionCompat
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean success()
     {
         return success;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JavaPlugin getPlugin()
     {
         return plotSquaredPlugin;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName()
     {
         return getPlugin().getName();
     }
 }
-

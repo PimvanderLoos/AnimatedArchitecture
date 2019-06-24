@@ -7,6 +7,10 @@
     <version>0.1.8.10-ALPHA</version>
 
     <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
         <!-- Spigot -->
         <repository>
             <id>spigot-repo</id>
@@ -41,39 +45,39 @@
         </repository>
     </repositories>
 
-    <dependencies> <!-- -->        
+    <dependencies> <!-- -->
         <dependency>
-            <groupId>org.spigotmc</groupId>
+            <groupId>org.spigotmc.old</groupId>
             <artifactId>spigot-1.11</artifactId>
             <version>1.11.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.spigotmc</groupId>
+            <groupId>org.spigotmc.old</groupId>
             <artifactId>spigot-1.12</artifactId>
             <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.spigotmc</groupId>
+            <groupId>org.spigotmc.old</groupId>
             <artifactId>spigot-1.13</artifactId>
             <version>1.13-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.spigotmc</groupId>
+            <groupId>org.spigotmc.old</groupId>
             <artifactId>spigot-1.13.1</artifactId>
             <version>1.13.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.spigotmc</groupId>
+            <groupId>org.spigotmc.old</groupId>
             <artifactId>spigot-1.13.2</artifactId>
             <version>1.13.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency> 
-        <dependency> 
-            <groupId>org.spigotmc</groupId>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc.old</groupId>
             <artifactId>spigot-1.14</artifactId>
             <version>1.14-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
@@ -121,6 +125,20 @@
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
             <scope>provided</scope>
+        </dependency>
+        
+        <!-- GriefPrevention -->
+        <dependency>
+            <groupId>com.github.TechFortress</groupId>
+            <artifactId>GriefPrevention</artifactId>
+            <version>16.7.1</version>
+        </dependency>
+        
+        <!-- JCalculator -->
+        <dependency>
+            <groupId>com.github.PimvanderLoos</groupId>
+            <artifactId>JCalculator</artifactId>
+            <version>test-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

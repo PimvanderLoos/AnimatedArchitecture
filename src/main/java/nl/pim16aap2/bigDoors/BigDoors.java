@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.Vector;
 import java.util.logging.Level;
 
+import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -28,7 +29,6 @@ import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.SkullCreator_V1_13_R2;
 import nl.pim16aap2.bigDoors.NMS.v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_14_R1.SkullCreator_V1_14_R1;
-import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.ChunkUnloadHandler;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
@@ -257,7 +257,7 @@ public class BigDoors extends JavaPlugin implements Listener
         reloadConfig();
 
         onDisable();
-        protCompatMan.reload();
+        protCompatMan.restart();
         playerGUIs.forEach((key,value) -> value.close());
         playerGUIs.clear();
 

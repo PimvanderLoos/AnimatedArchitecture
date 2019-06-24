@@ -1,34 +1,39 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
-
 import nl.pim16aap2.bigDoors.BigDoors;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
-public class WorldGuard7ProtectionCompat implements ProtectionCompat
+/**
+ * Compatibility hook for version 7 of WorldGuard.
+ *
+ * @see IProtectionCompat
+ * @author Pim
+ */
+class WorldGuard7ProtectionCompat implements IProtectionCompat
 {
     @SuppressWarnings("unused")
     private final BigDoors plugin;
     private final WorldGuard worldGuard;
     private final WorldGuardPlugin worldGuardPlugin;
     private boolean success = false;
+    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
 
     public WorldGuard7ProtectionCompat(BigDoors plugin)
     {
         this.plugin = plugin;
         worldGuard = WorldGuard.getInstance();
 
-        Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
+        Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
 
         // WorldGuard may not be loaded
         if (plugin == null || !(wgPlugin instanceof WorldGuardPlugin))
@@ -99,6 +104,6 @@ public class WorldGuard7ProtectionCompat implements ProtectionCompat
     @Override
     public String getName()
     {
-        return getPlugin().getName();
+        return worldGuardPlugin.getName();
     }
 }
