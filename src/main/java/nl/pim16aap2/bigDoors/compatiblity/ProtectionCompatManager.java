@@ -1,7 +1,8 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.util.Util;
+import java.util.ArrayList;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -11,8 +12,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.Util;
 
 /**
  * Class that manages all objects of {@link ProtectionCompat}.
@@ -156,7 +157,7 @@ public class ProtectionCompatManager implements Listener
     private boolean protectionAlreadyLoaded(Class<? extends IProtectionCompat> compatClass)
     {
         for (IProtectionCompat compat : protectionCompats)
-            if (compat.getClass().isInstance(compatClass))
+            if (compat.getClass().equals(compatClass))
                 return true;
         return false;
     }
@@ -176,6 +177,9 @@ public class ProtectionCompatManager implements Listener
         }
         else
             plugin.getMyLogger().info("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
+        StringBuilder sb = new StringBuilder();
+        protectionCompats.forEach(V -> sb.append(V.getName() + " "));
+        System.out.println(sb.toString());
     }
 
     /**
