@@ -36,3 +36,4 @@ hs_err_pid*
 .externalToolBuilders/*
 .project
 .settings/*
+move.xml

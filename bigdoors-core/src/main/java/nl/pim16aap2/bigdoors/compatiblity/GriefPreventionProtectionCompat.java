@@ -1,70 +1,52 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import nl.pim16aap2.bigdoors.BigDoors;
 
 /**
- * Compatibility hook for version 6 of WorldGuard.
+ * Compatibility hook for GriefPrevention.
  *
  * @see IProtectionCompat
  * @author Pim
  */
-class WorldGuard6ProtectionCompat implements IProtectionCompat
+class GriefPreventionProtectionCompat implements IProtectionCompat
 {
     private final BigDoors plugin;
-    private final WorldGuardPlugin worldGuard;
-    private boolean success = false;
-    private Method m;
-    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    private final GriefPrevention griefPrevention;
+    private static final ProtectionCompat compat = ProtectionCompat.GRIEFPREVENTION;
 
-    public WorldGuard6ProtectionCompat(BigDoors plugin)
+    private boolean success = false;
+
+    public GriefPreventionProtectionCompat(BigDoors plugin)
     {
         this.plugin = plugin;
 
-        Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
+        Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
 
         // WorldGuard may not be loaded
-        if (plugin == null || !(wgPlugin instanceof WorldGuardPlugin))
+        if (!(griefPreventionPlugin instanceof GriefPrevention))
         {
-            worldGuard = null;
+            griefPrevention = null;
             return;
         }
-
-        worldGuard = (WorldGuardPlugin) wgPlugin;
-
-        try
-        {
-            m = worldGuard.getClass().getMethod("canBuild", Player.class, Location.class);
-            success = true;
-        }
-        catch (NoSuchMethodException | SecurityException e)
-        {
-            plugin.getMyLogger().logException(e);
-        }
+        griefPrevention = (GriefPrevention) griefPreventionPlugin;
+        success = true;
     }
 
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        try
-        {
-            return (boolean) (m.invoke(worldGuard, player, loc));
-        }
-        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-        {
-            plugin.getMyLogger().logException(e);
-        }
-        return false;
+        Block block = loc.getBlock();
+        BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, player);
+        return griefPrevention.allowBreak(player, block, loc, blockBreakEvent) == null;
     }
 
     @Override
@@ -97,12 +79,12 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     @Override
     public JavaPlugin getPlugin()
     {
-        return worldGuard;
+        return griefPrevention;
     }
 
     @Override
     public String getName()
     {
-        return worldGuard.getName();
+        return griefPrevention.getName();
     }
 }

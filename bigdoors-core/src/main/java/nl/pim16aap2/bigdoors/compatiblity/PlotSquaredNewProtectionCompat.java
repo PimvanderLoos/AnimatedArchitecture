@@ -21,14 +21,15 @@ import nl.pim16aap2.bigdoors.BigDoors;
 /**
  * Compatibility hook for the new version of PlotSquared.
  *
- * @see ProtectionCompat
+ * @see IProtectionCompat
  * @author Pim
  */
-public class PlotSquaredNewProtectionCompat implements ProtectionCompat
+public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 {
     private final BigDoors plugin;
     private boolean success = false;
     private final JavaPlugin plotSquaredPlugin;
+    private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
 
     public PlotSquaredNewProtectionCompat(BigDoors plugin)
     {

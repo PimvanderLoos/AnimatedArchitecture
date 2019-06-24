@@ -1,56 +1,139 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import nl.pim16aap2.bigdoors.config.ConfigLoader;
 
 /**
- * Represents a Compatibility hook.
+ * Enum of all ProtectionCompats that can be loaded and some methods to help
+ * load them.
  *
  * @author Pim
  */
-interface ProtectionCompat
+public enum ProtectionCompat
 {
-    /**
-     * Check if this compatiblity hook allows a player to break blocks at a given
-     * location.
-     * 
-     * @param player The player to check.
-     * @param loc    The location to check.
-     * @return True if the player is allowed to break blocks at the given location.
-     */
-    public boolean canBreakBlock(Player player, Location loc);
+    PLOTSQUARED ("PlotSquared")
+    {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Class<? extends IProtectionCompat> getClass(final String version)
+        {
+            return version.startsWith("4.") ? PlotSquaredNewProtectionCompat.class :
+                PlotSquaredOldProtectionCompat.class;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Function<ConfigLoader, Boolean> isEnabled()
+        {
+            return ConfigLoader::plotSquaredHook;
+        }
+    },
+    WORLDGUARD ("WorldGuard")
+    {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Class<? extends IProtectionCompat> getClass(final String version)
+        {
+            if (version.startsWith("7."))
+                return WorldGuard7ProtectionCompat.class;
+            else if (version.startsWith("6."))
+                return WorldGuard6ProtectionCompat.class;
+            else
+                return null;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Function<ConfigLoader, Boolean> isEnabled()
+        {
+            return ConfigLoader::worldGuardHook;
+        }
+    },
+    GRIEFPREVENTION ("GriefPrevention")
+    {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Class<? extends IProtectionCompat> getClass(final String version)
+        {
+            return GriefPreventionProtectionCompat.class;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Function<ConfigLoader, Boolean> isEnabled()
+        {
+            return ConfigLoader::griefPreventionHook;
+        }
+    },;
+
+    private final String name;
+    private static final Map<String, ProtectionCompat> nameMap = new HashMap<>();
+
+    ProtectionCompat(final String name)
+    {
+        this.name = name;
+    }
 
     /**
-     * Check if this compatiblity hook allows a player to break blocks between two
-     * locations.
+     * Get the function in the config that determines if the compat is enabled in
+     * the config.
      * 
-     * @param player The player to check.
-     * @param loc1   The start location to check.
-     * @param loc2   The end location to check.
-     * @return True if the player is allowed to break all the blocks between (and
-     *         including) the given locations.
+     * @return The function in the config that determines if the compat is enabled
+     *         in the config.
      */
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2);
+    public abstract Function<ConfigLoader, Boolean> isEnabled();
 
     /**
-     * Check if the hook initialized properly.
+     * Get the class of the given hook for a specific version of the plugin to load
+     * the compat for.
      * 
-     * @return True if the hook initialized properly.
+     * @param version The version of the plugin to load the hook for.
+     * @return The {@link IProtectionCompat} class of the compat.
      */
-    public boolean success();
+    public abstract Class<? extends IProtectionCompat> getClass(final String version);
 
     /**
-     * Get the {@link JavaPlugin} that is being hooked into.
+     * Get the name of the plugin the given compat hooks into.
      * 
-     * @return The {@link JavaPlugin} that is being hooked into.
+     * @param compat The compat the get the name of the plugin for.
+     * @return The name of the plugin the given compat hooks into.
      */
-    public JavaPlugin getPlugin();
+    public static String getName(final ProtectionCompat compat)
+    {
+        return compat.name;
+    }
 
     /**
-     * Get the name of the {@link JavaPlugin} that is being hooked into.
+     * Get the compat for a plugin.
      * 
-     * @return The name of the {@link JavaPlugin} that is being hooked into.
+     * @param name The name of the plugin to get the compat for.
+     * @return The compat for a plugin.
      */
-    public String getName();
+    public static ProtectionCompat getFromName(final String name)
+    {
+        if (nameMap.containsKey(name))
+            return nameMap.get(name);
+        return null;
+    }
+
+    static
+    {
+        for (ProtectionCompat compat : ProtectionCompat.values())
+            nameMap.put(ProtectionCompat.getName(compat), compat);
+    }
 }

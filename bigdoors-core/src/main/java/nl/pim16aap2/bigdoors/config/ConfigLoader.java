@@ -41,6 +41,7 @@ public final class ConfigLoader
     private boolean worldGuardHook;
     private boolean checkForUpdates;
     private boolean plotSquaredHook;
+    private boolean griefPreventionHook;
     private int headCacheTimeout;
     private final ArrayList<ConfigOption<?>> configOptionsList;
     public static boolean DEBUG = false;
@@ -129,6 +130,7 @@ public final class ConfigLoader
         allowStats = addNewConfigOption(config, "allowStats", true, allowStatsComment);
         worldGuardHook = addNewConfigOption(config, "worldGuard", true, compatibilityHooks);
         plotSquaredHook = addNewConfigOption(config, "plotSquared", true, null);
+        griefPreventionHook = addNewConfigOption(config, "griefPrevention", true, null);
         resourcePack = addNewConfigOption(config, "resourcePack", plugin.is1_13() ? defResPackUrl1_13 : defResPackUrl,
                                           resourcePackComment);
 
@@ -226,7 +228,7 @@ public final class ConfigLoader
      * Read a new config option from the config if it exists. Otherwise, use the
      * default value.
      *
-     * @param <T>
+     * @param <T>          The type of the option.
      * @param config       The config.
      * @param optionName   The name of the option in the config file.
      * @param defaultValue The default value of the option. To be used if no/invalid
@@ -353,6 +355,11 @@ public final class ConfigLoader
     public boolean worldGuardHook()
     {
         return worldGuardHook;
+    }
+
+    public boolean griefPreventionHook()
+    {
+        return griefPreventionHook;
     }
 
     public boolean checkForUpdates()
