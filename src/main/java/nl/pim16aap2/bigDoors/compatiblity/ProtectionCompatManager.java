@@ -177,9 +177,6 @@ public class ProtectionCompatManager implements Listener
         }
         else
             plugin.getMyLogger().info("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
-        StringBuilder sb = new StringBuilder();
-        protectionCompats.forEach(V -> sb.append(V.getName() + " "));
-        System.out.println(sb.toString());
     }
 
     /**
