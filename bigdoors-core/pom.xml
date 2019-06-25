@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.14.2-R0.1-SNAPSHOT</version>
+            <version>1.14.3-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
             <type>jar</type>
         </dependency>
@@ -106,6 +106,7 @@
             <groupId>com.github.TechFortress</groupId>
             <artifactId>GriefPrevention</artifactId>
             <version>16.7.1</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- JCalculator -->
@@ -116,6 +117,7 @@
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
             <version>test-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
 
 
@@ -124,6 +126,7 @@
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>1.2</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -182,6 +185,13 @@
             <scope>system</scope>
             <version>4.277</version>
             <systemPath>${basedir}/lib/PlotSquared-Bukkit-4.277.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.21</version>
+            <scope>compile</scope>
         </dependency>
 
 <!--        &lt;!&ndash; Breaking PlotSquared &ndash;&gt;-->

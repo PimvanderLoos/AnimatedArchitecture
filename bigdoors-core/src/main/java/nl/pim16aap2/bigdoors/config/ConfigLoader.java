@@ -43,7 +43,7 @@ public final class ConfigLoader
     private boolean plotSquaredHook;
     private boolean griefPreventionHook;
     private int headCacheTimeout;
-    private final ArrayList<ConfigOption<?>> configOptionsList;
+    private final ArrayList<ConfigEntry<?>> configEntries;
     public static boolean DEBUG = false;
     private final BigDoors plugin;
 
@@ -53,7 +53,7 @@ public final class ConfigLoader
     public ConfigLoader(final BigDoors plugin)
     {
         this.plugin = plugin;
-        configOptionsList = new ArrayList<>();
+        configEntries = new ArrayList<>();
         powerBlockTypesMap = new HashSet<>();
         doorPrices = new HashMap<>();
         doorMultipliers = new HashMap<>();
@@ -118,41 +118,41 @@ public final class ConfigLoader
 
         FileConfiguration config = plugin.getConfig();
 
-        enableRedstone = addNewConfigOption(config, "allowRedstone", true, enableRedstoneComment);
+        enableRedstone = addNewConfigEntry(config, "allowRedstone", true, enableRedstoneComment);
         readPowerBlockConfig(config, powerBlockTypeComment);
-        maxDoorCount = addNewConfigOption(config, "maxDoorCount", -1, maxDoorCountComment);
-        maxDoorSize = addNewConfigOption(config, "maxDoorSize", 500, maxDoorSizeComment);
-        languageFile = addNewConfigOption(config, "languageFile", "en_US", languageFileComment);
-        dbFile = addNewConfigOption(config, "dbFile", "doorDB.db", dbFileComment);
-        checkForUpdates = addNewConfigOption(config, "checkForUpdates", true, checkForUpdatesComment);
-        autoDLUpdate = addNewConfigOption(config, "auto-update", true, autoDLUpdateComment);
-        downloadDelay = addNewConfigOption(config, "downloadDelay", 1440, downloadDelayComment);
-        allowStats = addNewConfigOption(config, "allowStats", true, allowStatsComment);
-        worldGuardHook = addNewConfigOption(config, "worldGuard", true, compatibilityHooks);
-        plotSquaredHook = addNewConfigOption(config, "plotSquared", true, null);
-        griefPreventionHook = addNewConfigOption(config, "griefPrevention", true, null);
-        resourcePack = addNewConfigOption(config, "resourcePack", plugin.is1_13() ? defResPackUrl1_13 : defResPackUrl,
-                                          resourcePackComment);
+        maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
+        maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
+        languageFile = addNewConfigEntry(config, "languageFile", "en_US", languageFileComment);
+        dbFile = addNewConfigEntry(config, "dbFile", "doorDB.db", dbFileComment);
+        checkForUpdates = addNewConfigEntry(config, "checkForUpdates", true, checkForUpdatesComment);
+        autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
+        downloadDelay = addNewConfigEntry(config, "downloadDelay", 1440, downloadDelayComment);
+        allowStats = addNewConfigEntry(config, "allowStats", true, allowStatsComment);
+        worldGuardHook = addNewConfigEntry(config, "worldGuard", true, compatibilityHooks);
+        plotSquaredHook = addNewConfigEntry(config, "plotSquared", true, null);
+        griefPreventionHook = addNewConfigEntry(config, "griefPrevention", true, null);
+        resourcePack = addNewConfigEntry(config, "resourcePack", plugin.is1_13() ? defResPackUrl1_13 : defResPackUrl,
+                                         resourcePackComment);
 
-        coolDown = addNewConfigOption(config, "coolDown", 0, coolDownComment);
-        makeBackup = addNewConfigOption(config, "makeBackup", true, backupComment);
-        cacheTimeout = addNewConfigOption(config, "cacheTimeout", 0, cacheTimeoutComment);
+        coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
+        makeBackup = addNewConfigEntry(config, "makeBackup", true, backupComment);
+        cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 0, cacheTimeoutComment);
 
         DoorType[] doorTypes = DoorType.values();
         for (int idx = 0; idx != doorTypes.length; ++idx)
             if (DoorType.isEnabled(doorTypes[idx]))
                 doorMultipliers.put(doorTypes[idx],
-                                    addNewConfigOption(config, "multiplierOf" + DoorType.getCodeName(doorTypes[idx]),
-                                                       0.0D, idx == 0 ? multiplierComment : null));
+                                    addNewConfigEntry(config, "multiplierOf" + DoorType.getCodeName(doorTypes[idx]),
+                                                      0.0D, idx == 0 ? multiplierComment : null));
 
         for (int idx = 0; idx != doorTypes.length; ++idx)
             if (DoorType.isEnabled(doorTypes[idx]))
                 doorPrices.put(doorTypes[idx],
-                               addNewConfigOption(config, "priceOf" + DoorType.getCodeName(doorTypes[idx]), "0",
-                                                  idx == 0 ? pricesComment : null));
+                               addNewConfigEntry(config, "priceOf" + DoorType.getCodeName(doorTypes[idx]), "0",
+                                                 idx == 0 ? pricesComment : null));
 
         // This is a bit special, as it's public static (for SpigotUtil debug messages).
-        ConfigLoader.DEBUG = addNewConfigOption(config, "DEBUG", false, debugComment);
+        ConfigLoader.DEBUG = addNewConfigEntry(config, "DEBUG", false, debugComment);
         if (ConfigLoader.DEBUG)
             SpigotUtil.printDebugMessages = true;
 
@@ -219,7 +219,7 @@ public final class ConfigLoader
             });
         }
 
-        addNewConfigOption(config, "powerBlockTypes", materials, powerBlockTypeComment);
+        addNewConfigEntry(config, "powerBlockTypes", materials, powerBlockTypeComment);
         plugin.getMyLogger().info("Power Block Types:");
         powerBlockTypesMap.forEach(K -> plugin.getMyLogger().info(" - " + K.toString()));
     }
@@ -237,11 +237,11 @@ public final class ConfigLoader
      * @return The value as read from the config file if it exists or the default
      *         value.
      */
-    private <T> T addNewConfigOption(FileConfiguration config, String optionName, T defaultValue,
-                                     @Nullable String[] comment)
+    private <T> T addNewConfigEntry(FileConfiguration config, String optionName, T defaultValue,
+                                    @Nullable String[] comment)
     {
-        ConfigOption<T> option = new ConfigOption<>(plugin, config, optionName, defaultValue, comment);
-        configOptionsList.add(option);
+        ConfigEntry<T> option = new ConfigEntry<>(plugin, config, optionName, defaultValue, comment);
+        configEntries.add(option);
         return option.getValue();
     }
 
@@ -271,11 +271,10 @@ public final class ConfigLoader
             if (header != null)
                 pw.println("# " + header + "\n");
 
-            for (int idx = 0; idx < configOptionsList.size(); ++idx)
-                pw.println(configOptionsList.get(idx).toString() +
+            for (int idx = 0; idx < configEntries.size(); ++idx)
+                pw.println(configEntries.get(idx).toString() +
                 // Only print an additional newLine if the next config option has a comment.
-                    (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? "" :
-                        "\n"));
+                    (idx < configEntries.size() - 1 && configEntries.get(idx + 1).getComment() == null ? "" : "\n"));
 
             pw.flush();
             pw.close();

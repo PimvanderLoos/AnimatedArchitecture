@@ -38,6 +38,12 @@ import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 /*
+ * JCalculator
+ */
+// TODO: Clean that shit up! Everything should be nicely contained in nl.pim16aap2.JCalculator.Classes
+// TODO: Release a proper v1.0 on the master branch and replace the current release.
+
+/*
  * Modules
  */
 // TODO: Use AbstractWorld and AbstractLocation etc for API related stuff.
