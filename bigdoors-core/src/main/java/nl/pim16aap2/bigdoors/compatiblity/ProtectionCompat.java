@@ -30,9 +30,9 @@ public enum ProtectionCompat
          * {@inheritDoc}
          */
         @Override
-        public Function<ConfigLoader, Boolean> isEnabled()
+        public boolean isEnabled(ConfigLoader config)
         {
-            return ConfigLoader::plotSquaredHook;
+            return config.plotSquaredHook();
         }
     },
     WORLDGUARD ("WorldGuard")
@@ -55,9 +55,9 @@ public enum ProtectionCompat
          * {@inheritDoc}
          */
         @Override
-        public Function<ConfigLoader, Boolean> isEnabled()
+        public boolean isEnabled(ConfigLoader config)
         {
-            return ConfigLoader::worldGuardHook;
+            return config.worldGuardHook();
         }
     },
     GRIEFPREVENTION ("GriefPrevention")
@@ -75,9 +75,9 @@ public enum ProtectionCompat
          * {@inheritDoc}
          */
         @Override
-        public Function<ConfigLoader, Boolean> isEnabled()
+        public boolean isEnabled(ConfigLoader config)
         {
-            return ConfigLoader::griefPreventionHook;
+            return config.griefPreventionHook();
         }
     },;
 
@@ -92,11 +92,12 @@ public enum ProtectionCompat
     /**
      * Get the function in the config that determines if the compat is enabled in
      * the config.
-     * 
+     *
+     * @param config The config loader to query for if this compat is enabled.
      * @return The function in the config that determines if the compat is enabled
      *         in the config.
      */
-    public abstract Function<ConfigLoader, Boolean> isEnabled();
+    public abstract boolean isEnabled(ConfigLoader config);
 
     /**
      * Get the class of the given hook for a specific version of the plugin to load

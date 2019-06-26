@@ -38,17 +38,12 @@ import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 /*
- * JCalculator
- */
-// TODO: Clean that shit up! Everything should be nicely contained in nl.pim16aap2.JCalculator.Classes
-// TODO: Release a proper v1.0 on the master branch and replace the current release.
-
-/*
  * Modules
  */
 // TODO: Use AbstractWorld and AbstractLocation etc for API related stuff.
 // TODO: Put Config-related stuff in SpigotUtil and don't use Bukkit stuff for reading it. Just give it a regular file.
 // TODO: Create a way of implementation-specific logging (i.e. MessagePlayer and LogToConsole).
+// TODO: Put isAllowed block and such in appropriate modules.
 
 /*
  * Experimental
@@ -97,6 +92,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Add a system that can check the integrity of the plugin. If something goes wrong during startup, make sure OPs get a message on login.
 //       Tell them to use the command to run the self-check. Then it can say "not the latest version!", "Money formulas set, but Vault not enabled!",
 //       "Enabled PlotSquared support, but failed to initialize it!", "Trying to load on version X, but this version isn't supported!", etc.
+// TODO: Write a scheduler to open doors. It should be able to retrieve door from the database on a secondary thread and also check offline permission on the second thread.
 
 /*
  * General
@@ -139,6 +135,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Do not enable PlotSquared and WorldGuard by default.
 // TODO: Make sure redstone block checking is within bounds.
 // TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
+// TODO: Allow wand material selection in config.
 
 /*
  * GUI

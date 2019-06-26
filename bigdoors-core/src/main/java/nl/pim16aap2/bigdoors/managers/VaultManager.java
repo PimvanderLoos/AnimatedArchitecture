@@ -80,11 +80,9 @@ public class VaultManager extends Restartable
 
     private double evaluateFormula(String formula, final int blockCount)
     {
-        formula = java.util.regex.Pattern.compile("blockCount").matcher(formula).replaceAll(Integer.toString(blockCount));
-
         try
         {
-            return JCalculator.getResult(formula);
+            return JCalculator.getResult(formula, new String[]{"blockCount"}, new double[]{blockCount});
         }
         catch (Exception e)
         {

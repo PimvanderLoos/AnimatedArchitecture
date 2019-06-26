@@ -111,15 +111,11 @@
 
         <!-- JCalculator -->
         <dependency>
-<!--            <groupId>com.github.PimvanderLoos</groupId>-->
-<!--            <artifactId>JCalculator</artifactId>-->
-<!--            <version>v1.0</version>-->
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
-            <version>test-SNAPSHOT</version>
+            <version>1.4</version>
             <scope>compile</scope>
         </dependency>
-
 
         <!-- bStats -->
         <dependency>
@@ -165,12 +161,6 @@
             <scope>provided</scope>
         </dependency>
 
-<!--        &lt;!&ndash; Legacy PlotSquared &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>com.plotsquared</groupId>-->
-<!--            <artifactId>plotsquared-api</artifactId>-->
-<!--            <version>latest</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.plotsquared</groupId>
             <artifactId>PlotSquared-Legacy</artifactId>
@@ -193,14 +183,6 @@
             <version>1.21</version>
             <scope>compile</scope>
         </dependency>
-
-<!--        &lt;!&ndash; Breaking PlotSquared &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>com.github.intellectualsites.plotsquared</groupId>-->
-<!--            <artifactId>PlotSquared</artifactId>-->
-<!--            <version>4.130</version>-->
-<!--        </dependency>-->
-
 
     </dependencies>
 
