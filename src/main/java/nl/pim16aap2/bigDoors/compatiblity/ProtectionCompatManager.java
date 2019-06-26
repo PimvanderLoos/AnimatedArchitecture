@@ -99,6 +99,9 @@ public class ProtectionCompatManager implements Listener
      */
     public String canBreakBlock(UUID playerUUID, Location loc)
     {
+        if (protectionCompats.size() == 0)
+            return null;
+
         Player fakePlayer = getPlayer(playerUUID, loc.getWorld());
         if (canByPass(fakePlayer))
             return null;
@@ -129,6 +132,9 @@ public class ProtectionCompatManager implements Listener
      */
     public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
     {
+        if (protectionCompats.size() == 0)
+            return null;
+
         Player fakePlayer = getPlayer(playerUUID, loc1.getWorld());
         if (canByPass(fakePlayer))
             return null;

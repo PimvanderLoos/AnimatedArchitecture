@@ -138,7 +138,8 @@
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
-            <version>test-SNAPSHOT</version>
+            <version>1.4</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

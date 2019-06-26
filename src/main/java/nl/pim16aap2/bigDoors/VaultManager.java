@@ -117,11 +117,9 @@ public class VaultManager
 
     private double evaluateFormula(String formula, int blockCount)
     {
-        formula = java.util.regex.Pattern.compile("blockCount").matcher(formula).replaceAll(Integer.toString(blockCount));
-
         try
         {
-            return JCalculator.getResult(formula);
+            return JCalculator.getResult(formula, new String[]{"blockCount"}, new double[]{blockCount});
         }
         catch (Exception e)
         {
