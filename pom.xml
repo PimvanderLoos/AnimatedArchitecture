@@ -15,7 +15,6 @@
     </properties>
 
     <modules>
-        <module>spigot-v1_14_R1</module>
         <module>bigdoors-api</module>
         <module>bigdoors-core</module>
         <module>bigdoors-util</module>

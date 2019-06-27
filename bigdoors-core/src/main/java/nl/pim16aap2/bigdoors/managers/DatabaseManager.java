@@ -49,7 +49,7 @@ public class DatabaseManager extends Restartable
         this.plugin = plugin;
         busyDoors = new HashSet<>();
         messages = plugin.getMessages();
-        players = new TimedMapCache<>(plugin, HashMap::new, 1400);
+        players = new TimedMapCache<>(plugin, HashMap::new, 1440);
     }
 
     @Override

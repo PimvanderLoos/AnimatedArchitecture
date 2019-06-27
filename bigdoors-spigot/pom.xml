@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bigdoors-spigot</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <description>Implementation for the Spigot platform</description>
     <version>200</version>
 
@@ -11,6 +11,10 @@
         <artifactId>bigdoors-parent</artifactId>
         <version>200</version>
     </parent>
+
+    <modules>
+        <module>spigot-v1_14_R1</module>
+    </modules>
 
     <repositories>
         <!-- WorldGuard -->
@@ -80,13 +84,13 @@
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>spigot-v1_14_R1</artifactId>
-            <version>200</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>nl.pim16aap2.bigdoors</groupId>-->
+<!--            <artifactId>spigot-v1_14_R1</artifactId>-->
+<!--            <version>200</version>-->
+<!--            <type>jar</type>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.spigotmc</groupId>

@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot_v1_14_R1;
+package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
 
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -21,7 +21,7 @@ import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
  */
 public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements FallingBlock, ICustomCraftFallingBlock
 {
-    public CustomCraftFallingBlock_V1_14_R1(Server server, nl.pim16aap2.bigdoors.spigot_v1_14_R1.CustomEntityFallingBlock_V1_14_R1 entity)
+    public CustomCraftFallingBlock_V1_14_R1(Server server, CustomEntityFallingBlock_V1_14_R1 entity)
     {
         super((org.bukkit.craftbukkit.v1_14_R1.CraftServer) server, entity);
         setVelocity(new Vector(0, 0, 0));
@@ -29,9 +29,9 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    public nl.pim16aap2.bigdoors.spigot_v1_14_R1.CustomEntityFallingBlock_V1_14_R1 getHandle()
+    public CustomEntityFallingBlock_V1_14_R1 getHandle()
     {
-        return (nl.pim16aap2.bigdoors.spigot_v1_14_R1.CustomEntityFallingBlock_V1_14_R1) entity;
+        return (CustomEntityFallingBlock_V1_14_R1) entity;
     }
 
     @Override

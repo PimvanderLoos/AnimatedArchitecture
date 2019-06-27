@@ -25,7 +25,7 @@ import nl.pim16aap2.bigdoors.gui.GUI;
 import nl.pim16aap2.bigdoors.handlers.*;
 import nl.pim16aap2.bigdoors.managers.*;
 import nl.pim16aap2.bigdoors.moveblocks.*;
-import nl.pim16aap2.bigdoors.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
+import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import nl.pim16aap2.bigdoors.spigotutil.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
