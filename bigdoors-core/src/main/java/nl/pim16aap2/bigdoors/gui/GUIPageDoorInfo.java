@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
@@ -13,6 +12,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public class GUIPageDoorInfo implements IGUIPage

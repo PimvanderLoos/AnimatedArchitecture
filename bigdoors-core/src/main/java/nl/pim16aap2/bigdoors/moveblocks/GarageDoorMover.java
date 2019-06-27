@@ -9,10 +9,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 
@@ -21,14 +21,14 @@ class GarageDoorMover extends BlockMover
     private int tickRate;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
-    private BiFunction<MyBlockData, Double, Vector> getVector;
+    private BiFunction<PBlockData, Double, Vector> getVector;
     private final double time;
     private final double resultHeight;
     private final Vector3D directionVec;
     private int xLen, yLen, zLen;
 
     public GarageDoorMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
-                           final double multiplier, final MyBlockFace currentDirection, final RotateDirection rotateDirection)
+                           final double multiplier, final PBlockFace currentDirection, final RotateDirection rotateDirection)
     {
         super(plugin, world, door, 30, false, currentDirection, rotateDirection, -1);
         this.time = time;
@@ -40,23 +40,23 @@ class GarageDoorMover extends BlockMover
 
         resultHeight = door.getMaximum().getBlockY() + 1;
 
-        BiFunction<MyBlockData, Double, Vector> getVectorTmp = null;
+        BiFunction<PBlockData, Double, Vector> getVectorTmp = null;
         switch (rotateDirection)
         {
         case NORTH:
-            directionVec = MyBlockFace.getDirection(MyBlockFace.NORTH);
+            directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
             getVectorTmp = this::getVectorDownNorth;
             break;
         case EAST:
-            directionVec = MyBlockFace.getDirection(MyBlockFace.EAST);
+            directionVec = PBlockFace.getDirection(PBlockFace.EAST);
             getVectorTmp = this::getVectorDownEast;
             break;
         case SOUTH:
-            directionVec = MyBlockFace.getDirection(MyBlockFace.SOUTH);
+            directionVec = PBlockFace.getDirection(PBlockFace.SOUTH);
             getVectorTmp = this::getVectorDownSouth;
             break;
         case WEST:
-            directionVec = MyBlockFace.getDirection(MyBlockFace.WEST);
+            directionVec = PBlockFace.getDirection(PBlockFace.WEST);
             getVectorTmp = this::getVectorDownWest;
             break;
         default:
@@ -70,7 +70,7 @@ class GarageDoorMover extends BlockMover
         yLen = yMax - yMin;
         zLen = zMax - zMin;
 
-        if (currentDirection.equals(MyBlockFace.UP))
+        if (currentDirection.equals(PBlockFace.UP))
         {
             super.blocksMoved = yLen + 1;
             getVector = this::getVectorUp;
@@ -85,7 +85,7 @@ class GarageDoorMover extends BlockMover
         super.constructFBlocks();
     }
 
-    private Vector getVectorUp(MyBlockData block, double stepSum)
+    private Vector getVectorUp(PBlockData block, double stepSum)
     {
         double currentHeight = Math.min(resultHeight, block.getStartY() + stepSum);
         double xMod = 0;
@@ -102,7 +102,7 @@ class GarageDoorMover extends BlockMover
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector getVectorDownNorth(MyBlockData block, double stepSum)
+    private Vector getVectorDownNorth(PBlockData block, double stepSum)
     {
         double goalZ = door.getEngine().getBlockZ() - 0.5;
         double pivotZ = goalZ + 1.5;
@@ -121,7 +121,7 @@ class GarageDoorMover extends BlockMover
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector getVectorDownSouth(MyBlockData block, double stepSum)
+    private Vector getVectorDownSouth(PBlockData block, double stepSum)
     {
         double goalZ = door.getEngine().getBlockZ() - 0.5;
         double pivotZ = goalZ - 1.5;
@@ -139,7 +139,7 @@ class GarageDoorMover extends BlockMover
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector getVectorDownEast(MyBlockData block, double stepSum)
+    private Vector getVectorDownEast(PBlockData block, double stepSum)
     {
         double goalX = door.getEngine().getBlockX() - 0.5;
         double pivotX = goalX - 1.5;
@@ -157,7 +157,7 @@ class GarageDoorMover extends BlockMover
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector getVectorDownWest(MyBlockData block, double stepSum)
+    private Vector getVectorDownWest(PBlockData block, double stepSum)
     {
 
         double goalX = door.getEngine().getBlockX() - 0.5;
@@ -191,7 +191,7 @@ class GarageDoorMover extends BlockMover
     {
         double newX = 0, newY = 0, newZ = 0;
 
-        if (currentDirection.equals(MyBlockFace.UP))
+        if (currentDirection.equals(PBlockFace.UP))
         {
             newX = xAxis + (1 + yLen - radius) * directionVec.getX();
             newY = resultHeight;
@@ -257,7 +257,7 @@ class GarageDoorMover extends BlockMover
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
@@ -269,7 +269,7 @@ class GarageDoorMover extends BlockMover
                 else
                 {
                     stepSum = counter * step;
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                     {
                         Vector vec = getVector.apply(block, stepSum)
                             .subtract(block.getFBlock().getLocation().toVector());
@@ -284,7 +284,7 @@ class GarageDoorMover extends BlockMover
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        if (currentDirection.equals(MyBlockFace.UP))
+        if (currentDirection.equals(PBlockFace.UP))
         {
             float height = door.getMaximum().getBlockY();
             return height - yAxis;

@@ -3,12 +3,12 @@ package nl.pim16aap2.bigdoors.gui;
 import java.util.ArrayList;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDelete;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.util.Messages;
 
 public class GUIPageDeleteConfirmation implements IGUIPage
 {

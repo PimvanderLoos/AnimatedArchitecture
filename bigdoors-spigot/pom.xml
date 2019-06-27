@@ -1,0 +1,99 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>bigdoors-spigot</artifactId>
+    <packaging>jar</packaging>
+    <description>Implementation for the Spigot platform</description>
+    <version>200</version>
+
+    <parent>
+        <groupId>nl.pim16aap2.bigdoors</groupId>
+        <artifactId>bigdoors-parent</artifactId>
+        <version>200</version>
+    </parent>
+
+    <repositories>
+        <!-- WorldGuard -->
+        <repository>
+            <id>sk89q-repo</id>
+            <url>http://maven.sk89q.com/repo/</url>
+        </repository>
+
+        <repository>
+            <id>redprotect-repo</id>
+            <url>https://raw.github.com/FabioZumbi12/RedProtect/mvn-repo/</url>
+        </repository>
+
+<!--        <repository>-->
+<!--            <id>Massive</id>-->
+<!--            <url>https://repo.dustplanet.de/artifactory/ext-release-local/</url>-->
+<!--        </repository>-->
+
+        <!-- Vault -->
+        <repository>
+            <id>vault-repo</id>
+            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+        </repository>
+
+<!--        &lt;!&ndash; PlotSquared Breaking &ndash;&gt;-->
+<!--        <repository>-->
+<!--            <id>PlotSquared-Breaking</id>-->
+<!--            <url>http://ci.athion.net/job/PlotSquared-Breaking/ws/mvn/</url>-->
+<!--        </repository>-->
+
+<!--        &lt;!&ndash; Old PlotSquared &ndash;&gt;-->
+<!--        <repository>-->
+<!--            <id>PlotSquared-Legacy</id>-->
+<!--            <url>http://ci.athion.net/job/PlotSquared-Legacy/ws/mvn/</url>-->
+<!--        </repository>-->
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.14.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-api</artifactId>
+            <version>200</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-util</artifactId>
+            <version>200</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-util</artifactId>
+            <version>200</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-v1_14_R1</artifactId>
+            <version>200</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.14.3-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+</project>

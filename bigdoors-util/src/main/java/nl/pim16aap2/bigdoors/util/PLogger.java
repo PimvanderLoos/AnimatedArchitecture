@@ -17,7 +17,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-public class MyLogger
+public class PLogger
 {
     private final File logFile;
     private final BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
@@ -29,7 +29,7 @@ public class MyLogger
     private boolean debug = false;
 
     /**
-     * Constructor of MyLogger
+     * Constructor of PLogger
      * 
      * @param logFile            The file to write to.
      * @param messagingInterface The implementation of {@link IMessagingInterface}
@@ -37,11 +37,11 @@ public class MyLogger
      * @param name               The name that will be used for logging. For example
      *                           "BigDoors".
      */
-    public MyLogger(final File logFile, final IMessagingInterface messagingInterface, final String name)
+    public PLogger(final File logFile, final IMessagingInterface messagingInterface, final String name)
     {
         this.logFile = logFile;
         this.messagingInterface = messagingInterface;
-        this.formattedName = MyLogger.formatName(name);
+        this.formattedName = PLogger.formatName(name);
         prepareLog();
         if (success)
             new Thread(() -> processQueue()).start();

@@ -12,26 +12,26 @@ import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
-import nl.pim16aap2.bigdoors.api.FallingBlockFactory_Vall;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
-import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
+import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
+import nl.pim16aap2.bigdoors.api.IFallingBlockFactory;
+import nl.pim16aap2.bigdoors.api.INMSBlock;
+import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.Mutable;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 public abstract class BlockMover
 {
     protected final BigDoors plugin;
-    protected final FallingBlockFactory_Vall fabf;
+    protected final IFallingBlockFactory fabf;
     protected final World world;
-    protected List<MyBlockData> savedBlocks;
+    protected List<PBlockData> savedBlocks;
     protected final DoorBase door;
     protected double time;
     protected boolean instantOpen;
-    protected MyBlockFace currentDirection;
+    protected PBlockFace currentDirection;
     protected RotateDirection openDirection;
     protected int blocksMoved;
     protected int xMin, xMax, yMin;
@@ -39,8 +39,8 @@ public abstract class BlockMover
     protected AtomicBoolean isAborted = new AtomicBoolean(false);
 
     protected BlockMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
-        final boolean instantOpen, final MyBlockFace currentDirection, final RotateDirection openDirection,
-        final int blocksMoved)
+                         final boolean instantOpen, final PBlockFace currentDirection, final RotateDirection openDirection,
+                         final int blocksMoved)
     {
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.plugin = plugin;
@@ -84,8 +84,8 @@ public abstract class BlockMover
                         if (yAxis == yMin)
                             newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 
-                        NMSBlock_Vall block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
-                        NMSBlock_Vall block2 = null;
+                        INMSBlock block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
+                        INMSBlock block2 = null;
                         boolean canRotate = false;
 
                         if (openDirection != null && block.canRotate())
@@ -98,13 +98,13 @@ public abstract class BlockMover
                         float radius = getRadius(xAxis, yAxis, zAxis);
                         float startAngle = getStartAngle(xAxis, yAxis, zAxis);
 
-                        CustomCraftFallingBlock_Vall fBlock = instantOpen ? null :
+                        ICustomCraftFallingBlock fBlock = instantOpen ? null :
                             fallingBlockFactory(newFBlockLocation, block);
-                        savedBlocks.add(new MyBlockData(fBlock, radius, block2 == null ? block : block2, canRotate,
+                        savedBlocks.add(new PBlockData(fBlock, radius, block2 == null ? block : block2, canRotate,
                                                         startLocation, startAngle));
                     }
                 }
-        for (MyBlockData mbd : savedBlocks)
+        for (PBlockData mbd : savedBlocks)
             if (mbd.getBlock() != null)
                 mbd.getBlock().deleteOriginalBlock();
 
@@ -135,7 +135,7 @@ public abstract class BlockMover
     // Put the door blocks back, but change their state now.
     public final void putBlocks(boolean onDisable)
     {
-        for (MyBlockData savedBlock : savedBlocks)
+        for (PBlockData savedBlock : savedBlocks)
         {
             Location newPos = getNewLocation(savedBlock.getRadius(), savedBlock.getStartX(), savedBlock.getStartY(),
                                              savedBlock.getStartZ());
@@ -175,11 +175,11 @@ public abstract class BlockMover
             plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
-    protected final void updateCoords(DoorBase door, MyBlockFace openDirection, RotateDirection rotateDirection, int moved)
+    protected final void updateCoords(DoorBase door, PBlockFace openDirection, RotateDirection rotateDirection, int moved)
     {
         Location newMin = new Location(world, 0, 0, 0);
         Location newMax = new Location(world, 0, 0, 0);
-        Mutable<MyBlockFace> newEngineSide = new Mutable<>(null);
+        Mutable<PBlockFace> newEngineSide = new Mutable<>(null);
 
         door.getNewLocations(openDirection, rotateDirection, newMin, newMax, moved, newEngineSide);
 
@@ -205,9 +205,9 @@ public abstract class BlockMover
         door.setOpenStatus(!door.isOpen());
     }
 
-    protected final CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, NMSBlock_Vall block)
+    protected final ICustomCraftFallingBlock fallingBlockFactory(Location loc, INMSBlock block)
     {
-        CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(loc, block);
+        ICustomCraftFallingBlock entity = fabf.fallingBlockFactory(loc, block);
         Entity bukkitEntity = (Entity) entity;
         bukkitEntity.setCustomName("BigDoorsEntity");
         bukkitEntity.setCustomNameVisible(false);

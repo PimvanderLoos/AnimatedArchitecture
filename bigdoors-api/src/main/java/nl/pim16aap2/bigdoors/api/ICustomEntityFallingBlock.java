@@ -5,5 +5,5 @@ package nl.pim16aap2.bigdoors.api;
  *
  * @author Pim
  */
-public interface CustomEntityFallingBlock_Vall
+public interface ICustomEntityFallingBlock
 {}

@@ -27,12 +27,12 @@ public class BigDoor extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    public MyBlockFace calculateCurrentDirection()
+    public PBlockFace calculateCurrentDirection()
     {
-        return engine.getBlockZ() != min.getBlockZ() ? MyBlockFace.NORTH :
-            engine.getBlockX() != max.getBlockX() ? MyBlockFace.EAST :
-            engine.getBlockZ() != max.getBlockZ() ? MyBlockFace.SOUTH :
-            engine.getBlockX() != min.getBlockX() ? MyBlockFace.WEST : null;
+        return engine.getBlockZ() != min.getBlockZ() ? PBlockFace.NORTH :
+            engine.getBlockX() != max.getBlockX() ? PBlockFace.EAST :
+            engine.getBlockZ() != max.getBlockZ() ? PBlockFace.SOUTH :
+            engine.getBlockX() != min.getBlockX() ? PBlockFace.WEST : null;
     }
 
     /**
@@ -61,30 +61,30 @@ public class BigDoor extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(MyBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<MyBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
+                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
     {
-        MyBlockFace newDir = null;
+        PBlockFace newDir = null;
         switch (getCurrentDirection())
         {
         case NORTH:
-            newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? MyBlockFace.EAST : MyBlockFace.WEST;
+            newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.EAST : PBlockFace.WEST;
             break;
         case EAST:
-            newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? MyBlockFace.SOUTH : MyBlockFace.NORTH;
+            newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.SOUTH : PBlockFace.NORTH;
             break;
         case SOUTH:
-            newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? MyBlockFace.WEST : MyBlockFace.EAST;
+            newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.WEST : PBlockFace.EAST;
             break;
         case WEST:
-            newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? MyBlockFace.NORTH : MyBlockFace.SOUTH;
+            newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.NORTH : PBlockFace.SOUTH;
             break;
         default:
             plugin.getMyLogger().warn("Invalid currentDirection for BigDoor! \"" + getCurrentDirection().toString() + "\"");
             return;
         }
 
-        Vector3D newVec = MyBlockFace.getDirection(newDir);
+        Vector3D newVec = PBlockFace.getDirection(newDir);
         int xMin = Math.min(engine.getBlockX(), engine.getBlockX() + dimensions.getZ() * newVec.getX());
         int xMax = Math.max(engine.getBlockX(), engine.getBlockX() + dimensions.getZ() * newVec.getX());
 

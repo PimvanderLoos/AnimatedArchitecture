@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 
 /**
  * Represents a ToolUser that creates new doors.
@@ -22,7 +22,7 @@ public abstract class Creator extends ToolUser
 {
     protected DoorType type;
     protected String doorName;
-    protected MyBlockFace engineSide = null;
+    protected PBlockFace engineSide = null;
     protected boolean isOpen = false;
     protected Location one, two, engine;
 

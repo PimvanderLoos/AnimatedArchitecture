@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.v1_14_R1;
+package nl.pim16aap2.bigdoors.spigot_v1_14_R1;
 
 import java.util.Iterator;
 import java.util.List;
@@ -9,16 +9,16 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import com.google.common.collect.Lists;
 
 import net.minecraft.server.v1_14_R1.*;
-import nl.pim16aap2.bigdoors.api.CustomEntityFallingBlock_Vall;
+import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
 
 /**
- * V1_14_R1 implementation of {@link CustomEntityFallingBlock_Vall}.
+ * V1_14_R1 implementation of {@link ICustomEntityFallingBlock}.
  *
  * @author Pim
- * @see CustomEntityFallingBlock_Vall
+ * @see ICustomEntityFallingBlock
  */
 public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.EntityFallingBlock
-    implements CustomEntityFallingBlock_Vall
+    implements ICustomEntityFallingBlock
 {
     private IBlockData block;
     public int ticksLived;

@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import javax.annotation.Nullable;
-
 public enum CommandData
 {
     BDM ("bdm", "bigdoors.user", null),

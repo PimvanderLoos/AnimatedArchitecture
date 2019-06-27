@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 
@@ -19,7 +19,7 @@ public class GarageDoorOpener extends Opener
     }
 
     // Check if the block on the north/east/south/west side of the location is free.
-    private boolean isPosFree(DoorBase door, MyBlockFace currentDirection, RotateDirection rotateDirection, Location min,
+    private boolean isPosFree(DoorBase door, PBlockFace currentDirection, RotateDirection rotateDirection, Location min,
                               Location max)
     {
         int minX = door.getMinimum().getBlockX();
@@ -35,7 +35,7 @@ public class GarageDoorOpener extends Opener
         Vector3D rotateVec = null;
         try
         {
-            rotateVec = MyBlockFace.getDirection(MyBlockFace.valueOf(rotateDirection.toString()));
+            rotateVec = PBlockFace.getDirection(PBlockFace.valueOf(rotateDirection.toString()));
         }
         catch (Exception e)
         {
@@ -46,7 +46,7 @@ public class GarageDoorOpener extends Opener
             return false;
         }
 
-        if (currentDirection.equals(MyBlockFace.UP))
+        if (currentDirection.equals(PBlockFace.UP))
         {
             minY = maxY = door.getMaximum().getBlockY() + 1;
 
@@ -115,28 +115,28 @@ public class GarageDoorOpener extends Opener
 
     // When closed (standing up), open in the specified direction.
     // Otherwise, go in the close direction (opposite of openDir).
-    private RotateDirection getRotationDirection(DoorBase door, MyBlockFace currentDir)
+    private RotateDirection getRotationDirection(DoorBase door, PBlockFace currentDir)
     {
         RotateDirection rotDir = door.getOpenDir();
-        if (currentDir.equals(MyBlockFace.UP))
+        if (currentDir.equals(PBlockFace.UP))
             return rotDir;
-        return RotateDirection.valueOf(MyBlockFace.getOpposite(currentDir).toString());
+        return RotateDirection.valueOf(PBlockFace.getOpposite(currentDir).toString());
     }
 
     // Get the direction the door is currently facing as seen from the engine to the
     // end of the door.
-    private MyBlockFace getCurrentDirection(DoorBase door)
+    private PBlockFace getCurrentDirection(DoorBase door)
     {
         int yLen = door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 
         // If the height is 1 or more, it means the garage door is currently standing
         // upright (closed).
         if (yLen > 0)
-            return MyBlockFace.UP;
+            return PBlockFace.UP;
         int dX = door.getEngine().getBlockX() - door.getMinimum().getBlockX();
         int dZ = door.getEngine().getBlockZ() - door.getMinimum().getBlockZ();
 
-        return MyBlockFace.faceFromDir(new Vector3D(dX < 0 ? 1 : dX > 0 ? -1 : 0, 0, dZ < 0 ? 1 : dZ > 0 ? -1 : 0));
+        return PBlockFace.faceFromDir(new Vector3D(dX < 0 ? 1 : dX > 0 ? -1 : 0, 0, dZ < 0 ? 1 : dZ > 0 ? -1 : 0));
     }
 
     @Override
@@ -150,7 +150,7 @@ public class GarageDoorOpener extends Opener
         if (super.isTooBig(door))
             instantOpen = true;
 
-        MyBlockFace currentDirection = getCurrentDirection(door);
+        PBlockFace currentDirection = getCurrentDirection(door);
         if (currentDirection == null)
         {
             plugin.getMyLogger()

@@ -44,17 +44,17 @@ public class GarageDoor extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public MyBlockFace calculateCurrentDirection()
+    public PBlockFace calculateCurrentDirection()
     {
         if (!isOpen)
-            return MyBlockFace.UP;
+            return PBlockFace.UP;
 
         int dX = engine.getBlockX() - min.getBlockX();
         int dZ = engine.getBlockZ() - min.getBlockZ();
 
         int dirX = dX < 0 ? 1 : dX > 0 ? -1 : 0;
         int dirZ = dZ < 0 ? 1 : dZ > 0 ? -1 : 0;
-        return MyBlockFace.faceFromDir(new Vector3D(dirX, 0, dirZ));
+        return PBlockFace.faceFromDir(new Vector3D(dirX, 0, dirZ));
     }
 
     /**
@@ -70,12 +70,12 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         if (dimensions.getY() != 1)
             return super.calculateNorthSouthAxis();
 
-        MyBlockFace engineSide = getEngineSide();
+        PBlockFace engineSide = getEngineSide();
 
         // The door is on the north/south axis if the engine is on the north or south
         // side
         // of the door; that's the rotation point.
-        return engineSide.equals(MyBlockFace.NORTH) || engineSide.equals(MyBlockFace.SOUTH);
+        return engineSide.equals(PBlockFace.NORTH) || engineSide.equals(PBlockFace.SOUTH);
     }
 
     /**
@@ -94,8 +94,8 @@ public class GarageDoor extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(MyBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<MyBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
+                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
     {
         int xMin = min.getBlockX();
         int yMin = min.getBlockY();
@@ -109,16 +109,16 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         switch (rotateDirection)
         {
         case NORTH:
-            directionVec = MyBlockFace.getDirection(MyBlockFace.NORTH);
+            directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
             break;
         case EAST:
-            directionVec = MyBlockFace.getDirection(MyBlockFace.EAST);
+            directionVec = PBlockFace.getDirection(PBlockFace.EAST);
             break;
         case SOUTH:
-            directionVec = MyBlockFace.getDirection(MyBlockFace.SOUTH);
+            directionVec = PBlockFace.getDirection(PBlockFace.SOUTH);
             break;
         case WEST:
-            directionVec = MyBlockFace.getDirection(MyBlockFace.WEST);
+            directionVec = PBlockFace.getDirection(PBlockFace.WEST);
             break;
         default:
             directionVec = null;
@@ -128,7 +128,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         }
 
         // This works fine, but it's disabled to make it easier to test other stuff.
-        if (super.getCurrentDirection().equals(MyBlockFace.UP))
+        if (super.getCurrentDirection().equals(PBlockFace.UP))
         {
             yMin = yMax = max.getBlockY() + 1;
 

@@ -13,9 +13,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.Messages;
 
 public abstract class ToolUser extends Abortable
 {

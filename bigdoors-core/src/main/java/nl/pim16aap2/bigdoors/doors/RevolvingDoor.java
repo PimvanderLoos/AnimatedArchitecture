@@ -5,7 +5,7 @@ import org.bukkit.Location;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 
@@ -54,7 +54,7 @@ public class RevolvingDoor extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    public MyBlockFace calculateCurrentDirection()
+    public PBlockFace calculateCurrentDirection()
     {
         return null;
     }
@@ -63,8 +63,8 @@ public class RevolvingDoor extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(MyBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<MyBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
+                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
     {
         newMin.setX(min.getBlockX());
         newMin.setY(min.getBlockY());

@@ -1,7 +1,6 @@
-package nl.pim16aap2.bigdoors.v1_14_R1;
+package nl.pim16aap2.bigdoors.spigot_v1_14_R1;
 
 import java.util.Set;
-import java.util.function.Function;
 
 import org.bukkit.Axis;
 import org.bukkit.Location;
@@ -14,18 +13,18 @@ import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 
 import net.minecraft.server.v1_14_R1.BlockPosition;
 import net.minecraft.server.v1_14_R1.IBlockData;
-import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
+import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 /**
- * V1_14_R1 implementation of {@link NMSBlock_Vall}.
+ * V1_14_R1 implementation of {@link INMSBlock}.
  *
  * @author Pim
- * @see NMSBlock_Vall
+ * @see INMSBlock
  */
-public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block implements NMSBlock_Vall
+public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block implements INMSBlock
 {
     private IBlockData blockData;
     private BlockData bukkitBlockData;
@@ -190,7 +189,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
     private void rotateDirectional(Directional bd, RotateDirection dir, int steps)
     {
         BlockFace newFace = SpigotUtil
-            .getBukkitFace(MyBlockFace.rotate(SpigotUtil.getMyBlockFace(bd.getFacing()), steps, MyBlockFace.getDirFun(dir)));
+            .getBukkitFace(PBlockFace.rotate(SpigotUtil.getPBlockFace(bd.getFacing()), steps, PBlockFace.getDirFun(dir)));
         if (bd.getFaces().contains(newFace))
             bd.setFacing(newFace);
     }
@@ -223,7 +222,8 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
         currentFaces.forEach((K) -> bd.setFace(K, false));
         currentFaces.forEach((K) ->
         {
-            BlockFace newFace = SpigotUtil.getBukkitFace(MyBlockFace.rotate(SpigotUtil.getMyBlockFace(K), steps, MyBlockFace.getDirFun(dir)));
+            BlockFace newFace = SpigotUtil.getBukkitFace(
+                    PBlockFace.rotate(SpigotUtil.getPBlockFace(K), steps, PBlockFace.getDirFun(dir)));
             if (allowedFaces.contains(newFace))
                 bd.setFace(newFace, true);
         });

@@ -7,30 +7,30 @@ import org.bukkit.Location;
  *
  * @author Pim
  */
-public final class MyBlockData
+public final class PBlockData
 {
-    private NMSBlock_Vall block;
+    private INMSBlock block;
     private boolean canRot;
     private float radius;
-    private CustomCraftFallingBlock_Vall fBlock;
+    private ICustomCraftFallingBlock fBlock;
     private Location startLocation;
     private float startAngle;
 
     /**
-     * Constructor of {@link MyBlockData}.
+     * Constructor of {@link PBlockData}.
      *
-     * @param newFBlock     The {@link CustomCraftFallingBlock_Vall} that will be
+     * @param newFBlock     The {@link ICustomCraftFallingBlock} that will be
      *                      animated.
      * @param radius        The number of blocks between this block and the rotation
      *                      point.
      * @param newBlock      If this block can be rotated, this contains the rotated
-     *                      {@link NMSBlock_Vall}.
+     *                      {@link INMSBlock}.
      * @param canRot        True if this block can rotate.
      * @param startLocation The location the block was spawned at initially.
      * @param startAngle    The angle the block had in regards to the rotation point when it was first spawned.
      */
-    public MyBlockData(CustomCraftFallingBlock_Vall newFBlock, float radius, NMSBlock_Vall newBlock, boolean canRot,
-        Location startLocation, float startAngle)
+    public PBlockData(ICustomCraftFallingBlock newFBlock, float radius, INMSBlock newBlock, boolean canRot,
+                      Location startLocation, float startAngle)
     {
         block = newBlock;
         fBlock = newFBlock;
@@ -41,26 +41,26 @@ public final class MyBlockData
     }
 
     /**
-     * Changes the {@link CustomCraftFallingBlock_Vall} that is being be animated.
+     * Changes the {@link ICustomCraftFallingBlock} that is being be animated.
      * 
-     * @param block The new {@link CustomCraftFallingBlock_Vall} that will be
+     * @param block The new {@link ICustomCraftFallingBlock} that will be
      *              animated.
      */
-    public void setFBlock(CustomCraftFallingBlock_Vall block)
+    public void setFBlock(ICustomCraftFallingBlock block)
     {
         fBlock = block;
     }
 
     /**
-     * Get the {@link CustomCraftFallingBlock_Vall} that is being be animated.
+     * Get the {@link ICustomCraftFallingBlock} that is being be animated.
      */
-    public CustomCraftFallingBlock_Vall getFBlock()
+    public ICustomCraftFallingBlock getFBlock()
     {
         return fBlock;
     }
 
     /**
-     * Kill the {@link CustomCraftFallingBlock_Vall} that is being be animated.
+     * Kill the {@link ICustomCraftFallingBlock} that is being be animated.
      */
     public void killFBlock()
     {
@@ -79,12 +79,12 @@ public final class MyBlockData
     }
 
     /**
-     * If it exist, get the rotated {@link NMSBlock_Vall}. If this block cannot
+     * If it exist, get the rotated {@link INMSBlock}. If this block cannot
      * rotate, this value does not exist.
      * 
-     * @return The rotated {@link NMSBlock_Vall} if it exists.
+     * @return The rotated {@link INMSBlock} if it exists.
      */
-    public NMSBlock_Vall getBlock()
+    public INMSBlock getBlock()
     {
         return block;
     }

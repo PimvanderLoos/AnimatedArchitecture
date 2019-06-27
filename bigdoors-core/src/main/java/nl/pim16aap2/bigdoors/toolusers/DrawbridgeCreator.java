@@ -7,7 +7,7 @@ import org.bukkit.util.Vector;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
 
 /*
@@ -76,12 +76,12 @@ public class DrawbridgeCreator extends Creator
                 if (loc.equals(one))
                 {
                     engine = one;
-                    engineSide = MyBlockFace.NORTH;
+                    engineSide = PBlockFace.NORTH;
                 }
                 else if (loc.equals(two))
                 {
                     engine = two;
-                    engineSide = MyBlockFace.SOUTH;
+                    engineSide = PBlockFace.SOUTH;
                 }
                 return engineSide != null;
             }
@@ -90,12 +90,12 @@ public class DrawbridgeCreator extends Creator
                 if (loc.equals(one))
                 {
                     engine = one;
-                    engineSide = MyBlockFace.WEST;
+                    engineSide = PBlockFace.WEST;
                 }
                 else if (loc.equals(two))
                 {
                     engine = two;
-                    engineSide = MyBlockFace.EAST;
+                    engineSide = PBlockFace.EAST;
                 }
                 return engineSide != null;
             }
@@ -115,13 +115,13 @@ public class DrawbridgeCreator extends Creator
             else
             {
                 if      (posZ == one.getBlockZ())
-                    engineSide = MyBlockFace.NORTH;
+                    engineSide = PBlockFace.NORTH;
                 else if (posZ == two.getBlockZ())
-                    engineSide = MyBlockFace.SOUTH;
+                    engineSide = PBlockFace.SOUTH;
                 else if (posX == one.getBlockX())
-                    engineSide = MyBlockFace.WEST;
+                    engineSide = PBlockFace.WEST;
                 else if (posX == two.getBlockX())
-                    engineSide = MyBlockFace.EAST;
+                    engineSide = PBlockFace.EAST;
                 drawBridgeEngineFix();
             }
             return true;
@@ -145,30 +145,30 @@ public class DrawbridgeCreator extends Creator
         if (engine.equals(one)) // NORTH / WEST Possible
         {
             if (vector.getBlockX() == 1)
-                engineSide = MyBlockFace.NORTH;
+                engineSide = PBlockFace.NORTH;
             else if (vector.getBlockZ() == 1)
-                engineSide = MyBlockFace.WEST;
+                engineSide = PBlockFace.WEST;
         }
         else if (engine.equals(two)) // EAST / SOUTH Possible
         {
             if (vector.getBlockX() == -1)
-                engineSide = MyBlockFace.SOUTH;
+                engineSide = PBlockFace.SOUTH;
             else if (vector.getBlockZ() == -1)
-                engineSide = MyBlockFace.EAST;
+                engineSide = PBlockFace.EAST;
         }
         else if (posXa == one.getBlockX() && posZa == two.getBlockZ()) // SOUTH / WEST Possible
         {
             if (vector.getBlockX() == 1)
-                engineSide = MyBlockFace.SOUTH;
+                engineSide = PBlockFace.SOUTH;
             else if (vector.getBlockZ() == -1)
-                engineSide = MyBlockFace.WEST;
+                engineSide = PBlockFace.WEST;
         }
         else if (posXa == two.getBlockX() && posZa == one.getBlockZ()) // NORTH / EAST Possible
         {
             if (vector.getBlockX() == -1)
-                engineSide = MyBlockFace.NORTH;
+                engineSide = PBlockFace.NORTH;
             else if (vector.getBlockZ() == 1)
-                engineSide = MyBlockFace.EAST;
+                engineSide = PBlockFace.EAST;
         }
         else
             return false;
@@ -183,7 +183,7 @@ public class DrawbridgeCreator extends Creator
             return;
 
         // Make sure the power point is in the middle.
-        if (engineSide == MyBlockFace.NORTH || engineSide == MyBlockFace.SOUTH)
+        if (engineSide == PBlockFace.NORTH || engineSide == PBlockFace.SOUTH)
             engine.setX(one.getX() + (two.getX() - one.getX()) / 2);
         else
             engine.setZ(one.getZ() + (two.getZ() - one.getZ()) / 2);

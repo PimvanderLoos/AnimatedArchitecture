@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -44,7 +42,7 @@ public final class ConfigLoader
     private boolean griefPreventionHook;
     private int headCacheTimeout;
     private final ArrayList<ConfigEntry<?>> configEntries;
-    public static boolean DEBUG = false;
+    private boolean debug = false;
     private final BigDoors plugin;
 
     private final HashMap<DoorType, String> doorPrices;
@@ -131,8 +129,7 @@ public final class ConfigLoader
         worldGuardHook = addNewConfigEntry(config, "worldGuard", true, compatibilityHooks);
         plotSquaredHook = addNewConfigEntry(config, "plotSquared", true, null);
         griefPreventionHook = addNewConfigEntry(config, "griefPrevention", true, null);
-        resourcePack = addNewConfigEntry(config, "resourcePack", plugin.is1_13() ? defResPackUrl1_13 : defResPackUrl,
-                                         resourcePackComment);
+        resourcePack = addNewConfigEntry(config, "resourcePack", defResPackUrl1_13, resourcePackComment);
 
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
         makeBackup = addNewConfigEntry(config, "makeBackup", true, backupComment);
@@ -152,8 +149,8 @@ public final class ConfigLoader
                                                  idx == 0 ? pricesComment : null));
 
         // This is a bit special, as it's public static (for SpigotUtil debug messages).
-        ConfigLoader.DEBUG = addNewConfigEntry(config, "DEBUG", false, debugComment);
-        if (ConfigLoader.DEBUG)
+        debug = addNewConfigEntry(config, "DEBUG", false, debugComment);
+        if (debug)
             SpigotUtil.printDebugMessages = true;
 
         writeConfig();
@@ -237,8 +234,7 @@ public final class ConfigLoader
      * @return The value as read from the config file if it exists or the default
      *         value.
      */
-    private <T> T addNewConfigEntry(FileConfiguration config, String optionName, T defaultValue,
-                                    String[] comment)
+    private <T> T addNewConfigEntry(FileConfiguration config, String optionName, T defaultValue, String[] comment)
     {
         ConfigEntry<T> option = new ConfigEntry<>(plugin, config, optionName, defaultValue, comment);
         configEntries.add(option);
@@ -284,6 +280,11 @@ public final class ConfigLoader
             plugin.getMyLogger().logException(e, "Could not save config.yml! "
                 + "Please contact pim16aap2 and show him the following code:");
         }
+    }
+
+    public boolean debug()
+    {
+        return debug;
     }
 
     public String dbFile()

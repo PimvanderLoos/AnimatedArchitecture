@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
  *
  * @author pim
  */
-public interface NMSBlock_Vall
+public interface INMSBlock
 {
     /**
      * Check if this block can rotate.

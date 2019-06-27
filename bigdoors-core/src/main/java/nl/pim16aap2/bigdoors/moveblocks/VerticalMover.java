@@ -7,7 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
@@ -65,7 +65,7 @@ class VerticalMover extends BlockMover
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
-            MyBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst()
+            PBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst()
                 .orElse(null);
 
             @Override
@@ -91,7 +91,7 @@ class VerticalMover extends BlockMover
                     isAborted.get())
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
@@ -107,7 +107,7 @@ class VerticalMover extends BlockMover
                     Vector vec = loc.toVector().subtract(firstBlockData.getFBlock().getLocation().toVector());
                     vec.multiply(0.101);
 
-                    for (MyBlockData mbd : savedBlocks)
+                    for (PBlockData mbd : savedBlocks)
                         mbd.getFBlock().setVelocity(vec);
                 }
             }

@@ -9,7 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -20,7 +20,7 @@ class WindmillMover extends BlockMover
     private int tickRate;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
-    private final BiFunction<MyBlockData, Double, Vector> getVector;
+    private final BiFunction<PBlockData, Double, Vector> getVector;
 
     public WindmillMover(final BigDoors plugin, final World world, final DoorBase door, final double time, final double multiplier,
         final RotateDirection rotateDirection)
@@ -57,7 +57,7 @@ class WindmillMover extends BlockMover
         super.constructFBlocks();
     }
 
-    private Vector getVectorNorth(MyBlockData block, double stepSum)
+    private Vector getVectorNorth(PBlockData block, double stepSum)
     {
         double startAngle = block.getStartAngle();
         double posX = block.getFBlock().getLocation().getX();
@@ -66,7 +66,7 @@ class WindmillMover extends BlockMover
         return new Vector(posX, posY, posZ + 0.5);
     }
 
-    private Vector getVectorEast(MyBlockData block, double stepSum)
+    private Vector getVectorEast(PBlockData block, double stepSum)
     {
         double startAngle = block.getStartAngle();
         double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - stepSum);
@@ -75,7 +75,7 @@ class WindmillMover extends BlockMover
         return new Vector(posX + 0.5, posY, posZ);
     }
 
-    private Vector getVectorSouth(MyBlockData block, double stepSum)
+    private Vector getVectorSouth(PBlockData block, double stepSum)
     {
         float startAngle = block.getStartAngle();
         double posX = block.getFBlock().getLocation().getX();
@@ -84,7 +84,7 @@ class WindmillMover extends BlockMover
         return new Vector(posX, posY, posZ + 0.5);
     }
 
-    private Vector getVectorWest(MyBlockData block, double stepSum)
+    private Vector getVectorWest(PBlockData block, double stepSum)
     {
         float startAngle = block.getStartAngle();
         double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + stepSum);
@@ -129,7 +129,7 @@ class WindmillMover extends BlockMover
                 if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
@@ -140,7 +140,7 @@ class WindmillMover extends BlockMover
                 }
                 else
                 {
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                     {
                         if (Math.abs(block.getRadius()) > 2 * Double.MIN_VALUE)
                         {

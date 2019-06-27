@@ -7,10 +7,10 @@ import java.util.Comparator;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.util.Messages;
 
 public class GUIPageRemoveOwner implements IGUIPage
 {

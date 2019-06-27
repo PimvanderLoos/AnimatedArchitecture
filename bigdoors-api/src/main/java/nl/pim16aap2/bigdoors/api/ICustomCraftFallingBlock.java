@@ -9,7 +9,7 @@ import org.bukkit.util.Vector;
  *
  * @autor Pim
  */
-public interface CustomCraftFallingBlock_Vall
+public interface ICustomCraftFallingBlock
 {
     /**
      * Teleport the entity to the provided location.

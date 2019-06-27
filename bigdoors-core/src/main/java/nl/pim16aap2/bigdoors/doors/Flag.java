@@ -5,7 +5,7 @@ import org.bukkit.Location;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 
@@ -31,12 +31,12 @@ public class Flag extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    public MyBlockFace calculateCurrentDirection()
+    public PBlockFace calculateCurrentDirection()
     {
-        return engine.getBlockZ() != min.getBlockZ() ? MyBlockFace.NORTH :
-            engine.getBlockX() != max.getBlockX() ? MyBlockFace.EAST :
-            engine.getBlockZ() != max.getBlockZ() ? MyBlockFace.SOUTH :
-            engine.getBlockX() != min.getBlockX() ? MyBlockFace.WEST : null;
+        return engine.getBlockZ() != min.getBlockZ() ? PBlockFace.NORTH :
+            engine.getBlockX() != max.getBlockX() ? PBlockFace.EAST :
+            engine.getBlockZ() != max.getBlockZ() ? PBlockFace.SOUTH :
+            engine.getBlockX() != min.getBlockX() ? PBlockFace.WEST : null;
     }
 
     /**
@@ -85,8 +85,8 @@ public class Flag extends DoorBase
      * the current min and max.
      */
     @Override
-    public void getNewLocations(MyBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<MyBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
+                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
     {
         newMin.setX(min.getBlockX());
         newMin.setY(min.getBlockY());

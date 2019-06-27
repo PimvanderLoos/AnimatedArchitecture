@@ -36,11 +36,11 @@ public class Drawbridge extends HorizontalAxisAlignedBase
         if (dimensions.getY() != 0)
             return super.calculateNorthSouthAxis();
 
-        MyBlockFace engineSide = getEngineSide();
+        PBlockFace engineSide = getEngineSide();
 
         // The door is on the north/south axis if the engine is on the north or south
         // side of the door; that's the rotation point.
-        return engineSide.equals(MyBlockFace.NORTH) || engineSide.equals(MyBlockFace.SOUTH);
+        return engineSide.equals(PBlockFace.NORTH) || engineSide.equals(PBlockFace.SOUTH);
     }
 
     /**
@@ -68,10 +68,10 @@ public class Drawbridge extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public MyBlockFace calculateCurrentDirection()
+    public PBlockFace calculateCurrentDirection()
     {
         if (dimensions.getY() != 0)
-            return MyBlockFace.UP;
+            return PBlockFace.UP;
 
         int dirX = 0;
         int dirZ = 0;
@@ -91,7 +91,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             dirX = dX < 0 ? 1 : dX > 0 ? -1 : 0;
         }
 
-        return MyBlockFace.faceFromDir(new Vector3D(dirX, 0, dirZ));
+        return PBlockFace.faceFromDir(new Vector3D(dirX, 0, dirZ));
     }
 
     /**
@@ -110,8 +110,8 @@ public class Drawbridge extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(MyBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<MyBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
+                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
     {
         int xLen = dimensions.getX();
         int yLen = dimensions.getY();
@@ -134,9 +134,9 @@ public class Drawbridge extends HorizontalAxisAlignedBase
         switch (rotateDirection)
         {
         case NORTH:
-            if (openDirection == MyBlockFace.UP)
+            if (openDirection == PBlockFace.UP)
             {
-                newEngineSide.setVal(MyBlockFace.NORTH);
+                newEngineSide.setVal(PBlockFace.NORTH);
 //                newMin = new Location(world, xMin, yMin, zMin);
 //                newMax = new Location(world, xMax, yMin + zLen, zMin);
                 newYMax = yMin + dimensions.getZ();
@@ -144,7 +144,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             }
             else
             {
-                newEngineSide.setVal(MyBlockFace.SOUTH);
+                newEngineSide.setVal(PBlockFace.SOUTH);
 //                newMin = new Location(world, xMin, yMin, zMin - yLen);
 //                newMax = new Location(world, xMax, yMin, zMin);
                 newZMin = zMin - dimensions.getY();
@@ -154,9 +154,9 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             break;
 
         case EAST:
-            if (openDirection == MyBlockFace.UP)
+            if (openDirection == PBlockFace.UP)
             {
-                newEngineSide.setVal(MyBlockFace.EAST);
+                newEngineSide.setVal(PBlockFace.EAST);
 //                newMin = new Location(world, xMax, yMin, zMin);
 //                newMax = new Location(world, xMax, yMin + xLen, zMax);
                 newXMin = xMax;
@@ -164,7 +164,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             }
             else
             {
-                newEngineSide.setVal(MyBlockFace.WEST);
+                newEngineSide.setVal(PBlockFace.WEST);
 //                newMin = new Location(world, xMax, yMin, zMin);
 //                newMax = new Location(world, xMax + yLen, yMin, zMax);
                 newXMin = xMax;
@@ -174,9 +174,9 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             break;
 
         case SOUTH:
-            if (openDirection == MyBlockFace.UP)
+            if (openDirection == PBlockFace.UP)
             {
-                newEngineSide.setVal(MyBlockFace.SOUTH);
+                newEngineSide.setVal(PBlockFace.SOUTH);
 //                newMin = new Location(world, xMin, yMin, zMax);
 //                newMax = new Location(world, xMax, yMin + zLen, zMax);
                 newZMin = zMax;
@@ -184,7 +184,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             }
             else
             {
-                newEngineSide.setVal(MyBlockFace.NORTH);
+                newEngineSide.setVal(PBlockFace.NORTH);
 //                newMin = new Location(world, xMin, yMin, zMax);
 //                newMax = new Location(world, xMax, yMin, zMax + yLen);
                 newZMin = zMax;
@@ -194,9 +194,9 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             break;
 
         case WEST:
-            if (openDirection == MyBlockFace.UP)
+            if (openDirection == PBlockFace.UP)
             {
-                newEngineSide.setVal(MyBlockFace.WEST);
+                newEngineSide.setVal(PBlockFace.WEST);
 //                newMin = new Location(world, xMin, yMin, zMin);
 //                newMax = new Location(world, xMin, yMin + xLen, zMax);
                 newXMax = xMin;
@@ -204,7 +204,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             }
             else
             {
-                newEngineSide.setVal(MyBlockFace.EAST);
+                newEngineSide.setVal(PBlockFace.EAST);
 //                newMin = new Location(world, xMin - yLen, yMin, zMin);
 //                newMax = new Location(world, xMin, yMin, zMax);
                 newXMin = xMin - yLen;

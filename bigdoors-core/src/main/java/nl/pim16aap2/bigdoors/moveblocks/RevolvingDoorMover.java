@@ -9,7 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -19,7 +19,7 @@ class RevolvingDoorMover extends BlockMover
     private int tickRate;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
-    private final BiFunction<MyBlockData, Double, Vector> getGoalPos;
+    private final BiFunction<PBlockData, Double, Vector> getGoalPos;
     private final double time;
 
     public RevolvingDoorMover(final BigDoors plugin, final World world, final DoorBase door, final double time, final double multiplier,
@@ -52,7 +52,7 @@ class RevolvingDoorMover extends BlockMover
     }
 
     // Implement this one first.
-    private Vector getGoalPosClockwise(MyBlockData block, double stepSum)
+    private Vector getGoalPosClockwise(PBlockData block, double stepSum)
     {
         double startAngle = block.getStartAngle();
         double posX = 0.5 + door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + stepSum);
@@ -61,7 +61,7 @@ class RevolvingDoorMover extends BlockMover
         return new Vector(posX, posY, posZ);
     }
 
-    private Vector getGoalPosCounterClockwise(MyBlockData block, double stepSum)
+    private Vector getGoalPosCounterClockwise(PBlockData block, double stepSum)
     {
         double startAngle = block.getStartAngle();
         double posX = 0.5 + door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - stepSum);
@@ -105,7 +105,7 @@ class RevolvingDoorMover extends BlockMover
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
@@ -116,7 +116,7 @@ class RevolvingDoorMover extends BlockMover
                 }
                 else
                 {
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                     {
                         if (Math.abs(block.getRadius()) > 2 * Double.MIN_VALUE)
                         {

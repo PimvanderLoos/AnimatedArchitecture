@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.compatiblity;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
 

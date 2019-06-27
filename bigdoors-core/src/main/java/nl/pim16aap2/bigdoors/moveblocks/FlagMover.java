@@ -9,13 +9,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 class FlagMover extends BlockMover
 {
-    private final BiFunction<MyBlockData, Double, Vector> getGoalPos;
+    private final BiFunction<PBlockData, Double, Vector> getGoalPos;
     private int tickRate;
     private final boolean NS;
     private static final double maxSpeed = 3;
@@ -48,7 +48,7 @@ class FlagMover extends BlockMover
         return baseOffset > maxVal ? maxVal : baseOffset;
     }
 
-    private Vector getGoalPosNS(MyBlockData block, double counter)
+    private Vector getGoalPosNS(PBlockData block, double counter)
     {
         double xOff = 3 - 1 / (tickRate / 20); // WTF is this?
         if (block.getRadius() > 0)
@@ -56,7 +56,7 @@ class FlagMover extends BlockMover
         return new Vector(block.getStartX() + xOff, block.getStartY(), block.getStartZ());
     }
 
-    private Vector getGoalPosEW(MyBlockData block, double counter)
+    private Vector getGoalPosEW(PBlockData block, double counter)
     {
         double zOff = 3 - 1 / (tickRate / 20); // WTF is this?
         if (block.getRadius() > 0)
@@ -97,7 +97,7 @@ class FlagMover extends BlockMover
 
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
@@ -107,7 +107,7 @@ class FlagMover extends BlockMover
                     cancel();
                 }
                 else
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                     {
                         Vector vec = getGoalPos.apply(block, counter).subtract(block.getFBlock().getLocation().toVector());
                         vec.multiply(0.101);

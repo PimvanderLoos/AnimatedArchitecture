@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -21,7 +19,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -270,7 +268,7 @@ public class SQLiteJDBCDriverConnection
             door.setWorld(world);
             door.setMinimum(new Location(world, rs.getInt(DOOR_MIN_X), rs.getInt(DOOR_MIN_Y), rs.getInt(DOOR_MIN_Z)));
             door.setMaximum(new Location(world, rs.getInt(DOOR_MAX_X),   rs.getInt(DOOR_MAX_Y),   rs.getInt(DOOR_MAX_Z)));
-            door.setEngineSide(MyBlockFace.valueOf(rs.getInt(DOOR_ENG_SIDE)));
+            door.setEngineSide(PBlockFace.valueOf(rs.getInt(DOOR_ENG_SIDE)));
             door.setEngineLocation(new Location(world, rs.getInt(DOOR_ENG_X),   rs.getInt(DOOR_ENG_Y),   rs.getInt(DOOR_ENG_Z)));
             door.setPowerBlockLocation(new Location(world, rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z)));
 
@@ -847,7 +845,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Update the door at doorUID with the provided coordinates and open status.
-    public void updateDoorCoords(final long doorID, final boolean isOpen, final int xMin, final int yMin, final int zMin, final int xMax, final int yMax, final int zMax, final MyBlockFace engSide)
+    public void updateDoorCoords(final long doorID, final boolean isOpen, final int xMin, final int yMin, final int zMin, final int xMax, final int yMax, final int zMax, final PBlockFace engSide)
     {
         Connection conn = null;
         try
@@ -862,7 +860,7 @@ public class SQLiteJDBCDriverConnection
                           + "',yMax='"       + yMax
                           + "',zMax='"       + zMax
                           + "',isOpen='"     + (isOpen  == true ?  1 : 0)
-                          + "',engineSide='" + (engSide == null ? -1 : MyBlockFace.getValue(engSide))
+                          + "',engineSide='" + (engSide == null ? -1 : PBlockFace.getValue(engSide))
                           + "' WHERE id = '" + doorID + "';";
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
@@ -1098,7 +1096,7 @@ public class SQLiteJDBCDriverConnection
             doorstatement.setInt(DOOR_LOCKED - 1,          door.isLocked() == true ? 1 : 0);
             doorstatement.setInt(DOOR_TYPE - 1,            DoorType.getValue(door.getType()));
             // Set -1 if the door has no engineSide (normal doors don't use it)
-            doorstatement.setInt(DOOR_ENG_SIDE - 1,        door.getEngineSide() == null ? -1 : MyBlockFace.getValue(door.getEngineSide()));
+            doorstatement.setInt(DOOR_ENG_SIDE - 1,        door.getEngineSide() == null ? -1 : PBlockFace.getValue(door.getEngineSide()));
             doorstatement.setInt(DOOR_POWER_X - 1,         door.getEngine().getBlockX());
             doorstatement.setInt(DOOR_POWER_Y - 1,         door.getEngine().getBlockY() - 1); // Power Block Location is 1 block below the engine, by default.
             doorstatement.setInt(DOOR_POWER_Z - 1,         door.getEngine().getBlockZ());

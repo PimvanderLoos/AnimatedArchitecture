@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

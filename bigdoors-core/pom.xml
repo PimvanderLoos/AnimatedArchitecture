@@ -92,7 +92,6 @@
             <scope>compile</scope>
         </dependency>
 
-
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>

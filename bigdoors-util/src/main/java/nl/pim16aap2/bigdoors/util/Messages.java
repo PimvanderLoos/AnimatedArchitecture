@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.util.MyLogger;
-
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -17,7 +15,7 @@ import java.util.Map;
 public final class Messages
 {
     private HashMap<String, String> messageMap = new HashMap<>();
-    private final MyLogger logger;
+    private final PLogger logger;
     private final File fileDir;
     private File textFile;
     private static final String DEFAULTFILENAME = "en_US.txt";
@@ -27,9 +25,9 @@ public final class Messages
      *
      * @param fileDir  The directory the messages file(s) will be in.
      * @param fileName The name of the file that will be loaded, if it exists. Extension excluded.
-     * @param logger   The {@link MyLogger} object that will be used for logging.
+     * @param logger   The {@link PLogger} object that will be used for logging.
      */
-    public Messages(final File fileDir, String fileName, final MyLogger logger)
+    public Messages(final File fileDir, String fileName, final PLogger logger)
     {
         if (!fileDir.exists())
             fileDir.mkdirs();

@@ -12,7 +12,7 @@ import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
+import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
@@ -58,7 +58,7 @@ public class SubCommandDebug extends SubCommand
             Location loc2 = loc.clone();
             loc2.add(0, 5, 0);
 
-            NMSBlock_Vall nmsBlock = plugin.getFABF().nmsBlockFactory(world, 49, 77, 191);
+            INMSBlock nmsBlock = plugin.getFABF().nmsBlockFactory(world, 49, 77, 191);
             plugin.getFABF().fallingBlockFactory(loc2, nmsBlock);
 
             for (Entity ent : world.getEntities())
@@ -105,9 +105,9 @@ public class SubCommandDebug extends SubCommand
 //
 //                        Set<BlockFace> currentFaces = new HashSet<>();
 //                        currentFaces.add(mf.getFacing());
-//                        List<MyBlockFace> myFaces = new ArrayList<>(currentFaces.size());
-//                        List<MyBlockFace> newFaces = new ArrayList<>(currentFaces.size());
-//                        currentFaces.forEach((K) -> myFaces.add(MyBlockFace.getMyBlockFace(K)));
+//                        List<PBlockFace> myFaces = new ArrayList<>(currentFaces.size());
+//                        List<PBlockFace> newFaces = new ArrayList<>(currentFaces.size());
+//                        currentFaces.forEach((K) -> myFaces.add(PBlockFace.getPBlockFace(K)));
 //
 //
 //                        Material mat = newLoc.getBlock().getType();
@@ -116,22 +116,22 @@ public class SubCommandDebug extends SubCommand
 //                        switch(mat)
 //                        {
 //                        case IRON_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(MyBlockFace.rotateCounterClockwise(K)));
+//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateCounterClockwise(K)));
 //                            break;
 //                        case COAL_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(MyBlockFace.rotateVerticallyNorth(K)));
+//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateVerticallyNorth(K)));
 //                            break;
 //                        case DIAMOND_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(MyBlockFace.rotateVerticallyEast(K)));
+//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateVerticallyEast(K)));
 //                            break;
 //                        case BONE_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(MyBlockFace.rotateVerticallySouth(K)));
+//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateVerticallySouth(K)));
 //                            break;
 //                        case QUARTZ_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(MyBlockFace.rotateVerticallyWest(K)));
+//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateVerticallyWest(K)));
 //                            break;
 //                        default:
-//                            myFaces.forEach((K) -> newFaces.add(MyBlockFace.rotateClockwise(K)));
+//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateClockwise(K)));
 //                            break;
 //                        }
 //                        {
@@ -141,17 +141,17 @@ public class SubCommandDebug extends SubCommand
 //                        }
 //                        {
 //                            StringBuilder builder = new StringBuilder();
-//                            newFaces.forEach((K) -> builder.append(" (" + K.toString() + "): " + " " + MyBlockFace.getBukkitFace(K).toString()));
+//                            newFaces.forEach((K) -> builder.append(" (" + K.toString() + "): " + " " + PBlockFace.getBukkitFace(K).toString()));
 //                            SpigotUtil.broadcastMessage("New faces:" + builder.toString());
 //                        }
 //
 ////                        currentFaces.forEach((K) -> mf.setFace(K, false));
 //                        newFaces.forEach((K) ->
 //                        {
-//                            if (allowedFaces.contains(MyBlockFace.getBukkitFace(K)))
-//                                mf.setFacing(MyBlockFace.getBukkitFace(K));
+//                            if (allowedFaces.contains(PBlockFace.getBukkitFace(K)))
+//                                mf.setFacing(PBlockFace.getBukkitFace(K));
 //                            else
-//                                SpigotUtil.broadcastMessage("\"" + MyBlockFace.getBukkitFace(K).toString() + "\" is not an allowed face!");
+//                                SpigotUtil.broadcastMessage("\"" + PBlockFace.getBukkitFace(K).toString() + "\" is not an allowed face!");
 //                        });
 //                        block.setBlockData(mf);
 //                    }

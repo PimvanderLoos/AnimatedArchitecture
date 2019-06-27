@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +13,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
@@ -28,10 +25,7 @@ import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockRelocator;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
-import nl.pim16aap2.bigdoors.util.Restartable;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.TimedMapCache;
+import nl.pim16aap2.bigdoors.util.*;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
@@ -394,7 +388,7 @@ public class DatabaseManager extends Restartable
     // Update the coordinates of a given door.
     public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
                                  int blockZMin, int blockXMax, int blockYMax, int blockZMax,
-                                 MyBlockFace newEngSide)
+                                 PBlockFace newEngSide)
     {
         db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax,
                             blockZMax, newEngSide);

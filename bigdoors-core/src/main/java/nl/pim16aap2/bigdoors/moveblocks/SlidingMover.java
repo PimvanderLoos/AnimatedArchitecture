@@ -7,7 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -79,7 +79,7 @@ class SlidingMover extends BlockMover
             long startTime   = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
-            MyBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst().orElse(null);
+            PBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst().orElse(null);
 
             @Override
             public void run()
@@ -126,7 +126,7 @@ class SlidingMover extends BlockMover
                     Vector vec = loc.toVector().subtract(firstBlockData.getFBlock().getLocation().toVector());
                     vec.multiply(0.101);
 
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(vec);
                 }
             }

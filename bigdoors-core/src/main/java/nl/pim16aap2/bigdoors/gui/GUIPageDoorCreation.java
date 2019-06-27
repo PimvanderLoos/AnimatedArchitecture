@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.util.Messages;
 
 public class GUIPageDoorCreation implements IGUIPage
 {

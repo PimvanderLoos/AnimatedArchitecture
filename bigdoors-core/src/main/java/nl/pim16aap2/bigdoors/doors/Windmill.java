@@ -5,7 +5,7 @@ import org.bukkit.Location;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 
@@ -44,18 +44,18 @@ public class Windmill extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public MyBlockFace calculateCurrentDirection()
+    public PBlockFace calculateCurrentDirection()
     {
         switch (openDir)
         {
         case NORTH:
-            return MyBlockFace.NORTH;
+            return PBlockFace.NORTH;
         case EAST:
-            return MyBlockFace.EAST;
+            return PBlockFace.EAST;
         case SOUTH:
-            return MyBlockFace.SOUTH;
+            return PBlockFace.SOUTH;
         case WEST:
-            return MyBlockFace.WEST;
+            return PBlockFace.WEST;
         default:
             return null;
         }
@@ -77,8 +77,8 @@ public class Windmill extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(MyBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<MyBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
+                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
     {
         newMin.setX(min.getBlockX());
         newMin.setY(min.getBlockY());

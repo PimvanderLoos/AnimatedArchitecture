@@ -7,13 +7,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
-import nl.pim16aap2.bigdoors.api.NMSBlock_Vall;
+import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
+import nl.pim16aap2.bigdoors.api.INMSBlock;
+import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.*;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 class CylindricalMover extends BlockMover
@@ -27,7 +27,7 @@ class CylindricalMover extends BlockMover
     private final GetNewLocation gnl;
 
     public CylindricalMover(final BigDoors plugin, final World world, final RotateDirection rotDirection,
-                            final double time, final MyBlockFace currentDirection, final DoorBase door,
+                            final double time, final PBlockFace currentDirection, final DoorBase door,
                             final boolean instantOpen, final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1);
@@ -118,7 +118,7 @@ class CylindricalMover extends BlockMover
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
-                    for (MyBlockData savedBlock : savedBlocks)
+                    for (PBlockData savedBlock : savedBlocks)
                         savedBlock.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
 
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
@@ -136,7 +136,7 @@ class CylindricalMover extends BlockMover
                     if (replace)
                         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
                         {
-                            for (MyBlockData mbd : savedBlocks)
+                            for (PBlockData mbd : savedBlocks)
                                 if (mbd.canRot())
                                 {
                                     Location loc = mbd.getFBlock().getLocation();
@@ -147,10 +147,10 @@ class CylindricalMover extends BlockMover
                                     // to be counteracted.
                                     if (mbd.getStartLocation().getBlockY() != yMin)
                                         loc.setY(loc.getY() - .010001);
-                                    CustomCraftFallingBlock_Vall fBlock;
+                                    ICustomCraftFallingBlock fBlock;
                                     // Because the block in savedBlocks is already rotated where applicable, just
                                     // use that block now.
-                                    NMSBlock_Vall block = mbd.getBlock();
+                                    INMSBlock block = mbd.getBlock();
                                     fBlock = fallingBlockFactory(loc, block);
 
                                     mbd.setFBlock(fBlock);
@@ -161,7 +161,7 @@ class CylindricalMover extends BlockMover
                     double sin = Math.sin(stepSum);
                     double cos = Math.cos(stepSum);
 
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                     {
                         double radius = block.getRadius();
                         int yPos = block.getStartLocation().getBlockY();

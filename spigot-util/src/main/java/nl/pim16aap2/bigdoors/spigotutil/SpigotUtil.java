@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -15,7 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
 
 /**
@@ -49,41 +47,41 @@ public final class SpigotUtil
         return String.format(ChatColor.GREEN + "/%s: " + ChatColor.BLUE + "%s\n", command, explanation);
     }
 
-    private static final Map<MyBlockFace, BlockFace> toBlockFace = new HashMap<>();
-    private static final Map<BlockFace, MyBlockFace> toMyBlockFace = new HashMap<>();
+    private static final Map<PBlockFace, BlockFace> toBlockFace = new HashMap<>();
+    private static final Map<BlockFace, PBlockFace> toPBlockFace = new HashMap<>();
     static
     {
-        for (MyBlockFace mbf : MyBlockFace.values())
+        for (PBlockFace mbf : PBlockFace.values())
         {
             BlockFace mappedBlockFace = BlockFace.valueOf(mbf.toString());
             toBlockFace.put(mbf, mappedBlockFace);
-            toMyBlockFace.put(mappedBlockFace, mbf);
+            toPBlockFace.put(mappedBlockFace, mbf);
         }
     }
 
     /**
-     * Get the {@link nl.pim16aap2.bigdoors.util.MyBlockFace} parallel to the given
+     * Get the {@link PBlockFace} parallel to the given
      * {@link org.bukkit.block.BlockFace}.
      *
-     * @param mbf {@link nl.pim16aap2.bigdoors.util.MyBlockFace} that will be
+     * @param mbf {@link PBlockFace} that will be
      *            converted.
      * @return The parallel {@link org.bukkit.block.BlockFace}.
      */
-    public static BlockFace getBukkitFace(MyBlockFace mbf)
+    public static BlockFace getBukkitFace(PBlockFace mbf)
     {
         return toBlockFace.get(mbf);
     }
 
     /**
      * Get the {@link org.bukkit.block.BlockFace} parallel to the given
-     * {@link nl.pim16aap2.bigdoors.util.MyBlockFace}.
+     * {@link PBlockFace}.
      *
      * @param bf {@link org.bukkit.block.BlockFace} that will be converted.
-     * @return The parallel {@link nl.pim16aap2.bigdoors.util.MyBlockFace}.
+     * @return The parallel {@link PBlockFace}.
      */
-    public static MyBlockFace getMyBlockFace(BlockFace bf)
+    public static PBlockFace getPBlockFace(BlockFace bf)
     {
-        return toMyBlockFace.get(bf);
+        return toPBlockFace.get(bf);
     }
 
     public static boolean printDebugMessages = false;

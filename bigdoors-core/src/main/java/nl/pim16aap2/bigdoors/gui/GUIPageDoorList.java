@@ -3,12 +3,12 @@ package nl.pim16aap2.bigdoors.gui;
 import java.util.ArrayList;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.gui.GUI.SortType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.Messages;
 
 class GUIPageDoorList implements IGUIPage
 {

@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.doors;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -34,7 +33,7 @@ public abstract class DoorBase
     protected RotateDirection openDir;
     protected boolean isLocked;
     protected int autoClose = -1;
-    protected MyBlockFace engineSide;
+    protected PBlockFace engineSide;
     protected Location powerBlock;
     protected int blocksToMove;
     protected DoorOwner doorOwner;
@@ -43,7 +42,7 @@ public abstract class DoorBase
     // "cached" values.
     private Chunk engineChunk = null;
     private Integer blockCount = null;
-    private MyBlockFace currentDirection = null;
+    private PBlockFace currentDirection = null;
     // Min and Max chunk coordinates of the range of chunks that
     // this door might interact with.
     private Vector2D minChunkCoords = null;
@@ -71,17 +70,17 @@ public abstract class DoorBase
     }
 
     /**
-     * Calculate the {@link MyBlockFace} of the side the door is on relative to its
+     * Calculate the {@link PBlockFace} of the side the door is on relative to its
      * engine.
      * <p>
      * When taking a {@link nl.pim16aap2.bigdoors.doors.BigDoor} as an example, it
      * would return NORTH if the door was positioned along the x-axis (North /
      * South) and the engine was on the south-most point of the door.
      *
-     * @return The {@link MyBlockFace} of the side the door is on relative to its
+     * @return The {@link PBlockFace} of the side the door is on relative to its
      *         engine.
      */
-    public abstract MyBlockFace calculateCurrentDirection();
+    public abstract PBlockFace calculateCurrentDirection();
 
     /**
      * Calculate the Min and Max coordinates of the range of chunks that this door
@@ -110,7 +109,7 @@ public abstract class DoorBase
      * Get the new min and max values of the door and the new engine side when
      * opened according to the specified variables.
      *
-     * @param openDirection   The {@link MyBlockFace} the door will open in.
+     * @param openDirection   The {@link PBlockFace} the door will open in.
      * @param rotateDirection The {@link nl.pim16aap2.bigdoors.util.RotateDirection}
      *                        the door will rotate in.
      * @param newMin          The new minimum location (mutable) of the door. x,y,z
@@ -120,15 +119,15 @@ public abstract class DoorBase
      * @param blocksMoved     The number of blocks the door actually moved. Note
      *                        that this differs from the suggested number of blocks
      *                        to move!
-     * @param newEngineSide   The new {@link MyBlockFace} describing the side the
+     * @param newEngineSide   The new {@link PBlockFace} describing the side the
      *                        engine would be on if opened according to the provided
      *                        variables. Using
      *                        {@link nl.pim16aap2.bigdoors.util.Mutable} to make it
      *                        mutable.
      */
-    public abstract void getNewLocations(MyBlockFace openDirection, RotateDirection rotateDirection,
+    public abstract void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection,
                                          @Nonnull Location newMin, @Nonnull Location newMax, int blocksMoved,
-                                         @Nonnull Mutable<MyBlockFace> newEngineSide);
+                                         @Nonnull Mutable<PBlockFace> newEngineSide);
 
     /**
      * Check if a provided chunk is in range of the door. Range in this case refers
@@ -298,7 +297,7 @@ public abstract class DoorBase
      * @return The side of the door the engine is on relative to the rest of the
      *         door.
      */
-    public MyBlockFace getEngineSide()
+    public PBlockFace getEngineSide()
     {
         return engineSide;
     }
@@ -567,9 +566,9 @@ public abstract class DoorBase
     /**
      * Change the engineSide of this door.
      *
-     * @param newEngineSide The new {@link MyBlockFace} engine side of this door
+     * @param newEngineSide The new {@link PBlockFace} engine side of this door
      */
-    public void setEngineSide(MyBlockFace newEngineSide)
+    public void setEngineSide(PBlockFace newEngineSide)
     {
         engineSide = newEngineSide;
     }
@@ -655,7 +654,7 @@ public abstract class DoorBase
      *
      * @return The side the door is on relative to the engine
      */
-    public final MyBlockFace getCurrentDirection()
+    public final PBlockFace getCurrentDirection()
     {
         if (currentDirection == null)
             currentDirection = calculateCurrentDirection();

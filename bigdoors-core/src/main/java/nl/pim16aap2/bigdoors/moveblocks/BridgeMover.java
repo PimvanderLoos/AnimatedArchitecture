@@ -7,12 +7,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.CustomCraftFallingBlock_Vall;
-import nl.pim16aap2.bigdoors.api.MyBlockData;
+import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
+import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.*;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.function.TriFunction;
 
@@ -21,22 +21,22 @@ class BridgeMover extends BlockMover
     private int tickRate;
     private double multiplier;
     private boolean NS;
-    private MyBlockFace engineSide;
+    private PBlockFace engineSide;
     private double endStepSum;
     private Location turningPoint;
     private double startStepSum;
     private int stepMultiplier;
-    private final TriFunction<MyBlockData, Double, Location, Vector> getDelta;
+    private final TriFunction<PBlockData, Double, Location, Vector> getDelta;
     private final GetNewLocation gnl;
 
     public BridgeMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
-        final MyBlockFace upDown, final RotateDirection openDirection, final boolean instantOpen,
-        final double multiplier)
+                       final PBlockFace upDown, final RotateDirection openDirection, final boolean instantOpen,
+                       final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, upDown, openDirection, -1);
 
         engineSide = door.getEngineSide();
-        NS = engineSide == MyBlockFace.NORTH || engineSide == MyBlockFace.SOUTH;
+        NS = engineSide == PBlockFace.NORTH || engineSide == PBlockFace.SOUTH;
 
         int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
         int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
@@ -63,7 +63,7 @@ class BridgeMover extends BlockMover
         case NORTH:
             // When EngineSide is North, x goes from low to high and z goes from low to high
             turningPoint = new Location(world, xMin, yMin, zMin);
-            if (upDown.equals(MyBlockFace.UP))
+            if (upDown.equals(PBlockFace.UP))
             {
                 startStepSum = Math.PI / 2;
                 stepMultiplier = -1;
@@ -81,7 +81,7 @@ class BridgeMover extends BlockMover
             // When EngineSide is South, x goes from high to low and z goes from high to low
             turningPoint = new Location(world, xMax, yMin, zMax);
 
-            if (upDown.equals(MyBlockFace.UP))
+            if (upDown.equals(PBlockFace.UP))
             {
                 startStepSum = -Math.PI / 2;
                 stepMultiplier = 1;
@@ -99,7 +99,7 @@ class BridgeMover extends BlockMover
             // When EngineSide is East, x goes from high to low and z goes from low to high
             turningPoint = new Location(world, xMax, yMin, zMin);
 
-            if (upDown.equals(MyBlockFace.UP))
+            if (upDown.equals(PBlockFace.UP))
             {
                 startStepSum = -Math.PI / 2;
                 stepMultiplier = 1;
@@ -117,7 +117,7 @@ class BridgeMover extends BlockMover
             // When EngineSide is West, x goes from low to high and z goes from high to low
             turningPoint = new Location(world, xMin, yMin, zMax);
 
-            if (upDown.equals(MyBlockFace.UP))
+            if (upDown.equals(PBlockFace.UP))
             {
                 startStepSum = Math.PI / 2;
                 stepMultiplier = -1;
@@ -135,8 +135,8 @@ class BridgeMover extends BlockMover
             break;
         }
 
-        endStepSum = upDown.equals(MyBlockFace.UP) ? 0 : Math.PI / 2 * stepMultiplier;
-        startStepSum = upDown.equals(MyBlockFace.DOWN) ? 0 : startStepSum;
+        endStepSum = upDown.equals(PBlockFace.UP) ? 0 : Math.PI / 2 * stepMultiplier;
+        startStepSum = upDown.equals(PBlockFace.DOWN) ? 0 : startStepSum;
 
         switch (openDirection)
         {
@@ -167,7 +167,7 @@ class BridgeMover extends BlockMover
         super.constructFBlocks();
     }
 
-    private Vector getDeltaNS(MyBlockData block, double stepSum, Location center)
+    private Vector getDeltaNS(PBlockData block, double stepSum, Location center)
     {
         double posX = block.getFBlock().getLocation().getX();
         double posY = center.getY() + block.getRadius() * Math.cos(stepSum);
@@ -175,7 +175,7 @@ class BridgeMover extends BlockMover
         return new Vector(posX, posY, posZ);
     }
 
-    private Vector getDeltaEW(MyBlockData block, double stepSum, Location center)
+    private Vector getDeltaEW(PBlockData block, double stepSum, Location center)
     {
         double posX = center.getX() + block.getRadius() * Math.sin(stepSum);
         double posY = center.getY() + block.getRadius() * Math.cos(stepSum);
@@ -227,7 +227,7 @@ class BridgeMover extends BlockMover
                 if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
@@ -244,13 +244,13 @@ class BridgeMover extends BlockMover
                     if (replace)
                         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
                         {
-                            for (MyBlockData block : savedBlocks)
+                            for (PBlockData block : savedBlocks)
                                 if (block.canRot())
                                 {
                                     Location loc = block.getFBlock().getLocation();
                                     Vector veloc = block.getFBlock().getVelocity();
 
-                                    CustomCraftFallingBlock_Vall fBlock;
+                                    ICustomCraftFallingBlock fBlock;
                                     // Because the block in savedBlocks is already rotated where applicable, just
                                     // use that block now.
                                     fBlock = fallingBlockFactory(loc, block.getBlock());
@@ -262,7 +262,7 @@ class BridgeMover extends BlockMover
                                 }
                         }, 0);
 
-                    for (MyBlockData block : savedBlocks)
+                    for (PBlockData block : savedBlocks)
                     {
                         double radius = block.getRadius();
                         if (radius != 0)
@@ -287,13 +287,13 @@ class BridgeMover extends BlockMover
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        if (currentDirection == MyBlockFace.UP)
+        if (currentDirection == PBlockFace.UP)
         {
             if (NS)
                 return Math.abs(zAxis - turningPoint.getBlockZ());
             return Math.abs(xAxis - turningPoint.getBlockX());
         }
-        if (currentDirection == MyBlockFace.DOWN)
+        if (currentDirection == PBlockFace.DOWN)
             return yAxis - turningPoint.getBlockY();
         plugin.getMyLogger().dumpStackTrace("Invalid BridgeMover direction \"" + currentDirection.toString() + "\"");
         return -1;

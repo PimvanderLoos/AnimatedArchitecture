@@ -1,31 +1,33 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>nl.pim16aap2.bigdoors</groupId>
-  <artifactId>bigdoors-parent</artifactId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>nl.pim16aap2.bigdoors</groupId>
+    <artifactId>bigdoors-parent</artifactId>
 
-  <packaging>pom</packaging>
-  <version>200</version>
-  <name>BigDoors</name>
+    <packaging>pom</packaging>
+    <version>200</version>
+    <name>BigDoors</name>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
-  <modules>
-    <module>spigot-v1_14_R1</module>
-    <module>bigdoors-api</module>
-    <module>bigdoors-core</module>
-    <module>bigdoors-util</module>
-    <module>spigot-util</module>
-  </modules>
+    <modules>
+        <module>spigot-v1_14_R1</module>
+        <module>bigdoors-api</module>
+        <module>bigdoors-core</module>
+        <module>bigdoors-util</module>
+        <module>spigot-util</module>
+        <module>bigdoors-spigot</module>
+    </modules>
 
-  <repositories>
-    <repository>
-      <id>spigot-repo</id>
-      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-    </repository>
-  </repositories>
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
 
 </project>

@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import java.util.logging.Level;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -9,8 +11,6 @@ import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-
-import java.util.logging.Level;
 
 public class SubCommandRestart extends SubCommand
 {

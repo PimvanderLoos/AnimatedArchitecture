@@ -6,7 +6,7 @@ import org.bukkit.Location;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
-import nl.pim16aap2.bigdoors.util.MyBlockFace;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 
@@ -51,27 +51,27 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public MyBlockFace calculateCurrentDirection()
+    public PBlockFace calculateCurrentDirection()
     {
-        MyBlockFace looking;
+        PBlockFace looking;
         switch (openDir)
         {
         case NORTH:
-            looking = MyBlockFace.NORTH;
+            looking = PBlockFace.NORTH;
             break;
         case EAST:
-            looking = MyBlockFace.EAST;
+            looking = PBlockFace.EAST;
             break;
         case SOUTH:
-            looking = MyBlockFace.SOUTH;
+            looking = PBlockFace.SOUTH;
             break;
         case WEST:
-            looking = MyBlockFace.WEST;
+            looking = PBlockFace.WEST;
             break;
         default:
             return null;
         }
-        return isOpen ? MyBlockFace.getOpposite(looking) : looking;
+        return isOpen ? PBlockFace.getOpposite(looking) : looking;
     }
 
     /**
@@ -102,8 +102,8 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(MyBlockFace openDirection, @Nonnull RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<MyBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, @Nonnull RotateDirection rotateDirection, Location newMin,
+                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
     {
         int addX = 0, addZ = 0;
 

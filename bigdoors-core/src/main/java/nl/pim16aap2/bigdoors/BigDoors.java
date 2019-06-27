@@ -4,10 +4,6 @@ import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
 
-import javax.annotation.Nullable;
-
-import nl.pim16aap2.bigdoors.spigotutil.MessagingInterfaceSpigot;
-import nl.pim16aap2.bigdoors.util.*;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,7 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import nl.pim16aap2.bigdoors.api.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigdoors.api.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.commands.*;
 import nl.pim16aap2.bigdoors.commands.subcommands.*;
 import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
@@ -29,11 +25,14 @@ import nl.pim16aap2.bigdoors.gui.GUI;
 import nl.pim16aap2.bigdoors.handlers.*;
 import nl.pim16aap2.bigdoors.managers.*;
 import nl.pim16aap2.bigdoors.moveblocks.*;
+import nl.pim16aap2.bigdoors.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
+import nl.pim16aap2.bigdoors.spigotutil.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
+import nl.pim16aap2.bigdoors.util.*;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 /*
@@ -58,14 +57,10 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Fix violation of LSP for doorAttributes. Instead of having a switch per type in the GUI, override a return in the DoorAttribute enum.
 // TODO: NEVER use something like this: private final HashMap<Object>; Instead, use this: private final Map<Object>; So it doesn't
 //       violate LSP. Same goes for lists and what-not.
-// TODO: Data is duplicated a lot! Currently, the falling block has the IBlockData, and so does MyBlockData. If the block can rotate, it has it twice, even!
+// TODO: Data is duplicated a lot! Currently, the falling block has the IBlockData, and so does PBlockData. If the block can rotate, it has it twice, even!
 //       This is a huge waste of Ram. The falling block should be the only place to store the block data.
 // TODO: Instead of killing the FBlock, rotating it and then respawning it, rotate the FBlockData and then send the appropriate packets to the appropriate players.
-// TODO: Async logging: https://www.javaworld.com/article/2077526/java-tip-29--how-to-decouple-the-observer-observable-object-model.html
-//       Use this: LinkedBlockingQueue
-// TODO: Async database operations, perhaps in combination with an event queue or something. So queue a door open operation and execute it once the door has been retrieved.
 // TODO: Add command to upload error log to pastebin or something similar.
-// TODO: Look into FutureTask.
 // TODO: Add config option to limit logging file size.
 // TODO: Look into previously-blacklisted material. Torches, for example, work just fine in 1.13. They just need to be removed first and placed last.
 // TODO: Replace the enum of DoorTypes by a static list. Types should then statically register themselves.
@@ -83,7 +78,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       are of the correct type and count. (in this case, the result should be messages.getMessage(Message.NextPage, currentPage, nextPage);
 // TODO: Look into Aikar's command system to replace everything I just made myself: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
 // TODO: Add 1 block depth requirement to assertValidCoords() in HorizontalAxisAlignedBase.
-// TODO: Check if SpigotUtil::needsRefresh(Material mat) is still needed.
+// TODO: Check if SpigotUtil#needsRefresh(Material mat) is still needed.
 // TODO: Door pooling. When a door is requested from the database, store it in a timedCache. Only get the creator by default, but store
 //       the other owners if needed. Add a Door::Sync function to sync (new) data with the database.
 // TODO: Get rid of the DoorType enum. Instead, allow dynamic registration of door types.
@@ -99,11 +94,9 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Use Optional where applicable: https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html
 // TODO: Put @Nullable everywhere where applicable.
 //       More info about which to use: https://stackoverflow.com/questions/4963300/which-notnull-java-annotation-should-i-use
-// TODO: Add command to upload log file to PasteBin or something.
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
-// TODO: Add javadoc (@ param) stuff etc to "api" and replace any method comment by jdoc stuff.
 // TODO: Update version checker. Start using the new format. Also, decide what the new format will be. R200? 200R? %100 = Stable?
 // TODO: Rename RotateDirection to moveDirection. Lifts don't rotate. They lift.
 // TODO: Update rotatable blocks after finishing rotation etc.
@@ -111,22 +104,19 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: ConfigLoader should figure out which resource pack version to use on its own.
 // TODO: Move all non-database related stuff out of DatabaseManager.
 // TODO: Rename region bypass permission to bigdoors.admin.bypass.region.
-// TODO: CustomEntityFallingBlock: Clean this damn class up!
+// TODO: ICustomEntityFallingBlock: Clean this damn class up!
 // TODO: Portcullis info prints it'll open going North when looking east. That's not right.
 //       Same issue for regular doors.
-// TODO: blocksToMove isn't printed by door full info.
 // TODO: Don't use TypeString for DoorCreator, but use DoorType codeName instead. Also, the entire format is pretty stupid. Lots of repetition in the language file for every type.
 // TODO: Look into restartables interface. Perhaps it's a good idea to split restart() into stop() and init().
 //       This way, it can call all init()s in BigDoors::onEnable and all stop()s in BigDoors::onDisable.
 // TODO: Allow position etc validation code to be used on existing doors one way or another.
 // TODO: Creators: updateEngineLoc from DoorCreator() and setEngine() should be the same and declared as abstract method in Creator.
 // TODO: GarageDoorCreator: Should extend DrawBridgeCreator.
-// TODO: Store MyBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
+// TODO: Store PBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
 // TODO: Make sure ALL players stored in hashMaps are cleaned up when they leave to avoid a memory leak!!
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
 // TODO: When returning null after unexpected input, just fucking thrown an IllegalArgumentException. Will make debugging a lot easier.
-// TODO: Use Functional interface for the ProtectionCompatManager. Too much code duplication.
-// TODO: Improve calculateChunkRange() methods. Drawbridge, for example, could be much smaller.
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
 // TODO: When truncating exceptions etc, make sure to write it down in the log.
 // TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
@@ -139,7 +129,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 /*
  * GUI
  */
-// TODO: Look into playerheads for GUI buttons. Example: https://minecraft-heads.com/player-heads/alphabet/2762-arrow-left
+// TODO: Look into using player heads for GUI buttons. Example: https://minecraft-heads.com/player-heads/alphabet/2762-arrow-left
 // TODO: Make GUI options always use the correct subCommand.
 // TODO: Create ItemManager that stores repeatedly used items (such as door creation books and doorInfo stuff).
 // TODO: Store 2 player objects: 1) Subject (the owner of all the doors), and 2) InventoryHolder (who is looking at the inventory).
@@ -162,7 +152,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       Then +1 won't have to be appended to everything.
 // TODO: Use proper COUNT operation for getting the number of doors.
 // TODO: Merge isOpen and isLocked into single FLAG value.
-// TODO: Switch RotateDirection values to line up with MyBlockFace.
+// TODO: Switch RotateDirection values to line up with PBlockFace.
 // TODO: Remove all NONE RotateDirection values from the database.
 // TODO: When retrieving all doors for info, put them in a sorted map (treemap).
 
@@ -276,9 +266,9 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
 
     private ToolVerifier tf;
     private SQLiteJDBCDriverConnection db;
-    private FallingBlockFactory_Vall fabf;
+    private IFallingBlockFactory fabf;
     private ConfigLoader config;
-    private MyLogger logger;
+    private PLogger logger;
     private SpigotUpdater updater;
     private Metrics metrics;
     private Messages messages;
@@ -303,7 +293,6 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
     private List<IRestartable> restartables = new ArrayList<>();
-    private boolean is1_13 = false;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
     private TimedMapCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
@@ -315,7 +304,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     @Override
     public void onEnable()
     {
-        logger = new MyLogger(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this), this.getName());
+        logger = new PLogger(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this), this.getName());
 
         try
         {
@@ -404,6 +393,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             return;
 
         readConfigValues();
+        getMyLogger().setDebug(config.debug());
         messages = new Messages(getDataFolder(), getConfigLoader().languageFile(), getMyLogger());
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
@@ -531,7 +521,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         return pbCache;
     }
 
-    public FallingBlockFactory_Vall getFABF()
+    public IFallingBlockFactory getFABF()
     {
         return fabf;
     }
@@ -678,7 +668,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     }
 
     // Get the logger.
-    public MyLogger getMyLogger()
+    public PLogger getMyLogger()
     {
         return logger;
     }
@@ -712,11 +702,6 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         config = new ConfigLoader(this);
     }
 
-    public boolean is1_13()
-    {
-        return is1_13;
-    }
-
     // Check + initialize for the correct version of Minecraft.
     private boolean compatibleMCVer()
     {
@@ -734,10 +719,8 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
 
         fabf = null;
         if (version.equals("v1_14_R1"))
-        {
-            is1_13 = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
-            fabf = new nl.pim16aap2.bigdoors.v1_14_R1.FallingBlockFactory_V1_14_R1();
-        }
+            fabf = new FallingBlockFactory_V1_14_R1();
+
         // Return true if compatible.
         return fabf != null;
     }
