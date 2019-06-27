@@ -38,11 +38,11 @@ public class SubCommandAddOwner extends SubCommand
 
         if (plugin.getDatabaseManager().addOwner(door, playerUUID, permission))
         {
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                                 plugin.getMessages().getString("COMMAND.AddOwner.Success"));
             return true;
         }
-        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                             plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
         return false;
 
@@ -60,7 +60,7 @@ public class SubCommandAddOwner extends SubCommand
         catch (Exception uncaught)
         {
             plugin.getMyLogger()
-                .returnToSender(sender, ChatColor.RED,
+                .sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                 "\"" + args[pos] + "\" " + plugin.getMessages().getString("GENERAL.COMMAND.InvalidPermissionValue"));
         }
         return permission;

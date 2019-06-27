@@ -35,10 +35,10 @@ public class SubCommandSetBlocksToMove extends SubCommand
         plugin.getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
 
         if (blocksToMove > 0)
-            plugin.getMyLogger().returnToSender(sender, null,
+            plugin.getMyLogger().sendMessageToTarget(sender, null,
                                plugin.getMessages().getString("COMMAND.SetBlocksToMove.Success") + blocksToMove);
         else
-            plugin.getMyLogger().returnToSender(sender, null,
+            plugin.getMyLogger().sendMessageToTarget(sender, null,
                                 plugin.getMessages().getString("COMMAND.SetBlocksToMove.Disabled"));
         return true;
     }

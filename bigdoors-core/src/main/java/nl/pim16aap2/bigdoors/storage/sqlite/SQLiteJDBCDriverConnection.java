@@ -364,7 +364,7 @@ public class SQLiteJDBCDriverConnection
 
     // Get Door from a doorID.
 //    public DoorBase getDoor(Optional<UUID> playerUUID, final long doorUID)
-    public DoorBase getDoor(@Nullable UUID playerUUID, final long doorUID)
+    public DoorBase getDoor(UUID playerUUID, final long doorUID)
     {
         DoorBase door = null;
 
@@ -418,7 +418,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Get ALL doors owned by a given playerUUID.
-    public ArrayList<DoorBase> getDoors(final String playerUUID, @Nullable final String name)
+    public ArrayList<DoorBase> getDoors(final String playerUUID, final String name)
     {
         return getDoors(playerUUID, name, 0);
     }
@@ -481,7 +481,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Get all doors associated with this player in a given range. Name can be null
-    public ArrayList<DoorBase> getDoors(final String playerUUID, @Nullable final String doorName, int maxPermission)
+    public ArrayList<DoorBase> getDoors(final String playerUUID, final String doorName, int maxPermission)
     {
         ArrayList<DoorBase> doors = new ArrayList<>();
 
@@ -1297,7 +1297,7 @@ public class SQLiteJDBCDriverConnection
 
     // Get the number of doors owned by this player.
     // If name is null, it will ignore door names, otherwise it will return the number of doors with the provided name.
-    public int countDoors(final String playerUUID, @Nullable final String name)
+    public int countDoors(final String playerUUID, final String name)
     {
         int count = 0;
         Connection conn = null;

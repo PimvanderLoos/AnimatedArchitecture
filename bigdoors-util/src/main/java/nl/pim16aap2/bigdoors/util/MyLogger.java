@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors;
+package nl.pim16aap2.bigdoors.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,18 +11,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import nl.pim16aap2.bigdoors.config.ConfigLoader;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-
 /**
  * Represents my logger. Logs to the console synchronously and to the log file
  * asynchronously.
@@ -31,20 +19,42 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
  */
 public class MyLogger
 {
-    private final JavaPlugin plugin;
     private final File logFile;
     private final BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
     private static AtomicLong queueProcessor = null;
+    private final IMessagingInterface messagingInterface;
     private boolean success = false;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    private final String formattedName;
+    private boolean debug = false;
 
-    public MyLogger(final JavaPlugin plugin, final File logFile)
+    /**
+     * Constructor of MyLogger
+     * 
+     * @param logFile            The file to write to.
+     * @param messagingInterface The implementation of {@link IMessagingInterface}
+     *                           for writing to the console etc.
+     * @param name               The name that will be used for logging. For example
+     *                           "BigDoors".
+     */
+    public MyLogger(final File logFile, final IMessagingInterface messagingInterface, final String name)
     {
-        this.plugin = plugin;
         this.logFile = logFile;
+        this.messagingInterface = messagingInterface;
+        this.formattedName = MyLogger.formatName(name);
         prepareLog();
         if (success)
             new Thread(() -> processQueue()).start();
+    }
+
+    /**
+     * Change debugging status.
+     * 
+     * @param debug True to enable debugging.
+     */
+    public void setDebug(boolean debug)
+    {
+        this.debug = debug;
     }
 
     /**
@@ -75,6 +85,22 @@ public class MyLogger
             System.out.println("Cannot write to log file! Please contact pim16aap2!");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Send a message to whomever or whatever issued a command at a given level (if
+     * applicable).
+     *
+     * @param target The recipient of this message of unspecified type (console,
+     *               player, whatever).
+     * @param level  The level of the message (info, warn, etc). Does not apply to
+     *               players.
+     * @param str    The message.
+     * @see IMessagingInterface#sendMessageToTarget(Object, Level, String)
+     */
+    public void sendMessageToTarget(final Object target, final Level level, final String str)
+    {
+        this.messagingInterface.sendMessageToTarget(target, level, str);
     }
 
     /**
@@ -109,11 +135,22 @@ public class MyLogger
     }
 
     /**
+     * Get the name format
+     * 
+     * @param name
+     * @return
+     */
+    public static String formatName(final String name)
+    {
+        return "[" + name + "] ";
+    }
+
+    /**
      * Dump the stack trace to the log file at an arbitrary location.
      *
      * @param message An optional message to be printed along with the stack trace.
      */
-    public void dumpStackTrace(@Nullable final String message)
+    public void dumpStackTrace(final String message)
     {
         dumpBoundedStackTrace(message, 0);
     }
@@ -126,59 +163,21 @@ public class MyLogger
      *                      trace.
      * @param numberOfLines The number of lines to be written to the log.
      */
-    public void dumpBoundedStackTrace(@Nullable final String message, final int numberOfLines)
+    public void dumpBoundedStackTrace(final String message, final int numberOfLines)
     {
         addToMessageQueue(this.new LogMessageException(message + "\n", new Exception(), numberOfLines));
-    }
-
-    public void handleMyStackTrace(final MyException e)
-    {
-        if (e.hasWarningMessage())
-            warn(e.getWarningMessage());
-        addToMessageQueue(this.new LogMessageException(e.getWarningMessage(), e));
     }
 
     /**
      * Write a message of a given level to the console.
      *
-     * @param level The level of the message.
-     * @param str   The meesage.
+     * @param level   The level of the message.
+     * @param message The message.
+     * @see IMessagingInterface#writeToConsole(Level, String)
      */
-    private void writeToConsole(final Level level, final String str)
+    public void writeToConsole(final Level level, final String message)
     {
-        Bukkit.getLogger().log(level, "[" + plugin.getName() + "] " + str);
-    }
-
-    /**
-     * Send a message to whomever or whatever issued a command at a given level (if
-     * applicable) with a given color (if applicable).
-     *
-     * @param sender The CommandSender()
-     * @param level  The level of the message (info, warn, etc). Does not apply to
-     *               players.
-     * @param color  The color of the message. Only applies to players.
-     * @param str    The message.
-     */
-    public void returnToSender(final CommandSender sender, final Level level, final @Nullable ChatColor color,
-                               final @Nonnull String str)
-    {
-        if (sender instanceof Player)
-            SpigotUtil.messagePlayer((Player) sender, (color != null ? color : "") + str);
-        else
-            writeToConsole(level, ChatColor.stripColor(str));
-    }
-
-    /**
-     * Send a message to whomever or whatever issued a command at INFO level with a
-     * given color (if applicable).
-     *
-     * @param sender The CommandSender()
-     * @param color  The color of the message. Only applies to players.
-     * @param str    The message.
-     */
-    public void returnToSender(final CommandSender sender, @Nullable final ChatColor color, final String str)
-    {
-        returnToSender(sender, Level.INFO, color, str);
+        this.messagingInterface.writeToConsole(level, message);
     }
 
     /**
@@ -228,9 +227,9 @@ public class MyLogger
      */
     public void logException(final Exception exception)
     {
-        addToMessageQueue(this.new LogMessageException(null, exception));
+        addToMessageQueue(this.new LogMessageException(exception.getMessage(), exception));
         writeToConsole(Level.SEVERE, exception.toString());
-        if (ConfigLoader.DEBUG)
+        if (debug)
             exception.printStackTrace();
     }
 
@@ -245,7 +244,7 @@ public class MyLogger
         message += "\n";
         addToMessageQueue(this.new LogMessageException(message, exception));
         writeToConsole(Level.SEVERE, message + exception.toString());
-        if (ConfigLoader.DEBUG)
+        if (debug)
             exception.printStackTrace();
     }
 
@@ -256,9 +255,9 @@ public class MyLogger
      */
     public void logError(final Error error)
     {
-        addToMessageQueue(this.new LogMessageError(null, error));
+        addToMessageQueue(this.new LogMessageError(error.getMessage(), error));
         writeToConsole(Level.SEVERE, error.toString());
-        if (ConfigLoader.DEBUG)
+        if (debug)
             error.printStackTrace();
     }
 
@@ -273,7 +272,7 @@ public class MyLogger
         message += "\n";
         addToMessageQueue(this.new LogMessageError(message, error));
         writeToConsole(Level.SEVERE, message + error.toString());
-        if (ConfigLoader.DEBUG)
+        if (debug)
             error.printStackTrace();
     }
 
@@ -344,9 +343,9 @@ public class MyLogger
      */
     private abstract class LogMessage
     {
-        protected final @Nullable String message;
+        protected final String message;
 
-        LogMessage(@Nullable final String message)
+        LogMessage(final String message)
         {
             this.message = message;
         }
@@ -368,14 +367,14 @@ public class MyLogger
         private final Exception exception;
         private final int numberOfLines;
 
-        public LogMessageException(@Nullable final String message, final Exception exception, final int numberOfLines)
+        public LogMessageException(final String message, final Exception exception, final int numberOfLines)
         {
             super(message);
             this.exception = exception;
             this.numberOfLines = numberOfLines;
         }
 
-        public LogMessageException(@Nullable final String message, final Exception exception)
+        public LogMessageException(final String message, final Exception exception)
         {
             this(message, exception, 0);
         }
@@ -397,14 +396,14 @@ public class MyLogger
         private final Error error;
         private final int numberOfLines;
 
-        public LogMessageError(@Nullable final String message, final Error error, final int numberOfLines)
+        public LogMessageError(final String message, final Error error, final int numberOfLines)
         {
             super(message);
             this.error = error;
             this.numberOfLines = numberOfLines;
         }
 
-        public LogMessageError(@Nullable final String message, final Error error)
+        public LogMessageError(final String message, final Error error)
         {
             this(message, error, 0);
         }
@@ -423,7 +422,7 @@ public class MyLogger
      */
     private class LogMessageString extends LogMessage
     {
-        public LogMessageString(@Nullable final String message)
+        public LogMessageString(final String message)
         {
             super(message);
         }

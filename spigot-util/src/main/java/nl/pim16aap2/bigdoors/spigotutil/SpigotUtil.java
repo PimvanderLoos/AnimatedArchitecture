@@ -191,7 +191,7 @@ public final class SpigotUtil
      * First try to get the UUID from an online player, then try an offline player;
      * the first option is faster.
      */
-    public static @Nullable UUID playerUUIDFromString(String playerName)
+    public static UUID playerUUIDFromString(String playerName)
     {
         Player player = null;
         player = Bukkit.getPlayer(playerName);

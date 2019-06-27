@@ -31,7 +31,7 @@ public class SubCommandDelete extends SubCommand
         String name = door.getName();
         long doorUID = door.getDoorUID();
         plugin.getDatabaseManager().removeDoor(door.getDoorUID());
-        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                             plugin.getMessages().getString("GENERAL.COMMAND.DoorIsDeleted") + " " + name
                                                 + " (" + doorUID + ")");
         return true;
@@ -56,13 +56,13 @@ public class SubCommandDelete extends SubCommand
 
             if (count > 1)
             {
-                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                                     plugin.getMessages().getString("GENERAL.MoreThan1DoorFound"));
                 return true;
             }
             if (count < 1)
             {
-                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                                     plugin.getMessages().getString("GENERAL.NoDoorsFound"));
                 return true;
             }

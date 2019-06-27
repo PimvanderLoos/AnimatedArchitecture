@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
+import nl.pim16aap2.bigdoors.spigotutil.MessagingInterfaceSpigot;
+import nl.pim16aap2.bigdoors.util.*;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -32,9 +34,6 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
-import nl.pim16aap2.bigdoors.util.IRestartable;
-import nl.pim16aap2.bigdoors.util.RestartableHolder;
-import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 /*
@@ -127,7 +126,6 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
 // TODO: When returning null after unexpected input, just fucking thrown an IllegalArgumentException. Will make debugging a lot easier.
 // TODO: Use Functional interface for the ProtectionCompatManager. Too much code duplication.
-// TODO: Look into exceptions a bit more. "MyStackTrace" seems rather dumb and superfluous.
 // TODO: Improve calculateChunkRange() methods. Drawbridge, for example, could be much smaller.
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
 // TODO: When truncating exceptions etc, make sure to write it down in the log.
@@ -136,6 +134,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Make sure redstone block checking is within bounds.
 // TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
 // TODO: Allow wand material selection in config.
+// TODO: Get rid of code duplication in ProtectionCompatManager.
 
 /*
  * GUI
@@ -282,7 +281,6 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     private MyLogger logger;
     private SpigotUpdater updater;
     private Metrics metrics;
-    private File logFile;
     private Messages messages;
     private DatabaseManager databaseManager = null;
     private Vector<WaitForCommand> cmdWaiters;
@@ -317,8 +315,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     @Override
     public void onEnable()
     {
-        logFile = new File(getDataFolder(), "log.txt");
-        logger = new MyLogger(this, logFile);
+        logger = new MyLogger(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this), this.getName());
 
         try
         {
@@ -407,7 +404,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             return;
 
         readConfigValues();
-        messages = new Messages(this);
+        messages = new Messages(getDataFolder(), getConfigLoader().languageFile(), getMyLogger());
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
         blockMovers = new Vector<>(2);
@@ -549,7 +546,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         return autoCloseScheduler;
     }
 
-    public @Nullable Opener getDoorOpener(DoorType type)
+    public Opener getDoorOpener(DoorType type)
     {
         if (!DoorType.isEnabled(type))
         {

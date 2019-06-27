@@ -64,9 +64,9 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     }
 
     // Check if a given player is allowed to build in a given plot.
-    // Adapted from: https://github.com/IntellectualSites/PlotSquared/blob/breaking/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L981
-    private boolean canBreakBlock(Player player, PlotArea area,
-                                  Plot plot, Location loc)
+    // Adapted from:
+    // https://github.com/IntellectualSites/PlotSquared/blob/breaking/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L981
+    private boolean canBreakBlock(Player player, PlotArea area, Plot plot, Location loc)
     {
         if (plot != null)
         {
@@ -80,7 +80,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
             {
                 Optional<HashSet<PlotBlock>> destroy = plot.getFlag(Flags.BREAK);
                 Block block = loc.getBlock();
-                if (destroy.isPresent() && destroy.get() .contains(PlotBlock.get(block.getType().name())))
+                if (destroy.isPresent() && destroy.get().contains(PlotBlock.get(block.getType().name())))
                     return true;
 
                 if (plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_OTHER.s()))
@@ -122,7 +122,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
                 if (area == null)
                     continue;
 
-                if (!isHeightAllowed(player,area, y1) || !isHeightAllowed(player,area, y2))
+                if (!isHeightAllowed(player, area, y1) || !isHeightAllowed(player, area, y2))
                     return false;
 
                 loc.setY(area.MAX_BUILD_HEIGHT - 1);
@@ -156,5 +156,3 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return getPlugin().getName();
     }
 }
-
-

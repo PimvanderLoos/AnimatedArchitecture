@@ -269,7 +269,7 @@ public abstract class DoorBase
      *
      * @return The UUID of the current owner if available
      */
-    public @Nullable UUID getPlayerUUID()
+    public UUID getPlayerUUID()
     {
         if (doorOwner == null)
             return null;

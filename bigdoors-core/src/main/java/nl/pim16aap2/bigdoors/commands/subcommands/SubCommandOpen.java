@@ -42,7 +42,7 @@ public class SubCommandOpen extends SubCommandToggle
             if (readyToOpen(door))
                 execute(sender, door, time);
             else
-                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                                     plugin.getMessages().getString("GENERAL.Door") + " \"" + door.getName() +
                                                     "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
         return doors.size() > 0;

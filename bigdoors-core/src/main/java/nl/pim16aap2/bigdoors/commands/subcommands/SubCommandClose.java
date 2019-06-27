@@ -42,7 +42,7 @@ public class SubCommandClose extends SubCommandToggle
             if (readyToClose(door))
                 execute(sender, door, time);
             else
-                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                                     plugin.getMessages().getString("GENERAL.Door") + " \"" + door.getName() +
                                                     "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyClosed"));
         return doors.size() > 0;

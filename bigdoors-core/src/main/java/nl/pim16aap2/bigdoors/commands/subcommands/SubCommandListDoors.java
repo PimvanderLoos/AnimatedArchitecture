@@ -31,13 +31,13 @@ public class SubCommandListDoors extends SubCommand
     {
         if (doors.size() == 0)
         {
-            plugin.getMyLogger().returnToSender(sender, null, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            plugin.getMyLogger().sendMessageToTarget(sender, null, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
             return true;
         }
         StringBuilder builder = new StringBuilder();
         for (DoorBase door : doors)
             builder.append(door.getBasicInfo() + "\n");
-        plugin.getMyLogger().returnToSender(sender, null, builder.toString());
+        plugin.getMyLogger().sendMessageToTarget(sender, null, builder.toString());
         return true;
     }
 

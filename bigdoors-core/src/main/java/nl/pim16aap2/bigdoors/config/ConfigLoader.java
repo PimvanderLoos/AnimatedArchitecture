@@ -238,7 +238,7 @@ public final class ConfigLoader
      *         value.
      */
     private <T> T addNewConfigEntry(FileConfiguration config, String optionName, T defaultValue,
-                                    @Nullable String[] comment)
+                                    String[] comment)
     {
         ConfigEntry<T> option = new ConfigEntry<>(plugin, config, optionName, defaultValue, comment);
         configEntries.add(option);

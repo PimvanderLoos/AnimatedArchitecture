@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -49,7 +50,7 @@ public class SuperCommand implements ICommand
     {
         if (args.length == 0 || (args.length == 1 && args[0].toLowerCase().equals("help")))
         {
-            plugin.getMyLogger().returnToSender(sender, null, getHelp(sender));
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelp(sender));
             return true;
         }
 
@@ -57,22 +58,22 @@ public class SuperCommand implements ICommand
         {
             SubCommand helpCommand = subCommands.get(args[1].toLowerCase());
             if (helpCommand == null)
-                plugin.getMyLogger().returnToSender(sender, null, plugin.getMessages().getString("GENERAL.COMMAND.NotFound"));
+                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, plugin.getMessages().getString("GENERAL.COMMAND.NotFound"));
             else
-                plugin.getMyLogger().returnToSender(sender, null, getHelpOfSubCommand(sender, helpCommand));
+                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelpOfSubCommand(sender, helpCommand));
             return true;
         }
 
         SubCommand subCommand = subCommands.get(args[0].toLowerCase());
         if (subCommand == null)
         {
-            plugin.getMyLogger().returnToSender(sender, null, getHelp(sender));
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelp(sender));
             return true;
         }
         if (!CommandManager.permissionForCommand(sender, subCommand))
             throw new CommandPermissionException();
         if (args.length < subCommand.getMinArgCount() || !subCommand.onCommand(sender, cmd, label, args))
-            plugin.getMyLogger().returnToSender(sender, null, getHelpOfSubCommand(sender, subCommand));
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelpOfSubCommand(sender, subCommand));
         return true;
     }
 

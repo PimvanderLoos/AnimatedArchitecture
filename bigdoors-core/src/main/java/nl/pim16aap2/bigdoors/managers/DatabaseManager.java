@@ -15,7 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Messages;
+import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
@@ -193,7 +193,7 @@ public class DatabaseManager extends Restartable
     }
 
     // Get the door from the string. Can be use with a doorUID or a doorName.
-    public DoorBase getDoor(String doorStr, @Nullable Player player)
+    public DoorBase getDoor(String doorStr, Player player)
     {
         // First try converting the doorStr to a doorUID.
         try
@@ -249,7 +249,7 @@ public class DatabaseManager extends Restartable
     }
 
     // Returns the number of doors owner by a player and with a specific name, if provided (can be null).
-    public int countDoors(String playerUUID, @Nullable String doorName)
+    public int countDoors(String playerUUID, String doorName)
     {
         return db.countDoors(playerUUID, doorName);
     }
@@ -261,14 +261,14 @@ public class DatabaseManager extends Restartable
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
-    public ArrayList<DoorBase> getDoors(String playerUUID, @Nullable String name)
+    public ArrayList<DoorBase> getDoors(String playerUUID, String name)
     {
         return db.getDoors(playerUUID, name);
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null),
     // and where the player has a higher permission node (lower number) than specified.
-    public ArrayList<DoorBase> getDoors(String playerUUID, @Nullable String name, int maxPermission)
+    public ArrayList<DoorBase> getDoors(String playerUUID, String name, int maxPermission)
     {
         return db.getDoors(playerUUID, name, maxPermission);
     }
@@ -340,14 +340,14 @@ public class DatabaseManager extends Restartable
     }
 
     // Get a door with a specific doorUID.
-    public DoorBase getDoor(@Nullable UUID playerUUID, long doorUID)
+    public DoorBase getDoor(UUID playerUUID, long doorUID)
     {
         return db.getDoor(playerUUID, doorUID);
     }
 
 //    // Get a door with a specific doorUID.
 //    @Deprecated
-//    public Door getDoor2(@Nullable UUID playerUUID, long doorUID)
+//    public Door getDoor2(UUID playerUUID, long doorUID)
 //    {
 //        return db.getDoor2(playerUUID, doorUID);
 //    }

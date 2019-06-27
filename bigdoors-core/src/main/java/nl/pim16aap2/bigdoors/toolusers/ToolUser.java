@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.Messages;
+import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
@@ -110,8 +110,8 @@ public abstract class ToolUser extends Abortable
         killTask();
         plugin.removeToolUser(this);
         if (!done)
-            plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED,
-                                                messages.getString("CREATOR.GENERAL.TimeUp"));
+            plugin.getMyLogger().sendMessageToTarget(player, Level.INFO,
+                                                   ChatColor.RED + messages.getString("CREATOR.GENERAL.TimeUp"));
     }
 
     @Override

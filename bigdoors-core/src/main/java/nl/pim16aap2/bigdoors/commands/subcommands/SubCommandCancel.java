@@ -38,7 +38,7 @@ public class SubCommandCancel extends SubCommand
         if (tu != null)
         {
             tu.abortSilently();
-            SpigotUtil.messagePlayer(player, ChatColor.RED,
+            SpigotUtil.messagePlayer(player, ChatColor.RED +
                                plugin.getMessages().getString("CREATOR.GENERAL.Cancelled"));
         }
         else

@@ -44,7 +44,7 @@ public class SubCommandNew extends SubCommand
     }
 
     // Create a new door.
-    public void execute(Player player, @Nullable String name, DoorType type)
+    public void execute(Player player, String name, DoorType type)
     {
         if (!DoorType.isEnabled(type))
         {
@@ -54,7 +54,7 @@ public class SubCommandNew extends SubCommand
 
         if (!hasCreationPermission(player, type))
         {
-            SpigotUtil.messagePlayer(player, ChatColor.RED,
+            SpigotUtil.messagePlayer(player, ChatColor.RED +
                                plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
             return;
         }
@@ -63,13 +63,13 @@ public class SubCommandNew extends SubCommand
         int maxCount = SpigotUtil.getMaxDoorsForPlayer(player);
         if (maxCount >= 0 && doorCount >= maxCount)
         {
-            SpigotUtil.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.TooManyDoors"));
+            SpigotUtil.messagePlayer(player, ChatColor.RED + plugin.getMessages().getString("GENERAL.TooManyDoors"));
             return;
         }
 
         if (name != null && !Util.isValidDoorName(name))
         {
-            SpigotUtil.messagePlayer(player, ChatColor.RED,
+            SpigotUtil.messagePlayer(player, ChatColor.RED +
                                "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
             return;
         }

@@ -10,6 +10,8 @@ import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
 import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 
+import java.util.logging.Level;
+
 public class SubCommandRestart extends SubCommand
 {
     protected static final String help = "Restart the plugin. Reinitializes almost everything.";
@@ -28,7 +30,7 @@ public class SubCommandRestart extends SubCommand
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         plugin.restart();
-        plugin.getMyLogger().returnToSender(sender, ChatColor.GREEN, "BigDoors has been restarted!");
+        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.GREEN + "BigDoors has been restarted!");
         return true;
     }
 }

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.managers;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -65,32 +66,35 @@ public class CommandManager implements CommandExecutor
         }
         catch (CommandSenderNotPlayerException e)
         {
-            plugin.getMyLogger().returnToSender(sender, ChatColor.RED,
-                                                plugin.getMessages().getString("GENERAL.COMMAND.NotPlayer"));
+            plugin.getMyLogger()
+                .sendMessageToTarget(sender, Level.INFO,
+                                   ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NotPlayer"));
         }
         catch (CommandPermissionException e)
         {
-            plugin.getMyLogger().returnToSender(sender, ChatColor.RED,
-                                                plugin.getMessages().getString("GENERAL.COMMAND.NoPermission"));
+            plugin.getMyLogger()
+                .sendMessageToTarget(sender, Level.INFO,
+                                   ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NoPermission"));
         }
         catch (CommandInvalidVariableException e)
         {
-            plugin.getMyLogger().returnToSender(sender, ChatColor.RED, e.getMessage());
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + e.getMessage());
         }
         catch (CommandPlayerNotFoundException e)
         {
-            plugin.getMyLogger().returnToSender(sender, ChatColor.RED,
-                                                plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \""
-                                                    + e.getPlayerArg() + "\"");
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
+                + plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + e.getPlayerArg() + "\"");
         }
         catch (CommandActionNotAllowedException e)
         {
-            plugin.getMyLogger().returnToSender(sender, ChatColor.RED,
-                                                plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+            plugin.getMyLogger()
+                .sendMessageToTarget(sender, Level.INFO,
+                                   ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().returnToSender(sender, ChatColor.RED, plugin.getMessages().getString("GENERAL.Error"));
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO,
+                                                   ChatColor.RED + plugin.getMessages().getString("GENERAL.Error"));
             StringBuilder sb = new StringBuilder();
             for (String str : args)
                 sb.append(str + (str.equals(args[args.length - 1]) ? "" : ", "));

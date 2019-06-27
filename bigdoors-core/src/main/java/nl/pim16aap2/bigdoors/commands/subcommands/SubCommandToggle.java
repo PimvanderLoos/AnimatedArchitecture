@@ -51,12 +51,12 @@ public class SubCommandToggle extends SubCommand
 
         if (newDoor == null)
         {
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                                 plugin.getMessages().getString("GENERAL.ToggleFailure"));
             return;
         }
         if (newDoor.isLocked())
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                                 plugin.getMessages().getString("GENERAL.DoorIsLocked"));
 
         else
@@ -65,7 +65,7 @@ public class SubCommandToggle extends SubCommand
             DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(newDoor, time);
 
             if (result != DoorOpenResult.SUCCESS)
-                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                                     plugin.getMessages().getString(DoorOpenResult.getMessage(result)));
         }
     }
@@ -87,7 +87,7 @@ public class SubCommandToggle extends SubCommand
             DoorBase door = plugin.getDatabaseManager().getDoor(args[index], player);
             if (door == null)
             {
-                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index] + "\" "
+                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + "\"" + args[index] + "\" "
                     + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
                 continue;
             }

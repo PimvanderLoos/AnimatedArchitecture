@@ -31,7 +31,7 @@ public class SubCommandInfo extends SubCommand
         if (sender instanceof Player && door.getPermission() >= 0
             && door.getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
             return true;
-        plugin.getMyLogger().returnToSender(sender, null, door.toString());
+        plugin.getMyLogger().sendMessageToTarget(sender, null, door.toString());
         return true;
     }
 
@@ -42,7 +42,7 @@ public class SubCommandInfo extends SubCommand
         DoorBase door = plugin.getDatabaseManager().getDoor(args[minArgCount - 1], sender instanceof Player ? (Player) sender : null);
         if (door == null)
         {
-            plugin.getMyLogger().returnToSender(sender, null, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            plugin.getMyLogger().sendMessageToTarget(sender, null, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
             return true;
         }
 

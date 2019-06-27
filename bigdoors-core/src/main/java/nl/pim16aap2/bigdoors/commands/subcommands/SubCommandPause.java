@@ -26,7 +26,7 @@ public class SubCommandPause extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
-        plugin.getMyLogger().returnToSender(sender, null, getHelp(sender));
+        plugin.getMyLogger().sendMessageToTarget(sender, null, getHelp(sender));
         return true;
     }
 }

@@ -43,11 +43,11 @@ public class SubCommandRemoveOwner extends SubCommand
 
         if (plugin.getDatabaseManager().removeOwner(door, playerUUID))
         {
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                                 plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
             return true;
         }
-        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
                                             plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
         return false;
     }

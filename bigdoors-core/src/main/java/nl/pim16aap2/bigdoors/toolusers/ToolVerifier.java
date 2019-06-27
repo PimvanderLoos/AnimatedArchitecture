@@ -16,7 +16,7 @@ public class ToolVerifier
     }
 
     // Check if the provided itemstack is a selection tool.
-    public boolean isTool(@Nullable ItemStack is)
+    public boolean isTool(ItemStack is)
     {
         return is != null                                    &&
                is.getType() == Material.STICK                &&

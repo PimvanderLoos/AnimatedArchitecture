@@ -13,7 +13,6 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.MyException;
 import nl.pim16aap2.bigdoors.util.Restartable;
 
 /**
@@ -117,8 +116,8 @@ public class ProtectionCompatManager extends Restartable implements Listener
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().handleMyStackTrace(new MyException(e, "Failed to use \""
-                    + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
+                plugin.getMyLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
+                    + "\"! Please send this error to pim16aap2:");
             }
         return null;
     }
@@ -149,8 +148,8 @@ public class ProtectionCompatManager extends Restartable implements Listener
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().handleMyStackTrace(new MyException(e, "Failed to use \""
-                    + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:"));
+                plugin.getMyLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
+                    + "\"! Please send this error to pim16aap2:");
             }
         return null;
     }

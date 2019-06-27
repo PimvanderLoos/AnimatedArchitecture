@@ -34,10 +34,10 @@ public class SubCommandSetAutoCloseTime extends SubCommand
 
         plugin.getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
         if (time != -1)
-            plugin.getMyLogger().returnToSender(sender, null,
+            plugin.getMyLogger().sendMessageToTarget(sender, null,
                                                 plugin.getMessages().getString("COMMAND.SetTime.Success") + time + "s.");
         else
-            plugin.getMyLogger().returnToSender(sender, null,
+            plugin.getMyLogger().sendMessageToTarget(sender, null,
                                                 plugin.getMessages().getString("COMMAND.SetTime.Disabled"));
         return true;
     }
