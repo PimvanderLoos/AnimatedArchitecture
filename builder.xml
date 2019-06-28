@@ -11,9 +11,18 @@
     <xmlproperty file="pom.xml" prefix="pom" />
 
     <echo>The version is ${pom.project.version}</echo>
+	
+    <property name="resources" location="${basedir}/src/main/resources"/>
 
     <target name="init">
         <mkdir dir="${basedir}/classes"/>
+        <!-- Force refresh these files, so Ant won't ignore them -->
+        <delete file="./target/classes/config.yml"/>
+        <delete file="./target/classes/plugin.yml"/>
+        <delete file="./target/classes/en_US.txt"/>
+        <copy file="${resources}/plugin.yml" tofile="./target/classes/plugin.yml"/>
+        <copy file="${resources}/config.yml" tofile="./target/classes/config.yml"/>
+        <copy file="${resources}/en_US.txt" tofile="./target/classes/en_US.txt"/>
     </target>
 	
     <target name="CreateJar" description="Create Jar file" depends="init">
@@ -21,7 +30,6 @@
             <zipgroupfileset dir="/home/pim/Documents/workspace/JCalculator/" includes="JCalculator.jar"/>
         </jar>
     	<copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
-    	<copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.14/plugins/BigDoors.jar"/>
     </target>
 
     <target name="allatori" depends="CreateJar">

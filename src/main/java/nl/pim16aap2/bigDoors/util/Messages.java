@@ -80,14 +80,12 @@ public class Messages
     // Get a string from a key. Returns "null" if null.
     public String getString(String key)
     {
-        String value = null;
-        value = messageMap.get(key);
-        if (value == null)
-        {
-            value = "BigDoors: Translation not found! Contact server admin!";
-            plugin.getMyLogger().logMessageToConsole("Failed to get translation for key " + key);
-        }
-        return value;
+        String value = messageMap.get(key);
+        if (value != null)
+            return value;
+
+        plugin.getMyLogger().warn("Failed to get the translation for key " + key);
+        return "Translation for key \"" + key + "\" not found! Contact server admin!";
     }
 
     public String getStringReverse(String value)

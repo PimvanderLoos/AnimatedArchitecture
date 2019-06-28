@@ -19,6 +19,7 @@ public class VaultManager
     // Try to store the price of the doors as integers, because that's faster than
     // evaluating the formula.
     Integer doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice;
+    private final static double EPSILON = 0.00001;
 
     private final BigDoors plugin;
     private final HashMap<Long, Double> menu;
@@ -41,6 +42,9 @@ public class VaultManager
         if (!vaultEnabled)
             return true;
         double price = getPrice(type, blockCount);
+        if (price < EPSILON)
+            return true;
+
         if (withdrawPlayer(player, player.getWorld().getName(), price))
         {
             if (price > 0)
@@ -194,6 +198,8 @@ public class VaultManager
 
     private boolean has(OfflinePlayer player, double amount)
     {
+        if (amount < EPSILON)
+            return true;
         try
         {
             return economy.has(player, amount);
@@ -208,6 +214,8 @@ public class VaultManager
 
     private boolean withdrawPlayer(OfflinePlayer player, String worldName, double amount)
     {
+        if (amount < EPSILON)
+            return true;
         try
         {
             if (has(player, amount))
