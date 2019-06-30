@@ -1,8 +1,14 @@
 package nl.pim16aap2.bigdoors;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.Vector;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -15,16 +21,62 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigdoors.api.IFallingBlockFactory;
-import nl.pim16aap2.bigdoors.commands.*;
-import nl.pim16aap2.bigdoors.commands.subcommands.*;
+import nl.pim16aap2.bigdoors.commands.CommandBigDoors;
+import nl.pim16aap2.bigdoors.commands.CommandData;
+import nl.pim16aap2.bigdoors.commands.CommandMenu;
+import nl.pim16aap2.bigdoors.commands.ICommand;
+import nl.pim16aap2.bigdoors.commands.SuperCommand;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandCancel;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandChangePowerBlock;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandClose;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDebug;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDelete;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandFill;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInspectPowerBlock;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandListDoors;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandListPlayerDoors;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandMenu;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandOpen;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandPause;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRestart;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetName;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetRotation;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandStopDoors;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.gui.GUI;
-import nl.pim16aap2.bigdoors.handlers.*;
-import nl.pim16aap2.bigdoors.managers.*;
-import nl.pim16aap2.bigdoors.moveblocks.*;
+import nl.pim16aap2.bigdoors.handlers.ChunkUnloadHandler;
+import nl.pim16aap2.bigdoors.handlers.EventHandlers;
+import nl.pim16aap2.bigdoors.handlers.GUIHandler;
+import nl.pim16aap2.bigdoors.handlers.LoginMessageHandler;
+import nl.pim16aap2.bigdoors.handlers.LoginResourcePackHandler;
+import nl.pim16aap2.bigdoors.handlers.RedstoneHandler;
+import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
+import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.HeadManager;
+import nl.pim16aap2.bigdoors.managers.VaultManager;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.moveblocks.BridgeOpener;
+import nl.pim16aap2.bigdoors.moveblocks.DoorOpener;
+import nl.pim16aap2.bigdoors.moveblocks.ElevatorOpener;
+import nl.pim16aap2.bigdoors.moveblocks.FlagOpener;
+import nl.pim16aap2.bigdoors.moveblocks.GarageDoorOpener;
+import nl.pim16aap2.bigdoors.moveblocks.Opener;
+import nl.pim16aap2.bigdoors.moveblocks.PortcullisOpener;
+import nl.pim16aap2.bigdoors.moveblocks.RevolvingDoorOpener;
+import nl.pim16aap2.bigdoors.moveblocks.SlidingDoorOpener;
+import nl.pim16aap2.bigdoors.moveblocks.WindmillOpener;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import nl.pim16aap2.bigdoors.spigotutil.MessagingInterfaceSpigot;
@@ -32,7 +84,11 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
-import nl.pim16aap2.bigdoors.util.*;
+import nl.pim16aap2.bigdoors.util.IRestartable;
+import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.RestartableHolder;
+import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 
 /*
@@ -76,17 +132,21 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       In the new ENUM, perhaps have a method getMessage(MessageEnum msg, Object ...). Every message should be something like
 //       NextPage("GUI.nextPage", {Integer.class, Integer.class}); Then, verify using an interface that the passed objects
 //       are of the correct type and count. (in this case, the result should be messages.getMessage(Message.NextPage, currentPage, nextPage);
+//       Another Solution: https://www.jetbrains.com/help/idea/contract-annotations.html
 // TODO: Look into Aikar's command system to replace everything I just made myself: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
 // TODO: Add 1 block depth requirement to assertValidCoords() in HorizontalAxisAlignedBase.
 // TODO: Check if SpigotUtil#needsRefresh(Material mat) is still needed.
 // TODO: Door pooling. When a door is requested from the database, store it in a timedCache. Only get the creator by default, but store
 //       the other owners if needed. Add a Door::Sync function to sync (new) data with the database.
+//       Also part of this should be a DoorManager. NO setters should be available to any class other than the doorManager.
+//       Creators/Database might have to go back to the awful insanely long constructor.
+//       When a door is modified, post a doorModificationEvent. Instead of firing events, perhaps look into observers?
 // TODO: Get rid of the DoorType enum. Instead, allow dynamic registration of door types.
 // TODO: Stop naming all animatable objects "doors". An elevator is hardly a door.
 // TODO: Add a system that can check the integrity of the plugin. If something goes wrong during startup, make sure OPs get a message on login.
 //       Tell them to use the command to run the self-check. Then it can say "not the latest version!", "Money formulas set, but Vault not enabled!",
 //       "Enabled PlotSquared support, but failed to initialize it!", "Trying to load on version X, but this version isn't supported!", etc.
-// TODO: Write a scheduler to open doors. It should be able to retrieve door from the database on a secondary thread and also check offline permission on the second thread.
+// TODO: Write a events to open doors. It should be able to retrieve door from the database on a secondary thread and also check offline permission on the second thread.
 
 /*
  * General
@@ -182,6 +242,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       the fucking DatabaseManager.
 // TODO: Make more liberal use of IllegalArgumentException.
 // TODO: SubCommandSetRotation should be updated/removed, as it doesn't work properly with types that do not go (counter)clockwise.
+// TODO: Make system similar to door initialization for DoorCreators. Look at SubCommandNew.
+// TODO: Also look into SubCommandRemoveOwner.
 
 /*
  * Openers / Movers

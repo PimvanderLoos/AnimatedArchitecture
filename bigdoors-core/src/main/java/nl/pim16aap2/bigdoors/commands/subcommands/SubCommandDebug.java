@@ -14,8 +14,8 @@ import org.bukkit.entity.Player;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
-import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
@@ -45,14 +45,15 @@ public class SubCommandDebug extends SubCommand
     {
         if (sender instanceof Player)
         {
-            World world  = ((Player) sender).getWorld();
+            World world = ((Player) sender).getWorld();
             Location loc = new Location(world, 49, 77, 191);
             Block block = world.getBlockAt(loc);
             BlockData bd = block.getBlockData();
 
             if (bd instanceof Stairs)
             {
-                SpigotUtil.broadcastMessage("Shape: " + ((Stairs) bd).getShape().toString() + " Facing: " + ((Stairs) bd).getFacing() + " Half: " + ((Stairs) bd).getHalf());
+                SpigotUtil.broadcastMessage("Shape: " + ((Stairs) bd).getShape().toString() + " Facing: "
+                    + ((Stairs) bd).getFacing() + " Half: " + ((Stairs) bd).getHalf());
             }
 
             Location loc2 = loc.clone();
@@ -70,11 +71,11 @@ public class SubCommandDebug extends SubCommand
                 }
                 else if (ent instanceof FallingBlock)
                 {
-                    SpigotUtil.broadcastMessage("Entity is a falling block! Loc: " + SpigotUtil.locIntToString(ent.getLocation()));
+                    SpigotUtil.broadcastMessage("Entity is a falling block! Loc: "
+                        + SpigotUtil.locIntToString(ent.getLocation()));
                     ent.remove();
                 }
             }
-
 
 //            if (! (block.getBlockData() instanceof Directional))
 //            {
@@ -159,8 +160,6 @@ public class SubCommandDebug extends SubCommand
 //            }.runTaskTimer(plugin, 20, tickRate);
 
         }
-
-
 
 //        Door door = plugin.getCommander().getDoor(119);
 //        int xMin = door.getMinimum().getBlockX();

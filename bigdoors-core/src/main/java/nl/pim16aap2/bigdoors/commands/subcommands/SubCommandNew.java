@@ -7,12 +7,21 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
-import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.toolusers.*;
+import nl.pim16aap2.bigdoors.toolusers.BigDoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.DrawbridgeCreator;
+import nl.pim16aap2.bigdoors.toolusers.ElevatorCreator;
+import nl.pim16aap2.bigdoors.toolusers.FlagCreator;
+import nl.pim16aap2.bigdoors.toolusers.GarageDoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.PortcullisCreator;
+import nl.pim16aap2.bigdoors.toolusers.RevolvingDoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.ToolUser;
+import nl.pim16aap2.bigdoors.toolusers.WindmillCreator;
 import nl.pim16aap2.bigdoors.util.Util;
 
 public class SubCommandNew extends SubCommand
@@ -46,18 +55,20 @@ public class SubCommandNew extends SubCommand
     {
         if (!DoorType.isEnabled(type))
         {
-            plugin.getMyLogger().severe("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!");
+            plugin.getMyLogger()
+                .severe("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!");
             return;
         }
 
         if (!hasCreationPermission(player, type))
         {
-            SpigotUtil.messagePlayer(player, ChatColor.RED +
-                               plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
+            SpigotUtil
+                .messagePlayer(player,
+                               ChatColor.RED + plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
             return;
         }
 
-        long doorCount = plugin.getDatabaseManager().countDoors(player.getUniqueId().toString(), null);
+        long doorCount = plugin.getDatabaseManager().countDoorsOwnedByPlayer(player.getUniqueId());
         int maxCount = SpigotUtil.getMaxDoorsForPlayer(player);
         if (maxCount >= 0 && doorCount >= maxCount)
         {
@@ -67,8 +78,8 @@ public class SubCommandNew extends SubCommand
 
         if (name != null && !Util.isValidDoorName(name))
         {
-            SpigotUtil.messagePlayer(player, ChatColor.RED +
-                               "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+            SpigotUtil.messagePlayer(player, ChatColor.RED + "\"" + name + "\""
+                + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
             return;
         }
 
@@ -111,7 +122,8 @@ public class SubCommandNew extends SubCommand
 
         if (tu == null)
         {
-            plugin.getMyLogger().warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
+            plugin.getMyLogger()
+                .warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
             return;
         }
 

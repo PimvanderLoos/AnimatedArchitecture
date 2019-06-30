@@ -9,9 +9,9 @@ import org.bukkit.command.CommandSender;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
-import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
@@ -33,7 +33,7 @@ public class SubCommandClose extends SubCommandToggle
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
         ArrayList<DoorBase> doors = new ArrayList<>();
         double time = parseDoorsAndTime(sender, args, doors);
@@ -42,9 +42,11 @@ public class SubCommandClose extends SubCommandToggle
             if (readyToClose(door))
                 execute(sender, door, time);
             else
-                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
-                                                    plugin.getMessages().getString("GENERAL.Door") + " \"" + door.getName() +
-                                                    "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyClosed"));
+                plugin.getMyLogger()
+                    .sendMessageToTarget(sender, Level.INFO,
+                                         ChatColor.RED + plugin.getMessages().getString("GENERAL.Door") + " \""
+                                             + door.getName() + "\" "
+                                             + plugin.getMessages().getString("GENERAL.DoorAlreadyClosed"));
         return doors.size() > 0;
     }
 }

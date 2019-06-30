@@ -34,7 +34,7 @@ public enum CommandData
     private final String permission;
     private final CommandData superCommand;
 
-    private CommandData(String commandName, String permission, CommandData superCommand)
+    CommandData(String commandName, String permission, CommandData superCommand)
     {
         this.superCommand = superCommand;
         this.permission = permission;

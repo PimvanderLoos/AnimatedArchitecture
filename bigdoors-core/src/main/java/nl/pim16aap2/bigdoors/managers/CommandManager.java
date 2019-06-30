@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,9 +12,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.*;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.commands.CommandData;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.commands.ICommand;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
 public class CommandManager implements CommandExecutor
@@ -68,15 +75,15 @@ public class CommandManager implements CommandExecutor
         {
             plugin.getMyLogger()
                 .sendMessageToTarget(sender, Level.INFO,
-                                   ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NotPlayer"));
+                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NotPlayer"));
         }
         catch (CommandPermissionException e)
         {
             plugin.getMyLogger()
                 .sendMessageToTarget(sender, Level.INFO,
-                                   ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NoPermission"));
+                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NoPermission"));
         }
-        catch (CommandInvalidVariableException e)
+        catch (IllegalArgumentException e)
         {
             plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + e.getMessage());
         }
@@ -89,12 +96,12 @@ public class CommandManager implements CommandExecutor
         {
             plugin.getMyLogger()
                 .sendMessageToTarget(sender, Level.INFO,
-                                   ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
         }
         catch (Exception e)
         {
             plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO,
-                                                   ChatColor.RED + plugin.getMessages().getString("GENERAL.Error"));
+                                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.Error"));
             StringBuilder sb = new StringBuilder();
             for (String str : args)
                 sb.append(str + (str.equals(args[args.length - 1]) ? "" : ", "));
@@ -104,23 +111,34 @@ public class CommandManager implements CommandExecutor
         return true;
     }
 
-    public DoorBase getDoorFromArg(CommandSender sender, String doorArg) throws CommandInvalidVariableException
+    public DoorBase getDoorFromArg(CommandSender sender, String doorArg) throws IllegalArgumentException
     {
         DoorBase door = null;
 
         if (sender instanceof Player)
-            door = plugin.getDatabaseManager().getDoor(doorArg, (Player) sender);
+            try
+            {
+                door = plugin.getDatabaseManager().getDoor(((Player) sender).getUniqueId(), doorArg);
+            }
+            catch (TooManyDoorsException e)
+            {
+                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString("GENERAL.MoreThan1DoorFound"));
+            }
+            catch (NotEnoughDoorsException e)
+            {
+                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            }
         else
             try
             {
-                long doorUID = Long.parseLong(doorArg);
-                door = plugin.getDatabaseManager().getDoor(doorUID);
+                door = plugin.getDatabaseManager().getDoor( Long.parseLong(doorArg));
             }
             catch (NumberFormatException e)
             {
+                plugin.getMyLogger().info("\"" + doorArg + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorID"));
             }
         if (door == null)
-            throw new CommandInvalidVariableException(doorArg, "door");
+            throw new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!");
         return door;
     }
 
@@ -138,39 +156,39 @@ public class CommandManager implements CommandExecutor
             ((Player) sender).hasPermission(command.getPermission()) || ((Player) sender).isOp() : true);
     }
 
-    public static long getLongFromArg(String timeArg) throws CommandInvalidVariableException
+    public static long getLongFromArg(String testLong) throws IllegalArgumentException
     {
         try
         {
-            return Long.parseLong(timeArg);
+            return Long.parseLong(testLong);
         }
         catch (Exception uncaught)
         {
-            throw new CommandInvalidVariableException(timeArg, "long");
+            throw new IllegalArgumentException("\"" + testLong + "\" is not a valid long");
         }
     }
 
-    public static int getIntegerFromArg(String timeArg) throws CommandInvalidVariableException
+    public static int getIntegerFromArg(String testInt) throws IllegalArgumentException
     {
         try
         {
-            return Integer.parseInt(timeArg);
+            return Integer.parseInt(testInt);
         }
         catch (Exception uncaught)
         {
-            throw new CommandInvalidVariableException(timeArg, "integer");
+            throw new IllegalArgumentException("\"" + testInt + "\" is not a valid integer");
         }
     }
 
-    public static float getFloatFromArg(String timeArg) throws CommandInvalidVariableException
+    public static float getFloatFromArg(String testFloat) throws IllegalArgumentException
     {
         try
         {
-            return Float.parseFloat(timeArg);
+            return Float.parseFloat(testFloat);
         }
         catch (Exception uncaught)
         {
-            throw new CommandInvalidVariableException(timeArg, "float");
+            throw new IllegalArgumentException("\"" + testFloat + "\" is not a valid float");
         }
     }
 

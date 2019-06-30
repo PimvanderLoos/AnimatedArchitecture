@@ -27,6 +27,18 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        <repository>
+            <id>jetbrain-annotations</id>
+            <url>https://mvnrepository.com/artifact/org.jetbrains/annotations</url>
+        </repository>
     </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>17.0.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

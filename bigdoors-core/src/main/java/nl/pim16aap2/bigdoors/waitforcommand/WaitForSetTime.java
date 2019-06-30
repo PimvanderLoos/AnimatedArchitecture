@@ -3,9 +3,8 @@ package nl.pim16aap2.bigdoors.waitforcommand;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
-import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
-import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -27,7 +26,7 @@ public class WaitForSetTime extends WaitForCommand
 
     @Override
     public boolean executeCommand(String[] args)
-        throws CommandPlayerNotFoundException, CommandActionNotAllowedException, CommandInvalidVariableException
+        throws CommandActionNotAllowedException, IllegalArgumentException
     {
         abortSilently();
         return subCommand.execute(player, door, args[1]);

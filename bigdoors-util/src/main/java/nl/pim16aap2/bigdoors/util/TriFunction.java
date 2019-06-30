@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.util.function;
+package nl.pim16aap2.bigdoors.util;
 
 /**
  * Represents a function with 3 input arguments.

@@ -8,8 +8,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.*;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 
@@ -31,57 +34,22 @@ public class SubCommandDelete extends SubCommand
         String name = door.getName();
         long doorUID = door.getDoorUID();
         plugin.getDatabaseManager().removeDoor(door.getDoorUID());
-        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
-                                            plugin.getMessages().getString("GENERAL.COMMAND.DoorIsDeleted") + " " + name
-                                                + " (" + doorUID + ")");
+        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
+            + plugin.getMessages().getString("GENERAL.COMMAND.DoorIsDeleted") + " " + name + " (" + doorUID + ")");
         return true;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, CommandInvalidVariableException,
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
         CommandActionNotAllowedException
     {
-        DoorBase door = null;
-        String doorArg = args[getMinArgCount() - 1];
-        try
-        {
-            door = commandManager.getDoorFromArg(sender, doorArg);
-        }
-        catch (CommandInvalidVariableException e)
-        {
-            int count = sender instanceof Player ?
-                plugin.getDatabaseManager().countDoors(((Player) sender).getUniqueId().toString(), doorArg) :
-                plugin.getDatabaseManager().countDoors(doorArg);
+        DoorBase door = this.commandManager.getDoorFromArg(sender, args[getMinArgCount() - 1]);
 
-            if (count > 1)
-            {
-                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
-                                                    plugin.getMessages().getString("GENERAL.MoreThan1DoorFound"));
-                return true;
-            }
-            if (count < 1)
-            {
-                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
-                                                    plugin.getMessages().getString("GENERAL.NoDoorsFound"));
-                return true;
-            }
-
-            if (sender instanceof Player)
-                door = plugin.getDatabaseManager().getDoor(doorArg, (Player) sender);
-            else
-                door = plugin.getDatabaseManager().getDoor(doorArg, null);
-        }
-
-        if (sender instanceof Player
-            && !plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.DELETE))
+        if (sender instanceof Player && !plugin.getDatabaseManager()
+            .hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.DELETE))
             throw new CommandActionNotAllowedException();
 
-        if (door == null)
-            throw new CommandInvalidVariableException(doorArg, "door");
-
-        if (!execute(sender, door))
-            return false;
-        return true;
+        return execute(sender, door);
     }
 }

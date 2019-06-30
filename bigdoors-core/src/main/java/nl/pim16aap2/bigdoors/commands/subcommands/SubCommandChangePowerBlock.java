@@ -5,8 +5,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.*;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 
@@ -25,7 +28,8 @@ public class SubCommandChangePowerBlock extends SubCommand
 
     public boolean execute(Player player, DoorBase door) throws CommandActionNotAllowedException
     {
-        if (!plugin.getDatabaseManager().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.RELOCATEPOWERBLOCK))
+        if (!plugin.getDatabaseManager().hasPermissionForAction(player, door.getDoorUID(),
+                                                                DoorAttribute.RELOCATEPOWERBLOCK))
             throw new CommandActionNotAllowedException();
         plugin.getDatabaseManager().startPowerBlockRelocator(player, door);
         return true;
@@ -34,16 +38,10 @@ public class SubCommandChangePowerBlock extends SubCommand
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandActionNotAllowedException,
-        CommandInvalidVariableException
+        IllegalArgumentException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
-
-        Player player = (Player) sender;
-        String doorArg = args[getMinArgCount() - 1];
-        DoorBase door = plugin.getDatabaseManager().getDoor(doorArg, player);
-        if (door == null)
-            throw new CommandInvalidVariableException(doorArg, "door");
-        return execute(player, door);
+        return execute((Player) sender, this.commandManager.getDoorFromArg(sender, args[getMinArgCount() - 1]));
     }
 }

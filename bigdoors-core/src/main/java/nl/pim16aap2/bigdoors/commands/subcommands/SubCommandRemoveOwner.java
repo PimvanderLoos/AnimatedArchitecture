@@ -9,11 +9,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandInvalidVariableException;
-import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
@@ -38,23 +37,26 @@ public class SubCommandRemoveOwner extends SubCommand
     {
         UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
 
-        if (sender instanceof Player && plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.REMOVEOWNER))
+        if (sender instanceof Player && plugin.getDatabaseManager()
+            .hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.REMOVEOWNER))
             throw new CommandActionNotAllowedException();
 
         if (plugin.getDatabaseManager().removeOwner(door, playerUUID))
         {
-            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
-                                                plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
+            plugin.getMyLogger()
+                .sendMessageToTarget(sender, Level.INFO,
+                                     ChatColor.RED + plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
             return true;
         }
-        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
-                                            plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
+        plugin.getMyLogger()
+            .sendMessageToTarget(sender, Level.INFO,
+                                 ChatColor.RED + plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
         return false;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandInvalidVariableException, CommandPlayerNotFoundException, CommandActionNotAllowedException
+        throws IllegalArgumentException, CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
         if (sender instanceof Player)
         {
@@ -66,7 +68,8 @@ public class SubCommandRemoveOwner extends SubCommand
                 cw.abortSilently();
             }
         }
-        return execute(sender, commandManager.getDoorFromArg(sender, args[getMinArgCount() - 2]), args[getMinArgCount() - 1]);
+        return execute(sender, commandManager.getDoorFromArg(sender, args[getMinArgCount() - 2]),
+                       args[getMinArgCount() - 1]);
     }
 
     @Override

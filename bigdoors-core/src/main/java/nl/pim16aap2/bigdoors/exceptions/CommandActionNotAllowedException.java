@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.commands;
+package nl.pim16aap2.bigdoors.exceptions;
 
 public class CommandActionNotAllowedException extends Exception
 {

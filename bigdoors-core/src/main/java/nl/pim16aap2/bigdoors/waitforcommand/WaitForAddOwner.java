@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.waitforcommand;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.CommandActionNotAllowedException;
-import nl.pim16aap2.bigdoors.commands.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;

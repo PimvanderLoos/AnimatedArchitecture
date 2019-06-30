@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigotutil;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -22,7 +23,7 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
 
     public MessagingInterfaceSpigot(JavaPlugin plugin)
     {
-        formattedName = plugin.getName();
+        formattedName = PLogger.formatName(plugin.getName());
     }
 
     /**

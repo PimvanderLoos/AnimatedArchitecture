@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
+import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
+import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,6 +32,8 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetTime;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DatabaseManager extends Restartable
 {
@@ -38,11 +42,11 @@ public class DatabaseManager extends Restartable
     private TimedMapCache<UUID, String> players;
     private boolean goOn = true;
     private boolean paused = false;
-    private SQLiteJDBCDriverConnection db;
+    private final SQLiteJDBCDriverConnection db;
     private Messages messages;
     private final BigDoors plugin;
 
-    public DatabaseManager(final BigDoors plugin, SQLiteJDBCDriverConnection db)
+    public DatabaseManager(final BigDoors plugin, final SQLiteJDBCDriverConnection db)
     {
         super(plugin);
         this.db = db;
@@ -181,40 +185,6 @@ public class DatabaseManager extends Restartable
             SpigotUtil.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
     }
 
-    public DoorBase getDoor(long doorUID)
-    {
-        return db.getDoor(null, doorUID);
-    }
-
-    // Get the door from the string. Can be use with a doorUID or a doorName.
-    public DoorBase getDoor(String doorStr, Player player)
-    {
-        // First try converting the doorStr to a doorUID.
-        try
-        {
-            long doorUID = Long.parseLong(doorStr);
-            return db.getDoor(player == null ? null : player.getUniqueId() , doorUID);
-        }
-        // If it can't convert to a long, get all doors from the player with the provided name.
-        // If there is more than one, tell the player that they are going to have to make a choice.
-        catch (NumberFormatException e)
-        {
-            if (player == null)
-                return null;
-            ArrayList<DoorBase> doors = new ArrayList<>();
-            doors = db.getDoors(player.getUniqueId().toString(), doorStr);
-            if (doors.size() == 1)
-                return doors.get(0);
-
-            if (doors.size() == 0)
-                SpigotUtil.messagePlayer(player, messages.getString("GENERAL.NoDoorsFound"));
-            else
-                SpigotUtil.messagePlayer(player, messages.getString("GENERAL.MoreThan1DoorFound"));
-            printDoors(player, doors);
-            return null;
-        }
-    }
-
     public void addDoorBase(DoorBase newDoor)
     {
         db.insert(newDoor);
@@ -242,22 +212,10 @@ public class DatabaseManager extends Restartable
         db.removeDoor(playerUUID, doorName);
     }
 
-    // Returns the number of doors owner by a player and with a specific name, if provided (can be null).
-    public int countDoors(String playerUUID, String doorName)
-    {
-        return db.countDoors(playerUUID, doorName);
-    }
-
-    public int countDoors(String doorName)
-    {
-        // TODO: This is dumb.
-        return getDoors(doorName).size();
-    }
-
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
-    public ArrayList<DoorBase> getDoors(String playerUUID, String name)
+    public ArrayList<DoorBase> getDoors(@NotNull UUID playerUUID, @Nullable String name)
     {
-        return db.getDoors(playerUUID, name);
+        return name == null ? db.getDoors(playerUUID) : db.getDoors(playerUUID, name);
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null),
@@ -307,7 +265,7 @@ public class DatabaseManager extends Restartable
         if (player != null)
             return player.getName();
         // First try to get the player name from the database.
-        String name = db.getPlayerName(playerUUID);
+        String name = db.getPlayerName(playerUUID.toString());
         if (name != null)
             return name;
         // As a last resort, try to get the name from an offline player. This is slow af, so last resort.
@@ -319,7 +277,7 @@ public class DatabaseManager extends Restartable
 
     public void updatePlayer(UUID uuid, String playerName)
     {
-        db.updatePlayerName(uuid, playerName);
+        db.updatePlayerName(uuid.toString(), playerName);
         players.put(uuid, playerName);
     }
 
@@ -333,18 +291,62 @@ public class DatabaseManager extends Restartable
         players.remove(player.getUniqueId());
     }
 
-    // Get a door with a specific doorUID.
-    public DoorBase getDoor(UUID playerUUID, long doorUID)
-    {
-        return db.getDoor(playerUUID, doorUID);
-    }
-
 //    // Get a door with a specific doorUID.
 //    @Deprecated
 //    public Door getDoor2(UUID playerUUID, long doorUID)
 //    {
 //        return db.getDoor2(playerUUID, doorUID);
 //    }
+
+    public DoorBase getDoor(long doorUID)
+    {
+        return db.getDoor(null, doorUID);
+    }
+
+    // Get the door from the string. Can be use with a doorUID or a doorName.
+    public DoorBase getDoor(UUID playerUUID, String doorName) throws NotEnoughDoorsException, TooManyDoorsException
+    {
+        // First try converting the doorName to a doorUID.
+        try
+        {
+            long doorUID = Long.parseLong(doorName);
+            return db.getDoor(playerUUID, doorUID);
+        }
+        // If it can't convert to a long, get all doors from the player with the provided name.
+        // If there is more than one, tell the player that they are going to have to make a choice.
+        catch (NumberFormatException e)
+        {
+            if (playerUUID == null)
+                return null;
+            int count = countDoorsOwnedByPlayer(playerUUID, doorName);
+            if (count == 0)
+                throw new NotEnoughDoorsException();
+            if (count > 1)
+                throw new TooManyDoorsException();
+            return getDoor(playerUUID, doorName);
+        }
+    }
+
+    // Get a door with a specific doorUID.
+    public DoorBase getDoor(UUID playerUUID, long doorUID)
+    {
+        return db.getDoor(playerUUID, doorUID);
+    }
+
+    public int countDoorsOwnedByPlayer(@NotNull UUID playerUUID)
+    {
+        return db.getDoorCountForPlayer(playerUUID);
+    }
+
+    public int countDoorsOwnedByPlayer(@NotNull UUID playerUUID, @NotNull String doorName)
+    {
+        return db.getDoorCountForPlayer(playerUUID, doorName);
+    }
+
+    public int countDoorsByName(@NotNull String doorName)
+    {
+        return db.getDoorCountByName(doorName);
+    }
 
     public boolean hasPermissionForActionPrintMessage(Player player, long doorUID, DoorAttribute atr)
     {
@@ -417,7 +419,7 @@ public class DatabaseManager extends Restartable
     {
         if (db.getPermission(playerUUID.toString(), doorUID) == 0)
             return false;
-        return db.removeOwner(doorUID, playerUUID);
+        return db.removeOwner(doorUID, playerUUID.toString());
     }
 
     public ArrayList<DoorOwner> getDoorOwners(long doorUID, UUID playerUUID)

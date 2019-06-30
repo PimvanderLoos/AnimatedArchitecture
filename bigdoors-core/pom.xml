@@ -46,6 +46,11 @@
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
 
+        <repository>
+            <id>sqlite-jdbc</id>
+            <url>https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc</url>
+        </repository>
+
 <!--        &lt;!&ndash; PlotSquared Breaking &ndash;&gt;-->
 <!--        <repository>-->
 <!--            <id>PlotSquared-Breaking</id>-->
@@ -69,6 +74,7 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>bigdoors-util</artifactId>
@@ -76,6 +82,7 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-util</artifactId>
@@ -87,6 +94,14 @@
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-v1_14_R1</artifactId>
+            <version>200</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-spigot</artifactId>
             <version>200</version>
             <type>jar</type>
             <scope>compile</scope>
@@ -183,6 +198,12 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.28.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

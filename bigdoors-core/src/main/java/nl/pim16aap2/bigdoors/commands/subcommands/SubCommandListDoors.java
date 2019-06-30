@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.commands.subcommands;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -9,9 +10,9 @@ import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.commands.CommandPermissionException;
-import nl.pim16aap2.bigdoors.commands.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 
 public class SubCommandListDoors extends SubCommand
@@ -31,13 +32,14 @@ public class SubCommandListDoors extends SubCommand
     {
         if (doors.size() == 0)
         {
-            plugin.getMyLogger().sendMessageToTarget(sender, null, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO,
+                                                     plugin.getMessages().getString("GENERAL.NoDoorsFound"));
             return true;
         }
         StringBuilder builder = new StringBuilder();
         for (DoorBase door : doors)
             builder.append(door.getBasicInfo() + "\n");
-        plugin.getMyLogger().sendMessageToTarget(sender, null, builder.toString());
+        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, builder.toString());
         return true;
     }
 
@@ -48,17 +50,18 @@ public class SubCommandListDoors extends SubCommand
         ArrayList<DoorBase> doors = new ArrayList<>();
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
         if (sender instanceof Player)
-            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId().toString(), name));
+            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name));
         else if (name != null)
         {
             doors.addAll(plugin.getDatabaseManager().getDoors(name));
-            // If no door with the provided name could be found, list all doors owned by the player with that name instead.
+            // If no door with the provided name could be found, list all doors owned by the
+            // player with that name instead.
             if (doors.size() == 0)
             {
                 UUID playerUUID = plugin.getDatabaseManager().getPlayerUUIDFromString(name);
                 if (playerUUID == null)
                     return true;
-                doors.addAll(plugin.getDatabaseManager().getDoors(playerUUID.toString(), null));
+                doors.addAll(plugin.getDatabaseManager().getDoors(playerUUID, null));
             }
         }
         else

@@ -8,6 +8,10 @@ import org.bukkit.command.CommandSender;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 
@@ -45,7 +49,7 @@ public class SuperCommand implements ICommand
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, CommandInvalidVariableException,
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
         CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
         if (args.length == 0 || (args.length == 1 && args[0].toLowerCase().equals("help")))
@@ -58,7 +62,8 @@ public class SuperCommand implements ICommand
         {
             SubCommand helpCommand = subCommands.get(args[1].toLowerCase());
             if (helpCommand == null)
-                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, plugin.getMessages().getString("GENERAL.COMMAND.NotFound"));
+                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO,
+                                                         plugin.getMessages().getString("GENERAL.COMMAND.NotFound"));
             else
                 plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelpOfSubCommand(sender, helpCommand));
             return true;
@@ -98,7 +103,8 @@ public class SuperCommand implements ICommand
         String help = subCommand.getHelp(sender);
         String args = subCommand.getHelpArguments();
         if (help != null)
-            return SpigotUtil.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args), help);
+            return SpigotUtil.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args),
+                                         help);
         return null;
     }
 

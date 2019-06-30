@@ -14,7 +14,7 @@ import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.*;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.function.TriFunction;
+import nl.pim16aap2.bigdoors.util.TriFunction;
 
 class BridgeMover extends BlockMover
 {

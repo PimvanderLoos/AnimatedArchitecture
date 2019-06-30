@@ -1,12 +1,18 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import java.util.logging.Level;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.*;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
@@ -25,9 +31,10 @@ public class SubCommandSetBlocksToMove extends SubCommand
     }
 
     public boolean execute(CommandSender sender, DoorBase door, String blocksToMoveArg)
-        throws CommandActionNotAllowedException, CommandInvalidVariableException
+        throws CommandActionNotAllowedException, IllegalArgumentException
     {
-        if (sender instanceof Player && !plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE))
+        if (sender instanceof Player && !plugin.getDatabaseManager()
+            .hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE))
             throw new CommandActionNotAllowedException();
 
         int blocksToMove = CommandManager.getIntegerFromArg(blocksToMoveArg);
@@ -35,18 +42,20 @@ public class SubCommandSetBlocksToMove extends SubCommand
         plugin.getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
 
         if (blocksToMove > 0)
-            plugin.getMyLogger().sendMessageToTarget(sender, null,
-                               plugin.getMessages().getString("COMMAND.SetBlocksToMove.Success") + blocksToMove);
+            plugin.getMyLogger()
+                .sendMessageToTarget(sender, Level.INFO,
+                                     plugin.getMessages().getString("COMMAND.SetBlocksToMove.Success") + blocksToMove);
         else
-            plugin.getMyLogger().sendMessageToTarget(sender, null,
-                                plugin.getMessages().getString("COMMAND.SetBlocksToMove.Disabled"));
+            plugin.getMyLogger()
+                .sendMessageToTarget(sender, Level.INFO,
+                                     plugin.getMessages().getString("COMMAND.SetBlocksToMove.Disabled"));
         return true;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
-        CommandActionNotAllowedException, CommandInvalidVariableException
+        CommandActionNotAllowedException, IllegalArgumentException
     {
         if (args.length < minArgCount)
             return false;

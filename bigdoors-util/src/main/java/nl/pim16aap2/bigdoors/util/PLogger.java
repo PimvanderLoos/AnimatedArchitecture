@@ -11,6 +11,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Represents my logger. Logs to the console synchronously and to the log file
  * asynchronously.
@@ -25,7 +28,6 @@ public class PLogger
     private final IMessagingInterface messagingInterface;
     private boolean success = false;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-    private final String formattedName;
     private boolean debug = false;
 
     /**
@@ -41,7 +43,6 @@ public class PLogger
     {
         this.logFile = logFile;
         this.messagingInterface = messagingInterface;
-        this.formattedName = PLogger.formatName(name);
         prepareLog();
         if (success)
             new Thread(() -> processQueue()).start();
@@ -98,7 +99,7 @@ public class PLogger
      * @param str    The message.
      * @see IMessagingInterface#sendMessageToTarget(Object, Level, String)
      */
-    public void sendMessageToTarget(final Object target, final Level level, final String str)
+    public void sendMessageToTarget(@NotNull final Object target, @NotNull Level level, @NotNull final String str)
     {
         this.messagingInterface.sendMessageToTarget(target, level, str);
     }
@@ -108,7 +109,7 @@ public class PLogger
      *
      * @param logMessage The {@link LogMessage} to be written to the log file.
      */
-    private void addToMessageQueue(final LogMessage logMessage)
+    private void addToMessageQueue(@NotNull final LogMessage logMessage)
     {
         messageQueue.add(logMessage);
     }
@@ -135,12 +136,12 @@ public class PLogger
     }
 
     /**
-     * Get the name format
+     * Format the name properly for logging purposes. For example: '[BigDoors]'
      * 
-     * @param name
-     * @return
+     * @param name The name to be used for logging purposes.
+     * @return The name in the proper format.
      */
-    public static String formatName(final String name)
+    public static @NotNull String formatName(@NotNull final String name)
     {
         return "[" + name + "] ";
     }
@@ -150,7 +151,7 @@ public class PLogger
      *
      * @param message An optional message to be printed along with the stack trace.
      */
-    public void dumpStackTrace(final String message)
+    public void dumpStackTrace(@NotNull final String message)
     {
         dumpBoundedStackTrace(message, 0);
     }
@@ -163,7 +164,7 @@ public class PLogger
      *                      trace.
      * @param numberOfLines The number of lines to be written to the log.
      */
-    public void dumpBoundedStackTrace(final String message, final int numberOfLines)
+    public void dumpBoundedStackTrace(@NotNull final String message, final int numberOfLines)
     {
         addToMessageQueue(this.new LogMessageException(message + "\n", new Exception(), numberOfLines));
     }
@@ -175,7 +176,7 @@ public class PLogger
      * @param message The message.
      * @see IMessagingInterface#writeToConsole(Level, String)
      */
-    public void writeToConsole(final Level level, final String message)
+    public void writeToConsole(@NotNull final Level level, @NotNull final String message)
     {
         this.messagingInterface.writeToConsole(level, message);
     }
@@ -189,7 +190,7 @@ public class PLogger
      *                       etc).
      * @param printToConsole If the message should be written to the console.
      */
-    private void logMessage(final String msg, final Level level, final boolean printToConsole)
+    private void logMessage(@NotNull final String msg, @NotNull final Level level, final boolean printToConsole)
     {
         if (printToConsole)
             writeToConsole(level, msg);
@@ -201,10 +202,13 @@ public class PLogger
      *
      * @param msg The message to be written.
      */
-    private void writeToLog(final String msg)
+    private void writeToLog(@NotNull final String msg)
     {
-        if (msg == null)
+        if (msg == null) // TODO: This shouldn't happen, but it does. Once, after a new file was created.
+        {
+            this.dumpStackTrace("TRIED TO LOG NULL!");
             return;
+        }
         try
         {
             BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true));
@@ -225,7 +229,7 @@ public class PLogger
      *
      * @param exception Exception to log.
      */
-    public void logException(final Exception exception)
+    public void logException(@NotNull final Exception exception)
     {
         addToMessageQueue(this.new LogMessageException(exception.getMessage(), exception));
         writeToConsole(Level.SEVERE, exception.toString());
@@ -239,7 +243,7 @@ public class PLogger
      * @param exception Exception to log.
      * @param message   Message to accompany the exception.
      */
-    public void logException(final Exception exception, String message)
+    public void logException(@NotNull final Exception exception, @NotNull String message)
     {
         message += "\n";
         addToMessageQueue(this.new LogMessageException(message, exception));
@@ -253,7 +257,7 @@ public class PLogger
      *
      * @param error Error to log.
      */
-    public void logError(final Error error)
+    public void logError(@NotNull final Error error)
     {
         addToMessageQueue(this.new LogMessageError(error.getMessage(), error));
         writeToConsole(Level.SEVERE, error.toString());
@@ -267,7 +271,7 @@ public class PLogger
      * @param error   Error to log.
      * @param message Message to accompany the error.
      */
-    public void logError(final Error error, String message)
+    public void logError(@NotNull final Error error, @NotNull String message)
     {
         message += "\n";
         addToMessageQueue(this.new LogMessageError(message, error));
@@ -281,7 +285,7 @@ public class PLogger
      *
      * @param message The message to log.
      */
-    public void logMessage(final String message)
+    public void logMessage(@NotNull final String message)
     {
         addToMessageQueue(this.new LogMessageString(message));
     }
@@ -291,7 +295,7 @@ public class PLogger
      *
      * @param str The message to log.
      */
-    public void info(final String str)
+    public void info(@NotNull final String str)
     {
         logMessage(str, Level.INFO, true);
     }
@@ -301,7 +305,7 @@ public class PLogger
      *
      * @param str The message to log.
      */
-    public void warn(final String str)
+    public void warn(@NotNull final String str)
     {
         logMessage(str, Level.WARNING, true);
     }
@@ -311,7 +315,7 @@ public class PLogger
      *
      * @param str The message to log.
      */
-    public void severe(final String str)
+    public void severe(@NotNull final String str)
     {
         logMessage(str, Level.SEVERE, true);
     }
@@ -326,7 +330,7 @@ public class PLogger
      * @return A string of the stack trace for at most numberOfLines lines if lines
      *         > 0.
      */
-    private String limitStackTraceLength(final StackTraceElement[] stackTrace, int numberOfLines)
+    private @NotNull String limitStackTraceLength(@NotNull final StackTraceElement[] stackTrace, int numberOfLines)
     {
         if (numberOfLines < 0)
             numberOfLines = 0;
@@ -345,7 +349,7 @@ public class PLogger
     {
         protected final String message;
 
-        LogMessage(final String message)
+        LogMessage(final @Nullable String message)
         {
             this.message = message;
         }
@@ -367,20 +371,21 @@ public class PLogger
         private final Exception exception;
         private final int numberOfLines;
 
-        public LogMessageException(final String message, final Exception exception, final int numberOfLines)
+        public LogMessageException(@NotNull final String message, @NotNull final Exception exception,
+            final int numberOfLines)
         {
             super(message);
             this.exception = exception;
             this.numberOfLines = numberOfLines;
         }
 
-        public LogMessageException(final String message, final Exception exception)
+        public LogMessageException(@NotNull final String message, @NotNull final Exception exception)
         {
             this(message, exception, 0);
         }
 
         @Override
-        public String toString()
+        public @NotNull String toString()
         {
             return super.message + limitStackTraceLength(exception.getStackTrace(), numberOfLines);
         }
@@ -396,20 +401,20 @@ public class PLogger
         private final Error error;
         private final int numberOfLines;
 
-        public LogMessageError(final String message, final Error error, final int numberOfLines)
+        public LogMessageError(@NotNull final String message, @NotNull final Error error, final int numberOfLines)
         {
             super(message);
             this.error = error;
             this.numberOfLines = numberOfLines;
         }
 
-        public LogMessageError(final String message, final Error error)
+        public LogMessageError(@NotNull final String message, @NotNull final Error error)
         {
             this(message, error, 0);
         }
 
         @Override
-        public String toString()
+        public @NotNull String toString()
         {
             return super.toString() + limitStackTraceLength(error.getStackTrace(), numberOfLines);
         }
@@ -422,13 +427,13 @@ public class PLogger
      */
     private class LogMessageString extends LogMessage
     {
-        public LogMessageString(final String message)
+        public LogMessageString(@NotNull final String message)
         {
             super(message);
         }
 
         @Override
-        public String toString()
+        public @NotNull String toString()
         {
             return super.toString();
         }

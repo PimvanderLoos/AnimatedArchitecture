@@ -78,7 +78,7 @@ public class GUI
         page = 0;
         items = new HashMap<>();
 
-        doorBases = plugin.getDatabaseManager().getDoors(player.getUniqueId().toString(), null);
+        doorBases = plugin.getDatabaseManager().getDoors(player.getUniqueId(), null);
         sort();
         guiPage = new GUIPageDoorList(plugin, this);
         update();

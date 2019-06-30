@@ -3,19 +3,24 @@ package nl.pim16aap2.bigdoors.commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
+
 public interface ICommand
 {
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, CommandInvalidVariableException,
+    boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
         CommandPlayerNotFoundException, CommandActionNotAllowedException;
 
-    public String getHelp(CommandSender sender);
+    String getHelp(CommandSender sender);
 
-    public String getPermission();
+    String getPermission();
 
-    public String getName();
+    String getName();
 
-    public int getMinArgCount();
+    int getMinArgCount();
 
-    public CommandData getCommandData();
+    CommandData getCommandData();
 }

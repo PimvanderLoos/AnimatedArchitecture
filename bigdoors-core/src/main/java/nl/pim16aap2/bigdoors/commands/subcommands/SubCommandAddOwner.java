@@ -9,8 +9,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.commands.*;
+import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
@@ -33,17 +37,20 @@ public class SubCommandAddOwner extends SubCommand
     {
         UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
 
-        if (sender instanceof Player && plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.ADDOWNER))
+        if (sender instanceof Player && plugin.getDatabaseManager()
+            .hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.ADDOWNER))
             throw new CommandActionNotAllowedException();
 
         if (plugin.getDatabaseManager().addOwner(door, playerUUID, permission))
         {
-            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
-                                                plugin.getMessages().getString("COMMAND.AddOwner.Success"));
+            plugin.getMyLogger()
+                .sendMessageToTarget(sender, Level.INFO,
+                                     ChatColor.RED + plugin.getMessages().getString("COMMAND.AddOwner.Success"));
             return true;
         }
-        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
-                                            plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
+        plugin.getMyLogger()
+            .sendMessageToTarget(sender, Level.INFO,
+                                 ChatColor.RED + plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
         return false;
 
     }
@@ -59,9 +66,8 @@ public class SubCommandAddOwner extends SubCommand
         }
         catch (Exception uncaught)
         {
-            plugin.getMyLogger()
-                .sendMessageToTarget(sender, Level.INFO, ChatColor.RED +
-                                "\"" + args[pos] + "\" " + plugin.getMessages().getString("GENERAL.COMMAND.InvalidPermissionValue"));
+            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + "\"" + args[pos] + "\" "
+                + plugin.getMessages().getString("GENERAL.COMMAND.InvalidPermissionValue"));
         }
         return permission;
     }
@@ -69,7 +75,7 @@ public class SubCommandAddOwner extends SubCommand
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
-        CommandActionNotAllowedException, CommandInvalidVariableException
+        CommandActionNotAllowedException, IllegalArgumentException
     {
         if (sender instanceof Player)
         {
@@ -81,6 +87,7 @@ public class SubCommandAddOwner extends SubCommand
                 cw.abortSilently();
             }
         }
-        return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2], getPermissionFromArgs(sender, args, 3));
+        return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2],
+                       getPermissionFromArgs(sender, args, 3));
     }
 }
