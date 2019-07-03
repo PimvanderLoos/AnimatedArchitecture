@@ -284,7 +284,7 @@ public class CommandHandler implements CommandExecutor
     {
         if (isPlayerBusy(player))
             return;
-        startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, doorUID)), 20 * 20);
+        startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, doorUID)), plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     private void replaceWaitForCommand(Player player)
@@ -300,19 +300,19 @@ public class CommandHandler implements CommandExecutor
     public void startTimerSetter(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForSetTime(plugin, player, doorUID)), 20 * 20);
+        startTimerForAbortable((new WaitForSetTime(plugin, player, doorUID)), plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     public void startAddOwner(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForAddOwner(plugin, player, doorUID)), 20 * 20);
+        startTimerForAbortable((new WaitForAddOwner(plugin, player, doorUID)), plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     public void startRemoveOwner(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForRemoveOwner(plugin, player, doorUID)), 20 * 20);
+        startTimerForAbortable((new WaitForRemoveOwner(plugin, player, doorUID)), plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     private boolean isPlayerBusy(Player player)
@@ -332,7 +332,7 @@ public class CommandHandler implements CommandExecutor
 
     public void startPowerBlockRelocator(Player player, long doorUID)
     {
-        startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID), 20 * 20);
+        startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID), plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     public void killAllBigDoorsEntities()
@@ -733,7 +733,7 @@ public class CommandHandler implements CommandExecutor
             {
                 if (isPlayerBusy(player))
                     return false;
-                startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), 20 * 20);
+                startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), plugin.getConfigLoader().commandWaiterTimeout() * 20);
                 return true;
             }
 

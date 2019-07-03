@@ -33,6 +33,7 @@ public class MyLogger
         if (!logFile.exists())
             try
             {
+                logFile.getParentFile().mkdirs();
                 logFile.createNewFile();
                 myLogger(Level.INFO, "New file created at " + logFile);
             }

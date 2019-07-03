@@ -38,6 +38,7 @@ public class ConfigLoader
     private boolean autoDLUpdate;
     private int downloadDelay;
     private boolean enableRedstone;
+    private int commandWaiterTimeout;
 
     private HashSet<Material> powerBlockTypesMap;
 
@@ -46,8 +47,7 @@ public class ConfigLoader
     private boolean checkForUpdates;
     private boolean plotSquaredHook;
     private int headCacheTimeout;
-    private String doorPrice, drawbridgePrice, portcullisPrice,
-                   elevatorPrice, slidingDoorPrice, flagPrice;
+    private String doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice;
 
     private final ArrayList<ConfigOption> configOptionsList;
     public static boolean DEBUG = false;
@@ -108,6 +108,8 @@ public class ConfigLoader
                                    "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), and parentheses.",
                                    "For example: \"doorPrice='max(10, sqrt(16)^4/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
                                    "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!" };
+        String[] commandWaiterTimeoutComment = { "Amount of time (measured in seconds) until a command waiter times out.",
+                                                 "Don't forget to update the language file if you change this!" };
 
 //        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
 //                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
@@ -207,9 +209,12 @@ public class ConfigLoader
         flagPrice = config.getString("flagPrice", "0");
         configOptionsList.add(new ConfigOption("flagPrice", flagPrice, null));
 
+        commandWaiterTimeout = config.getInt("commandWaiterTimeout", 20);
+        configOptionsList
+            .add(new ConfigOption("commandWaiterTimeout", commandWaiterTimeout, commandWaiterTimeoutComment));
+
 //        cacheTimeout = config.getInt("headCacheTimeout", 1440);
 //        configOptionsList.add(new ConfigOption("headCacheTimeout", headCacheTimeout, headCacheTimeoutComment));
-
 
         // This is a bit special, as it's public static (for util debug messages).
         ConfigLoader.DEBUG = config.getBoolean("DEBUG", false);
@@ -224,7 +229,8 @@ public class ConfigLoader
 
         {
             List<?> materialsTmp = config.getList("powerBlockTypes", DEFAULTPOWERBLOCK);
-            // If the user is illiterate and failed to read the part saying it should be an enum string and used
+            // If the user is illiterate and failed to read the part saying it should be an
+            // enum string and used
             // non-String values, put those in a new String list.
             materials = new ArrayList<>();
             materialsTmp.forEach(K -> materials.add(K.toString()));
@@ -244,7 +250,9 @@ public class ConfigLoader
                     powerBlockTypesMap.add(mat);
                 else
                 {
-                    plugin.getMyLogger().logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true, false);
+                    plugin.getMyLogger()
+                        .logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true,
+                                    false);
                     it.remove();
                 }
             }
@@ -260,7 +268,8 @@ public class ConfigLoader
         {
             StringBuilder sb = new StringBuilder();
             DEFAULTPOWERBLOCK.forEach(K -> sb.append(K + " "));
-            plugin.getMyLogger().logMessage("No materials found for powerBlockType! Defaulting to:" + sb.toString(), true, false);
+            plugin.getMyLogger().logMessage("No materials found for powerBlockType! Defaulting to:" + sb.toString(),
+                                            true, false);
             DEFAULTPOWERBLOCK.forEach(K ->
             {
                 powerBlockTypesMap.add(Material.valueOf(K));
@@ -299,8 +308,8 @@ public class ConfigLoader
             for (int idx = 0; idx < configOptionsList.size(); ++idx)
                 pw.println(configOptionsList.get(idx).toString() +
                 // Only print an additional newLine if the next config option has a comment.
-                    (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? ""
-                                                                                                               : "\n"));
+                    (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? "" :
+                        "\n"));
 
             pw.flush();
             pw.close();
@@ -462,5 +471,10 @@ public class ConfigLoader
     public String flagPrice()
     {
         return flagPrice;
+    }
+
+    public int commandWaiterTimeout()
+    {
+        return commandWaiterTimeout;
     }
 }

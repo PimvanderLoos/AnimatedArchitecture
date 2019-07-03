@@ -56,7 +56,7 @@ public class SpigotUpdater
                                      ", Currently running: " + plugin.getDescription().getVersion());
                              plugin.setLoginString("The BigDoors plugin is out of date. Found: " +
                                      getLatestVersion() + ", Currently running: " +
-                                     plugin.getDescription().getVersion());
+                                     plugin.getDescription().getVersion() + "\n Please download it from here: " + getResourceURL());
                         }
                         else if (success)
                             plugin.setLoginString("Update for BigDoors has been downloaded! Restart to apply it!");
