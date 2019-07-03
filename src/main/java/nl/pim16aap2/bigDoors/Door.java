@@ -91,9 +91,16 @@ public class Door
 
     // ------------------------ SIMPLE GETTERS -------------------- //
 //    public DoorType getType()           {  return type;          }  // Get this door's type.
-    public DoorType getType()
+    public DoorType getType() throws NullPointerException
     {
-        return type.equals(DoorType.ELEVATOR) ?  DoorType.PORTCULLIS : type; // DISABLED ELEVATORS
+        try
+        {
+            return type.equals(DoorType.ELEVATOR) ?  DoorType.PORTCULLIS : type; // DISABLED ELEVATORS
+        }
+        catch (NullPointerException e)
+        {
+            return null;
+        }
     }
     public String getName()             {  return name;          }  // Get the name of the door.
     public World getWorld()             {  return world;         }  // Get the world this door is in.

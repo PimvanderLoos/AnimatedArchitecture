@@ -250,6 +250,11 @@ public class GUI
         {
             int realIdx  = offset + idx;
             DoorType doorType = doors.get(realIdx).getType();
+            if (doorType == null)
+            {
+                plugin.getMyLogger().logMessage("Failed to determine doorType of door: " + door.getDoorUID(), true, false);
+                continue;
+            }
             lore.add(messages.getString("GUI.DoorHasID") + doors.get(realIdx).getDoorUID());
             lore.add(messages.getString(DoorType.getNameKey(doorType)));
             GUIItem item = new GUIItem(DOORTYPES[DoorType.getValue(doorType)], doors.get(realIdx).getName(), lore, 1);

@@ -132,7 +132,7 @@ public class CommandHandler implements CommandExecutor
         {
             ArrayList<Door> doors = plugin.getCommander().getDoors(player.getUniqueId().toString(), name);
             for (Door door : doors)
-                if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.INFO))
+                if (plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.INFO))
                     Util.messagePlayer(player, Util.getFullDoorInfo(door));
             if (doors.size() == 0)
                 Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.NoDoorsFound"));

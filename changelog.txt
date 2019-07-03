@@ -1,6 +1,8 @@
 Alpha 0.1.8.11
 - Fixed InsufficientFunds message appearing even if the price is just 0. Thanks, @0fficerMike for the bug report!
 - Added project URL to update available message received on login. Thanks, @Panda_Nesthesia for the suggestion.
+- Fixed "/DoorInfo <doorName>" only working if you provided a doorUID.
+- Fixed doors sometimes being fake toggled when receiving a redstone signal when auto closing. Thanks, @Ashh for the bug report!
 
 Alpha 0.1.8.10
 - Fixed being able to modify properties of doors you have no access to via direct commands when using doorUIDs.

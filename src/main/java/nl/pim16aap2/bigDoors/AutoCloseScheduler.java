@@ -52,9 +52,14 @@ public class AutoCloseScheduler
             {
                 if (door.isOpen())
                 {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                    plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()),
-                                                                  time, instantOpen, false);
+                    if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+                    {
+                        deleteTimer(door.getDoorUID());
+                        cancel();
+                    }
+                    else
+                        plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()),
+                                                                      time, instantOpen, false);
                 }
                 deleteTimer(door.getDoorUID());
             }

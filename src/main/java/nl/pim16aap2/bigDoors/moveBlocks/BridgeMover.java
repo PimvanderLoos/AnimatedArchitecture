@@ -399,7 +399,7 @@ public class BridgeMover implements BlockMover
         else
             plugin.getCommander().setDoorAvailable(door.getDoorUID());
 
-        if (!onDisable)
+        if (!onDisable && door.isOpen())
             plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
