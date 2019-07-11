@@ -1,12 +1,5 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import java.util.HashMap;
-
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.RegisteredServiceProvider;
-
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
@@ -15,6 +8,12 @@ import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.jcalculator.JCalculator;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
+
+import java.util.HashMap;
 
 public class VaultManager extends Restartable
 {
@@ -45,11 +44,14 @@ public class VaultManager extends Restartable
         if (withdrawPlayer(player, player.getWorld().getName(), price))
         {
             if (price > 0)
-                SpigotUtil.messagePlayer(player, plugin.getMessages().getString("CREATOR.GENERAL.MoneyWithdrawn") + " " + price);
+                SpigotUtil.messagePlayer(player,
+                                         plugin.getMessages().getString("CREATOR.GENERAL.MoneyWithdrawn") + " " +
+                                                 price);
             return true;
         }
 
-        SpigotUtil.messagePlayer(player, plugin.getMessages().getString("CREATOR.GENERAL.InsufficientFunds") + " " + price);
+        SpigotUtil.messagePlayer(player,
+                                 plugin.getMessages().getString("CREATOR.GENERAL.InsufficientFunds") + " " + price);
         return false;
     }
 
@@ -60,7 +62,7 @@ public class VaultManager extends Restartable
         {
             price = Integer.parseInt(plugin.getConfigLoader().getPrice(DoorType.BIGDOOR));
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             price = null;
         }
@@ -86,8 +88,8 @@ public class VaultManager extends Restartable
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e, "Failed to determine door creation price! Please contact pim16aap2! "
-                + "Include this: \"" + formula + "\" and this:");
+            plugin.getPLogger().logException(e, "Failed to determine door creation price! Please contact pim16aap2! "
+                    + "Include this: \"" + formula + "\" and this:");
             return 0.0d;
         }
     }
@@ -119,10 +121,10 @@ public class VaultManager extends Restartable
         {
             return economy.has(player, amount);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            plugin.getMyLogger().logException(e, "Failed to check balance of player \"" + player.getName() +
-                                              "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
+            plugin.getPLogger().logException(e, "Failed to check balance of player \"" + player.getName() +
+                    "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
         return true;
     }
@@ -132,13 +134,14 @@ public class VaultManager extends Restartable
         try
         {
             if (has(player, amount))
-                return economy.withdrawPlayer(player, worldName, amount).type.equals(EconomyResponse.ResponseType.SUCCESS);
+                return economy.withdrawPlayer(player, worldName, amount).type
+                        .equals(EconomyResponse.ResponseType.SUCCESS);
             return false;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            plugin.getMyLogger().logException(e, "Failed to subtract money from player \"" + player.getName() +
-                                              "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
+            plugin.getPLogger().logException(e, "Failed to subtract money from player \"" + player.getName() +
+                    "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
         return true;
     }
@@ -152,7 +155,8 @@ public class VaultManager extends Restartable
     {
         if (plugin.getServer().getPluginManager().getPlugin("Vault") == null)
             return false;
-        RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+        RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(
+                net.milkbowl.vault.economy.Economy.class);
         if (economyProvider != null)
             economy = economyProvider.getProvider();
 
@@ -161,7 +165,8 @@ public class VaultManager extends Restartable
 
     private boolean setupPermissions()
     {
-        RegisteredServiceProvider<Permission> rsp = plugin.getServer().getServicesManager().getRegistration(Permission.class);
+        RegisteredServiceProvider<Permission> rsp = plugin.getServer().getServicesManager()
+                                                          .getRegistration(Permission.class);
         perms = rsp.getProvider();
         return perms != null;
     }

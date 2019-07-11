@@ -1,18 +1,17 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import java.util.function.BiFunction;
-
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import java.util.function.BiFunction;
 
 class RevolvingDoorMover extends BlockMover
 {
@@ -22,8 +21,9 @@ class RevolvingDoorMover extends BlockMover
     private final BiFunction<PBlockData, Double, Vector> getGoalPos;
     private final double time;
 
-    public RevolvingDoorMover(final BigDoors plugin, final World world, final DoorBase door, final double time, final double multiplier,
-        final RotateDirection rotateDirection)
+    public RevolvingDoorMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
+                              final double multiplier,
+                              final RotateDirection rotateDirection)
     {
         super(plugin, world, door, 30, false, null, null, -1);
         this.time = time;
@@ -35,17 +35,18 @@ class RevolvingDoorMover extends BlockMover
 
         switch (rotateDirection)
         {
-        case CLOCKWISE:
-            getGoalPos = this::getGoalPosClockwise;
-            break;
-        case COUNTERCLOCKWISE:
-            getGoalPos = this::getGoalPosCounterClockwise;
-            break;
-        default:
-            getGoalPos = null;
-            plugin.getMyLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
-                + "\". Reason: Invalid rotateDirection \"" + rotateDirection.toString() + "\"");
-            return;
+            case CLOCKWISE:
+                getGoalPos = this::getGoalPosClockwise;
+                break;
+            case COUNTERCLOCKWISE:
+                getGoalPos = this::getGoalPosCounterClockwise;
+                break;
+            default:
+                getGoalPos = null;
+                plugin.getPLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
+                                                           + "\". Reason: Invalid rotateDirection \"" +
+                                                           rotateDirection.toString() + "\"");
+                return;
         }
 
         super.constructFBlocks();
@@ -88,8 +89,8 @@ class RevolvingDoorMover extends BlockMover
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
-
             double step = (Math.PI / 2) / endCount * -1;
+            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -109,7 +110,11 @@ class RevolvingDoorMover extends BlockMover
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        putBlocks(false);
+                        if (!hasFinished)
+                        {
+                            putBlocks(false);
+                            hasFinished = true;
+                        }
                         return null;
                     });
                     cancel();
@@ -122,7 +127,7 @@ class RevolvingDoorMover extends BlockMover
                         {
                             double stepSum = counter * step;
                             Vector vec = getGoalPos.apply(block, stepSum)
-                                .subtract(block.getFBlock().getLocation().toVector());
+                                                   .subtract(block.getFBlock().getLocation().toVector());
                             vec.multiply(0.101);
                             block.getFBlock().setVelocity(vec);
                         }

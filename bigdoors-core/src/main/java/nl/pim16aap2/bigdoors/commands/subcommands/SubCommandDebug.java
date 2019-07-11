@@ -1,23 +1,12 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Stairs;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 
 /*
  * This class really does whatever I want to test at a given point.
@@ -43,164 +32,14 @@ public class SubCommandDebug extends SubCommand
 
     public boolean execute(CommandSender sender)
     {
-        if (sender instanceof Player)
-        {
-            World world = ((Player) sender).getWorld();
-            Location loc = new Location(world, 49, 77, 191);
-            Block block = world.getBlockAt(loc);
-            BlockData bd = block.getBlockData();
-
-            if (bd instanceof Stairs)
-            {
-                SpigotUtil.broadcastMessage("Shape: " + ((Stairs) bd).getShape().toString() + " Facing: "
-                    + ((Stairs) bd).getFacing() + " Half: " + ((Stairs) bd).getHalf());
-            }
-
-            Location loc2 = loc.clone();
-            loc2.add(0, 5, 0);
-
-            INMSBlock nmsBlock = plugin.getFABF().nmsBlockFactory(world, 49, 77, 191);
-            plugin.getFABF().fallingBlockFactory(loc2, nmsBlock);
-
-            for (Entity ent : world.getEntities())
-            {
-                if (ent.getCustomName() != null && ent.getCustomName().equals("BigDoorsEntity"))
-                {
-                    SpigotUtil.broadcastMessage("BigDoorsEntity: " + SpigotUtil.locIntToString(ent.getLocation()));
-                    ent.remove();
-                }
-                else if (ent instanceof FallingBlock)
-                {
-                    SpigotUtil.broadcastMessage("Entity is a falling block! Loc: "
-                        + SpigotUtil.locIntToString(ent.getLocation()));
-                    ent.remove();
-                }
-            }
-
-//            if (! (block.getBlockData() instanceof Directional))
-//            {
-//                SpigotUtil.broadcastMessage("Not a Directional block! " + block.toString());
-//                return true;
-//            }
-//            Set<BlockFace> allowedFaces = ((Directional) block.getBlockData()).getFaces();
-//
-//            Location newLoc = loc;
-//            newLoc.add(0, -1, 0);
-//
-//            int tickRate = 20;
-//
-//            new BukkitRunnable()
-//            {
-//                int seconds = 0;
-//
-//                @Override
-//                public void run()
-//                {
-//                    seconds += tickRate;
-//                    if (seconds > 15 * 20)
-//                        cancel();
-//                    else
-//                    {
-//                        BlockData bd = block.getBlockData();
-//                        Directional mf = (Directional) bd;
-//
-//                        Set<BlockFace> currentFaces = new HashSet<>();
-//                        currentFaces.add(mf.getFacing());
-//                        List<PBlockFace> myFaces = new ArrayList<>(currentFaces.size());
-//                        List<PBlockFace> newFaces = new ArrayList<>(currentFaces.size());
-//                        currentFaces.forEach((K) -> myFaces.add(PBlockFace.getPBlockFace(K)));
-//
-//
-//                        Material mat = newLoc.getBlock().getType();
-//                        SpigotUtil.broadcastMessage("Material: " + mat.toString());
-//
-//                        switch(mat)
-//                        {
-//                        case IRON_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateCounterClockwise(K)));
-//                            break;
-//                        case COAL_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateVerticallyNorth(K)));
-//                            break;
-//                        case DIAMOND_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateVerticallyEast(K)));
-//                            break;
-//                        case BONE_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateVerticallySouth(K)));
-//                            break;
-//                        case QUARTZ_BLOCK:
-//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateVerticallyWest(K)));
-//                            break;
-//                        default:
-//                            myFaces.forEach((K) -> newFaces.add(PBlockFace.rotateClockwise(K)));
-//                            break;
-//                        }
-//                        {
-//                            StringBuilder builder = new StringBuilder();
-//                            currentFaces.forEach((K) -> builder.append(" " + K.toString()));
-//                            SpigotUtil.broadcastMessage("Old faces:" + builder.toString());
-//                        }
-//                        {
-//                            StringBuilder builder = new StringBuilder();
-//                            newFaces.forEach((K) -> builder.append(" (" + K.toString() + "): " + " " + PBlockFace.getBukkitFace(K).toString()));
-//                            SpigotUtil.broadcastMessage("New faces:" + builder.toString());
-//                        }
-//
-////                        currentFaces.forEach((K) -> mf.setFace(K, false));
-//                        newFaces.forEach((K) ->
-//                        {
-//                            if (allowedFaces.contains(PBlockFace.getBukkitFace(K)))
-//                                mf.setFacing(PBlockFace.getBukkitFace(K));
-//                            else
-//                                SpigotUtil.broadcastMessage("\"" + PBlockFace.getBukkitFace(K).toString() + "\" is not an allowed face!");
-//                        });
-//                        block.setBlockData(mf);
-//                    }
-//                }
-//            }.runTaskTimer(plugin, 20, tickRate);
-
-        }
-
-//        Door door = plugin.getCommander().getDoor(119);
-//        int xMin = door.getMinimum().getBlockX();
-//        int yMin = door.getMinimum().getBlockY();
-//        int zMin = door.getMinimum().getBlockZ();
-//
-//        int xMax = door.getMaximum().getBlockX();
-//        int yMax = door.getMaximum().getBlockY();
-//        int zMax = door.getMaximum().getBlockZ();
-//
-//        SpigotUtil.broadcastMessage("Min = " + door.getMinimum());
-//        SpigotUtil.broadcastMessage("Max = " + door.getMaximum());
-//
-//        StringBuilder builder = new StringBuilder();
-//        builder.append("\n");
-//        World world = door.getWorld();
-//        for (int x = xMin; xMin <= xMax; x++)
-//        {
-//            if (x > xMax)
-//                break;
-//            for (int y = yMin; yMin <= yMax; y++)
-//            {
-//                if (y > yMax)
-//                    break;
-//                for (int z = zMin; zMin <= zMax; z++)
-//                {
-//                    if (z > zMax)
-//                        break;
-//                    Block block = world.getBlockAt(x, y, z);
-//                    if (!block.getType().equals(Material.AIR))
-//                        builder.append(String.format("%-24s: %5s\n", block.getType().toString(), String.valueOf(SpigotUtil.isAllowedBlock(block))));
-//                }
-//            }
-//        }
-//        SpigotUtil.broadcastMessage(builder.toString());
+        plugin.getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140, null);
+        plugin.getDatabaseManager().fillDoor(plugin.getDatabaseManager().getDoor(236));
         return true;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException
+            throws CommandSenderNotPlayerException, CommandPermissionException
     {
         return execute(sender);
     }

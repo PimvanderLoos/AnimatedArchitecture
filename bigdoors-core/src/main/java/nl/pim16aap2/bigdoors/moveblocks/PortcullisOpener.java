@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.bukkit.Location;
+import org.bukkit.World;
 
 public class PortcullisOpener extends Opener
 {
@@ -24,7 +23,6 @@ public class PortcullisOpener extends Opener
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
             return abort(door, isOpenable);
-        super.setBusy(door);
 
         if (super.isTooBig(door))
             instantOpen = true;

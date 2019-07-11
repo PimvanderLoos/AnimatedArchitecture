@@ -1,15 +1,14 @@
 package nl.pim16aap2.bigdoors.handlers;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.gui.GUI;
+import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.util.Messages;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.gui.GUI;
-import nl.pim16aap2.bigdoors.spigotutil.PageType;
-import nl.pim16aap2.bigdoors.util.Messages;
 
 public class GUIHandler implements Listener
 {
@@ -47,7 +46,7 @@ public class GUIHandler implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 
@@ -75,7 +74,7 @@ public class GUIHandler implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 }

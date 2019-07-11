@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Restartable;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class AutoCloseScheduler extends Restartable
 {
@@ -43,15 +42,12 @@ public class AutoCloseScheduler extends Restartable
 
     public void scheduleAutoClose(DoorBase door, double time, boolean instantOpen)
     {
-        int autoCloseTimer = door.getAutoClose();
-        if (autoCloseTimer < 0 || !door.isOpen())
+        if (door.getAutoClose() < 0 || !door.isOpen())
             return;
 
         // First delete any old timers that might still be running.
         deleteTimer(door.getDoorUID());
-        // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the door
-        // available again.
-        int delay = Math.min(plugin.getMinimumDoorDelay() + 2, autoCloseTimer * 20);
+        int delay = Math.max(plugin.getMinimumDoorDelay(), door.getAutoClose() * 20);
 
         timers.put(door.getDoorUID(), new BukkitRunnable()
         {
@@ -61,12 +57,13 @@ public class AutoCloseScheduler extends Restartable
                 if (door.isOpen())
                 {
                     plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
-                    plugin.getDoorOpener(door.getType()).openDoor(plugin.getDatabaseManager().getDoor(null, door.getDoorUID()),
-                                                                  time, instantOpen, false);
+                    plugin.getDoorOpener(door.getType())
+                          .openDoor(plugin.getDatabaseManager().getDoor(door.getDoorUID()),
+                                    time, instantOpen, false);
                 }
                 deleteTimer(door.getDoorUID());
             }
-            // Hard-code 2 tick delay on top of MinimumDoorDelay, to make sure it's fully updated after the last toggle.
+            // Hard-code a slight delay on top of MinimumDoorDelay, to make sure it's fully updated after the last toggle.
         }.runTaskLater(plugin, delay));
     }
 

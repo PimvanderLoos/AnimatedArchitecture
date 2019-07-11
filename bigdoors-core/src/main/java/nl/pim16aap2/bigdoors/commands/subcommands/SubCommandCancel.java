@@ -1,10 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -13,6 +8,10 @@ import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class SubCommandCancel extends SubCommand
 {
@@ -29,7 +28,7 @@ public class SubCommandCancel extends SubCommand
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException
+            throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();

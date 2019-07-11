@@ -1,16 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IFallingBlockFactory;
@@ -21,25 +10,37 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BlockMover
 {
     protected final BigDoors plugin;
-    protected final IFallingBlockFactory fabf;
     protected final World world;
-    protected List<PBlockData> savedBlocks;
     protected final DoorBase door;
     protected double time;
     protected boolean instantOpen;
-    protected PBlockFace currentDirection;
     protected RotateDirection openDirection;
+    protected List<PBlockData> savedBlocks;
+    protected AtomicBoolean isAborted = new AtomicBoolean(false);
+    protected final IFallingBlockFactory fabf;
+    protected PBlockFace currentDirection;
     protected int blocksMoved;
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
-    protected AtomicBoolean isAborted = new AtomicBoolean(false);
+
 
     protected BlockMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
-                         final boolean instantOpen, final PBlockFace currentDirection, final RotateDirection openDirection,
+                         final boolean instantOpen, final PBlockFace currentDirection,
+                         final RotateDirection openDirection,
                          final int blocksMoved)
     {
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
@@ -67,7 +68,7 @@ public abstract class BlockMover
         isAborted.set(true);
     }
 
-    protected void constructFBlocks()
+    void constructFBlocks()
     {
         for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
             for (int yAxis = yMin; yAxis <= yMax; ++yAxis)
@@ -99,9 +100,9 @@ public abstract class BlockMover
                         float startAngle = getStartAngle(xAxis, yAxis, zAxis);
 
                         ICustomCraftFallingBlock fBlock = instantOpen ? null :
-                            fallingBlockFactory(newFBlockLocation, block);
+                                                          fallingBlockFactory(newFBlockLocation, block);
                         savedBlocks.add(new PBlockData(fBlock, radius, block2 == null ? block : block2, canRotate,
-                                                        startLocation, startAngle));
+                                                       startLocation, startAngle));
                     }
                 }
         for (PBlockData mbd : savedBlocks)
@@ -117,14 +118,12 @@ public abstract class BlockMover
     protected abstract void animateEntities();
 
     // Can be overriden to get the radius of the block at the given coordinates.
-    @SuppressWarnings("unused")
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         return -1;
     }
 
     // Can be overriden to get the start angle of the block at the given coordinates.
-    @SuppressWarnings("unused")
     protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         return -1;
@@ -154,28 +153,25 @@ public abstract class BlockMover
 
         savedBlocks.clear();
 
-        // Change door availability to true, so it can be opened again.
-        // Wait for a bit if instantOpen is enabled.
-        int timer = onDisable ? 0 : instantOpen ? 40 :
-            Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
-
-        if (timer > 0)
+        if (!onDisable)
+        {
+            int delay = Math.max(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {
                 @Override
                 public void run()
                 {
                     plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
+                    plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }
-            }.runTaskLater(plugin, timer);
+            }.runTaskLater(plugin, delay);
+        }
         else
             plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
-
-        if (!onDisable)
-            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
-    protected final void updateCoords(DoorBase door, PBlockFace openDirection, RotateDirection rotateDirection, int moved)
+    protected final void updateCoords(DoorBase door, PBlockFace openDirection, RotateDirection rotateDirection,
+                                      int moved)
     {
         Location newMin = new Location(world, 0, 0, 0);
         Location newMax = new Location(world, 0, 0, 0);

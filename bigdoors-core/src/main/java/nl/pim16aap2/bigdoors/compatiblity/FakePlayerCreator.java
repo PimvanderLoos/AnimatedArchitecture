@@ -1,19 +1,17 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+import com.mojang.authlib.GameProfile;
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 
-import com.mojang.authlib.GameProfile;
-
-import nl.pim16aap2.bigdoors.BigDoors;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Class used to create a fake-online player who is actually offline.
@@ -61,7 +59,7 @@ class FakePlayerCreator
 
         NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
         CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
-            + ".";
+                + ".";
         try
         {
             CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
@@ -91,7 +89,7 @@ class FakePlayerCreator
         }
         catch (ClassNotFoundException | NoSuchMethodException | SecurityException | NoSuchFieldException e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
             return;
         }
         success = true;
@@ -99,9 +97,8 @@ class FakePlayerCreator
 
     /**
      * Construct a fake-online {@link Player} from an {@link OfflinePlayer}.
-     * 
-     * @param oPlayer The {@link OfflinePlayer} to use as base for the fake online
-     *                {@link Player}.
+     *
+     * @param oPlayer The {@link OfflinePlayer} to use as base for the fake online {@link Player}.
      * @param world   The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
@@ -129,7 +126,7 @@ class FakePlayerCreator
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
 
         if (player != null)

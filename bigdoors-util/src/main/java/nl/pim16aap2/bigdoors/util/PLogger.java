@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.util;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -11,12 +14,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 /**
- * Represents my logger. Logs to the console synchronously and to the log file
- * asynchronously.
+ * Represents my logger. Logs to the console synchronously and to the log file asynchronously.
  *
  * @author Pim
  */
@@ -27,17 +26,15 @@ public class PLogger
     private static AtomicLong queueProcessor = null;
     private final IMessagingInterface messagingInterface;
     private boolean success = false;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss SSS");
     private boolean debug = false;
 
     /**
      * Constructor of PLogger
-     * 
+     *
      * @param logFile            The file to write to.
-     * @param messagingInterface The implementation of {@link IMessagingInterface}
-     *                           for writing to the console etc.
-     * @param name               The name that will be used for logging. For example
-     *                           "BigDoors".
+     * @param messagingInterface The implementation of {@link IMessagingInterface} for writing to the console etc.
+     * @param name               The name that will be used for logging. For example "BigDoors".
      */
     public PLogger(final File logFile, final IMessagingInterface messagingInterface, final String name)
     {
@@ -50,7 +47,7 @@ public class PLogger
 
     /**
      * Change debugging status.
-     * 
+     *
      * @param debug True to enable debugging.
      */
     public void setDebug(boolean debug)
@@ -59,9 +56,8 @@ public class PLogger
     }
 
     /**
-     * Process the queue of messages that will be logged to the log file. It cannot
-     * run on the main thread and only a single instance is possible. The thread is
-     * blocked while it waits for new messages.
+     * Process the queue of messages that will be logged to the log file. It cannot run on the main thread and only a
+     * single instance is possible. The thread is blocked while it waits for new messages.
      */
     private void processQueue()
     {
@@ -69,7 +65,7 @@ public class PLogger
         // Also, only a single instance is allowed
         if (Thread.currentThread().getId() == 1 || queueProcessor != null)
             throw new IllegalStateException("Trying to instantiate processQueue on thread "
-                + Thread.currentThread().getId());
+                                                    + Thread.currentThread().getId());
         queueProcessor = new AtomicLong(Thread.currentThread().getId());
 
         try
@@ -89,19 +85,16 @@ public class PLogger
     }
 
     /**
-     * Send a message to whomever or whatever issued a command at a given level (if
-     * applicable).
+     * Send a message to whomever or whatever issued a command at a given level (if applicable).
      *
-     * @param target The recipient of this message of unspecified type (console,
-     *               player, whatever).
-     * @param level  The level of the message (info, warn, etc). Does not apply to
-     *               players.
+     * @param target The recipient of this message of unspecified type (console, player, whatever).
+     * @param level  The level of the message (info, warn, etc). Does not apply to players.
      * @param str    The message.
      * @see IMessagingInterface#sendMessageToTarget(Object, Level, String)
      */
     public void sendMessageToTarget(@NotNull final Object target, @NotNull Level level, @NotNull final String str)
     {
-        this.messagingInterface.sendMessageToTarget(target, level, str);
+        messagingInterface.sendMessageToTarget(target, level, str);
     }
 
     /**
@@ -137,7 +130,7 @@ public class PLogger
 
     /**
      * Format the name properly for logging purposes. For example: '[BigDoors]'
-     * 
+     *
      * @param name The name to be used for logging purposes.
      * @return The name in the proper format.
      */
@@ -157,11 +150,9 @@ public class PLogger
     }
 
     /**
-     * Dump the stack trace to the log file at an arbitrary location. Only print a
-     * given number of lines.
+     * Dump the stack trace to the log file at an arbitrary location. Only print a given number of lines.
      *
-     * @param message       An optional message to be printed along with the stack
-     *                      trace.
+     * @param message       An optional message to be printed along with the stack trace.
      * @param numberOfLines The number of lines to be written to the log.
      */
     public void dumpBoundedStackTrace(@NotNull final String message, final int numberOfLines)
@@ -178,16 +169,14 @@ public class PLogger
      */
     public void writeToConsole(@NotNull final Level level, @NotNull final String message)
     {
-        this.messagingInterface.writeToConsole(level, message);
+        messagingInterface.writeToConsole(level, message);
     }
 
     /**
-     * Log a message to the log file and potentially to the console as well at a
-     * given level.
+     * Log a message to the log file and potentially to the console as well at a given level.
      *
      * @param msg            The message to be logged.
-     * @param level          The level at which the message is logged (info, warn,
-     *                       etc).
+     * @param level          The level at which the message is logged (info, warn, etc).
      * @param printToConsole If the message should be written to the console.
      */
     private void logMessage(@NotNull final String msg, @NotNull final Level level, final boolean printToConsole)
@@ -206,7 +195,7 @@ public class PLogger
     {
         if (msg == null) // TODO: This shouldn't happen, but it does. Once, after a new file was created.
         {
-            this.dumpStackTrace("TRIED TO LOG NULL!");
+            dumpStackTrace("TRIED TO LOG NULL!");
             return;
         }
         try
@@ -321,14 +310,12 @@ public class PLogger
     }
 
     /**
-     * Limit the length of a stack trace to a provided number of lines. If the
-     * provided number of lines is less than 1 or exceeds the number of elements,
-     * all existing elements will get printed.
+     * Limit the length of a stack trace to a provided number of lines. If the provided number of lines is less than 1
+     * or exceeds the number of elements, all existing elements will get printed.
      *
      * @param stackTrace    The stack trace to be limited.
      * @param numberOfLines The number of lines to limit it to.
-     * @return A string of the stack trace for at most numberOfLines lines if lines
-     *         > 0.
+     * @return A string of the stack trace for at most numberOfLines lines if lines > 0.
      */
     private @NotNull String limitStackTraceLength(@NotNull final StackTraceElement[] stackTrace, int numberOfLines)
     {
@@ -372,7 +359,7 @@ public class PLogger
         private final int numberOfLines;
 
         public LogMessageException(@NotNull final String message, @NotNull final Exception exception,
-            final int numberOfLines)
+                                   final int numberOfLines)
         {
             super(message);
             this.exception = exception;

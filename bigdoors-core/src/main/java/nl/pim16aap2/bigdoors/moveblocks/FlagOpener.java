@@ -19,7 +19,6 @@ public class FlagOpener extends Opener
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
             return abort(door, isOpenable);
-        super.setBusy(door);
 
         if (super.isTooBig(door))
             return abort(door, DoorOpenResult.ERROR);

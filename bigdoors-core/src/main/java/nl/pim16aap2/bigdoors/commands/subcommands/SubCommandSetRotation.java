@@ -1,9 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -13,6 +9,9 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class SubCommandSetRotation extends SubCommand
 {
@@ -34,13 +33,14 @@ public class SubCommandSetRotation extends SubCommand
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
-        CommandActionNotAllowedException
+            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
+                   CommandActionNotAllowedException
     {
         DoorBase door = commandManager.getDoorFromArg(sender, args[1]);
 
         if (sender instanceof Player && !plugin.getDatabaseManager()
-            .hasPermissionForAction(((Player) sender), door.getDoorUID(), DoorAttribute.DIRECTION_STRAIGHT_VERTICAL))
+                                               .hasPermissionForAction(((Player) sender), door.getDoorUID(),
+                                                                       DoorAttribute.DIRECTION_STRAIGHT_VERTICAL))
             throw new CommandActionNotAllowedException();
 
         RotateDirection openDir = RotateDirection.valueOf(args[2].toUpperCase());

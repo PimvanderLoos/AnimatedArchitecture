@@ -1,19 +1,22 @@
 package nl.pim16aap2.bigdoors.handlers;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
-
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 
 public class EventHandlers implements Listener
 {
@@ -30,7 +33,8 @@ public class EventHandlers implements Listener
     {
         try
         {
-            if (event.getAction() == Action.LEFT_CLICK_BLOCK && plugin.getTF().isTool(event.getPlayer().getInventory().getItemInMainHand()))
+            if (event.getAction() == Action.LEFT_CLICK_BLOCK &&
+                    plugin.getTF().isTool(event.getPlayer().getInventory().getItemInMainHand()))
             {
                 ToolUser tu = plugin.getToolUser(event.getPlayer());
                 if (tu == null)
@@ -42,7 +46,7 @@ public class EventHandlers implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 
@@ -55,7 +59,7 @@ public class EventHandlers implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 
@@ -71,7 +75,7 @@ public class EventHandlers implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 
@@ -94,7 +98,7 @@ public class EventHandlers implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 
@@ -124,7 +128,7 @@ public class EventHandlers implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 
@@ -136,14 +140,14 @@ public class EventHandlers implements Listener
         try
         {
             event.getNewItems().forEach((K, V) ->
-            {
-                if (plugin.getTF().isTool(V))
-                    event.setCancelled(true);
-            });
+                                        {
+                                            if (plugin.getTF().isTool(V))
+                                                event.setCancelled(true);
+                                        });
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 
@@ -173,7 +177,7 @@ public class EventHandlers implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 }

@@ -1,15 +1,14 @@
 package nl.pim16aap2.bigdoors.gui;
 
-import java.util.ArrayList;
-
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.Messages;
+import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
 
 public class GUIPageDoorCreation implements IGUIPage
 {
@@ -47,8 +46,8 @@ public class GUIPageDoorCreation implements IGUIPage
 
         if (!(item.getSpecialValue() instanceof DoorType))
         {
-            plugin.getMyLogger().warn("Something went wrong constructing the selected GUIItem at " + interactionIDX
-                + ":\n" + item.toString());
+            plugin.getPLogger().warn("Something went wrong constructing the selected GUIItem at " + interactionIDX
+                                             + ":\n" + item.toString());
             return;
         }
         startCreationProcess(gui.getPlayer(), (DoorType) item.getSpecialValue());
@@ -65,7 +64,7 @@ public class GUIPageDoorCreation implements IGUIPage
     {
         ArrayList<String> lore = new ArrayList<>();
         lore.add(messages.getString("GUI.ToPage") + gui.getPage() + messages.getString("GUI.OutOf")
-            + gui.getMaxPageCount());
+                         + gui.getMaxPageCount());
         gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore,
                                    Math.max(1, gui.getPage())));
     }
@@ -78,7 +77,7 @@ public class GUIPageDoorCreation implements IGUIPage
                 gui.addItem(position++,
                             new GUIItem(GUI.NEWDOORMAT,
                                         messages.getString("GUI.DoorInitiation") + " "
-                                            + messages.getString("GENERAL.DOORTYPE." + DoorType.getCodeName(type)),
+                                                + messages.getString("GENERAL.DOORTYPE." + DoorType.getCodeName(type)),
                                         null, 1, type));
 
     }

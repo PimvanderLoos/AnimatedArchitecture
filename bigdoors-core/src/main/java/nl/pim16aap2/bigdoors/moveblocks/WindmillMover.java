@@ -1,18 +1,17 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import java.util.function.BiFunction;
-
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
+import java.util.function.BiFunction;
 
 class WindmillMover extends BlockMover
 {
@@ -22,8 +21,9 @@ class WindmillMover extends BlockMover
     private static final double minSpeed = 0.1;
     private final BiFunction<PBlockData, Double, Vector> getVector;
 
-    public WindmillMover(final BigDoors plugin, final World world, final DoorBase door, final double time, final double multiplier,
-        final RotateDirection rotateDirection)
+    public WindmillMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
+                         final double multiplier,
+                         final RotateDirection rotateDirection)
     {
         super(plugin, world, door, time, false, null, null, -1);
 
@@ -35,23 +35,24 @@ class WindmillMover extends BlockMover
 
         switch (rotateDirection)
         {
-        case NORTH:
-            getVector = this::getVectorNorth;
-            break;
-        case EAST:
-            getVector = this::getVectorEast;
-            break;
-        case SOUTH:
-            getVector = this::getVectorSouth;
-            break;
-        case WEST:
-            getVector = this::getVectorWest;
-            break;
-        default:
-            getVector = null;
-            plugin.getMyLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
-                + "\". Reason: Invalid rotateDirection \"" + rotateDirection.toString() + "\"");
-            return;
+            case NORTH:
+                getVector = this::getVectorNorth;
+                break;
+            case EAST:
+                getVector = this::getVectorEast;
+                break;
+            case SOUTH:
+                getVector = this::getVectorSouth;
+                break;
+            case WEST:
+                getVector = this::getVectorWest;
+                break;
+            default:
+                getVector = null;
+                plugin.getPLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
+                                                           + "\". Reason: Invalid rotateDirection \"" +
+                                                           rotateDirection.toString() + "\"");
+                return;
         }
 
         super.constructFBlocks();
@@ -111,9 +112,8 @@ class WindmillMover extends BlockMover
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
-
             double step = (Math.PI / 2) / (endCount / 4) * -1 * 6;
-//            double stepSum = 0.0d;
+            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -133,7 +133,11 @@ class WindmillMover extends BlockMover
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        putBlocks(false);
+                        if (!hasFinished)
+                        {
+                            putBlocks(false);
+                            hasFinished = true;
+                        }
                         return null;
                     });
                     cancel();
@@ -146,7 +150,7 @@ class WindmillMover extends BlockMover
                         {
                             double stepSum = step * counter;
                             Vector vec = getVector.apply(block, stepSum)
-                                .subtract(block.getFBlock().getLocation().toVector());
+                                                  .subtract(block.getFBlock().getLocation().toVector());
                             vec.multiply(0.101);
                             block.getFBlock().setVelocity(vec);
                         }

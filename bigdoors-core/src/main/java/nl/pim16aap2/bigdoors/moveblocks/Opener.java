@@ -14,7 +14,7 @@ public abstract class Opener
         this.plugin = plugin;
     }
 
-    protected final void setBusy(DoorBase door)
+    private void setBusy(DoorBase door)
     {
         // Change door availability so it cannot be opened again (just temporarily,
         // don't worry!).
@@ -34,23 +34,36 @@ public abstract class Opener
         // If it does, open the door instantly.
         int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
         if (maxDoorSize != -1)
-            if (door.getBlockCount() > maxDoorSize)
-                return true;
+            return door.getBlockCount() > maxDoorSize;
+        return false;
+    }
+
+    /**
+     * Checks if a door is busy and set it to busy if that is the case.
+     *
+     * @param doorUID The UID of the door to check.
+     * @return True if already busy.
+     */
+    private boolean isBusySetIfNot(final long doorUID)
+    {
+        if (plugin.getDatabaseManager().isDoorBusy(doorUID))
+            return true;
+        plugin.getDatabaseManager().setDoorBusy(doorUID);
         return false;
     }
 
     protected final DoorOpenResult isOpenable(DoorBase door, boolean silent)
     {
-        if (plugin.getDatabaseManager().isDoorBusy(door.getDoorUID()))
+        if (isBusySetIfNot(door.getDoorUID()))
         {
             if (!silent)
-                plugin.getMyLogger().warn("Door " + door.getName() + " is not available right now!");
+                plugin.getPLogger().warn("Door " + door.getName() + " is not available right now!");
             return DoorOpenResult.BUSY;
         }
 
         if (!chunksLoaded(door))
         {
-            plugin.getMyLogger().warn(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!");
+            plugin.getPLogger().warn(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!");
             return DoorOpenResult.ERROR;
         }
         return DoorOpenResult.SUCCESS;
@@ -62,21 +75,13 @@ public abstract class Opener
         // Return true if the chunk at the max and at the min of the chunks were loaded correctly.
         if (door.getWorld() == null)
         {
-            plugin.getMyLogger().warn("World is null for door \"" + door.getName().toString() + "\"");
-            return false;
-        }
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-        {
-            plugin.getMyLogger().warn("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!");
-            return false;
-        }
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-        {
-            plugin.getMyLogger().warn("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!");
+            plugin.getPLogger().warn("World is null for door \"" + door.getName() + "\"");
             return false;
         }
 
-        return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
+        // Try to load doors and return if successful.
+        return door.getWorld().getChunkAt(door.getMaximum()).load() &&
+                door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
     }
 
     public DoorOpenResult openDoor(final DoorBase door, final double time)
@@ -84,5 +89,7 @@ public abstract class Opener
         return openDoor(door, time, false, false);
     }
 
-    public abstract DoorOpenResult openDoor(final DoorBase door, final double time, final boolean instantOpen, final boolean silent);
+    // TODO: Get rid of (boolean silent).
+    public abstract DoorOpenResult openDoor(final DoorBase door, final double time, final boolean instantOpen,
+                                            final boolean silent);
 }

@@ -1,20 +1,23 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.*;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotEast;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotNorth;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotSouth;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotWest;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GetNewLocation;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 class CylindricalMover extends BlockMover
 {
@@ -26,9 +29,9 @@ class CylindricalMover extends BlockMover
     private final Location turningPoint;
     private final GetNewLocation gnl;
 
-    public CylindricalMover(final BigDoors plugin, final World world, final RotateDirection rotDirection,
-                            final double time, final PBlockFace currentDirection, final DoorBase door,
-                            final boolean instantOpen, final double multiplier)
+    CylindricalMover(final BigDoors plugin, final World world, final RotateDirection rotDirection,
+                     final double time, final PBlockFace currentDirection, final DoorBase door,
+                     final boolean instantOpen, final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1);
 
@@ -45,30 +48,31 @@ class CylindricalMover extends BlockMover
 
         switch (currentDirection)
         {
-        case NORTH:
-            gnl = new GNLHorizontalRotNorth(world, xMin, xMax, zMin, zMax, rotDirection);
-            startStepSum = Math.PI;
-            endStepSum = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 : 3 * Math.PI / 2;
-            break;
-        case EAST:
-            gnl = new GNLHorizontalRotEast(world, xMin, xMax, zMin, zMax, rotDirection);
-            startStepSum = Math.PI / 2;
-            endStepSum = rotDirection == RotateDirection.CLOCKWISE ? 0 : Math.PI;
-            break;
-        case SOUTH:
-            gnl = new GNLHorizontalRotSouth(world, xMin, xMax, zMin, zMax, rotDirection);
-            startStepSum = 0;
-            endStepSum = rotDirection == RotateDirection.CLOCKWISE ? 3 * Math.PI / 2 : Math.PI / 2;
-            break;
-        case WEST:
-            gnl = new GNLHorizontalRotWest(world, xMin, xMax, zMin, zMax, rotDirection);
-            startStepSum = 3 * Math.PI / 2;
-            endStepSum = rotDirection == RotateDirection.CLOCKWISE ? Math.PI : 0;
-            break;
-        default:
-            plugin.getMyLogger().dumpStackTrace("Invalid currentDirection for cylindrical mover: " + currentDirection.toString());
-            gnl = null;
-            break;
+            case NORTH:
+                gnl = new GNLHorizontalRotNorth(world, xMin, xMax, zMin, zMax, rotDirection);
+                startStepSum = Math.PI;
+                endStepSum = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 : 3 * Math.PI / 2;
+                break;
+            case EAST:
+                gnl = new GNLHorizontalRotEast(world, xMin, xMax, zMin, zMax, rotDirection);
+                startStepSum = Math.PI / 2;
+                endStepSum = rotDirection == RotateDirection.CLOCKWISE ? 0 : Math.PI;
+                break;
+            case SOUTH:
+                gnl = new GNLHorizontalRotSouth(world, xMin, xMax, zMin, zMax, rotDirection);
+                startStepSum = 0;
+                endStepSum = rotDirection == RotateDirection.CLOCKWISE ? 3 * Math.PI / 2 : Math.PI / 2;
+                break;
+            case WEST:
+                gnl = new GNLHorizontalRotWest(world, xMin, xMax, zMin, zMax, rotDirection);
+                startStepSum = 3 * Math.PI / 2;
+                endStepSum = rotDirection == RotateDirection.CLOCKWISE ? Math.PI : 0;
+                break;
+            default:
+                plugin.getPLogger()
+                      .dumpStackTrace("Invalid currentDirection for cylindrical mover: " + currentDirection.toString());
+                gnl = null;
+                break;
         }
 
         super.constructFBlocks();
@@ -88,13 +92,17 @@ class CylindricalMover extends BlockMover
             double stepSum = startStepSum;
             int totalTicks = (int) (endCount * multiplier);
             int replaceCount = endCount / 2;
-            long startTime = System.nanoTime();
+            Long startTime = null; // Initialize on the first run, for better accuracy.
             long lastTime;
             long currentTime = System.nanoTime();
+            boolean hasFinished = false;
 
             @Override
             public void run()
             {
+                if (startTime == null)
+                    startTime = System.nanoTime();
+
                 if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
                     SpigotUtil.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
 
@@ -111,9 +119,7 @@ class CylindricalMover extends BlockMover
                 else
                     stepSum = endStepSum;
 
-                replace = false;
-                if (counter == replaceCount)
-                    replace = true;
+                replace = (counter == replaceCount);
 
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
                 {
@@ -123,7 +129,11 @@ class CylindricalMover extends BlockMover
 
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        putBlocks(false);
+                        if (!hasFinished)
+                        {
+                            putBlocks(false);
+                            hasFinished = true;
+                        }
                         return null;
                     });
                     cancel();
@@ -195,6 +205,6 @@ class CylindricalMover extends BlockMover
     {
         // Get the radius of this pillar.
         return Math.abs(xAxis - turningPoint.getBlockX()) > Math.abs(zAxis - turningPoint.getBlockZ()) ?
-            Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
+               Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
     }
 }

@@ -1,10 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorType;
@@ -23,6 +18,10 @@ import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.WindmillCreator;
 import nl.pim16aap2.bigdoors.util.Util;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class SubCommandNew extends SubCommand
 {
@@ -55,16 +54,17 @@ public class SubCommandNew extends SubCommand
     {
         if (!DoorType.isEnabled(type))
         {
-            plugin.getMyLogger()
-                .severe("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!");
+            plugin.getPLogger()
+                  .severe("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!");
             return;
         }
 
         if (!hasCreationPermission(player, type))
         {
             SpigotUtil
-                .messagePlayer(player,
-                               ChatColor.RED + plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
+                    .messagePlayer(player,
+                                   ChatColor.RED +
+                                           plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
             return;
         }
 
@@ -79,7 +79,7 @@ public class SubCommandNew extends SubCommand
         if (name != null && !Util.isValidDoorName(name))
         {
             SpigotUtil.messagePlayer(player, ChatColor.RED + "\"" + name + "\""
-                + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+                    + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
             return;
         }
 
@@ -89,41 +89,41 @@ public class SubCommandNew extends SubCommand
         ToolUser tu = null;
         switch (type)
         {
-        case BIGDOOR:
-            tu = new BigDoorCreator(plugin, player, name);
-            break;
-        case DRAWBRIDGE:
-            tu = new DrawbridgeCreator(plugin, player, name);
-            break;
-        case PORTCULLIS:
-            tu = new PortcullisCreator(plugin, player, name);
-            break;
-        case ELEVATOR:
-            tu = new ElevatorCreator(plugin, player, name);
-            break;
-        case SLIDINGDOOR:
-            tu = new SlidingDoorCreator(plugin, player, name);
-            break;
-        case FLAG:
-            tu = new FlagCreator(plugin, player, name);
-            break;
-        case WINDMILL:
-            tu = new WindmillCreator(plugin, player, name);
-            break;
-        case REVOLVINGDOOR:
-            tu = new RevolvingDoorCreator(plugin, player, name);
-            break;
-        case GARAGEDOOR:
-            tu = new GarageDoorCreator(plugin, player, name);
-            break;
-        default:
-            break;
+            case BIGDOOR:
+                tu = new BigDoorCreator(plugin, player, name);
+                break;
+            case DRAWBRIDGE:
+                tu = new DrawbridgeCreator(plugin, player, name);
+                break;
+            case PORTCULLIS:
+                tu = new PortcullisCreator(plugin, player, name);
+                break;
+            case ELEVATOR:
+                tu = new ElevatorCreator(plugin, player, name);
+                break;
+            case SLIDINGDOOR:
+                tu = new SlidingDoorCreator(plugin, player, name);
+                break;
+            case FLAG:
+                tu = new FlagCreator(plugin, player, name);
+                break;
+            case WINDMILL:
+                tu = new WindmillCreator(plugin, player, name);
+                break;
+            case REVOLVINGDOOR:
+                tu = new RevolvingDoorCreator(plugin, player, name);
+                break;
+            case GARAGEDOOR:
+                tu = new GarageDoorCreator(plugin, player, name);
+                break;
+            default:
+                break;
         }
 
         if (tu == null)
         {
-            plugin.getMyLogger()
-                .warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
+            plugin.getPLogger()
+                  .warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
             return;
         }
 
@@ -132,7 +132,7 @@ public class SubCommandNew extends SubCommand
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException
+            throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();

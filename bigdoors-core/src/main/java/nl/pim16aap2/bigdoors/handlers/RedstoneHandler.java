@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.handlers;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
-
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 
 public class RedstoneHandler implements Listener
 {
@@ -24,7 +23,10 @@ public class RedstoneHandler implements Listener
         DoorBase door = plugin.getDatabaseManager().doorFromPowerBlockLoc(loc);
 
         if (door != null && !door.isLocked())
-            return plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, true) == DoorOpenResult.SUCCESS;
+        {
+            plugin.getDatabaseManager().isDoorBusy(door.getDoorUID());
+            return plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, false) == DoorOpenResult.SUCCESS;
+        }
         return false;
     }
 
@@ -43,27 +45,33 @@ public class RedstoneHandler implements Listener
 
             int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
 
-            if (plugin.getConfigLoader().powerBlockTypes().contains(location.getWorld().getBlockAt(x, y, z - 1).getType())) // North
+            if (plugin.getConfigLoader().powerBlockTypes()
+                      .contains(location.getWorld().getBlockAt(x, y, z - 1).getType())) // North
                 checkDoor(new Location(location.getWorld(), x, y, z - 1));
 
-            if (plugin.getConfigLoader().powerBlockTypes().contains(location.getWorld().getBlockAt(x + 1, y, z).getType())) // East
+            if (plugin.getConfigLoader().powerBlockTypes()
+                      .contains(location.getWorld().getBlockAt(x + 1, y, z).getType())) // East
                 checkDoor(new Location(location.getWorld(), x + 1, y, z));
 
-            if (plugin.getConfigLoader().powerBlockTypes().contains(location.getWorld().getBlockAt(x, y, z + 1).getType())) // South
+            if (plugin.getConfigLoader().powerBlockTypes()
+                      .contains(location.getWorld().getBlockAt(x, y, z + 1).getType())) // South
                 checkDoor(new Location(location.getWorld(), x, y, z + 1));
 
-            if (plugin.getConfigLoader().powerBlockTypes().contains(location.getWorld().getBlockAt(x - 1, y, z).getType())) // West
+            if (plugin.getConfigLoader().powerBlockTypes()
+                      .contains(location.getWorld().getBlockAt(x - 1, y, z).getType())) // West
                 checkDoor(new Location(location.getWorld(), x - 1, y, z));
 
-            if (plugin.getConfigLoader().powerBlockTypes().contains(location.getWorld().getBlockAt(x, y + 1, z).getType())) // Above
+            if (plugin.getConfigLoader().powerBlockTypes()
+                      .contains(location.getWorld().getBlockAt(x, y + 1, z).getType())) // Above
                 checkDoor(new Location(location.getWorld(), x, y + 1, z));
 
-            if (plugin.getConfigLoader().powerBlockTypes().contains(location.getWorld().getBlockAt(x, y - 1, z).getType())) // Under
+            if (plugin.getConfigLoader().powerBlockTypes()
+                      .contains(location.getWorld().getBlockAt(x, y - 1, z).getType())) // Under
                 checkDoor(new Location(location.getWorld(), x, y - 1, z));
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e, "Exception thrown while handling redstone event!");
+            plugin.getPLogger().logException(e, "Exception thrown while handling redstone event!");
         }
     }
 }

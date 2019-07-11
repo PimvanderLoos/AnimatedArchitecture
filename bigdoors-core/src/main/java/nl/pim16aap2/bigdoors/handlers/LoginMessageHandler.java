@@ -1,26 +1,24 @@
 package nl.pim16aap2.bigdoors.handlers;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import nl.pim16aap2.bigdoors.BigDoors;
 
 public class LoginMessageHandler implements Listener
 {
     BigDoors plugin;
-    String   message;
 
     public LoginMessageHandler(BigDoors plugin)
     {
-        this.plugin  = plugin;
+        this.plugin = plugin;
     }
 
     @EventHandler
-    public void onLogin(PlayerLoginEvent event)
+    public void onPlayerJoin(PlayerJoinEvent event)
     {
         try
         {
@@ -36,14 +34,14 @@ public class LoginMessageHandler implements Listener
                     public void run()
                     {
                         String loginString = plugin.getLoginString();
-                        if (loginString != "")
+                        if (!loginString.isEmpty())
                             player.sendMessage(ChatColor.AQUA + plugin.getLoginString());
                     }
-                }.runTaskLater(plugin, 10);
+                }.runTaskLater(plugin, 60);
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 }

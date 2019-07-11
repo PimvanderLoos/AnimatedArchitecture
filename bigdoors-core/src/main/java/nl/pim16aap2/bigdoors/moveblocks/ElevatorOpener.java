@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import org.bukkit.World;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
@@ -9,6 +7,7 @@ import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.bukkit.World;
 
 public class ElevatorOpener extends Opener
 {
@@ -26,7 +25,6 @@ public class ElevatorOpener extends Opener
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
             return abort(door, isOpenable);
-        super.setBusy(door);
 
         if (super.isTooBig(door))
             instantOpen = true;
@@ -74,7 +72,7 @@ public class ElevatorOpener extends Opener
     {
         int blocksUp = 0, blocksDown = 0;
         if (door.getOpenDir() == RotateDirection.UP && !door.isOpen() ||
-            door.getOpenDir() == RotateDirection.DOWN && door.isOpen())
+                door.getOpenDir() == RotateDirection.DOWN && door.isOpen())
             blocksUp = getBlocksInDir(door, RotateDirection.UP);
         else
             blocksDown = getBlocksInDir(door, RotateDirection.DOWN);

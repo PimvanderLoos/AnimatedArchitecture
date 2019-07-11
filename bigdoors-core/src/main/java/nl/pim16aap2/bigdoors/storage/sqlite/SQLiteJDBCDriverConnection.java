@@ -1,5 +1,21 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
+import com.google.common.io.Files;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -14,26 +30,8 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import com.google.common.io.Files;
-
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
-
 @SuppressWarnings("null") // Eclipse likes to complain about connections potentially being null,
-                          // but it's not a problem.
+// but it's not a problem.
 public class SQLiteJDBCDriverConnection
 {
     private final BigDoors plugin;
@@ -96,14 +94,14 @@ public class SQLiteJDBCDriverConnection
     {
         if (!enabled)
         {
-            plugin.getMyLogger()
-                .severe("Database disabled! This probably means an upgrade failed! Please contact pim16aap2.");
+            plugin.getPLogger()
+                  .severe("Database disabled! This probably means an upgrade failed! Please contact pim16aap2.");
             return null;
         }
         if (locked.get())
         {
-            plugin.getMyLogger()
-                .severe("Database locked! Please try again later! Please contact pim16aap2 if the issue persists.");
+            plugin.getPLogger()
+                  .severe("Database locked! Please try again later! Please contact pim16aap2 if the issue persists.");
             return null;
         }
         Connection conn = null;
@@ -115,11 +113,11 @@ public class SQLiteJDBCDriverConnection
         }
         catch (SQLException ex)
         {
-            plugin.getMyLogger().severe("53: Failed to open connection!");
+            plugin.getPLogger().severe("53: Failed to open connection!");
         }
         catch (ClassNotFoundException e)
         {
-            plugin.getMyLogger().severe("57: Failed to open connection: CLass not found!!");
+            plugin.getPLogger().severe("57: Failed to open connection: CLass not found!!");
         }
         return conn;
     }
@@ -131,11 +129,11 @@ public class SQLiteJDBCDriverConnection
             try
             {
                 dbFile.createNewFile();
-                plugin.getMyLogger().warn("New file created at " + dbFile);
+                plugin.getPLogger().warn("New file created at " + dbFile);
             }
             catch (IOException e)
             {
-                plugin.getMyLogger().warn("File write error: " + dbFile);
+                plugin.getPLogger().warn("File write error: " + dbFile);
             }
 
         // Table creation
@@ -147,38 +145,39 @@ public class SQLiteJDBCDriverConnection
             // Check if the doors table already exists. If it does, assume the rest exists
             // as well
             // and don't set it up.
-            if (!conn.getMetaData().getTables(null, null, "doors", new String[] { "TABLE" }).next())
+            if (!conn.getMetaData().getTables(null, null, "doors", new String[]{"TABLE"}).next())
             {
                 Statement stmt1 = conn.createStatement();
                 String sql1 = "CREATE TABLE IF NOT EXISTS doors "
-                    + "(id            INTEGER    PRIMARY KEY autoincrement, " + " name          TEXT       NOT NULL, "
-                    + " world         TEXT       NOT NULL, " + " isOpen        INTEGER    NOT NULL, "
-                    + " xMin          INTEGER    NOT NULL, " + " yMin          INTEGER    NOT NULL, "
-                    + " zMin          INTEGER    NOT NULL, " + " xMax          INTEGER    NOT NULL, "
-                    + " yMax          INTEGER    NOT NULL, " + " zMax          INTEGER    NOT NULL, "
-                    + " engineX       INTEGER    NOT NULL, " + " engineY       INTEGER    NOT NULL, "
-                    + " engineZ       INTEGER    NOT NULL, " + " isLocked      INTEGER    NOT NULL, "
-                    + " type          INTEGER    NOT NULL, " + " engineSide    INTEGER    NOT NULL, "
-                    + " powerBlockX   INTEGER    NOT NULL, " + " powerBlockY   INTEGER    NOT NULL, "
-                    + " powerBlockZ   INTEGER    NOT NULL, " + " openDirection INTEGER    NOT NULL, "
-                    + " autoClose     INTEGER    NOT NULL, " + " chunkHash     INTEGER    NOT NULL, "
-                    + " blocksToMove  INTEGER    NOT NULL) ";
+                        + "(id            INTEGER    PRIMARY KEY autoincrement, " +
+                        " name          TEXT       NOT NULL, "
+                        + " world         TEXT       NOT NULL, " + " isOpen        INTEGER    NOT NULL, "
+                        + " xMin          INTEGER    NOT NULL, " + " yMin          INTEGER    NOT NULL, "
+                        + " zMin          INTEGER    NOT NULL, " + " xMax          INTEGER    NOT NULL, "
+                        + " yMax          INTEGER    NOT NULL, " + " zMax          INTEGER    NOT NULL, "
+                        + " engineX       INTEGER    NOT NULL, " + " engineY       INTEGER    NOT NULL, "
+                        + " engineZ       INTEGER    NOT NULL, " + " isLocked      INTEGER    NOT NULL, "
+                        + " type          INTEGER    NOT NULL, " + " engineSide    INTEGER    NOT NULL, "
+                        + " powerBlockX   INTEGER    NOT NULL, " + " powerBlockY   INTEGER    NOT NULL, "
+                        + " powerBlockZ   INTEGER    NOT NULL, " + " openDirection INTEGER    NOT NULL, "
+                        + " autoClose     INTEGER    NOT NULL, " + " chunkHash     INTEGER    NOT NULL, "
+                        + " blocksToMove  INTEGER    NOT NULL) ";
                 stmt1.executeUpdate(sql1);
                 stmt1.close();
 
                 Statement stmt2 = conn.createStatement();
                 String sql2 = "CREATE TABLE IF NOT EXISTS players "
-                    + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, " + " playerUUID  TEXT       NOT NULL,"
-                    + " playerName  TEXT       NOT NULL)";
+                        + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, " + " playerUUID  TEXT       NOT NULL,"
+                        + " playerName  TEXT       NOT NULL)";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
                 Statement stmt3 = conn.createStatement();
                 String sql3 = "CREATE TABLE IF NOT EXISTS sqlUnion "
-                    + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, " + " permission  INTEGER    NOT NULL, "
-                    + " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, "
-                    + " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE,"
-                    + " unique (playerID, doorUID))";
+                        + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, " + " permission  INTEGER    NOT NULL, "
+                        + " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, "
+                        + " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE,"
+                        + " unique (playerID, doorUID))";
                 stmt3.executeUpdate(sql3);
                 stmt3.close();
                 setDBVersion(conn, DATABASE_VERSION);
@@ -232,7 +231,7 @@ public class SQLiteJDBCDriverConnection
             // Select all doors from the sqlUnion table that have the previously found
             // player as owner.
             PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID
-                + "' AND doorUID = '" + doorUID + "';");
+                                                                  + "' AND doorUID = '" + doorUID + "';");
             ResultSet rs2 = ps2.executeQuery();
             while (rs2.next())
                 ret = rs2.getInt(UNION_PERM);
@@ -306,7 +305,7 @@ public class SQLiteJDBCDriverConnection
         }
         catch (SQLException e)
         {
-            plugin.getMyLogger().logException(e, String.valueOf(271));
+            plugin.getPLogger().logException(e, String.valueOf(271));
         }
         finally
         {
@@ -335,13 +334,14 @@ public class SQLiteJDBCDriverConnection
             // Select all doors from the sqlUnion table that have the previously found
             // player as owner.
             PreparedStatement ps2 = conn
-                .prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
+                    .prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
             ResultSet rs2 = ps2.executeQuery();
             while (rs2.next())
             {
                 // Delete all doors with the provided name owned by the provided player.
                 PreparedStatement ps3 = conn.prepareStatement("DELETE FROM doors WHERE id = '"
-                    + rs2.getInt(UNION_DOOR_ID) + "' AND name = '" + doorName + "';");
+                                                                      + rs2.getInt(UNION_DOOR_ID) + "' AND name = '" +
+                                                                      doorName + "';");
                 ps3.executeUpdate();
                 ps3.close();
             }
@@ -376,9 +376,10 @@ public class SQLiteJDBCDriverConnection
         try (Connection conn = getConnection())
         {
             int count = 0;
-            long playerID = this.getPlayerID(conn, playerUUID.toString());
-            ResultSet rs = conn.prepareStatement("SELECT COUNT(*) FROM sqlUnion WHERE playerID = '" + playerID + "';")
-                .executeQuery();
+            long playerID = getPlayerID(conn, playerUUID.toString());
+            ResultSet rs = conn
+                    .prepareStatement("SELECT COUNT(*) AS total FROM sqlUnion WHERE playerID = '" + playerID + "';")
+                    .executeQuery();
             if (rs.next())
                 count = rs.getInt("total");
             rs.close();
@@ -393,7 +394,7 @@ public class SQLiteJDBCDriverConnection
 
     /**
      * Gets the number of doors own by the given player with the given name.
-     * 
+     *
      * @param playerUUID The uuid of the player whose doors to count.
      * @param doorName   The name of the door to search for.
      * @return The number of doors own by the given player with the given name.
@@ -403,10 +404,11 @@ public class SQLiteJDBCDriverConnection
         try (Connection conn = getConnection())
         {
             int count = 0;
-            long playerID = this.getPlayerID(conn, playerUUID.toString());
-            ResultSet rs = conn.prepareStatement("SELECT COUNT(*) FROM sqlUnion INNER JOIN doors ON "
-                + "doors.id = sqlUnion.doorUID WHERE playerID = '" + playerID + "' AND doors.name = '" + doorName
-                + "';").executeQuery();
+            long playerID = getPlayerID(conn, playerUUID.toString());
+            ResultSet rs = conn.prepareStatement("SELECT COUNT(*) AS total FROM sqlUnion INNER JOIN doors ON "
+                                                         + "doors.id = sqlUnion.doorUID WHERE playerID = '" + playerID +
+                                                         "' AND doors.name = '" + doorName
+                                                         + "';").executeQuery();
             if (rs.next())
                 count = rs.getInt("total");
             rs.close();
@@ -414,15 +416,14 @@ public class SQLiteJDBCDriverConnection
         }
         catch (SQLException e)
         {
-            logMessage("378", e);
+            logMessage("419", e);
         }
         return -1;
     }
 
     /**
-     * Gets the total number of doors with the given name regardless of who owns
-     * them.
-     * 
+     * Gets the total number of doors with the given name regardless of who owns them.
+     *
      * @param doorName The name of the doors to search for.
      * @return The total number of doors with the given name.
      */
@@ -431,8 +432,8 @@ public class SQLiteJDBCDriverConnection
         try (Connection conn = getConnection())
         {
             int count = 0;
-            ResultSet rs = conn.prepareStatement("SELECT COUNT(*) FROM doors WHERE name = '" + doorName + "';")
-                .executeQuery();
+            ResultSet rs = conn.prepareStatement("SELECT COUNT(*) as total FROM doors WHERE name = '" + doorName + "';")
+                               .executeQuery();
             if (rs.next())
                 count = rs.getInt("total");
             rs.close();
@@ -446,9 +447,9 @@ public class SQLiteJDBCDriverConnection
     }
 
     /**
-     * Gets the door with the given UID for the given player at the level of
-     * ownership this player has over this door, if any.
-     * 
+     * Gets the door with the given UID for the given player at the level of ownership this player has over this door,
+     * if any.
+     *
      * @param playerUUID The UUID of the player.
      * @param doorUID    The UID of the door to retrieve.
      * @return The door if it exists and if the player is an owner of it.
@@ -504,7 +505,7 @@ public class SQLiteJDBCDriverConnection
 
     /**
      * Gets all the doors owned by the the given player with the given name.
-     * 
+     *
      * @param playerUUID The UUID of the player to search for.
      * @param name       The name of the doors to search for.
      * @return All doors owned by the given player with the given name.
@@ -548,13 +549,14 @@ public class SQLiteJDBCDriverConnection
                 String foundPlayerUUID = null;
                 int permission = -1;
                 PreparedStatement ps2 = conn
-                    .prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + rs1.getLong(DOOR_ID) + "';");
+                        .prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + rs1.getLong(DOOR_ID) + "';");
                 ResultSet rs2 = ps2.executeQuery();
                 while (rs2.next())
                 {
                     permission = rs2.getInt(UNION_PERM);
                     PreparedStatement ps3 = conn
-                        .prepareStatement("SELECT * FROM players WHERE id = '" + rs2.getInt(UNION_PLAYER_ID) + "';");
+                            .prepareStatement(
+                                    "SELECT * FROM players WHERE id = '" + rs2.getInt(UNION_PLAYER_ID) + "';");
                     ResultSet rs3 = ps3.executeQuery();
                     while (rs3.next())
                         foundPlayerUUID = rs3.getString(PLAYERS_UUID);
@@ -564,8 +566,8 @@ public class SQLiteJDBCDriverConnection
                 ps2.close();
                 rs2.close();
 
-                DoorOwner owner = this.getOwnerOfDoor(conn, rs1.getLong(DOOR_ID), UUID.fromString(foundPlayerUUID),
-                                                      permission);
+                DoorOwner owner = getOwnerOfDoor(conn, rs1.getLong(DOOR_ID), UUID.fromString(foundPlayerUUID),
+                                                 permission);
                 if (owner != null)
                     doors.add(newDoorBaseFromRS(rs1, owner));
             }
@@ -603,21 +605,21 @@ public class SQLiteJDBCDriverConnection
             long playerID = getPlayerID(conn, playerUUID);
 
             PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID
-                + "' AND permission <= '" + maxPermission + "';");
+                                                                  + "' AND permission <= '" + maxPermission + "';");
             ResultSet rs2 = ps2.executeQuery();
 
             while (rs2.next())
             {
                 PreparedStatement ps3 = conn
-                    .prepareStatement("SELECT * FROM doors WHERE id = '" + rs2.getInt(UNION_DOOR_ID) + "';");
+                        .prepareStatement("SELECT * FROM doors WHERE id = '" + rs2.getInt(UNION_DOOR_ID) + "';");
                 ResultSet rs3 = ps3.executeQuery();
 
                 while (rs3.next())
                 {
                     if ((doorName == null || rs3.getString(DOOR_NAME).equals(doorName)))
                     {
-                        DoorOwner doorOwner = this.getOwnerOfDoor(conn, rs3.getLong(DOOR_ID),
-                                                                  UUID.fromString(playerUUID), rs2.getInt(UNION_PERM));
+                        DoorOwner doorOwner = getOwnerOfDoor(conn, rs3.getLong(DOOR_ID),
+                                                             UUID.fromString(playerUUID), rs2.getInt(UNION_PERM));
                         if (doorOwner != null)
                             doors.add(newDoorBaseFromRS(rs3, doorOwner));
                     }
@@ -647,15 +649,12 @@ public class SQLiteJDBCDriverConnection
     }
 
     /**
-     * Gets the {@link DoorBase} with the given name owned by the given player. If
-     * the player owns 0 or more than 1 doors with the given name, no doors are
-     * returned at all!
+     * Gets the {@link DoorBase} with the given name owned by the given player. If the player owns 0 or more than 1
+     * doors with the given name, no doors are returned at all!
      *
-     * @param playerUUID The UUID of the player whose {@link DoorBase} will be
-     *                   obtained.
+     * @param playerUUID The UUID of the player whose {@link DoorBase} will be obtained.
      * @param doorName   The name of the {@link DoorBase} to look for.
-     * @return The {@link DoorBase} with the given name owned by this player if
-     *         exactly 1 such DoorBase exists.
+     * @return The {@link DoorBase} with the given name owned by this player if exactly 1 such DoorBase exists.
      */
     public DoorBase getDoor(final String playerUUID, final String doorName) throws TooManyDoorsException
     {
@@ -663,22 +662,18 @@ public class SQLiteJDBCDriverConnection
     }
 
     /**
-     * Gets the {@link DoorBase} with the given name owned by the given player. If
-     * the player owns 0 or more than 1 doors with the given name, no doors are
-     * returned at all!
+     * Gets the {@link DoorBase} with the given name owned by the given player. If the player owns 0 or more than 1
+     * doors with the given name, no doors are returned at all!
      *
-     * @param playerUUID    The UUID of the player whose {@link DoorBase} will be
-     *                      obtained.
+     * @param playerUUID    The UUID of the player whose {@link DoorBase} will be obtained.
      * @param doorName      The name of the {@link DoorBase} to look for.
-     * @param maxPermission The highest level of ownership this player can have over
-     *                      the door being looked for. If set to 0, for example,
-     *                      only door doors where the given player has ownership
-     *                      level 0 (= creator) are included in the search.
-     * @return The {@link DoorBase} with the given name owned by this player if
-     *         exactly 1 such DoorBase exists.
+     * @param maxPermission The highest level of ownership this player can have over the door being looked for. If set
+     *                      to 0, for example, only door doors where the given player has ownership level 0 (= creator)
+     *                      are included in the search.
+     * @return The {@link DoorBase} with the given name owned by this player if exactly 1 such DoorBase exists.
      */
     public @Nullable DoorBase getDoor(final String playerUUID, final String doorName, int maxPermission)
-        throws TooManyDoorsException
+            throws TooManyDoorsException
     {
         DoorBase door = null;
         int count = 0;
@@ -688,13 +683,14 @@ public class SQLiteJDBCDriverConnection
             long playerID = getPlayerID(conn, playerUUID);
 
             ResultSet rs2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID
-                + "' AND permission <= '" + maxPermission + "';").executeQuery();
+                                                          + "' AND permission <= '" + maxPermission + "';")
+                                .executeQuery();
 
             while (rs2.next())
             {
                 ResultSet rs3 = conn
-                    .prepareStatement("SELECT * FROM doors WHERE id = '" + rs2.getInt(UNION_DOOR_ID) + "';")
-                    .executeQuery();
+                        .prepareStatement("SELECT * FROM doors WHERE id = '" + rs2.getInt(UNION_DOOR_ID) + "';")
+                        .executeQuery();
 
                 while (rs3.next())
                 {
@@ -704,8 +700,8 @@ public class SQLiteJDBCDriverConnection
 
                     if ((doorName == null || rs3.getString(DOOR_NAME).equals(doorName)))
                     {
-                        DoorOwner doorOwner = this.getOwnerOfDoor(conn, rs3.getLong(DOOR_ID),
-                                                                  UUID.fromString(playerUUID), rs2.getInt(UNION_PERM));
+                        DoorOwner doorOwner = getOwnerOfDoor(conn, rs3.getLong(DOOR_ID),
+                                                             UUID.fromString(playerUUID), rs2.getInt(UNION_PERM));
                         if (doorOwner != null)
                             door = newDoorBaseFromRS(rs3, doorOwner);
                     }
@@ -731,14 +727,14 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
 
             PreparedStatement ps = conn
-                .prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
+                    .prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
             ResultSet rs = ps.executeQuery();
             while (rs.next())
                 if (rs.getString(PLAYERS_NAME) == null || !rs.getString(PLAYERS_NAME).equals(playerName))
                 {
                     conn.setAutoCommit(false);
                     String update = "UPDATE players SET " + "playerName='" + playerName + "' WHERE playerUUID = '"
-                        + playerUUID.toString() + "';";
+                            + playerUUID.toString() + "';";
                     conn.prepareStatement(update).executeUpdate();
                     conn.commit();
                 }
@@ -771,7 +767,7 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             // Get the door associated with the x/y/z location of the power block block.
             PreparedStatement ps = conn
-                .prepareStatement("SELECT * FROM players WHERE playerName = '" + playerName + "';");
+                    .prepareStatement("SELECT * FROM players WHERE playerName = '" + playerName + "';");
             ResultSet rs = ps.executeQuery();
             while (rs.next())
                 uuid = UUID.fromString(rs.getString(PLAYERS_UUID));
@@ -805,7 +801,7 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             // Get the door associated with the x/y/z location of the power block block.
             PreparedStatement ps = conn
-                .prepareStatement("SELECT * FROM players WHERE playerName = '" + playerName + "';");
+                    .prepareStatement("SELECT * FROM players WHERE playerName = '" + playerName + "';");
             ResultSet rs = ps.executeQuery();
             while (rs.next())
                 playerUUID = UUID.fromString(rs.getString(PLAYERS_UUID));
@@ -839,7 +835,7 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             // Get the door associated with the x/y/z location of the power block block.
             PreparedStatement ps = conn
-                .prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
+                    .prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID.toString() + "';");
             ResultSet rs = ps.executeQuery();
             while (rs.next())
                 playerName = rs.getString(PLAYERS_NAME);
@@ -865,7 +861,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     private DoorOwner getOwnerOfDoor(final Connection conn, final long doorUID, final UUID playerUUID, int permission)
-        throws SQLException
+            throws SQLException
     {
         PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
         ResultSet rs1 = ps1.executeQuery();
@@ -885,7 +881,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     private DoorOwner getOwnerOfDoor(final Connection conn, final long doorUID, final UUID playerUUID)
-        throws SQLException
+            throws SQLException
     {
         PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM players WHERE playerUUID = '" + playerUUID + "';");
         ResultSet rs1 = ps1.executeQuery();
@@ -898,7 +894,7 @@ public class SQLiteJDBCDriverConnection
         }
 
         PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + doorUID
-            + "' AND playerID = '" + rs1.getInt(PLAYERS_ID) + "';");
+                                                              + "' AND playerID = '" + rs1.getInt(PLAYERS_ID) + "';");
         ResultSet rs2 = ps2.executeQuery();
 
         if (!rs2.next())
@@ -931,7 +927,7 @@ public class SQLiteJDBCDriverConnection
         while (rs1.next())
         {
             PreparedStatement ps2 = conn
-                .prepareStatement("SELECT * FROM players WHERE id = '" + rs1.getInt(UNION_PLAYER_ID) + "';");
+                    .prepareStatement("SELECT * FROM players WHERE id = '" + rs1.getInt(UNION_PLAYER_ID) + "';");
             ResultSet rs2 = ps2.executeQuery();
             while (rs2.next())
                 doorOwner = new DoorOwner(doorUID, UUID.fromString(rs2.getString(PLAYERS_UUID)),
@@ -949,7 +945,7 @@ public class SQLiteJDBCDriverConnection
         DoorOwner doorOwner = null;
 
         Connection conn = null;
-//      plugin.getMyLogger().warn("271: " + SpigotUtil.exceptionToString(e));
+//      plugin.getPLogger().warn("271: " + SpigotUtil.exceptionToString(e));
         try
         {
             conn = getConnection();
@@ -1051,9 +1047,10 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             conn.setAutoCommit(false);
             String update = "UPDATE doors SET " + "xMin='" + xMin + "',yMin='" + yMin + "',zMin='" + zMin + "',xMax='"
-                + xMax + "',yMax='" + yMax + "',zMax='" + zMax + "',isOpen='" + (isOpen == true ? 1 : 0)
-                + "',engineSide='" + (engSide == null ? -1 : PBlockFace.getValue(engSide)) + "' WHERE id = '" + doorID
-                + "';";
+                    + xMax + "',yMax='" + yMax + "',zMax='" + zMax + "',isOpen='" + (isOpen == true ? 1 : 0)
+                    + "',engineSide='" + (engSide == null ? -1 : PBlockFace.getValue(engSide)) + "' WHERE id = '" +
+                    doorID
+                    + "';";
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
@@ -1114,7 +1111,7 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             conn.setAutoCommit(false);
             String update = "UPDATE doors SET " + "openDirection='" + RotateDirection.getValue(openDir)
-                + "' WHERE id = '" + doorID + "';";
+                    + "' WHERE id = '" + doorID + "';";
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
@@ -1146,8 +1143,9 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             conn.setAutoCommit(false);
             String update = "UPDATE doors SET " + "powerBlockX='" + xPos + "',powerBlockY='" + yPos + "',powerBlockZ='"
-                + zPos + "',chunkHash='" + SpigotUtil.chunkHashFromLocation(xPos, zPos, worldUUID) + "' WHERE id = '"
-                + doorID + "';";
+                    + zPos + "',chunkHash='" + SpigotUtil.chunkHashFromLocation(xPos, zPos, worldUUID) +
+                    "' WHERE id = '"
+                    + doorID + "';";
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
@@ -1179,8 +1177,10 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             // Get the door associated with the x/y/z location of the power block block.
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE powerBlockX = '" + loc.getBlockX()
-                + "' AND powerBlockY = '" + loc.getBlockY() + "' AND powerBlockZ = '" + loc.getBlockZ()
-                + "' AND world = '" + loc.getWorld().getUID().toString() + "';");
+                                                                 + "' AND powerBlockY = '" + loc.getBlockY() +
+                                                                 "' AND powerBlockZ = '" + loc.getBlockZ()
+                                                                 + "' AND world = '" +
+                                                                 loc.getWorld().getUID().toString() + "';");
             ResultSet rs = ps.executeQuery();
             boolean isAvailable = true;
 
@@ -1219,7 +1219,7 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             conn.setAutoCommit(false);
             String update = "UPDATE doors SET " + "isLocked='" + (newLockStatus == true ? 1 : 0) + "' WHERE id='"
-                + doorID + "';";
+                    + doorID + "';";
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
@@ -1254,7 +1254,8 @@ public class SQLiteJDBCDriverConnection
             {
                 Statement stmt2 = conn.createStatement();
                 String sql2 = "INSERT INTO players (playerUUID, playerName) " + "VALUES ('"
-                    + door.getPlayerUUID().toString() + "', '" + SpigotUtil.nameFromUUID(door.getPlayerUUID()) + "');";
+                        + door.getPlayerUUID().toString() + "', '" + SpigotUtil.nameFromUUID(door.getPlayerUUID()) +
+                        "');";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
@@ -1267,9 +1268,9 @@ public class SQLiteJDBCDriverConnection
             }
 
             String doorInsertsql = "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,"
-                + "engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,"
-                + "openDirection,autoClose,chunkHash,blocksToMove) "
-                + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    + "engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,"
+                    + "openDirection,autoClose,chunkHash,blocksToMove) "
+                    + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 
             doorstatement.setString(DOOR_NAME - 1, door.getName());
@@ -1291,7 +1292,7 @@ public class SQLiteJDBCDriverConnection
                                  door.getEngineSide() == null ? -1 : PBlockFace.getValue(door.getEngineSide()));
             doorstatement.setInt(DOOR_POWER_X - 1, door.getEngine().getBlockX());
             doorstatement.setInt(DOOR_POWER_Y - 1, door.getEngine().getBlockY() - 1); // Power Block Location is 1 block
-                                                                                      // below the engine, by default.
+            // below the engine, by default.
             doorstatement.setInt(DOOR_POWER_Z - 1, door.getEngine().getBlockZ());
             doorstatement.setInt(DOOR_OPEN_DIR - 1, RotateDirection.getValue(door.getOpenDir()));
             doorstatement.setInt(DOOR_AUTO_CLOSE - 1, door.getAutoClose());
@@ -1310,7 +1311,7 @@ public class SQLiteJDBCDriverConnection
 
             Statement stmt3 = conn.createStatement();
             String sql3 = "INSERT INTO sqlUnion (permission, playerID, doorUID) " + "VALUES ('" + door.getPermission()
-                + "', '" + playerID + "', '" + doorID + "');";
+                    + "', '" + playerID + "', '" + doorID + "');";
             stmt3.executeUpdate(sql3);
             stmt3.close();
         }
@@ -1341,13 +1342,15 @@ public class SQLiteJDBCDriverConnection
             long playerID = getPlayerID(conn, playerUUID.toString());
 
             if (playerID == -1)
-                plugin.getMyLogger().severe("Trying to remove player " + playerUUID.toString() + " as ownwer of door "
-                    + doorUID + ". But player does not exist!");
+                plugin.getPLogger().severe("Trying to remove player " + playerUUID.toString() + " as ownwer of door "
+                                                   + doorUID + ". But player does not exist!");
             else
             {
                 PreparedStatement ps2 = conn.prepareStatement("DELETE FROM sqlUnion WHERE " + "playerID = '" + playerID
-                    + "' AND doorUID = '" + doorUID + "' AND permission > '" + 0 + "';"); // The creator cannot be
-                                                                                          // removed as owner
+                                                                      + "' AND doorUID = '" + doorUID +
+                                                                      "' AND permission > '" + 0 +
+                                                                      "';"); // The creator cannot be
+                // removed as owner
                 ps2.execute();
                 ps2.close();
             }
@@ -1387,8 +1390,9 @@ public class SQLiteJDBCDriverConnection
                 DoorOwner owner = getOwnerOfDoor(conn, doorUID, playerUUID, rs1.getInt(UNION_PERM));
                 if (owner == null)
                 {
-                    plugin.getMyLogger().warn(String.format("Could not find owners for doorUID: %d", doorUID)
-                        + String.format("Offending playerUUID: \"%s\".", playerUUID.toString()));
+                    plugin.getPLogger().warn(String.format("Could not find owners for doorUID: %d", doorUID)
+                                                     + String.format("Offending playerUUID: \"%s\".",
+                                                                     playerUUID.toString()));
                 }
                 else
                     ret.add(owner);
@@ -1428,7 +1432,7 @@ public class SQLiteJDBCDriverConnection
             {
                 Statement stmt2 = conn.createStatement();
                 String sql2 = "INSERT INTO players (playerUUID, playerName) " + "VALUES ('" + playerUUID.toString()
-                    + "', '" + SpigotUtil.nameFromUUID(playerUUID) + "');";
+                        + "', '" + SpigotUtil.nameFromUUID(playerUUID) + "');";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
@@ -1441,7 +1445,7 @@ public class SQLiteJDBCDriverConnection
             }
 
             PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID
-                + "' AND doorUID = '" + doorUID + "';");
+                                                                  + "' AND doorUID = '" + doorUID + "';");
             ResultSet rs3 = ps3.executeQuery();
 
             // If it already exists, update the permission, if needed.
@@ -1451,7 +1455,7 @@ public class SQLiteJDBCDriverConnection
                 {
                     Statement stmt4 = conn.createStatement();
                     String sql4 = "UPDATE sqlUnion SET permission = '" + permission + "' WHERE playerID = '" + playerID
-                        + "' AND doorUID = '" + doorUID + "';";
+                            + "' AND doorUID = '" + doorUID + "';";
                     stmt4.executeUpdate(sql4);
                     stmt4.close();
                 }
@@ -1460,7 +1464,7 @@ public class SQLiteJDBCDriverConnection
             {
                 Statement stmt4 = conn.createStatement();
                 String sql4 = "INSERT INTO sqlUnion (permission, playerID, doorUID) " + "VALUES ('" + permission
-                    + "', '" + playerID + "', '" + doorUID + "');";
+                        + "', '" + playerID + "', '" + doorUID + "');";
                 stmt4.executeUpdate(sql4);
                 stmt4.close();
             }
@@ -1568,8 +1572,8 @@ public class SQLiteJDBCDriverConnection
         try
         {
             return conn.createStatement()
-                .executeQuery("SELECT COUNT(*) FROM players WHERE playerUUID = '" + FAKEUUID + "';")
-                .getInt("total") > 0;
+                       .executeQuery("SELECT COUNT(*) as total FROM players WHERE playerUUID = '" + FAKEUUID + "';")
+                       .getInt("total") > 0;
         }
         catch (SQLException e)
         {
@@ -1591,8 +1595,8 @@ public class SQLiteJDBCDriverConnection
         }
         catch (IOException e)
         {
-            plugin.getMyLogger().logException(e, "Failed to create backup of the database! "
-                + "Database upgrade aborted and access is disabled!");
+            plugin.getPLogger().logException(e, "Failed to create backup of the database! "
+                    + "Database upgrade aborted and access is disabled!");
             enabled = false;
             return false;
         }
@@ -1622,7 +1626,7 @@ public class SQLiteJDBCDriverConnection
 
             if (!rs.next())
             {
-                plugin.getMyLogger().warn("Upgrading database! Adding type!");
+                plugin.getPLogger().warn("Upgrading database! Adding type!");
                 addColumn = "ALTER TABLE doors " + "ADD COLUMN type int NOT NULL DEFAULT 0";
                 conn.createStatement().execute(addColumn);
             }
@@ -1631,7 +1635,7 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "engineSide");
             if (!rs.next())
             {
-                plugin.getMyLogger().warn("Upgrading database! Adding engineSide!");
+                plugin.getPLogger().warn("Upgrading database! Adding engineSide!");
                 addColumn = "ALTER TABLE doors " + "ADD COLUMN engineSide int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
             }
@@ -1640,7 +1644,7 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "powerBlockX");
             if (!rs.next())
             {
-                plugin.getMyLogger().warn("Upgrading database! Adding powerBlockLoc!");
+                plugin.getPLogger().warn("Upgrading database! Adding powerBlockLoc!");
                 addColumn = "ALTER TABLE doors " + "ADD COLUMN powerBlockX int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
                 addColumn = "ALTER TABLE doors " + "ADD COLUMN powerBlockY int NOT NULL DEFAULT -1";
@@ -1659,7 +1663,7 @@ public class SQLiteJDBCDriverConnection
                     int y = rs1.getInt(DOOR_ENG_Y) - 1;
                     int z = rs1.getInt(DOOR_ENG_Z);
                     update = "UPDATE doors SET " + "powerBlockX='" + x + "',powerBlockY='" + y + "',powerBlockZ='" + z
-                        + "' WHERE id = '" + UID + "';";
+                            + "' WHERE id = '" + UID + "';";
                     conn.prepareStatement(update).executeUpdate();
                 }
                 ps1.close();
@@ -1670,20 +1674,20 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "openDirection");
             if (!rs.next())
             {
-                plugin.getMyLogger().warn("Upgrading database! Adding openDirection!");
+                plugin.getPLogger().warn("Upgrading database! Adding openDirection!");
                 addColumn = "ALTER TABLE doors " + "ADD COLUMN openDirection int NOT NULL DEFAULT 0";
                 conn.createStatement().execute(addColumn);
 
-                plugin.getMyLogger()
-                    .warn("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!");
+                plugin.getPLogger()
+                      .warn("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!");
                 String update = "UPDATE doors SET " + "isOpen='" + 2 + "' WHERE isOpen = '" + 0 + "' AND type = '"
-                    + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
+                        + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
                 conn.createStatement().execute(update);
                 update = "UPDATE doors SET " + "isOpen='" + 0 + "' WHERE isOpen = '" + 1 + "' AND type = '"
-                    + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
+                        + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
                 conn.createStatement().execute(update);
                 update = "UPDATE doors SET " + "isOpen='" + 1 + "' WHERE isOpen = '" + 2 + "' AND type = '"
-                    + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
+                        + DoorType.getValue(DoorType.DRAWBRIDGE) + "';";
                 conn.createStatement().execute(update);
             }
             rs.close();
@@ -1691,7 +1695,7 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "autoClose");
             if (!rs.next())
             {
-                plugin.getMyLogger().warn("Upgrading database! Adding autoClose!");
+                plugin.getPLogger().warn("Upgrading database! Adding autoClose!");
                 addColumn = "ALTER TABLE doors " + "ADD COLUMN autoClose int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
             }
@@ -1700,7 +1704,7 @@ public class SQLiteJDBCDriverConnection
             rs = md.getColumns(null, null, "doors", "chunkHash");
             if (!rs.next())
             {
-                plugin.getMyLogger().warn("Upgrading database! Adding chunkHash!");
+                plugin.getPLogger().warn("Upgrading database! Adding chunkHash!");
                 addColumn = "ALTER TABLE doors " + "ADD COLUMN chunkHash int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
 
@@ -1716,14 +1720,14 @@ public class SQLiteJDBCDriverConnection
                     int z = rs1.getInt(DOOR_POWER_Z);
 
                     update = "UPDATE doors SET " + "chunkHash='" + SpigotUtil.chunkHashFromLocation(x, z, worldUUID)
-                        + "' WHERE id = '" + UID + "';";
+                            + "' WHERE id = '" + UID + "';";
                     conn.prepareStatement(update).executeUpdate();
                 }
                 ps1.close();
                 rs1.close();
             }
             rs.close();
-            plugin.getMyLogger().warn("Database has been upgraded to V1!");
+            plugin.getPLogger().warn("Database has been upgraded to V1!");
         }
         catch (SQLException e)
         {
@@ -1736,7 +1740,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             String addColumn;
-            plugin.getMyLogger().warn("Upgrading database to V2! Adding blocksToMove!");
+            plugin.getPLogger().warn("Upgrading database to V2! Adding blocksToMove!");
             addColumn = "ALTER TABLE doors " + "ADD COLUMN blocksToMove int NOT NULL DEFAULT 0";
             conn.createStatement().execute(addColumn);
         }
@@ -1764,7 +1768,7 @@ public class SQLiteJDBCDriverConnection
     {
         try
         {
-            plugin.getMyLogger().warn("Upgrading database to V3! Recreating sqlUnion!");
+            plugin.getPLogger().warn("Upgrading database to V3! Recreating sqlUnion!");
             conn.setAutoCommit(false);
             // Rename sqlUnion.
             conn.createStatement().execute("ALTER TABLE sqlUnion RENAME TO sqlUnion_old;");
@@ -1772,10 +1776,10 @@ public class SQLiteJDBCDriverConnection
             // Create updated version of sqlUnion.
             conn.createStatement()
                 .execute("CREATE TABLE IF NOT EXISTS sqlUnion " + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
-                    + " permission  INTEGER    NOT NULL, "
-                    + " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, "
-                    + " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE,"
-                    + " unique (playerID, doorUID));");
+                                 + " permission  INTEGER    NOT NULL, "
+                                 + " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, "
+                                 + " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE,"
+                                 + " unique (playerID, doorUID));");
 
             // Copy data from old sqlUnion to new sqlUnion.
             conn.createStatement().execute("INSERT INTO sqlUnion SELECT * FROM sqlUnion_old;");
@@ -1804,7 +1808,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             String addColumn;
-            plugin.getMyLogger().warn("Upgrading database to V4! Adding playerName!");
+            plugin.getPLogger().warn("Upgrading database to V4! Adding playerName!");
             addColumn = "ALTER TABLE players " + "ADD COLUMN playerName TEXT DEFAULT NULL";
             conn.createStatement().execute(addColumn);
         }
@@ -1827,7 +1831,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             conn = getConnection();
-            plugin.getMyLogger().warn("Upgrading database to V5!");
+            plugin.getPLogger().warn("Upgrading database to V5!");
 
             String countStr = "SELECT COUNT(*) AS total FROM players WHERE playerName IS NULL";
             int count = conn.createStatement().executeQuery(countStr).getInt("total");
@@ -1843,7 +1847,7 @@ public class SQLiteJDBCDriverConnection
                 while (exists)
                 {
                     PreparedStatement ps = conn
-                        .prepareStatement("SELECT * FROM players WHERE playerName = '" + fakeName + "';");
+                            .prepareStatement("SELECT * FROM players WHERE playerName = '" + fakeName + "';");
                     ResultSet rs = ps.executeQuery();
                     if (!rs.next())
                         exists = false;
@@ -1852,11 +1856,11 @@ public class SQLiteJDBCDriverConnection
                     if (exists)
                         fakeName = Util.randomInsecureString(12);
                 }
-                plugin.getMyLogger().warn("UpgradeToV5: Using fakeName = " + fakeName);
+                plugin.getPLogger().warn("UpgradeToV5: Using fakeName = " + fakeName);
 
                 Statement stmt = conn.createStatement();
                 String sql = "INSERT INTO players (playerUUID, playerName) " + "VALUES ('" + FAKEUUID + "', '"
-                    + fakeName + "');";
+                        + fakeName + "');";
                 stmt.executeUpdate(sql);
                 stmt.close();
 
@@ -1890,8 +1894,8 @@ public class SQLiteJDBCDriverConnection
 
             // Create updated version of sqlUnion.
             con.createStatement()
-                .execute("CREATE TABLE IF NOT EXISTS players " + "(id          INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + " playerUUID  TEXT    NOT NULL," + " playerName  TEXT    NOT NULL)");
+               .execute("CREATE TABLE IF NOT EXISTS players " + "(id          INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                + " playerUUID  TEXT    NOT NULL," + " playerName  TEXT    NOT NULL)");
 
             // Copy data from old sqlUnion to new sqlUnion.
             con.createStatement().execute("INSERT INTO players SELECT * FROM players_old;");
@@ -1936,66 +1940,72 @@ public class SQLiteJDBCDriverConnection
     {
         locked.set(true);
         final Thread thread = new Thread(() ->
-        {
-            Connection conn = null;
-            try
-            {
-                // Database is in a locked state, so a simple getConnection() call won't work.
-                // So do it again manually here.
-                Class.forName(DRIVER);
-                conn = DriverManager.getConnection(url);
-                conn.createStatement().execute("PRAGMA foreign_keys=ON");
+                                         {
+                                             Connection conn = null;
+                                             try
+                                             {
+                                                 // Database is in a locked state, so a simple getConnection() call won't work.
+                                                 // So do it again manually here.
+                                                 Class.forName(DRIVER);
+                                                 conn = DriverManager.getConnection(url);
+                                                 conn.createStatement().execute("PRAGMA foreign_keys=ON");
 
-                ResultSet rs1 = conn.createStatement()
-                    .executeQuery("SELECT * FROM players WHERE playerUUID='" + FAKEUUID + "';");
-                String fakeName = null;
-                while (rs1.next())
-                    fakeName = rs1.getString("playerName");
-                rs1.close();
+                                                 ResultSet rs1 = conn.createStatement()
+                                                                     .executeQuery(
+                                                                             "SELECT * FROM players WHERE playerUUID='" +
+                                                                                     FAKEUUID + "';");
+                                                 String fakeName = null;
+                                                 while (rs1.next())
+                                                     fakeName = rs1.getString("playerName");
+                                                 rs1.close();
 
-                ResultSet rs2 = conn.createStatement()
-                    .executeQuery("SELECT * FROM players WHERE playerName='" + fakeName + "';");
-                while (rs2.next())
-                {
-                    if (rs2.getString("playerUUID").equals(FAKEUUID))
-                        continue;
-                    UUID playerUUID = UUID.fromString(rs2.getString("playerUUID"));
-                    String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+                                                 ResultSet rs2 = conn.createStatement()
+                                                                     .executeQuery(
+                                                                             "SELECT * FROM players WHERE playerName='" +
+                                                                                     fakeName + "';");
+                                                 while (rs2.next())
+                                                 {
+                                                     if (rs2.getString("playerUUID").equals(FAKEUUID))
+                                                         continue;
+                                                     UUID playerUUID = UUID.fromString(rs2.getString("playerUUID"));
+                                                     String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
 
-                    String update = "UPDATE players SET playerName='" + playerName + "' WHERE playerUUID='"
-                        + playerUUID.toString() + "';";
-                    conn.prepareStatement(update).executeUpdate();
-                }
-                rs2.close();
+                                                     String update = "UPDATE players SET playerName='" + playerName +
+                                                             "' WHERE playerUUID='"
+                                                             + playerUUID.toString() + "';";
+                                                     conn.prepareStatement(update).executeUpdate();
+                                                 }
+                                                 rs2.close();
 
-                String deleteFakePlayer = "DELETE FROM players WHERE playerUUID = '" + FAKEUUID + "';";
-                conn.createStatement().executeUpdate(deleteFakePlayer);
-            }
-            catch (SQLException | ClassNotFoundException e)
-            {
-                logMessage("1729", e);
-            }
-            finally
-            {
-                try
-                {
-                    conn.close();
-                }
-                catch (SQLException e)
-                {
-                    logMessage("1739", e);
-                }
-                locked.set(false);
-            }
-        });
+                                                 String deleteFakePlayer =
+                                                         "DELETE FROM players WHERE playerUUID = '" + FAKEUUID + "';";
+                                                 conn.createStatement().executeUpdate(deleteFakePlayer);
+                                             }
+                                             catch (SQLException | ClassNotFoundException e)
+                                             {
+                                                 logMessage("1729", e);
+                                             }
+                                             finally
+                                             {
+                                                 try
+                                                 {
+                                                     conn.close();
+                                                 }
+                                                 catch (SQLException e)
+                                                 {
+                                                     logMessage("1739", e);
+                                                 }
+                                                 locked.set(false);
+                                             }
+                                         });
         thread.start();
     }
 
     private void logMessage(String str, Exception e)
     {
         if (!locked.get())
-            plugin.getMyLogger().logException(e, str);
+            plugin.getPLogger().logException(e, str);
         else
-            plugin.getMyLogger().warn("Database locked! Failed at: " + str + ". Message: " + e.getMessage());
+            plugin.getPLogger().warn("Database locked! Failed at: " + str + ". Message: " + e.getMessage());
     }
 }

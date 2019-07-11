@@ -1,12 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import java.util.ArrayList;
-import java.util.logging.Level;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -14,6 +7,12 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
+import java.util.ArrayList;
+import java.util.logging.Level;
 
 public class SubCommandOpen extends SubCommandToggle
 {
@@ -33,7 +32,7 @@ public class SubCommandOpen extends SubCommandToggle
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
+            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
         ArrayList<DoorBase> doors = new ArrayList<>();
         double time = parseDoorsAndTime(sender, args, doors);
@@ -42,11 +41,11 @@ public class SubCommandOpen extends SubCommandToggle
             if (readyToOpen(door))
                 execute(sender, door, time);
             else
-                plugin.getMyLogger()
-                    .sendMessageToTarget(sender, Level.INFO,
-                                         ChatColor.RED + plugin.getMessages().getString("GENERAL.Door") + " \""
-                                             + door.getName() + "\" "
-                                             + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
+                plugin.getPLogger()
+                      .sendMessageToTarget(sender, Level.INFO,
+                                           ChatColor.RED + plugin.getMessages().getString("GENERAL.Door") + " \""
+                                                   + door.getName() + "\" "
+                                                   + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
         return doors.size() > 0;
     }
 }

@@ -1,12 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.logging.Level;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -14,6 +7,12 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class SubCommandListPlayerDoors extends SubCommand
 {
@@ -32,20 +31,20 @@ public class SubCommandListPlayerDoors extends SubCommand
     {
         if (doors.size() == 0)
         {
-            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO,
-                                                     plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                    plugin.getMessages().getString("GENERAL.NoDoorsFound"));
             return true;
         }
         StringBuilder builder = new StringBuilder();
         for (DoorBase door : doors)
             builder.append(door.getBasicInfo());
-        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, builder.toString());
+        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, builder.toString());
         return true;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException
+            throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException
     {
         ArrayList<DoorBase> doors = new ArrayList<>();
         UUID playerUUID = CommandManager.getPlayerFromArg(args[0]);

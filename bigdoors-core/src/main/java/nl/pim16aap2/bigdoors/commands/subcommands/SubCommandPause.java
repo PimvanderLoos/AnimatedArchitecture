@@ -1,15 +1,14 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import java.util.logging.Level;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
+import java.util.logging.Level;
 
 public class SubCommandPause extends SubCommand
 {
@@ -26,9 +25,9 @@ public class SubCommandPause extends SubCommand
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException
+            throws CommandSenderNotPlayerException, CommandPermissionException
     {
-        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelp(sender));
+        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, getHelp(sender));
         return true;
     }
 }

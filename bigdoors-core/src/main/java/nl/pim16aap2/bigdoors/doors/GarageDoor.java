@@ -1,9 +1,12 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import org.bukkit.Location;
-
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.*;
+import nl.pim16aap2.bigdoors.util.Mutable;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Vector2D;
+import nl.pim16aap2.bigdoors.util.Vector3D;
+import org.bukkit.Location;
 
 /**
  * Represents a Garage Door doorType.
@@ -36,8 +39,8 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         else
             radius = Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
 
-        return new Vector2D[] { new Vector2D(getChunk().getX() - radius, getChunk().getZ() - radius),
-                                new Vector2D(getChunk().getX() + radius, getChunk().getZ() + radius) };
+        return new Vector2D[]{new Vector2D(getChunk().getX() - radius, getChunk().getZ() - radius),
+                              new Vector2D(getChunk().getX() + radius, getChunk().getZ() + radius)};
     }
 
     /**
@@ -60,9 +63,8 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      * <p>
-     * Because garage doors can also lie flat (and therefore violate the 1-block
-     * depth requirement of {@link HorizontalAxisAlignedBase}), garage doors need to
-     * implement additional checks if that is the case.
+     * Because garage doors can also lie flat (and therefore violate the 1-block depth requirement of {@link
+     * HorizontalAxisAlignedBase}), garage doors need to implement additional checks if that is the case.
      */
     @Override
     protected boolean calculateNorthSouthAxis()
@@ -108,23 +110,24 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         Vector3D directionVec;
         switch (rotateDirection)
         {
-        case NORTH:
-            directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
-            break;
-        case EAST:
-            directionVec = PBlockFace.getDirection(PBlockFace.EAST);
-            break;
-        case SOUTH:
-            directionVec = PBlockFace.getDirection(PBlockFace.SOUTH);
-            break;
-        case WEST:
-            directionVec = PBlockFace.getDirection(PBlockFace.WEST);
-            break;
-        default:
-            directionVec = null;
-            plugin.getMyLogger().dumpStackTrace("Failed to get new locations of garage door \"" + getDoorUID()
-                + "\". Reason: Invalid rotateDirection \"" + rotateDirection.toString() + "\"");
-            return;
+            case NORTH:
+                directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
+                break;
+            case EAST:
+                directionVec = PBlockFace.getDirection(PBlockFace.EAST);
+                break;
+            case SOUTH:
+                directionVec = PBlockFace.getDirection(PBlockFace.SOUTH);
+                break;
+            case WEST:
+                directionVec = PBlockFace.getDirection(PBlockFace.WEST);
+                break;
+            default:
+                directionVec = null;
+                plugin.getPLogger().dumpStackTrace("Failed to get new locations of garage door \"" + getDoorUID()
+                                                           + "\". Reason: Invalid rotateDirection \"" +
+                                                           rotateDirection.toString() + "\"");
+                return;
         }
 
         // This works fine, but it's disabled to make it easier to test other stuff.

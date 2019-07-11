@@ -1,8 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
@@ -10,6 +7,8 @@ import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.bukkit.Location;
+import org.bukkit.World;
 
 public class SlidingDoorOpener extends Opener
 {
@@ -25,7 +24,6 @@ public class SlidingDoorOpener extends Opener
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
             return abort(door, isOpenable);
-        super.setBusy(door);
 
         if (super.isTooBig(door))
             instantOpen = true;
@@ -47,7 +45,8 @@ public class SlidingDoorOpener extends Opener
             return abort(door, DoorOpenResult.NOPERMISSION);
 
         plugin.addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove.getVal(),
-                                              rotateDirection.getVal(), plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR)));
+                                              rotateDirection.getVal(),
+                                              plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR)));
         return DoorOpenResult.SUCCESS;
     }
 
@@ -137,22 +136,22 @@ public class SlidingDoorOpener extends Opener
             blocksWest = getBlocksInDir(door, RotateDirection.WEST);
         }
         else if (door.getOpenDir().equals(RotateDirection.NORTH) && !door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.SOUTH) && door.isOpen())
+                door.getOpenDir().equals(RotateDirection.SOUTH) && door.isOpen())
         {
             blocksNorth = getBlocksInDir(door, RotateDirection.NORTH);
         }
         else if (door.getOpenDir().equals(RotateDirection.NORTH) && door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.SOUTH) && !door.isOpen())
+                door.getOpenDir().equals(RotateDirection.SOUTH) && !door.isOpen())
         {
             blocksSouth = getBlocksInDir(door, RotateDirection.SOUTH);
         }
         else if (door.getOpenDir().equals(RotateDirection.EAST) && !door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.WEST) && door.isOpen())
+                door.getOpenDir().equals(RotateDirection.WEST) && door.isOpen())
         {
             blocksEast = getBlocksInDir(door, RotateDirection.EAST);
         }
         else if (door.getOpenDir().equals(RotateDirection.EAST) && door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.WEST) && !door.isOpen())
+                door.getOpenDir().equals(RotateDirection.WEST) && !door.isOpen())
         {
             blocksWest = getBlocksInDir(door, RotateDirection.WEST);
         }

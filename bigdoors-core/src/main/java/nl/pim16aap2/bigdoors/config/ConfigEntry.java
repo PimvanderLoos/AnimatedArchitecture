@@ -1,10 +1,9 @@
 package nl.pim16aap2.bigdoors.config;
 
-import java.util.List;
-
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import java.util.List;
 
 /**
  * Represents an option in a config file.
@@ -22,7 +21,7 @@ public final class ConfigEntry<V>
 
     /**
      * ConfigEntry Constructor.
-     * 
+     *
      * @param plugin       The instance of {@link BigDoors}.
      * @param config       The config file to read from.
      * @param optionName   The name of this option as used in the config file.
@@ -52,9 +51,9 @@ public final class ConfigEntry<V>
         }
         catch (Exception e)
         {
-            plugin.getMyLogger()
-                .logException(e,
-                              "Failed to read config value of: \"" + optionName + "\"! Using default value instead!");
+            plugin.getPLogger()
+                  .logException(e,
+                                "Failed to read config value of: \"" + optionName + "\"! Using default value instead!");
             value = defaultValue;
         }
     }
@@ -80,8 +79,8 @@ public final class ConfigEntry<V>
     }
 
     /**
-     * Convert the comment, name and value(s) of this config option into a string
-     * that can be used for writing the config.
+     * Convert the comment, name and value(s) of this config option into a string that can be used for writing the
+     * config.
      *
      * @return The config option formatted for printing in the config file
      */

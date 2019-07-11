@@ -1,23 +1,21 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-
-import nl.pim16aap2.bigdoors.BigDoors;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Compatibility hook for version 6 of WorldGuard.
  *
- * @see IProtectionCompat
  * @author Pim
+ * @see IProtectionCompat
  */
 class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
@@ -49,7 +47,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
         catch (NoSuchMethodException | SecurityException e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
     }
 
@@ -62,7 +60,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
-            plugin.getMyLogger().logException(e);
+            plugin.getPLogger().logException(e);
         }
         return false;
     }

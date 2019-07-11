@@ -1,17 +1,16 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import java.util.function.BiFunction;
-
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import java.util.function.BiFunction;
 
 class FlagMover extends BlockMover
 {
@@ -22,7 +21,7 @@ class FlagMover extends BlockMover
     private static final double minSpeed = 0.1;
 
     public FlagMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
-        final double multiplier)
+                     final double multiplier)
     {
         super(plugin, world, door, time, false, null, null, -1);
 
@@ -76,12 +75,13 @@ class FlagMover extends BlockMover
     {
         new BukkitRunnable()
         {
-            double counter   = 0;
-            int endCount     = (int) (20 / tickRate * time);
-            int totalTicks   = (int) (endCount * 1.1);
-            long startTime   = System.nanoTime();
+            double counter = 0;
+            int endCount = (int) (20 / tickRate * time);
+            int totalTicks = (int) (endCount * 1.1);
+            long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
+            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -101,7 +101,11 @@ class FlagMover extends BlockMover
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        putBlocks(false);
+                        if (!hasFinished)
+                        {
+                            putBlocks(false);
+                            hasFinished = true;
+                        }
                         return null;
                     });
                     cancel();
@@ -109,7 +113,8 @@ class FlagMover extends BlockMover
                 else
                     for (PBlockData block : savedBlocks)
                     {
-                        Vector vec = getGoalPos.apply(block, counter).subtract(block.getFBlock().getLocation().toVector());
+                        Vector vec = getGoalPos.apply(block, counter)
+                                               .subtract(block.getFBlock().getLocation().toVector());
                         vec.multiply(0.101);
                         block.getFBlock().setVelocity(vec);
                     }

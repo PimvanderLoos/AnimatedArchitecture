@@ -1,11 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import java.util.logging.Level;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -13,6 +7,11 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.logging.Level;
 
 public class SubCommandInfo extends SubCommand
 {
@@ -30,15 +29,15 @@ public class SubCommandInfo extends SubCommand
     public boolean execute(CommandSender sender, DoorBase door)
     {
         if (sender instanceof Player && door.getPermission() >= 0 &&
-            door.getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
+                door.getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
             return true;
-        plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, door.toString());
+        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, door.toString());
         return true;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
+            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
         return execute(sender, commandManager.getDoorFromArg(sender, args[minArgCount - 1]));
     }

@@ -1,11 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import java.util.HashMap;
-import java.util.logging.Level;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
@@ -14,6 +8,11 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
+import java.util.HashMap;
+import java.util.logging.Level;
 
 public class SuperCommand implements ICommand
 {
@@ -49,12 +48,12 @@ public class SuperCommand implements ICommand
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
-        CommandPlayerNotFoundException, CommandActionNotAllowedException
+            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
+                   CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
         if (args.length == 0 || (args.length == 1 && args[0].toLowerCase().equals("help")))
         {
-            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelp(sender));
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, getHelp(sender));
             return true;
         }
 
@@ -62,23 +61,23 @@ public class SuperCommand implements ICommand
         {
             SubCommand helpCommand = subCommands.get(args[1].toLowerCase());
             if (helpCommand == null)
-                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO,
-                                                         plugin.getMessages().getString("GENERAL.COMMAND.NotFound"));
+                plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                        plugin.getMessages().getString("GENERAL.COMMAND.NotFound"));
             else
-                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelpOfSubCommand(sender, helpCommand));
+                plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, getHelpOfSubCommand(sender, helpCommand));
             return true;
         }
 
         SubCommand subCommand = subCommands.get(args[0].toLowerCase());
         if (subCommand == null)
         {
-            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelp(sender));
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, getHelp(sender));
             return true;
         }
         if (!CommandManager.permissionForCommand(sender, subCommand))
             throw new CommandPermissionException();
         if (args.length < subCommand.getMinArgCount() || !subCommand.onCommand(sender, cmd, label, args))
-            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, getHelpOfSubCommand(sender, subCommand));
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, getHelpOfSubCommand(sender, subCommand));
         return true;
     }
 
@@ -87,14 +86,14 @@ public class SuperCommand implements ICommand
     {
         StringBuilder builder = new StringBuilder();
         subCommands.forEach((K, V) ->
-        {
-            if (CommandManager.permissionForCommand(sender, this))
-            {
-                String help = getHelpOfSubCommand(sender, V);
-                if (help != null)
-                    builder.append(help);
-            }
-        });
+                            {
+                                if (CommandManager.permissionForCommand(sender, this))
+                                {
+                                    String help = getHelpOfSubCommand(sender, V);
+                                    if (help != null)
+                                        builder.append(help);
+                                }
+                            });
         return builder.toString();
     }
 

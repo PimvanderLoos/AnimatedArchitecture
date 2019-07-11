@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import org.bukkit.Location;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
@@ -10,6 +8,7 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
+import org.bukkit.Location;
 
 public class GarageDoorOpener extends Opener
 {
@@ -39,10 +38,10 @@ public class GarageDoorOpener extends Opener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger()
-                .severe("Failed to check if new position was free for garage door \"" + door.getDoorUID()
-                    + "\" because of invalid rotateDirection \"" + rotateDirection.toString()
-                    + "\". Please contact pim16aap2.");
+            plugin.getPLogger()
+                  .severe("Failed to check if new position was free for garage door \"" + door.getDoorUID()
+                                  + "\" because of invalid rotateDirection \"" + rotateDirection.toString()
+                                  + "\". Please contact pim16aap2.");
             return false;
         }
 
@@ -145,7 +144,6 @@ public class GarageDoorOpener extends Opener
         DoorOpenResult isOpenable = super.isOpenable(door, silent);
         if (isOpenable != DoorOpenResult.SUCCESS)
             return abort(door, isOpenable);
-        super.setBusy(door);
 
         if (super.isTooBig(door))
             instantOpen = true;
@@ -153,8 +151,8 @@ public class GarageDoorOpener extends Opener
         PBlockFace currentDirection = getCurrentDirection(door);
         if (currentDirection == null)
         {
-            plugin.getMyLogger()
-                .warn("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!");
+            plugin.getPLogger()
+                  .warn("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!");
             return abort(door, DoorOpenResult.ERROR);
         }
 
@@ -165,8 +163,8 @@ public class GarageDoorOpener extends Opener
 
         if (rotDirection == null || !isPosFree(door, currentDirection, rotDirection, newMin, newMax))
         {
-            plugin.getMyLogger()
-                .warn("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!");
+            plugin.getPLogger()
+                  .warn("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!");
             return abort(door, DoorOpenResult.NODIRECTION);
         }
 
@@ -175,9 +173,9 @@ public class GarageDoorOpener extends Opener
         String canBreakResult = plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), newMin, newMax);
         if (canBreakResult != null)
         {
-            plugin.getMyLogger()
-                .warn("Player \"" + door.getPlayerUUID().toString() + "\" is not allowed to open door "
-                    + door.getName() + " (" + door.getDoorUID() + ") here! " + "Reason: " + canBreakResult);
+            plugin.getPLogger()
+                  .warn("Player \"" + door.getPlayerUUID().toString() + "\" is not allowed to open door "
+                                + door.getName() + " (" + door.getDoorUID() + ") here! " + "Reason: " + canBreakResult);
             return abort(door, DoorOpenResult.NOPERMISSION);
         }
 

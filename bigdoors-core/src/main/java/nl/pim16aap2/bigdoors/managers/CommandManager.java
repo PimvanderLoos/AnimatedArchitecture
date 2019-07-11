@@ -1,32 +1,31 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import java.util.HashMap;
-import java.util.UUID;
-import java.util.logging.Level;
-
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.CommandData;
+import nl.pim16aap2.bigdoors.commands.ICommand;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
+import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
-import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
-import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
-import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.commands.ICommand;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class CommandManager implements CommandExecutor
 {
     private static final String helpMessage = ChatColor.BLUE
-        + "{}: Not required when used from GUI, <>: always required, []: optional\n";
+            + "{}: Not required when used from GUI, <>: always required, []: optional\n";
 
     private final BigDoors plugin;
     private HashMap<String, ICommand> commands;
@@ -73,40 +72,40 @@ public class CommandManager implements CommandExecutor
         }
         catch (CommandSenderNotPlayerException e)
         {
-            plugin.getMyLogger()
-                .sendMessageToTarget(sender, Level.INFO,
-                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NotPlayer"));
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NotPlayer"));
         }
         catch (CommandPermissionException e)
         {
-            plugin.getMyLogger()
-                .sendMessageToTarget(sender, Level.INFO,
-                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NoPermission"));
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NoPermission"));
         }
         catch (IllegalArgumentException e)
         {
-            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + e.getMessage());
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + e.getMessage());
         }
         catch (CommandPlayerNotFoundException e)
         {
-            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
-                + plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + e.getPlayerArg() + "\"");
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
+                    + plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + e.getPlayerArg() + "\"");
         }
         catch (CommandActionNotAllowedException e)
         {
-            plugin.getMyLogger()
-                .sendMessageToTarget(sender, Level.INFO,
-                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO,
-                                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.Error"));
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                    ChatColor.RED + plugin.getMessages().getString("GENERAL.Error"));
             StringBuilder sb = new StringBuilder();
             for (String str : args)
                 sb.append(str + (str.equals(args[args.length - 1]) ? "" : ", "));
-            plugin.getMyLogger().logException(e, "An exception occurred while processing command \"" + cmd.getName()
-                + "\" with args: \"" + sb.toString() + "\"!");
+            plugin.getPLogger().logException(e, "An exception occurred while processing command \"" + cmd.getName()
+                    + "\" with args: \"" + sb.toString() + "\"!");
         }
         return true;
     }
@@ -131,11 +130,12 @@ public class CommandManager implements CommandExecutor
         else
             try
             {
-                door = plugin.getDatabaseManager().getDoor( Long.parseLong(doorArg));
+                door = plugin.getDatabaseManager().getDoor(Long.parseLong(doorArg));
             }
             catch (NumberFormatException e)
             {
-                plugin.getMyLogger().info("\"" + doorArg + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorID"));
+                plugin.getPLogger()
+                      .info("\"" + doorArg + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorID"));
             }
         if (door == null)
             throw new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!");
@@ -153,7 +153,7 @@ public class CommandManager implements CommandExecutor
     public static boolean permissionForCommand(CommandSender sender, ICommand command)
     {
         return (sender instanceof Player ?
-            ((Player) sender).hasPermission(command.getPermission()) || ((Player) sender).isOp() : true);
+                ((Player) sender).hasPermission(command.getPermission()) || ((Player) sender).isOp() : true);
     }
 
     public static long getLongFromArg(String testLong) throws IllegalArgumentException

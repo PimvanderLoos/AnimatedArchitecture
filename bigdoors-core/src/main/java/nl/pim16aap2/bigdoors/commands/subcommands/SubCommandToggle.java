@@ -1,14 +1,5 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.logging.Level;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -19,6 +10,14 @@ import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.Util;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class SubCommandToggle extends SubCommand
 {
@@ -41,7 +40,8 @@ public class SubCommandToggle extends SubCommand
     public void execute(CommandSender sender, DoorBase door, double time)
     {
         if (sender instanceof Player && !plugin.getDatabaseManager()
-            .hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE))
+                                               .hasPermissionForAction((Player) sender, door.getDoorUID(),
+                                                                       DoorAttribute.TOGGLE))
             return;
 
         UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
@@ -51,15 +51,15 @@ public class SubCommandToggle extends SubCommand
 
         if (newDoor == null)
         {
-            plugin.getMyLogger()
-                .sendMessageToTarget(sender, Level.INFO,
-                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.ToggleFailure"));
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.ToggleFailure"));
             return;
         }
         if (newDoor.isLocked())
-            plugin.getMyLogger()
-                .sendMessageToTarget(sender, Level.INFO,
-                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.DoorIsLocked"));
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.DoorIsLocked"));
 
         else
         {
@@ -67,13 +67,13 @@ public class SubCommandToggle extends SubCommand
             DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(newDoor, time);
 
             if (result != DoorOpenResult.SUCCESS)
-                plugin.getMyLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
-                    + plugin.getMessages().getString(DoorOpenResult.getMessage(result)));
+                plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
+                        + plugin.getMessages().getString(DoorOpenResult.getMessage(result)));
         }
     }
 
     public double parseDoorsAndTime(CommandSender sender, String[] args, ArrayList<DoorBase> doors)
-        throws IllegalArgumentException
+            throws IllegalArgumentException
     {
         String lastStr = args[args.length - 1];
         // Last argument sets speed if it's a double.
@@ -92,7 +92,7 @@ public class SubCommandToggle extends SubCommand
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
+            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
         ArrayList<DoorBase> doors = new ArrayList<>();
         double time = parseDoorsAndTime(sender, args, doors);

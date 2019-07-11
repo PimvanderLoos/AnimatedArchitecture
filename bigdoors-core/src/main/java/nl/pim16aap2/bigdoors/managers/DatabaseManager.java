@@ -1,19 +1,5 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.UUID;
-
-import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
-import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
@@ -21,23 +7,40 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
+import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockRelocator;
-import nl.pim16aap2.bigdoors.util.*;
+import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.Restartable;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetTime;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class DatabaseManager extends Restartable
 {
-    private HashSet<Long> busyDoors;
+    private ConcurrentHashMap<Long, Boolean> busyDoors;
     // Players map stores players for faster UUID / Name matching.
     private TimedMapCache<UUID, String> players;
     private boolean goOn = true;
@@ -51,7 +54,7 @@ public class DatabaseManager extends Restartable
         super(plugin);
         this.db = db;
         this.plugin = plugin;
-        busyDoors = new HashSet<>();
+        busyDoors = new ConcurrentHashMap<>();
         messages = plugin.getMessages();
         players = new TimedMapCache<>(plugin, HashMap::new, 1440);
     }
@@ -75,7 +78,7 @@ public class DatabaseManager extends Restartable
 
     public void setDoorBusy(long doorUID)
     {
-        busyDoors.add(doorUID);
+        busyDoors.put(doorUID, true);
     }
 
     public void setDoorAvailable(long doorUID)
@@ -130,22 +133,29 @@ public class DatabaseManager extends Restartable
 
     public void startTimerSetter(Player player, DoorBase door)
     {
-        startTimerForAbortable(new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand(CommandData.SETAUTOCLOSETIME), player, door), 20 * 20);
+        startTimerForAbortable(
+                new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand(CommandData.SETAUTOCLOSETIME),
+                                   player, door), 20 * 20);
     }
 
     public void startBlocksToMoveSetter(Player player, DoorBase door)
     {
-        startTimerForAbortable(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin.getCommand(CommandData.SETBLOCKSTOMOVE), player, door), 20 * 20);
+        startTimerForAbortable(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin
+                .getCommand(CommandData.SETBLOCKSTOMOVE), player, door), 20 * 20);
     }
 
     public void startAddOwner(Player player, DoorBase door)
     {
-        startTimerForAbortable(new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand(CommandData.ADDOWNER), player, door), 20 * 20);
+        startTimerForAbortable(
+                new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand(CommandData.ADDOWNER), player, door),
+                20 * 20);
     }
 
     public void startRemoveOwner(Player player, DoorBase door)
     {
-        startTimerForAbortable(new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand(CommandData.REMOVEOWNER), player, door), 20 * 20);
+        startTimerForAbortable(
+                new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand(CommandData.REMOVEOWNER),
+                                       player, door), 20 * 20);
     }
 
     public void setDoorBlocksToMove(long doorUID, int autoClose)
@@ -323,7 +333,7 @@ public class DatabaseManager extends Restartable
                 throw new NotEnoughDoorsException();
             if (count > 1)
                 throw new TooManyDoorsException();
-            return getDoor(playerUUID, doorName);
+            return db.getDoor(playerUUID.toString(), doorName);
         }
     }
 
@@ -357,7 +367,8 @@ public class DatabaseManager extends Restartable
     {
         boolean hasPermission = hasPermissionForAction(playerUUID, doorUID, atr);
         if (!hasPermission)
-            SpigotUtil.messagePlayer(Bukkit.getPlayer(playerUUID), plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+            SpigotUtil.messagePlayer(Bukkit.getPlayer(playerUUID),
+                                     plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
         return hasPermission;
     }
 

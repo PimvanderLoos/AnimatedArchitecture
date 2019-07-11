@@ -1,22 +1,21 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-
 class VerticalMover extends BlockMover
 {
     private int tickRate;
 
     public VerticalMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
-        final boolean instantOpen, final int blocksToMove, final double multiplier)
+                         final boolean instantOpen, final int blocksToMove, final double multiplier)
     {
         super(plugin, world, door, time, instantOpen, null, null, blocksToMove);
 
@@ -66,7 +65,8 @@ class VerticalMover extends BlockMover
             long lastTime;
             long currentTime = System.nanoTime();
             PBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst()
-                .orElse(null);
+                                                   .orElse(null);
+            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -88,14 +88,18 @@ class VerticalMover extends BlockMover
                     stepSum = getBlocksMoved();
 
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || firstBlockData == null ||
-                    isAborted.get())
+                        isAborted.get())
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        putBlocks(false);
+                        if (!hasFinished)
+                        {
+                            putBlocks(false);
+                            hasFinished = true;
+                        }
                         return null;
                     });
                     cancel();

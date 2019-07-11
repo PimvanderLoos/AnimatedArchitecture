@@ -1,9 +1,12 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import org.bukkit.Location;
-
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.*;
+import nl.pim16aap2.bigdoors.util.Mutable;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Vector2D;
+import nl.pim16aap2.bigdoors.util.Vector3D;
+import org.bukkit.Location;
 
 /**
  * Represents a DrawBrige doorType.
@@ -26,9 +29,8 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      * <p>
-     * Because drawbridges can also lie flat (and therefore violate the 1-block
-     * depth requirement of {@link HorizontalAxisAlignedBase}), drawbridges need to
-     * implement additional checks if that is the case.
+     * Because drawbridges can also lie flat (and therefore violate the 1-block depth requirement of {@link
+     * HorizontalAxisAlignedBase}), drawbridges need to implement additional checks if that is the case.
      */
     @Override
     protected boolean calculateNorthSouthAxis()
@@ -60,8 +62,8 @@ public class Drawbridge extends HorizontalAxisAlignedBase
         else
             radius = Math.max(xLen, zLen) / 16 + 1;
 
-        return new Vector2D[] { new Vector2D(getChunk().getX() - radius, getChunk().getZ() - radius),
-                                new Vector2D(getChunk().getX() + radius, getChunk().getZ() + radius) };
+        return new Vector2D[]{new Vector2D(getChunk().getX() - radius, getChunk().getZ() - radius),
+                              new Vector2D(getChunk().getX() + radius, getChunk().getZ() + radius)};
     }
 
     /**
@@ -133,88 +135,89 @@ public class Drawbridge extends HorizontalAxisAlignedBase
 
         switch (rotateDirection)
         {
-        case NORTH:
-            if (openDirection == PBlockFace.UP)
-            {
-                newEngineSide.setVal(PBlockFace.NORTH);
+            case NORTH:
+                if (openDirection == PBlockFace.UP)
+                {
+                    newEngineSide.setVal(PBlockFace.NORTH);
 //                newMin = new Location(world, xMin, yMin, zMin);
 //                newMax = new Location(world, xMax, yMin + zLen, zMin);
-                newYMax = yMin + dimensions.getZ();
-                newZMax = zMin;
-            }
-            else
-            {
-                newEngineSide.setVal(PBlockFace.SOUTH);
+                    newYMax = yMin + dimensions.getZ();
+                    newZMax = zMin;
+                }
+                else
+                {
+                    newEngineSide.setVal(PBlockFace.SOUTH);
 //                newMin = new Location(world, xMin, yMin, zMin - yLen);
 //                newMax = new Location(world, xMax, yMin, zMin);
-                newZMin = zMin - dimensions.getY();
-                newYMax = yMin;
-                newZMax = zMin;
-            }
-            break;
+                    newZMin = zMin - dimensions.getY();
+                    newYMax = yMin;
+                    newZMax = zMin;
+                }
+                break;
 
-        case EAST:
-            if (openDirection == PBlockFace.UP)
-            {
-                newEngineSide.setVal(PBlockFace.EAST);
+            case EAST:
+                if (openDirection == PBlockFace.UP)
+                {
+                    newEngineSide.setVal(PBlockFace.EAST);
 //                newMin = new Location(world, xMax, yMin, zMin);
 //                newMax = new Location(world, xMax, yMin + xLen, zMax);
-                newXMin = xMax;
-                newYMax = yMin + xLen;
-            }
-            else
-            {
-                newEngineSide.setVal(PBlockFace.WEST);
+                    newXMin = xMax;
+                    newYMax = yMin + xLen;
+                }
+                else
+                {
+                    newEngineSide.setVal(PBlockFace.WEST);
 //                newMin = new Location(world, xMax, yMin, zMin);
 //                newMax = new Location(world, xMax + yLen, yMin, zMax);
-                newXMin = xMax;
-                newXMax = xMax + yLen;
-                newYMax = yMin;
-            }
-            break;
+                    newXMin = xMax;
+                    newXMax = xMax + yLen;
+                    newYMax = yMin;
+                }
+                break;
 
-        case SOUTH:
-            if (openDirection == PBlockFace.UP)
-            {
-                newEngineSide.setVal(PBlockFace.SOUTH);
+            case SOUTH:
+                if (openDirection == PBlockFace.UP)
+                {
+                    newEngineSide.setVal(PBlockFace.SOUTH);
 //                newMin = new Location(world, xMin, yMin, zMax);
 //                newMax = new Location(world, xMax, yMin + zLen, zMax);
-                newZMin = zMax;
-                newYMax = yMin + zLen;
-            }
-            else
-            {
-                newEngineSide.setVal(PBlockFace.NORTH);
+                    newZMin = zMax;
+                    newYMax = yMin + zLen;
+                }
+                else
+                {
+                    newEngineSide.setVal(PBlockFace.NORTH);
 //                newMin = new Location(world, xMin, yMin, zMax);
 //                newMax = new Location(world, xMax, yMin, zMax + yLen);
-                newZMin = zMax;
-                newYMax = yMin;
-                newZMax = zMax + yLen;
-            }
-            break;
+                    newZMin = zMax;
+                    newYMax = yMin;
+                    newZMax = zMax + yLen;
+                }
+                break;
 
-        case WEST:
-            if (openDirection == PBlockFace.UP)
-            {
-                newEngineSide.setVal(PBlockFace.WEST);
+            case WEST:
+                if (openDirection == PBlockFace.UP)
+                {
+                    newEngineSide.setVal(PBlockFace.WEST);
 //                newMin = new Location(world, xMin, yMin, zMin);
 //                newMax = new Location(world, xMin, yMin + xLen, zMax);
-                newXMax = xMin;
-                newYMax = yMin + xLen;
-            }
-            else
-            {
-                newEngineSide.setVal(PBlockFace.EAST);
+                    newXMax = xMin;
+                    newYMax = yMin + xLen;
+                }
+                else
+                {
+                    newEngineSide.setVal(PBlockFace.EAST);
 //                newMin = new Location(world, xMin - yLen, yMin, zMin);
 //                newMax = new Location(world, xMin, yMin, zMax);
-                newXMin = xMin - yLen;
-                newXMax = xMin;
-                newYMax = yMin;
-            }
-            break;
-        default:
-            plugin.getMyLogger().dumpStackTrace("Invalid openDirection for bridge mover: " + openDirection.toString());
-            return;
+                    newXMin = xMin - yLen;
+                    newXMax = xMin;
+                    newYMax = yMin;
+                }
+                break;
+            default:
+                plugin.getPLogger()
+                      .dumpStackTrace("Invalid openDirection for bridge mover: " + openDirection.toString());
+                return;
         }
         newMin.setX(newXMin);
         newMin.setY(newYMin);

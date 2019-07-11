@@ -1,20 +1,23 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
+import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotEast;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotNorth;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotSouth;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotWest;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GetNewLocation;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.TriFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
-import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.*;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.TriFunction;
 
 class BridgeMover extends BlockMover
 {
@@ -60,79 +63,79 @@ class BridgeMover extends BlockMover
         // Calculate turningpoint and pointOpposite.
         switch (engineSide)
         {
-        case NORTH:
-            // When EngineSide is North, x goes from low to high and z goes from low to high
-            turningPoint = new Location(world, xMin, yMin, zMin);
-            if (upDown.equals(PBlockFace.UP))
-            {
-                startStepSum = Math.PI / 2;
-                stepMultiplier = -1;
-            }
-            else
-            {
-                if (openDirection.equals(RotateDirection.NORTH))
+            case NORTH:
+                // When EngineSide is North, x goes from low to high and z goes from low to high
+                turningPoint = new Location(world, xMin, yMin, zMin);
+                if (upDown.equals(PBlockFace.UP))
+                {
+                    startStepSum = Math.PI / 2;
                     stepMultiplier = -1;
-                else if (openDirection.equals(RotateDirection.SOUTH))
+                }
+                else
+                {
+                    if (openDirection.equals(RotateDirection.NORTH))
+                        stepMultiplier = -1;
+                    else if (openDirection.equals(RotateDirection.SOUTH))
+                        stepMultiplier = 1;
+                }
+                break;
+
+            case SOUTH:
+                // When EngineSide is South, x goes from high to low and z goes from high to low
+                turningPoint = new Location(world, xMax, yMin, zMax);
+
+                if (upDown.equals(PBlockFace.UP))
+                {
+                    startStepSum = -Math.PI / 2;
                     stepMultiplier = 1;
-            }
-            break;
+                }
+                else
+                {
+                    if (openDirection.equals(RotateDirection.NORTH))
+                        stepMultiplier = -1;
+                    else if (openDirection.equals(RotateDirection.SOUTH))
+                        stepMultiplier = 1;
+                }
+                break;
 
-        case SOUTH:
-            // When EngineSide is South, x goes from high to low and z goes from high to low
-            turningPoint = new Location(world, xMax, yMin, zMax);
+            case EAST:
+                // When EngineSide is East, x goes from high to low and z goes from low to high
+                turningPoint = new Location(world, xMax, yMin, zMin);
 
-            if (upDown.equals(PBlockFace.UP))
-            {
-                startStepSum = -Math.PI / 2;
-                stepMultiplier = 1;
-            }
-            else
-            {
-                if (openDirection.equals(RotateDirection.NORTH))
+                if (upDown.equals(PBlockFace.UP))
+                {
+                    startStepSum = -Math.PI / 2;
+                    stepMultiplier = 1;
+                }
+                else
+                {
+                    if (openDirection.equals(RotateDirection.EAST))
+                        stepMultiplier = 1;
+                    else if (openDirection.equals(RotateDirection.WEST))
+                        stepMultiplier = -1;
+                }
+                break;
+
+            case WEST:
+                // When EngineSide is West, x goes from low to high and z goes from high to low
+                turningPoint = new Location(world, xMin, yMin, zMax);
+
+                if (upDown.equals(PBlockFace.UP))
+                {
+                    startStepSum = Math.PI / 2;
                     stepMultiplier = -1;
-                else if (openDirection.equals(RotateDirection.SOUTH))
-                    stepMultiplier = 1;
-            }
-            break;
-
-        case EAST:
-            // When EngineSide is East, x goes from high to low and z goes from low to high
-            turningPoint = new Location(world, xMax, yMin, zMin);
-
-            if (upDown.equals(PBlockFace.UP))
-            {
-                startStepSum = -Math.PI / 2;
-                stepMultiplier = 1;
-            }
-            else
-            {
-                if (openDirection.equals(RotateDirection.EAST))
-                    stepMultiplier = 1;
-                else if (openDirection.equals(RotateDirection.WEST))
-                    stepMultiplier = -1;
-            }
-            break;
-
-        case WEST:
-            // When EngineSide is West, x goes from low to high and z goes from high to low
-            turningPoint = new Location(world, xMin, yMin, zMax);
-
-            if (upDown.equals(PBlockFace.UP))
-            {
-                startStepSum = Math.PI / 2;
-                stepMultiplier = -1;
-            }
-            else
-            {
-                if (openDirection.equals(RotateDirection.EAST))
-                    stepMultiplier = 1;
-                else if (openDirection.equals(RotateDirection.WEST))
-                    stepMultiplier = -1;
-            }
-            break;
-        default:
-            plugin.getMyLogger().dumpStackTrace("Invalid engine side for bridge mover: " + engineSide.toString());
-            break;
+                }
+                else
+                {
+                    if (openDirection.equals(RotateDirection.EAST))
+                        stepMultiplier = 1;
+                    else if (openDirection.equals(RotateDirection.WEST))
+                        stepMultiplier = -1;
+                }
+                break;
+            default:
+                plugin.getPLogger().dumpStackTrace("Invalid engine side for bridge mover: " + engineSide.toString());
+                break;
         }
 
         endStepSum = upDown.equals(PBlockFace.UP) ? 0 : Math.PI / 2 * stepMultiplier;
@@ -140,28 +143,29 @@ class BridgeMover extends BlockMover
 
         switch (openDirection)
         {
-        case NORTH:
-            gnl = new GNLVerticalRotNorth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-            getDelta = this::getDeltaNS;
-            break;
-        case EAST:
-            gnl = new GNLVerticalRotEast(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-            getDelta = this::getDeltaEW;
-            break;
-        case SOUTH:
-            gnl = new GNLVerticalRotSouth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-            getDelta = this::getDeltaNS;
-            break;
-        case WEST:
-            gnl = new GNLVerticalRotWest(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-            getDelta = this::getDeltaEW;
-            break;
-        default:
-            plugin.getMyLogger().warn("Failed to open door \"" + getDoorUID() + "\". Reason: Invalid rotateDirection \""
-                + openDirection.toString() + "\"");
-            gnl = null;
-            getDelta = null;
-            return;
+            case NORTH:
+                gnl = new GNLVerticalRotNorth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+                getDelta = this::getDeltaNS;
+                break;
+            case EAST:
+                gnl = new GNLVerticalRotEast(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+                getDelta = this::getDeltaEW;
+                break;
+            case SOUTH:
+                gnl = new GNLVerticalRotSouth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+                getDelta = this::getDeltaNS;
+                break;
+            case WEST:
+                gnl = new GNLVerticalRotWest(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+                getDelta = this::getDeltaEW;
+                break;
+            default:
+                plugin.getPLogger()
+                      .warn("Failed to open door \"" + getDoorUID() + "\". Reason: Invalid rotateDirection \""
+                                    + openDirection.toString() + "\"");
+                gnl = null;
+                getDelta = null;
+                return;
         }
 
         super.constructFBlocks();
@@ -200,6 +204,7 @@ class BridgeMover extends BlockMover
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
+            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -231,7 +236,11 @@ class BridgeMover extends BlockMover
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        putBlocks(false);
+                        if (!hasFinished)
+                        {
+                            putBlocks(false);
+                            hasFinished = true;
+                        }
                         return null;
                     });
                     cancel();
@@ -268,7 +277,7 @@ class BridgeMover extends BlockMover
                         if (radius != 0)
                         {
                             Vector vec = getDelta.apply(block, stepSum, center)
-                                .subtract(block.getFBlock().getLocation().toVector());
+                                                 .subtract(block.getFBlock().getLocation().toVector());
                             vec.multiply(0.101);
                             block.getFBlock().setVelocity(vec);
                         }
@@ -295,7 +304,7 @@ class BridgeMover extends BlockMover
         }
         if (currentDirection == PBlockFace.DOWN)
             return yAxis - turningPoint.getBlockY();
-        plugin.getMyLogger().dumpStackTrace("Invalid BridgeMover direction \"" + currentDirection.toString() + "\"");
+        plugin.getPLogger().dumpStackTrace("Invalid BridgeMover direction \"" + currentDirection.toString() + "\"");
         return -1;
     }
 }

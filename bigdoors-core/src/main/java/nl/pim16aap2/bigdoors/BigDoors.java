@@ -1,25 +1,5 @@
 package nl.pim16aap2.bigdoors;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.Vector;
-
-import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import nl.pim16aap2.bigdoors.api.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.commands.CommandBigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
@@ -90,6 +70,25 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RestartableHolder;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
+import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.Vector;
 
 /*
  * Modules
@@ -147,6 +146,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 //       Tell them to use the command to run the self-check. Then it can say "not the latest version!", "Money formulas set, but Vault not enabled!",
 //       "Enabled PlotSquared support, but failed to initialize it!", "Trying to load on version X, but this version isn't supported!", etc.
 // TODO: Write a events to open doors. It should be able to retrieve door from the database on a secondary thread and also check offline permission on the second thread.
+// TODO: Special PBlockData subclass for every type of opener. This is a messy system.
 
 /*
  * General
@@ -185,6 +185,7 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 // TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
 // TODO: Allow wand material selection in config.
 // TODO: Get rid of code duplication in ProtectionCompatManager.
+// TODO: Cache value of DoorBase#getPowerBlockChunkHash().
 
 /*
  * GUI
@@ -322,8 +323,8 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
 {
     public static final boolean DEVBUILD = true;
     // Minimum number of ticks a door needs to cool down before it can be
-    // toggled again. A slight delay prevents issues with doors being toggled
-    // before they're fully ready (data race?).
+    // toggled again. This should help with some rare cases of overlapping
+    // processes and whatnot.
     private static final int MINIMUMDOORDELAY = 10;
 
     private ToolVerifier tf;
@@ -366,21 +367,20 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     @Override
     public void onEnable()
     {
-        logger = new PLogger(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this), this.getName());
+        logger = new PLogger(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this), getName());
 
         try
         {
             Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
-            if (DEVBUILD)
-                setLoginString("[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!");
 
             validVersion = compatibleMCVer();
             // Load the files for the correct version of Minecraft.
             if (!validVersion)
             {
                 logger.severe("Trying to load the plugin on an incompatible version of Minecraft! (\""
-                    + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3])
-                    + "\"). This plugin will NOT be enabled!");
+                                      + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
+                                               .split(",")[3])
+                                      + "\"). This plugin will NOT be enabled!");
                 return;
             }
 
@@ -455,14 +455,14 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             return;
 
         readConfigValues();
-        getMyLogger().setDebug(config.debug());
-        messages = new Messages(getDataFolder(), getConfigLoader().languageFile(), getMyLogger());
+        getPLogger().setDebug(config.debug());
+        messages = new Messages(getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
         blockMovers = new Vector<>(2);
         cmdWaiters = new Vector<>(2);
         tf = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
-        loginString = "";
+        loginString = DEVBUILD ? "[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!" : "";
 
         if (config.enableRedstone())
         {
@@ -491,7 +491,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             // Y u do dis? :(
             metrics = null;
             logger.info("Stats disabled, not laoding stats :(... Please consider enabling it! "
-                + "I am a simple man, seeing higher user numbers helps me stay motivated!");
+                                + "I am a simple man, seeing higher user numbers helps me stay motivated!");
         }
         logger.info("test 1");
 
@@ -529,6 +529,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
     }
 
+    @Override
     public void registerRestartable(IRestartable restartable)
     {
         restartables.add(restartable);
@@ -602,33 +603,33 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     {
         if (!DoorType.isEnabled(type))
         {
-            getMyLogger()
-                .severe("Trying to open door of type: \"" + type.toString() + "\", but this type is not enabled!");
+            getPLogger()
+                    .severe("Trying to open door of type: \"" + type.toString() + "\", but this type is not enabled!");
             return null;
         }
 
         switch (type)
         {
-        case BIGDOOR:
-            return doorOpener;
-        case DRAWBRIDGE:
-            return bridgeOpener;
-        case PORTCULLIS:
-            return portcullisOpener;
-        case SLIDINGDOOR:
-            return slidingDoorOpener;
-        case ELEVATOR:
-            return elevatorOpener;
-        case FLAG:
-            return flagOpener;
-        case WINDMILL:
-            return windmillOpener;
-        case REVOLVINGDOOR:
-            return revolvingDoorOpener;
-        case GARAGEDOOR:
-            return garageDoorOpener;
-        default:
-            return null;
+            case BIGDOOR:
+                return doorOpener;
+            case DRAWBRIDGE:
+                return bridgeOpener;
+            case PORTCULLIS:
+                return portcullisOpener;
+            case SLIDINGDOOR:
+                return slidingDoorOpener;
+            case ELEVATOR:
+                return elevatorOpener;
+            case FLAG:
+                return flagOpener;
+            case WINDMILL:
+                return windmillOpener;
+            case REVOLVINGDOOR:
+                return revolvingDoorOpener;
+            case GARAGEDOOR:
+                return garageDoorOpener;
+            default:
+                return null;
         }
     }
 
@@ -730,7 +731,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     }
 
     // Get the logger.
-    public PLogger getMyLogger()
+    public PLogger getPLogger()
     {
         return logger;
     }
@@ -775,7 +776,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
         }
         catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
-            getMyLogger().logException(useAVersionMentionedInTheDescriptionPleaseException);
+            getPLogger().logException(useAVersionMentionedInTheDescriptionPleaseException);
             return false;
         }
 
@@ -843,7 +844,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     public boolean isOpen(long doorUID)
     {
         final DoorBase door = getDatabaseManager().getDoor(null, doorUID);
-        return this.isOpen(door);
+        return isOpen(door);
     }
 
 //    public long createNewDoor(Location min, Location max, Location engine,

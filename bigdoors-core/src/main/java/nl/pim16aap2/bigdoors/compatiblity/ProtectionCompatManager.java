@@ -1,8 +1,7 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import java.util.ArrayList;
-import java.util.UUID;
-
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.util.Restartable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -12,8 +11,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Restartable;
+import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Class that manages all objects of {@link IProtectionCompat}.
@@ -30,7 +29,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
 
     /**
      * Constructor of {@link ProtectionCompatManager}.
-     * 
+     *
      * @param plugin The instance of {@link BigDoors}.
      */
     public ProtectionCompatManager(final BigDoors plugin)
@@ -56,10 +55,9 @@ public class ProtectionCompatManager extends Restartable implements Listener
     }
 
     /**
-     * Check if a player is allowed to bypass the compatibility checks. Players can
-     * bypass the check if they are OP or if they have the
-     * {@link ProtectionCompatManager#BYPASSPERMISSION} permission node.
-     * 
+     * Check if a player is allowed to bypass the compatibility checks. Players can bypass the check if they are OP or
+     * if they have the {@link ProtectionCompatManager#BYPASSPERMISSION} permission node.
+     *
      * @param player The {@link Player} to check the permissions for.
      * @return True if the player can bypass the checks.
      */
@@ -75,12 +73,13 @@ public class ProtectionCompatManager extends Restartable implements Listener
     }
 
     /**
-     * Get an online player from a player {@link UUID} in a given world. If the
-     * player with the given UUID is not online, a fake-online player is created.
-     * 
+     * Get an online player from a player {@link UUID} in a given world. If the player with the given UUID is not
+     * online, a fake-online player is created.
+     *
      * @param playerUUID The {@link UUID} of the player to get.
      * @param world      The {@link World} the player is in.
      * @return An online {@link Player}. Either fake or real.
+     *
      * @see FakePlayerCreator
      */
     private Player getPlayer(UUID playerUUID, World world)
@@ -93,11 +92,10 @@ public class ProtectionCompatManager extends Restartable implements Listener
 
     /**
      * Check if a player can break a block at a given location.
-     * 
+     *
      * @param playerUUID The {@link UUID} of the player to check for.
      * @param loc        The {@link Location} to check.
-     * @return The name of the {@link IProtectionCompat} that objects, if any, or
-     *         null if allowed by all compats.
+     * @return The name of the {@link IProtectionCompat} that objects, if any, or null if allowed by all compats.
      */
     public String canBreakBlock(UUID playerUUID, Location loc)
     {
@@ -116,8 +114,8 @@ public class ProtectionCompatManager extends Restartable implements Listener
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
-                    + "\"! Please send this error to pim16aap2:");
+                plugin.getPLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
+                        + "\"! Please send this error to pim16aap2:");
             }
         return null;
     }
@@ -128,8 +126,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
      * @param playerUUID The {@link UUID} of the player to check for.
      * @param loc1       The start {@link Location} to check.
      * @param loc1       The end {@link Location} to check.
-     * @return The name of the {@link IProtectionCompat} that objects, if any, or
-     *         null if allowed by all compats.
+     * @return The name of the {@link IProtectionCompat} that objects, if any, or null if allowed by all compats.
      */
     public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
     {
@@ -148,15 +145,15 @@ public class ProtectionCompatManager extends Restartable implements Listener
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
-                    + "\"! Please send this error to pim16aap2:");
+                plugin.getPLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
+                        + "\"! Please send this error to pim16aap2:");
             }
         return null;
     }
 
     /**
      * Check if an {@link IProtectionCompat} is already loaded.
-     * 
+     *
      * @param compatClass The class of the {@link IProtectionCompat} to check.
      * @return True if the compat has already been loaded.
      */
@@ -169,8 +166,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
     }
 
     /**
-     * Add a {@link IProtectionCompat} to the list of loaded compats if it loaded
-     * successfully.
+     * Add a {@link IProtectionCompat} to the list of loaded compats if it loaded successfully.
      *
      * @param hook The compat to add.
      */
@@ -179,15 +175,15 @@ public class ProtectionCompatManager extends Restartable implements Listener
         if (hook.success())
         {
             protectionCompats.add(hook);
-            plugin.getMyLogger().info("Successfully hooked into \"" + hook.getPlugin().getName() + "\"!");
+            plugin.getPLogger().info("Successfully hooked into \"" + hook.getPlugin().getName() + "\"!");
         }
         else
-            plugin.getMyLogger().info("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
+            plugin.getPLogger().info("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
     }
 
     /**
      * Load a compat for the plugin enabled in the event if needed.
-     * 
+     *
      * @param event The event of the plugin that is loaded.
      */
     @EventHandler
@@ -198,7 +194,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
 
     /**
      * Load a compat for a plugin with a given name if allowed and possible.
-     * 
+     *
      * @param compatName The name of the plugin to load a compat for.
      */
     private void loadFromPluginName(final String compatName)
@@ -213,7 +209,9 @@ public class ProtectionCompatManager extends Restartable implements Listener
         try
         {
             Class<? extends IProtectionCompat> compatClass = compat.getClass(plugin.getServer().getPluginManager()
-                .getPlugin(ProtectionCompat.getName(compat)).getDescription().getVersion());
+                                                                                   .getPlugin(ProtectionCompat
+                                                                                                      .getName(compat))
+                                                                                   .getDescription().getVersion());
 
             // No need to load compats twice.
             if (protectionAlreadyLoaded(compatClass))
@@ -223,17 +221,17 @@ public class ProtectionCompatManager extends Restartable implements Listener
         }
         catch (NoClassDefFoundError e)
         {
-            plugin.getMyLogger()
-                .logError(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
+            plugin.getPLogger()
+                  .logError(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
         }
         catch (NullPointerException e)
         {
-            plugin.getMyLogger().warn("Could not find \"" + compatName + "\"! Hook not enabled!");
+            plugin.getPLogger().warn("Could not find \"" + compatName + "\"! Hook not enabled!");
         }
         catch (Exception e)
         {
-            plugin.getMyLogger()
-                .logException(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
+            plugin.getPLogger()
+                  .logException(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
         }
     }
 }

@@ -1,8 +1,9 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.spigotutil.Abortable;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.Messages;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,10 +13,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.spigotutil.Abortable;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.Messages;
+import java.util.Arrays;
+import java.util.logging.Level;
 
 public abstract class ToolUser extends Abortable
 {
@@ -48,7 +47,7 @@ public abstract class ToolUser extends Abortable
     protected final void finishUp()
     {
         takeToolFromPlayer();
-        this.abort();
+        abort();
     }
 
     protected final void giveToolToPlayer(String[] lore, String[] message)
@@ -80,10 +79,10 @@ public abstract class ToolUser extends Abortable
     public final void takeToolFromPlayer()
     {
         player.getInventory().forEach(K ->
-        {
-            if (plugin.getTF().isTool(K))
-                K.setAmount(0);
-        });
+                                      {
+                                          if (plugin.getTF().isTool(K))
+                                              K.setAmount(0);
+                                      });
     }
 
     // See if this class is done.
@@ -110,8 +109,8 @@ public abstract class ToolUser extends Abortable
         killTask();
         plugin.removeToolUser(this);
         if (!done)
-            plugin.getMyLogger().sendMessageToTarget(player, Level.INFO,
-                                                   ChatColor.RED + messages.getString("CREATOR.GENERAL.TimeUp"));
+            plugin.getPLogger().sendMessageToTarget(player, Level.INFO,
+                                                    ChatColor.RED + messages.getString("CREATOR.GENERAL.TimeUp"));
     }
 
     @Override
