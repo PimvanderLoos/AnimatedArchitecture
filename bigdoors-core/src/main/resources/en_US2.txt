@@ -41,11 +41,9 @@ ERROR.TOGGLEFAILURE=§4"%DOOR%" could not be toggled!
 ERROR.NOOPENDIRECTION=§4"%DOOR%" could not find an available open direction!
 ERROR.DOORISBUSY=§4"%DOOR%" is busy! Try again later.
 ERROR.NOTOGGLEPERMISSION=§4You are not allowed to toggle "%DOOR%".
+ERROR.TOOMANYDOORSFOUND=§4You own multiple doors named "%DOORE%". Please use the ID of the desired door instead.
 
 ERROR.NODOORSFOUND=§4No doors found!
-
-# Supported:
-ERROR.TOOMANYDOORSFOUND=§4You own multiple doors named "%DOORNAME%". Please use the ID of the desired door instead.
 
 ERROR.PLAYERISBUSY=§4You are already in a creation/relocation/inspector process.
 ERROR.PLAYERISNOTBUSY=§4You are not creating any doors right now! Please initiate the creation process in the GUI! Type "/BigDoors Menu" or "/BDM" for short.
