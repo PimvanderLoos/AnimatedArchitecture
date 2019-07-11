@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -199,30 +200,24 @@ public class SlidingMover implements BlockMover
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door, null, openDirection, blocksToMove);
         toggleOpen  (door);
+
         if (!onDisable)
-            plugin.removeBlockMover(this);
-
-        // Change door availability to true, so it can be opened again.
-        // Wait for a bit if instantOpen is enabled.
-        int timer = onDisable   ?  0 :
-                    instantOpen ? 40 : plugin.getConfigLoader().coolDown() * 20;
-
-        if (timer > 0)
         {
+            plugin.removeBlockMover(this);
+            int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {
                 @Override
                 public void run()
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    if (door.isOpen())
+                        plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }
-            }.runTaskLater(plugin, timer);
+            }.runTaskLater(plugin, delay);
         }
         else
             plugin.getCommander().setDoorAvailable(door.getDoorUID());
-
-        if (!onDisable && door.isOpen())
-            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
     private Location getNewLocation(double xAxis, double yAxis, double zAxis)
@@ -244,6 +239,7 @@ public class SlidingMover implements BlockMover
             long lastTime;
             long currentTime = System.nanoTime();
             MyBlockData firstBlockData = savedBlocks.stream().filter(block -> !block.getMat().equals(Material.AIR)).findFirst().orElse(null);
+            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -270,7 +266,15 @@ public class SlidingMover implements BlockMover
                     for (int idx = 0; idx < savedBlocks.size(); ++idx)
                         if (!savedBlocks.get(idx).getMat().equals(Material.AIR))
                             savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
-                    putBlocks(false);
+                    Bukkit.getScheduler().callSyncMethod(plugin, () ->
+                    {
+                        if (!hasFinished)
+                        {
+                            putBlocks(false);
+                            hasFinished = true;
+                        }
+                        return null;
+                    });
                     cancel();
                 }
                 else
@@ -292,7 +296,7 @@ public class SlidingMover implements BlockMover
                             block.getFBlock().setVelocity(vec);
                 }
             }
-        }.runTaskTimer(plugin, 14, tickRate);
+        }.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
     // Toggle the open status of a drawbridge.

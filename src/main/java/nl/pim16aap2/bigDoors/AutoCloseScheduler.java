@@ -38,12 +38,12 @@ public class AutoCloseScheduler
 
     public void scheduleAutoClose(Door door, double time, boolean instantOpen)
     {
-        int autoCloseTimer = door.getAutoClose();
-        if (autoCloseTimer < 0 || !door.isOpen())
+        if (door.getAutoClose() < 0 || !door.isOpen())
             return;
 
         // First delete any old timers that might still be running.
         deleteTimer(door.getDoorUID());
+        int delay = Math.max(plugin.getMinimumDoorDelay(), door.getAutoClose() * 20);
 
         timers.put(door.getDoorUID(), new BukkitRunnable()
         {
@@ -63,6 +63,6 @@ public class AutoCloseScheduler
                 }
                 deleteTimer(door.getDoorUID());
             }
-        }.runTaskLater(plugin, autoCloseTimer * 20));
+        }.runTaskLater(plugin, delay));
     }
 }

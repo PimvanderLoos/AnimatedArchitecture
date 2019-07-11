@@ -23,6 +23,10 @@
         <copy file="${resources}/plugin.yml" tofile="./target/classes/plugin.yml"/>
         <copy file="${resources}/config.yml" tofile="./target/classes/config.yml"/>
         <copy file="${resources}/en_US.txt" tofile="./target/classes/en_US.txt"/>
+
+        <delete file="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
+        <delete file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar"/>
+        <delete file="${basedir}/Servers/SpigotServer_1.14/plugins/BigDoors.jar"/>
     </target>
 	
     <target name="CreateJar" description="Create Jar file" depends="init">

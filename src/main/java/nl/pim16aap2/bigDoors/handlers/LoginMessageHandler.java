@@ -4,23 +4,22 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 
 public class LoginMessageHandler implements Listener
 {
-    BigDoors plugin;
-    String   message;
+    final BigDoors plugin;
 
-    public LoginMessageHandler(BigDoors plugin)
+    public LoginMessageHandler(final BigDoors plugin)
     {
-        this.plugin  = plugin;
+        this.plugin = plugin;
     }
 
     @EventHandler
-    public void onLogin(PlayerLoginEvent event)
+    public void onPlayerJoin(PlayerJoinEvent event)
     {
         Player player = event.getPlayer();
         // Normally, only send to those with permission, so they can disable it.
@@ -34,9 +33,9 @@ public class LoginMessageHandler implements Listener
                 public void run()
                 {
                     String loginString = plugin.getLoginString();
-                    if (loginString != "")
+                    if (!loginString.isEmpty())
                         player.sendMessage(ChatColor.AQUA + plugin.getLoginString());
                 }
-            }.runTaskLater(plugin, 10);
+            }.runTaskLater(plugin, 60);
     }
 }

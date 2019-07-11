@@ -2,9 +2,9 @@ package nl.pim16aap2.bigDoors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
@@ -23,7 +23,7 @@ import nl.pim16aap2.bigDoors.util.Util;
 public class Commander
 {
     private final BigDoors plugin;
-    private HashSet<Long> busyDoors;
+    private ConcurrentHashMap<Long, Boolean> busyDoors;
     private HashMap<UUID, String> players;
     private boolean goOn   = true;
     private boolean paused = false;
@@ -34,7 +34,7 @@ public class Commander
     {
         this.plugin = plugin;
         this.db     = db;
-        busyDoors   = new HashSet<>();
+        busyDoors   = new ConcurrentHashMap<>();
         messages    = plugin.getMessages();
         players     = new HashMap<>();
     }
@@ -53,7 +53,7 @@ public class Commander
     // Change the busy-status of a door.
     public void setDoorBusy(long doorUID)
     {
-        busyDoors.add(doorUID);
+        busyDoors.put(doorUID, true);
     }
 
     // Set the availability of the door.

@@ -255,28 +255,24 @@ public class CylindricalMover implements BlockMover
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door, currentDirection, rotDirection, -1);
         toggleOpen  (door);
+
         if (!onDisable)
+        {
             plugin.removeBlockMover(this);
-
-        // Change door availability to true, so it can be opened again.
-        // Wait for a bit if instantOpen is enabled.
-        int timer = onDisable   ?  0 :
-                    instantOpen ? 40 : plugin.getConfigLoader().coolDown() * 20;
-
-        if (timer > 0)
+            int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {
                 @Override
                 public void run()
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    if (door.isOpen())
+                        plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }
-            }.runTaskLater(plugin, timer);
+            }.runTaskLater(plugin, delay);
+        }
         else
             plugin.getCommander().setDoorAvailable(door.getDoorUID());
-
-        if (!onDisable && door.isOpen())
-            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
     // Method that takes care of the rotation aspect.
@@ -295,6 +291,7 @@ public class CylindricalMover implements BlockMover
             long startTime    = System.nanoTime();
             long lastTime;
             long currentTime  = System.nanoTime();
+            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -328,7 +325,11 @@ public class CylindricalMover implements BlockMover
 
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        putBlocks(false);
+                        if (!hasFinished)
+                        {
+                            putBlocks(false);
+                            hasFinished = true;
+                        }
                         return null;
                     });
                     cancel();

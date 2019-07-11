@@ -191,30 +191,24 @@ public class VerticalMover implements BlockMover
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, blocksToMove);
         toggleOpen  (door);
+
         if (!onDisable)
-            plugin.removeBlockMover(this);
-
-        // Change door availability to true, so it can be opened again.
-        // Wait for a bit if instantOpen is enabled.
-        int timer = onDisable   ?  0 :
-                    instantOpen ? 40 : plugin.getConfigLoader().coolDown() * 20;
-
-        if (timer > 0)
         {
+            plugin.removeBlockMover(this);
+            int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {
                 @Override
                 public void run()
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    if (door.isOpen())
+                        plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }
-            }.runTaskLater(plugin, timer);
+            }.runTaskLater(plugin, delay);
         }
         else
             plugin.getCommander().setDoorAvailable(door.getDoorUID());
-
-        if (!onDisable && door.isOpen())
-            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
     private Location getNewLocation(double xAxis, double yAxis, double zAxis)
@@ -236,6 +230,7 @@ public class VerticalMover implements BlockMover
             long lastTime;
             long currentTime = System.nanoTime();
             MyBlockData firstBlockData = savedBlocks.stream().filter(block -> !block.getMat().equals(Material.AIR)).findFirst().orElse(null);
+            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -264,7 +259,11 @@ public class VerticalMover implements BlockMover
                             savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        putBlocks(false);
+                        if (!hasFinished)
+                        {
+                            putBlocks(false);
+                            hasFinished = true;
+                        }
                         return null;
                     });
                     cancel();

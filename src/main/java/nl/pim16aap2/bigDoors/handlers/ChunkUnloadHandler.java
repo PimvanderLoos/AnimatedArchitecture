@@ -72,7 +72,8 @@ public class ChunkUnloadHandler implements Listener
 
         // Find any and all doors currently operating in the chunk that's to be unloaded.
         for (BlockMover bm : plugin.getBlockMovers())
-            if (bm.getDoor().chunkInRange(event.getChunk()))
+            if (bm.getDoor().getWorld().equals(event.getWorld()) &&
+                bm.getDoor().chunkInRange(event.getChunk()))
                 // Abort currently running chunks.
                 bm.getDoor().setCanGo(false);
     }

@@ -219,17 +219,24 @@ public class Door
         return difX <= roundedLength && difZ <= roundedLength;
     }
 
+    public int getRoundedLength()
+    {
+        if (roundedLength == null)
+            getLength();
+        return roundedLength;
+    }
+
     public int getLength()
     {
         if (length != null)
             return length;
-        int xLen = Math.abs(max.getBlockX() - min.getBlockX());
-        int zLen = Math.abs(max.getBlockZ() - min.getBlockZ());
+        int xLen = max.getBlockX() - min.getBlockX();
+        int zLen = max.getBlockZ() - min.getBlockZ();
 
         length = 1;
 
         // Regular door or Portcullis
-        if (type.equals(DoorType.DOOR) || type.equals(DoorType.PORTCULLIS))
+        if (type.equals(DoorType.DOOR) || type.equals(DoorType.PORTCULLIS) || type.equals(DoorType.ELEVATOR))
             length = xLen > zLen ? xLen : zLen;
 
         // Drawbridge
@@ -243,7 +250,7 @@ public class Door
         }
 
         // Portcullis engine is in the middle and doesn't rotate.
-        if (type.equals(DoorType.PORTCULLIS))
+        if (type.equals(DoorType.PORTCULLIS) || type.equals(DoorType.ELEVATOR))
             length /= 2;
 
         roundedLength = length / 16 + 1;

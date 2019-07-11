@@ -64,7 +64,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 public class BigDoors extends JavaPlugin implements Listener
 {
     public static final boolean DEVBUILD = true;
-
+    public static final int MINIMUMDOORDELAY = 10;
 
     private ToolVerifier tf;
     private SQLiteJDBCDriverConnection db;
@@ -110,8 +110,6 @@ public class BigDoors extends JavaPlugin implements Listener
         try
         {
             Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
-            if (DEVBUILD)
-                setLoginString("[BigDoors] Warning: You are running a devbuild!");
 
             validVersion = compatibleMCVer();
             // Load the files for the correct version of Minecraft.
@@ -126,6 +124,7 @@ public class BigDoors extends JavaPlugin implements Listener
             fakePlayerCreator = new FakePlayerCreator(this);
 
             init();
+
             headManager.init();
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
@@ -133,6 +132,7 @@ public class BigDoors extends JavaPlugin implements Listener
             Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
             Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler(this), this);
+
             // No need to put these in init, as they should not be reloaded.
             pbCache = new TimedCache<>(this, config.cacheTimeout());
             protCompatMan = new ProtectionCompatManager(this);
@@ -198,7 +198,7 @@ public class BigDoors extends JavaPlugin implements Listener
         blockMovers = new Vector<>(2);
         cmdWaiters  = new Vector<>(2);
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
-        loginString = "";
+        loginString = DEVBUILD ? "[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!" : "";
 
         if (config.enableRedstone())
         {
@@ -593,6 +593,11 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         final Door door = getCommander().getDoor(null, doorUID);
         return this.isOpen(door);
+    }
+
+    public int getMinimumDoorDelay()
+    {
+        return MINIMUMDOORDELAY;
     }
 
 //    public long createNewDoor(Location min, Location max, Location engine,

@@ -160,31 +160,23 @@ public class FlagMover implements BlockMover
         while (yAxis <= yMax);
         savedBlocks.clear();
 
-        // Tell the door object it has been opened and what its new coordinates are.
         if (!onDisable)
-            plugin.removeBlockMover(this);
-
-        // Change door availability to true, so it can be opened again.
-        // Wait for a bit if instantOpen is enabled.
-        int timer = onDisable   ?  0 :
-                    instantOpen ? 40 : plugin.getConfigLoader().coolDown() * 20;
-
-        if (timer > 0)
         {
+            plugin.removeBlockMover(this);
+            int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {
                 @Override
                 public void run()
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    if (door.isOpen())
+                        plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }
-            }.runTaskLater(plugin, timer);
+            }.runTaskLater(plugin, delay);
         }
         else
             plugin.getCommander().setDoorAvailable(door.getDoorUID());
-
-        if (!onDisable && door.isOpen())
-            plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, onDisable);
     }
 
     private Location getNewLocation(double xAxis, double yAxis, double zAxis)
