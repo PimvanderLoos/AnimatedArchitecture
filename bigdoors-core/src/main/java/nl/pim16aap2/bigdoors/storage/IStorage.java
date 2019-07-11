@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;

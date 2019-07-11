@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 
 import java.util.HashMap;

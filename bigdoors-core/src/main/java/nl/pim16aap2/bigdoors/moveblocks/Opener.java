@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 
 public abstract class Opener
 {

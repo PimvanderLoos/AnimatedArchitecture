@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.scheduler.BukkitRunnable;
 

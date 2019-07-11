@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigotutil;
+package nl.pim16aap2.bigdoors.util;
 
 /**
  * Represent the possible outcomes of trying to open a door.

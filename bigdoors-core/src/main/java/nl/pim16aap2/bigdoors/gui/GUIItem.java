@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

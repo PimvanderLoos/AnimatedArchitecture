@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -541,7 +541,7 @@ public abstract class DoorBase
     /**
      * Change the doorOwner of this door.
      *
-     * @param doorOwner The new {@link nl.pim16aap2.bigdoors.spigotutil.DoorOwner} doorOwner of this door
+     * @param doorOwner The new {@link DoorOwner} doorOwner of this door
      */
     public void setDoorOwner(DoorOwner doorOwner)
     {

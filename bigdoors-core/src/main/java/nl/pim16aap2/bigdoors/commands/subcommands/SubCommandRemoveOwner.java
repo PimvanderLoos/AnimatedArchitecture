@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

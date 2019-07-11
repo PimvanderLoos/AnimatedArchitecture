@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 
 public class FlagOpener extends Opener
 {

@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
