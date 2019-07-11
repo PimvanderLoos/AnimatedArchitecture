@@ -13,9 +13,9 @@ import nl.pim16aap2.bigdoors.spigotutil.Abortable;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockRelocator;
-import nl.pim16aap2.bigdoors.util.Messages;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -35,27 +35,26 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseManager extends Restartable
 {
-    private ConcurrentHashMap<Long, Boolean> busyDoors;
     // Players map stores players for faster UUID / Name matching.
+    private ConcurrentHashMap<Long, Boolean> busyDoors;
     private TimedMapCache<UUID, String> players;
     private boolean goOn = true;
     private boolean paused = false;
-    private final SQLiteJDBCDriverConnection db;
-    private Messages messages;
+    private final IStorage db;
     private final BigDoors plugin;
 
-    public DatabaseManager(final BigDoors plugin, final SQLiteJDBCDriverConnection db)
+    public DatabaseManager(final BigDoors plugin, final String dbFile)
     {
         super(plugin);
-        this.db = db;
+        db = new SQLiteJDBCDriverConnection(plugin, dbFile);
         this.plugin = plugin;
         busyDoors = new ConcurrentHashMap<>();
-        messages = plugin.getMessages();
         players = new TimedMapCache<>(plugin, HashMap::new, 1440);
     }
 
@@ -63,7 +62,6 @@ public class DatabaseManager extends Restartable
     public void restart()
     {
         busyDoors.clear();
-        messages = plugin.getMessages();
     }
 
     public boolean isDoorBusy(long doorUID)
@@ -192,7 +190,7 @@ public class DatabaseManager extends Restartable
     public void printDoors(Player player, ArrayList<DoorBase> doors)
     {
         for (DoorBase door : doors)
-            SpigotUtil.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
+            SpigotUtil.messagePlayer(player, door.getDoorUID() + ": " + door.getName());
     }
 
     public void addDoorBase(DoorBase newDoor)
@@ -219,24 +217,30 @@ public class DatabaseManager extends Restartable
 
     public void removeDoor(String playerUUID, String doorName)
     {
-        db.removeDoor(playerUUID, doorName);
+        db.removeDoors(playerUUID, doorName);
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
-    public ArrayList<DoorBase> getDoors(@NotNull UUID playerUUID, @Nullable String name)
+    public Optional<ArrayList<DoorBase>> getDoors(@NotNull UUID playerUUID, @Nullable String name)
     {
-        return name == null ? db.getDoors(playerUUID) : db.getDoors(playerUUID, name);
+        return name == null ? getDoors(playerUUID) : db.getDoors(playerUUID, name);
+    }
+
+    // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
+    public Optional<ArrayList<DoorBase>> getDoors(@NotNull UUID playerUUID)
+    {
+        return db.getDoors(playerUUID);
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null),
     // and where the player has a higher permission node (lower number) than specified.
-    public ArrayList<DoorBase> getDoors(String playerUUID, String name, int maxPermission)
+    public Optional<ArrayList<DoorBase>> getDoors(@NotNull String playerUUID, @NotNull String name, int maxPermission)
     {
         return db.getDoors(playerUUID, name, maxPermission);
     }
 
     // Returns an ArrayList of doors with a specific name.
-    public ArrayList<DoorBase> getDoors(String name)
+    public Optional<ArrayList<DoorBase>> getDoors(String name)
     {
         return db.getDoors(name);
     }
@@ -255,7 +259,7 @@ public class DatabaseManager extends Restartable
         if (uuidStr != null)
             return UUID.fromString(uuidStr);
 
-        UUID uuid = db.getUUIDFromName(playerName);
+        UUID uuid = db.getPlayerUUID(playerName);
         if (uuid != null)
             return uuid;
 
@@ -308,13 +312,14 @@ public class DatabaseManager extends Restartable
 //        return db.getDoor2(playerUUID, doorUID);
 //    }
 
-    public DoorBase getDoor(long doorUID)
+    public Optional<DoorBase> getDoor(long doorUID)
     {
-        return db.getDoor(null, doorUID);
+        return db.getDoor(doorUID);
     }
 
     // Get the door from the string. Can be use with a doorUID or a doorName.
-    public DoorBase getDoor(UUID playerUUID, String doorName) throws NotEnoughDoorsException, TooManyDoorsException
+    public Optional<DoorBase> getDoor(UUID playerUUID, String doorName)
+            throws NotEnoughDoorsException, TooManyDoorsException
     {
         // First try converting the doorName to a doorUID.
         try
@@ -327,7 +332,7 @@ public class DatabaseManager extends Restartable
         catch (NumberFormatException e)
         {
             if (playerUUID == null)
-                return null;
+                return Optional.empty();
             int count = countDoorsOwnedByPlayer(playerUUID, doorName);
             if (count == 0)
                 throw new NotEnoughDoorsException();
@@ -338,7 +343,7 @@ public class DatabaseManager extends Restartable
     }
 
     // Get a door with a specific doorUID.
-    public DoorBase getDoor(UUID playerUUID, long doorUID)
+    public Optional<DoorBase> getDoor(UUID playerUUID, long doorUID)
     {
         return db.getDoor(playerUUID, doorUID);
     }
@@ -433,9 +438,9 @@ public class DatabaseManager extends Restartable
         return db.removeOwner(doorUID, playerUUID.toString());
     }
 
-    public ArrayList<DoorOwner> getDoorOwners(long doorUID, UUID playerUUID)
+    public ArrayList<DoorOwner> getDoorOwners(long doorUID)
     {
-        return db.getOwnersOfDoor(doorUID, playerUUID);
+        return db.getOwnersOfDoor(doorUID);
     }
 
     public void updateDoorOpenDirection(long doorUID, RotateDirection openDir)
@@ -460,7 +465,7 @@ public class DatabaseManager extends Restartable
     }
 
     // Get a door from the x,y,z coordinates of its power block.
-    public DoorBase doorFromPowerBlockLoc(Location loc)
+    public Optional<DoorBase> doorFromPowerBlockLoc(Location loc)
     {
         long chunkHash = SpigotUtil.chunkHashFromLocation(loc);
         HashMap<Long, Long> powerBlockData = plugin.getPBCache().get(chunkHash);
@@ -471,18 +476,21 @@ public class DatabaseManager extends Restartable
         }
 
         Long doorUID = powerBlockData.get((long) loc.hashCode());
-        return doorUID == null ? null : db.getDoor(null, doorUID);
+        return Optional.ofNullable(doorUID == null ? null : db.getDoor(doorUID).orElse(null));
     }
 
     // Change the location of a powerblock.
-    public void updatePowerBlockLoc(long doorUID, Location loc)
+    public void updatePowerBlockLoc(long doorUID, @NotNull Location loc)
     {
-        plugin.getPBCache().remove(db.getDoor(null, doorUID).getPowerBlockChunkHash());
+        // First, remove the chunk with the current power block location of this door from cache.
+        db.getDoor(doorUID).ifPresent(door -> plugin.getPBCache().remove(door.getPowerBlockChunkHash()));
         db.updateDoorPowerBlockLoc(doorUID, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getUID());
+        // Also make sure to remove the chunk of the new location of the power block from cache, so it gets
+        // updated whenever its needed again.
         plugin.getPBCache().remove(SpigotUtil.chunkHashFromLocation(loc));
     }
 
-    public boolean isPowerBlockLocationValid(Location loc)
+    public boolean isPowerBlockLocationValid(@NotNull Location loc)
     {
         return db.isPowerBlockLocationEmpty(loc);
     }

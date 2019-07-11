@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import javax.annotation.Nonnull;
-
-import org.bukkit.Location;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
+import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Sliding Door doorType.
@@ -38,13 +37,13 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
         int distanceZ = 0;
         if (getOpenDir().equals(RotateDirection.NORTH) || getOpenDir().equals(RotateDirection.SOUTH))
             distanceZ = (blocksToMove > 0 ? Math.max(dimensions.getZ(), blocksToMove) :
-                Math.min(-dimensions.getZ(), blocksToMove)) / 16 + 1;
+                         Math.min(-dimensions.getZ(), blocksToMove)) / 16 + 1;
         else
             distanceX = (blocksToMove > 0 ? Math.max(dimensions.getX(), blocksToMove) :
-                Math.min(-dimensions.getX(), blocksToMove)) / 16 + 1;
+                         Math.min(-dimensions.getX(), blocksToMove)) / 16 + 1;
 
-        return new Vector2D[] { new Vector2D(getChunk().getX() - distanceX, getChunk().getZ() - distanceZ),
-                                new Vector2D(getChunk().getX() + distanceX, getChunk().getZ() + distanceZ) };
+        return new Vector2D[]{new Vector2D(getChunk().getX() - distanceX, getChunk().getZ() - distanceZ),
+                              new Vector2D(getChunk().getX() + distanceX, getChunk().getZ() + distanceZ)};
     }
 
     /**
@@ -56,20 +55,20 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
         PBlockFace looking;
         switch (openDir)
         {
-        case NORTH:
-            looking = PBlockFace.NORTH;
-            break;
-        case EAST:
-            looking = PBlockFace.EAST;
-            break;
-        case SOUTH:
-            looking = PBlockFace.SOUTH;
-            break;
-        case WEST:
-            looking = PBlockFace.WEST;
-            break;
-        default:
-            return null;
+            case NORTH:
+                looking = PBlockFace.NORTH;
+                break;
+            case EAST:
+                looking = PBlockFace.EAST;
+                break;
+            case SOUTH:
+                looking = PBlockFace.SOUTH;
+                break;
+            case WEST:
+                looking = PBlockFace.WEST;
+                break;
+            default:
+                return null;
         }
         return isOpen ? PBlockFace.getOpposite(looking) : looking;
     }
@@ -93,17 +92,18 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     public RotateDirection cycleOpenDirection()
     {
         return openDir.equals(RotateDirection.NORTH) ? RotateDirection.EAST :
-            openDir.equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
-            openDir.equals(RotateDirection.SOUTH) ? RotateDirection.WEST :
-            openDir.equals(RotateDirection.WEST) ? RotateDirection.NORTH : null;
+               openDir.equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
+               openDir.equals(RotateDirection.SOUTH) ? RotateDirection.WEST :
+               openDir.equals(RotateDirection.WEST) ? RotateDirection.NORTH : null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, @Nonnull RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, @NotNull RotateDirection rotateDirection,
+                                @NotNull Location newMin,
+                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
     {
         int addX = 0, addZ = 0;
 

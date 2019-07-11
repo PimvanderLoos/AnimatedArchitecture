@@ -68,7 +68,7 @@ public abstract class BlockMover
         isAborted.set(true);
     }
 
-    void constructFBlocks()
+    protected void constructFBlocks()
     {
         for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
             for (int yAxis = yMin; yAxis <= yMax; ++yAxis)

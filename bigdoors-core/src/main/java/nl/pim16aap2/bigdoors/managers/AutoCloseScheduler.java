@@ -42,12 +42,15 @@ public class AutoCloseScheduler extends Restartable
 
     public void scheduleAutoClose(DoorBase door, double time, boolean instantOpen)
     {
-        if (door.getAutoClose() < 0 || !door.isOpen())
+        int autoCloseTimer = door.getAutoClose();
+        if (autoCloseTimer < 0 || !door.isOpen())
             return;
 
         // First delete any old timers that might still be running.
         deleteTimer(door.getDoorUID());
-        int delay = Math.max(plugin.getMinimumDoorDelay(), door.getAutoClose() * 20);
+        // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the door
+        // available again.
+        int delay = Math.min(plugin.getMinimumDoorDelay() + 2, autoCloseTimer * 20);
 
         timers.put(door.getDoorUID(), new BukkitRunnable()
         {
@@ -57,13 +60,12 @@ public class AutoCloseScheduler extends Restartable
                 if (door.isOpen())
                 {
                     plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
-                    plugin.getDoorOpener(door.getType())
-                          .openDoor(plugin.getDatabaseManager().getDoor(door.getDoorUID()),
-                                    time, instantOpen, false);
+                    plugin.getDatabaseManager().getDoor(door.getDoorUID())
+                          .ifPresent(door -> plugin.getDoorOpener(door.getType())
+                                                   .openDoor(door, time, instantOpen, false));
                 }
                 deleteTimer(door.getDoorUID());
             }
-            // Hard-code a slight delay on top of MinimumDoorDelay, to make sure it's fully updated after the last toggle.
         }.runTaskLater(plugin, delay));
     }
 

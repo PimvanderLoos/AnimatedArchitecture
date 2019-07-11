@@ -46,10 +46,10 @@ public class SubCommandListPlayerDoors extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
             throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException
     {
-        ArrayList<DoorBase> doors = new ArrayList<>();
         UUID playerUUID = CommandManager.getPlayerFromArg(args[0]);
         String name = args.length > 1 ? args[1] : null;
-        doors.addAll(plugin.getDatabaseManager().getDoors(playerUUID, name));
+        ArrayList<DoorBase> doors = new ArrayList<>(
+                plugin.getDatabaseManager().getDoors(playerUUID, name).orElse(new ArrayList<>()));
         return execute(sender, doors);
     }
 }

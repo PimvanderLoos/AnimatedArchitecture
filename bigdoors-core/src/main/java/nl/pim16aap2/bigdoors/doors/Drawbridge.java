@@ -7,6 +7,8 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a DrawBrige doorType.
@@ -112,8 +114,8 @@ public class Drawbridge extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
+                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
     {
         int xLen = dimensions.getX();
         int yLen = dimensions.getY();

@@ -1,10 +1,9 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 public class PowerBlockRelocator extends ToolUser
 {
@@ -21,7 +20,7 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     protected void triggerGiveTool()
     {
-        giveToolToPlayer(messages.getString("CREATOR.PBRELOCATOR.StickLore"    ).split("\n"),
+        giveToolToPlayer(messages.getString("CREATOR.PBRELOCATOR.StickLore").split("\n"),
                          messages.getString("CREATOR.PBRELOCATOR.StickReceived").split("\n"));
     }
 

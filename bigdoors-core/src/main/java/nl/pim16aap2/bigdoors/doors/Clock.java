@@ -10,34 +10,23 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+
 /**
- * Represents a Flag doorType.
+ * Represents a Clock doorType.
  *
- * @author Pim
- * @see DoorBase
+ * @author pim
+ * @see HorizontalAxisAlignedBase
  */
-public class Flag extends DoorBase
+public class Clock extends HorizontalAxisAlignedBase
 {
-    Flag(BigDoors plugin, long doorUID, DoorType type)
+    Clock(BigDoors plugin, long doorUID, DoorType type)
     {
         super(plugin, doorUID, type);
     }
 
-    Flag(BigDoors plugin, long doorUID)
+    Clock(BigDoors plugin, long doorUID)
     {
-        super(plugin, doorUID, DoorType.FLAG);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PBlockFace calculateCurrentDirection()
-    {
-        return engine.getBlockZ() != min.getBlockZ() ? PBlockFace.NORTH :
-               engine.getBlockX() != max.getBlockX() ? PBlockFace.EAST :
-               engine.getBlockZ() != max.getBlockZ() ? PBlockFace.SOUTH :
-               engine.getBlockX() != min.getBlockX() ? PBlockFace.WEST : null;
+        this(plugin, doorUID, DoorType.WINDMILL);
     }
 
     /**
@@ -55,33 +44,39 @@ public class Flag extends DoorBase
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Because flags do not actually open in any direction, the open direction simply the same as {@link
-     * #getCurrentDirection()}.
+     */
+    @Override
+    public PBlockFace calculateCurrentDirection()
+    {
+        switch (openDir)
+        {
+            case NORTH:
+                return PBlockFace.NORTH;
+            case EAST:
+                return PBlockFace.EAST;
+            case SOUTH:
+                return PBlockFace.SOUTH;
+            case WEST:
+                return PBlockFace.WEST;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void setDefaultOpenDirection()
     {
-        setOpenDir(RotateDirection.valueOf(getCurrentDirection().toString()));
+        if (onNorthSouthAxis())
+            openDir = RotateDirection.NORTH;
+        else
+            openDir = RotateDirection.EAST;
     }
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Because flags do not actually open in any direction, cycling the openDirection is not possible.
-     *
-     * @return The current open direction.
-     */
-    @Override
-    public RotateDirection cycleOpenDirection()
-    {
-        return openDir;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Because flags do not move when toggled, newMin and newMax are simply equal to the current min and max.
      */
     @Override
     public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,

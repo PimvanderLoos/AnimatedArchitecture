@@ -1,18 +1,15 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-
 /**
- * This class represents players in the process of creating doors. Objects of
- * this class are instantiated when the createdoor command is used and they are
- * destroyed after The creation process has been completed successfully or the
- * timer ran out. In EventHandlers this class is used To check whether a user
- * that is left-clicking is a DoorCreator && tell this class a left-click
- * happened.
+ * This class represents players in the process of creating doors. Objects of this class are instantiated when the
+ * createdoor command is used and they are destroyed after The creation process has been completed successfully or the
+ * timer ran out. In EventHandlers this class is used To check whether a user that is left-clicking is a DoorCreator &&
+ * tell this class a left-click happened.
  **/
 public class GarageDoorCreator extends BigDoorCreator
 {

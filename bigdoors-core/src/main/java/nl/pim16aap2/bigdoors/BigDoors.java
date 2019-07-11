@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors;
 
 import nl.pim16aap2.bigdoors.api.IFallingBlockFactory;
+import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.commands.CommandBigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandMenu;
@@ -58,17 +59,17 @@ import nl.pim16aap2.bigdoors.moveblocks.RevolvingDoorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingDoorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.WindmillOpener;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
+import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.GlowingBlockSpawner_V1_14_R1;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import nl.pim16aap2.bigdoors.spigotutil.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
 import nl.pim16aap2.bigdoors.util.IRestartable;
-import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.RestartableHolder;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -91,12 +92,27 @@ import java.util.UUID;
 import java.util.Vector;
 
 /*
+ * Moonshoots
+ */
+// TODO: Make blocks massive
+// TODO: Implement perpetual motion (for flags, clocks, ??).
+
+/*
  * Modules
  */
 // TODO: Use AbstractWorld and AbstractLocation etc for API related stuff.
 // TODO: Put Config-related stuff in SpigotUtil and don't use Bukkit stuff for reading it. Just give it a regular file.
-// TODO: Create a way of implementation-specific logging (i.e. MessagePlayer and LogToConsole).
 // TODO: Put isAllowed block and such in appropriate modules.
+// TODO: Remove BigDoors dependency in SQLiteJDBCDriverConnection class.
+
+/*
+ * Messages
+ */
+// TODO: Redo all messages. Create enum to store them, to prevent typos and to use for string replacing.
+//       Then get a replace function to insert variables. Example: getMessage(Message.PAGENUM, new String(currentPage), new String(nextPage)).
+// TODO: Store Message in GUI page. Then use that instead of reverse string search of messages to check if an inventory if a BigDoors inventory.
+// TODO: Put all messages in enum.
+// TODO: Replace all Messages#getString(String).
 
 /*
  * Experimental
@@ -116,7 +132,7 @@ import java.util.Vector;
 //       This is a huge waste of Ram. The falling block should be the only place to store the block data.
 // TODO: Instead of killing the FBlock, rotating it and then respawning it, rotate the FBlockData and then send the appropriate packets to the appropriate players.
 // TODO: Add command to upload error log to pastebin or something similar.
-// TODO: Add config option to limit logging file size.
+// TODO: Add config option to limit logging file size: https://kodejava.org/how-do-i-limit-the-size-of-log-file/
 // TODO: Look into previously-blacklisted material. Torches, for example, work just fine in 1.13. They just need to be removed first and placed last.
 // TODO: Replace the enum of DoorTypes by a static list. Types should then statically register themselves.
 // TODO: Figure out a way to use Interfaces or something to generate 2 separate builds: Premium and non-premium.
@@ -147,6 +163,10 @@ import java.util.Vector;
 //       "Enabled PlotSquared support, but failed to initialize it!", "Trying to load on version X, but this version isn't supported!", etc.
 // TODO: Write a events to open doors. It should be able to retrieve door from the database on a secondary thread and also check offline permission on the second thread.
 // TODO: Special PBlockData subclass for every type of opener. This is a messy system.
+// TODO: Use Spigot Premium's placeholders: https://www.spigotmc.org/wiki/premium-resource-placeholders-identifiers/
+//       Then send the placeholder to my site on startup. Why? As evidence the buyer has, in fact, downloaded the plugin.
+//       This could be useful in case of a PayPal chargeback.
+
 
 /*
  * General
@@ -180,11 +200,15 @@ import java.util.Vector;
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
 // TODO: When truncating exceptions etc, make sure to write it down in the log.
 // TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
-// TODO: Do not enable PlotSquared and WorldGuard by default.
+// TODO: Do not enable PlotSquared and WorldGuard etc by default.
 // TODO: Make sure redstone block checking is within bounds.
 // TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
 // TODO: Allow wand material selection in config.
 // TODO: Get rid of code duplication in ProtectionCompatManager.
+// TODO: Make sure permission checking for offline users isn't done on the main thread.
+// TODO: Make timeout for CommandWaiters and Creators configurable and put variable in messages.
+// TODO: Look into scheduleAutoClose(). It can probably be simplified.
+// TODO: Rename ListenerClasses to nameListener instead of Handler.
 // TODO: Cache value of DoorBase#getPowerBlockChunkHash().
 
 /*
@@ -245,6 +269,8 @@ import java.util.Vector;
 // TODO: SubCommandSetRotation should be updated/removed, as it doesn't work properly with types that do not go (counter)clockwise.
 // TODO: Make system similar to door initialization for DoorCreators. Look at SubCommandNew.
 // TODO: Also look into SubCommandRemoveOwner.
+// TODO: Let users verify door price (if more than 0) if they're buying a door.
+// TODO: What's going on with the newDoor variable in SubCommandToggle::execute(CommandSender, DoorBase, double)?
 
 /*
  * Openers / Movers
@@ -273,7 +299,7 @@ import java.util.Vector;
 // TODO: Drawbridge: Learn from WindmillMover and simplify the class. Also applies to CylindricalMover.
 // TODO: Clamp angles to [-2PI ; 2PI].
 // TODO: Either use time or ticks. Not both.
-// TODO: Use the GetNewLocation code to check new pos etc.
+// TODO: Use the IGetNewLocation code to check new pos etc.
 // TODO: Make sure the new types don't just open instantly without a provided time parameter    !!!!!!!!
 // TODO: Rename variables in updateCoords to avoid confusion. Perhaps a complete removal altogether would be nice as well.
 // TODO: Get rid of the GNL interface etc. The movers class can handle it on its own using Function interface.
@@ -311,6 +337,10 @@ import java.util.Vector;
 // TODO: Make sure that new lines in the messages work (check SpigotUtil::stringFromArray).
 // TODO: Fix no permission to set AutoCloseTime from GUI.
 // TODO: Check if TimedCache#containsValue() works properly.
+// TODO: What happens when a player is given a creator stick while their inventory is full?
+// TODO: Test if all database methods still function correctly.
+// TODO: Make sure removing owners still works (after SQL changes).
+// TODO: Verify all database stuff.
 
 /*
  * Unit tests
@@ -318,8 +348,12 @@ import java.util.Vector;
 // TODO: Test that Creators and Openers of all enabled types can be properly retrieved (e.g. in BigDoors::getDoorOpener(DoorType type);
 //       And that they are properly initialized.
 // TODO: Make sure the auto updater ALWAYS works.
+// TODO: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
+// TODO: https://www.spigotmc.org/threads/using-junit-to-test-plugins.71420/#post-789671
+// TODO: https://github.com/seeseemelk/MockBukkit
+// TODO: Write unit tests for all database stuff.
 
-public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
+public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
 {
     public static final boolean DEVBUILD = true;
     // Minimum number of ticks a door needs to cool down before it can be
@@ -328,7 +362,6 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     private static final int MINIMUMDOORDELAY = 10;
 
     private ToolVerifier tf;
-    private SQLiteJDBCDriverConnection db;
     private IFallingBlockFactory fabf;
     private ConfigLoader config;
     private PLogger logger;
@@ -364,6 +397,8 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
 
     private HeadManager headManager;
 
+    private IGlowingBlockSpawner glowingBlockSpawner;
+
     @Override
     public void onEnable()
     {
@@ -397,8 +432,7 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
             pbCache = new TimedMapCache<>(this, Hashtable::new, config.cacheTimeout());
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
-            db = new SQLiteJDBCDriverConnection(this, config.dbFile());
-            databaseManager = new DatabaseManager(this, db);
+            databaseManager = new DatabaseManager(this, config.dbFile());
 
             doorOpener = new DoorOpener(this);
             flagOpener = new FlagOpener(this);
@@ -587,6 +621,11 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     public IFallingBlockFactory getFABF()
     {
         return fabf;
+    }
+
+    public IGlowingBlockSpawner getGlowingBlockSpawner()
+    {
+        return glowingBlockSpawner;
     }
 
     public BigDoors getPlugin()
@@ -782,7 +821,10 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
 
         fabf = null;
         if (version.equals("v1_14_R1"))
+        {
+            glowingBlockSpawner = new GlowingBlockSpawner_V1_14_R1();
             fabf = new FallingBlockFactory_V1_14_R1();
+        }
 
         // Return true if compatible.
         return fabf != null;
@@ -816,22 +858,25 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     // Toggle a door from a doorUID and instantly or not.
     public boolean toggleDoor(long doorUID, boolean instantOpen)
     {
-        final DoorBase door = getDatabaseManager().getDoor(null, doorUID);
-        return toggleDoor(door, 0.0, instantOpen) == DoorOpenResult.SUCCESS;
+        return getDatabaseManager().getDoor(doorUID)
+                                   .filter(door -> toggleDoor(door, 0.0, instantOpen) == DoorOpenResult.SUCCESS)
+                                   .isPresent();
     }
 
     // Toggle a door from a doorUID and a given time.
     public boolean toggleDoor(long doorUID, double time)
     {
-        final DoorBase door = getDatabaseManager().getDoor(null, doorUID);
-        return toggleDoor(door, time, false) == DoorOpenResult.SUCCESS;
+        return getDatabaseManager().getDoor(doorUID)
+                                   .filter(door -> toggleDoor(door, time, false) == DoorOpenResult.SUCCESS)
+                                   .isPresent();
     }
 
     // Toggle a door from a doorUID using default values.
     public boolean toggleDoor(long doorUID)
     {
-        final DoorBase door = getDatabaseManager().getDoor(null, doorUID);
-        return toggleDoor(door, 0.0, false) == DoorOpenResult.SUCCESS;
+        return getDatabaseManager().getDoor(doorUID)
+                                   .filter(door -> toggleDoor(door, 0.0, false) == DoorOpenResult.SUCCESS)
+                                   .isPresent();
     }
 
     // Check the open-status of a door.
@@ -843,8 +888,9 @@ public class BigDoors extends JavaPlugin implements Listener, RestartableHolder
     // Check the open-status of a door from a doorUID.
     public boolean isOpen(long doorUID)
     {
-        final DoorBase door = getDatabaseManager().getDoor(null, doorUID);
-        return isOpen(door);
+        return getDatabaseManager().getDoor(doorUID)
+                                   .filter(door -> isOpen(door.getDoorUID()))
+                                   .isPresent();
     }
 
 //    public long createNewDoor(Location min, Location max, Location engine,

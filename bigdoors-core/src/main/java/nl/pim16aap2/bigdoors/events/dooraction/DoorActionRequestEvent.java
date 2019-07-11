@@ -1,17 +1,17 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
-import java.util.UUID;
-
-import nl.pim16aap2.bigdoors.events.PCancellable;
+import nl.pim16aap2.bigdoors.events.IPCancellable;
 import nl.pim16aap2.bigdoors.events.PEvent;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 /**
  * Represents an action that is requested of a door.
  *
  * @author Pim
  */
-public class DoorActionRequestEvent extends PEvent implements PCancellable
+public class DoorActionRequestEvent extends PEvent implements IPCancellable
 {
     private final long doorUID;
     private final DoorActionCause cause;
@@ -21,7 +21,7 @@ public class DoorActionRequestEvent extends PEvent implements PCancellable
     private String name = null;
 
     public DoorActionRequestEvent(final long doorUID, final DoorActionCause cause, final DoorActionType actionType,
-        @Nullable UUID initiator)
+                                  @Nullable UUID initiator)
     {
         this.doorUID = doorUID;
         this.cause = cause;
@@ -57,8 +57,8 @@ public class DoorActionRequestEvent extends PEvent implements PCancellable
     /**
      * If a player was the cause of this door action request, get that player.
      *
-     * @return The UUID of the player that requested this door action, otherwise
-     *         null.
+     * @return The UUID of the player that requested this door action, otherwise null.
+     *
      * @see DoorActionRequestEvent#getCause()
      */
     public @Nullable UUID getInitiator()
@@ -68,7 +68,7 @@ public class DoorActionRequestEvent extends PEvent implements PCancellable
 
     /**
      * Get the type of action action requested.
-     * 
+     *
      * @return The type of the requested action.
      */
     public DoorActionType getActionType()
@@ -79,14 +79,16 @@ public class DoorActionRequestEvent extends PEvent implements PCancellable
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setCancelled(boolean cancel)
     {
-        this.isCancelled = cancel;
+        isCancelled = cancel;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isCancelled()
     {
         return isCancelled;

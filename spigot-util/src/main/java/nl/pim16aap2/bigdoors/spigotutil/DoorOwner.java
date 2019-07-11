@@ -16,7 +16,7 @@ public class DoorOwner
 
     /**
      * Constructor of {@link DoorOwner}.
-     * 
+     *
      * @param doorUID    The UID of the DoorBase.
      * @param playerUUID The UUID of the player that owns the given door.
      * @param playerName The name of the player that owns the given door.
@@ -80,18 +80,10 @@ public class DoorOwner
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("doorUID: ");
-        sb.append(doorUID);
-
-        sb.append(". playerUUID: ");
-        sb.append(playerUUID.toString());
-
-        sb.append(". Permission: ");
-        sb.append(permission);
-
-        sb.append(". PlayerName: ");
-        sb.append(playerName);
-        return sb.toString();
+        String sb = "doorUID: " + doorUID +
+                ". playerUUID: " + playerUUID.toString() +
+                ". Permission: " + permission +
+                ". PlayerName: " + playerName;
+        return sb;
     }
 }

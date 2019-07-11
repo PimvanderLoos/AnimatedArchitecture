@@ -26,7 +26,7 @@ public class PLogger
     private static AtomicLong queueProcessor = null;
     private final IMessagingInterface messagingInterface;
     private boolean success = false;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss SSS");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
     private boolean debug = false;
 
     /**
@@ -323,7 +323,7 @@ public class PLogger
             numberOfLines = 0;
         StringBuilder sb = new StringBuilder();
         for (int idx = 1; (idx == 0 || idx < (numberOfLines + 1)) && idx < stackTrace.length; ++idx)
-            sb.append("    " + stackTrace[idx] + "\n");
+            sb.append("    ").append(stackTrace[idx]).append("\n");
         return sb.toString();
     }
 

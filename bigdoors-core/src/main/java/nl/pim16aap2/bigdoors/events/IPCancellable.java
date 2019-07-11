@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.events;
 
-public interface PCancellable
+public interface IPCancellable
 {
     /**
      * Checks if this event has been cancelled or not.

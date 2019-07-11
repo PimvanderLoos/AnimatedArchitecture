@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 /*
  * This class represents players in the process of creating doors.
@@ -31,7 +30,7 @@ public class DrawbridgeCreator extends Creator
     @Override
     protected void triggerGiveTool()
     {
-        giveToolToPlayer(messages.getString("CREATOR.DRAWBRIDGE.StickLore"    ).split("\n"),
+        giveToolToPlayer(messages.getString("CREATOR.DRAWBRIDGE.StickLore").split("\n"),
                          messages.getString("CREATOR.DRAWBRIDGE.StickReceived").split("\n"));
     }
 
@@ -50,17 +49,17 @@ public class DrawbridgeCreator extends Creator
     // Check if the engine selection is valid.
     protected boolean isEngineValid(Location loc)
     {
-     // One is always the bottom one, so this makes sure it's on the bottom row.
+        // One is always the bottom one, so this makes sure it's on the bottom row.
         if (loc.getBlockY() != one.getBlockY())
             return false;
 
         boolean onEdge = loc.getBlockX() == one.getBlockX() ||
-                         loc.getBlockX() == two.getBlockX() ||
-                         loc.getBlockZ() == one.getBlockZ() ||
-                         loc.getBlockZ() == two.getBlockZ();
+                loc.getBlockX() == two.getBlockX() ||
+                loc.getBlockZ() == one.getBlockZ() ||
+                loc.getBlockZ() == two.getBlockZ();
 
         boolean inArea = Util.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
-                         Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
+                Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
 
         if (!onEdge || !inArea || (engine != null && loc.equals(engine)))
             return false;
@@ -109,12 +108,12 @@ public class DrawbridgeCreator extends Creator
             int posZ = loc.getBlockZ();
 
             if (loc.equals(one) || loc.equals(two) || // "bottom left" or "top right" (on 2d grid)
-               (posX == one.getBlockX() && posZ == two.getBlockZ()) || // "top left"
-               (posX == two.getBlockX() && posZ == one.getBlockZ()))
+                    (posX == one.getBlockX() && posZ == two.getBlockZ()) || // "top left"
+                    (posX == two.getBlockX() && posZ == one.getBlockZ()))
                 engine = loc;
             else
             {
-                if      (posZ == one.getBlockZ())
+                if (posZ == one.getBlockZ())
                     engineSide = PBlockFace.NORTH;
                 else if (posZ == two.getBlockZ())
                     engineSide = PBlockFace.SOUTH;
@@ -213,7 +212,8 @@ public class DrawbridgeCreator extends Creator
         String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
         if (canBreakBlock != null)
         {
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
+            SpigotUtil.messagePlayer(player,
+                                     messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
             return;
         }
 

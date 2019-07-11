@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.handlers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOpenResult;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -18,16 +16,18 @@ public class RedstoneHandler implements Listener
         this.plugin = plugin;
     }
 
-    public boolean checkDoor(Location loc)
+    private void checkDoor(Location loc)
     {
-        DoorBase door = plugin.getDatabaseManager().doorFromPowerBlockLoc(loc);
-
-        if (door != null && !door.isLocked())
-        {
-            plugin.getDatabaseManager().isDoorBusy(door.getDoorUID());
-            return plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, false) == DoorOpenResult.SUCCESS;
-        }
-        return false;
+        plugin.getDatabaseManager().doorFromPowerBlockLoc(loc).ifPresent(door ->
+                                                                         {
+                                                                             if (!door.isLocked())
+                                                                                 plugin.getDoorOpener(
+                                                                                         door.getType())
+                                                                                       .openDoor(door, 0.0,
+                                                                                                 false,
+                                                                                                 true);
+                                                                         }
+        );
     }
 
     // When redstone changes, check if there's a power block on any side of it (just

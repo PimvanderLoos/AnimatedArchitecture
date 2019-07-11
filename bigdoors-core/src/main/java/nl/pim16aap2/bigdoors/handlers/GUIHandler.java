@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.handlers;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.gui.GUI;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
-import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

@@ -1,10 +1,12 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import org.bukkit.*;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.Util;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -13,8 +15,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.Util;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Represents various small and Spigot-specific utility functions.
@@ -49,6 +52,7 @@ public final class SpigotUtil
 
     private static final Map<PBlockFace, BlockFace> toBlockFace = new HashMap<>();
     private static final Map<BlockFace, PBlockFace> toPBlockFace = new HashMap<>();
+
     static
     {
         for (PBlockFace mbf : PBlockFace.values())
@@ -60,11 +64,9 @@ public final class SpigotUtil
     }
 
     /**
-     * Get the {@link PBlockFace} parallel to the given
-     * {@link org.bukkit.block.BlockFace}.
+     * Get the {@link PBlockFace} parallel to the given {@link org.bukkit.block.BlockFace}.
      *
-     * @param mbf {@link PBlockFace} that will be
-     *            converted.
+     * @param mbf {@link PBlockFace} that will be converted.
      * @return The parallel {@link org.bukkit.block.BlockFace}.
      */
     public static BlockFace getBukkitFace(PBlockFace mbf)
@@ -73,8 +75,7 @@ public final class SpigotUtil
     }
 
     /**
-     * Get the {@link org.bukkit.block.BlockFace} parallel to the given
-     * {@link PBlockFace}.
+     * Get the {@link org.bukkit.block.BlockFace} parallel to the given {@link PBlockFace}.
      *
      * @param bf {@link org.bukkit.block.BlockFace} that will be converted.
      * @return The parallel {@link PBlockFace}.
@@ -109,8 +110,7 @@ public final class SpigotUtil
     }
 
     /**
-     * Convert a location to a nicely formatted string of x:y:z using doubles
-     * rounded to 2 decimals.
+     * Convert a location to a nicely formatted string of x:y:z using doubles rounded to 2 decimals.
      *
      * @param loc The location to convert to a string.
      * @return A string of the coordinates of the location.
@@ -134,10 +134,8 @@ public final class SpigotUtil
     /**
      * Get the hash of a Chunk location.
      *
-     * @param x         The X-coordinate of the position in the world (NOT the chunk
-     *                  coordinate!).
-     * @param z         The Z-coordinate of the position in the world (NOT the chunk
-     *                  coordinate!).
+     * @param x         The X-coordinate of the position in the world (NOT the chunk coordinate!).
+     * @param z         The Z-coordinate of the position in the world (NOT the chunk coordinate!).
      * @param worldUUID The UUID of the world.
      * @return The hash of the Chunk location.
      */
@@ -223,8 +221,7 @@ public final class SpigotUtil
     }
 
     /**
-     * Play a sound for all players in a range of 15 blocks around the provided
-     * location.
+     * Play a sound for all players in a range of 15 blocks around the provided location.
      *
      * @param loc    The location of the sound.
      * @param sound  The name of the sound.
@@ -252,8 +249,7 @@ public final class SpigotUtil
     }
 
     /**
-     * Retrieve the limit of the door size (measured in blocks) a given player can
-     * own.
+     * Retrieve the limit of the door size (measured in blocks) a given player can own.
      *
      * @param player The player for whom to retrieve the limit.
      * @return The limit if one was found, or -1 if unlimited.
@@ -272,8 +268,7 @@ public final class SpigotUtil
      *
      * @param player         The player whose permissions to check.
      * @param permissionNode The base permission node.
-     * @return The highest value of the variable suffix of the permission node or -1
-     *         if none was found.
+     * @return The highest value of the variable suffix of the permission node or -1 if none was found.
      */
     private static int getHighestPermissionSuffix(Player player, String permissionNode)
     {
@@ -341,6 +336,7 @@ public final class SpigotUtil
      *
      * @param mat Material to be checked.
      * @return True if it needs to be refreshed.
+     *
      * @deprecated I'm pretty sure this is no longer needed.
      */
     @Deprecated
@@ -348,45 +344,44 @@ public final class SpigotUtil
     {
         switch (mat)
         {
-        case ACACIA_FENCE:
-        case ACACIA_FENCE_GATE:
-        case BIRCH_FENCE:
-        case BIRCH_FENCE_GATE:
-        case DARK_OAK_FENCE:
-        case DARK_OAK_FENCE_GATE:
-        case JUNGLE_FENCE:
-        case JUNGLE_FENCE_GATE:
-        case OAK_FENCE:
-        case OAK_FENCE_GATE:
-        case SPRUCE_FENCE:
-        case SPRUCE_FENCE_GATE:
-        case NETHER_BRICK_FENCE:
+            case ACACIA_FENCE:
+            case ACACIA_FENCE_GATE:
+            case BIRCH_FENCE:
+            case BIRCH_FENCE_GATE:
+            case DARK_OAK_FENCE:
+            case DARK_OAK_FENCE_GATE:
+            case JUNGLE_FENCE:
+            case JUNGLE_FENCE_GATE:
+            case OAK_FENCE:
+            case OAK_FENCE_GATE:
+            case SPRUCE_FENCE:
+            case SPRUCE_FENCE_GATE:
+            case NETHER_BRICK_FENCE:
 
-        case COBBLESTONE_WALL:
-        case IRON_BARS:
+            case COBBLESTONE_WALL:
+            case IRON_BARS:
 
-        case WHITE_STAINED_GLASS_PANE:
-        case YELLOW_STAINED_GLASS_PANE:
-        case PURPLE_STAINED_GLASS_PANE:
-        case LIGHT_BLUE_STAINED_GLASS_PANE:
-        case MAGENTA_STAINED_GLASS_PANE:
-        case GRAY_STAINED_GLASS_PANE:
-        case GREEN_STAINED_GLASS_PANE:
-        case BLACK_STAINED_GLASS_PANE:
-        case LIME_STAINED_GLASS_PANE:
-        case BLUE_STAINED_GLASS_PANE:
-        case BROWN_STAINED_GLASS_PANE:
-        case CYAN_STAINED_GLASS_PANE:
-        case RED_STAINED_GLASS_PANE:
-            return true;
-        default:
-            return false;
+            case WHITE_STAINED_GLASS_PANE:
+            case YELLOW_STAINED_GLASS_PANE:
+            case PURPLE_STAINED_GLASS_PANE:
+            case LIGHT_BLUE_STAINED_GLASS_PANE:
+            case MAGENTA_STAINED_GLASS_PANE:
+            case GRAY_STAINED_GLASS_PANE:
+            case GREEN_STAINED_GLASS_PANE:
+            case BLACK_STAINED_GLASS_PANE:
+            case LIME_STAINED_GLASS_PANE:
+            case BLUE_STAINED_GLASS_PANE:
+            case BROWN_STAINED_GLASS_PANE:
+            case CYAN_STAINED_GLASS_PANE:
+            case RED_STAINED_GLASS_PANE:
+                return true;
+            default:
+                return false;
         }
     }
 
     /**
-     * Check if a block is on the blacklist of types/materials that is not allowed
-     * for animations.
+     * Check if a block is on the blacklist of types/materials that is not allowed for animations.
      *
      * @param block The block to be checked
      * @return True if the block can be used for animations.
@@ -404,58 +399,59 @@ public final class SpigotUtil
         BlockState blockState = block.getState();
 
         if (blockData instanceof org.bukkit.block.data.type.Stairs ||
-            blockData instanceof org.bukkit.block.data.type.Gate)
+                blockData instanceof org.bukkit.block.data.type.Gate)
             return true;
 
         if (blockState instanceof org.bukkit.inventory.InventoryHolder
-        // Door, Stairs, TrapDoor, sunflower, tall grass, tall seagrass, large fern,
-        // peony, rose bush, lilac,
-            || blockData instanceof org.bukkit.block.data.Bisected || blockData instanceof org.bukkit.block.data.Rail
-            // Cauldron, Composter, Water, Lava
-            || blockData instanceof org.bukkit.block.data.Levelled
+                // Door, Stairs, TrapDoor, sunflower, tall grass, tall seagrass, large fern,
+                // peony, rose bush, lilac,
+                || blockData instanceof org.bukkit.block.data.Bisected ||
+                blockData instanceof org.bukkit.block.data.Rail
+                // Cauldron, Composter, Water, Lava
+                || blockData instanceof org.bukkit.block.data.Levelled
 
-            || blockData instanceof org.bukkit.block.data.type.Bed ||
-            blockData instanceof org.bukkit.block.data.type.BrewingStand ||
-            blockData instanceof org.bukkit.block.data.type.Cake ||
-            blockData instanceof org.bukkit.block.data.type.CommandBlock ||
-            blockData instanceof org.bukkit.block.data.type.EnderChest ||
-            blockData instanceof org.bukkit.block.data.type.Ladder ||
-            blockData instanceof org.bukkit.block.data.type.Sapling ||
-            blockData instanceof org.bukkit.block.data.type.Sign ||
-            blockData instanceof org.bukkit.block.data.type.TechnicalPiston ||
-            blockData instanceof org.bukkit.block.data.type.WallSign ||
-            blockData instanceof org.bukkit.block.data.type.RedstoneWire ||
-            blockData instanceof org.bukkit.block.data.type.RedstoneWallTorch ||
-            blockData instanceof org.bukkit.block.data.type.Tripwire ||
-            blockData instanceof org.bukkit.block.data.type.TripwireHook ||
-            blockData instanceof org.bukkit.block.data.type.Repeater ||
-            blockData instanceof org.bukkit.block.data.type.Switch ||
-            blockData instanceof org.bukkit.block.data.type.Comparator)
+                || blockData instanceof org.bukkit.block.data.type.Bed ||
+                blockData instanceof org.bukkit.block.data.type.BrewingStand ||
+                blockData instanceof org.bukkit.block.data.type.Cake ||
+                blockData instanceof org.bukkit.block.data.type.CommandBlock ||
+                blockData instanceof org.bukkit.block.data.type.EnderChest ||
+                blockData instanceof org.bukkit.block.data.type.Ladder ||
+                blockData instanceof org.bukkit.block.data.type.Sapling ||
+                blockData instanceof org.bukkit.block.data.type.Sign ||
+                blockData instanceof org.bukkit.block.data.type.TechnicalPiston ||
+                blockData instanceof org.bukkit.block.data.type.WallSign ||
+                blockData instanceof org.bukkit.block.data.type.RedstoneWire ||
+                blockData instanceof org.bukkit.block.data.type.RedstoneWallTorch ||
+                blockData instanceof org.bukkit.block.data.type.Tripwire ||
+                blockData instanceof org.bukkit.block.data.type.TripwireHook ||
+                blockData instanceof org.bukkit.block.data.type.Repeater ||
+                blockData instanceof org.bukkit.block.data.type.Switch ||
+                blockData instanceof org.bukkit.block.data.type.Comparator)
             return false;
 
         switch (mat)
         {
-        case WALL_TORCH:
+            case WALL_TORCH:
 
-        case PAINTING:
+            case PAINTING:
 
-        case ATTACHED_MELON_STEM:
-        case ATTACHED_PUMPKIN_STEM:
-        case WHITE_TULIP:
-        case DANDELION:
-        case SUGAR_CANE:
-        case NETHER_WART:
-        case CHORUS_FLOWER:
-        case CHORUS_FRUIT:
-        case SEAGRASS:
-        case POPPY:
-        case OXEYE_DAISY:
-        case LILY_OF_THE_VALLEY:
-        case LILY_PAD:
-        case VINE:
-            return false;
-        default:
-            break;
+            case ATTACHED_MELON_STEM:
+            case ATTACHED_PUMPKIN_STEM:
+            case WHITE_TULIP:
+            case DANDELION:
+            case SUGAR_CANE:
+            case NETHER_WART:
+            case CHORUS_FLOWER:
+            case CHORUS_FRUIT:
+            case SEAGRASS:
+            case POPPY:
+            case OXEYE_DAISY:
+            case LILY_OF_THE_VALLEY:
+            case LILY_PAD:
+            case VINE:
+                return false;
+            default:
+                break;
         }
 
         String matName = mat.toString();
@@ -463,7 +459,7 @@ public final class SpigotUtil
         if (matName.startsWith("POTTED"))
             return true;
         if (matName.endsWith("TULIP") || matName.endsWith("BANNER") || matName.endsWith("CARPET") ||
-            matName.endsWith("HEAD"))
+                matName.endsWith("HEAD"))
             return false;
         return true;
     }
@@ -504,8 +500,13 @@ public final class SpigotUtil
             time = distance / maxSpeed;
 
         double distanceMultiplier = speed > 4 ? 1.01 : speed > 3.918 ? 1.08 : speed > 3.916 ? 1.10 :
-            speed > 2.812 ? 1.12 : speed > 2.537 ? 1.19 : speed > 2.2 ? 1.22 : speed > 2.0 ? 1.23 :
-            speed > 1.770 ? 1.25 : speed > 1.570 ? 1.28 : 1.30;
+                                                                              speed > 2.812 ? 1.12 :
+                                                                              speed > 2.537 ? 1.19 :
+                                                                              speed > 2.2 ? 1.22 : speed > 2.0 ? 1.23 :
+                                                                                                   speed > 1.770 ?
+                                                                                                   1.25 :
+                                                                                                   speed > 1.570 ?
+                                                                                                   1.28 : 1.30;
         ret[0] = time;
         ret[1] = tickRateFromSpeed(speed);
         ret[2] = distanceMultiplier;

@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 public class SubCommandFill extends SubCommand
 {
@@ -22,7 +23,7 @@ public class SubCommandFill extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(DoorBase door)
+    public boolean execute(@NotNull DoorBase door)
     {
         plugin.getDatabaseManager().fillDoor(door);
         return true;
@@ -32,6 +33,7 @@ public class SubCommandFill extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
             throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
-        return execute(plugin.getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1])));
+        return plugin.getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1])).filter(this::execute)
+                     .isPresent();
     }
 }

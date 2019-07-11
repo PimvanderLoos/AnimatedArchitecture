@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a Big Door doorType.
@@ -64,7 +65,7 @@ public class BigDoor extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
+    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
                                 Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
     {
         PBlockFace newDir = null;

@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.gui;
 
-import java.util.ArrayList;
-
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
+import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,10 +11,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
-import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
+import java.util.ArrayList;
 
 class GUIItem
 {
@@ -33,15 +32,15 @@ class GUIItem
         StringBuilder sb = new StringBuilder();
         sb.append("GUIItem: ");
         if (is != null)
-            sb.append("\nItemStack: " + is.toString());
+            sb.append("\nItemStack: ").append(is.toString());
         if (doorOwner != null)
-            sb.append("\nDoorOwner: " + doorOwner.toString());
+            sb.append("\nDoorOwner: ").append(doorOwner.toString());
         if (specialValue != null)
-            sb.append("\nSpecialValue: " + specialValue);
+            sb.append("\nSpecialValue: ").append(specialValue);
         if (lore != null)
-            sb.append("\nLore: " + lore.toString());
+            sb.append("\nLore: ").append(lore.toString());
         if (name != null)
-            sb.append("\nName: " + name);
+            sb.append("\nName: ").append(name);
 
         return sb.toString();
     }
@@ -87,7 +86,8 @@ class GUIItem
 //        Location loc = guiOwner.getLocation();
 //        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(), loc.getBlockX(),
 //                                  loc.getBlockY(), loc.getBlockZ(), guiOwner);
-        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(), Bukkit.getOfflinePlayer(doorOwner.getPlayerUUID()));
+        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(),
+                                  Bukkit.getOfflinePlayer(doorOwner.getPlayerUUID()));
         if (is == null)
         {
             is = new ItemStack(Material.PLAYER_HEAD, 1);

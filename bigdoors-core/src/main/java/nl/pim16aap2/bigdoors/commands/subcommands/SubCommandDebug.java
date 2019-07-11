@@ -33,7 +33,7 @@ public class SubCommandDebug extends SubCommand
     public boolean execute(CommandSender sender)
     {
         plugin.getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140, null);
-        plugin.getDatabaseManager().fillDoor(plugin.getDatabaseManager().getDoor(236));
+        plugin.getDatabaseManager().getDoor(236L).ifPresent(door -> plugin.getDatabaseManager().fillDoor((door)));
         return true;
     }
 

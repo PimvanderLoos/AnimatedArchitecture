@@ -1,20 +1,19 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
-import java.util.UUID;
-
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.events.IPCancellable;
 import nl.pim16aap2.bigdoors.events.PEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import nl.pim16aap2.bigdoors.events.PCancellable;
+import java.util.UUID;
 
 /**
  * Represents an action that is going to be applied to a door.
  *
  * @author Pim
  */
-public class DoorActionEvent extends PEvent implements PCancellable
+public class DoorActionEvent extends PEvent implements IPCancellable
 {
     private final long doorUID;
     private final DoorActionCause cause;
@@ -24,7 +23,7 @@ public class DoorActionEvent extends PEvent implements PCancellable
     private final DoorBase doorBase;
 
     public DoorActionEvent(final long doorUID, final DoorActionCause cause, final DoorActionType actionType,
-        @NotNull UUID responsible, @NotNull DoorBase doorBase)
+                           @NotNull UUID responsible, @NotNull DoorBase doorBase)
     {
         this.doorUID = doorUID;
         this.cause = cause;
@@ -45,6 +44,7 @@ public class DoorActionEvent extends PEvent implements PCancellable
 
     /**
      * Get the {@link DoorBase} that the action will be applied on.
+     *
      * @return
      */
     public DoorBase getDoorBase()
@@ -63,11 +63,11 @@ public class DoorActionEvent extends PEvent implements PCancellable
     }
 
     /**
-     * Gets the UUID of the player responsible for this door action. This either
-     * means the player who directly requested this action or, if it was requested
-     * indirectly, the original creator of the door.
+     * Gets the UUID of the player responsible for this door action. This either means the player who directly requested
+     * this action or, if it was requested indirectly, the original creator of the door.
      *
      * @return The UUID of the player that is responsible for this door.
+     *
      * @see DoorActionRequestEvent#getCause()
      */
     public @Nullable UUID getResponsible()
@@ -88,14 +88,16 @@ public class DoorActionEvent extends PEvent implements PCancellable
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setCancelled(boolean cancel)
     {
-        this.isCancelled = cancel;
+        isCancelled = cancel;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isCancelled()
     {
         return isCancelled;

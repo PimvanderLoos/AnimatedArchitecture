@@ -17,8 +17,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -28,8 +30,8 @@ public class CommandManager implements CommandExecutor
             + "{}: Not required when used from GUI, <>: always required, []: optional\n";
 
     private final BigDoors plugin;
-    private HashMap<String, ICommand> commands;
-    private HashMap<CommandData, ICommand> commandsShortcut;
+    private Map<String, ICommand> commands;
+    private Map<CommandData, ICommand> commandsShortcut;
 
     public CommandManager(final BigDoors plugin)
     {
@@ -89,13 +91,13 @@ public class CommandManager implements CommandExecutor
         catch (CommandPlayerNotFoundException e)
         {
             plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
-                    + plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + e.getPlayerArg() + "\"");
+                + plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + e.getPlayerArg() + "\"");
         }
         catch (CommandActionNotAllowedException e)
         {
             plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+                .sendMessageToTarget(sender, Level.INFO,
+                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
         }
         catch (Exception e)
         {
@@ -103,21 +105,22 @@ public class CommandManager implements CommandExecutor
                                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.Error"));
             StringBuilder sb = new StringBuilder();
             for (String str : args)
-                sb.append(str + (str.equals(args[args.length - 1]) ? "" : ", "));
+                sb.append(str).append(str.equals(args[args.length - 1]) ? "" : ", ");
             plugin.getPLogger().logException(e, "An exception occurred while processing command \"" + cmd.getName()
                     + "\" with args: \"" + sb.toString() + "\"!");
         }
         return true;
     }
 
-    public DoorBase getDoorFromArg(CommandSender sender, String doorArg) throws IllegalArgumentException
+    public @NotNull DoorBase getDoorFromArg(@NotNull CommandSender sender, @NotNull String doorArg)
+            throws IllegalArgumentException
     {
         DoorBase door = null;
 
         if (sender instanceof Player)
             try
             {
-                door = plugin.getDatabaseManager().getDoor(((Player) sender).getUniqueId(), doorArg);
+                door = plugin.getDatabaseManager().getDoor(((Player) sender).getUniqueId(), doorArg).orElse(null);
             }
             catch (TooManyDoorsException e)
             {
@@ -130,7 +133,7 @@ public class CommandManager implements CommandExecutor
         else
             try
             {
-                door = plugin.getDatabaseManager().getDoor(Long.parseLong(doorArg));
+                door = plugin.getDatabaseManager().getDoor(Long.parseLong(doorArg)).orElse(null);
             }
             catch (NumberFormatException e)
             {
@@ -142,7 +145,7 @@ public class CommandManager implements CommandExecutor
         return door;
     }
 
-    public static UUID getPlayerFromArg(String playerArg) throws CommandPlayerNotFoundException
+    public static UUID getPlayerFromArg(@NotNull String playerArg) throws CommandPlayerNotFoundException
     {
         UUID playerUUID = SpigotUtil.playerUUIDFromString(playerArg);
         if (playerUUID == null)
@@ -150,13 +153,13 @@ public class CommandManager implements CommandExecutor
         return playerUUID;
     }
 
-    public static boolean permissionForCommand(CommandSender sender, ICommand command)
+    public static boolean permissionForCommand(@NotNull CommandSender sender, @NotNull ICommand command)
     {
         return (sender instanceof Player ?
                 ((Player) sender).hasPermission(command.getPermission()) || ((Player) sender).isOp() : true);
     }
 
-    public static long getLongFromArg(String testLong) throws IllegalArgumentException
+    public static long getLongFromArg(@NotNull String testLong) throws IllegalArgumentException
     {
         try
         {
@@ -168,7 +171,7 @@ public class CommandManager implements CommandExecutor
         }
     }
 
-    public static int getIntegerFromArg(String testInt) throws IllegalArgumentException
+    public static int getIntegerFromArg(@NotNull String testInt) throws IllegalArgumentException
     {
         try
         {
@@ -180,7 +183,7 @@ public class CommandManager implements CommandExecutor
         }
     }
 
-    public static float getFloatFromArg(String testFloat) throws IllegalArgumentException
+    public static float getFloatFromArg(@NotNull String testFloat) throws IllegalArgumentException
     {
         try
         {

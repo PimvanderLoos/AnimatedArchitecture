@@ -1,11 +1,10 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 public class SlidingDoorCreator extends Creator
 {
@@ -22,7 +21,7 @@ public class SlidingDoorCreator extends Creator
     @Override
     protected void triggerGiveTool()
     {
-        giveToolToPlayer(messages.getString("CREATOR.SLIDINGDOOR.StickLore"    ).split("\n"),
+        giveToolToPlayer(messages.getString("CREATOR.SLIDINGDOOR.StickLore").split("\n"),
                          messages.getString("CREATOR.SLIDINGDOOR.StickReceived").split("\n"));
     }
 

@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -47,24 +48,24 @@ public class SubCommandToggle extends SubCommand
         UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         // Get a new instance of the door to make sure the locked / unlocked status is
         // recent.
-        DoorBase newDoor = plugin.getDatabaseManager().getDoor(playerUUID, door.getDoorUID());
+        Optional<DoorBase> newDoor = plugin.getDatabaseManager().getDoor(playerUUID, door.getDoorUID());
 
-        if (newDoor == null)
+        if (!newDoor.isPresent())
         {
             plugin.getPLogger()
                   .sendMessageToTarget(sender, Level.INFO,
                                        ChatColor.RED + plugin.getMessages().getString("GENERAL.ToggleFailure"));
             return;
         }
-        if (newDoor.isLocked())
+        if (newDoor.get().isLocked())
             plugin.getPLogger()
                   .sendMessageToTarget(sender, Level.INFO,
                                        ChatColor.RED + plugin.getMessages().getString("GENERAL.DoorIsLocked"));
 
         else
         {
-            Opener opener = plugin.getDoorOpener(newDoor.getType());
-            DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(newDoor, time);
+            Opener opener = plugin.getDoorOpener(newDoor.get().getType());
+            DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(newDoor.get(), time);
 
             if (result != DoorOpenResult.SUCCESS)
                 plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED

@@ -1,19 +1,16 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorType;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-
 /**
- * This class represents players in the process of creating doors. Objects of
- * this class are instantiated when the createdoor command is used and they are
- * destroyed after The creation process has been completed successfully or the
- * timer ran out. In EventHandlers this class is used To check whether a user
- * that is left-clicking is a DoorCreator && tell this class a left-click
- * happened.
+ * This class represents players in the process of creating doors. Objects of this class are instantiated when the
+ * createdoor command is used and they are destroyed after The creation process has been completed successfully or the
+ * timer ran out. In EventHandlers this class is used To check whether a user that is left-clicking is a DoorCreator &&
+ * tell this class a left-click happened.
  **/
 public class WindmillCreator extends BigDoorCreator
 {
@@ -28,7 +25,8 @@ public class WindmillCreator extends BigDoorCreator
     // No updating of the engine location is required for this type.
     @Override
     protected void updateEngineLoc()
-    {}
+    {
+    }
 
     @Override
     protected Location getPowerBlockLoc(World world)
@@ -42,8 +40,8 @@ public class WindmillCreator extends BigDoorCreator
     protected boolean isEngineValid(Location loc)
     {
         if (loc.getBlockX() < one.getBlockX() || loc.getBlockX() > two.getBlockX() ||
-            loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY() ||
-            loc.getBlockZ() < one.getBlockZ() || loc.getBlockZ() > two.getBlockZ())
+                loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY() ||
+                loc.getBlockZ() < one.getBlockZ() || loc.getBlockZ() > two.getBlockZ())
             return false;
         return true;
     }

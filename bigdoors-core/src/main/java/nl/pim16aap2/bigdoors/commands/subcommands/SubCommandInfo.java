@@ -32,6 +32,21 @@ public class SubCommandInfo extends SubCommand
                 door.getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
             return true;
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, door.toString());
+        if (sender instanceof Player)
+        {
+            try
+            {
+                plugin.getGlowingBlockSpawner().spawnGlowinBlock(((Player) sender).getUniqueId(),
+                                                                 door.getWorld().getName(), 30L,
+                                                                 door.getPowerBlockLoc().getBlockX() + 0.5,
+                                                                 door.getPowerBlockLoc().getBlockY(),
+                                                                 door.getPowerBlockLoc().getBlockZ() + 0.5);
+            }
+            catch (Exception e)
+            {
+                plugin.getPLogger().logException(e, "Failed to spawn a glowing block!");
+            }
+        }
         return true;
     }
 

@@ -1,16 +1,15 @@
 package nl.pim16aap2.bigdoors.gui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
-import org.bukkit.scheduler.BukkitRunnable;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
-import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class GUIPageRemoveOwner implements IGUIPage
 {
@@ -78,22 +77,25 @@ public class GUIPageRemoveOwner implements IGUIPage
 
         if (doorOwnerPage != 0)
         {
-            lore.add(messages.getString("GUI.ToPage") + doorOwnerPage + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
+            lore.add(messages.getString("GUI.ToPage") + doorOwnerPage + messages.getString("GUI.OutOf") +
+                             maxDoorOwnerPageCount);
             gui.addItem(1, new GUIItem(GUI.PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, doorOwnerPage));
             lore.clear();
         }
 
         if ((doorOwnerPage + 1) < maxDoorOwnerPageCount)
         {
-            lore.add(messages.getString("GUI.ToPage") + (doorOwnerPage + 2) + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
+            lore.add(messages.getString("GUI.ToPage") + (doorOwnerPage + 2) + messages.getString("GUI.OutOf") +
+                             maxDoorOwnerPageCount);
             gui.addItem(7, new GUIItem(GUI.PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, doorOwnerPage + 2));
             lore.clear();
         }
 
         lore.add(messages.getString("GUI.MoreInfoMenu") + gui.getDoor().getName());
         lore.add("This door has ID " + gui.getDoor().getDoorUID());
-        lore.add(messages.getString(DoorType.getNameKey(gui.getDoor().getType())));
-        gui.addItem(4, new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));
+        lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
+        gui.addItem(4,
+                    new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));
     }
 
     protected void fillPage()
@@ -112,9 +114,10 @@ public class GUIPageRemoveOwner implements IGUIPage
     @Override
     public void refresh()
     {
-        owners = plugin.getDatabaseManager().getDoorOwners(gui.getDoor().getDoorUID(), gui.getPlayer().getUniqueId());
+        owners = plugin.getDatabaseManager().getDoorOwners(gui.getDoor().getDoorUID());
         Collections.sort(owners, Comparator.comparing(DoorOwner::getPlayerName));
-        maxDoorOwnerPageCount = owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
+        maxDoorOwnerPageCount =
+                owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
 
         fillHeader();
         fillPage();

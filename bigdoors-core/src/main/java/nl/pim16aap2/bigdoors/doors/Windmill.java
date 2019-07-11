@@ -1,13 +1,14 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Windmill doorType.
@@ -36,8 +37,8 @@ public class Windmill extends HorizontalAxisAlignedBase
         Chunk minChunk = min.getChunk();
         Chunk maxChunk = max.getChunk();
 
-        return new Vector2D[] { new Vector2D(minChunk.getX(), minChunk.getZ()),
-                                new Vector2D(maxChunk.getX(), maxChunk.getZ()) };
+        return new Vector2D[]{new Vector2D(minChunk.getX(), minChunk.getZ()),
+                              new Vector2D(maxChunk.getX(), maxChunk.getZ())};
     }
 
     /**
@@ -48,16 +49,16 @@ public class Windmill extends HorizontalAxisAlignedBase
     {
         switch (openDir)
         {
-        case NORTH:
-            return PBlockFace.NORTH;
-        case EAST:
-            return PBlockFace.EAST;
-        case SOUTH:
-            return PBlockFace.SOUTH;
-        case WEST:
-            return PBlockFace.WEST;
-        default:
-            return null;
+            case NORTH:
+                return PBlockFace.NORTH;
+            case EAST:
+                return PBlockFace.EAST;
+            case SOUTH:
+                return PBlockFace.SOUTH;
+            case WEST:
+                return PBlockFace.WEST;
+            default:
+                return null;
         }
     }
 
@@ -77,8 +78,8 @@ public class Windmill extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, Location newMin,
-                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
+                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
     {
         newMin.setX(min.getBlockX());
         newMin.setY(min.getBlockY());

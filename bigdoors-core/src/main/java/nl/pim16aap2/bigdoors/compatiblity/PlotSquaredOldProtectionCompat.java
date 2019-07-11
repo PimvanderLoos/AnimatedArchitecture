@@ -1,23 +1,21 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import com.intellectualcrafters.plot.api.PlotAPI;
 import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.config.Settings;
 import com.intellectualcrafters.plot.flag.Flags;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotArea;
-
 import nl.pim16aap2.bigdoors.BigDoors;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Compatibility hook for the old version of PlotSquared.
  *
- * @see IProtectionCompat
  * @author Pim
+ * @see IProtectionCompat
  */
 public class PlotSquaredOldProtectionCompat implements IProtectionCompat
 {
@@ -41,7 +39,8 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        com.intellectualcrafters.plot.object.Location psLocation = com.plotsquared.bukkit.util.BukkitUtil.getLocation(loc);
+        com.intellectualcrafters.plot.object.Location psLocation = com.plotsquared.bukkit.util.BukkitUtil
+                .getLocation(loc);
         com.intellectualcrafters.plot.object.PlotArea area = psLocation.getPlotArea();
 
         if (area == null)
@@ -61,7 +60,7 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
                 return false;
         }
         else if ((height > area.MAX_BUILD_HEIGHT || height < area.MIN_BUILD_HEIGHT) &&
-                 !plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s()))
+                !plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s()))
             return false;
         return true;
     }
@@ -112,7 +111,8 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
         if (!plotSquared.isPlotWorld(loc1.getWorld()))
             return true;
 
-        com.intellectualcrafters.plot.object.Location psLocation = com.plotsquared.bukkit.util.BukkitUtil.getLocation(loc1);
+        com.intellectualcrafters.plot.object.Location psLocation = com.plotsquared.bukkit.util.BukkitUtil
+                .getLocation(loc1);
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
@@ -130,7 +130,7 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
                 PlotArea area = psLocation.getPlotArea();
                 if (area == null)
                     continue;
-                if (!isHeightAllowed(player,area, y1) || !isHeightAllowed(player,area, y2))
+                if (!isHeightAllowed(player, area, y1) || !isHeightAllowed(player, area, y2))
                     return false;
                 loc.setY(area.MAX_BUILD_HEIGHT - 1);
 

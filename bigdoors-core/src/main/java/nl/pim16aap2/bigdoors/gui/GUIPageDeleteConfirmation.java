@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.gui;
 
-import java.util.ArrayList;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDelete;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorAttribute;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
-import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
+
+import java.util.ArrayList;
 
 public class GUIPageDeleteConfirmation implements IGUIPage
 {
@@ -49,7 +49,8 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
     private void deleteDoor()
     {
-        if (!plugin.getDatabaseManager().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), DoorAttribute.DELETE))
+        if (!plugin.getDatabaseManager()
+                   .hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), DoorAttribute.DELETE))
             return;
         ((SubCommandDelete) plugin.getCommand(CommandData.DELETE)).execute(gui.getPlayer(), gui.getDoor());
         gui.removeSelectedDoor();
@@ -63,8 +64,9 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
         lore.add(messages.getString("GUI.MoreInfoMenu") + gui.getDoor().getName());
         lore.add("This door has ID " + gui.getDoor().getDoorUID());
-        lore.add(messages.getString(DoorType.getNameKey(gui.getDoor().getType())));
-        gui.addItem(4, new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));
+        lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
+        gui.addItem(4,
+                    new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));
     }
 
     protected void fillPage()

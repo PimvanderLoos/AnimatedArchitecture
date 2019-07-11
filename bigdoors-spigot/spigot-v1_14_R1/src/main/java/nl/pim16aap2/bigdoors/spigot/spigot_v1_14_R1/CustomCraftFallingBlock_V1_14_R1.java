@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
 
+import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.data.BlockData;
@@ -10,8 +11,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
-
-import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 
 /**
  * V1_14_R1 implementation of {@link ICustomCraftFallingBlock}.
@@ -56,13 +55,13 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
     @Deprecated
     public Material getMaterial()
     {
-        return CraftMagicNumbers.getMaterial(this.getHandle().getBlock()).getItemType();
+        return CraftMagicNumbers.getMaterial(getHandle().getBlock()).getItemType();
     }
 
     @Override
     public BlockData getBlockData()
     {
-        return CraftBlockData.fromData(this.getHandle().getBlock());
+        return CraftBlockData.fromData(getHandle().getBlock());
     }
 
     @Override
@@ -106,7 +105,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @deprecated Not currently implemented.
      */
     @Deprecated
@@ -117,7 +116,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @deprecated Not currently implemented.
      */
     @Deprecated

@@ -1,13 +1,12 @@
 package nl.pim16aap2.bigdoors.waitforcommand;
 
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import org.bukkit.entity.Player;
 
 public abstract class WaitForCommand extends Abortable
 {
@@ -47,7 +46,8 @@ public abstract class WaitForCommand extends Abortable
         return subCommand.getName();
     }
 
-    public abstract boolean executeCommand(String[] args) throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException;
+    public abstract boolean executeCommand(String[] args)
+            throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException;
 
     public final Player getPlayer()
     {

@@ -37,7 +37,7 @@ public class SubCommandListDoors extends SubCommand
         }
         StringBuilder builder = new StringBuilder();
         for (DoorBase door : doors)
-            builder.append(door.getBasicInfo() + "\n");
+            builder.append(door.getBasicInfo()).append("\n");
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, builder.toString());
         return true;
     }
@@ -49,10 +49,11 @@ public class SubCommandListDoors extends SubCommand
         ArrayList<DoorBase> doors = new ArrayList<>();
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
         if (sender instanceof Player)
-            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name));
+//            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name));
+            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name).orElse(new ArrayList<>()));
         else if (name != null)
         {
-            doors.addAll(plugin.getDatabaseManager().getDoors(name));
+            doors.addAll(plugin.getDatabaseManager().getDoors(name).orElse(new ArrayList<>()));
             // If no door with the provided name could be found, list all doors owned by the
             // player with that name instead.
             if (doors.size() == 0)
@@ -60,7 +61,7 @@ public class SubCommandListDoors extends SubCommand
                 UUID playerUUID = plugin.getDatabaseManager().getPlayerUUIDFromString(name);
                 if (playerUUID == null)
                     return true;
-                doors.addAll(plugin.getDatabaseManager().getDoors(playerUUID, null));
+                doors.addAll(plugin.getDatabaseManager().getDoors(playerUUID).orElse(new ArrayList<>()));
             }
         }
         else

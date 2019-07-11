@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.BigDoors;
 
 /**
- * Represents all door types that are aligned on the North/South or East/West
- * axis. For example: {@link nl.pim16aap2.bigdoors.doors.SlidingDoor}.
+ * Represents all door types that are aligned on the North/South or East/West axis. For example: {@link
+ * nl.pim16aap2.bigdoors.doors.SlidingDoor}.
  * <p>
  * Only doors with a depth of 1 block can be extended.
  *
@@ -36,11 +36,9 @@ abstract class HorizontalAxisAlignedBase extends DoorBase
     }
 
     /**
-     * Calculate if this door is aligned with the z-axis (North/South) or the x-axis
-     * (East/West).
+     * Calculate if this door is aligned with the z-axis (North/South) or the x-axis (East/West).
      *
-     * @return True if aligned with the z-axis (North/South), False when aligned
-     *         with the x-axis (East/West).
+     * @return True if aligned with the z-axis (North/South), False when aligned with the x-axis (East/West).
      */
     protected boolean calculateNorthSouthAxis()
     {
@@ -50,12 +48,10 @@ abstract class HorizontalAxisAlignedBase extends DoorBase
     }
 
     /**
-     * Retrieve if the door is aligned with the z-axis (North/South). If not
-     * calculated/invalidated, {@link #calculateNorthSouthAxis()} is called to
-     * (re)calculate it.
+     * Retrieve if the door is aligned with the z-axis (North/South). If not calculated/invalidated, {@link
+     * #calculateNorthSouthAxis()} is called to (re)calculate it.
      *
-     * @return True if aligned with the z-axis (North/South), False when aligned
-     *         with the x-axis (East/West).
+     * @return True if aligned with the z-axis (North/South), False when aligned with the x-axis (East/West).
      */
     public boolean onNorthSouthAxis()
     {

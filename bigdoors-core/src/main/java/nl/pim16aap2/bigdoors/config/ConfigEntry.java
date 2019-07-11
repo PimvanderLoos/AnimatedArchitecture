@@ -105,7 +105,7 @@ public final class ConfigEntry<V>
             int listSize = ((List<?>) value).size();
             for (int index = 0; index < listSize; ++index)
                 // Don't print newline at the end
-                builder.append("  - " + ((List<?>) value).get(index) + (index == listSize - 1 ? "" : "\n"));
+                builder.append("  - ").append(((List<?>) value).get(index)).append(index == listSize - 1 ? "" : "\n");
             string += builder.toString();
         }
         else

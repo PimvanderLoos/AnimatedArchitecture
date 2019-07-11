@@ -1,13 +1,5 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import java.util.HashSet;
-import java.util.Optional;
-
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import com.github.intellectualsites.plotsquared.bukkit.util.BukkitUtil;
 import com.github.intellectualsites.plotsquared.plot.config.Captions;
 import com.github.intellectualsites.plotsquared.plot.config.Settings;
@@ -15,14 +7,20 @@ import com.github.intellectualsites.plotsquared.plot.flag.Flags;
 import com.github.intellectualsites.plotsquared.plot.object.Plot;
 import com.github.intellectualsites.plotsquared.plot.object.PlotArea;
 import com.github.intellectualsites.plotsquared.plot.object.PlotBlock;
-
 import nl.pim16aap2.bigdoors.BigDoors;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.HashSet;
+import java.util.Optional;
 
 /**
  * Compatibility hook for the new version of PlotSquared.
  *
- * @see IProtectionCompat
  * @author Pim
+ * @see IProtectionCompat
  */
 public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 {
@@ -58,7 +56,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
                 return false;
         }
         else if ((height > area.MAX_BUILD_HEIGHT || height < area.MIN_BUILD_HEIGHT) &&
-                 !plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s()))
+                !plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s()))
             return false;
         return true;
     }

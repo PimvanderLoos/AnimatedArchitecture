@@ -41,7 +41,6 @@ public class EventHandlers implements Listener
                     return;
                 tu.selector(event.getClickedBlock().getLocation());
                 event.setCancelled(true);
-                return;
             }
         }
         catch (Exception e)

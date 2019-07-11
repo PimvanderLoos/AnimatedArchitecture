@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -8,14 +10,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import nl.pim16aap2.bigdoors.BigDoors;
-
 /**
  * Compatibility hook for GriefPrevention.
  *
- * @see IProtectionCompat
  * @author Pim
+ * @see IProtectionCompat
  */
 class GriefPreventionProtectionCompat implements IProtectionCompat
 {
@@ -29,7 +28,8 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     {
         this.plugin = plugin;
 
-        Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
+        Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager()
+                                             .getPlugin(ProtectionCompat.getName(compat));
 
         // WorldGuard may not be loaded
         if (!(griefPreventionPlugin instanceof GriefPrevention))

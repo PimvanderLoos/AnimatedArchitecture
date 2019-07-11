@@ -1,13 +1,11 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 public class PowerBlockInspector extends ToolUser
 {
@@ -22,7 +20,7 @@ public class PowerBlockInspector extends ToolUser
     @Override
     protected void triggerGiveTool()
     {
-        giveToolToPlayer(messages.getString("CREATOR.PBINSPECTOR.StickLore"    ).split("\n"),
+        giveToolToPlayer(messages.getString("CREATOR.PBINSPECTOR.StickLore").split("\n"),
                          messages.getString("CREATOR.PBINSPECTOR.StickReceived").split("\n"));
     }
 
@@ -37,11 +35,12 @@ public class PowerBlockInspector extends ToolUser
     public void selector(Location loc)
     {
         done = true;
-        DoorBase door = plugin.getDatabaseManager().doorFromPowerBlockLoc(loc);
-        if (door != null)
-        {
-            ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, door);
-            setIsDone(true);
-        }
+        plugin.getDatabaseManager().doorFromPowerBlockLoc(loc).ifPresent(door ->
+                                                                         {
+                                                                             ((SubCommandInfo) plugin
+                                                                                     .getCommand(CommandData.INFO))
+                                                                                     .execute(player, door);
+                                                                             setIsDone(true);
+                                                                         });
     }
 }

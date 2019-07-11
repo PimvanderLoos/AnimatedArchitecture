@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.toolusers;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;

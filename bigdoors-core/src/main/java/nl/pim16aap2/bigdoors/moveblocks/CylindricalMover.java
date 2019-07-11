@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotEast;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotNorth;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotSouth;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotWest;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GetNewLocation;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.IGetNewLocation;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -27,7 +27,7 @@ class CylindricalMover extends BlockMover
     private double startStepSum;
     private final int stepMultiplier;
     private final Location turningPoint;
-    private final GetNewLocation gnl;
+    private final IGetNewLocation gnl;
 
     CylindricalMover(final BigDoors plugin, final World world, final RotateDirection rotDirection,
                      final double time, final PBlockFace currentDirection, final DoorBase door,

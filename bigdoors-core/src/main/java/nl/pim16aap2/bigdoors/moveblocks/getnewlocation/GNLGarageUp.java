@@ -2,11 +2,11 @@ package nl.pim16aap2.bigdoors.moveblocks.getnewlocation;
 
 import org.bukkit.Location;
 
-public class GNLGarageUp implements GetNewLocation
+public class GNLGarageUp implements IGetNewLocation
 {
     public GNLGarageUp()
     {
-        
+
     }
 
     @Override

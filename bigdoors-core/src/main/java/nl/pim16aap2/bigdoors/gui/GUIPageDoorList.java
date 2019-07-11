@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.gui;
 
-import java.util.ArrayList;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.gui.GUI.SortType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.Messages;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
+
+import java.util.ArrayList;
 
 class GUIPageDoorList implements IGUIPage
 {
@@ -55,7 +55,8 @@ class GUIPageDoorList implements IGUIPage
             gui.setDoor(gui.getItem(interactionIDX).getDoor());
             if (gui.getDoor() == null)
             {
-                SpigotUtil.messagePlayer(gui.getPlayer(), "An unexpected error occurred while trying to open a sub-menu for a door! Try again!");
+                SpigotUtil.messagePlayer(gui.getPlayer(),
+                                         "An unexpected error occurred while trying to open a sub-menu for a door! Try again!");
                 gui.close();
                 return;
             }
@@ -84,7 +85,8 @@ class GUIPageDoorList implements IGUIPage
 
         if ((page + 1) < gui.getMaxPageCount())
         {
-            lore.add(messages.getString("GUI.ToPage") + (page + 2) + messages.getString("GUI.OutOf") + gui.getMaxPageCount());
+            lore.add(messages.getString("GUI.ToPage") + (page + 2) + messages.getString("GUI.OutOf") +
+                             gui.getMaxPageCount());
             gui.addItem(8, new GUIItem(GUI.PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, page + 2));
             lore.clear();
         }
@@ -100,7 +102,7 @@ class GUIPageDoorList implements IGUIPage
             DoorBase currentDoor = gui.getDoor(offset + idx);
             DoorType doorType = currentDoor.getType();
             lore.add(messages.getString("GUI.DoorHasID") + currentDoor.getDoorUID());
-            lore.add(messages.getString(DoorType.getNameKey(doorType)));
+            lore.add(messages.getString(DoorType.getMessage(doorType)));
             GUIItem item = new GUIItem(GUI.DOORTYPES[DoorType.getValue(doorType)], currentDoor.getName(), lore, 1);
             item.setDoor(currentDoor);
             gui.addItem(idx + 9, item);

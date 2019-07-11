@@ -1,20 +1,20 @@
 package nl.pim16aap2.bigdoors.waitforcommand;
 
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
-import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import org.bukkit.entity.Player;
 
 public class WaitForAddOwner extends WaitForCommand
 {
     private final DoorBase door;
     private final SubCommandAddOwner subCommand;
 
-    public WaitForAddOwner(final BigDoors plugin, final SubCommandAddOwner subCommand, final Player player, final DoorBase door)
+    public WaitForAddOwner(final BigDoors plugin, final SubCommandAddOwner subCommand, final Player player,
+                           final DoorBase door)
     {
         super(plugin, subCommand);
         this.player = player;

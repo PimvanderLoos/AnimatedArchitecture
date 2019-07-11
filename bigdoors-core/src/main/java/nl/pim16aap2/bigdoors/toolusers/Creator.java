@@ -1,16 +1,15 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
 
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.DoorOwner;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 /**
  * Represents a ToolUser that creates new doors.
@@ -92,6 +91,8 @@ public abstract class Creator extends ToolUser
                 plugin.getDatabaseManager().addDoorBase(door);
                 if (message != null)
                     SpigotUtil.messagePlayer(player, message);
+                plugin.getGlowingBlockSpawner().spawnGlowinBlock(player.getUniqueId(), world.getName(), 30, engine.getBlockX() +
+                        0.5, engine.getBlockY(), engine.getBlockZ() + 0.5);
             }
         }
         super.finishUp();

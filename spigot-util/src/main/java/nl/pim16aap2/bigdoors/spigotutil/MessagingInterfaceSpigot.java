@@ -1,21 +1,20 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
-import java.util.UUID;
-import java.util.logging.Level;
-
+import nl.pim16aap2.bigdoors.util.IMessagingInterface;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import nl.pim16aap2.bigdoors.util.IMessagingInterface;
+import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Implementation of {@link IMessagingInterface} for Spigot.
- * @see IMessagingInterface
  *
  * @author Pim
+ * @see IMessagingInterface
  */
 public class MessagingInterfaceSpigot implements IMessagingInterface
 {

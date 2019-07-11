@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotEast;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotNorth;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotSouth;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotWest;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GetNewLocation;
+import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.IGetNewLocation;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -30,7 +30,7 @@ class BridgeMover extends BlockMover
     private double startStepSum;
     private int stepMultiplier;
     private final TriFunction<PBlockData, Double, Location, Vector> getDelta;
-    private final GetNewLocation gnl;
+    private final IGetNewLocation gnl;
 
     public BridgeMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
                        final PBlockFace upDown, final RotateDirection openDirection, final boolean instantOpen,

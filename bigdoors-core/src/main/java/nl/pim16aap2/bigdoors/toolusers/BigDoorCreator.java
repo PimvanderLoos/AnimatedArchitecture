@@ -1,12 +1,11 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 /**
  * Represents a user creating a Big Door.
@@ -104,7 +103,8 @@ public class BigDoorCreator extends Creator
         String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
         if (canBreakBlock != null)
         {
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
+            SpigotUtil.messagePlayer(player,
+                                     messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
             return;
         }
 

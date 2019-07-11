@@ -1,15 +1,36 @@
 package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
 
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import net.minecraft.server.v1_14_R1.AxisAlignedBB;
+import net.minecraft.server.v1_14_R1.Block;
+import net.minecraft.server.v1_14_R1.BlockConcretePowder;
+import net.minecraft.server.v1_14_R1.BlockFalling;
+import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_14_R1.Blocks;
+import net.minecraft.server.v1_14_R1.CrashReportSystemDetails;
+import net.minecraft.server.v1_14_R1.DataWatcher;
+import net.minecraft.server.v1_14_R1.DataWatcherObject;
+import net.minecraft.server.v1_14_R1.DataWatcherRegistry;
+import net.minecraft.server.v1_14_R1.Entity;
+import net.minecraft.server.v1_14_R1.EntityFallingBlock;
+import net.minecraft.server.v1_14_R1.EntityTypes;
+import net.minecraft.server.v1_14_R1.EnumDirection;
+import net.minecraft.server.v1_14_R1.EnumMoveType;
+import net.minecraft.server.v1_14_R1.GameProfileSerializer;
+import net.minecraft.server.v1_14_R1.IBlockData;
+import net.minecraft.server.v1_14_R1.MovingObjectPosition;
+import net.minecraft.server.v1_14_R1.MovingObjectPositionBlock;
+import net.minecraft.server.v1_14_R1.NBTTagCompound;
+import net.minecraft.server.v1_14_R1.RayTrace;
+import net.minecraft.server.v1_14_R1.TagsBlock;
+import net.minecraft.server.v1_14_R1.TagsFluid;
+import net.minecraft.server.v1_14_R1.Vec3D;
+import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
-import com.google.common.collect.Lists;
-
-import net.minecraft.server.v1_14_R1.*;
-import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * V1_14_R1 implementation of {@link ICustomEntityFallingBlock}.
@@ -18,7 +39,7 @@ import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
  * @see ICustomEntityFallingBlock
  */
 public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.EntityFallingBlock
-    implements ICustomEntityFallingBlock
+        implements ICustomEntityFallingBlock
 {
     private IBlockData block;
     public int ticksLived;
@@ -33,7 +54,7 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
     private org.bukkit.World bukkitWorld;
 
     public CustomEntityFallingBlock_V1_14_R1(org.bukkit.World world, double d0, double d1, double d2,
-        IBlockData iblockdata)
+                                             IBlockData iblockdata)
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
         bukkitWorld = world;
@@ -45,11 +66,11 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
         setNoGravity(true);
         fallHurtMax = 0;
         fallHurtAmount = 0.0F;
-        this.setMot(0, 0, 0);
+        setMot(0, 0, 0);
         lastX = d0;
         lastY = d1;
         lastZ = d2;
-        this.a(new BlockPosition(this));
+        a(new BlockPosition(this));
         spawn();
     }
 
@@ -92,34 +113,34 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
         double maxZ = bb.maxZ;
         switch (dir)
         {
-        case DOWN:
-            minY -= 1;
-            maxY -= 1;
-            break;
+            case DOWN:
+                minY -= 1;
+                maxY -= 1;
+                break;
 
-        case UP:
-            minY += 1;
-            maxY += 1;
-            break;
+            case UP:
+                minY += 1;
+                maxY += 1;
+                break;
 
-        case NORTH:
-            minZ -= 1;
-            maxZ -= 1;
-            break;
+            case NORTH:
+                minZ -= 1;
+                maxZ -= 1;
+                break;
 
-        case SOUTH:
-            minZ += 1;
-            maxZ += 1;
-            break;
+            case SOUTH:
+                minZ += 1;
+                maxZ += 1;
+                break;
 
-        case WEST:
-            minX -= 1;
-            maxX -= 1;
-            break;
+            case WEST:
+                minX -= 1;
+                maxX -= 1;
+                break;
 
-        case EAST:
-            minX += 1;
-            maxX += 1;
+            case EAST:
+                minX += 1;
+                maxX += 1;
         }
 
         AxisAlignedBB newBB = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
@@ -160,7 +181,7 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
 
             // If gravity (not no gravity), DO NOT apply negative y speed.
             if (!isNoGravity())
-                this.setMot(getMot().add(0.0D, -0.04D, 0.0D));
+                setMot(getMot().add(0.0D, -0.04D, 0.0D));
 
             move(EnumMoveType.SELF, getMot());
             if (!world.isClientSide)
@@ -169,19 +190,19 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
                 boolean isConcretePowder = this.block.getBlock() instanceof BlockConcretePowder;
                 // TODO: Look into this. Is this really needed? Might it interfere??
                 boolean flag1 = isConcretePowder && world.getFluid(blockposition).a(TagsFluid.WATER); // Concrete in
-                                                                                                      // powder?
+                // powder?
                 Vec3D mot = getMot();
                 double d0 = mot.x * mot.x + mot.y * mot.y + mot.z * mot.z;
 
                 if (isConcretePowder && d0 > 1.0D)
                 {
                     MovingObjectPositionBlock movingobjectpositionblock = world
-                        .rayTrace(new RayTrace(new Vec3D(lastX, lastY, lastZ), new Vec3D(locX, locY, locZ),
-                                               RayTrace.BlockCollisionOption.COLLIDER,
-                                               RayTrace.FluidCollisionOption.SOURCE_ONLY, this));
+                            .rayTrace(new RayTrace(new Vec3D(lastX, lastY, lastZ), new Vec3D(locX, locY, locZ),
+                                                   RayTrace.BlockCollisionOption.COLLIDER,
+                                                   RayTrace.FluidCollisionOption.SOURCE_ONLY, this));
 
                     if (movingobjectpositionblock.getType() != MovingObjectPosition.EnumMovingObjectType.MISS &&
-                        world.getFluid(movingobjectpositionblock.getBlockPosition()).a(TagsFluid.WATER))
+                            world.getFluid(movingobjectpositionblock.getBlockPosition()).a(TagsFluid.WATER))
                     {
                         blockposition = movingobjectpositionblock.getBlockPosition();
                         flag1 = true;
@@ -194,7 +215,7 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
                     // PIM: Changed to make them live longer (12k ticks instead of 600 -> 10min
                     // instead of .5min).
                     if (ticksLived > 100 && !world.isClientSide &&
-                        (blockposition.getY() < 1 || blockposition.getY() > 256) || ticksLived > 12000)
+                            (blockposition.getY() < 1 || blockposition.getY() > 256) || ticksLived > 12000)
                         // if (this.dropItem && this.world.getGameRules().getBoolean("doEntityDrops"))
 //                            this.a((IMaterial) block);
                         die();
@@ -218,7 +239,7 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
                     double motX = newMot.x * 0.699999988079071D;
                     double motY = newMot.y * 0.0D;
                     double motZ = newMot.z * 0.699999988079071D;
-                    this.setMot(motX, motY, motZ);
+                    setMot(motX, motY, motZ);
 
 //                    this.motY *= -0.5D; // PIM: Changed because I'm all for equality and such.
                     // Errr, this is not a moving piston by definition, right?

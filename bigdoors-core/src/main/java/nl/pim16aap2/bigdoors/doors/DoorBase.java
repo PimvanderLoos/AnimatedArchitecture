@@ -12,8 +12,9 @@ import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
@@ -113,8 +114,8 @@ public abstract class DoorBase
      *                        mutable.
      */
     public abstract void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection,
-                                         @Nonnull Location newMin, @Nonnull Location newMax, int blocksMoved,
-                                         @Nonnull Mutable<PBlockFace> newEngineSide);
+                                         @NotNull Location newMin, @NotNull Location newMax, int blocksMoved,
+                                         @Nullable Mutable<PBlockFace> newEngineSide);
 
     /**
      * Check if a provided chunk is in range of the door. Range in this case refers to all chunks this door could
@@ -156,6 +157,7 @@ public abstract class DoorBase
     public void setBlocksToMove(int newBTM)
     {
         blocksToMove = newBTM;
+        invalidateChunkRange();
     }
 
     /**
@@ -184,10 +186,19 @@ public abstract class DoorBase
      *
      * @return The name of this door.
      */
-    public @Nonnull
-    String getName()
+    public @NotNull String getName()
     {
         return name;
+    }
+
+    /**
+     * Change the name of the door.
+     *
+     * @param name The new name of this door.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     /**
@@ -284,6 +295,16 @@ public abstract class DoorBase
     }
 
     /**
+     * Change the engineSide of this door.
+     *
+     * @param newEngineSide The new {@link PBlockFace} engine side of this door
+     */
+    public void setEngineSide(PBlockFace newEngineSide)
+    {
+        engineSide = newEngineSide;
+    }
+
+    /**
      * Get the {@link nl.pim16aap2.bigdoors.util.RotateDirection} this door will open if currently closed. Note that if
      * it's currently in the open status, it'll go in the opposite direction, as the closing direction is the opposite
      * of the opening direction.
@@ -296,14 +317,16 @@ public abstract class DoorBase
     }
 
     /**
-     * Get amount of time (in seconds) this door will wait before automatically trying to close after having been
-     * opened.
+     * Change the direction the door will open in.
+     * <p>
+     * Also calls {@link #invalidateChunkRange()}.
      *
-     * @return The amount of time (in seconds) after which the door will close automatically.
+     * @param newRotDir New {@link nl.pim16aap2.bigdoors.util.RotateDirection} direction the door will open in.
      */
-    public int getAutoClose()
+    public void setOpenDir(RotateDirection newRotDir)
     {
-        return autoClose;
+        openDir = newRotDir;
+        invalidateChunkRange();
     }
 
     /**
@@ -318,16 +341,14 @@ public abstract class DoorBase
     }
 
     /**
-     * Change the direction the door will open in.
-     * <p>
-     * Also calls {@link #invalidateChunkRange()}.
+     * Get amount of time (in seconds) this door will wait before automatically trying to close after having been
+     * opened.
      *
-     * @param newRotDir New {@link nl.pim16aap2.bigdoors.util.RotateDirection} direction the door will open in.
+     * @return The amount of time (in seconds) after which the door will close automatically.
      */
-    public void setOpenDir(RotateDirection newRotDir)
+    public int getAutoClose()
     {
-        openDir = newRotDir;
-        invalidateChunkRange();
+        return autoClose;
     }
 
     /**
@@ -371,6 +392,19 @@ public abstract class DoorBase
     }
 
     /**
+     * Change the 'minimum' location of this door to a copy of the provided location.
+     * <p>
+     * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param loc The new minimum location to copy
+     */
+    public void setMinimum(final Location loc)
+    {
+        min = loc.clone();
+        onCoordsUpdate();
+    }
+
+    /**
      * Get a copy of the maximum location of this door.
      *
      * @return A copy of the maximum location of this door.
@@ -378,6 +412,19 @@ public abstract class DoorBase
     public Location getMaximum()
     {
         return max.clone();
+    }
+
+    /**
+     * Change the 'maximum' location of this door to a copy of the provided location.
+     * <p>
+     * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param loc The new maximum location to copy.
+     */
+    public void setMaximum(final Location loc)
+    {
+        max = loc.clone();
+        onCoordsUpdate();
     }
 
     /**
@@ -456,32 +503,6 @@ public abstract class DoorBase
     }
 
     /**
-     * Change the 'minimum' location of this door to a copy of the provided location.
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     *
-     * @param loc The new minimum location to copy
-     */
-    public void setMinimum(final Location loc)
-    {
-        min = loc.clone();
-        onCoordsUpdate();
-    }
-
-    /**
-     * Change the 'maximum' location of this door to a copy of the provided location.
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     *
-     * @param loc The new maximum location to copy.
-     */
-    public void setMaximum(final Location loc)
-    {
-        max = loc.clone();
-        onCoordsUpdate();
-    }
-
-    /**
      * Change the location of the engine to a copy of the provided location.
      * <p>
      * Triggers {@link #onCoordsUpdate()}.
@@ -515,26 +536,6 @@ public abstract class DoorBase
     public void setLock(boolean lock)
     {
         isLocked = lock;
-    }
-
-    /**
-     * Change the name of the door.
-     *
-     * @param name The new name of this door.
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    /**
-     * Change the engineSide of this door.
-     *
-     * @param newEngineSide The new {@link PBlockFace} engine side of this door
-     */
-    public void setEngineSide(PBlockFace newEngineSide)
-    {
-        engineSide = newEngineSide;
     }
 
     /**
@@ -638,7 +639,7 @@ public abstract class DoorBase
      */
     public String getBasicInfo()
     {
-        return doorUID + " (" + getPermission() + ")" + ": " + name.toString();
+        return doorUID + " (" + getPermission() + ")" + ": " + name;
     }
 
     /**
@@ -648,18 +649,21 @@ public abstract class DoorBase
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
-        builder.append(doorUID + ": " + name + "\n");
-        builder.append("Type: " + doorType.toString() + ". Permission: " + getPermission() + "\n");
-        builder.append("Min: " + SpigotUtil.locIntToString(min) + ", Max: " + SpigotUtil.locIntToString(max)
-                               + ", Engine: " + SpigotUtil.locIntToString(engine) + "\n");
-        builder.append("PowerBlock location: " + SpigotUtil.locIntToString(powerBlock) + ". Hash: "
-                               + getPowerBlockChunkHash() + "\n");
-        builder.append("This door is " + (isLocked ? "" : "NOT ") + "locked. ");
-        builder.append("This door is " + (isOpen ? "Open.\n" : "Closed.\n"));
-        builder.append("OpenDir: " + openDir.toString() + "; Current Dir: " + getCurrentDirection() + "\n");
+        builder.append(doorUID).append(": ").append(name).append("\n");
+        builder.append("Type: ").append(doorType.toString()).append(". Permission: ").append(getPermission())
+               .append("\n");
+        builder.append("Min: ").append(SpigotUtil.locIntToString(min)).append(", Max: ")
+               .append(SpigotUtil.locIntToString(max)
+               ).append(", Engine: ").append(SpigotUtil.locIntToString(engine)).append("\n");
+        builder.append("PowerBlock location: ").append(SpigotUtil.locIntToString(powerBlock)).append(". Hash: "
+        ).append(getPowerBlockChunkHash()).append("\n");
+        builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
+        builder.append("This door is ").append((isOpen ? "Open.\n" : "Closed.\n"));
+        builder.append("OpenDir: ").append(openDir.toString()).append("; Current Dir: ").append(getCurrentDirection())
+               .append("\n");
 
-        builder.append("AutoClose: " + autoClose);
-        builder.append("; BlocksToMove: " + blocksToMove + "\n");
+        builder.append("AutoClose: ").append(autoClose);
+        builder.append("; BlocksToMove: ").append(blocksToMove).append("\n");
 
         return builder.toString();
     }

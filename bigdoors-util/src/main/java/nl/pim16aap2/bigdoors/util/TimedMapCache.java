@@ -1,23 +1,27 @@
 package nl.pim16aap2.bigdoors.util;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
- * Represents a cached map. Entries can not be accessed after the provided time
- * anymore and they are removed at certain intervals.
+ * Represents a cached map. Entries can not be accessed after the provided time anymore and they are removed at certain
+ * intervals.
  *
  * @param <K> Type of the Key of the map.
  * @param <V> Type of the value of the map.
- *
  * @author Pim
  */
 public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
 {
     /**
-     * The amount of time a variable will be available measured in milliseconds for
-     * positive non-zero values.
+     * The amount of time a variable will be available measured in milliseconds for positive non-zero values.
      * <p>
      * 0 means values are kept forever,
      * <p>
@@ -39,14 +43,13 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     /**
      * Constructor of {@link TimedMapCache}
      *
-     * @param holder   The {@link RestartableHolder} that manages this object.
-     * @param ctor     The type of the map to be used. For example, to use a
-     *                 {@link java.util.HashMap}, use "HashMap::new"
+     * @param holder   The {@link IRestartableHolder} that manages this object.
+     * @param ctor     The type of the map to be used. For example, to use a {@link java.util.HashMap}, use
+     *                 "HashMap::new"
      * @param time     The {@link TimedMapCache#timeOut}.
-     * @param timeUnit The {@link java.util.concurrent.TimeUnit} of the
-     *                 {@link TimedMapCache#timeOut}.
+     * @param timeUnit The {@link java.util.concurrent.TimeUnit} of the {@link TimedMapCache#timeOut}.
      */
-    public TimedMapCache(final RestartableHolder holder, Supplier<? extends Map> ctor, long time, TimeUnit timeUnit)
+    public TimedMapCache(final IRestartableHolder holder, Supplier<? extends Map> ctor, long time, TimeUnit timeUnit)
     {
         super(holder);
 
@@ -68,23 +71,22 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     /**
      * Constructor of {@link TimedMapCache}
      *
-     * @param holder The {@link RestartableHolder} that manages this object.
-     * @param ctor   The type of the map to be used. For example, to use a
-     *               {@link java.util.HashMap}, use "HashMap::new"
+     * @param holder The {@link IRestartableHolder} that manages this object.
+     * @param ctor   The type of the map to be used. For example, to use a {@link java.util.HashMap}, use
+     *               "HashMap::new"
      * @param time   The {@link TimedMapCache#timeOut}.
      */
-    public TimedMapCache(final RestartableHolder holder, Supplier<? extends Map> ctor, long time)
+    public TimedMapCache(final IRestartableHolder holder, Supplier<? extends Map> ctor, long time)
     {
         this(holder, ctor, time, TimeUnit.MINUTES);
     }
 
     /**
-     * Reinitialize the map. If the {@link TimedMapCache#timeOut} has changed,
-     * reinitialize the {@link TimedMapCache#taskTimer} as well.
+     * Reinitialize the map. If the {@link TimedMapCache#timeOut} has changed, reinitialize the {@link
+     * TimedMapCache#taskTimer} as well.
      *
      * @param time     The {@link TimedMapCache#timeOut}.
-     * @param timeUnit The {@link java.util.concurrent.TimeUnit} of the
-     *                 {@link TimedMapCache#timeOut}
+     * @param timeUnit The {@link java.util.concurrent.TimeUnit} of the {@link TimedMapCache#timeOut}
      */
     private void reInit(long time, TimeUnit timeUnit)
     {
@@ -122,14 +124,13 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     }
 
     /**
-     * Get the object from the map if it exists and if caching is enabled (See
-     * {@link TimedMapCache#timeOut}).
-     * 
+     * Get the object from the map if it exists and if caching is enabled (See {@link TimedMapCache#timeOut}).
+     *
      * @param key The Key of the entry that is to be retrieved.
-     * @return The value associated with the key if it exists and hasn't exceeded
-     *         the {@link TimedMapCache#timeOut} and if caching is enabled,
-     *         otherwise null.
+     * @return The value associated with the key if it exists and hasn't exceeded the {@link TimedMapCache#timeOut} and
+     * if caching is enabled, otherwise null.
      */
+    @Override
     public V get(Object key)
     {
         if (timeOut < 0)
@@ -140,8 +141,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     }
 
     /**
-     * Check if any entries have overstayed their welcome (exceeded
-     * {@link TimedMapCache#timeOut}) and remove them.
+     * Check if any entries have overstayed their welcome (exceeded {@link TimedMapCache#timeOut}) and remove them.
      */
     private void verifyCache()
     {
@@ -174,9 +174,9 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
 
     /**
      * {@inheritDoc}
-     * 
-     * @return True if this map contains a mapping for the specified key and if it
-     *         hasn't exceeded the {@link TimedMapCache#timeOut} yet.
+     *
+     * @return True if this map contains a mapping for the specified key and if it hasn't exceeded the {@link
+     * TimedMapCache#timeOut} yet.
      */
     @Override
     public boolean containsKey(Object key)
@@ -197,8 +197,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     }
 
     /**
-     * If caching is disabled (see {@link TimedMapCache#timeOut}), this method does
-     * nothing!
+     * If caching is disabled (see {@link TimedMapCache#timeOut}), this method does nothing!
      * <p>
      * {@inheritDoc}
      */
@@ -207,7 +206,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     {
         if (timeOut < 0)
             return null;
-        TimedValue<V> newVal = new TimedValue<V>(value);
+        TimedValue<V> newVal = new TimedValue<>(value);
         map.put(key, newVal);
         return newVal.value;
     }
@@ -267,8 +266,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     }
 
     /**
-     * Represents a value in a {@link TimedMapCache}. It holds the value and the
-     * time of insertion.
+     * Represents a value in a {@link TimedMapCache}. It holds the value and the time of insertion.
      *
      * @param <V> Type of the value.
      */
@@ -279,7 +277,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
 
         /**
          * Constructor of {@link TimedValue}.
-         * 
+         *
          * @param val The value of this {@link TimedValue}.
          */
         public TimedValue(V val)
@@ -289,10 +287,9 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         }
 
         /**
-         * Check if this {@link TimedValue} was inserted more than
-         * {@link TimedMapCache#timeOut} milliseconds ago. If so, it's considered "timed
-         * out".
-         * 
+         * Check if this {@link TimedValue} was inserted more than {@link TimedMapCache#timeOut} milliseconds ago. If
+         * so, it's considered "timed out".
+         *
          * @return True if the value has timed out.
          */
         public boolean timedOut()
@@ -301,13 +298,12 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         }
 
         /**
-         * Check if an object equals this {@link TimedValue#value}. Note that it only
-         * checks the {@link TimedValue#value}; The {@link TimedValue#insertTime} is
-         * ignored!
-         * 
+         * Check if an object equals this {@link TimedValue#value}. Note that it only checks the {@link
+         * TimedValue#value}; The {@link TimedValue#insertTime} is ignored!
+         *
          * @param o The object to compare to this {@link TimedValue}.
-         * @return True if the {@link TimedValue#value} of the object equals the
-         *         {@link TimedValue#value} of this object, otherwise false.
+         * @return True if the {@link TimedValue#value} of the object equals the {@link TimedValue#value} of this
+         * object, otherwise false.
          */
         @Override
         public final boolean equals(Object o)
@@ -320,13 +316,12 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         }
 
         /**
-         * Check if an object equals the {@link TimedValue#value} of this
-         * {@link TimedValue}. Note that a {@link TimedValue} object would return false!
+         * Check if an object equals the {@link TimedValue#value} of this {@link TimedValue}. Note that a {@link
+         * TimedValue} object would return false!
          *
-         * @param o The object to compare to the {@link TimedValue#value} of this
-         *          {@link TimedValue}.
-         * @return True if the {@link TimedValue#value} of the object equals the
-         *         {@link TimedValue#value} of this {@link TimedValue}, otherwise false.
+         * @param o The object to compare to the {@link TimedValue#value} of this {@link TimedValue}.
+         * @return True if the {@link TimedValue#value} of the object equals the {@link TimedValue#value} of this {@link
+         * TimedValue}, otherwise false.
          */
         public final boolean equalsValue(Object o)
         {
@@ -340,6 +335,6 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     @Override
     public void restart()
     {
-        this.reInit(this.timeOut, TimeUnit.MILLISECONDS);
+        reInit(timeOut, TimeUnit.MILLISECONDS);
     }
 }
