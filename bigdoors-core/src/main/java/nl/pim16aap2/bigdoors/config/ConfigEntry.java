@@ -15,9 +15,9 @@ public final class ConfigEntry<V>
     private final BigDoors plugin;
     private final FileConfiguration config;
     private final String optionName;
-    private V value;
     private final V defaultValue;
     private final String[] comment;
+    private V value;
 
     /**
      * ConfigEntry Constructor.

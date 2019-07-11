@@ -15,11 +15,11 @@ import java.util.function.BiFunction;
 
 class WindmillMover extends BlockMover
 {
-    private final boolean NS;
-    private int tickRate;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
+    private final boolean NS;
     private final BiFunction<PBlockData, Double, Vector> getVector;
+    private int tickRate;
 
     public WindmillMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
                          final double multiplier,

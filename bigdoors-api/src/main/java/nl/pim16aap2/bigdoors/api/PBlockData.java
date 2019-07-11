@@ -19,12 +19,9 @@ public final class PBlockData
     /**
      * Constructor of {@link PBlockData}.
      *
-     * @param newFBlock     The {@link ICustomCraftFallingBlock} that will be
-     *                      animated.
-     * @param radius        The number of blocks between this block and the rotation
-     *                      point.
-     * @param newBlock      If this block can be rotated, this contains the rotated
-     *                      {@link INMSBlock}.
+     * @param newFBlock     The {@link ICustomCraftFallingBlock} that will be animated.
+     * @param radius        The number of blocks between this block and the rotation point.
+     * @param newBlock      If this block can be rotated, this contains the rotated {@link INMSBlock}.
      * @param canRot        True if this block can rotate.
      * @param startLocation The location the block was spawned at initially.
      * @param startAngle    The angle the block had in regards to the rotation point when it was first spawned.
@@ -41,22 +38,21 @@ public final class PBlockData
     }
 
     /**
-     * Changes the {@link ICustomCraftFallingBlock} that is being be animated.
-     * 
-     * @param block The new {@link ICustomCraftFallingBlock} that will be
-     *              animated.
-     */
-    public void setFBlock(ICustomCraftFallingBlock block)
-    {
-        fBlock = block;
-    }
-
-    /**
      * Get the {@link ICustomCraftFallingBlock} that is being be animated.
      */
     public ICustomCraftFallingBlock getFBlock()
     {
         return fBlock;
+    }
+
+    /**
+     * Changes the {@link ICustomCraftFallingBlock} that is being be animated.
+     *
+     * @param block The new {@link ICustomCraftFallingBlock} that will be animated.
+     */
+    public void setFBlock(ICustomCraftFallingBlock block)
+    {
+        fBlock = block;
     }
 
     /**
@@ -70,7 +66,7 @@ public final class PBlockData
 
     /**
      * Get the number of blocks between this block and the rotation point.
-     * 
+     *
      * @return The number of blocks between this block and the rotation point.
      */
     public float getRadius()
@@ -79,9 +75,8 @@ public final class PBlockData
     }
 
     /**
-     * If it exist, get the rotated {@link INMSBlock}. If this block cannot
-     * rotate, this value does not exist.
-     * 
+     * If it exist, get the rotated {@link INMSBlock}. If this block cannot rotate, this value does not exist.
+     *
      * @return The rotated {@link INMSBlock} if it exists.
      */
     public INMSBlock getBlock()
@@ -91,7 +86,7 @@ public final class PBlockData
 
     /**
      * Check if this block can rotate.
-     * 
+     *
      * @return True if this block can rotate.
      */
     public boolean canRot()
@@ -101,7 +96,7 @@ public final class PBlockData
 
     /**
      * Get the location the block was first spawned at.
-     * 
+     *
      * @return The location the block was first spawned at.
      */
     public Location getStartLocation()
@@ -113,7 +108,7 @@ public final class PBlockData
 
     /**
      * Get the x-coordinate of the location the block was first spawned at.
-     * 
+     *
      * @return The x-coordinate of the location the block was first spawned at.
      */
     public double getStartX()
@@ -123,7 +118,7 @@ public final class PBlockData
 
     /**
      * Get the y-coordinate of the location the block was first spawned at.
-     * 
+     *
      * @return The y-coordinate of the location the block was first spawned at.
      */
     public double getStartY()
@@ -133,7 +128,7 @@ public final class PBlockData
 
     /**
      * Get the z-coordinate of the location the block was first spawned at.
-     * 
+     *
      * @return The 1-coordinate of the location the block was first spawned at.
      */
     public double getStartZ()

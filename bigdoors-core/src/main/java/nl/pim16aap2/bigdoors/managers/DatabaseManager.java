@@ -41,13 +41,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseManager extends Restartable
 {
+    private final IStorage db;
+    private final BigDoors plugin;
     // Players map stores players for faster UUID / Name matching.
     private ConcurrentHashMap<Long, Boolean> busyDoors;
     private TimedMapCache<UUID, String> players;
     private boolean goOn = true;
     private boolean paused = false;
-    private final IStorage db;
-    private final BigDoors plugin;
 
     public DatabaseManager(final BigDoors plugin, final String dbFile)
     {

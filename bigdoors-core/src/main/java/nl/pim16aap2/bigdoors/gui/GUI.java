@@ -49,22 +49,18 @@ public class GUI
                     Material.BARRIER,      // UNUSED
                     Material.BARRIER,      // UNUSED
             };
-
-    private IGUIPage guiPage;
-
-    private boolean isRefreshing;
-    private boolean isOpen;
-
     private final BigDoors plugin;
     private final Player player;
-
+    private final List<DoorBase> doorBases;
+    private final Map<Integer, GUIItem> items;
+    private IGUIPage guiPage;
+    private boolean isRefreshing;
+    private boolean isOpen;
     private Messages messages;
     private int page;
-    private final List<DoorBase> doorBases;
     private int doorOwnerPage = 0;
     private SortType sortType = SortType.ID;
     private Inventory inventory = null;
-    private final Map<Integer, GUIItem> items;
     private int maxPageCount;
     private DoorBase door = null;
 
@@ -233,12 +229,6 @@ public class GUI
         return inventory;
     }
 
-    void setSortType(SortType sortType)
-    {
-        this.sortType = sortType;
-        sort();
-    }
-
     void setNextSortType()
     {
         setSortType(sortType.next());
@@ -247,6 +237,12 @@ public class GUI
     SortType getSortType()
     {
         return sortType;
+    }
+
+    void setSortType(SortType sortType)
+    {
+        this.sortType = sortType;
+        sort();
     }
 
     protected static enum SortType

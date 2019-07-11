@@ -21,12 +21,12 @@ import java.util.logging.Level;
  */
 public class PLogger
 {
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+    private static AtomicLong queueProcessor = null;
     private final File logFile;
     private final BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
-    private static AtomicLong queueProcessor = null;
     private final IMessagingInterface messagingInterface;
     private boolean success = false;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
     private boolean debug = false;
 
     /**
@@ -43,6 +43,17 @@ public class PLogger
         prepareLog();
         if (success)
             new Thread(() -> processQueue()).start();
+    }
+
+    /**
+     * Format the name properly for logging purposes. For example: '[BigDoors]'
+     *
+     * @param name The name to be used for logging purposes.
+     * @return The name in the proper format.
+     */
+    public static @NotNull String formatName(@NotNull final String name)
+    {
+        return "[" + name + "] ";
     }
 
     /**
@@ -126,17 +137,6 @@ public class PLogger
                 return;
             }
         success = true;
-    }
-
-    /**
-     * Format the name properly for logging purposes. For example: '[BigDoors]'
-     *
-     * @param name The name to be used for logging purposes.
-     * @return The name in the proper format.
-     */
-    public static @NotNull String formatName(@NotNull final String name)
-    {
-        return "[" + name + "] ";
     }
 
     /**

@@ -22,11 +22,11 @@ import java.util.Map;
  */
 public final class Messages
 {
-    private HashMap<String, String> messageMap = new HashMap<>();
+    private static final String DEFAULTFILENAME = "en_US.txt";
     private final PLogger logger;
     private final File fileDir;
+    private HashMap<String, String> messageMap = new HashMap<>();
     private File textFile;
-    private static final String DEFAULTFILENAME = "en_US.txt";
 
     /**
      * Constructor for Messages object.

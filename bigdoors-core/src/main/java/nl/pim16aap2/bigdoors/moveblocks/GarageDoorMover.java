@@ -17,13 +17,13 @@ import java.util.function.BiFunction;
 
 class GarageDoorMover extends BlockMover
 {
-    private int tickRate;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
-    private BiFunction<PBlockData, Double, Vector> getVector;
     private final double time;
     private final double resultHeight;
     private final Vector3D directionVec;
+    private int tickRate;
+    private BiFunction<PBlockData, Double, Vector> getVector;
     private int xLen, yLen, zLen;
 
     public GarageDoorMover(final BigDoors plugin, final World world, final DoorBase door, final double time,

@@ -22,12 +22,12 @@ import org.bukkit.util.Vector;
 class CylindricalMover extends BlockMover
 {
     private final int tickRate;
-    private double endStepSum;
-    private double multiplier;
-    private double startStepSum;
     private final int stepMultiplier;
     private final Location turningPoint;
     private final IGetNewLocation gnl;
+    private double endStepSum;
+    private double multiplier;
+    private double startStepSum;
 
     CylindricalMover(final BigDoors plugin, final World world, final RotateDirection rotDirection,
                      final double time, final PBlockFace currentDirection, final DoorBase door,

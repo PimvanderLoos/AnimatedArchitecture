@@ -24,12 +24,12 @@ class SpigotUpdater
     final static String VERSIONS_URL = "https://api.spiget.org/v2/resources/58669/versions?size=" +
             Integer.MAX_VALUE + "&spiget__ua=SpigetDocs";
     final static String INFO_URL = "https://api.spiget.org/v2/resources/58669";
+    private final BigDoors plugin;
     private int project = 0;
     private int versionsAgo = 0;
     private String newVersion = "";
     private int newVersionID = -1;
     private boolean success = false;
-    private final BigDoors plugin;
 
     public SpigotUpdater(BigDoors plugin, int projectID)
     {

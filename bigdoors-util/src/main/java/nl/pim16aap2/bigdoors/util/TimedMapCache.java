@@ -20,6 +20,8 @@ import java.util.function.Supplier;
  */
 public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
 {
+    private final Supplier<? extends Map> ctor;
+    private final Class<? extends Map> mapType;
     /**
      * The amount of time a variable will be available measured in milliseconds for positive non-zero values.
      * <p>
@@ -37,8 +39,6 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      * Periodically run the {@link TimedMapCache#verifyTask}.
      */
     private Timer taskTimer;
-    private final Supplier<? extends Map> ctor;
-    private final Class<? extends Map> mapType;
 
     /**
      * Constructor of {@link TimedMapCache}
@@ -266,6 +266,15 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     }
 
     /**
+     * Reinitialize this object. See {@link TimedMapCache#reInit(long, TimeUnit)}.
+     */
+    @Override
+    public void restart()
+    {
+        reInit(timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    /**
      * Represents a value in a {@link TimedMapCache}. It holds the value and the time of insertion.
      *
      * @param <V> Type of the value.
@@ -327,14 +336,5 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         {
             return o.equals(value);
         }
-    }
-
-    /**
-     * Reinitialize this object. See {@link TimedMapCache#reInit(long, TimeUnit)}.
-     */
-    @Override
-    public void restart()
-    {
-        reInit(timeOut, TimeUnit.MILLISECONDS);
     }
 }

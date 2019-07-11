@@ -17,12 +17,12 @@ import java.util.HashMap;
 
 public class VaultManager extends Restartable
 {
+    protected final BigDoors plugin;
     private final HashMap<Long, Double> menu;
     private final HashMap<DoorType, Integer> flatPrices;
+    private final boolean vaultEnabled;
     private Economy economy = null;
     private Permission perms = null;
-    private final boolean vaultEnabled;
-    protected final BigDoors plugin;
 
     public VaultManager(final BigDoors plugin)
     {

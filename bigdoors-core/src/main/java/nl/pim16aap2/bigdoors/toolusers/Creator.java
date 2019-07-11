@@ -53,15 +53,16 @@ public abstract class Creator extends ToolUser
     {
         if (isReadyToCreateDoor() && !aborting)
         {
-            World world     = one.getWorld();
-            Location min    = new Location(world, one.getBlockX(), one.getBlockY(), one.getBlockZ());
-            Location max    = new Location(world, two.getBlockX(), two.getBlockY(), two.getBlockZ());
+            World world = one.getWorld();
+            Location min = new Location(world, one.getBlockX(), one.getBlockY(), one.getBlockZ());
+            Location max = new Location(world, two.getBlockX(), two.getBlockY(), two.getBlockZ());
 
             String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max);
             if (canBreakBlock != null)
             {
-                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
-                this.abort(false);
+                SpigotUtil.messagePlayer(player,
+                                         messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
+                abort(false);
                 return;
             }
 
@@ -91,22 +92,23 @@ public abstract class Creator extends ToolUser
                 plugin.getDatabaseManager().addDoorBase(door);
                 if (message != null)
                     SpigotUtil.messagePlayer(player, message);
-                plugin.getGlowingBlockSpawner().spawnGlowinBlock(player.getUniqueId(), world.getName(), 30, engine.getBlockX() +
-                        0.5, engine.getBlockY(), engine.getBlockZ() + 0.5);
+                plugin.getGlowingBlockSpawner()
+                      .spawnGlowinBlock(player.getUniqueId(), world.getName(), 30, engine.getBlockX() +
+                              0.5, engine.getBlockY(), engine.getBlockZ() + 0.5);
             }
         }
         super.finishUp();
+    }
+
+    public final String getName()
+    {
+        return doorName;
     }
 
     public final void setName(String newName)
     {
         doorName = newName;
         triggerGiveTool();
-    }
-
-    public final String getName()
-    {
-        return doorName;
     }
 
     // Make sure position "one" contains the minimum values, "two" the maximum

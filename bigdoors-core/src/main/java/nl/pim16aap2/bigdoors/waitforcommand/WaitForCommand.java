@@ -10,10 +10,10 @@ import org.bukkit.entity.Player;
 
 public abstract class WaitForCommand extends Abortable
 {
-    protected Player player;
     protected final BigDoors plugin;
-    protected boolean isFinished = false;
     protected final SubCommand subCommand;
+    protected Player player;
+    protected boolean isFinished = false;
 
     protected WaitForCommand(final BigDoors plugin, final SubCommand subCommand)
     {

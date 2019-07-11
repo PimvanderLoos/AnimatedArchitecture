@@ -18,10 +18,9 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 class GriefPreventionProtectionCompat implements IProtectionCompat
 {
+    private static final ProtectionCompat compat = ProtectionCompat.GRIEFPREVENTION;
     private final BigDoors plugin;
     private final GriefPrevention griefPrevention;
-    private static final ProtectionCompat compat = ProtectionCompat.GRIEFPREVENTION;
-
     private boolean success = false;
 
     public GriefPreventionProtectionCompat(BigDoors plugin)

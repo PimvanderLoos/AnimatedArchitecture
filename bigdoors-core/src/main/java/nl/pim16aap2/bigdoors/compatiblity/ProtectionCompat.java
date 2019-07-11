@@ -80,29 +80,20 @@ public enum ProtectionCompat
             },
     ;
 
-    private final String name;
     private static final Map<String, ProtectionCompat> nameMap = new HashMap<>();
+
+    static
+    {
+        for (ProtectionCompat compat : ProtectionCompat.values())
+            nameMap.put(ProtectionCompat.getName(compat), compat);
+    }
+
+    private final String name;
 
     ProtectionCompat(final String name)
     {
         this.name = name;
     }
-
-    /**
-     * Get the function in the config that determines if the compat is enabled in the config.
-     *
-     * @param config The config loader to query for if this compat is enabled.
-     * @return The function in the config that determines if the compat is enabled in the config.
-     */
-    public abstract boolean isEnabled(ConfigLoader config);
-
-    /**
-     * Get the class of the given hook for a specific version of the plugin to load the compat for.
-     *
-     * @param version The version of the plugin to load the hook for.
-     * @return The {@link IProtectionCompat} class of the compat.
-     */
-    public abstract Class<? extends IProtectionCompat> getClass(final String version);
 
     /**
      * Get the name of the plugin the given compat hooks into.
@@ -128,9 +119,19 @@ public enum ProtectionCompat
         return null;
     }
 
-    static
-    {
-        for (ProtectionCompat compat : ProtectionCompat.values())
-            nameMap.put(ProtectionCompat.getName(compat), compat);
-    }
+    /**
+     * Get the function in the config that determines if the compat is enabled in the config.
+     *
+     * @param config The config loader to query for if this compat is enabled.
+     * @return The function in the config that determines if the compat is enabled in the config.
+     */
+    public abstract boolean isEnabled(ConfigLoader config);
+
+    /**
+     * Get the class of the given hook for a specific version of the plugin to load the compat for.
+     *
+     * @param version The version of the plugin to load the hook for.
+     * @return The {@link IProtectionCompat} class of the compat.
+     */
+    public abstract Class<? extends IProtectionCompat> getClass(final String version);
 }

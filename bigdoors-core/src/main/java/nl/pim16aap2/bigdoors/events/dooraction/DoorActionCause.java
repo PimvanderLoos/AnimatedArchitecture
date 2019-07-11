@@ -7,5 +7,7 @@ package nl.pim16aap2.bigdoors.events.dooraction;
  */
 public enum DoorActionCause
 {
-    PLAYER, REDSTONE, SERVER
+    PLAYER,
+    REDSTONE,
+    SERVER
 }

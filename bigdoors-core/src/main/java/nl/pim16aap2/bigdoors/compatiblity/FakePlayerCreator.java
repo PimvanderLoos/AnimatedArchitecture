@@ -24,6 +24,7 @@ class FakePlayerCreator
 
     private final String NMSbase;
     private final String CraftBase;
+    private final BigDoors plugin;
     private Class<?> CraftOfflinePlayer;
     private Class<?> CraftWorld;
     private Class<?> World;
@@ -38,20 +39,7 @@ class FakePlayerCreator
     private Constructor<?> EntityPlayerConstructor;
     private Constructor<?> PlayerInteractManagerConstructor;
     private Field uuid;
-
-    private final BigDoors plugin;
-
     private boolean success = false;
-
-    private Class<?> getNMSClass(String name) throws ClassNotFoundException
-    {
-        return Class.forName(NMSbase + name);
-    }
-
-    private Class<?> getCraftClass(String name) throws ClassNotFoundException
-    {
-        return Class.forName(CraftBase + name);
-    }
 
     public FakePlayerCreator(final BigDoors plugin)
     {
@@ -93,6 +81,16 @@ class FakePlayerCreator
             return;
         }
         success = true;
+    }
+
+    private Class<?> getNMSClass(String name) throws ClassNotFoundException
+    {
+        return Class.forName(NMSbase + name);
+    }
+
+    private Class<?> getCraftClass(String name) throws ClassNotFoundException
+    {
+        return Class.forName(CraftBase + name);
     }
 
     /**

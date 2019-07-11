@@ -15,6 +15,10 @@ public class ChunkUnloadHandler implements Listener
     private final BigDoors plugin;
     private final boolean isCancellable;
     private boolean success = false;
+    // <1.14 method.
+    private Method isCancelled;
+    // 1.14 => method.
+    private Method isForceLoaded;
 
     public ChunkUnloadHandler(BigDoors plugin)
     {
@@ -22,12 +26,6 @@ public class ChunkUnloadHandler implements Listener
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
         init();
     }
-
-    // <1.14 method.
-    private Method isCancelled;
-
-    // 1.14 => method.
-    private Method isForceLoaded;
 
     private void init()
     {

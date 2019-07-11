@@ -18,10 +18,10 @@ import java.util.logging.Level;
 
 public abstract class ToolUser extends Abortable
 {
-    protected long doorUID;
     protected final BigDoors plugin;
-    protected Player player;
     protected final Messages messages;
+    protected long doorUID;
+    protected Player player;
     protected boolean done = false;
     protected boolean aborting = false;
 

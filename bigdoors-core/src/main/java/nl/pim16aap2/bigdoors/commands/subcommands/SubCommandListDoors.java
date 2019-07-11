@@ -50,7 +50,8 @@ public class SubCommandListDoors extends SubCommand
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
         if (sender instanceof Player)
 //            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name));
-            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name).orElse(new ArrayList<>()));
+            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name)
+                               .orElse(new ArrayList<>()));
         else if (name != null)
         {
             doors.addAll(plugin.getDatabaseManager().getDoors(name).orElse(new ArrayList<>()));

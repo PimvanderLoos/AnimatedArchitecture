@@ -40,111 +40,6 @@ public class CommandManager implements CommandExecutor
         commandsShortcut = new HashMap<>();
     }
 
-    public void registerCommand(ICommand command)
-    {
-        commands.put(command.getName().toLowerCase(), command);
-        commandsShortcut.put(command.getCommandData(), command);
-        plugin.getCommand(command.getName()).setExecutor(this);
-    }
-
-    public void registerCommandShortcut(SubCommand subCommand)
-    {
-        commandsShortcut.put(subCommand.getCommandData(), subCommand);
-    }
-
-    public ICommand getCommand(String name)
-    {
-        return commands.get(name);
-    }
-
-    public ICommand getCommand(CommandData command)
-    {
-        return commandsShortcut.get(command);
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-    {
-        ICommand command = commands.get(cmd.getName().toLowerCase());
-        try
-        {
-            if (!permissionForCommand(sender, command))
-                throw new CommandPermissionException();
-            return command.onCommand(sender, cmd, label, args);
-        }
-        catch (CommandSenderNotPlayerException e)
-        {
-            plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NotPlayer"));
-        }
-        catch (CommandPermissionException e)
-        {
-            plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NoPermission"));
-        }
-        catch (IllegalArgumentException e)
-        {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + e.getMessage());
-        }
-        catch (CommandPlayerNotFoundException e)
-        {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
-                + plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + e.getPlayerArg() + "\"");
-        }
-        catch (CommandActionNotAllowedException e)
-        {
-            plugin.getPLogger()
-                .sendMessageToTarget(sender, Level.INFO,
-                                     ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
-        }
-        catch (Exception e)
-        {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                    ChatColor.RED + plugin.getMessages().getString("GENERAL.Error"));
-            StringBuilder sb = new StringBuilder();
-            for (String str : args)
-                sb.append(str).append(str.equals(args[args.length - 1]) ? "" : ", ");
-            plugin.getPLogger().logException(e, "An exception occurred while processing command \"" + cmd.getName()
-                    + "\" with args: \"" + sb.toString() + "\"!");
-        }
-        return true;
-    }
-
-    public @NotNull DoorBase getDoorFromArg(@NotNull CommandSender sender, @NotNull String doorArg)
-            throws IllegalArgumentException
-    {
-        DoorBase door = null;
-
-        if (sender instanceof Player)
-            try
-            {
-                door = plugin.getDatabaseManager().getDoor(((Player) sender).getUniqueId(), doorArg).orElse(null);
-            }
-            catch (TooManyDoorsException e)
-            {
-                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString("GENERAL.MoreThan1DoorFound"));
-            }
-            catch (NotEnoughDoorsException e)
-            {
-                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
-            }
-        else
-            try
-            {
-                door = plugin.getDatabaseManager().getDoor(Long.parseLong(doorArg)).orElse(null);
-            }
-            catch (NumberFormatException e)
-            {
-                plugin.getPLogger()
-                      .info("\"" + doorArg + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorID"));
-            }
-        if (door == null)
-            throw new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!");
-        return door;
-    }
-
     public static UUID getPlayerFromArg(@NotNull String playerArg) throws CommandPlayerNotFoundException
     {
         UUID playerUUID = SpigotUtil.playerUUIDFromString(playerArg);
@@ -198,5 +93,110 @@ public class CommandManager implements CommandExecutor
     public static String getHelpMessage()
     {
         return helpMessage;
+    }
+
+    public void registerCommand(ICommand command)
+    {
+        commands.put(command.getName().toLowerCase(), command);
+        commandsShortcut.put(command.getCommandData(), command);
+        plugin.getCommand(command.getName()).setExecutor(this);
+    }
+
+    public void registerCommandShortcut(SubCommand subCommand)
+    {
+        commandsShortcut.put(subCommand.getCommandData(), subCommand);
+    }
+
+    public ICommand getCommand(String name)
+    {
+        return commands.get(name);
+    }
+
+    public ICommand getCommand(CommandData command)
+    {
+        return commandsShortcut.get(command);
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    {
+        ICommand command = commands.get(cmd.getName().toLowerCase());
+        try
+        {
+            if (!permissionForCommand(sender, command))
+                throw new CommandPermissionException();
+            return command.onCommand(sender, cmd, label, args);
+        }
+        catch (CommandSenderNotPlayerException e)
+        {
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NotPlayer"));
+        }
+        catch (CommandPermissionException e)
+        {
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NoPermission"));
+        }
+        catch (IllegalArgumentException e)
+        {
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + e.getMessage());
+        }
+        catch (CommandPlayerNotFoundException e)
+        {
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
+                    + plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + e.getPlayerArg() + "\"");
+        }
+        catch (CommandActionNotAllowedException e)
+        {
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+        }
+        catch (Exception e)
+        {
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                    ChatColor.RED + plugin.getMessages().getString("GENERAL.Error"));
+            StringBuilder sb = new StringBuilder();
+            for (String str : args)
+                sb.append(str).append(str.equals(args[args.length - 1]) ? "" : ", ");
+            plugin.getPLogger().logException(e, "An exception occurred while processing command \"" + cmd.getName()
+                    + "\" with args: \"" + sb.toString() + "\"!");
+        }
+        return true;
+    }
+
+    public @NotNull DoorBase getDoorFromArg(@NotNull CommandSender sender, @NotNull String doorArg)
+            throws IllegalArgumentException
+    {
+        DoorBase door = null;
+
+        if (sender instanceof Player)
+            try
+            {
+                door = plugin.getDatabaseManager().getDoor(((Player) sender).getUniqueId(), doorArg).orElse(null);
+            }
+            catch (TooManyDoorsException e)
+            {
+                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString("GENERAL.MoreThan1DoorFound"));
+            }
+            catch (NotEnoughDoorsException e)
+            {
+                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            }
+        else
+            try
+            {
+                door = plugin.getDatabaseManager().getDoor(Long.parseLong(doorArg)).orElse(null);
+            }
+            catch (NumberFormatException e)
+            {
+                plugin.getPLogger()
+                      .info("\"" + doorArg + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorID"));
+            }
+        if (door == null)
+            throw new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!");
+        return door;
     }
 }

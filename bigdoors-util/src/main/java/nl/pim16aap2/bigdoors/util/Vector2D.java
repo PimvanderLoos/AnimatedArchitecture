@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.util;
 
 /**
  * Represents an Integer vector or vertex in 2D space.
- * 
+ *
  * @autor Pim
  */
 public final class Vector2D implements Cloneable
@@ -79,7 +79,7 @@ public final class Vector2D implements Cloneable
             return true;
         if (o == null)
             return false;
-        if (this.getClass() != o.getClass())
+        if (getClass() != o.getClass())
             return false;
         Vector2D other = (Vector2D) o;
         return x == other.x && y == other.y;

@@ -26,6 +26,20 @@ import java.util.UUID;
  */
 public final class SpigotUtil
 {
+    private static final Map<PBlockFace, BlockFace> toBlockFace = new HashMap<>();
+    private static final Map<BlockFace, PBlockFace> toPBlockFace = new HashMap<>();
+    public static boolean printDebugMessages = false;
+
+    static
+    {
+        for (PBlockFace mbf : PBlockFace.values())
+        {
+            BlockFace mappedBlockFace = BlockFace.valueOf(mbf.toString());
+            toBlockFace.put(mbf, mappedBlockFace);
+            toPBlockFace.put(mappedBlockFace, mbf);
+        }
+    }
+
     /**
      * Send a colored message to a specific player.
      *
@@ -50,19 +64,6 @@ public final class SpigotUtil
         return String.format(ChatColor.GREEN + "/%s: " + ChatColor.BLUE + "%s\n", command, explanation);
     }
 
-    private static final Map<PBlockFace, BlockFace> toBlockFace = new HashMap<>();
-    private static final Map<BlockFace, PBlockFace> toPBlockFace = new HashMap<>();
-
-    static
-    {
-        for (PBlockFace mbf : PBlockFace.values())
-        {
-            BlockFace mappedBlockFace = BlockFace.valueOf(mbf.toString());
-            toBlockFace.put(mbf, mappedBlockFace);
-            toPBlockFace.put(mappedBlockFace, mbf);
-        }
-    }
-
     /**
      * Get the {@link PBlockFace} parallel to the given {@link org.bukkit.block.BlockFace}.
      *
@@ -84,8 +85,6 @@ public final class SpigotUtil
     {
         return toPBlockFace.get(bf);
     }
-
-    public static boolean printDebugMessages = false;
 
     /**
      * Broadcast a message if debugging is enabled in the config.

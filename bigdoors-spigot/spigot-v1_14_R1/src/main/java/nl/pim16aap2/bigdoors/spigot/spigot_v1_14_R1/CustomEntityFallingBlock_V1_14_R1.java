@@ -41,16 +41,16 @@ import java.util.List;
 public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.EntityFallingBlock
         implements ICustomEntityFallingBlock
 {
-    private IBlockData block;
-    public int ticksLived;
-    public boolean dropItem;
-    private boolean f;
-    public boolean hurtEntities;
-    private int fallHurtMax;
-    private float fallHurtAmount;
-    public NBTTagCompound tileEntityData;
     protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
                                                                               DataWatcherRegistry.l);
+    public int ticksLived;
+    public boolean dropItem;
+    public boolean hurtEntities;
+    public NBTTagCompound tileEntityData;
+    private IBlockData block;
+    private boolean f;
+    private int fallHurtMax;
+    private float fallHurtAmount;
     private org.bukkit.World bukkitWorld;
 
     public CustomEntityFallingBlock_V1_14_R1(org.bukkit.World world, double d0, double d1, double d2,

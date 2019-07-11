@@ -11,8 +11,8 @@ import java.util.Map;
 
 public class AutoCloseScheduler extends Restartable
 {
-    private final Map<Long, BukkitTask> timers;
     protected final BigDoors plugin;
+    private final Map<Long, BukkitTask> timers;
 
     public AutoCloseScheduler(final BigDoors plugin)
     {

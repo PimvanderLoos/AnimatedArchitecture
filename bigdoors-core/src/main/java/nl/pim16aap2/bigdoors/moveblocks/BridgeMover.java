@@ -21,6 +21,8 @@ import org.bukkit.util.Vector;
 
 class BridgeMover extends BlockMover
 {
+    private final TriFunction<PBlockData, Double, Location, Vector> getDelta;
+    private final IGetNewLocation gnl;
     private int tickRate;
     private double multiplier;
     private boolean NS;
@@ -29,8 +31,6 @@ class BridgeMover extends BlockMover
     private Location turningPoint;
     private double startStepSum;
     private int stepMultiplier;
-    private final TriFunction<PBlockData, Double, Location, Vector> getDelta;
-    private final IGetNewLocation gnl;
 
     public BridgeMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
                        final PBlockFace upDown, final RotateDirection openDirection, final boolean instantOpen,

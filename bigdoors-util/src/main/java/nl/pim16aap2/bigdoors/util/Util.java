@@ -11,6 +11,10 @@ import java.util.Random;
  */
 public final class Util
 {
+    static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    static SecureRandom srnd = new SecureRandom();
+    static Random rnd = new Random();
+
     /**
      * Clamp an angle to [-2PI ; 2PI].
      *
@@ -21,6 +25,7 @@ public final class Util
     {
         return angle % (2 * Math.PI);
     }
+
     /**
      * Clamp an angle to [-360 ; 360].
      *
@@ -73,8 +78,8 @@ public final class Util
     }
 
     /**
-     * Check if a given string is a valid door name. Numerical names aren't allowed,
-     * to make sure they don't get confused for doorUIDs.
+     * Check if a given string is a valid door name. Numerical names aren't allowed, to make sure they don't get
+     * confused for doorUIDs.
      *
      * @param name The name to test for validity,
      * @return True if the name is allowed.
@@ -91,10 +96,6 @@ public final class Util
             return true;
         }
     }
-
-    static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    static SecureRandom srnd = new SecureRandom();
-    static Random rnd = new Random();
 
     /**
      * Generate an insecure random alphanumeric string of a given length.
@@ -125,13 +126,11 @@ public final class Util
     }
 
     /**
-     * Try to convert a string to a double. Use the default value in case of
-     * failure.
+     * Try to convert a string to a double. Use the default value in case of failure.
      *
      * @param input      The string to be converted to a double.
      * @param defaultVal The value that is to be used as backup.
-     * @return Double converted from the string if possible, and defaultVal
-     *         otherwise.
+     * @return Double converted from the string if possible, and defaultVal otherwise.
      */
     public static double doubleFromString(String input, double defaultVal)
     {
@@ -184,8 +183,7 @@ public final class Util
      * @param test Value to be compared.
      * @param low  Minimum value.
      * @param high Maximum value.
-     * @return True if the value is in the provided range or if it equals the low
-     *         and/or the high value.
+     * @return True if the value is in the provided range or if it equals the low and/or the high value.
      */
     public static boolean between(int test, int low, int high)
     {

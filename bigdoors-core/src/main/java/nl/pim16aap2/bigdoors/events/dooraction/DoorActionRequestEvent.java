@@ -16,8 +16,8 @@ public class DoorActionRequestEvent extends PEvent implements IPCancellable
     private final long doorUID;
     private final DoorActionCause cause;
     private final DoorActionType actionType;
-    private boolean isCancelled = false;
     private final UUID initiator;
+    private boolean isCancelled = false;
     private String name = null;
 
     public DoorActionRequestEvent(final long doorUID, final DoorActionCause cause, final DoorActionType actionType,
@@ -80,17 +80,17 @@ public class DoorActionRequestEvent extends PEvent implements IPCancellable
      * {@inheritDoc}
      */
     @Override
-    public void setCancelled(boolean cancel)
+    public boolean isCancelled()
     {
-        isCancelled = cancel;
+        return isCancelled;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isCancelled()
+    public void setCancelled(boolean cancel)
     {
-        return isCancelled;
+        isCancelled = cancel;
     }
 }

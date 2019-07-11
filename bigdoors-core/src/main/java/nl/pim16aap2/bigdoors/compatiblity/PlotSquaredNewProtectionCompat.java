@@ -24,10 +24,10 @@ import java.util.Optional;
  */
 public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 {
-    private final BigDoors plugin;
-    private boolean success = false;
-    private final JavaPlugin plotSquaredPlugin;
     private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
+    private final BigDoors plugin;
+    private final JavaPlugin plotSquaredPlugin;
+    private boolean success = false;
 
     public PlotSquaredNewProtectionCompat(BigDoors plugin)
     {

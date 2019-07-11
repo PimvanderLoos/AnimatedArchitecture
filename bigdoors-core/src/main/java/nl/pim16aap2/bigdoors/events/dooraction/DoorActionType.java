@@ -7,5 +7,7 @@ package nl.pim16aap2.bigdoors.events.dooraction;
  */
 public enum DoorActionType
 {
-    TOGGLE, OPEN, CLOSE
+    TOGGLE,
+    OPEN,
+    CLOSE
 }

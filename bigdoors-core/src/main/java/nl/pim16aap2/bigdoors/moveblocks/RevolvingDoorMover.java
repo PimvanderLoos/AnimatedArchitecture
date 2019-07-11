@@ -15,11 +15,11 @@ import java.util.function.BiFunction;
 
 class RevolvingDoorMover extends BlockMover
 {
-    private int tickRate;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
     private final BiFunction<PBlockData, Double, Vector> getGoalPos;
     private final double time;
+    private int tickRate;
 
     public RevolvingDoorMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
                               final double multiplier,

@@ -26,25 +26,6 @@ class GUIItem
     private DoorAttribute attribute = null;
     private Object specialValue;
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("GUIItem: ");
-        if (is != null)
-            sb.append("\nItemStack: ").append(is.toString());
-        if (doorOwner != null)
-            sb.append("\nDoorOwner: ").append(doorOwner.toString());
-        if (specialValue != null)
-            sb.append("\nSpecialValue: ").append(specialValue);
-        if (lore != null)
-            sb.append("\nLore: ").append(lore.toString());
-        if (name != null)
-            sb.append("\nName: ").append(name);
-
-        return sb.toString();
-    }
-
     public GUIItem(Material mat, String name, ArrayList<String> lore, int count, Object specialValue)
     {
         this.name = name;
@@ -101,6 +82,25 @@ class GUIItem
         construct();
     }
 
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("GUIItem: ");
+        if (is != null)
+            sb.append("\nItemStack: ").append(is.toString());
+        if (doorOwner != null)
+            sb.append("\nDoorOwner: ").append(doorOwner.toString());
+        if (specialValue != null)
+            sb.append("\nSpecialValue: ").append(specialValue);
+        if (lore != null)
+            sb.append("\nLore: ").append(lore.toString());
+        if (name != null)
+            sb.append("\nName: ").append(name);
+
+        return sb.toString();
+    }
+
     private void construct()
     {
         ItemMeta meta = is.getItemMeta();
@@ -120,24 +120,24 @@ class GUIItem
         return is;
     }
 
-    public void setDoorAttribute(DoorAttribute atr)
-    {
-        attribute = atr;
-    }
-
     public DoorAttribute getDoorAttribute()
     {
         return attribute;
     }
 
-    public void setDoor(DoorBase door)
+    public void setDoorAttribute(DoorAttribute atr)
     {
-        this.door = door;
+        attribute = atr;
     }
 
     public DoorBase getDoor()
     {
         return door;
+    }
+
+    public void setDoor(DoorBase door)
+    {
+        this.door = door;
     }
 
     public Material getMaterial()

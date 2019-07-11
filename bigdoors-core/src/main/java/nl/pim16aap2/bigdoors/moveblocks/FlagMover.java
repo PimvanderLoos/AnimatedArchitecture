@@ -14,11 +14,11 @@ import java.util.function.BiFunction;
 
 class FlagMover extends BlockMover
 {
-    private final BiFunction<PBlockData, Double, Vector> getGoalPos;
-    private int tickRate;
-    private final boolean NS;
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
+    private final BiFunction<PBlockData, Double, Vector> getGoalPos;
+    private final boolean NS;
+    private int tickRate;
 
     public FlagMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
                      final double multiplier)

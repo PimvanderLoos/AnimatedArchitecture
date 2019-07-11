@@ -24,8 +24,8 @@ public class ProtectionCompatManager extends Restartable implements Listener
     private static final String BYPASSPERMISSION = "bigdoors.admin.bypasscompat";
 
     private final ArrayList<IProtectionCompat> protectionCompats;
-    private FakePlayerCreator fakePlayerCreator;
     private final BigDoors plugin;
+    private FakePlayerCreator fakePlayerCreator;
 
     /**
      * Constructor of {@link ProtectionCompatManager}.

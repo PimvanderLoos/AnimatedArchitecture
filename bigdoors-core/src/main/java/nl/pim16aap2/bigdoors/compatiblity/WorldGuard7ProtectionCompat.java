@@ -21,12 +21,12 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 class WorldGuard7ProtectionCompat implements IProtectionCompat
 {
+    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
     @SuppressWarnings("unused")
     private final BigDoors plugin;
     private final WorldGuard worldGuard;
     private final WorldGuardPlugin worldGuardPlugin;
     private boolean success = false;
-    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
 
     public WorldGuard7ProtectionCompat(BigDoors plugin)
     {

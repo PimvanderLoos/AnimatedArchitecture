@@ -26,12 +26,12 @@ public abstract class BlockMover
     protected final BigDoors plugin;
     protected final World world;
     protected final DoorBase door;
+    protected final IFallingBlockFactory fabf;
     protected double time;
     protected boolean instantOpen;
     protected RotateDirection openDirection;
     protected List<PBlockData> savedBlocks;
     protected AtomicBoolean isAborted = new AtomicBoolean(false);
-    protected final IFallingBlockFactory fabf;
     protected PBlockFace currentDirection;
     protected int blocksMoved;
     protected int xMin, xMax, yMin;

@@ -147,6 +147,17 @@ public abstract class DoorBase
     }
 
     /**
+     * Get the number of blocks this door will try to move. As explained at {@link #setBlocksToMove(int)}, the door is
+     * not guaranteed to move as far as specified.
+     *
+     * @return The number of blocks the door will try to move.
+     */
+    public int getBlocksToMove()
+    {
+        return blocksToMove;
+    }
+
+    /**
      * Change the number of blocks this door will try to move when opened. Note that this is only a suggestion. It will
      * never move more blocks than possible. Values less than 1 will let the door move as many blocks as possible.
      * <p>
@@ -158,17 +169,6 @@ public abstract class DoorBase
     {
         blocksToMove = newBTM;
         invalidateChunkRange();
-    }
-
-    /**
-     * Get the number of blocks this door will try to move. As explained at {@link #setBlocksToMove(int)}, the door is
-     * not guaranteed to move as far as specified.
-     *
-     * @return The number of blocks the door will try to move.
-     */
-    public int getBlocksToMove()
-    {
-        return blocksToMove;
     }
 
     /**
@@ -330,17 +330,6 @@ public abstract class DoorBase
     }
 
     /**
-     * Change the amount of time (in seconds) this door will wait before automatically trying to close after having been
-     * opened. Negative values disable auto-closing altogether.
-     *
-     * @param newVal Time (in seconds) after which the door will close after opening.
-     */
-    public void setAutoClose(int newVal)
-    {
-        autoClose = newVal;
-    }
-
-    /**
      * Get amount of time (in seconds) this door will wait before automatically trying to close after having been
      * opened.
      *
@@ -349,6 +338,17 @@ public abstract class DoorBase
     public int getAutoClose()
     {
         return autoClose;
+    }
+
+    /**
+     * Change the amount of time (in seconds) this door will wait before automatically trying to close after having been
+     * opened. Negative values disable auto-closing altogether.
+     *
+     * @param newVal Time (in seconds) after which the door will close after opening.
+     */
+    public void setAutoClose(int newVal)
+    {
+        autoClose = newVal;
     }
 
     /**
