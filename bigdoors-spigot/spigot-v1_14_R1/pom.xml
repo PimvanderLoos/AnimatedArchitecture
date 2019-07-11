@@ -12,7 +12,6 @@
         <version>200</version>
     </parent>
 
-
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
@@ -21,13 +20,7 @@
             <scope>compile</scope>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-util</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-            <type>jar</type>
-        </dependency>
+
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-util</artifactId>

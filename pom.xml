@@ -18,7 +18,6 @@
         <module>bigdoors-api</module>
         <module>bigdoors-core</module>
         <module>bigdoors-util</module>
-        <module>spigot-util</module>
         <module>bigdoors-spigot</module>
     </modules>
 

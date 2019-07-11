@@ -14,6 +14,7 @@
 
     <modules>
         <module>spigot-v1_14_R1</module>
+        <module>spigot-util</module>
     </modules>
 
     <repositories>
@@ -28,10 +29,10 @@
             <url>https://raw.github.com/FabioZumbi12/RedProtect/mvn-repo/</url>
         </repository>
 
-<!--        <repository>-->
-<!--            <id>Massive</id>-->
-<!--            <url>https://repo.dustplanet.de/artifactory/ext-release-local/</url>-->
-<!--        </repository>-->
+        <!--        <repository>-->
+        <!--            <id>Massive</id>-->
+        <!--            <url>https://repo.dustplanet.de/artifactory/ext-release-local/</url>-->
+        <!--        </repository>-->
 
         <!-- Vault -->
         <repository>
@@ -39,17 +40,17 @@
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
 
-<!--        &lt;!&ndash; PlotSquared Breaking &ndash;&gt;-->
-<!--        <repository>-->
-<!--            <id>PlotSquared-Breaking</id>-->
-<!--            <url>http://ci.athion.net/job/PlotSquared-Breaking/ws/mvn/</url>-->
-<!--        </repository>-->
+        <!--        &lt;!&ndash; PlotSquared Breaking &ndash;&gt;-->
+        <!--        <repository>-->
+        <!--            <id>PlotSquared-Breaking</id>-->
+        <!--            <url>http://ci.athion.net/job/PlotSquared-Breaking/ws/mvn/</url>-->
+        <!--        </repository>-->
 
-<!--        &lt;!&ndash; Old PlotSquared &ndash;&gt;-->
-<!--        <repository>-->
-<!--            <id>PlotSquared-Legacy</id>-->
-<!--            <url>http://ci.athion.net/job/PlotSquared-Legacy/ws/mvn/</url>-->
-<!--        </repository>-->
+        <!--        &lt;!&ndash; Old PlotSquared &ndash;&gt;-->
+        <!--        <repository>-->
+        <!--            <id>PlotSquared-Legacy</id>-->
+        <!--            <url>http://ci.athion.net/job/PlotSquared-Legacy/ws/mvn/</url>-->
+        <!--        </repository>-->
     </repositories>
 
     <dependencies>
@@ -75,22 +76,6 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>spigot-util</artifactId>
-            <version>200</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>nl.pim16aap2.bigdoors</groupId>-->
-<!--            <artifactId>spigot-v1_14_R1</artifactId>-->
-<!--            <version>200</version>-->
-<!--            <type>jar</type>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>org.spigotmc</groupId>

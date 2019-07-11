@@ -1,27 +1,18 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>nl.pim16aap2.bigdoors</groupId>
     <artifactId>spigot-util</artifactId>
     <packaging>jar</packaging>
     <description>Spigot-related Utils used by BigDoors</description>
     <version>200</version>
 
     <parent>
+        <artifactId>bigdoors-spigot</artifactId>
         <groupId>nl.pim16aap2.bigdoors</groupId>
-        <artifactId>bigdoors-parent</artifactId>
         <version>200</version>
     </parent>
 
     <dependencies>
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-util</artifactId>
-            <version>200</version>
-            <type>jar</type>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
