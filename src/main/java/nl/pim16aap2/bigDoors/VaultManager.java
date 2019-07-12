@@ -119,6 +119,11 @@ public class VaultManager
         return vaultEnabled && perms.playerHas(player.getWorld().getName(), player, permission);
     }
 
+    public boolean hasPermission(OfflinePlayer player, String permission, String worldName)
+    {
+        return vaultEnabled && perms.playerHas(worldName, player, permission);
+    }
+
     private double evaluateFormula(String formula, int blockCount)
     {
         try

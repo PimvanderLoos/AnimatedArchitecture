@@ -2,9 +2,12 @@ package nl.pim16aap2.bigDoors.compatiblity;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -69,7 +72,33 @@ public class ProtectionCompatManager implements Listener
         // offline players don't have permissions, so use Vault if that's the case.
         if (!player.hasMetadata(FakePlayerCreator.FAKEPLAYERMETADATA))
             return player.hasPermission(BYPASSPERMISSION);
-        return plugin.getVaultManager().hasPermission(player, BYPASSPERMISSION);
+        return offlinePlayerHasPermission(player, player.getWorld().getName());
+    }
+
+    /**
+     * Circuitous way of checking if an offline player has a given permission in a given
+     * world or not.
+     *
+     * @param oPlayer The offline player to check.
+     * @param world The world to check the permission in.
+     * @return The if the player has the bypass permission node in this world.
+     */
+    private boolean offlinePlayerHasPermission(OfflinePlayer oPlayer, String world)
+    {
+        try
+        {
+            CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() ->
+            {
+                return plugin.getVaultManager().hasPermission(oPlayer, BYPASSPERMISSION, world);
+            });
+
+            return future.get();
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
