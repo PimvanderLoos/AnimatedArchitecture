@@ -209,7 +209,7 @@ public class ConfigLoader
         flagPrice = config.getString("flagPrice", "0");
         configOptionsList.add(new ConfigOption("flagPrice", flagPrice, null));
 
-        commandWaiterTimeout = config.getInt("commandWaiterTimeout", 20);
+        commandWaiterTimeout = config.getInt("commandWaiterTimeout", 40);
         configOptionsList
             .add(new ConfigOption("commandWaiterTimeout", commandWaiterTimeout, commandWaiterTimeoutComment));
 
@@ -294,22 +294,43 @@ public class ConfigLoader
             File saveTo = new File(plugin.getDataFolder(), "config.yml");
             if (!saveTo.exists())
                 saveTo.createNewFile();
-            else
+
+            if (!saveTo.canWrite())
             {
-                saveTo.delete();
-                saveTo.createNewFile();
+                plugin.getMyLogger().warn("=======================================");
+                plugin.getMyLogger().warn("============== !WARNING! ==============");
+                plugin.getMyLogger().warn("=======================================");
+                plugin.getMyLogger().warn("====== CANNOT WRITE CONFIG FILE! ======");
+                plugin.getMyLogger().warn("==== NEW OPTIONS WILL NOT SHOW UP! ====");
+                plugin.getMyLogger().warn("==== THEY WILL USE DEFAULT VALUES! ====");
+                plugin.getMyLogger().warn("=======================================");
+                plugin.getMyLogger().warn("============== !WARNING! ==============");
+                plugin.getMyLogger().warn("=======================================");
             }
-            FileWriter fw = new FileWriter(saveTo, true);
+
+            FileWriter fw = new FileWriter(saveTo, false);
             PrintWriter pw = new PrintWriter(fw);
 
             if (header != null)
                 pw.println("# " + header + "\n");
 
             for (int idx = 0; idx < configOptionsList.size(); ++idx)
-                pw.println(configOptionsList.get(idx).toString() +
-                // Only print an additional newLine if the next config option has a comment.
-                    (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? "" :
-                        "\n"));
+            {
+                try
+                {
+                    pw.println(configOptionsList.get(idx).toString() +
+                    // Only print an additional newLine if the next config option has a comment.
+                        (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? "" :
+                            "\n"));
+                }
+                catch (Exception e)
+                {
+                    plugin.getMyLogger().warn("Failed to write config option \"" + configOptionsList.get(idx).getName() + "\"! "
+                        + "Please contact pim16aap2 and attach the error below:");
+                    e.printStackTrace();
+                    plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+                }
+            }
 
             pw.flush();
             pw.close();

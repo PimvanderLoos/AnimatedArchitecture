@@ -244,7 +244,7 @@ public class CommandHandler implements CommandExecutor
                       type == DoorType.FLAG        ? new FlagCreator       (plugin, player, name) :
                       type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
 
-        startTimerForAbortable(tu, 60 * 20);
+        startTimerForAbortable(tu, 120 * 20);
     }
 
     public void startTimerForAbortable(Abortable abortable, int time)
@@ -659,9 +659,7 @@ public class CommandHandler implements CommandExecutor
                 {
                     Door door = plugin.getCommander().getDoor(args[index], player);
                     // If the door is null, let the player know that the selected door is invalid.
-                    // TODO: Would you look at that? But seriously, this seems to just check if the last argument
-                    // Is a valid door, but if it was the time, it shouldn't get here anyway!
-                    if (door == null && index != args.length - 1)
+                    if (door == null)
                     {
                         plugin.getMyLogger().returnToSender(sender, Level.INFO,
                                                             ChatColor.RED, "\"" + args[index] + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
@@ -671,7 +669,8 @@ public class CommandHandler implements CommandExecutor
                             plugin.getMyLogger().returnToSender(sender, Level.INFO,
                                                                 ChatColor.RED, "Don't forget that you should use the DoorUID in the console/command blocks! DoorName won't work here!");
                     }
-                    else if (door != null)
+                    else
+                    {
                         if (type == 2 || door.getOpenDir().equals(RotateDirection.NONE))
                             openDoorCommand(sender, door, time);
                         else if (type == 1)
@@ -690,6 +689,7 @@ public class CommandHandler implements CommandExecutor
                                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
                                                                     plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] +
                                                                     "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
+                    }
                 }
                 return true;
             }

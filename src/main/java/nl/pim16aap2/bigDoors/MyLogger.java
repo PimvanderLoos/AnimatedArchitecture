@@ -109,6 +109,7 @@ public class MyLogger
     public void warn(String str)
     {
         myLogger(Level.WARNING, str);
+        logMessage(str, false, false);
     }
 
     public static void logMessage(Level level, String pluginName, String message)

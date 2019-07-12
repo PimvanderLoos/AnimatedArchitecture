@@ -5,6 +5,10 @@ Alpha 0.1.8.11
 - Fixed doors potentially getting corrupted when toggling power blocks in rapid succession, specifically at medium TPS. Thanks, @Ashh for the bug report!
 - ChunkUnloadEvent now also compares worlds before aborting door movement. Thanks, @IkHeetRemco_ for the bug report!
 - Fixed error on player join when trying to send a resource pack to a player that was not allowed to join. Thanks, @Relaxing for the bug report!
+- Added configurable timeout value for commands and raised default timeout to 40 seconds for commands and 120 for door creation. Thanks, @ToBugs for the suggestion.
+- Fixed lack of error message when trying to open a door you do not own via command if the invalid door was the first argument.
+- Read-only status of config file is now respected. It will just show an obnoxious warning message now. Thanks, @bbayu for the bug report.
+- Instead of faceplanting when an error occurs while writing the config file, it'll now give a clear error message so I can resolve the issue. Thanks, @bbayu for the bug report.
 
 Alpha 0.1.8.10
 - Fixed being able to modify properties of doors you have no access to via direct commands when using doorUIDs.
