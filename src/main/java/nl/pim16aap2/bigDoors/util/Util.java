@@ -593,6 +593,18 @@ public final class Util
         case LIGHT_GRAY_BANNER:
         case LIGHT_GRAY_WALL_BANNER:
 
+        case LADDER:
+        case STONE_PRESSURE_PLATE:
+        case HEAVY_WEIGHTED_PRESSURE_PLATE:
+        case LIGHT_WEIGHTED_PRESSURE_PLATE:
+        case OAK_PRESSURE_PLATE:
+        case SPRUCE_PRESSURE_PLATE:
+        case BIRCH_PRESSURE_PLATE:
+        case JUNGLE_PRESSURE_PLATE:
+        case ACACIA_PRESSURE_PLATE:
+        case DARK_OAK_PRESSURE_PLATE:
+
+
         /* 1.14 start */
 
         case DANDELION:

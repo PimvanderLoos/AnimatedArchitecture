@@ -11,6 +11,7 @@ Alpha 0.1.8.11
 - Instead of faceplanting when an error occurs while writing the config file, it'll now give a clear error message so I can resolve the issue. Thanks, @bbayu for the bug report!
 - Fixed issue with LuckPerms. Thanks, @Relaxing and others for the bug reports!
 - Fixed CAVE_AIR (???) not being treated as air, meaning it could prevent doors from opening. Thanks, @ for the bug report!
+- Fixed ladder and pressure plate duplication. Thanks, @mindw0rm for the bug report!
 
 Alpha 0.1.8.10
 - Fixed being able to modify properties of doors you have no access to via direct commands when using doorUIDs.
