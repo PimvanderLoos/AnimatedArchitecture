@@ -125,7 +125,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
      *
      * @param playerUUID The {@link UUID} of the player to check for.
      * @param loc1       The start {@link Location} to check.
-     * @param loc1       The end {@link Location} to check.
+     * @param loc2       The end {@link Location} to check.
      * @return The name of the {@link IProtectionCompat} that objects, if any, or null if allowed by all compats.
      */
     public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
