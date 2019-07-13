@@ -331,7 +331,8 @@ public final class Util
         XMaterial xmat = XMaterial.fromString(mat.toString());
         if (xmat == null)
             return false;
-        return xmat.equals(XMaterial.AIR) || xmat.equals(XMaterial.WATER) || xmat.equals(XMaterial.LAVA);
+        return xmat.equals(XMaterial.AIR)   || xmat.equals(XMaterial.CAVE_AIR) ||
+               xmat.equals(XMaterial.WATER) || xmat.equals(XMaterial.LAVA);
     }
 
     // Logs, stairs and glass panes can rotate, but they don't rotate in exactly the same way.
