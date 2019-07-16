@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.util.PLogger;
 
 /**
  * Represents an Elevator doorType.
@@ -10,13 +10,13 @@ import nl.pim16aap2.bigdoors.BigDoors;
  */
 public class Elevator extends Portcullis
 {
-    Elevator(BigDoors plugin, long doorUID, DoorType type)
+    Elevator(PLogger pLogger, long doorUID, DoorType type)
     {
-        super(plugin, doorUID, type);
+        super(pLogger, doorUID, type);
     }
 
-    Elevator(BigDoors plugin, long doorUID)
+    Elevator(PLogger pLogger, long doorUID)
     {
-        super(plugin, doorUID, DoorType.ELEVATOR);
+        super(pLogger, doorUID, DoorType.ELEVATOR);
     }
 }

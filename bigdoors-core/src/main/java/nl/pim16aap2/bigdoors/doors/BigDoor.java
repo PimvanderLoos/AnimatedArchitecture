@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
@@ -17,14 +17,14 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BigDoor extends DoorBase
 {
-    BigDoor(final BigDoors plugin, final long doorUID, DoorType type)
+    BigDoor(final PLogger pLogger, final long doorUID, DoorType type)
     {
-        super(plugin, doorUID, type);
+        super(pLogger, doorUID, type);
     }
 
-    BigDoor(final BigDoors plugin, final long doorUID)
+    BigDoor(final PLogger pLogger, final long doorUID)
     {
-        this(plugin, doorUID, DoorType.BIGDOOR);
+        this(pLogger, doorUID, DoorType.BIGDOOR);
     }
 
     /**
@@ -84,8 +84,7 @@ public class BigDoor extends DoorBase
                 newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.NORTH : PBlockFace.SOUTH;
                 break;
             default:
-                plugin.getPLogger()
-                      .warn("Invalid currentDirection for BigDoor! \"" + getCurrentDirection().toString() + "\"");
+                pLogger.warn("Invalid currentDirection for BigDoor! \"" + getCurrentDirection().toString() + "\"");
                 return;
         }
 

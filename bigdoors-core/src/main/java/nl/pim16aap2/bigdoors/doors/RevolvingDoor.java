@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.Chunk;
@@ -18,14 +18,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class RevolvingDoor extends DoorBase
 {
-    RevolvingDoor(BigDoors plugin, long doorUID, DoorType type)
+    RevolvingDoor(PLogger pLogger, long doorUID, DoorType type)
     {
-        super(plugin, doorUID, type);
+        super(pLogger, doorUID, type);
     }
 
-    RevolvingDoor(BigDoors plugin, long doorUID)
+    RevolvingDoor(PLogger pLogger, long doorUID)
     {
-        super(plugin, doorUID, DoorType.REVOLVINGDOOR);
+        super(pLogger, doorUID, DoorType.REVOLVINGDOOR);
     }
 
     /**

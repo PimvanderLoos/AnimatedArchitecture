@@ -10,7 +10,9 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
+import nl.pim16aap2.bigdoors.spigotutil.OfflinePlayerRetriever;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.spigotutil.WorldRetriever;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockRelocator;
@@ -34,6 +36,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
@@ -53,7 +56,9 @@ public class DatabaseManager extends Restartable
     public DatabaseManager(final BigDoors plugin, final String dbFile)
     {
         super(plugin);
-        db = new SQLiteJDBCDriverConnection(plugin, dbFile);
+        db = new SQLiteJDBCDriverConnection(new File(plugin.getDataFolder(), dbFile), plugin.getPLogger(),
+                                            plugin.getConfigLoader(), new WorldRetriever(),
+                                            new OfflinePlayerRetriever());
         this.plugin = plugin;
         busyDoors = new ConcurrentHashMap<>();
         players = new TimedMapCache<>(plugin, HashMap::new, 1440);

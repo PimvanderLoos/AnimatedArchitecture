@@ -1,17 +1,19 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
 import com.google.common.io.Files;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.spigotutil.OfflinePlayerRetriever;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.spigotutil.WorldRetriever;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +26,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -74,25 +77,33 @@ public class SQLiteJDBCDriverConnection implements IStorage
 //    private static final String UNION_DOOR_ID = "";
 
     private static final String FAKEUUID = "0000";
-    private final BigDoors plugin;
     private final File dbFile;
     private final String url;
-    private final String dbName;
+    private final PLogger pLogger;
     private boolean enabled = true;
     private AtomicBoolean locked = new AtomicBoolean(false);
-
+    private final ConfigLoader config;
+    private final WorldRetriever worldRetriever;
+    private final OfflinePlayerRetriever offlinePlayerRetriever;
 
     /**
      * Constructor of the SQLite driver connection.
      *
-     * @param plugin The plugin.
-     * @param dbName The name of the database file.
+     * @param dbFile                 The file to store the database in.
+     * @param pLogger                The logger used for error logging.
+     * @param config                 The {@link ConfigLoader} containing options used in this class.
+     * @param worldRetriever         Object that converts a UUID to a World.
+     * @param offlinePlayerRetriever Object that converts a UUID to an OfflinePlayer.
      */
-    public SQLiteJDBCDriverConnection(final BigDoors plugin, final String dbName)
+    public SQLiteJDBCDriverConnection(final File dbFile, final PLogger pLogger, final ConfigLoader config,
+                                      final WorldRetriever worldRetriever,
+                                      final OfflinePlayerRetriever offlinePlayerRetriever)
     {
-        this.plugin = plugin;
-        this.dbName = dbName;
-        dbFile = new File(plugin.getDataFolder(), dbName);
+        this.pLogger = pLogger;
+        this.dbFile = dbFile;
+        this.config = config;
+        this.worldRetriever = worldRetriever;
+        this.offlinePlayerRetriever = offlinePlayerRetriever;
         url = "jdbc:sqlite:" + dbFile;
         init();
         upgrade();
@@ -103,19 +114,21 @@ public class SQLiteJDBCDriverConnection implements IStorage
      *
      * @return A database connection.
      */
-    private Connection getConnection()
+    private @NotNull Connection getConnection()
     {
         if (!enabled)
         {
-            plugin.getPLogger()
-                  .severe("Database disabled! This probably means an upgrade failed! Please contact pim16aap2.");
-            return null;
+            IllegalStateException e = new IllegalStateException();
+            pLogger.logException(e,
+                                 "Database disabled! This probably means an upgrade failed! Please contact pim16aap2.");
+            throw e;
         }
         if (locked.get())
         {
-            plugin.getPLogger()
-                  .severe("Database locked! Please try again later! Please contact pim16aap2 if the issue persists.");
-            return null;
+            IllegalStateException e = new IllegalStateException();
+            pLogger.logException(e,
+                                 "Database locked! Please try again later! Please contact pim16aap2 if the issue persists.");
+            throw e;
         }
         Connection conn = null;
         try
@@ -124,13 +137,13 @@ public class SQLiteJDBCDriverConnection implements IStorage
             conn = DriverManager.getConnection(url);
             conn.createStatement().execute("PRAGMA foreign_keys=ON");
         }
-        catch (SQLException ex)
+        catch (SQLException e)
         {
-            plugin.getPLogger().severe("53: Failed to open connection!");
+            pLogger.logException(e, "Failed to open connection!");
         }
         catch (ClassNotFoundException e)
         {
-            plugin.getPLogger().severe("57: Failed to open connection: CLass not found!!");
+            pLogger.logException(e, "Failed to open connection: Class not found!!");
         }
         if (conn == null)
             throw new NullPointerException();
@@ -145,12 +158,13 @@ public class SQLiteJDBCDriverConnection implements IStorage
         if (!dbFile.exists())
             try
             {
+                dbFile.getParentFile().mkdirs();
                 dbFile.createNewFile();
-                plugin.getPLogger().warn("New file created at " + dbFile);
+                pLogger.warn("New file created at " + dbFile);
             }
             catch (IOException e)
             {
-                plugin.getPLogger().warn("File write error: " + dbFile);
+                pLogger.warn("File write error: " + dbFile);
             }
 
         // Table creation
@@ -268,9 +282,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
     {
         try
         {
-            DoorBase door = DoorType.valueOf(rs.getInt("type")).getNewDoor(plugin, doorOwner.getDoorUID());
+            DoorBase door = DoorType.valueOf(rs.getInt("type")).getNewDoor(pLogger, doorOwner.getDoorUID());
 
-            World world = Bukkit.getServer().getWorld(UUID.fromString(rs.getString("world")));
+            World world = worldRetriever.worldFromString(UUID.fromString(rs.getString("world")));
             door.setWorld(world);
             door.setMinimum(new Location(world, rs.getInt("xMin"), rs.getInt("yMin"), rs.getInt("zMin")));
             door.setMaximum(new Location(world, rs.getInt("xMax"), rs.getInt("yMax"), rs.getInt("zMax")));
@@ -279,7 +293,6 @@ public class SQLiteJDBCDriverConnection implements IStorage
                                                 rs.getInt("engineZ")));
             door.setPowerBlockLocation(new Location(world, rs.getInt("powerBlockX"), rs.getInt("powerBlockY"),
                                                     rs.getInt("powerBlockZ")));
-
             door.setName(rs.getString("name"));
             door.setOpenStatus(rs.getInt("isOpen") == 1);
             door.setLock(rs.getInt("isLocked") == 1);
@@ -313,7 +326,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            plugin.getPLogger().logException(e, String.valueOf(271));
+            pLogger.logException(e, String.valueOf(271));
         }
         return false;
     }
@@ -390,6 +403,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
                     "    INNER JOIN doors AS D ON U.doorUID = D.id \n" +
                     "WHERE P.playerUUID=? AND D.name=?;";
             PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, doorName);
             ResultSet rs = ps.executeQuery();
 
             int count = rs.next() ? rs.getInt("total") : 0;
@@ -439,16 +454,13 @@ public class SQLiteJDBCDriverConnection implements IStorage
         try (Connection conn = getConnection())
         {
             DoorOwner doorOwner;
-            // If no player is specified, get the lowest tier permission and the original
-            // creator.
-            if (playerUUID == null)
-                doorOwner = getOwnerOfDoor(conn, doorUID);
-            else
-                doorOwner = getOwnerOfDoor(conn, doorUID, playerUUID);
+            doorOwner = getOwnerOfDoor(conn, doorUID, playerUUID);
 
             if (doorOwner != null)
             {
-                PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + doorUID + "';");
+                String sql = "SELECT * FROM doors WHERE id=?;";
+                PreparedStatement ps3 = conn.prepareStatement(sql);
+                ps3.setLong(1, doorUID);
                 ResultSet rs3 = ps3.executeQuery();
 
                 if (rs3.next())
@@ -522,7 +534,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
         try (Connection conn = getConnection())
         {
-            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors WHERE name = '" + name + "';");
+            String sql = "SELECT * FROM doors WHERE name=?;";
+            PreparedStatement ps1 = conn.prepareStatement(sql);
+            ps1.setString(1, name);
             ResultSet rs1 = ps1.executeQuery();
 
             while (rs1.next())
@@ -620,36 +634,28 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
         try (Connection conn = getConnection())
         {
-            long playerID = getPlayerID(conn, playerUUID);
+            String sql = "SELECT D.*, P.playerUUID, P.playerName, U.permission\n" +
+                    "FROM doors as D INNER JOIN sqlUnion AS U ON U.doorUID = D.id INNER JOIN players AS P ON P.id = U.playerID\n" +
+                    "WHERE P.playerUUID = ? AND permission <= ? AND D.name = ?;";
 
-            ResultSet rs2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID
-                                                          + "' AND permission <= '" + maxPermission + "';")
-                                .executeQuery();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, playerUUID);
+            ps.setInt(2, maxPermission);
+            ps.setString(3, doorName);
+            ResultSet rs = ps.executeQuery();
 
-            if (rs2.next())
+            while (rs.next())
             {
-                ResultSet rs3 = conn
-                        .prepareStatement("SELECT * FROM doors WHERE id = '" + rs2.getInt("doorUID") + "';")
-                        .executeQuery();
-
-                while (rs3.next())
-                {
-                    if ((doorName == null || rs3.getString(DOOR_NAME).equals(doorName)))
-                    {
-                        DoorOwner doorOwner = getOwnerOfDoor(conn, rs3.getLong(DOOR_ID),
-                                                             UUID.fromString(playerUUID), rs2.getInt("permission"));
-                        if (doorOwner != null)
-                        {
-                            ++count;
-                            if (count > 1)
-                                break;
-                            door = newDoorBaseFromRS(rs3, doorOwner);
-                        }
-                    }
-                }
-                rs3.close();
+                ++count;
+                if (count > 1)
+                    break;
+                DoorOwner doorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(rs.getString("playerUUID")),
+                                                    rs.getString("playerName"), rs.getInt("permission"));
+                door = newDoorBaseFromRS(rs, doorOwner);
             }
-            rs2.close();
+
+            ps.close();
+            rs.close();
         }
         catch (SQLException e)
         {
@@ -737,7 +743,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
         return playerName;
     }
 
-    private DoorOwner getOwnerOfDoor(final Connection conn, final long doorUID, final UUID playerUUID, int permission)
+    private DoorOwner getOwnerOfDoor(@NotNull final Connection conn, final long doorUID, @NotNull final UUID playerUUID,
+                                     int permission)
             throws SQLException
     {
         PreparedStatement ps = conn.prepareStatement("SELECT playerName FROM players WHERE playerUUID = ?;");
@@ -769,6 +776,19 @@ public class SQLiteJDBCDriverConnection implements IStorage
         return owner;
     }
 
+    private void printRS(ResultSet rs) throws SQLException
+    {
+        ResultSetMetaData md = rs.getMetaData();
+        int colCount = md.getColumnCount();
+
+        for (int i = 1; i <= colCount; ++i)
+        {
+            String colName = md.getColumnName(i);
+            String value = rs.getString(i);
+            System.out.println(i + ": " + colName + " = " + value);
+        }
+    }
+
     private DoorOwner getOwnerOfDoor(@NotNull final Connection conn, final long doorUID) throws SQLException
     {
         DoorOwner doorOwner = null;
@@ -782,8 +802,19 @@ public class SQLiteJDBCDriverConnection implements IStorage
         ps.setLong(1, doorUID);
         ResultSet rs = ps.executeQuery();
         if (rs.next())
-            doorOwner = new DoorOwner(doorUID, UUID.fromString(rs.getString("P.playerUUID")),
-                                      rs.getString("P.playerName"), 0);
+        {
+            try
+            {
+                doorOwner = new DoorOwner(doorUID, UUID.fromString(rs.getString("P.playerUUID")),
+                                          rs.getString("P.playerName"), 0);
+            }
+            // For some reason, while unit testing, the FROM lkajsdf AS P is not respected.
+            catch (SQLException e)
+            {
+                doorOwner = new DoorOwner(doorUID, UUID.fromString(rs.getString("playerUUID")),
+                                          rs.getString("playerName"), 0);
+            }
+        }
         ps.close();
         rs.close();
 
@@ -1033,7 +1064,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 String sql1 = "INSERT INTO players (playerUUID, playerName) VALUES (?,?);";
                 PreparedStatement ps = conn.prepareStatement(sql1);
                 ps.setString(1, door.getPlayerUUID().toString());
-                ps.setString(2, SpigotUtil.nameFromUUID(door.getPlayerUUID()));
+                ps.setString(2, door.getDoorOwner().getPlayerName());
                 ps.executeUpdate();
                 ps.close();
 
@@ -1068,32 +1099,29 @@ public class SQLiteJDBCDriverConnection implements IStorage
             // Set -1 if the door has no engineSide (normal doors don't use it)
             doorstatement.setInt(DOOR_ENG_SIDE - 1,
                                  door.getEngineSide() == null ? -1 : PBlockFace.getValue(door.getEngineSide()));
-            doorstatement.setInt(DOOR_POWER_X - 1, door.getEngine().getBlockX());
-            doorstatement.setInt(DOOR_POWER_Y - 1, door.getEngine().getBlockY() - 1); // Power Block Location is 1 block
-            // below the engine, by default.
-            doorstatement.setInt(DOOR_POWER_Z - 1, door.getEngine().getBlockZ());
+            doorstatement.setInt(DOOR_POWER_X - 1, door.getPowerBlockLoc().getBlockX());
+            doorstatement.setInt(DOOR_POWER_Y - 1, door.getPowerBlockLoc().getBlockY());
+            doorstatement.setInt(DOOR_POWER_Z - 1, door.getPowerBlockLoc().getBlockZ());
             doorstatement.setInt(DOOR_OPEN_DIR - 1, RotateDirection.getValue(door.getOpenDir()));
             doorstatement.setInt(DOOR_AUTO_CLOSE - 1, door.getAutoClose());
             doorstatement.setLong(DOOR_CHUNK_HASH - 1, door.getPowerBlockChunkHash());
             doorstatement.setLong(DOOR_BLOCKS_TO_MOVE - 1, door.getBlocksToMove());
 
-            doorstatement.executeUpdate();
+            doorstatement.execute();
             doorstatement.close();
 
-            String query = "SELECT last_insert_rowid() AS lastId";
-            PreparedStatement ps2 = conn.prepareStatement(query);
+            String getDoorUID = "SELECT last_insert_rowid() AS lastId";
+            PreparedStatement ps2 = conn.prepareStatement(getDoorUID);
             ResultSet rs2 = ps2.executeQuery();
-            Long doorUID = rs2.getLong("lastId");
+            long doorUID = rs2.getLong("lastId");
             ps2.close();
             rs2.close();
 
-            String sql3 = "INSERT INTO sqlUnion (permission, playerID, doorUID) VALUES(?,?,?)";
-            PreparedStatement ps3 = conn.prepareStatement(sql3);
-            ps3.executeUpdate(sql3);
-            ps3.setInt(1, door.getPermission());
-            ps3.setLong(2, playerID);
-            ps3.setLong(3, doorUID);
-            ps3.close();
+            Statement stmt3 = conn.createStatement();
+            String sql3 = "INSERT INTO sqlUnion (permission, playerID, doorUID) "
+                    + "VALUES ('" + door.getPermission() + "', '" + playerID + "', '" + doorUID + "');";
+            stmt3.executeUpdate(sql3);
+            stmt3.close();
         }
         catch (SQLException e)
         {
@@ -1149,8 +1177,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 DoorOwner owner = getOwnerOfDoor(conn, doorUID, UUID.fromString(rs1.getString("playerUUID")),
                                                  rs1.getInt("permission"));
                 if (owner == null)
-                    plugin.getPLogger().warn(String.format("Could not find owner \"%s\" for doorUID: %d",
-                                                           rs1.getString("playerUUID"), doorUID));
+                    pLogger.warn(String.format("Could not find owner \"%s\" for doorUID: %d",
+                                               rs1.getString("playerUUID"), doorUID));
                 else
                     ret.add(owner);
             }
@@ -1250,7 +1278,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
             // If an update is required and backups are enabled, make a backup.
             // First close the connection to the database. Reopen it when possible.
-            if (dbVersion != DATABASE_VERSION && plugin.getConfigLoader().dbBackup())
+            if (dbVersion != DATABASE_VERSION && config.dbBackup())
             {
                 conn.close();
                 if (!makeBackup())
@@ -1308,7 +1336,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
             replaceTempPlayerNames();
     }
 
-    private boolean fakeUUIDExists(final Connection conn)
+    private boolean fakeUUIDExists(@NotNull final Connection conn)
     {
         try
         {
@@ -1325,7 +1353,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
     private boolean makeBackup()
     {
-        File dbFileBackup = new File(plugin.getDataFolder(), dbName + ".BACKUP");
+        File dbFileBackup = new File(dbFile.toString() + ".BACKUP");
         // Only the most recent backup is kept, so delete the old one if a new one needs
         // to be created.
         if (dbFileBackup.exists())
@@ -1336,7 +1364,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (IOException e)
         {
-            plugin.getPLogger().logException(e, "Failed to create backup of the database! "
+            pLogger.logException(e, "Failed to create backup of the database! "
                     + "Database upgrade aborted and access is disabled!");
             enabled = false;
             return false;
@@ -1344,7 +1372,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
         return true;
     }
 
-    private void setDBVersion(final Connection conn, final int version)
+    private void setDBVersion(@NotNull final Connection conn, final int version)
     {
         try
         {
@@ -1356,7 +1384,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
         }
     }
 
-    private void upgradeToV1(final Connection conn)
+    private void upgradeToV1(@NotNull final Connection conn)
     {
         try
         {
@@ -1367,7 +1395,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
             if (!rs.next())
             {
-                plugin.getPLogger().warn("Upgrading database! Adding type!");
+                pLogger.warn("Upgrading database! Adding type!");
                 addColumn = "ALTER TABLE doors ADD COLUMN type int NOT NULL DEFAULT 0";
                 conn.createStatement().execute(addColumn);
             }
@@ -1376,7 +1404,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
             rs = md.getColumns(null, null, "doors", "engineSide");
             if (!rs.next())
             {
-                plugin.getPLogger().warn("Upgrading database! Adding engineSide!");
+                pLogger.warn("Upgrading database! Adding engineSide!");
                 addColumn = "ALTER TABLE doors ADD COLUMN engineSide int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
             }
@@ -1385,7 +1413,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
             rs = md.getColumns(null, null, "doors", "powerBlockX");
             if (!rs.next())
             {
-                plugin.getPLogger().warn("Upgrading database! Adding powerBlockLoc!");
+                pLogger.warn("Upgrading database! Adding powerBlockLoc!");
                 addColumn = "ALTER TABLE doors ADD COLUMN powerBlockX int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
                 addColumn = "ALTER TABLE doors ADD COLUMN powerBlockY int NOT NULL DEFAULT -1";
@@ -1421,11 +1449,11 @@ public class SQLiteJDBCDriverConnection implements IStorage
             rs = md.getColumns(null, null, "doors", "openDirection");
             if (!rs.next())
             {
-                plugin.getPLogger().warn("Upgrading database! Adding openDirection!");
+                pLogger.warn("Upgrading database! Adding openDirection!");
                 addColumn = "ALTER TABLE doors ADD COLUMN openDirection int NOT NULL DEFAULT 0";
                 conn.createStatement().execute(addColumn);
-                plugin.getPLogger()
-                      .warn("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!");
+                pLogger
+                        .warn("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!");
 
                 String update;
                 {
@@ -1455,7 +1483,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
             rs = md.getColumns(null, null, "doors", "autoClose");
             if (!rs.next())
             {
-                plugin.getPLogger().warn("Upgrading database! Adding autoClose!");
+                pLogger.warn("Upgrading database! Adding autoClose!");
                 addColumn = "ALTER TABLE doors ADD COLUMN autoClose int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
             }
@@ -1464,7 +1492,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
             rs = md.getColumns(null, null, "doors", "chunkHash");
             if (!rs.next())
             {
-                plugin.getPLogger().warn("Upgrading database! Adding chunkHash!");
+                pLogger.warn("Upgrading database! Adding chunkHash!");
                 addColumn = "ALTER TABLE doors ADD COLUMN chunkHash int NOT NULL DEFAULT -1";
                 conn.createStatement().execute(addColumn);
 
@@ -1489,7 +1517,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 rs1.close();
             }
             rs.close();
-            plugin.getPLogger().warn("Database has been upgraded to V1!");
+            pLogger.warn("Database has been upgraded to V1!");
         }
         catch (SQLException e)
         {
@@ -1497,12 +1525,12 @@ public class SQLiteJDBCDriverConnection implements IStorage
         }
     }
 
-    private void upgradeToV2(final Connection conn)
+    private void upgradeToV2(@NotNull final Connection conn)
     {
         try
         {
             String addColumn;
-            plugin.getPLogger().warn("Upgrading database to V2! Adding blocksToMove!");
+            pLogger.warn("Upgrading database to V2! Adding blocksToMove!");
             addColumn = "ALTER TABLE doors ADD COLUMN blocksToMove int NOT NULL DEFAULT 0";
             conn.createStatement().execute(addColumn);
         }
@@ -1526,11 +1554,11 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * can just copy all the data, right? I hate speed. Maybe I should just copy all
      * database data every 5 seconds.
      */
-    private void upgradeToV3(final Connection conn)
+    private void upgradeToV3(@NotNull final Connection conn)
     {
         try
         {
-            plugin.getPLogger().warn("Upgrading database to V3! Recreating sqlUnion!");
+            pLogger.warn("Upgrading database to V3! Recreating sqlUnion!");
             conn.setAutoCommit(false);
             // Rename sqlUnion.
             conn.createStatement().execute("ALTER TABLE sqlUnion RENAME TO sqlUnion_old;");
@@ -1565,12 +1593,12 @@ public class SQLiteJDBCDriverConnection implements IStorage
         }
     }
 
-    private void upgradeToV4(final Connection conn)
+    private void upgradeToV4(@NotNull final Connection conn)
     {
         try
         {
             String addColumn;
-            plugin.getPLogger().warn("Upgrading database to V4! Adding playerName!");
+            pLogger.warn("Upgrading database to V4! Adding playerName!");
             addColumn = "ALTER TABLE players " + "ADD COLUMN playerName TEXT DEFAULT NULL";
             conn.createStatement().execute(addColumn);
         }
@@ -1591,7 +1619,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
     {
         try (Connection conn = getConnection())
         {
-            plugin.getPLogger().warn("Upgrading database to V5!");
+            pLogger.warn("Upgrading database to V5!");
 
             String countStr = "SELECT COUNT(*) AS total FROM players WHERE playerName IS NULL";
             int count = conn.createStatement().executeQuery(countStr).getInt("total");
@@ -1618,7 +1646,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
                     if (exists)
                         fakeName = Util.randomInsecureString(12);
                 }
-                plugin.getPLogger().warn("UpgradeToV5: Using fakeName = " + fakeName);
+                pLogger.warn("UpgradeToV5: Using fakeName = " + fakeName);
 
                 {
                     String sql = "INSERT INTO players (playerUUID, playerName) VALUES(?,?);";
@@ -1727,7 +1755,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
                                                      if (rs2.getString("playerUUID").equals(FAKEUUID))
                                                          continue;
                                                      UUID playerUUID = UUID.fromString(rs2.getString("playerUUID"));
-                                                     String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+                                                     String playerName = offlinePlayerRetriever.getPlayer(playerUUID)
+                                                                                               .getName();
 
                                                      String update = "UPDATE players SET playerName='" + playerName +
                                                              "' WHERE playerUUID='"
@@ -1763,8 +1792,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
     private void logMessage(String str, Exception e)
     {
         if (!locked.get())
-            plugin.getPLogger().logException(e, str);
+            pLogger.logException(e, str);
         else
-            plugin.getPLogger().warn("Database locked! Failed at: " + str + ". Message: " + e.getMessage());
+            pLogger.warn("Database locked! Failed at: " + str + ". Message: " + e.getMessage());
     }
 }

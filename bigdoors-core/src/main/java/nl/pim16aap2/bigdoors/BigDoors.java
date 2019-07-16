@@ -122,6 +122,7 @@ import java.util.Vector;
 //       Internally, keep track if the specified and the default value, then return the specified value if possible,
 //       otherwise the default value. Also distinguish between goal and actual.
 // TODO: Create method in DoorBase for checking distance. Take Vector3D for distance and direction.
+// TODO:
 
 /*
  * Experimental
@@ -223,6 +224,9 @@ import java.util.Vector;
 //       cancel the entire event after a single cache lookup, thus potentially skipping at best 6 cache lookups, and at
 //       worst 3 database lookups + 3 cache lookups.
 // TODO: Somehow replace the %HOOK% variable in the message of DoorOpenResult.NOPERMISSION.
+// TODO: Instead of routing everything through this class (e.g. getPLogger(), getConfigLoader()), make sure that these
+//       Objects do NOT get reinitialized on restart and then pass references to class that need them. Should reduce the
+//       clutter in this class a bit and reduce dependency on this class.
 
 /*
  * GUI
@@ -244,8 +248,7 @@ import java.util.Vector;
 /*
  * SQL
  */
-// TODO: Split up SQL functions into 2: One taking a connection and one without the connection, to get rid of code duplication.
-// TODO: Use nested statements.
+// TODO: Get rid of the private methods. Use nested statements instead.
 // TODO: Use preparedStatements for everything (with values(?,?,?) etc).
 // TODO: See if inserting into doors works when adding another question mark for the UUID (but leaving it empty).
 //       Then +1 won't have to be appended to everything.
@@ -367,6 +370,8 @@ import java.util.Vector;
 // TODO: https://www.spigotmc.org/threads/using-junit-to-test-plugins.71420/#post-789671
 // TODO: https://github.com/seeseemelk/MockBukkit
 // TODO: Write unit tests for all database stuff.
+// TODO: Make ConfigLoader final again. Also make the retrieve World etc classes final. Figure out a way to convince
+//       mockito to work with final classes.
 
 public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
 {
@@ -409,9 +414,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
     private TimedMapCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
     private VaultManager vaultManager;
     private AutoCloseScheduler autoCloseScheduler;
-
     private HeadManager headManager;
-
     private IGlowingBlockSpawner glowingBlockSpawner;
 
     @Override
@@ -434,6 +437,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
                 return;
             }
 
+            config = new ConfigLoader(this);
             init();
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
@@ -503,7 +507,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         if (!validVersion)
             return;
 
-        readConfigValues();
+        config.reloadConfig();
         getPLogger().setDebug(config.debug());
         messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         toolUsers = new HashMap<>();
@@ -811,12 +815,6 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
     public ToolVerifier getTF()
     {
         return tf;
-    }
-
-    private void readConfigValues()
-    {
-        // Load the settings from the config file.
-        config = new ConfigLoader(this);
     }
 
     // Check + initialize for the correct version of Minecraft.

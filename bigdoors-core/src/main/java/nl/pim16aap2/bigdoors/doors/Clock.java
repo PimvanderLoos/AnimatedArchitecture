@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.Chunk;
@@ -19,14 +19,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Clock extends HorizontalAxisAlignedBase
 {
-    Clock(BigDoors plugin, long doorUID, DoorType type)
+    Clock(final PLogger pLogger, final long doorUID, DoorType type)
     {
-        super(plugin, doorUID, type);
+        super(pLogger, doorUID, type);
     }
 
-    Clock(BigDoors plugin, long doorUID)
+    Clock(final PLogger pLogger, final long doorUID)
     {
-        this(plugin, doorUID, DoorType.WINDMILL);
+        this(pLogger, doorUID, DoorType.CLOCK);
     }
 
     /**

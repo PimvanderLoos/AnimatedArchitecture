@@ -105,7 +105,8 @@ public class PLogger
      */
     public void sendMessageToTarget(@NotNull final Object target, @NotNull Level level, @NotNull final String str)
     {
-        messagingInterface.sendMessageToTarget(target, level, str);
+        if (messagingInterface != null)
+            messagingInterface.sendMessageToTarget(target, level, str);
     }
 
     /**
@@ -169,7 +170,8 @@ public class PLogger
      */
     public void writeToConsole(@NotNull final Level level, @NotNull final String message)
     {
-        messagingInterface.writeToConsole(level, message);
+        if (messagingInterface != null)
+            messagingInterface.writeToConsole(level, message);
     }
 
     /**

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 
 import java.util.HashMap;
@@ -14,9 +14,9 @@ public enum DoorType
             DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_HORIZONTAL)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new BigDoor(plugin, doorUID);
+                    return new BigDoor(pLogger, doorUID);
                 }
             },
 
@@ -25,9 +25,9 @@ public enum DoorType
                DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new Drawbridge(plugin, doorUID);
+                    return new Drawbridge(pLogger, doorUID);
                 }
             },
 
@@ -37,18 +37,18 @@ public enum DoorType
                DoorAttribute.BLOCKSTOMOVE)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new Portcullis(plugin, doorUID);
+                    return new Portcullis(pLogger, doorUID);
                 }
             },
 
     ELEVATOR(3, true, "-EL", Message.DOORTYPE_ELEVATOR, DoorType.PORTCULLIS.attributes)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new Elevator(plugin, doorUID);
+                    return new Elevator(pLogger, doorUID);
                 }
             },
 
@@ -58,9 +58,9 @@ public enum DoorType
                 DoorAttribute.BLOCKSTOMOVE)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new SlidingDoor(plugin, doorUID);
+                    return new SlidingDoor(pLogger, doorUID);
                 }
             },
 
@@ -69,9 +69,9 @@ public enum DoorType
          DoorAttribute.REMOVEOWNER)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new Flag(plugin, doorUID);
+                    return new Flag(pLogger, doorUID);
                 }
             },
 
@@ -80,9 +80,9 @@ public enum DoorType
                DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new GarageDoor(plugin, doorUID);
+                    return new GarageDoor(pLogger, doorUID);
                 }
             },
 
@@ -91,18 +91,18 @@ public enum DoorType
              DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new Windmill(plugin, doorUID);
+                    return new Windmill(pLogger, doorUID);
                 }
             },
 
     REVOLVINGDOOR(8, true, "-RD", Message.DOORTYPE_REVOLVINGDOOR, DoorType.BIGDOOR.attributes)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new RevolvingDoor(plugin, doorUID);
+                    return new RevolvingDoor(pLogger, doorUID);
                 }
             },
 
@@ -111,9 +111,9 @@ public enum DoorType
           DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
             {
                 @Override
-                public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
+                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
                 {
-                    return new Windmill(plugin, doorUID);
+                    return new Windmill(pLogger, doorUID);
                 }
             },
     ;
@@ -177,5 +177,5 @@ public enum DoorType
         return type.enabled;
     }
 
-    public abstract DoorBase getNewDoor(final BigDoors plugin, final long doorUID);
+    public abstract DoorBase getNewDoor(final PLogger pLogger, final long doorUID);
 }

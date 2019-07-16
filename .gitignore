@@ -37,4 +37,5 @@ hs_err_pid*
 .project
 .settings/*
 move.xml
-test/
+random
+tests

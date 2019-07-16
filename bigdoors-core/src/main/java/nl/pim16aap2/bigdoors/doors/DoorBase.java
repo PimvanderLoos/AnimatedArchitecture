@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.Vector2D;
@@ -24,7 +24,7 @@ import java.util.UUID;
  */
 public abstract class DoorBase
 {
-    protected final BigDoors plugin;
+    protected final PLogger pLogger;
     protected final long doorUID;
 
     protected Location min;
@@ -52,9 +52,9 @@ public abstract class DoorBase
     private Vector2D minChunkCoords = null;
     private Vector2D maxChunkCoords = null;
 
-    DoorBase(final BigDoors plugin, final long doorUID, final DoorType doorType)
+    DoorBase(final PLogger pLogger, final long doorUID, final DoorType doorType)
     {
-        this.plugin = plugin;
+        this.pLogger = pLogger;
         this.doorUID = doorUID;
         this.doorType = doorType;
     }
@@ -549,6 +549,16 @@ public abstract class DoorBase
     }
 
     /**
+     * Gets the owner of this door.
+     *
+     * @return The owner of this door.
+     */
+    public @NotNull DoorOwner getDoorOwner()
+    {
+        return doorOwner;
+    }
+
+    /**
      * Calculate in which chunk the power block of this door resides in.
      *
      * @return The chunk the power block of this door resides in.
@@ -666,5 +676,22 @@ public abstract class DoorBase
         builder.append("; BlocksToMove: ").append(blocksToMove).append("\n");
 
         return builder.toString();
+    }
+
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        DoorBase other = (DoorBase) o;
+        return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) &&
+                max.equals(other.max) && powerBlock.equals(other.powerBlock) &&
+                doorType.equals(other.doorType) && isOpen == other.isOpen && doorOwner.equals(other.doorOwner) &&
+                blocksToMove == other.blocksToMove && isLocked == other.isLocked && autoClose == other.autoClose &&
+                world.getUID().equals(other.world.getUID());
     }
 }

@@ -86,4 +86,16 @@ public class DoorOwner
                 ". PlayerName: " + playerName;
         return sb;
     }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        DoorOwner other = (DoorOwner) o;
+        return doorUID == other.doorUID && playerUUID.equals(other.playerUUID) &&
+                permission == other.permission && playerName.equals(other.playerName);
+    }
 }

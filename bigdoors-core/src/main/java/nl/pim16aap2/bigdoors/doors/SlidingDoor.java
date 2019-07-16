@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.Location;
@@ -17,14 +17,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class SlidingDoor extends HorizontalAxisAlignedBase
 {
-    SlidingDoor(BigDoors plugin, long doorUID, DoorType type)
+    SlidingDoor(PLogger pLogger, long doorUID, DoorType type)
     {
-        super(plugin, doorUID, type);
+        super(pLogger, doorUID, type);
     }
 
-    SlidingDoor(BigDoors plugin, long doorUID)
+    SlidingDoor(PLogger pLogger, long doorUID)
     {
-        super(plugin, doorUID, DoorType.SLIDINGDOOR);
+        super(pLogger, doorUID, DoorType.SLIDINGDOOR);
     }
 
     /**

@@ -30,6 +30,22 @@
             <id>jetbrain-annotations</id>
             <url>https://mvnrepository.com/artifact/org.jetbrains/annotations</url>
         </repository>
+        <repository>
+            <id>junit-api</id>
+            <url>https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api</url>
+        </repository>
+        <repository>
+            <id>junit-engine</id>
+            <url>https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine</url>
+        </repository>
+        <repository>
+            <id>maven-surefire-plugin</id>
+            <url>https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin</url>
+        </repository>
+        <repository>
+            <id>mockito-core</id>
+            <url>https://mvnrepository.com/artifact/org.mockito/mockito-core</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -37,6 +53,24 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>17.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.4.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.4.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.0.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

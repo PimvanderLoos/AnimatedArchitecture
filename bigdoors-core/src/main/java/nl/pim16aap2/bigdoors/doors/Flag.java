@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.Chunk;
@@ -18,14 +18,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Flag extends DoorBase
 {
-    Flag(BigDoors plugin, long doorUID, DoorType type)
+    Flag(PLogger pLogger, long doorUID, DoorType type)
     {
-        super(plugin, doorUID, type);
+        super(pLogger, doorUID, type);
     }
 
-    Flag(BigDoors plugin, long doorUID)
+    Flag(PLogger pLogger, long doorUID)
     {
-        super(plugin, doorUID, DoorType.FLAG);
+        super(pLogger, doorUID, DoorType.FLAG);
     }
 
     /**

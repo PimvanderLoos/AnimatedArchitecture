@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.util.PLogger;
 
 /**
  * Represents all door types that are aligned on the North/South or East/West axis. For example: {@link
@@ -16,9 +16,9 @@ abstract class HorizontalAxisAlignedBase extends DoorBase
     // Check if this door is positioned along the North/South axis
     private Boolean northSouthAxis = null;
 
-    HorizontalAxisAlignedBase(BigDoors plugin, long doorUID, DoorType doorType)
+    HorizontalAxisAlignedBase(PLogger pLogger, long doorUID, DoorType doorType)
     {
-        super(plugin, doorUID, doorType);
+        super(pLogger, doorUID, doorType);
     }
 
     /**

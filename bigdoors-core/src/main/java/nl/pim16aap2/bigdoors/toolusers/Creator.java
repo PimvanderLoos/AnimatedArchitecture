@@ -83,7 +83,7 @@ public abstract class Creator extends ToolUser
                 return;
             }
 
-            DoorBase door = type.getNewDoor(plugin, doorUID);
+            DoorBase door = type.getNewDoor(plugin.getPLogger(), doorUID);
             DoorOwner owner = new DoorOwner(doorUID, player.getUniqueId(), player.getName(), 0);
             door.setName(doorName);
             door.setWorld(world);
@@ -92,7 +92,7 @@ public abstract class Creator extends ToolUser
             door.setMaximum(max);
             if (engineSide != null)
                 door.setEngineSide(engineSide);
-            door.setEngineLocation(new Location(world, engine.getBlockX(), engine.getBlockY(), engine.getBlockZ()));
+            door.setEngineLocation(new Location(world, engine.getBlockX(), engine.getBlockY() - 1, engine.getBlockZ()));
             door.setPowerBlockLocation(getPowerBlockLoc(world));
             door.setAutoClose(-1);
             door.setOpenStatus(isOpen);

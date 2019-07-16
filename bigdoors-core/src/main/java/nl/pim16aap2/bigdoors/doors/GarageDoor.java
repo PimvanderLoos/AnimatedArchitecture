@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
@@ -18,14 +18,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class GarageDoor extends HorizontalAxisAlignedBase
 {
-    GarageDoor(BigDoors plugin, long doorUID, DoorType type)
+    GarageDoor(PLogger pLogger, long doorUID, DoorType type)
     {
-        super(plugin, doorUID, type);
+        super(pLogger, doorUID, type);
     }
 
-    GarageDoor(BigDoors plugin, long doorUID)
+    GarageDoor(PLogger pLogger, long doorUID)
     {
-        super(plugin, doorUID, DoorType.GARAGEDOOR);
+        super(pLogger, doorUID, DoorType.GARAGEDOOR);
     }
 
     /**
@@ -126,9 +126,9 @@ public class GarageDoor extends HorizontalAxisAlignedBase
                 break;
             default:
                 directionVec = null;
-                plugin.getPLogger().dumpStackTrace("Failed to get new locations of garage door \"" + getDoorUID()
-                                                           + "\". Reason: Invalid rotateDirection \"" +
-                                                           rotateDirection.toString() + "\"");
+                pLogger.dumpStackTrace("Failed to get new locations of garage door \"" + getDoorUID()
+                                               + "\". Reason: Invalid rotateDirection \"" +
+                                               rotateDirection.toString() + "\"");
                 return;
         }
 

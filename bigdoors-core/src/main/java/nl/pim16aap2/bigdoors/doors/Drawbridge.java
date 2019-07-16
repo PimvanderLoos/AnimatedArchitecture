@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
@@ -18,14 +18,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Drawbridge extends HorizontalAxisAlignedBase
 {
-    Drawbridge(BigDoors plugin, long doorUID, DoorType type)
+    Drawbridge(PLogger pLogger, long doorUID, DoorType type)
     {
-        super(plugin, doorUID, type);
+        super(pLogger, doorUID, type);
     }
 
-    Drawbridge(BigDoors plugin, long doorUID)
+    Drawbridge(PLogger pLogger, long doorUID)
     {
-        super(plugin, doorUID, DoorType.DRAWBRIDGE);
+        super(pLogger, doorUID, DoorType.DRAWBRIDGE);
     }
 
     /**
@@ -217,8 +217,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
                 }
                 break;
             default:
-                plugin.getPLogger()
-                      .dumpStackTrace("Invalid openDirection for bridge mover: " + openDirection.toString());
+                pLogger.dumpStackTrace("Invalid openDirection for bridge mover: " + openDirection.toString());
                 return;
         }
         newMin.setX(newXMin);

@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @author Pim
  */
-public final class ConfigLoader
+public class ConfigLoader
 {
     private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Arrays.asList("GOLD_BLOCK"));
     private final String header;
@@ -58,6 +58,16 @@ public final class ConfigLoader
         doorPrices = new HashMap<>();
         doorMultipliers = new HashMap<>();
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
+        makeConfig();
+    }
+
+    public void reloadConfig()
+    {
+        plugin.reloadConfig();
+        configEntries.clear();
+        powerBlockTypesMap.clear();
+        doorPrices.clear();
+        doorMultipliers.clear();
         makeConfig();
     }
 
@@ -118,8 +128,9 @@ public final class ConfigLoader
                 "For example: \"doorPrice='max(10, sqrt(16)^4/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
                 "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!"};
 
-//        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
-//                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
+        String[] headCacheTimeoutComment = {
+                "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
+                "Takes up a bit more space than the powerblock caching, but makes GUI much faster."};
 
         String[] debugComment = {"Don't use this. Just leave it on false."};
         String[] backupComment = {
@@ -142,7 +153,7 @@ public final class ConfigLoader
         plotSquaredHook = addNewConfigEntry(config, "plotSquared", true, null);
         griefPreventionHook = addNewConfigEntry(config, "griefPrevention", true, null);
         resourcePack = addNewConfigEntry(config, "resourcePack", defResPackUrl1_13, resourcePackComment);
-
+        headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
         makeBackup = addNewConfigEntry(config, "makeBackup", true, backupComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 0, cacheTimeoutComment);
