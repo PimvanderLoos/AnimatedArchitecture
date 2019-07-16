@@ -10,18 +10,16 @@
 # Then "This door will attempt to move %BLOCKSTOMOVE% blocks." would become:
 # "This door will attempt to move 4 blocks.".
 
-
-DOORTYPE.BigDoor=Big Door
-DOORTYPE.Drawbridge=Drawbridge
-DOORTYPE.Portcullis=Portcullis
-DOORTYPE.Elevator=Elevator
-DOORTYPE.SlidingDoor=Sliding Door
-DOORTYPE.Flag=Flag
-DOORTYPE.GarageDoor=Garage Door
-DOORTYPE.Windmill=Windmill
-DOORTYPE.RevolvingDoor=Revolving Door
-DOORTYPE.GarageDoor=Garage Door
-
+DOORTYPE.BIGDOOR=Big Door
+DOORTYPE.DRAWBRIDGE=Drawbridge
+DOORTYPE.PORTCULLIS=Portcullis
+DOORTYPE.ELEVATOR=Elevator
+DOORTYPE.SLIDINGDOOR=Sliding Door
+DOORTYPE.FLAG=Flag
+DOORTYPE.GARAGEDOOR=Garage Door
+DOORTYPE.WINDMILL=Windmill
+DOORTYPE.REVOLVINGDOOR=Revolving Door
+DOORTYPE.CLOCK=Clock
 
 
 # Supported: %DOORLIMIT%
@@ -44,13 +42,15 @@ ERROR.NOTOGGLEPERMISSION=§4You are not allowed to toggle "%DOOR%".
 ERROR.TOOMANYDOORSFOUND=§4You own multiple doors named "%DOORE%". Please use the ID of the desired door instead.
 
 ERROR.NODOORSFOUND=§4No doors found!
-
 ERROR.PLAYERISBUSY=§4You are already in a creation/relocation/inspector process.
 ERROR.PLAYERISNOTBUSY=§4You are not creating any doors right now! Please initiate the creation process in the GUI! Type "/BigDoors Menu" or "/BDM" for short.
+
+# Supported: %INPUT%
 ERROR.INVALIDINPUT=§4"%INPUT%" is an invalid input value!
+
 ERROR.PLAYERNOTFOUND=§4Player not found!
-ERROR.GENERALERROR=§4An error occurred.
-ERROR.NOPERMISSIONFORDOORTYPE=§4You do not have the required permissions for this action!
+ERROR.GENERALERROR=§4An error occurred. Contact a server administrator!
+ERROR.NOPERMISSIONFORDOORTYPE=§4You do not have permission to create a door of this type!
 
 # Supported: %HOOKNAME%
 ERROR.NOPERMISSIONFORLOCATION=§4"%HOOKNAME%" does not allow you to use or create doors in this area!
@@ -65,7 +65,6 @@ ERROR.COMMAND.NOTAPLAYER=Only players can execute this command!
 ERROR.COMMAND.NOTFOUND=§4Command not found!
 
 
-
 GUI.PAGE.DOORLIST=Door Menu
 GUI.PAGE.SUBMENU=Door Sub-Menu
 GUI.PAGE.CONFIRM=Confirmation Menu
@@ -73,28 +72,25 @@ GUI.PAGE.NEWDOORS=Door Creation Menu
 GUI.PAGE.REMOVEOWNER=Owner Removal Menu
 
 
-
 GUI.SORTING.ALPHABETICAL=Alphabetically sorted.
 GUI.SORTING.NUMERICAL=Numerically sorted.
-GUI.SORTING.TYPICALLY=Numerically sorted.
+GUI.SORTING.TYPICALLY=Sorted by type
 
-
-
-GUI.BUTTON.SORT=Change sorting of doors
 
 # Supported: %PREVIOUSPAGE%, %PAGECOUNT%, %NEXTPAGE%
 GUI.BUTTON.NEXTPAGE=Go to page %NEXTPAGE%/%PAGECOUNT%.
 GUI.BUTTON.PREVIOUSPAGE=Go to page %PREVIOUSPAGE%/%PAGECOUNT%.
 
+GUI.BUTTON.SORT=Change sorting of doors
 GUI.BUTTON.NEW=Create a new door.
 GUI.BUTTON.LOCK=Lock door.
 GUI.BUTTON.UNLOCK=Unlock door.
 GUI.BUTTON.TOGGLE=Toggle door.
 GUI.BUTTON.INFO=Get door info.
 GUI.BUTTON.RELOCATEPB=Relocate Power Block.
-GUI.BUTTON.DELETE.DOOR=Delete door.
-GUI.BUTTON.DELETE.DOOR.CONFIRM=DELETE.
-GUI.BUTTON.DELETE.DOOR.CANCEL=Cancel.
+GUI.BUTTON.DOOR.DELETE=Delete door.
+GUI.BUTTON.DOOR.DELETE.CONFIRM=DELETE.
+GUI.BUTTON.DOOR.DELETE.CANCEL=Cancel.
 GUI.BUTTON.BLOCKSTOMOVE=Change blocks to move.
 GUI.BUTTON.DIRECTION=Change open direction.
 GUI.BUTTON.TIMER=Set auto-close timer.
@@ -102,26 +98,21 @@ GUI.BUTTON.OWNER.ADD=Add another owner or user.
 GUI.BUTTON.OWNER.DELETE=Remove another owner or user.
 
 
-
 # Supported: %DOORTYPE%
 GUI.DESCRIPTION.INITIATION=Create a new %DOORTYPE%.
 
 # Supported: %DOORID%
 GUI.DESCRIPTION.DOORID=This door has ID: %DOORID%.
-
-GUI.DESCRIPTION.DELETE.DOOR=Delete this door. Be careful, this cannot be undone!
-
-# Supported: %BLOCKSTOMOVE%
 GUI.DESCRIPTION.BLOCKSTOMOVE=This door will attempt to move %BLOCKSTOMOVE% blocks.
 
 # Supported: %AUTOCLOSE%
 GUI.DESCRIPTION.TIMER.SET=This door automatically closes after %AUTOCLOSE% seconds.
 
-GUI.DESCRIPTION.TIMER.NOTSET=This door is not set to close automatically.
-
 # Supported: %OPENDIRECTION%
 GUI.DESCRIPTION.DIRECTION=The current open direction is: %OPENDIRECTION%.
 
+GUI.DESCRIPTION.TIMER.NOTSET=This door is not set to close automatically.
+GUI.DESCRIPTION.DOOR.DELETE=Delete this door. Be careful, this cannot be undone!
 
 
 GENERAL.DIRECTION.CLOCKWISE=Clockwise
@@ -135,51 +126,45 @@ GENERAL.DIRECTION.DOWN=Down
 GENERAL.DIRECTION.NONE=Any
 
 
-
 COMMAND.TIMEOUTORFAIL=&4Timed out waiting for input! Try again!
 COMMAND.ADDOWNER.INIT=&aType "/BigDoors AddOwner <playerName> [permission]" in chat. Replace "<playerName>" by the name of the player you want to add as owner.\nOptionally, you can specify their permission level. 1 = default (can edit door), 2 = limited access (use only, no editing).
 COMMAND.ADDOWNER.SUCCESS=&aSuccessfully added another owner!
 COMMAND.ADDOWNER.FAIL=&aCould not add owner! Are you sure the name is correct, the user isn't the original creator and the permission range is valid?
 COMMAND.REMOVEOWNER.INIT=&aType "/BigDoors RemoveOwner <playerName>" in chat. Replace "<playerName>" by the name of the player you want to remove as owner.
 COMMAND.REMOVEOWNER.SUCCESS=&aSuccessfully removed another owner!
+COMMAND.SETTIME.DISABLED=§aThe door will no longer close automatically.
+COMMAND.BLOCKSTOMOVE.INIT=&aType "/BigDoors SetBlocksToMove <distance>" in chat. Replace "<distance>" by the number of blocks that you want the door to attempt to move.\nAny value lower than 1 will make the door use default values.
+COMMAND.BLOCKSTOMOVE.DISABLED=§aThe door will now use the default values for movement again.
+COMMAND.REMOVEOWNER.LIST=&aThese are the current owners of this door:
+COMMAND.SETTIME.INIT=&aType "/BigDoors SetAutoCloseTime <time>" in chat. Replace "<time>" by a number in seconds. After that number of seconds, the door will close again.\nSetting a negative amount of time disables it!
+COMMAND.DOOR.DELETE.SUCCESS=&aDoor successfully deleted!
 
 # Supported: %INPUT%
 COMMAND.REMOVEOWNER.FAIL=&aCould not remove player "%INPUT%" as owner! Are you sure the name is correct and that you are not trying to remove the original creator?
 
-COMMAND.REMOVEOWNER.LIST=&aThese are the current owners of this door:
-COMMAND.SETTIME.INIT=&aType "/BigDoors SetAutoCloseTime <time>" in chat. Replace "<time>" by a number in seconds. After that number of seconds, the door will close again.\nSetting a negative amount of time disables it!
-
 # Supported: %AUTOCLOSE%
 COMMAND.SETTIME.SUCCESS=§aThe door will now close after %AUTOCLOSE% seconds.
 
-COMMAND.SETTIME.DISABLED=§aThe door will no longer close automatically.
-COMMAND.BLOCKSTOMOVE.INIT=&aType "/BigDoors SetBlocksToMove <distance>" in chat. Replace "<distance>" by the number of blocks that you want the door to attempt to move.\nAny value lower than 1 will make the door use default values.
-
 # Supported: %BLOCKSTOMOVE%
 COMMAND.BLOCKSTOMOVE.SUCCESS=§aThe door will now try to move %BLOCKSTOMOVE% blocks.
-
-COMMAND.BLOCKSTOMOVE.DISABLED=§aThe door will now use the default values for movement again.
 
 
 
 CREATOR.GENERAL.GIVENAME=§aPlease start by giving the door/drawbridge/portcullis a message using the command: "/BigDoors SetName <message>"
 CREATOR.GENERAL.INVALIDPOINT=§4The selected point was invalid! Try again!
 CREATOR.GENERAL.INVALIDROTATIONPOINT=§4Invalid rotation point selected! Try again!
-CREATOR.GENERAL.Cancelled=§4The creation process has been cancelled.
 CREATOR.GENERAL.INVALIDROTATIONDIRECTION=§4Invalid rotation point selection! Try again!
-
-# Supported: %DOORPRICE%
-CREATOR.GENERAL.INSUFFICIENTFUNDS=§4You have insufficient funds to create this door! You'd need %DOORPRICE%.
-CREATOR.GENERAL.MONEYWITHDRAWN=§a%DOORPRICE% has been withdrawn from your account.
-
+CREATOR.GENERAL.CANCELLED=§4The creation process has been cancelled.
 CREATOR.GENERAL.TIMEOUT=§4Time's up! Creation was aborted, please try again.
 CREATOR.GENERAL.STICKNAME=Big Door Tool
+CREATOR.GENERAL.INIT=§aProcess initiated! You have 60 seconds to complete this process!\nIf you wish to cancel the process sooner, type "/BigDoors cancel" in chat.
 
 # Supported: %BLOCKLIMIT%
 CREATOR.GENERAL.AREATOOBIG=§4You are not allowed to create a door this big. Your size limit is %BLOCKLIMIT%.
 
-CREATOR.GENERAL.INIT=§aProcess initiated! You have 60 seconds to complete this process!\nIf you wish to cancel the process sooner, type "/BigDoors cancel" in chat.
-
+# Supported: %DOORPRICE%
+CREATOR.GENERAL.INSUFFICIENTFUNDS=§4You have insufficient funds to create this door! You'd need %DOORPRICE%.
+CREATOR.GENERAL.MONEYWITHDRAWN=§a%DOORPRICE% has been withdrawn from your account.
 
 
 CREATOR.PBRELOCATOR.STICKLORE=This tool is used to change the location of a power block.
@@ -188,10 +173,8 @@ CREATOR.PBRELOCATOR.SUCCESS=§aPower Block Relocation successful! Don't forget t
 CREATOR.PBRELOCATOR.LOCATIONINUSE=§4Invalid Power Block Location selected! Location already in use by another door!
 
 
-
 CREATOR.PBINSPECTOR.STICKLORE=This tool is used to inspect a power block.
 CREATOR.PBINSPECTOR.INIT=§aYou have been given a Big Door Power Block Inspector Stick! You can use this tool to inspect a powerblock. Just hit a block!
-
 
 
 CREATOR.PORTCULLIS.STICKLORE=This tool is used to create a portcullise.
@@ -199,7 +182,6 @@ CREATOR.PORTCULLIS.INIT=§aYou have been given a Portcullis Creator Stick!
 CREATOR.PORTCULLIS.SUCCESS=§aPortcullis creation process successful!
 CREATOR.PORTCULLIS.STEP1=§aStep 1/2: Please select the first corner of the portcullis.
 CREATOR.PORTCULLIS.STEP2=§aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the portcullis.
-
 
 
 CREATOR.DRAWBRIDGE.STICKLORE=This tool is used to create a drawbridge.
@@ -211,7 +193,6 @@ CREATOR.DRAWBRIDGE.STEP3=§aStep 3/3: Second point selected! Please select a fir
 CREATOR.DRAWBRIDGE.STEP4=§aStep 4/4: First rotation point selected! Please select a second rotation point on the same axis to prevent ambiguity.
 
 
-
 CREATOR.ELEVATOR.STICKLORE=This tool is used to create an elevator.
 CREATOR.ELEVATOR.INIT=§aYou have been given a Elevators Creator Stick
 CREATOR.ELEVATOR.SUCCESS=§aElevator creation process successful!
@@ -219,13 +200,11 @@ CREATOR.ELEVATOR.STEP1=§aStep 1/2: Please select the first corner of the elevat
 CREATOR.ELEVATOR.STEP2=§aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the elevator.
 
 
-
 CREATOR.SLIDINGDOOR.STICKLORE=This tool is used to create a sliding door
 CREATOR.SLIDINGDOOR.INIT=§aYou have been given a Sliding Door Creator Stick!
 CREATOR.SLIDINGDOOR.SUCCESS=§aSliding Door creation successful!
 CREATOR.SLIDINGDOOR.STEP1=§aStep 1/2: Please select the first corner of the sliding door.
 CREATOR.SLIDINGDOOR.STEP2=§aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the sliding door.
-
 
 
 CREATOR.BIGDOOR.STICKLORE=This tool is used to create a big door.
@@ -236,14 +215,12 @@ CREATOR.BIGDOOR.STEP2=§aStep 2/3: First point selected! Please select a second 
 CREATOR.BIGDOOR.STEP3=§aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire big door will swing.
 
 
-
 CREATOR.FLAG.STICKLORE=This tool is used to create a flag.
 CREATOR.FLAG.INIT=§aYou have been given a Flag Creator Stick!
 CREATOR.FLAG.SUCCESS=§aFlag creation successful!
 CREATOR.FLAG.STEP1=§aStep 1/3: Please select the first corner of the flag.
 CREATOR.FLAG.STEP2=§aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the flag.
 CREATOR.FLAG.STEP3=§aStep 3/3: Second point selected! Please select the point where the flag is attached to the pole.
-
 
 
 CREATOR.WINDMILL.STICKLORE=This tool is used to create a windmill.
@@ -254,14 +231,12 @@ CREATOR.WINDMILL.STEP2=§aStep 2/3: First point selected! Please select a second
 CREATOR.WINDMILL.STEP3=§aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire windmill will swing.
 
 
-
 CREATOR.REVOLVINGDOOR.STICKLORE=This tool is used to create a revolving door.
 CREATOR.REVOLVINGDOOR.INIT=§aYou have been given a Revolving Door Creator Stick!
 CREATOR.REVOLVINGDOOR.SUCCESS=§aRevolving Door creation successful!
 CREATOR.REVOLVINGDOOR.STEP1=§aStep 1/3: Please select the first corner of the revolving door.
 CREATOR.REVOLVINGDOOR.STEP2=§aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the revolving door.
 CREATOR.REVOLVINGDOOR.STEP3=§aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire revolving door will swing.
-
 
 
 CREATOR.GARAGEDOOR.STICKLORE=This tool is used to create a garage door.

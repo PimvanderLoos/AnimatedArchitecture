@@ -210,6 +210,9 @@ import java.util.Vector;
 // TODO: Look into scheduleAutoClose(). It can probably be simplified.
 // TODO: Rename ListenerClasses to nameListener instead of Handler.
 // TODO: Cache value of DoorBase#getPowerBlockChunkHash().
+// TODO: In addition to doors/chunk caching, also keep a set of worlds that do or do not contain doors. This could
+//       cancel the entire event after a single cache lookup, thus potentially skipping at best 6 cache lookups, and at
+//       worst 3 database lookups + 3 cache lookups.
 
 /*
  * GUI
@@ -322,6 +325,7 @@ import java.util.Vector;
 //       radius = maxRadius -> offset = 0. Should probably only look at the last 3 blocks. e.g.: offset = Min((offset / 4) * (totalRadius - radius)).
 // TODO: Drawbridge: Cleanup #getNewLocation().
 // TODO: When checking if a door's chunks are loaded, use the door's chunkRange variables.
+// TODO: Highlist blocks that prevent a door from opening.
 
 /*
 
