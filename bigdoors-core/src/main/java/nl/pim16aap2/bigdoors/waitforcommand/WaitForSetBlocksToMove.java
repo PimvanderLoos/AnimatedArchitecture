@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 
 public class WaitForSetBlocksToMove extends WaitForCommand
@@ -19,7 +20,7 @@ public class WaitForSetBlocksToMove extends WaitForCommand
         this.subCommand = subCommand;
         this.player = player;
         this.door = door;
-        SpigotUtil.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Init"));
+        SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_BLOCKSTOMOVE_INIT));
     }
 
     @Override

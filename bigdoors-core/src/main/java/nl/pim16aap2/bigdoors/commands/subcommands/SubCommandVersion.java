@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.commands.subcommands;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -25,7 +24,7 @@ public class SubCommandVersion extends SubCommand
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.GREEN + "This server uses version "
+        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, "This server uses version "
                 + plugin.getDescription().getVersion() + " of this plugin!");
         return true;
     }

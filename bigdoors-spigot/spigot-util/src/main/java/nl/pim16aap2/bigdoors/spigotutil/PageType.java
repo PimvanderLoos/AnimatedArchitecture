@@ -1,17 +1,19 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
+import nl.pim16aap2.bigdoors.util.messages.Message;
+
 import java.util.HashMap;
 
 public enum PageType
 {
-    NOTBIGDOORS(""),                     // This PageType does not belong to this plugin!
-    DOORLIST("GUI.NAME.DoorList"), // Page showing a list of doors.
-    DOORINFO("GUI.NAME.SubMenu"), // Page showing the information of one specific door.
-    CONFIRMATION("GUI.NAME.ConfirmMenu"), // Confirm delete.
-    DOORCREATION("GUI.NAME.NewDoors"), // Create new doors and such.
-    REMOVEOWNER("GUI.NAME.REMOVEOWNER"); // Delete other owners.
+    NOTBIGDOORS(null),                     // This PageType does not belong to this plugin!
+    DOORLIST(Message.GUI_PAGE_DOORLIST), // Page showing a list of doors.
+    DOORINFO(Message.GUI_PAGE_SUBMENU), // Page showing the information of one specific door.
+    CONFIRMATION(Message.GUI_PAGE_CONFIRM), // Confirm delete.
+    DOORCREATION(Message.GUI_PAGE_NEWDOORS), // Create new doors and such.
+    REMOVEOWNER(Message.GUI_PAGE_REMOVEOWNER); // Delete other owners.
 
-    private static HashMap<String, PageType> map = new HashMap<>();
+    private static HashMap<Message, PageType> map = new HashMap<>();
 
     static
     {
@@ -19,14 +21,14 @@ public enum PageType
             map.put(type.message, type);
     }
 
-    private String message;
+    private Message message;
 
-    private PageType(String message)
+    PageType(final Message message)
     {
         this.message = message;
     }
 
-    public static String getMessage(PageType type)
+    public static Message getMessage(PageType type)
     {
         return type.message;
     }

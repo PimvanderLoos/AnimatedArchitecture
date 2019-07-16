@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.util.messages.Message;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,15 +12,15 @@ import java.util.Map;
  */
 public enum RotateDirection
 {
-    NONE(0, "GUI.Direction.Any"),
-    CLOCKWISE(1, "GUI.Direction.Clock"),
-    COUNTERCLOCKWISE(2, "GUI.Direction.Counter"),
-    UP(3, "GUI.Direction.Up"),
-    DOWN(4, "GUI.Direction.Down"),
-    NORTH(5, "GUI.Direction.North"),
-    EAST(6, "GUI.Direction.East"),
-    SOUTH(7, "GUI.Direction.South"),
-    WEST(8, "GUI.Direction.West");
+    NONE(0, Message.GENERAL_DIRECTION_NONE),
+    CLOCKWISE(1, Message.GENERAL_DIRECTION_CLOCKWISE),
+    COUNTERCLOCKWISE(2, Message.GENERAL_DIRECTION_COUNTERCLOCKWISE),
+    UP(3, Message.GENERAL_DIRECTION_UP),
+    DOWN(4, Message.GENERAL_DIRECTION_DOWN),
+    NORTH(5, Message.GENERAL_DIRECTION_NORTH),
+    EAST(6, Message.GENERAL_DIRECTION_EAST),
+    SOUTH(7, Message.GENERAL_DIRECTION_SOUTH),
+    WEST(8, Message.GENERAL_DIRECTION_WEST);
 
     private static Map<Integer, RotateDirection> map = new HashMap<>();
 
@@ -29,12 +31,12 @@ public enum RotateDirection
     }
 
     private int val;
-    private String nameKey;
+    private Message message;
 
-    RotateDirection(int val, String nameKey)
+    RotateDirection(int val, Message message)
     {
         this.val = val;
-        this.nameKey = nameKey;
+        this.message = message;
     }
 
     public static int getValue(RotateDirection dir)
@@ -47,9 +49,9 @@ public enum RotateDirection
         return map.get(dir);
     }
 
-    public static String getNameKey(RotateDirection dir)
+    public static Message getMessage(RotateDirection dir)
     {
-        return dir.nameKey;
+        return dir.message;
     }
 
     /**

@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -31,8 +32,7 @@ public class SubCommandListPlayerDoors extends SubCommand
     {
         if (doors.size() == 0)
         {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                    plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, messages.getString(Message.ERROR_NODOORSFOUND));
             return true;
         }
         StringBuilder builder = new StringBuilder();

@@ -5,9 +5,11 @@ import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 /*
  * This class represents players in the process of creating doors.
@@ -20,24 +22,7 @@ public class DrawbridgeCreator extends Creator
     public DrawbridgeCreator(BigDoors plugin, Player player, String name)
     {
         super(plugin, player, name, DoorType.DRAWBRIDGE);
-        SpigotUtil.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Init"));
-        if (name == null)
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
-        else
-            triggerGiveTool();
-    }
-
-    @Override
-    protected void triggerGiveTool()
-    {
-        giveToolToPlayer(messages.getString("CREATOR.DRAWBRIDGE.StickLore").split("\n"),
-                         messages.getString("CREATOR.DRAWBRIDGE.StickReceived").split("\n"));
-    }
-
-    @Override
-    protected void triggerFinishUp()
-    {
-        finishUp(messages.getString("CREATOR.DRAWBRIDGE.Success"));
+        super.init();
     }
 
     @Override
@@ -204,23 +189,13 @@ public class DrawbridgeCreator extends Creator
     @Override
     public void selector(Location loc)
     {
-        if (doorName == null)
-        {
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+        if (!hasName() || !creatorHasPermissionInLocation(loc))
             return;
-        }
-        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
-        if (canBreakBlock != null)
-        {
-            SpigotUtil.messagePlayer(player,
-                                     messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
-            return;
-        }
 
         if (one == null)
         {
             one = loc;
-            String[] message = messages.getString("CREATOR.DRAWBRIDGE.Step1").split("\n");
+            String[] message = getStep1().split("\n");
             SpigotUtil.messagePlayer(player, message);
         }
         else if (two == null)
@@ -234,12 +209,12 @@ public class DrawbridgeCreator extends Creator
                 else
                     isOpen = true;
 
-                String[] message = messages.getString("CREATOR.DRAWBRIDGE.Step2").split("\n");
+                String[] message = getStep2().split("\n");
                 SpigotUtil.messagePlayer(player, message);
                 minMaxFix();
             }
             else
-                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
+                sendInvalidRotationMessage();
         }
         // If the engine position has not been determined yet
         else if (engine == null)
@@ -255,10 +230,10 @@ public class DrawbridgeCreator extends Creator
                 }
                 // If the engine side could not be determined, branch out for additional information.
                 else
-                    SpigotUtil.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Step3"));
+                    SpigotUtil.messagePlayer(player, getStep3());
             }
             else
-                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
+                sendInvalidRotationMessage();
         }
         // If it's a draw bridge and the engine side wasn't determined yet.
         else if (engineSide == null)
@@ -269,9 +244,72 @@ public class DrawbridgeCreator extends Creator
                 setIsDone(true);
             }
             else
-                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
+                sendInvalidRotationMessage();
         }
         else
             setIsDone(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getInitMessage()
+    {
+        return messages.getString(Message.CREATOR_DRAWBRIDGE_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStickLore()
+    {
+        return messages.getString(Message.CREATOR_DRAWBRIDGE_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStickReceived()
+    {
+        return messages.getString(Message.CREATOR_DRAWBRIDGE_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep1()
+    {
+        return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep2()
+    {
+        return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP2);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep3()
+    {
+        return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP3);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getSuccessMessage()
+    {
+        return messages.getString(Message.CREATOR_DRAWBRIDGE_SUCCESS);
     }
 }

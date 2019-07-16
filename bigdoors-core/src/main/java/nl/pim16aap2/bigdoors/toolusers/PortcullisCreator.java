@@ -3,47 +3,23 @@ package nl.pim16aap2.bigdoors.toolusers;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import org.bukkit.ChatColor;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class PortcullisCreator extends Creator
 {
-    private String typeString;
-
-    public PortcullisCreator(BigDoors plugin, Player player, String name, String typeString)
-    {
-        super(plugin, player, name, DoorType.PORTCULLIS);
-        this.typeString = typeString;
-        SpigotUtil.messagePlayer(player, messages.getString("CREATOR." + typeString + ".Init"));
-        if (name == null)
-            SpigotUtil.messagePlayer(player, ChatColor.GREEN, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
-        else
-            triggerGiveTool();
-    }
-
     public PortcullisCreator(BigDoors plugin, Player player, String name)
     {
-        this(plugin, player, name, "PORTCULLIS");
-    }
-
-    @Override
-    protected void triggerGiveTool()
-    {
-        giveToolToPlayer(messages.getString("CREATOR." + typeString + ".StickLore").split("\n"),
-                         messages.getString("CREATOR." + typeString + ".StickReceived").split("\n"));
+        super(plugin, player, name, DoorType.PORTCULLIS);
+        super.init();
     }
 
     @Override
     protected boolean isReadyToCreateDoor()
     {
         return one != null && two != null && engine != null;
-    }
-
-    @Override
-    protected void triggerFinishUp()
-    {
-        finishUp(messages.getString("CREATOR." + typeString + ".Success"));
     }
 
     // Make sure the power point is in the middle.
@@ -65,30 +41,20 @@ public class PortcullisCreator extends Creator
     @Override
     public void selector(Location loc)
     {
-        if (doorName == null)
-        {
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+        if (!hasName() || !creatorHasPermissionInLocation(loc))
             return;
-        }
-        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
-        if (canBreakBlock != null)
-        {
-            SpigotUtil.messagePlayer(player,
-                                     messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
-            return;
-        }
 
         if (one == null)
         {
             one = loc;
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR." + typeString + ".Step1"));
+            SpigotUtil.messagePlayer(player, getStep1());
         }
         else
         {
             if (isPosTwoValid(loc))
                 two = loc;
             else
-                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
+                super.sendInvalidPointMessage();
         }
 
         if (one != null && two != null)
@@ -97,5 +63,68 @@ public class PortcullisCreator extends Creator
             setEngine();
             setIsDone(true);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getInitMessage()
+    {
+        return messages.getString(Message.CREATOR_PORTCULLIS_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStickLore()
+    {
+        return messages.getString(Message.CREATOR_PORTCULLIS_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStickReceived()
+    {
+        return messages.getString(Message.CREATOR_PORTCULLIS_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep1()
+    {
+        return messages.getString(Message.CREATOR_PORTCULLIS_STEP1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep2()
+    {
+        return messages.getString(Message.CREATOR_PORTCULLIS_STEP2);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep3()
+    {
+        return "";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getSuccessMessage()
+    {
+        return messages.getString(Message.CREATOR_PORTCULLIS_SUCCESS);
     }
 }

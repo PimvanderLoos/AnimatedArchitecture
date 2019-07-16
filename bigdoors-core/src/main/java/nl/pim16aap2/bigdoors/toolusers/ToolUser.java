@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.toolusers;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -57,7 +57,7 @@ public abstract class ToolUser extends Abortable
         tool.getItemMeta().addItemFlags(ItemFlag.HIDE_ENCHANTS);
 
         ItemMeta itemMeta = tool.getItemMeta();
-        itemMeta.setDisplayName(messages.getString("CREATOR.GENERAL.StickName"));
+        itemMeta.setDisplayName(messages.getString(Message.CREATOR_GENERAL_STICKNAME));
         itemMeta.setLore(Arrays.asList(lore));
         tool.setItemMeta(itemMeta);
 
@@ -110,7 +110,7 @@ public abstract class ToolUser extends Abortable
         plugin.removeToolUser(this);
         if (!done)
             plugin.getPLogger().sendMessageToTarget(player, Level.INFO,
-                                                    ChatColor.RED + messages.getString("CREATOR.GENERAL.TimeUp"));
+                                                    messages.getString(Message.CREATOR_GENERAL_TIMEOUT));
     }
 
     @Override

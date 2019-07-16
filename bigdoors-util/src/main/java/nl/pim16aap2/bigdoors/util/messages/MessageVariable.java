@@ -18,7 +18,9 @@ interface MessageVariable
     String DOORID = "%DOORID%";
     String AUTOCLOSE = "%AUTOCLOSE%";
     String OPENDIRECTION = "%OPENDIRECTION%";
+    String RELATIVEDIRECTION = "%RELATIVEDIRECTION%";
     String BLOCKSTOMOVE = "%BLOCKSTOMOVE%";
     String DOORPRICE = "%DOORPRICE%";
+    String DOORNAME = "%DOORNAME%";
     String BLOCKLIMIT = "%BLOCKLIMIT%";
 }

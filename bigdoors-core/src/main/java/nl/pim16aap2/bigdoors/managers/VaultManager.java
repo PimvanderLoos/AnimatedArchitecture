@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.Restartable;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -45,13 +46,14 @@ public class VaultManager extends Restartable
         {
             if (price > 0)
                 SpigotUtil.messagePlayer(player,
-                                         plugin.getMessages().getString("CREATOR.GENERAL.MoneyWithdrawn") + " " +
-                                                 price);
+                                         plugin.getMessages().getString(Message.CREATOR_GENERAL_MONEYWITHDRAWN,
+                                                                        Double.toString(price)));
             return true;
         }
 
         SpigotUtil.messagePlayer(player,
-                                 plugin.getMessages().getString("CREATOR.GENERAL.InsufficientFunds") + " " + price);
+                                 plugin.getMessages().getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS,
+                                                                Double.toString(price)));
         return false;
     }
 

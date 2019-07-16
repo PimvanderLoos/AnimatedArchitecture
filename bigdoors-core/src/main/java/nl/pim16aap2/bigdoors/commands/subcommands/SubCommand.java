@@ -4,12 +4,14 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.ICommand;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.command.CommandSender;
 
 public abstract class SubCommand implements ICommand
 {
     protected final BigDoors plugin;
     protected final CommandManager commandManager;
+    protected final Messages messages;
 
     protected String help;
     protected String argsHelp;
@@ -19,6 +21,7 @@ public abstract class SubCommand implements ICommand
     public SubCommand(final BigDoors plugin, CommandManager commandManager)
     {
         this.plugin = plugin;
+        messages = plugin.getMessages();
         this.commandManager = commandManager;
     }
 

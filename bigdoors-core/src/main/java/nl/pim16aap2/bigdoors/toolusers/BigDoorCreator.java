@@ -4,8 +4,10 @@ package nl.pim16aap2.bigdoors.toolusers;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a user creating a Big Door.
@@ -13,39 +15,17 @@ import org.bukkit.entity.Player;
  * @author Pim
  * @see Creator
  **/
+
 public class BigDoorCreator extends Creator
 {
-    protected String typeString;
-
-    public BigDoorCreator(BigDoors plugin, Player player, String name, String typeString)
-    {
-        super(plugin, player, name, DoorType.BIGDOOR);
-        this.typeString = typeString;
-        SpigotUtil.messagePlayer(player, messages.getString("CREATOR." + typeString + ".Init"));
-        if (name == null)
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
-        else
-            triggerGiveTool();
-    }
-
     public BigDoorCreator(BigDoors plugin, Player player, String name)
     {
-        this(plugin, player, name, "DOOR");
+        super(plugin, player, name, DoorType.BIGDOOR);
     }
 
-    @Override
-    protected void triggerGiveTool()
-    {
-        giveToolToPlayer(messages.getString("CREATOR." + typeString + ".StickLore").split("\n"),
-                         messages.getString("CREATOR." + typeString + ".StickReceived").split("\n"));
-    }
-
-    @Override
-    protected void triggerFinishUp()
-    {
-        finishUp(messages.getString("CREATOR." + typeString + ".Success"));
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean isReadyToCreateDoor()
     {
@@ -92,26 +72,20 @@ public class BigDoorCreator extends Creator
     }
 
     // Take care of the selection points.
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void selector(Location loc)
     {
-        if (doorName == null)
-        {
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+        if (!hasName() || !creatorHasPermissionInLocation(loc))
             return;
-        }
-        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
-        if (canBreakBlock != null)
-        {
-            SpigotUtil.messagePlayer(player,
-                                     messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
-            return;
-        }
 
         if (one == null)
         {
             one = loc;
-            String[] message = messages.getString("CREATOR." + typeString + ".Step1").split("\n");
+            String[] message = getStep2().split("\n");
             SpigotUtil.messagePlayer(player, message);
         }
         else if (two == null)
@@ -123,14 +97,13 @@ public class BigDoorCreator extends Creator
                 // in isPosTwoValid() if possible, in which case the next print statement is skipped.
                 if (engine == null)
                 {
-                    String[] message = messages.getString("CREATOR." + typeString + ".Step2").split("\n");
+                    String[] message = getStep3().split("\n");
                     SpigotUtil.messagePlayer(player, message);
                 }
                 super.minMaxFix();
             }
             else
-                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidPoint"));
-
+                sendInvalidPointMessage();
         }
         // If the engine position has not been determined yet
         else if (engine == null)
@@ -142,9 +115,72 @@ public class BigDoorCreator extends Creator
                 setIsDone(true);
             }
             else
-                SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.InvalidRotation"));
+                sendInvalidRotationMessage();
         }
         else
             setIsDone(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getInitMessage()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStickLore()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStickReceived()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep1()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_STEP1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep2()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_STEP2);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep3()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_STEP3);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getSuccessMessage()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_SUCCESS);
     }
 }

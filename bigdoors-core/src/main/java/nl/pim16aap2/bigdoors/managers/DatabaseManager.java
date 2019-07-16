@@ -20,6 +20,7 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
@@ -373,7 +374,7 @@ public class DatabaseManager extends Restartable
         boolean hasPermission = hasPermissionForAction(playerUUID, doorUID, atr);
         if (!hasPermission)
             SpigotUtil.messagePlayer(Bukkit.getPlayer(playerUUID),
-                                     plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+                                     plugin.getMessages().getString(Message.ERROR_NOPERMISSIONFORACTION));
         return hasPermission;
     }
 

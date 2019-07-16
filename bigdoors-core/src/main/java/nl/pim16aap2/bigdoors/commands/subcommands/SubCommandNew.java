@@ -18,7 +18,7 @@ import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.WindmillCreator;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.bukkit.ChatColor;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -45,7 +45,7 @@ public class SubCommandNew extends SubCommand
     {
         boolean isBusy = (plugin.getToolUser(player) != null || plugin.isCommandWaiter(player) != null);
         if (isBusy)
-            SpigotUtil.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
+            SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_PLAYERISBUSY));
         return isBusy;
     }
 
@@ -62,9 +62,7 @@ public class SubCommandNew extends SubCommand
         if (!hasCreationPermission(player, type))
         {
             SpigotUtil
-                    .messagePlayer(player,
-                                   ChatColor.RED +
-                                           plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
+                    .messagePlayer(player, messages.getString(Message.ERROR_NOPERMISSIONFORDOORTYPE));
             return;
         }
 
@@ -72,14 +70,14 @@ public class SubCommandNew extends SubCommand
         int maxCount = SpigotUtil.getMaxDoorsForPlayer(player);
         if (maxCount >= 0 && doorCount >= maxCount)
         {
-            SpigotUtil.messagePlayer(player, ChatColor.RED + plugin.getMessages().getString("GENERAL.TooManyDoors"));
+            SpigotUtil.messagePlayer(player,
+                                     messages.getString(Message.ERROR_TOOMANYDOORSOWNED, Integer.toString(maxCount)));
             return;
         }
 
         if (name != null && !Util.isValidDoorName(name))
         {
-            SpigotUtil.messagePlayer(player, ChatColor.RED + "\"" + name + "\""
-                    + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+            SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_INVALIDDOORNAME, name));
             return;
         }
 

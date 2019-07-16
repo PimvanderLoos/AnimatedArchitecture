@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDelete;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 
 import java.util.ArrayList;
@@ -59,11 +60,17 @@ public class GUIPageDeleteConfirmation implements IGUIPage
     protected void fillHeader()
     {
         ArrayList<String> lore = new ArrayList<>();
-        gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, gui.getPage() + 1));
+        lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
+                                                Integer.toString(gui.getPage() + 1),
+                                                Integer.toString(gui.getPage()),
+                                                Integer.toString(gui.getMaxPageCount())));
+        gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT,
+                                   plugin.getMessages().getString(Message.GUI_BUTTON_PREVIOUSPAGE), lore,
+                                   Math.max(1, gui.getPage())));
         lore.clear();
 
-        lore.add(messages.getString("GUI.MoreInfoMenu") + gui.getDoor().getName());
-        lore.add("This door has ID " + gui.getDoor().getDoorUID());
+        lore.add(messages.getString(Message.GUI_BUTTON_INFO));
+        lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(gui.getDoor().getDoorUID())));
         lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
         gui.addItem(4,
                     new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));
@@ -77,13 +84,16 @@ public class GUIPageDeleteConfirmation implements IGUIPage
             ArrayList<String> lore = new ArrayList<>();
             if (idx == mid) // Middle block.
             {
-                lore.add(messages.getString("GUI.ConfirmDelete"));
-                gui.addItem(idx, new GUIItem(GUI.CONFIRMMAT, messages.getString("GUI.Confirm"), lore, 1));
+                lore.add(messages.getString(Message.GUI_DESCRIPTION_DOOR_DELETE_CONFIRM));
+                gui.addItem(idx, new GUIItem(GUI.CONFIRMMAT, messages.getString(Message.GUI_BUTTON_DOOR_DELETE_CONFIRM),
+                                             lore, 1));
             }
             else
             {
-                lore.add(messages.getString("GUI.NotConfirm"));
-                gui.addItem(idx, new GUIItem(GUI.NOTCONFIRMMAT, messages.getString("GUI.No"), lore, 1));
+                lore.add(messages.getString(Message.GUI_DESCRIPTION_DOOR_DELETE_CANCEL));
+                gui.addItem(idx,
+                            new GUIItem(GUI.NOTCONFIRMMAT, messages.getString(Message.GUI_BUTTON_DOOR_DELETE_CANCEL),
+                                        lore, 1));
             }
         }
     }

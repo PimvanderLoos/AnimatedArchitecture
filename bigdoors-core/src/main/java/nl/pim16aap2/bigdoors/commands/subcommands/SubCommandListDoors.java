@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -31,8 +32,7 @@ public class SubCommandListDoors extends SubCommand
     {
         if (doors.size() == 0)
         {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                    plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, messages.getString(Message.ERROR_NODOORSFOUND));
             return true;
         }
         StringBuilder builder = new StringBuilder();
@@ -49,7 +49,6 @@ public class SubCommandListDoors extends SubCommand
         ArrayList<DoorBase> doors = new ArrayList<>();
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
         if (sender instanceof Player)
-//            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name));
             doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name)
                                .orElse(new ArrayList<>()));
         else if (name != null)

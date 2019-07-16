@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.gui;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -247,9 +248,9 @@ public class GUI
 
     protected static enum SortType
     {
-        ID("GUI.SORT.Numerically", Comparator.comparing(DoorBase::getDoorUID)),
-        NAME("GUI.SORT.Alphabetically", Comparator.comparing(DoorBase::getName)),
-        TYPE("GUI.SORT.Typically", Comparator.comparing(DoorBase::getType))
+        ID(Message.GUI_SORTING_NUMERICAL, Comparator.comparing(DoorBase::getDoorUID)),
+        NAME(Message.GUI_SORTING_ALPHABETICAL, Comparator.comparing(DoorBase::getName)),
+        TYPE(Message.GUI_SORTING_TYPICAL, Comparator.comparing(DoorBase::getType))
                 {
                     @Override
                     SortType next()
@@ -258,18 +259,18 @@ public class GUI
                     }
                 };
 
-        private String name;
+        private Message message;
         private Comparator<DoorBase> comparator;
 
-        SortType(String name, Comparator<DoorBase> comparator)
+        SortType(Message message, Comparator<DoorBase> comparator)
         {
-            this.name = name;
+            this.message = message;
             this.comparator = comparator;
         }
 
-        static String getName(SortType sortType)
+        static Message getMessage(SortType sortType)
         {
-            return sortType.name;
+            return sortType.message;
         }
 
         static Comparator<DoorBase> getComparator(SortType sortType)

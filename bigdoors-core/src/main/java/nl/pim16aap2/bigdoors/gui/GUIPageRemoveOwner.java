@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -71,28 +72,40 @@ public class GUIPageRemoveOwner implements IGUIPage
     protected void fillHeader()
     {
         ArrayList<String> lore = new ArrayList<>();
-
-        gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, gui.getPage() + 1));
+        lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
+                                                Integer.toString(gui.getPage() + 1),
+                                                Integer.toString(gui.getPage()),
+                                                Integer.toString(gui.getMaxPageCount())));
+        gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT,
+                                   plugin.getMessages().getString(Message.GUI_BUTTON_PREVIOUSPAGE), lore,
+                                   Math.max(1, gui.getPage())));
         lore.clear();
 
         if (doorOwnerPage != 0)
         {
-            lore.add(messages.getString("GUI.ToPage") + doorOwnerPage + messages.getString("GUI.OutOf") +
-                             maxDoorOwnerPageCount);
-            gui.addItem(1, new GUIItem(GUI.PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, doorOwnerPage));
+            lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
+                                                    Integer.toString(doorOwnerPage + 2),
+                                                    Integer.toString(doorOwnerPage),
+                                                    Integer.toString(maxDoorOwnerPageCount)));
+            gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT,
+                                       plugin.getMessages().getString(Message.GUI_BUTTON_PREVIOUSPAGE), lore,
+                                       doorOwnerPage));
             lore.clear();
         }
 
         if ((doorOwnerPage + 1) < maxDoorOwnerPageCount)
         {
-            lore.add(messages.getString("GUI.ToPage") + (doorOwnerPage + 2) + messages.getString("GUI.OutOf") +
-                             maxDoorOwnerPageCount);
-            gui.addItem(7, new GUIItem(GUI.PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, doorOwnerPage + 2));
+            lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_NEXTPAGE,
+                                                    Integer.toString(doorOwnerPage + 2),
+                                                    Integer.toString(doorOwnerPage),
+                                                    Integer.toString(maxDoorOwnerPageCount)));
+            gui.addItem(7, new GUIItem(GUI.PAGESWITCHMAT, messages.getString(Message.GUI_BUTTON_NEXTPAGE), lore,
+                                       doorOwnerPage + 2));
             lore.clear();
         }
 
-        lore.add(messages.getString("GUI.MoreInfoMenu") + gui.getDoor().getName());
-        lore.add("This door has ID " + gui.getDoor().getDoorUID());
+        lore.add(messages.getString(Message.GUI_DESCRIPTION_INFO, gui.getDoor().getName()));
+        lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(gui.getDoor().getDoorUID())));
         lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
         gui.addItem(4,
                     new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));

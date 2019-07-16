@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 
 public abstract class WaitForCommand extends Abortable
@@ -30,7 +31,7 @@ public abstract class WaitForCommand extends Abortable
             killTask();
             plugin.removeCommandWaiter(this);
             if (!isFinished)
-                SpigotUtil.messagePlayer(player, plugin.getMessages().getString("COMMAND.TimeOutOrFail"));
+                SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_TIMEOUTORFAIL));
         }
     }
 

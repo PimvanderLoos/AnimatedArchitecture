@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.Creator;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -44,7 +45,7 @@ public class SubCommandSetName extends SubCommand
             }
             return false;
         }
-        SpigotUtil.messagePlayer(player, plugin.getMessages().getString("GENERAL.NotBusy"));
+        SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_PLAYERISNOTBUSY));
         return true;
     }
 }

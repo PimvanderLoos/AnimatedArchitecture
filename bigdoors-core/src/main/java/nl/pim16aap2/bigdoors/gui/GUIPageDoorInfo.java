@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.entity.Player;
 
@@ -103,11 +104,17 @@ public class GUIPageDoorInfo implements IGUIPage
     protected void fillHeader()
     {
         ArrayList<String> lore = new ArrayList<>();
-        gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, gui.getPage() + 1));
+        lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
+                                                Integer.toString(gui.getPage() + 1),
+                                                Integer.toString(gui.getPage()),
+                                                Integer.toString(gui.getMaxPageCount())));
+        gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT,
+                                   plugin.getMessages().getString(Message.GUI_BUTTON_PREVIOUSPAGE), lore,
+                                   Math.max(1, gui.getPage())));
         lore.clear();
 
-        lore.add(messages.getString("GUI.MoreInfoMenu") + gui.getDoor().getName());
-        lore.add("This door has ID " + gui.getDoor().getDoorUID());
+        lore.add(messages.getString(Message.GUI_DESCRIPTION_INFO, gui.getDoor().getName()));
+        lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(gui.getDoor().getDoorUID())));
         lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
         gui.addItem(4,
                     new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));
@@ -205,45 +212,37 @@ public class GUIPageDoorInfo implements IGUIPage
         {
             case LOCK:
                 if (door.isLocked())
-                    ret = new GUIItem(GUI.LOCKDOORMAT, messages.getString("GUI.UnlockDoor"),
-                                      null, 1);
+                    ret = new GUIItem(GUI.LOCKDOORMAT, messages.getString(Message.GUI_BUTTON_LOCK), null, 1);
                 else
-                    ret = new GUIItem(GUI.UNLOCKDOORMAT, messages.getString("GUI.LockDoor"),
-                                      null, 1);
+                    ret = new GUIItem(GUI.UNLOCKDOORMAT, messages.getString(Message.GUI_BUTTON_UNLOCK), null, 1);
                 break;
 
             case TOGGLE:
-                desc = messages.getString("GUI.ToggleDoor");
-                lore.add(desc);
+                desc = messages.getString(Message.GUI_BUTTON_TOGGLE);
                 ret = new GUIItem(GUI.TOGGLEDOORMAT, desc, lore, 1);
                 break;
 
             case INFO:
-                desc = messages.getString("GUI.GetInfo");
-                lore.add(desc);
+                desc = messages.getString(Message.GUI_BUTTON_INFO);
                 ret = new GUIItem(GUI.INFOMAT, desc, lore, 1);
                 break;
 
             case DELETE:
-                desc = messages.getString("GUI.DeleteDoor");
-                loreStr = messages.getString("GUI.DeleteDoorLong");
-                lore.add(loreStr);
+                desc = messages.getString(Message.GUI_BUTTON_DOOR_DELETE);
+                lore.add(messages.getString(Message.GUI_DESCRIPTION_DOOR_DELETE));
                 ret = new GUIItem(GUI.DELDOORMAT, desc, lore, 1);
                 break;
 
             case RELOCATEPOWERBLOCK:
-                desc = messages.getString("GUI.RelocatePowerBlock");
-                loreStr = messages.getString("GUI.RelocatePowerBlockLore");
-                lore.add(loreStr);
+                desc = messages.getString(Message.GUI_BUTTON_RELOCATEPB);
                 ret = new GUIItem(GUI.RELOCATEPBMAT, desc, lore, 1);
                 break;
 
             case CHANGETIMER:
-                desc = messages.getString("GUI.ChangeTimer");
-                loreStr = door.getAutoClose() > -1 ?
-                          messages.getString("GUI.ChangeTimerLore") + door.getAutoClose() + "s." :
-                          messages.getString("GUI.ChangeTimerLoreDisabled");
-                lore.add(loreStr);
+                desc = messages.getString(Message.GUI_BUTTON_TIMER);
+                lore.add(door.getAutoClose() > -1 ?
+                         messages.getString(Message.GUI_DESCRIPTION_TIMER_SET, Integer.toString(door.getAutoClose())) :
+                         messages.getString(Message.GUI_DESCRIPTION_TIMER_NOTSET));
                 int count = door.getAutoClose() < 1 ? 1 : door.getAutoClose();
                 ret = new GUIItem(GUI.CHANGETIMEMAT, desc, lore, count);
                 break;
@@ -251,50 +250,35 @@ public class GUIPageDoorInfo implements IGUIPage
             case DIRECTION_ROTATE_VERTICAL2:
             case DIRECTION_STRAIGHT_HORIZONTAL:
             case DIRECTION_STRAIGHT_VERTICAL:
-                desc = messages.getString("GUI.Direction.Name");
-                loreStr = messages.getString("GUI.Direction.ThisDoorGoes") +
-                        messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
-                lore.add(loreStr);
-                ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
-                break;
-
             case DIRECTION_ROTATE_VERTICAL:
-                desc = messages.getString("GUI.Direction.Name");
-                loreStr = messages.getString("GUI.Direction.ThisDoorOpens") +
-                        messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
-                lore.add(loreStr);
+                desc = messages.getString(Message.GUI_BUTTON_DIRECTION);
+                lore.add(messages.getString(Message.GUI_DESCRIPTION_OPENDIRECTION,
+                                            messages.getString(RotateDirection.getMessage(door.getOpenDir()))));
                 ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
                 break;
 
             case DIRECTION_ROTATE_HORIZONTAL:
-                desc = messages.getString("GUI.Direction.Name");
-                loreStr = messages.getString("GUI.Direction.ThisDoorOpens") +
-                        messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
-                lore.add(loreStr);
-                lore.add(messages.getString("GUI.Direction.Looking") +
-                                 messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)));
+                desc = messages.getString(Message.GUI_BUTTON_DIRECTION);
+                lore.add(messages.getString(Message.GUI_DESCRIPTION_OPENDIRECTION_RELATIVE,
+                                            messages.getString(RotateDirection.getMessage(door.getOpenDir())),
+                                            messages.getString(RotateDirection.getMessage(RotateDirection.DOWN))));
                 ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
                 break;
 
             case BLOCKSTOMOVE:
-                desc = messages.getString("GUI.BLOCKSTOMOVE.Name");
-                if (door.getBlocksToMove() <= 0)
-                    loreStr = messages.getString("GUI.BLOCKSTOMOVE.Unavailable");
-                else
-                    loreStr = messages.getString("GUI.BLOCKSTOMOVE.Available") + " " + door.getBlocksToMove();
-                lore.add(loreStr);
+                desc = messages.getString(Message.GUI_BUTTON_BLOCKSTOMOVE);
+                lore.add(messages.getString(Message.GUI_DESCRIPTION_BLOCKSTOMOVE,
+                                            Integer.toString(door.getBlocksToMove())));
                 ret = new GUIItem(GUI.SETBTMOVEMAT, desc, lore, 1);
                 break;
 
             case ADDOWNER:
-                desc = messages.getString("GUI.ADDOWNER");
-                lore.add(desc);
+                desc = messages.getString(Message.GUI_BUTTON_OWNER_ADD);
                 ret = new GUIItem(GUI.ADDOWNERMAT, desc, lore, 1);
                 break;
 
             case REMOVEOWNER:
-                desc = messages.getString("GUI.REMOVEOWNER");
-                lore.add(desc);
+                desc = messages.getString(Message.GUI_BUTTON_OWNER_DELETE);
                 ret = new GUIItem(GUI.REMOVEOWNERMAT, desc, lore, 1);
                 break;
             default:

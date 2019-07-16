@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.util.messages;
 
+import nl.pim16aap2.bigdoors.util.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Restartable;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,14 +15,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Class that loads key/value pairs used for translations.
  *
  * @author Pim
  */
-public final class Messages
+public final class Messages extends Restartable
 {
     private static final String DEFAULTFILENAME = "en_US.txt";
     private final PLogger logger;
@@ -35,8 +36,10 @@ public final class Messages
      * @param fileName The name of the file that will be loaded, if it exists. Extension excluded.
      * @param logger   The {@link PLogger} object that will be used for logging.
      */
-    public Messages(final File fileDir, String fileName, final PLogger logger)
+    public Messages(final IRestartableHolder holder, final File fileDir, String fileName,
+                    final PLogger logger)
     {
+        super(holder);
         if (!fileDir.exists())
             fileDir.mkdirs();
 
@@ -51,6 +54,16 @@ public final class Messages
             textFile = new File(fileDir, DEFAULTFILENAME);
         }
         writeDefaultFile();
+        readFile();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void restart()
+    {
+        messageMap.clear();
         readFile();
     }
 
@@ -147,40 +160,6 @@ public final class Messages
         {
             logger.logException(e, "Could not read locale file! \"" + textFile + "\"");
         }
-    }
-
-    /**
-     * Gets the translatable string that belongs to the provided key.
-     *
-     * @param key The key of the translatable key/value pair.
-     * @return The translatable string that belongs to the provided key.
-     *
-     * @deprecated This method will be removed soon. Use {@link Messages#getString(Message, String...)} instead.
-     */
-    @Deprecated
-    public String getString(String key)
-    {
-        String value = messageMap.get(key);
-        if (value != null)
-            return value;
-
-        logger.warn("Failed to get the translation for key " + key);
-        return "Translation for key \"" + key + "\" not found! Contact server admin!";
-    }
-
-    /**
-     * Gets the key of a given value.
-     *
-     * @param value The value of the translatable key/value pair.
-     * @return The key of a given value.
-     *
-     * @deprecated This should not be used.
-     */
-    @Deprecated
-    public String getStringReverse(String value)
-    {
-        return messageMap.entrySet().stream().filter(e -> e.getValue().equals(value)).map(Map.Entry::getKey).findFirst()
-                         .orElse(null);
     }
 
     /**

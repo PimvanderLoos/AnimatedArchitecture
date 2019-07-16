@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -62,7 +63,7 @@ public class SuperCommand implements ICommand
             SubCommand helpCommand = subCommands.get(args[1].toLowerCase());
             if (helpCommand == null)
                 plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                        plugin.getMessages().getString("GENERAL.COMMAND.NotFound"));
+                                                        plugin.getMessages().getString(Message.ERROR_COMMAND_NOTFOUND));
             else
                 plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, getHelpOfSubCommand(sender, helpCommand));
             return true;

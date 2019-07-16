@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.handlers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.gui.GUI;
-import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -65,9 +64,7 @@ public class GUIHandler implements Listener
             if (gui == null)
                 return;
 
-            if (PageType.valueOfName(
-                    messages.getStringReverse(player.getOpenInventory().getTitle())) == PageType.NOTBIGDOORS)
-                return;
+            // TODO: Check if the GUI is custom!
 
             event.setCancelled(true);
             gui.handleInput(event.getRawSlot());

@@ -9,7 +9,7 @@ import java.util.Map;
 
 public enum DoorType
 {
-    BIGDOOR(0, true, "-BD", "BigDoor", Message.DOORTYPE_BIGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
+    BIGDOOR(0, true, "-BD", Message.DOORTYPE_BIGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
             DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
             DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_HORIZONTAL)
             {
@@ -20,7 +20,7 @@ public enum DoorType
                 }
             },
 
-    DRAWBRIDGE(1, true, "-DB", "Drawbridge", Message.DOORTYPE_DRAWBRIDGE, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
+    DRAWBRIDGE(1, true, "-DB", Message.DOORTYPE_DRAWBRIDGE, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL)
             {
@@ -31,7 +31,7 @@ public enum DoorType
                 }
             },
 
-    PORTCULLIS(2, true, "-PC", "Portcullis", Message.DOORTYPE_PORTCULLIS, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
+    PORTCULLIS(2, true, "-PC", Message.DOORTYPE_PORTCULLIS, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT_VERTICAL,
                DoorAttribute.BLOCKSTOMOVE)
@@ -43,7 +43,7 @@ public enum DoorType
                 }
             },
 
-    ELEVATOR(3, true, "-EL", "Elevator", Message.DOORTYPE_ELEVATOR, DoorType.PORTCULLIS.attributes)
+    ELEVATOR(3, true, "-EL", Message.DOORTYPE_ELEVATOR, DoorType.PORTCULLIS.attributes)
             {
                 @Override
                 public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
@@ -52,7 +52,7 @@ public enum DoorType
                 }
             },
 
-    SLIDINGDOOR(4, true, "-SD", "SlidingDoor", Message.DOORTYPE_SLIDINGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
+    SLIDINGDOOR(4, true, "-SD", Message.DOORTYPE_SLIDINGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                 DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                 DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT_HORIZONTAL,
                 DoorAttribute.BLOCKSTOMOVE)
@@ -64,7 +64,7 @@ public enum DoorType
                 }
             },
 
-    FLAG(5, true, "-FL", "Flag", Message.DOORTYPE_FLAG, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
+    FLAG(5, true, "-FL", Message.DOORTYPE_FLAG, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
          DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
          DoorAttribute.REMOVEOWNER)
             {
@@ -75,7 +75,7 @@ public enum DoorType
                 }
             },
 
-    GARAGEDOOR(6, true, "-GD", "GarageDoor", Message.DOORTYPE_GARAGEDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
+    GARAGEDOOR(6, true, "-GD", Message.DOORTYPE_GARAGEDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
             {
@@ -86,7 +86,7 @@ public enum DoorType
                 }
             },
 
-    WINDMILL(7, true, "-WM", "Windmill", Message.DOORTYPE_WINDMILL, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
+    WINDMILL(7, true, "-WM", Message.DOORTYPE_WINDMILL, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
              DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER,
              DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
             {
@@ -97,7 +97,7 @@ public enum DoorType
                 }
             },
 
-    REVOLVINGDOOR(8, true, "-RD", "RevolvingDoor", Message.DOORTYPE_REVOLVINGDOOR, DoorType.BIGDOOR.attributes)
+    REVOLVINGDOOR(8, true, "-RD", Message.DOORTYPE_REVOLVINGDOOR, DoorType.BIGDOOR.attributes)
             {
                 @Override
                 public DoorBase getNewDoor(final BigDoors plugin, final long doorUID)
@@ -106,7 +106,7 @@ public enum DoorType
                 }
             },
 
-    CLOCK(7, true, "-CL", "Clock", Message.DOORTYPE_CLOCK, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
+    CLOCK(7, true, "-CL", Message.DOORTYPE_CLOCK, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
           DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER,
           DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
             {
@@ -132,18 +132,16 @@ public enum DoorType
 
     private final int val;
     private final String flag;
-    private final String codeName; // Name used in code for various purposes (e.g. config).
     private final Message message;
     private final boolean enabled;
     private final DoorAttribute[] attributes;
 
-    DoorType(final int val, final boolean enabled, final String flag, final String codeName, final Message message,
+    DoorType(final int val, final boolean enabled, final String flag, final Message message,
              final DoorAttribute... attributes)
     {
         this.val = val;
         this.enabled = enabled;
         this.flag = flag;
-        this.codeName = codeName;
         this.message = message;
         this.attributes = attributes;
     }
@@ -158,10 +156,6 @@ public enum DoorType
         return type.message;
     }
 
-    public static String getCodeName(DoorType type)
-    {
-        return type.codeName;
-    }
 
     public static DoorType valueOf(int type)
     {

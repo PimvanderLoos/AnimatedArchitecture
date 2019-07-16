@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -29,7 +28,7 @@ public class SubCommandRestart extends SubCommand
             throws CommandSenderNotPlayerException, CommandPermissionException
     {
         plugin.restart();
-        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.GREEN + "BigDoors has been restarted!");
+        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, "BigDoors has been restarted!");
         return true;
     }
 }

@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.bukkit.ChatColor;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -43,9 +43,7 @@ public class SubCommandOpen extends SubCommandToggle
             else
                 plugin.getPLogger()
                       .sendMessageToTarget(sender, Level.INFO,
-                                           ChatColor.RED + plugin.getMessages().getString("GENERAL.Door") + " \""
-                                                   + door.getName() + "\" "
-                                                   + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
+                                           messages.getString(Message.ERROR_DOORALREADYOPEN, door.getName()));
         return doors.size() > 0;
     }
 }

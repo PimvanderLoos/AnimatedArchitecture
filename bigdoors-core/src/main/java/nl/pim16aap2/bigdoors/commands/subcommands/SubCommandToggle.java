@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.bukkit.ChatColor;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -54,13 +54,13 @@ public class SubCommandToggle extends SubCommand
         {
             plugin.getPLogger()
                   .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.ToggleFailure"));
+                                       messages.getString(Message.ERROR_TOGGLEFAILURE, door.getName()));
             return;
         }
         if (newDoor.get().isLocked())
             plugin.getPLogger()
                   .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.DoorIsLocked"));
+                                       messages.getString(Message.ERROR_DOORISLOCKED, door.getName()));
 
         else
         {
@@ -68,8 +68,8 @@ public class SubCommandToggle extends SubCommand
             DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(newDoor.get(), time);
 
             if (result != DoorOpenResult.SUCCESS)
-                plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
-                        + plugin.getMessages().getString(DoorOpenResult.getMessage(result)));
+                plugin.getPLogger()
+                      .sendMessageToTarget(sender, Level.INFO, messages.getString(DoorOpenResult.getMessage(result)));
         }
     }
 

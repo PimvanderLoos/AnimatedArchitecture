@@ -2,8 +2,10 @@ package nl.pim16aap2.bigdoors.toolusers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class represents players in the process of creating doors. Objects of this class are instantiated when the
@@ -13,11 +15,9 @@ import org.bukkit.entity.Player;
  **/
 public class RevolvingDoorCreator extends BigDoorCreator
 {
-    protected String typeString;
-
     public RevolvingDoorCreator(BigDoors plugin, Player player, String name)
     {
-        super(plugin, player, name, "REVOLVINGDOOR");
+        super(plugin, player, name);
         type = DoorType.REVOLVINGDOOR;
     }
 
@@ -42,5 +42,47 @@ public class RevolvingDoorCreator extends BigDoorCreator
 
         // Check if it's not just one block deep in horizontal axis.
         return xDepth > 0 && zDepth > 0;
+    }
+    
+    @Override
+    protected @NotNull String getInitMessage()
+    {
+        return messages.getString(Message.CREATOR_REVOLVINGDOOR_INIT);
+    }
+
+    @Override
+    protected @NotNull String getStickLore()
+    {
+        return messages.getString(Message.CREATOR_REVOLVINGDOOR_STICKLORE);
+    }
+
+    @Override
+    protected @NotNull String getStickReceived()
+    {
+        return messages.getString(Message.CREATOR_REVOLVINGDOOR_INIT);
+    }
+
+    @Override
+    protected @NotNull String getStep1()
+    {
+        return messages.getString(Message.CREATOR_REVOLVINGDOOR_STEP1);
+    }
+
+    @Override
+    protected @NotNull String getStep2()
+    {
+        return messages.getString(Message.CREATOR_REVOLVINGDOOR_STEP2);
+    }
+
+    @Override
+    protected @NotNull String getStep3()
+    {
+        return messages.getString(Message.CREATOR_REVOLVINGDOOR_STEP3);
+    }
+
+    @Override
+    protected @NotNull String getSuccessMessage()
+    {
+        return messages.getString(Message.CREATOR_REVOLVINGDOOR_SUCCESS);
     }
 }

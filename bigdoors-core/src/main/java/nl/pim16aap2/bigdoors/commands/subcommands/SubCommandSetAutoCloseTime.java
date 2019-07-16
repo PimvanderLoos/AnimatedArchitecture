@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -40,13 +41,12 @@ public class SubCommandSetAutoCloseTime extends SubCommand
         int time = CommandManager.getIntegerFromArg(timeArg);
 
         plugin.getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
-        if (time != -1)
-            plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       plugin.getMessages().getString("COMMAND.SetTime.Success") + time + "s.");
-        else
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                    plugin.getMessages().getString("COMMAND.SetTime.Disabled"));
+
+        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, time < 0 ?
+                                                                    messages.getString(Message.COMMAND_SETTIME_SUCCESS,
+                                                                                       Integer.toString(time)) :
+                                                                    messages.getString(
+                                                                            Message.COMMAND_SETTIME_DISABLED));
         return true;
     }
 

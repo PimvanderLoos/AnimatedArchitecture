@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -23,8 +24,8 @@ public class WaitForRemoveOwner extends WaitForCommand
         this.subCommand = subCommand;
         this.player = player;
         this.door = door;
-        SpigotUtil.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.Init"));
-        SpigotUtil.messagePlayer(player, plugin.getMessages().getString("COMMAND.RemoveOwner.ListOfOwners"));
+        SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_REMOVEOWNER_INIT));
+        SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_REMOVEOWNER_LIST));
 
         ArrayList<DoorOwner> doorOwners = plugin.getDatabaseManager().getDoorOwners(door.getDoorUID());
         StringBuilder builder = new StringBuilder();

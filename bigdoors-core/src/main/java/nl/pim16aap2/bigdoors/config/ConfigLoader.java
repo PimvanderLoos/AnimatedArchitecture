@@ -151,13 +151,13 @@ public final class ConfigLoader
         for (int idx = 0; idx != doorTypes.length; ++idx)
             if (DoorType.isEnabled(doorTypes[idx]))
                 doorMultipliers.put(doorTypes[idx],
-                                    addNewConfigEntry(config, "multiplierOf" + DoorType.getCodeName(doorTypes[idx]),
+                                    addNewConfigEntry(config, "multiplierOf" + doorTypes[idx].name(),
                                                       0.0D, idx == 0 ? multiplierComment : null));
 
         for (int idx = 0; idx != doorTypes.length; ++idx)
             if (DoorType.isEnabled(doorTypes[idx]))
                 doorPrices.put(doorTypes[idx],
-                               addNewConfigEntry(config, "priceOf" + DoorType.getCodeName(doorTypes[idx]), "0",
+                               addNewConfigEntry(config, "priceOf" + doorTypes[idx].name(), "0",
                                                  idx == 0 ? pricesComment : null));
 
         // This is a bit special, as it's public static (for SpigotUtil debug messages).

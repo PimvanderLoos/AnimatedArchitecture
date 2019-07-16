@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -130,14 +131,14 @@ public class CommandManager implements CommandExecutor
         catch (CommandSenderNotPlayerException e)
         {
             plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NotPlayer"));
+                  .sendMessageToTarget(sender, Level.INFO, plugin.getMessages().getString(
+                          Message.ERROR_COMMAND_NOTAPLAYER));
         }
         catch (CommandPermissionException e)
         {
             plugin.getPLogger()
                   .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.COMMAND.NoPermission"));
+                                       plugin.getMessages().getString(Message.ERROR_COMMAND_NOPERMISSION));
         }
         catch (IllegalArgumentException e)
         {
@@ -145,19 +146,20 @@ public class CommandManager implements CommandExecutor
         }
         catch (CommandPlayerNotFoundException e)
         {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
-                    + plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + e.getPlayerArg() + "\"");
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, plugin.getMessages()
+                                                                              .getString(Message.ERROR_PLAYERNOTFOUND,
+                                                                                         e.getPlayerArg()));
         }
         catch (CommandActionNotAllowedException e)
         {
             plugin.getPLogger()
                   .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("GENERAL.NoPermissionForAction"));
+                                       plugin.getMessages().getString(Message.ERROR_NOPERMISSIONFORACTION));
         }
         catch (Exception e)
         {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                    ChatColor.RED + plugin.getMessages().getString("GENERAL.Error"));
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO, plugin.getMessages().getString(Message.ERROR_GENERALERROR));
             StringBuilder sb = new StringBuilder();
             for (String str : args)
                 sb.append(str).append(str.equals(args[args.length - 1]) ? "" : ", ");
@@ -179,11 +181,12 @@ public class CommandManager implements CommandExecutor
             }
             catch (TooManyDoorsException e)
             {
-                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString("GENERAL.MoreThan1DoorFound"));
+                SpigotUtil.messagePlayer((Player) sender,
+                                         plugin.getMessages().getString(Message.ERROR_TOOMANYDOORSFOUND));
             }
             catch (NotEnoughDoorsException e)
             {
-                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString(Message.ERROR_NODOORSFOUND));
             }
         else
             try
@@ -193,7 +196,7 @@ public class CommandManager implements CommandExecutor
             catch (NumberFormatException e)
             {
                 plugin.getPLogger()
-                      .info("\"" + doorArg + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorID"));
+                      .info("\"" + doorArg + "\" " + plugin.getMessages().getString(Message.ERROR_INVALIDDOORID));
             }
         if (door == null)
             throw new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!");

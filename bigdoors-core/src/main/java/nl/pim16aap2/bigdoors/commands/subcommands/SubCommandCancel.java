@@ -7,8 +7,8 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,8 +37,7 @@ public class SubCommandCancel extends SubCommand
         if (tu != null)
         {
             tu.abortSilently();
-            SpigotUtil.messagePlayer(player,
-                                     ChatColor.RED + plugin.getMessages().getString("CREATOR.GENERAL.Cancelled"));
+            SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_CANCELLED));
         }
         else
         {

@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import org.bukkit.ChatColor;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,8 +33,9 @@ public class SubCommandDelete extends SubCommand
         String name = door.getName();
         long doorUID = door.getDoorUID();
         plugin.getDatabaseManager().removeDoor(door.getDoorUID());
-        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED
-                + plugin.getMessages().getString("GENERAL.COMMAND.DoorIsDeleted") + " " + name + " (" + doorUID + ")");
+        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                messages.getString(Message.COMMAND_DOOR_DELETE_SUCCESS, name,
+                                                                   Long.toString(doorUID)));
         return true;
     }
 
@@ -49,7 +50,6 @@ public class SubCommandDelete extends SubCommand
                                                .hasPermissionForAction((Player) sender, door.getDoorUID(),
                                                                        DoorAttribute.DELETE))
             throw new CommandActionNotAllowedException();
-
         return execute(sender, door);
     }
 }

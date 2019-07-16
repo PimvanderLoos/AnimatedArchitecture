@@ -4,38 +4,23 @@ package nl.pim16aap2.bigdoors.toolusers;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class ElevatorCreator extends Creator
 {
     public ElevatorCreator(BigDoors plugin, Player player, String name)
     {
         super(plugin, player, name, DoorType.ELEVATOR);
-        SpigotUtil.messagePlayer(player, messages.getString("CREATOR.ELEVATOR.Init"));
-        if (name == null)
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
-        else
-            triggerGiveTool();
-    }
-
-    @Override
-    protected void triggerGiveTool()
-    {
-        giveToolToPlayer(messages.getString("CREATOR.ELEVATOR.StickLore").split("\n"),
-                         messages.getString("CREATOR.ELEVATOR.StickReceived").split("\n"));
+        super.init();
     }
 
     @Override
     protected boolean isReadyToCreateDoor()
     {
         return one != null && two != null && engine != null;
-    }
-
-    @Override
-    protected void triggerFinishUp()
-    {
-        finishUp(messages.getString("CREATOR.ELEVATOR.Success"));
     }
 
     // Make sure the power point is in the middle.
@@ -51,23 +36,13 @@ public class ElevatorCreator extends Creator
     @Override
     public void selector(Location loc)
     {
-        if (doorName == null)
-        {
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
+        if (!hasName() || !creatorHasPermissionInLocation(loc))
             return;
-        }
-        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
-        if (canBreakBlock != null)
-        {
-            SpigotUtil.messagePlayer(player,
-                                     messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
-            return;
-        }
 
         if (one == null)
         {
             one = loc;
-            SpigotUtil.messagePlayer(player, messages.getString("CREATOR.ELEVATOR.Step1"));
+            SpigotUtil.messagePlayer(player, getStep1());
         }
         else
             two = loc;
@@ -78,5 +53,68 @@ public class ElevatorCreator extends Creator
             setEngine();
             setIsDone(true);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getInitMessage()
+    {
+        return messages.getString(Message.CREATOR_ELEVATOR_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStickLore()
+    {
+        return messages.getString(Message.CREATOR_ELEVATOR_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStickReceived()
+    {
+        return messages.getString(Message.CREATOR_ELEVATOR_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep1()
+    {
+        return messages.getString(Message.CREATOR_ELEVATOR_STEP1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep2()
+    {
+        return messages.getString(Message.CREATOR_ELEVATOR_STEP2);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getStep3()
+    {
+        return "";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getSuccessMessage()
+    {
+        return messages.getString(Message.CREATOR_ELEVATOR_SUCCESS);
     }
 }

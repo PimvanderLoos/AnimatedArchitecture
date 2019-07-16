@@ -7,8 +7,8 @@ import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -44,13 +44,11 @@ public class SubCommandRemoveOwner extends SubCommand
         if (plugin.getDatabaseManager().removeOwner(door, playerUUID))
         {
             plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
+                  .sendMessageToTarget(sender, Level.INFO, messages.getString(Message.COMMAND_REMOVEOWNER_SUCCESS));
             return true;
         }
         plugin.getPLogger()
-              .sendMessageToTarget(sender, Level.INFO,
-                                   ChatColor.RED + plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
+              .sendMessageToTarget(sender, Level.INFO, messages.getString(Message.COMMAND_REMOVEOWNER_FAIL, playerArg));
         return false;
     }
 

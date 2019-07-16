@@ -9,8 +9,8 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -44,30 +44,27 @@ public class SubCommandAddOwner extends SubCommand
         if (plugin.getDatabaseManager().addOwner(door, playerUUID, permission))
         {
             plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       ChatColor.RED + plugin.getMessages().getString("COMMAND.AddOwner.Success"));
+                  .sendMessageToTarget(sender, Level.INFO, messages.getString(Message.COMMAND_ADDOWNER_SUCCESS));
             return true;
         }
         plugin.getPLogger()
-              .sendMessageToTarget(sender, Level.INFO,
-                                   ChatColor.RED + plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
+              .sendMessageToTarget(sender, Level.INFO, messages.getString(Message.COMMAND_ADDOWNER_FAIL));
         return false;
 
     }
 
     public int getPermissionFromArgs(CommandSender sender, String[] args, int pos)
     {
-        int permission = 1;
-        if (args.length >= pos)
-            return permission;
+        int permission = Integer.MAX_VALUE;
         try
         {
             permission = CommandManager.getIntegerFromArg(args[pos]);
         }
-        catch (Exception uncaught)
+        catch (Exception e)
         {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + "\"" + args[pos] + "\" "
-                    + plugin.getMessages().getString("GENERAL.COMMAND.InvalidPermissionValue"));
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                    messages.getString(Message.ERROR_COMMAND_INVALIDPERMISSIONVALUE,
+                                                                       args[pos]));
         }
         return permission;
     }

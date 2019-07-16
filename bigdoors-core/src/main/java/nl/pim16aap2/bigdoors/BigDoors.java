@@ -69,6 +69,7 @@ import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bstats.bukkit.Metrics;
@@ -113,6 +114,14 @@ import java.util.Vector;
 // TODO: Store Message in GUI page. Then use that instead of reverse string search of messages to check if an inventory if a BigDoors inventory.
 // TODO: Put all messages in enum.
 // TODO: Replace all Messages#getString(String).
+
+/*
+ * Doors
+ */
+// TODO: getBlocksToMove() should return the number of blocks it'll move, regardless of if this value was set.
+//       Internally, keep track if the specified and the default value, then return the specified value if possible,
+//       otherwise the default value. Also distinguish between goal and actual.
+// TODO: Create method in DoorBase for checking distance. Take Vector3D for distance and direction.
 
 /*
  * Experimental
@@ -213,6 +222,7 @@ import java.util.Vector;
 // TODO: In addition to doors/chunk caching, also keep a set of worlds that do or do not contain doors. This could
 //       cancel the entire event after a single cache lookup, thus potentially skipping at best 6 cache lookups, and at
 //       worst 3 database lookups + 3 cache lookups.
+// TODO: Somehow replace the %HOOK% variable in the message of DoorOpenResult.NOPERMISSION.
 
 /*
  * GUI
@@ -229,6 +239,7 @@ import java.util.Vector;
 // TODO: Move rotation cycling away from GUI and into the Door class.
 // TODO: Put all GUI buttons and whatnot in try/catch blocks.
 // TODO: Get rid of the retarded isRefreshing bullshit. Instead of reopening an inventory, just replace the items. Simpler, faster, less demented.
+// TODO: Use a less stupid way to check for interaction: https://www.spigotmc.org/threads/quick-tip-how-to-check-if-a-player-is-interacting-with-your-custom-gui.225871/
 
 /*
  * SQL
@@ -494,12 +505,12 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
 
         readConfigValues();
         getPLogger().setDebug(config.debug());
-        messages = new Messages(getDataFolder(), getConfigLoader().languageFile(), getPLogger());
+        messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
         blockMovers = new Vector<>(2);
         cmdWaiters = new Vector<>(2);
-        tf = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
+        tf = new ToolVerifier(messages.getString(Message.CREATOR_GENERAL_STICKNAME));
         loginString = DEVBUILD ? "[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!" : "";
 
         if (config.enableRedstone())
@@ -713,7 +724,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
     {
         boolean isBusy = (getToolUser(player) != null || isCommandWaiter(player) != null);
         if (isBusy)
-            SpigotUtil.messagePlayer(player, getMessages().getString("GENERAL.IsBusy"));
+            SpigotUtil.messagePlayer(player, getMessages().getString(Message.ERROR_PLAYERISBUSY));
         return isBusy;
     }
 
