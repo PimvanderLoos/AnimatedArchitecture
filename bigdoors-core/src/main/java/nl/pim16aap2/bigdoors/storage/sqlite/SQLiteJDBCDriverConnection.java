@@ -792,28 +792,19 @@ public class SQLiteJDBCDriverConnection implements IStorage
     private DoorOwner getOwnerOfDoor(@NotNull final Connection conn, final long doorUID) throws SQLException
     {
         DoorOwner doorOwner = null;
-        String sql = "SELECT P.playerName, P.playerUUID " +
-                "FROM players AS P, " +
-                "(SELECT U.playerID, U.permission, doors.name " +
-                "FROM sqlUnion as U INNER JOIN doors ON doors.id = U.doorUID " +
-                "WHERE U.permission = '0' AND doors.id = ?) AS R " +
-                "WHERE P.id = R.playerID;";
+        String sql = "SELECT playerUUID, playerName\n" +
+                "FROM players,\n" +
+                "     (SELECT U.playerID, U.permission, doors.name\n" +
+                "      FROM sqlUnion as U INNER JOIN doors ON doors.id = U.doorUID\n" +
+                "      WHERE U.permission = '0' AND doors.id = ?) AS R\n" +
+                "WHERE id = R.playerID;";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setLong(1, doorUID);
         ResultSet rs = ps.executeQuery();
         if (rs.next())
         {
-            try
-            {
-                doorOwner = new DoorOwner(doorUID, UUID.fromString(rs.getString("P.playerUUID")),
-                                          rs.getString("P.playerName"), 0);
-            }
-            // For some reason, while unit testing, the FROM lkajsdf AS P is not respected.
-            catch (SQLException e)
-            {
-                doorOwner = new DoorOwner(doorUID, UUID.fromString(rs.getString("playerUUID")),
-                                          rs.getString("playerName"), 0);
-            }
+            doorOwner = new DoorOwner(doorUID, UUID.fromString(rs.getString("playerUUID")),
+                                      rs.getString("playerName"), 0);
         }
         ps.close();
         rs.close();
