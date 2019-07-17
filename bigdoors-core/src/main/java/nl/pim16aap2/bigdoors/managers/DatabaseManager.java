@@ -22,12 +22,10 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetTime;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -76,11 +74,6 @@ public class DatabaseManager extends Restartable
         return busyDoors.containsKey(doorUID);
     }
 
-    public void emptyBusyDoors()
-    {
-        busyDoors.clear();
-    }
-
     public void setDoorBusy(long doorUID)
     {
         busyDoors.put(doorUID, true);
@@ -94,6 +87,11 @@ public class DatabaseManager extends Restartable
     public void setDoorOpenTime(long doorUID, int autoClose)
     {
         updateDoorAutoClose(doorUID, autoClose);
+    }
+
+    private void emptyBusyDoors()
+    {
+        busyDoors.clear();
     }
 
     public void stopDoors()
@@ -193,38 +191,14 @@ public class DatabaseManager extends Restartable
         goOn = bool;
     }
 
-    // Print a list of doors to a player.
-    public void printDoors(Player player, List<DoorBase> doors)
-    {
-        for (DoorBase door : doors)
-            SpigotUtil.messagePlayer(player, door.getDoorUID() + ": " + door.getName());
-    }
-
     public void addDoorBase(DoorBase newDoor)
     {
         db.insert(newDoor);
     }
 
-    public void addDoorBase(DoorBase newDoor, Player player, int permission)
-    {
-        newDoor.setDoorOwner(new DoorOwner(newDoor.getDoorUID(), player.getUniqueId(), player.getName(), permission));
-        addDoorBase(newDoor);
-    }
-
-    // Add a door to the db of doors.
-    public void addDoorBase(DoorBase newDoor, Player player)
-    {
-        addDoorBase(newDoor, player, 0);
-    }
-
     public void removeDoor(long doorUID)
     {
         db.removeDoor(doorUID);
-    }
-
-    public void removeDoor(String playerUUID, String doorName)
-    {
-        db.removeDoors(playerUUID, doorName);
     }
 
     // Returns a list of doors owner by a player and with a specific name, if provided (can be null).
@@ -260,64 +234,16 @@ public class DatabaseManager extends Restartable
                     door.getWorld().getBlockAt(i, j, k).setType(Material.STONE);
     }
 
-    public UUID playerUUIDFromName(String playerName)
-    {
-        String uuidStr = players.get(playerName);
-        if (uuidStr != null)
-            return UUID.fromString(uuidStr);
-
-        Optional<UUID> uuidOpt = db.getPlayerUUID(playerName);
-        if (uuidOpt.isPresent())
-            return uuidOpt.get();
-
-        UUID uuid = SpigotUtil.playerUUIDFromString(playerName);
-        if (uuid != null)
-            updatePlayer(uuid, playerName);
-        return uuid;
-    }
-
-    public String playerNameFromUUID(UUID playerUUID)
-    {
-        // Try from HashSet first; it's the fastest.
-        if (players.containsKey(playerUUID))
-            return players.get(playerUUID);
-        // Then try to get it from an online player.
-        Player player = Bukkit.getPlayer(playerUUID);
-        if (player != null)
-            return player.getName();
-        // First try to get the player name from the database.
-        String name = db.getPlayerName(playerUUID.toString());
-        if (name != null)
-            return name;
-        // As a last resort, try to get the name from an offline player. This is slow af, so last resort.
-        name = SpigotUtil.nameFromUUID(playerUUID);
-        // Then place the UUID/String combo in the db. Need moar data!
-        updatePlayer(playerUUID, name);
-        return name;
-    }
-
-    public void updatePlayer(UUID uuid, String playerName)
-    {
-        db.updatePlayerName(uuid.toString(), playerName);
-        players.put(uuid, playerName);
-    }
-
     public void updatePlayer(Player player)
     {
-        updatePlayer(player.getUniqueId(), player.getName());
+        db.updatePlayerName(player.getUniqueId().toString(), player.getName());
+        players.put(player.getUniqueId(), player.getName());
     }
 
     public void removePlayer(Player player)
     {
         players.remove(player.getUniqueId());
     }
-
-//    // Get a door with a specific doorUID.
-//    @Deprecated
-//    public Door getDoor2(UUID playerUUID, long doorUID)
-//    {
-//        return db.getDoor2(playerUUID, doorUID);
-//    }
 
     public Optional<DoorBase> getDoor(long doorUID)
     {
@@ -370,20 +296,6 @@ public class DatabaseManager extends Restartable
         return db.getDoorCountByName(doorName);
     }
 
-    public boolean hasPermissionForActionPrintMessage(Player player, long doorUID, DoorAttribute atr)
-    {
-        return hasPermissionForActionPrintMessage(player.getUniqueId(), doorUID, atr);
-    }
-
-    public boolean hasPermissionForActionPrintMessage(UUID playerUUID, long doorUID, DoorAttribute atr)
-    {
-        boolean hasPermission = hasPermissionForAction(playerUUID, doorUID, atr);
-        if (!hasPermission)
-            SpigotUtil.messagePlayer(Bukkit.getPlayer(playerUUID),
-                                     plugin.getMessages().getString(Message.ERROR_NOPERMISSIONFORACTION));
-        return hasPermission;
-    }
-
     public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr)
     {
         return hasPermissionForAction(player.getUniqueId(), doorUID, atr);
@@ -392,8 +304,7 @@ public class DatabaseManager extends Restartable
     public boolean hasPermissionForAction(UUID playerUUID, long doorUID, DoorAttribute atr)
     {
         int playerPermission = getPermission(playerUUID.toString(), doorUID);
-        boolean hasPermission = playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);
-        return hasPermission;
+        return playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);
     }
 
     // Get the permission of a player on a door.
@@ -418,12 +329,7 @@ public class DatabaseManager extends Restartable
         db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax,
                             blockZMax, newEngSide);
     }
-
-    public void addOwner(DoorBase door, UUID playerUUID)
-    {
-        addOwner(door, playerUUID, 1);
-    }
-
+    
     public boolean addOwner(DoorBase door, UUID playerUUID, int permission)
     {
         if (permission < 1 || permission > 2 || door.getPermission() != 0 || door.getPlayerUUID().equals(playerUUID))
