@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GUIPageDeleteConfirmation implements IGUIPage
 {
@@ -59,7 +60,7 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
     protected void fillHeader()
     {
-        ArrayList<String> lore = new ArrayList<>();
+        List<String> lore = new ArrayList<>();
         lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
                                                 Integer.toString(gui.getPage() + 1),
                                                 Integer.toString(gui.getPage()),
@@ -81,7 +82,7 @@ public class GUIPageDeleteConfirmation implements IGUIPage
         int mid = (GUI.CHESTSIZE - 9) / 2 + 4;
         for (int idx = 9; idx < GUI.CHESTSIZE; ++idx)
         {
-            ArrayList<String> lore = new ArrayList<>();
+            List<String> lore = new ArrayList<>();
             if (idx == mid) // Middle block.
             {
                 lore.add(messages.getString(Message.GUI_DESCRIPTION_DOOR_DELETE_CONFIRM));

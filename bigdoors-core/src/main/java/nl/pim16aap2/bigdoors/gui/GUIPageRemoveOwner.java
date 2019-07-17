@@ -11,6 +11,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 public class GUIPageRemoveOwner implements IGUIPage
 {
@@ -21,7 +22,7 @@ public class GUIPageRemoveOwner implements IGUIPage
     private int doorOwnerPage = 0;
     private int maxDoorOwnerPageCount = 0;
 
-    private ArrayList<DoorOwner> owners;
+    private List<DoorOwner> owners;
 
     protected GUIPageRemoveOwner(final BigDoors plugin, final GUI gui)
     {
@@ -71,7 +72,7 @@ public class GUIPageRemoveOwner implements IGUIPage
 
     protected void fillHeader()
     {
-        ArrayList<String> lore = new ArrayList<>();
+        List<String> lore = new ArrayList<>();
         lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
                                                 Integer.toString(gui.getPage() + 1),
                                                 Integer.toString(gui.getPage()),

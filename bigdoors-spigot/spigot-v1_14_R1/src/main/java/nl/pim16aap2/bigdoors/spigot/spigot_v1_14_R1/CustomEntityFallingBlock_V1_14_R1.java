@@ -462,7 +462,7 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
 //
 //            if (i > 0)
 //            {
-//                ArrayList arraylist = Lists.newArrayList(world.getEntities(this, getBoundingBox()));
+//                List arraylist = Lists.newArrayList(world.getEntities(this, getBoundingBox()));
 //                boolean flag = block.a(TagsBlock.ANVIL);
 //                DamageSource damagesource = flag ? DamageSource.ANVIL : DamageSource.FALLING_BLOCK;
 //                Iterator iterator = arraylist.iterator();

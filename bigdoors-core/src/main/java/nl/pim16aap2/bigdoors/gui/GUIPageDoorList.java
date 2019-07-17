@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 
 import java.util.ArrayList;
+import java.util.List;
 
 class GUIPageDoorList implements IGUIPage
 {
@@ -68,7 +69,7 @@ class GUIPageDoorList implements IGUIPage
     protected void fillHeader()
     {
         int page = gui.getPage();
-        ArrayList<String> lore = new ArrayList<>();
+        List<String> lore = new ArrayList<>();
         if (page != 0)
         {
             lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
@@ -103,7 +104,7 @@ class GUIPageDoorList implements IGUIPage
     {
         int offset = gui.getPage() * (GUI.CHESTSIZE - 9);
         int endCount = Math.min((GUI.CHESTSIZE - 9), (gui.getDoorsSize() - offset));
-        ArrayList<String> lore = new ArrayList<>();
+        List<String> lore = new ArrayList<>();
         for (int idx = 0; idx < endCount; ++idx)
         {
             DoorBase currentDoor = gui.getDoor(offset + idx);

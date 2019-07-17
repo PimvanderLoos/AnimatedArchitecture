@@ -88,6 +88,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.Vector;
@@ -122,7 +123,8 @@ import java.util.Vector;
 //       Internally, keep track if the specified and the default value, then return the specified value if possible,
 //       otherwise the default value. Also distinguish between goal and actual.
 // TODO: Create method in DoorBase for checking distance. Take Vector3D for distance and direction.
-// TODO:
+// TODO: Get rid of the engineSide and currentDirection. It's basically the same thing. I don't think the database
+//       should be troubled with storing this data either, so remove it there.
 
 /*
  * Experimental
@@ -136,8 +138,6 @@ import java.util.Vector;
 // TODO: Fix violation of Liskov Substituion Problem in certain subclasses of Door (i.e. Revovlving Door, as it has no lookingDir).
 //       Though, thinking about it, DoorBase doesn't really need this function anyway, if all opener code is put in the doorClass anyway.
 // TODO: Fix violation of LSP for doorAttributes. Instead of having a switch per type in the GUI, override a return in the DoorAttribute enum.
-// TODO: NEVER use something like this: private final HashMap<Object>; Instead, use this: private final Map<Object>; So it doesn't
-//       violate LSP. Same goes for lists and what-not.
 // TODO: Data is duplicated a lot! Currently, the falling block has the IBlockData, and so does PBlockData. If the block can rotate, it has it twice, even!
 //       This is a huge waste of Ram. The falling block should be the only place to store the block data.
 // TODO: Instead of killing the FBlock, rotating it and then respawning it, rotate the FBlockData and then send the appropriate packets to the appropriate players.
@@ -204,7 +204,7 @@ import java.util.Vector;
 // TODO: Creators: updateEngineLoc from DoorCreator() and setEngine() should be the same and declared as abstract method in Creator.
 // TODO: GarageDoorCreator: Should extend DrawBridgeCreator.
 // TODO: Store PBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
-// TODO: Make sure ALL players stored in hashMaps are cleaned up when they leave to avoid a memory leak!!
+// TODO: Make sure ALL players stored in maps are cleaned up when they leave to avoid a memory leak!!
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
 // TODO: When returning null after unexpected input, just fucking thrown an IllegalArgumentException. Will make debugging a lot easier.
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
@@ -406,12 +406,18 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
     private boolean validVersion;
     private String loginString;
     private CommandManager commandManager;
-    private HashMap<UUID, ToolUser> toolUsers;
-    private HashMap<UUID, GUI> playerGUIs;
+    private Map<UUID, ToolUser> toolUsers;
+    private Map<UUID, GUI> playerGUIs;
     private List<IRestartable> restartables = new ArrayList<>();
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
-    private TimedMapCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
+    /**
+     * Timed cache of all power blocks. The key is the hash of a chunk, the value a nested map.
+     * <p>
+     * The key of the nested map is the hash of a location (in world space) and the value of the nested map is the UID
+     * of the door whose power block is stored in that location.
+     */
+    private TimedMapCache<Long /* Chunk */, Map<Long /* Loc */, Long /* doorUID */>> pbCache = null;
     private VaultManager vaultManager;
     private AutoCloseScheduler autoCloseScheduler;
     private HeadManager headManager;
@@ -632,7 +638,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         blockMovers.clear();
     }
 
-    public TimedMapCache<Long, HashMap<Long, Long>> getPBCache()
+    public TimedMapCache<Long, Map<Long, Long>> getPBCache()
     {
         return pbCache;
     }

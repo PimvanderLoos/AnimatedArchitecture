@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigotutil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public enum PageType
 {
@@ -13,7 +14,7 @@ public enum PageType
     DOORCREATION(Message.GUI_PAGE_NEWDOORS), // Create new doors and such.
     REMOVEOWNER(Message.GUI_PAGE_REMOVEOWNER); // Delete other owners.
 
-    private static HashMap<Message, PageType> map = new HashMap<>();
+    private static Map<Message, PageType> map = new HashMap<>();
 
     static
     {

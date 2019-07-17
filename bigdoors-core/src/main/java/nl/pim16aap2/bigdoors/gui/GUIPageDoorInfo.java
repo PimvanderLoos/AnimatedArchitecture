@@ -14,6 +14,7 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GUIPageDoorInfo implements IGUIPage
 {
@@ -103,7 +104,7 @@ public class GUIPageDoorInfo implements IGUIPage
 
     protected void fillHeader()
     {
-        ArrayList<String> lore = new ArrayList<>();
+        List<String> lore = new ArrayList<>();
         lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
                                                 Integer.toString(gui.getPage() + 1),
                                                 Integer.toString(gui.getPage()),
@@ -141,7 +142,7 @@ public class GUIPageDoorInfo implements IGUIPage
     private void switchToRemoveOwner()
     {
 //        // Text based method
-//        plugin.getCommander().startRemoveOwner(gui.getPlayer(), gui.getDoor());
+//        plugin.getCommander().startRemoveOwner(gui.getOfflinePlayer(), gui.getDoor());
 //        gui.close();
 
         // GUI based method
@@ -204,7 +205,7 @@ public class GUIPageDoorInfo implements IGUIPage
         if (door.getPermission() > DoorAttribute.getPermissionLevel(atr))
             return null;
 
-        ArrayList<String> lore = new ArrayList<>();
+        List<String> lore = new ArrayList<>();
         String desc, loreStr;
         GUIItem ret = null;
 

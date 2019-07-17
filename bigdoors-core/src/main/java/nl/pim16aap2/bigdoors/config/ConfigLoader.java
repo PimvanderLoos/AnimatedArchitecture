@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents the config loader.
@@ -26,10 +27,10 @@ public class ConfigLoader
 {
     private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Arrays.asList("GOLD_BLOCK"));
     private final String header;
-    private final ArrayList<ConfigEntry<?>> configEntries;
+    private final List<ConfigEntry<?>> configEntries;
     private final BigDoors plugin;
-    private final HashMap<DoorType, String> doorPrices;
-    private final HashMap<DoorType, Double> doorMultipliers;
+    private final Map<DoorType, String> doorPrices;
+    private final Map<DoorType, Double> doorMultipliers;
     private String dbFile;
     private int coolDown;
     private boolean makeBackup;

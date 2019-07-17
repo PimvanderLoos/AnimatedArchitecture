@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.Abortable;
-import nl.pim16aap2.bigdoors.spigotutil.OfflinePlayerRetriever;
+import nl.pim16aap2.bigdoors.spigotutil.PlayerRetriever;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigotutil.WorldRetriever;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -37,8 +37,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,7 +59,7 @@ public class DatabaseManager extends Restartable
         super(plugin);
         db = new SQLiteJDBCDriverConnection(new File(plugin.getDataFolder(), dbFile), plugin.getPLogger(),
                                             plugin.getConfigLoader(), new WorldRetriever(),
-                                            new OfflinePlayerRetriever());
+                                            new PlayerRetriever());
         this.plugin = plugin;
         busyDoors = new ConcurrentHashMap<>();
         players = new TimedMapCache<>(plugin, HashMap::new, 1440);
@@ -72,7 +73,7 @@ public class DatabaseManager extends Restartable
 
     public boolean isDoorBusy(long doorUID)
     {
-        return busyDoors.contains(doorUID);
+        return busyDoors.containsKey(doorUID);
     }
 
     public void emptyBusyDoors()
@@ -113,7 +114,7 @@ public class DatabaseManager extends Restartable
     {
         UUID playerUUID = SpigotUtil.playerUUIDFromString(playerStr);
         if (playerUUID == null)
-            playerUUID = db.getPlayerUUID(playerStr);
+            playerUUID = db.getPlayerUUID(playerStr).orElse(null);
         return playerUUID;
     }
 
@@ -192,8 +193,8 @@ public class DatabaseManager extends Restartable
         goOn = bool;
     }
 
-    // Print an ArrayList of doors to a player.
-    public void printDoors(Player player, ArrayList<DoorBase> doors)
+    // Print a list of doors to a player.
+    public void printDoors(Player player, List<DoorBase> doors)
     {
         for (DoorBase door : doors)
             SpigotUtil.messagePlayer(player, door.getDoorUID() + ": " + door.getName());
@@ -226,27 +227,27 @@ public class DatabaseManager extends Restartable
         db.removeDoors(playerUUID, doorName);
     }
 
-    // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
-    public Optional<ArrayList<DoorBase>> getDoors(@NotNull UUID playerUUID, @Nullable String name)
+    // Returns a list of doors owner by a player and with a specific name, if provided (can be null).
+    public Optional<List<DoorBase>> getDoors(@NotNull UUID playerUUID, @Nullable String name)
     {
         return name == null ? getDoors(playerUUID) : db.getDoors(playerUUID, name);
     }
 
-    // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
-    public Optional<ArrayList<DoorBase>> getDoors(@NotNull UUID playerUUID)
+    // Returns a List of doors owner by a player and with a specific name, if provided (can be null).
+    public Optional<List<DoorBase>> getDoors(@NotNull UUID playerUUID)
     {
         return db.getDoors(playerUUID);
     }
 
-    // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null),
+    // Returns a List of doors owner by a player and with a specific name, if provided (can be null),
     // and where the player has a higher permission node (lower number) than specified.
-    public Optional<ArrayList<DoorBase>> getDoors(@NotNull String playerUUID, @NotNull String name, int maxPermission)
+    public Optional<List<DoorBase>> getDoors(@NotNull String playerUUID, @NotNull String name, int maxPermission)
     {
         return db.getDoors(playerUUID, name, maxPermission);
     }
 
-    // Returns an ArrayList of doors with a specific name.
-    public Optional<ArrayList<DoorBase>> getDoors(String name)
+    // Returns a List of doors with a specific name.
+    public Optional<List<DoorBase>> getDoors(String name)
     {
         return db.getDoors(name);
     }
@@ -265,11 +266,11 @@ public class DatabaseManager extends Restartable
         if (uuidStr != null)
             return UUID.fromString(uuidStr);
 
-        UUID uuid = db.getPlayerUUID(playerName);
-        if (uuid != null)
-            return uuid;
+        Optional<UUID> uuidOpt = db.getPlayerUUID(playerName);
+        if (uuidOpt.isPresent())
+            return uuidOpt.get();
 
-        uuid = SpigotUtil.playerUUIDFromString(playerName);
+        UUID uuid = SpigotUtil.playerUUIDFromString(playerName);
         if (uuid != null)
             updatePlayer(uuid, playerName);
         return uuid;
@@ -406,13 +407,13 @@ public class DatabaseManager extends Restartable
                                  int blockZMin, int blockXMax, int blockYMax, int blockZMax)
     {
         db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax,
-                            blockYMax, blockZMax, null);
+                            blockYMax, blockZMax);
     }
 
     // Update the coordinates of a given door.
     public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
                                  int blockZMin, int blockXMax, int blockYMax, int blockZMax,
-                                 PBlockFace newEngSide)
+                                 @NotNull PBlockFace newEngSide)
     {
         db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax,
                             blockZMax, newEngSide);
@@ -444,7 +445,7 @@ public class DatabaseManager extends Restartable
         return db.removeOwner(doorUID, playerUUID.toString());
     }
 
-    public ArrayList<DoorOwner> getDoorOwners(long doorUID)
+    public List<DoorOwner> getDoorOwners(long doorUID)
     {
         return db.getOwnersOfDoor(doorUID);
     }
@@ -474,7 +475,7 @@ public class DatabaseManager extends Restartable
     public Optional<DoorBase> doorFromPowerBlockLoc(Location loc)
     {
         long chunkHash = SpigotUtil.chunkHashFromLocation(loc);
-        HashMap<Long, Long> powerBlockData = plugin.getPBCache().get(chunkHash);
+        @NotNull Map<Long, Long> powerBlockData = plugin.getPBCache().get(chunkHash);
         if (powerBlockData == null)
         {
             powerBlockData = db.getPowerBlockData(chunkHash);

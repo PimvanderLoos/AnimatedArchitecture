@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GUIPageDoorCreation implements IGUIPage
 {
@@ -60,7 +61,7 @@ public class GUIPageDoorCreation implements IGUIPage
 
     private void fillHeader()
     {
-        ArrayList<String> lore = new ArrayList<>();
+        List<String> lore = new ArrayList<>();
         lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
                                                 Integer.toString(gui.getPage() + 1),
                                                 Integer.toString(gui.getPage()),

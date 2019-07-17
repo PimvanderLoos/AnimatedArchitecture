@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that loads key/value pairs used for translations.
@@ -26,7 +27,7 @@ public final class Messages extends Restartable
     private static final String DEFAULTFILENAME = "en_US.txt";
     private final PLogger logger;
     private final File fileDir;
-    private HashMap<String, String> messageMap = new HashMap<>();
+    private Map<String, String> messageMap = new HashMap<>();
     private File textFile;
 
     /**

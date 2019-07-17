@@ -11,13 +11,13 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
+import java.util.List;
 
 class GUIItem
 {
     private ItemStack is;
     private DoorBase door;
-    private ArrayList<String> lore;
+    private List<String> lore;
     private int count;
     private String name;
     private Material mat;
@@ -26,7 +26,7 @@ class GUIItem
     private DoorAttribute attribute = null;
     private Object specialValue;
 
-    public GUIItem(Material mat, String name, ArrayList<String> lore, int count, Object specialValue)
+    public GUIItem(Material mat, String name, List<String> lore, int count, Object specialValue)
     {
         this.name = name;
         this.mat = mat;
@@ -37,12 +37,12 @@ class GUIItem
         construct();
     }
 
-    public GUIItem(Material mat, String name, ArrayList<String> lore, int count)
+    public GUIItem(Material mat, String name, List<String> lore, int count)
     {
         this(mat, name, lore, count, null);
     }
 
-    public GUIItem(ItemStack is, String name, ArrayList<String> lore, int count, Object specialValue)
+    public GUIItem(ItemStack is, String name, List<String> lore, int count, Object specialValue)
     {
         this.name = name;
         this.lore = lore;
@@ -53,7 +53,7 @@ class GUIItem
         construct();
     }
 
-    public GUIItem(ItemStack is, String name, ArrayList<String> lore, int count)
+    public GUIItem(ItemStack is, String name, List<String> lore, int count)
     {
         this(is, name, lore, count, null);
     }
@@ -150,7 +150,7 @@ class GUIItem
         return name;
     }
 
-    public ArrayList<String> getLore()
+    public List<String> getLore()
     {
         return lore;
     }

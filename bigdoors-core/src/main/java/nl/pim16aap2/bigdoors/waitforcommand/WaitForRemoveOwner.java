@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class WaitForRemoveOwner extends WaitForCommand
 {
@@ -27,7 +27,7 @@ public class WaitForRemoveOwner extends WaitForCommand
         SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_REMOVEOWNER_INIT));
         SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_REMOVEOWNER_LIST));
 
-        ArrayList<DoorOwner> doorOwners = plugin.getDatabaseManager().getDoorOwners(door.getDoorUID());
+        List<DoorOwner> doorOwners = plugin.getDatabaseManager().getDoorOwners(door.getDoorUID());
         StringBuilder builder = new StringBuilder();
         for (DoorOwner owner : doorOwners)
             builder.append(owner.getPlayerName()).append(", ");

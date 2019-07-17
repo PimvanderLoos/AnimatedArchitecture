@@ -12,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -28,7 +29,7 @@ public class SubCommandListPlayerDoors extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, ArrayList<DoorBase> doors)
+    public boolean execute(CommandSender sender, List<DoorBase> doors)
     {
         if (doors.size() == 0)
         {
@@ -48,7 +49,7 @@ public class SubCommandListPlayerDoors extends SubCommand
     {
         UUID playerUUID = CommandManager.getPlayerFromArg(args[0]);
         String name = args.length > 1 ? args[1] : null;
-        ArrayList<DoorBase> doors = new ArrayList<>(
+        List<DoorBase> doors = new ArrayList<>(
                 plugin.getDatabaseManager().getDoors(playerUUID, name).orElse(new ArrayList<>()));
         return execute(sender, doors);
     }

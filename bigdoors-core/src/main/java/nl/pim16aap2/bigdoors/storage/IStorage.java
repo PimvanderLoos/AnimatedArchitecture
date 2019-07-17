@@ -7,10 +7,9 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -83,6 +82,12 @@ public interface IStorage
     Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID);
 
 
+    /**
+     * Gets the door with the given doorUID and the original creator as {@link DoorOwner};
+     *
+     * @param doorUID The UID of the door to retrieve.
+     * @return The door with the given doorUID and the original creator.
+     */
     Optional<DoorBase> getDoor(final long doorUID);
 
     /**
@@ -92,7 +97,7 @@ public interface IStorage
      * @param name       The name of the doors to search for.
      * @return All doors owned by the given player with the given name.
      */
-    Optional<ArrayList<DoorBase>> getDoors(@NotNull final UUID playerUUID, @NotNull final String name);
+    Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID, @NotNull final String name);
 
     /**
      * Gets all the doors owned by the the given player.
@@ -100,7 +105,7 @@ public interface IStorage
      * @param playerUUID The UUID of the player to search for.
      * @return All doors owned by the given player.
      */
-    Optional<ArrayList<DoorBase>> getDoors(@NotNull final UUID playerUUID);
+    Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID);
 
     /**
      * Gets all the doors with the given name, regardless of who owns them.
@@ -108,12 +113,27 @@ public interface IStorage
      * @param name The name of the doors to search for.
      * @return All doors with the given name.
      */
-    Optional<ArrayList<DoorBase>> getDoors(@NotNull final String name);
+    Optional<List<DoorBase>> getDoors(@NotNull final String name);
 
-    Optional<ArrayList<DoorBase>> getDoors(@NotNull final String playerUUID, @NotNull final String doorName,
-                                           int maxPermission);
+    /**
+     * Gets all the doors with the given name, owned by the player with at least a certain permission level.
+     *
+     * @param playerUUID    The name of the player who owns the doors.
+     * @param doorName      The name of the doors to search for.
+     * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
+     * @return All the doors with the given name, owned the player with at least a certain permission level.
+     */
+    Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, @NotNull final String doorName,
+                                      int maxPermission);
 
-    Optional<ArrayList<DoorBase>> getDoors(@NotNull final String playerUUID, int maxPermission);
+    /**
+     * Gets all the doors owned by a given player with at least a certain permission level.
+     *
+     * @param playerUUID    The name of the player who owns the doors.
+     * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
+     * @return All the doors owned by the player with at least a certain permission level.
+     */
+    Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, int maxPermission);
 
     /**
      * Gets the {@link DoorBase} with the given name owned by the given player. If the player owns 0 or more than 1
@@ -140,51 +160,168 @@ public interface IStorage
     Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName, int maxPermission)
             throws TooManyDoorsException;
 
+    /**
+     * Updates the name of the player.
+     * <p>
+     * PlayerUUIDs cannot change, but player names can, so this is needed to keep the names in sync with the UUIDs.
+     *
+     * @param playerUUID The UUID of the player.
+     * @param playerName The current name of the player.
+     * @return True if at least 1 record was modified.
+     */
     boolean updatePlayerName(@NotNull final String playerUUID, @NotNull final String playerName);
 
-    UUID getPlayerUUID(@NotNull final String playerName);
+    /**
+     * Gets the UUID of a player with a given name.
+     *
+     * @param playerName The name of the player to search for.
+     * @return The UUID of the player if there is exactly one player with this name.
+     */
+    Optional<UUID> getPlayerUUID(@NotNull final String playerName);
 
-    String getPlayerName(@NotNull final String playerUUID);
+    /**
+     * Gets the name this player had when they last connected to the server from their UUID.
+     *
+     * @param playerUUID The UUID of the player to search for.
+     * @return The name this player had when they last connected to the server.
+     */
+    @NotNull String getPlayerName(@NotNull final String playerUUID);
 
-    DoorOwner getOwnerOfDoor(final long doorUID);
+    /**
+     * Gets the original creator of a door.
+     *
+     * @param doorUID The door whose owner to get.
+     * @return The original creator of a door.
+     */
+    @NotNull DoorOwner getOwnerOfDoor(final long doorUID);
 
-    HashMap<Long, Long> getPowerBlockData(final long chunkHash);
+    /**
+     * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
+     * <p>
+     * The key is the hashed location in world space, the value is the UID of the door whose powerblock occupies that
+     * location.
+     *
+     * @param chunkHash The hash of the chunk the doors are in.
+     * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
+     */
+    @NotNull Map<Long, Long> getPowerBlockData(final long chunkHash);
 
+    /**
+     * Changes the blocksToMove value of a door.
+     *
+     * @param doorUID      The door to modify.
+     * @param blocksToMove The new number of blocks this door will try to move.
+     */
     void updateDoorBlocksToMove(final long doorUID, final int blocksToMove);
 
-    // Update the door at doorUID with the provided coordinates and open status.
+    /**
+     * Updates the coordinates of a door.
+     *
+     * @param doorUID The UID of the door to update.
+     * @param isOpen  The new open-status of the door.
+     * @param xMin    The new minimum x coordinate.
+     * @param yMin    The new minimum y coordinate.
+     * @param zMin    The new minimum z coordinate.
+     * @param xMax    The new maximum x coordinate.
+     * @param yMax    The new maximum y coordinate.
+     * @param zMax    The new maximum z coordinate.
+     * @param engSide The new engine side of the door, if applicable.
+     */
     void updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin,
                           final int zMin, final int xMax, final int yMax, final int zMax,
-                          @Nullable final PBlockFace engSide);
+                          @NotNull final PBlockFace engSide);
 
-    // Update the door with UID doorUID's Power Block Location with the provided
-    // coordinates and open status.
+    /**
+     * Updates the coordinates of a door.
+     *
+     * @param doorUID The UID of the door to update.
+     * @param isOpen  The new open-status of the door.
+     * @param xMin    The new minimum x coordinate.
+     * @param yMin    The new minimum y coordinate.
+     * @param zMin    The new minimum z coordinate.
+     * @param xMax    The new maximum x coordinate.
+     * @param yMax    The new maximum y coordinate.
+     * @param zMax    The new maximum z coordinate.
+     */
+    void updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin,
+                          final int zMin, final int xMax, final int yMax, final int zMax);
+
+    /**
+     * Changes the blocksToMove value of a door.
+     *
+     * @param doorUID   The door to modify.
+     * @param autoClose The new auto close timer of this door.
+     */
     void updateDoorAutoClose(final long doorUID, final int autoClose);
 
-    // Update the door with UID doorUID's Power Block Location with the provided
-    // coordinates and open status.
+    /**
+     * Changes the blocksToMove value of a door.
+     *
+     * @param doorUID The door to modify.
+     * @param openDir The new rotation direction of this door.
+     */
     void updateDoorOpenDirection(final long doorUID, @NotNull final RotateDirection openDir);
 
-    // Update the door with UID doorUID's Power Block Location with the provided
-    // coordinates and open status.
+    /**
+     * Changes the location of the powerblock of a door.
+     *
+     * @param doorUID   The door to modify.
+     * @param xPos      The new x coordinate for the powerblock.
+     * @param yPos      The new y coordinate for the powerblock.
+     * @param zPos      The new z coordinate for the powerblock.
+     * @param worldUUID The UUID of the world the power block is now in.
+     */
     void updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos,
                                  @NotNull final UUID worldUUID);
 
-    // Check if a given location already contains a power block or not.
-    // Returns false if it's already occupied.
+    /**
+     * Check if a location is occupied by a powerblock.
+     *
+     * @param loc The location to check.
+     * @return False if there is a powerblock in this location.
+     */
     boolean isPowerBlockLocationEmpty(@NotNull final Location loc);
 
-    // Update the door at doorUID with the provided new lockstatus.
+    /**
+     * Changes the lock status of a door.
+     *
+     * @param doorUID       The UID of the door to modify.
+     * @param newLockStatus The new lock status of this door.
+     */
     void setLock(final long doorUID, final boolean newLockStatus);
 
-    // Insert a new door in the db.
+    /**
+     * Inserts a new door in the database.
+     *
+     * @param door The door to insert.
+     */
     void insert(@NotNull final DoorBase door);
 
-    // Insert a new door in the db.
+    /**
+     * Removes an owner of a door. Note that the original creator (= permission level 0) can never be removed.
+     *
+     * @param doorUID    The UID of the door to modify.
+     * @param playerUUID The UUID of the player to remove as owner of the door.
+     * @return True if an owner was removed.
+     */
     boolean removeOwner(final long doorUID, @NotNull final String playerUUID);
 
-    ArrayList<DoorOwner> getOwnersOfDoor(final long doorUID);
+    /**
+     * Gets a list of all owners of a door. Contains at least 1 entry (creator).
+     *
+     * @param doorUID The door to get the owners of.
+     * @return A list of all owners of the door.
+     */
+    @NotNull List<DoorOwner> getOwnersOfDoor(final long doorUID);
 
-    // Insert a new door in the db.
+    /**
+     * Adds a player as owner of a door with at a certain permission level to a door.
+     * <p>
+     * Note that permission level 0 is reserved for the creator, and negative values are not allowed.
+     *
+     * @param doorUID    The UID of the door to modify.
+     * @param playerUUID The UUID of the player to add as owner.
+     * @param permission The level of ownership the player will have over the door.
+     */
     void addOwner(final long doorUID, @NotNull final UUID playerUUID, final int permission);
 }

@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -28,7 +29,7 @@ public class SubCommandListDoors extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, ArrayList<DoorBase> doors)
+    public boolean execute(CommandSender sender, List<DoorBase> doors)
     {
         if (doors.size() == 0)
         {
@@ -46,7 +47,7 @@ public class SubCommandListDoors extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
             throws CommandSenderNotPlayerException, CommandPermissionException
     {
-        ArrayList<DoorBase> doors = new ArrayList<>();
+        List<DoorBase> doors = new ArrayList<>();
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
         if (sender instanceof Player)
             doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name)

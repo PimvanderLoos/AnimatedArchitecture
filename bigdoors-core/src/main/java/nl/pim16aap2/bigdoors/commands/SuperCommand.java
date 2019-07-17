@@ -13,13 +13,14 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class SuperCommand implements ICommand
 {
     protected final BigDoors plugin;
     protected final CommandManager commandManager;
-    protected HashMap<String, SubCommand> subCommands;
+    protected Map<String, SubCommand> subCommands;
     protected int minArgCount;
     protected CommandData command;
 

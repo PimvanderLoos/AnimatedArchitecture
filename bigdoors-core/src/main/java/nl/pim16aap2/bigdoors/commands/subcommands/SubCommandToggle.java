@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -73,7 +74,7 @@ public class SubCommandToggle extends SubCommand
         }
     }
 
-    public double parseDoorsAndTime(CommandSender sender, String[] args, ArrayList<DoorBase> doors)
+    public double parseDoorsAndTime(CommandSender sender, String[] args, List<DoorBase> doors)
             throws IllegalArgumentException
     {
         String lastStr = args[args.length - 1];
@@ -95,7 +96,7 @@ public class SubCommandToggle extends SubCommand
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
             throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
-        ArrayList<DoorBase> doors = new ArrayList<>();
+        List<DoorBase> doors = new ArrayList<>();
         double time = parseDoorsAndTime(sender, args, doors);
 
         for (DoorBase door : doors)

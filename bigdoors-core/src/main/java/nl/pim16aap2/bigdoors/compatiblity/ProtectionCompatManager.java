@@ -12,6 +12,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -23,7 +24,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
 {
     private static final String BYPASSPERMISSION = "bigdoors.admin.bypasscompat";
 
-    private final ArrayList<IProtectionCompat> protectionCompats;
+    private final List<IProtectionCompat> protectionCompats;
     private final BigDoors plugin;
     private FakePlayerCreator fakePlayerCreator;
 

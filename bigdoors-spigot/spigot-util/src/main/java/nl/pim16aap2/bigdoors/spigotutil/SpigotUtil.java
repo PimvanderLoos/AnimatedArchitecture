@@ -167,13 +167,9 @@ public final class SpigotUtil
     {
         if (playerUUID == null)
             return null;
-        String output = null;
         Player player = Bukkit.getPlayer(playerUUID);
-        if (player != null)
-            output = player.getName();
-        else
-            output = Bukkit.getOfflinePlayer(playerUUID).getName();
-        return output;
+
+        return player != null ? player.getName() : Bukkit.getOfflinePlayer(playerUUID).getName();
     }
 
     /**

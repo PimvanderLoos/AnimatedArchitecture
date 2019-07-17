@@ -5,10 +5,15 @@ import org.bukkit.OfflinePlayer;
 
 import java.util.UUID;
 
-public class OfflinePlayerRetriever
+public class PlayerRetriever
 {
-    public OfflinePlayer getPlayer(UUID uuid)
+    public OfflinePlayer getOfflinePlayer(UUID uuid)
     {
         return Bukkit.getOfflinePlayer(uuid);
+    }
+
+    public String nameFromUUID(UUID uuid)
+    {
+        return SpigotUtil.nameFromUUID(uuid);
     }
 }
