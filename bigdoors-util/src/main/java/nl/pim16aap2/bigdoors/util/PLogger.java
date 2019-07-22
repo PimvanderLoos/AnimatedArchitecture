@@ -30,7 +30,7 @@ public class PLogger
     private boolean consoleLogging = false;
 
     /**
-     * Constructor of PLogger
+     * Constructs a PLogger
      *
      * @param logFile            The file to write to.
      * @param messagingInterface The implementation of {@link IMessagingInterface} for writing to the console etc.
@@ -46,7 +46,7 @@ public class PLogger
     }
 
     /**
-     * Format the name properly for logging purposes. For example: '[BigDoors]'
+     * Formats the name properly for logging purposes. For example: '[BigDoors]'
      *
      * @param name The name to be used for logging purposes.
      * @return The name in the proper format.
@@ -67,7 +67,7 @@ public class PLogger
     }
 
     /**
-     * Process the queue of messages that will be logged to the log file. It cannot run on the main thread and only a
+     * Processes the queue of messages that will be logged to the log file. It cannot run on the main thread and only a
      * single instance is possible. The thread is blocked while it waits for new messages.
      */
     private void processQueue()
@@ -96,7 +96,7 @@ public class PLogger
     }
 
     /**
-     * Send a message to whomever or whatever issued a command at a given level (if applicable).
+     * Sends a message to whomever or whatever issued a command at a given level (if applicable).
      *
      * @param target The recipient of this message of unspecified type (console, player, whatever).
      * @param level  The level of the message (info, warn, etc). Does not apply to players.
@@ -110,7 +110,7 @@ public class PLogger
     }
 
     /**
-     * Add a message to the queue of messages that will be written to the log file.
+     * Adds a message to the queue of messages that will be written to the log file.
      *
      * @param logMessage The {@link LogMessage} to be written to the log file.
      */
@@ -119,7 +119,9 @@ public class PLogger
         messageQueue.add(logMessage);
     }
 
-    // Initialize log
+    /**
+     * Creates the log file, if it doesn't exist already.
+     */
     private void prepareLog()
     {
         if (!logFile.exists())
@@ -144,7 +146,7 @@ public class PLogger
     }
 
     /**
-     * Dump the stack trace to the log file at an arbitrary location.
+     * Dumps the stack trace to the log file at an arbitrary location.
      *
      * @param message An optional message to be printed along with the stack trace.
      */
@@ -154,7 +156,7 @@ public class PLogger
     }
 
     /**
-     * Dump the stack trace to the log file at an arbitrary location. Only print a given number of lines.
+     * Dumps the stack trace to the log file at an arbitrary location. Only print a given number of lines.
      *
      * @param message       An optional message to be printed along with the stack trace.
      * @param numberOfLines The number of lines to be written to the log.
@@ -165,7 +167,7 @@ public class PLogger
     }
 
     /**
-     * Write a message of a given level to the console.
+     * Writes a message of a given level to the console.
      *
      * @param level   The level of the message.
      * @param message The message.
@@ -178,7 +180,7 @@ public class PLogger
     }
 
     /**
-     * Log a message to the log file and potentially to the console as well at a given level.
+     * Logs a message to the log file and potentially to the console as well at a given level.
      *
      * @param msg            The message to be logged.
      * @param level          The level at which the message is logged (info, warn, etc).
@@ -192,7 +194,7 @@ public class PLogger
     }
 
     /**
-     * Write a message to the log file.
+     * Writes a message to the log file.
      *
      * @param msg The message to be written.
      */
@@ -214,7 +216,7 @@ public class PLogger
     }
 
     /**
-     * Log an exception to the log file.
+     * Logs an exception to the log file.
      *
      * @param exception Exception to log.
      */
@@ -226,7 +228,7 @@ public class PLogger
     }
 
     /**
-     * Log an exception to the log file.
+     * Logs an exception to the log file.
      *
      * @param exception Exception to log.
      * @param message   Message to accompany the exception.
@@ -241,7 +243,7 @@ public class PLogger
     }
 
     /**
-     * Log an error to the log file.
+     * Logs an error to the log file.
      *
      * @param error Error to log.
      */
@@ -253,7 +255,7 @@ public class PLogger
     }
 
     /**
-     * Log an error to the log file.
+     * Logs an error to the log file.
      *
      * @param error   Error to log.
      * @param message Message to accompany the error.
@@ -268,7 +270,7 @@ public class PLogger
     }
 
     /**
-     * Log a message to the log file.
+     * Logs a message to the log file.
      *
      * @param message The message to log.
      */
@@ -278,7 +280,7 @@ public class PLogger
     }
 
     /**
-     * Log a message at info level.
+     * Logs a message at info level.
      *
      * @param str The message to log.
      */
@@ -288,7 +290,7 @@ public class PLogger
     }
 
     /**
-     * Log a message at warning level.
+     * Logs a message at warning level.
      *
      * @param str The message to log.
      */
@@ -298,7 +300,7 @@ public class PLogger
     }
 
     /**
-     * Log a message at severe level.
+     * Logs a message at severe level.
      *
      * @param str The message to log.
      */
@@ -308,7 +310,7 @@ public class PLogger
     }
 
     /**
-     * Limit the length of a stack trace to a provided number of lines. If the provided number of lines is less than 1
+     * Limits the length of a stack trace to a provided number of lines. If the provided number of lines is less than 1
      * or exceeds the number of elements, all existing elements will get printed.
      *
      * @param stackTrace    The stack trace to be limited.

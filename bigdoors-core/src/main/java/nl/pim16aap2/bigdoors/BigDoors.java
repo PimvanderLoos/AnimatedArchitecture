@@ -533,14 +533,21 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         {
             logger.info("Enabling stats! Thanks, it really helps!");
             if (metrics == null)
-                metrics = new Metrics(this);
+                try
+                {
+                    metrics = new Metrics(this);
+                }
+                catch (Exception e)
+                {
+                    logger.logException(e, "Failed to intialize stats! Please contact pim16aap2!");
+                }
         }
         else
         {
             // Y u do dis? :(
             metrics = null;
-            logger.info("Stats disabled, not laoding stats :(... Please consider enabling it! "
-                                + "I am a simple man, seeing higher user numbers helps me stay motivated!");
+            logger.info("Stats disabled; not loading stats :(... Please consider enabling it! "
+                                + "It helps me stay motivated to keep working on this plugin!");
         }
 
         // Load update checker if allowed, otherwise unload it if needed or simply don't
