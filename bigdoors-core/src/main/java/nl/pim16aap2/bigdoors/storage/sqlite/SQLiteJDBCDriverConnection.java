@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.PlayerRetriever;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigotutil.WorldRetriever;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -44,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SQLiteJDBCDriverConnection implements IStorage
 {
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     private static final int DOOR_ID = 1;
     private static final int DOOR_NAME = 2;
     private static final int DOOR_WORLD = 3;
@@ -234,6 +233,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      *
      * @throws SQLException
      */
+    // TODO: Delete this.
     private long getPlayerID(@NotNull final Connection conn, @NotNull final String playerUUID) throws SQLException
     {
         long playerID = -1;
@@ -447,7 +447,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID)
+    public @NotNull Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID)
     {
         Optional<DoorBase> door = Optional.empty();
 
@@ -483,7 +483,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<DoorBase> getDoor(final long doorUID)
+    public @NotNull Optional<DoorBase> getDoor(final long doorUID)
     {
         Optional<DoorBase> door = Optional.empty();
 
@@ -512,7 +512,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID, @NotNull final String name)
+    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID, @NotNull final String name)
     {
         return getDoors(playerUUID.toString(), name, 0);
     }
@@ -521,7 +521,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID)
+    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID)
     {
         return getDoors(playerUUID.toString(), 0);
     }
@@ -530,7 +530,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<List<DoorBase>> getDoors(@NotNull final String name)
+    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String name)
     {
         List<DoorBase> doors = new ArrayList<>();
 
@@ -561,8 +561,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, @NotNull final String doorName,
-                                             int maxPermission)
+    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, @NotNull final String doorName,
+                                                      int maxPermission)
     {
         List<DoorBase> doors = new ArrayList<>();
 
@@ -595,7 +595,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<List<DoorBase>> getDoors(@NotNull String playerUUID, int maxPermission)
+    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull String playerUUID, int maxPermission)
     {
         List<DoorBase> ret = new ArrayList<>();
         try (Connection conn = getConnection())
@@ -629,7 +629,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName)
+    public @NotNull Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName)
             throws TooManyDoorsException
     {
         return getDoor(playerUUID, doorName, Integer.MAX_VALUE);
@@ -639,8 +639,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName,
-                                      int maxPermission)
+    public @NotNull Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName,
+                                               int maxPermission)
             throws TooManyDoorsException
     {
         DoorBase door = null;
@@ -709,7 +709,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public Optional<UUID> getPlayerUUID(@NotNull final String playerName)
+    public @NotNull Optional<UUID> getPlayerUUID(@NotNull final String playerName)
     {
         UUID playerUUID = null;
         try (Connection conn = getConnection())
@@ -744,9 +744,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public String getPlayerName(@NotNull final String playerUUID)
+    public @NotNull Optional<String> getPlayerName(@NotNull final String playerUUID)
     {
         String playerName = null;
         try (Connection conn = getConnection())
@@ -765,7 +764,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
         {
             logMessage("736", e);
         }
-        return playerName;
+        return Optional.ofNullable(playerName);
     }
 
     private DoorOwner getOwnerOfDoor(@NotNull final Connection conn, final long doorUID) throws SQLException
@@ -794,9 +793,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public DoorOwner getOwnerOfDoor(final long doorUID)
+    public @NotNull Optional<DoorOwner> getOwnerOfDoor(final long doorUID)
     {
         DoorOwner doorOwner = null;
 
@@ -808,15 +806,14 @@ public class SQLiteJDBCDriverConnection implements IStorage
         {
             logMessage("788", e);
         }
-        return doorOwner;
+        return Optional.ofNullable(doorOwner);
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public Map<Long, Long> getPowerBlockData(final long chunkHash)
+    public @NotNull Map<Long, Long> getPowerBlockData(final long chunkHash)
     {
         Map<Long, Long> doors = new HashMap<>();
 
@@ -828,9 +825,14 @@ public class SQLiteJDBCDriverConnection implements IStorage
             ResultSet rs = ps.executeQuery();
             while (rs.next())
             {
-                long locationHash = SpigotUtil.locationHash(rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y),
-                                                            rs.getInt(DOOR_POWER_Z),
-                                                            UUID.fromString(rs.getString(DOOR_WORLD)));
+                long locationHash = Util.simpleLocationhash(rs.getInt(DOOR_POWER_X),
+                                                            rs.getInt(DOOR_POWER_Y),
+                                                            rs.getInt(DOOR_POWER_Z));
+                System.out.println("FOUND DOOR: " + rs.getLong(DOOR_ID) + ", LocHash = " + locationHash +
+                                           ", x = " + rs.getInt(DOOR_POWER_X) +
+                                           ", y = " + rs.getInt(DOOR_POWER_Y) +
+                                           ", z = " + rs.getInt(DOOR_POWER_Z)
+                );
                 doors.put(locationHash, rs.getLong(DOOR_ID));
             }
             ps.close();
@@ -982,7 +984,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
             ps.setInt(1, xPos);
             ps.setInt(2, yPos);
             ps.setInt(3, zPos);
-            ps.setString(4, Long.toString(SpigotUtil.chunkHashFromLocation(xPos, zPos, worldUUID)));
+            ps.setString(4, Long.toString(Util.simpleChunkHashFromLocation(xPos, zPos)));
             ps.setString(5, Long.toString(doorUID));
             ps.executeUpdate();
             conn.commit();
@@ -1105,7 +1107,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
             doorstatement.setInt(DOOR_POWER_Z - 1, door.getPowerBlockLoc().getBlockZ());
             doorstatement.setInt(DOOR_OPEN_DIR - 1, RotateDirection.getValue(door.getOpenDir()));
             doorstatement.setInt(DOOR_AUTO_CLOSE - 1, door.getAutoClose());
-            doorstatement.setString(DOOR_CHUNK_HASH - 1, Long.toString(door.getPowerBlockChunkHash()));
+            doorstatement.setString(DOOR_CHUNK_HASH - 1, Long.toString(door.getSimplePowerBlockChunkHash()));
             doorstatement.setString(DOOR_BLOCKS_TO_MOVE - 1, Long.toString(door.getBlocksToMove()));
 
             doorstatement.execute();
@@ -1281,7 +1283,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
             // If an update is required and backups are enabled, make a backup.
             // First close the connection to the database. Reopen it when possible.
-            if (dbVersion != DATABASE_VERSION && config.dbBackup())
+            if (config.dbBackup())
             {
                 conn.close();
                 if (!makeBackup())
@@ -1309,6 +1311,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 conn = getConnection();
             }
 
+            if (dbVersion < 6)
+                upgradeToV6(conn);
+
             // If the database upgrade to V5 got interrupted in a previous attempt, the
             // fakeUUID
             // will still be in the database. If so, simply continue filling in player names
@@ -1317,8 +1322,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 replaceTempPlayerNames = true;
 
             // Do this at the very end, so the db version isn't altered if anything fails.
-            if (dbVersion != DATABASE_VERSION)
-                setDBVersion(conn, DATABASE_VERSION);
+            setDBVersion(conn, DATABASE_VERSION);
         }
         catch (SQLException | NullPointerException e)
         {
@@ -1326,14 +1330,15 @@ public class SQLiteJDBCDriverConnection implements IStorage
         }
         finally
         {
-            try
-            {
-                conn.close();
-            }
-            catch (SQLException | NullPointerException e)
-            {
-                logMessage("1424", e);
-            }
+            if (conn != null)
+                try
+                {
+                    conn.close();
+                }
+                catch (SQLException | NullPointerException e)
+                {
+                    logMessage("1424", e);
+                }
         }
         if (replaceTempPlayerNames)
             startReplaceTempPlayerNames();
@@ -1506,14 +1511,14 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 while (rs1.next())
                 {
                     long UID = rs1.getLong(DOOR_ID);
-                    UUID worldUUID = UUID.fromString(rs1.getString(DOOR_WORLD));
                     int x = rs1.getInt(DOOR_POWER_X);
                     int z = rs1.getInt(DOOR_POWER_Z);
 
                     update = "UPDATE doors SET chunkHash=? WHERE id=?;";
                     PreparedStatement ps2 = conn.prepareStatement(update);
-                    ps2.setString(1, Long.toString(SpigotUtil.chunkHashFromLocation(x, z, worldUUID)));
+                    ps2.setString(1, Long.toString(Util.simpleChunkHashFromLocation(x, z)));
                     ps2.setString(2, Long.toString(UID));
+                    ps2.executeUpdate();
                     ps2.close();
                 }
                 ps1.close();
@@ -1678,8 +1683,6 @@ public class SQLiteJDBCDriverConnection implements IStorage
         Connection conn = null;
         try
         {
-//            conn = getConnection();
-//            conn.setAutoCommit(false);
             Class.forName(DRIVER);
             conn = DriverManager.getConnection(url);
             conn.createStatement().execute("PRAGMA foreign_keys=OFF");
@@ -1704,26 +1707,64 @@ public class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException | ClassNotFoundException e)
         {
-            try
-            {
-                conn.rollback();
-            }
-            catch (SQLException e1)
-            {
-                logMessage("1770", e1);
-            }
+            if (conn != null)
+                try
+                {
+                    conn.rollback();
+                }
+                catch (SQLException e1)
+                {
+                    logMessage("1770", e1);
+                }
             logMessage("1772", e);
         }
         finally
         {
-            try
+            if (conn != null)
+                try
+                {
+                    conn.close();
+                }
+                catch (SQLException | NullPointerException e)
+                {
+                    logMessage("1781", e);
+                }
+        }
+    }
+
+    /**
+     * Pre-V6 used a different hashing system, so recalculate them.
+     *
+     * @param conn Opened database connection.
+     */
+    private void upgradeToV6(@NotNull final Connection conn)
+    {
+        try
+        {
+            pLogger.warn("Upgrading database to V6!");
+            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
+            ResultSet rs1 = ps1.executeQuery();
+            String update;
+
+            while (rs1.next())
             {
-                conn.close();
+                long UID = rs1.getLong(DOOR_ID);
+                int x = rs1.getInt(DOOR_POWER_X);
+                int z = rs1.getInt(DOOR_POWER_Z);
+
+                update = "UPDATE doors SET chunkHash=? WHERE id=?;";
+                PreparedStatement ps2 = conn.prepareStatement(update);
+                ps2.setString(1, Long.toString(Util.simpleChunkHashFromLocation(x, z)));
+                ps2.setString(2, Long.toString(UID));
+                ps2.executeUpdate();
+                ps2.close();
             }
-            catch (SQLException | NullPointerException e)
-            {
-                logMessage("1781", e);
-            }
+            ps1.close();
+            rs1.close();
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("1420", e);
         }
     }
 

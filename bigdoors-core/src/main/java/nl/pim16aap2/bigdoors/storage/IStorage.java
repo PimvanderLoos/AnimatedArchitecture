@@ -79,7 +79,7 @@ public interface IStorage
      * @param doorUID    The UID of the door to retrieve.
      * @return The door if it exists and if the player is an owner of it.
      */
-    Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID);
+    @NotNull Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID);
 
 
     /**
@@ -88,7 +88,7 @@ public interface IStorage
      * @param doorUID The UID of the door to retrieve.
      * @return The door with the given doorUID and the original creator.
      */
-    Optional<DoorBase> getDoor(final long doorUID);
+    @NotNull Optional<DoorBase> getDoor(final long doorUID);
 
     /**
      * Gets all the doors owned by the the given player with the given name.
@@ -97,7 +97,7 @@ public interface IStorage
      * @param name       The name of the doors to search for.
      * @return All doors owned by the given player with the given name.
      */
-    Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID, @NotNull final String name);
+    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID, @NotNull final String name);
 
     /**
      * Gets all the doors owned by the the given player.
@@ -105,7 +105,7 @@ public interface IStorage
      * @param playerUUID The UUID of the player to search for.
      * @return All doors owned by the given player.
      */
-    Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID);
+    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID);
 
     /**
      * Gets all the doors with the given name, regardless of who owns them.
@@ -113,7 +113,7 @@ public interface IStorage
      * @param name The name of the doors to search for.
      * @return All doors with the given name.
      */
-    Optional<List<DoorBase>> getDoors(@NotNull final String name);
+    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String name);
 
     /**
      * Gets all the doors with the given name, owned by the player with at least a certain permission level.
@@ -123,8 +123,8 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
-    Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, @NotNull final String doorName,
-                                      int maxPermission);
+    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, @NotNull final String doorName,
+                                               int maxPermission);
 
     /**
      * Gets all the doors owned by a given player with at least a certain permission level.
@@ -133,7 +133,7 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors owned by the player with at least a certain permission level.
      */
-    Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, int maxPermission);
+    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, int maxPermission);
 
     /**
      * Gets the {@link DoorBase} with the given name owned by the given player. If the player owns 0 or more than 1
@@ -143,7 +143,7 @@ public interface IStorage
      * @param doorName   The name of the {@link DoorBase} to look for.
      * @return The {@link DoorBase} with the given name owned by this player if exactly 1 such DoorBase exists.
      */
-    Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName)
+    @NotNull Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName)
             throws TooManyDoorsException;
 
     /**
@@ -157,7 +157,8 @@ public interface IStorage
      *                      are included in the search.
      * @return The {@link DoorBase} with the given name owned by this player if exactly 1 such DoorBase exists.
      */
-    Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName, int maxPermission)
+    @NotNull Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName,
+                                        int maxPermission)
             throws TooManyDoorsException;
 
     /**
@@ -177,7 +178,7 @@ public interface IStorage
      * @param playerName The name of the player to search for.
      * @return The UUID of the player if there is exactly one player with this name.
      */
-    Optional<UUID> getPlayerUUID(@NotNull final String playerName);
+    @NotNull Optional<UUID> getPlayerUUID(@NotNull final String playerName);
 
     /**
      * Gets the name this player had when they last connected to the server from their UUID.
@@ -185,7 +186,7 @@ public interface IStorage
      * @param playerUUID The UUID of the player to search for.
      * @return The name this player had when they last connected to the server.
      */
-    @NotNull String getPlayerName(@NotNull final String playerUUID);
+    @NotNull Optional<String> getPlayerName(@NotNull final String playerUUID);
 
     /**
      * Gets the original creator of a door.
@@ -193,7 +194,7 @@ public interface IStorage
      * @param doorUID The door whose owner to get.
      * @return The original creator of a door.
      */
-    @NotNull DoorOwner getOwnerOfDoor(final long doorUID);
+    @NotNull Optional<DoorOwner> getOwnerOfDoor(final long doorUID);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.

@@ -10,5 +10,10 @@ public interface IRestartable
     /**
      * Handle a restart.
      */
-    public void restart();
+    void restart();
+
+    /**
+     * Handle a shutdown..
+     */
+    void shutdown();
 }

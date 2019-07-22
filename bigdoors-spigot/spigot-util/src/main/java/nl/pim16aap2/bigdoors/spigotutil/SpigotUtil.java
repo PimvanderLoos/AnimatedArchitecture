@@ -119,50 +119,6 @@ public final class SpigotUtil
         return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
     }
 
-    /**
-     * Get the hash of the location of the chunk that the provided location lies in.
-     *
-     * @param loc The location to get the chunk Hash of.
-     * @return The hash of the chunk
-     */
-    public static long chunkHashFromLocation(Location loc)
-    {
-        return chunkHashFromLocation(loc.getBlockX(), loc.getBlockZ(), loc.getWorld().getUID());
-    }
-
-    /**
-     * Get the hash of a Chunk location.
-     *
-     * @param x         The X-coordinate of the position in the world (NOT the chunk coordinate!).
-     * @param z         The Z-coordinate of the position in the world (NOT the chunk coordinate!).
-     * @param worldUUID The UUID of the world.
-     * @return The hash of the Chunk location.
-     */
-    public static long chunkHashFromLocation(int x, int z, UUID worldUUID)
-    {
-        int chunk_X = x >> 4;
-        int chunk_Z = z >> 4;
-        long hash = 3;
-        hash = 19 * hash + worldUUID.hashCode();
-        hash = 19 * hash + (int) (Double.doubleToLongBits(chunk_X) ^ (Double.doubleToLongBits(chunk_X) >>> 32));
-        hash = 19 * hash + (int) (Double.doubleToLongBits(chunk_Z) ^ (Double.doubleToLongBits(chunk_Z) >>> 32));
-        return hash;
-    }
-
-    /**
-     * Generate the hash of a location.
-     *
-     * @param x         X-coordinate.
-     * @param y         Y-coordinate.
-     * @param z         Z-coordinate.
-     * @param worldUUID UUID of the world.
-     * @return Hash of the location.
-     */
-    public static long locationHash(int x, int y, int z, UUID worldUUID)
-    {
-        return new Location(Bukkit.getWorld(worldUUID), x, y, z).hashCode();
-    }
-
     public static String nameFromUUID(UUID playerUUID)
     {
         if (playerUUID == null)

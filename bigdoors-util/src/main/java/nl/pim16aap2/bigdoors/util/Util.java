@@ -164,6 +164,53 @@ public final class Util
     }
 
     /**
+     * Gets the 'simple' hash of the chunk given its coordinates. 'simple' here refers to the fact that the world of
+     * this chunk will not be taken into account.
+     *
+     * @param chunkX The x-coordinate of the chunk.
+     * @param chunkZ The z-coordinate of the chunk.
+     * @return The simple hash of the chunk.
+     */
+    public static long simpleChunkHashFromChunkCoordinates(int chunkX, int chunkZ)
+    {
+        long hash = 3;
+        hash = 19 * hash + (int) (Double.doubleToLongBits(chunkX) ^ (Double.doubleToLongBits(chunkX) >>> 32));
+        hash = 19 * hash + (int) (Double.doubleToLongBits(chunkZ) ^ (Double.doubleToLongBits(chunkZ) >>> 32));
+        return hash;
+    }
+
+    /**
+     * Gets the 'simple' hash of the chunk that encompasses the given coordinates. 'simple' here refers to the fact that
+     * the world of this chunk will not be taken into account.
+     *
+     * @param posX The x-coordinate of the location.
+     * @param posZ The z-coordinate of the location.
+     * @return The simple hash of the chunk.
+     */
+    public static long simpleChunkHashFromLocation(int posX, int posZ)
+    {
+        return simpleChunkHashFromChunkCoordinates(posX >> 4, posZ >> 4);
+    }
+
+    /**
+     * Gets the 'simple' hash of a location. 'simple' here refers to the fact that the world of this location will not
+     * be taken into account.
+     *
+     * @param x The x-coordinate of the location.
+     * @param y The z-coordinate of the location.
+     * @param z The z-coordinate of the location.
+     * @return The simple hash of the location.
+     */
+    public static long simpleLocationhash(int x, int y, int z)
+    {
+        int hash = 3;
+        hash = 19 * hash + (int) (Double.doubleToLongBits(x) ^ Double.doubleToLongBits(x) >>> 32);
+        hash = 19 * hash + (int) (Double.doubleToLongBits(y) ^ Double.doubleToLongBits(y) >>> 32);
+        hash = 19 * hash + (int) (Double.doubleToLongBits(z) ^ Double.doubleToLongBits(z) >>> 32);
+        return hash;
+    }
+
+    /**
      * Convert an array of strings to a single string.
      *
      * @param strings Input array of string

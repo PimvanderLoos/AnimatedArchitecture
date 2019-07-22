@@ -68,7 +68,6 @@ import nl.pim16aap2.bigdoors.util.DoorOpenResult;
 import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
@@ -85,7 +84,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -219,7 +217,7 @@ import java.util.Vector;
 // TODO: Make timeout for CommandWaiters and Creators configurable and put variable in messages.
 // TODO: Look into scheduleAutoClose(). It can probably be simplified.
 // TODO: Rename ListenerClasses to nameListener instead of Handler.
-// TODO: Cache value of DoorBase#getPowerBlockChunkHash().
+// TODO: Cache value of DoorBase#getSimplePowerBlockChunkHash().
 // TODO: In addition to doors/chunk caching, also keep a set of worlds that do or do not contain doors. This could
 //       cancel the entire event after a single cache lookup, thus potentially skipping at best 6 cache lookups, and at
 //       worst 3 database lookups + 3 cache lookups.
@@ -227,6 +225,7 @@ import java.util.Vector;
 // TODO: Instead of routing everything through this class (e.g. getPLogger(), getConfigLoader()), make sure that these
 //       Objects do NOT get reinitialized on restart and then pass references to class that need them. Should reduce the
 //       clutter in this class a bit and reduce dependency on this class.
+// TODO: Rename bigdoors-api. Maybe bigdoors-abstraction? Just to make it clear that it's not the actual API.
 
 /*
  * GUI
@@ -411,13 +410,6 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
     private List<IRestartable> restartables = new ArrayList<>();
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
-    /**
-     * Timed cache of all power blocks. The key is the hash of a chunk, the value a nested map.
-     * <p>
-     * The key of the nested map is the hash of a location (in world space) and the value of the nested map is the UID
-     * of the door whose power block is stored in that location.
-     */
-    private TimedMapCache<Long /* Chunk */, Map<Long /* Loc */, Long /* doorUID */>> pbCache = null;
     private VaultManager vaultManager;
     private AutoCloseScheduler autoCloseScheduler;
     private HeadManager headManager;
@@ -453,8 +445,6 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
             Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
             Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler(this), this);
-            // No need to put these in init, as they should not be reloaded.
-            pbCache = new TimedMapCache<>(this, Hashtable::new, config.cacheTimeout());
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = new DatabaseManager(this, config.dbFile());
@@ -552,7 +542,6 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
             logger.info("Stats disabled, not laoding stats :(... Please consider enabling it! "
                                 + "I am a simple man, seeing higher user numbers helps me stay motivated!");
         }
-        logger.info("test 1");
 
         // Load update checker if allowed, otherwise unload it if needed or simply don't
         // load it in the first place.
@@ -598,9 +587,10 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
     {
         if (!validVersion)
             return;
+
         reloadConfig();
 
-        onDisable();
+        shutdown();
         playerGUIs.forEach((key, value) -> value.close());
         playerGUIs.clear();
 
@@ -616,6 +606,12 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
 
     @Override
     public void onDisable()
+    {
+        shutdown();
+        restartables.forEach((K) -> K.shutdown());
+    }
+
+    private void shutdown()
     {
         if (!validVersion)
             return;
@@ -636,11 +632,6 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         toolUsers.clear();
         cmdWaiters.clear();
         blockMovers.clear();
-    }
-
-    public TimedMapCache<Long, Map<Long, Long>> getPBCache()
-    {
-        return pbCache;
     }
 
     public IFallingBlockFactory getFABF()
@@ -841,7 +832,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         fabf = null;
         if (version.equals("v1_14_R1"))
         {
-            glowingBlockSpawner = new GlowingBlockSpawner_V1_14_R1();
+            glowingBlockSpawner = new GlowingBlockSpawner_V1_14_R1(this);
             fabf = new FallingBlockFactory_V1_14_R1();
         }
 

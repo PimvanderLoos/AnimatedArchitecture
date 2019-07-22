@@ -13,6 +13,8 @@ import java.util.function.Supplier;
 /**
  * Represents a cached map. Entries can not be accessed after the provided time anymore and they are removed at certain
  * intervals.
+ * <p>
+ * Usage example: new TimedMapCache<>(holder, Hashtable::new, 10, TimeUnit.MINUTES);
  *
  * @param <K> Type of the Key of the map.
  * @param <V> Type of the value of the map.
@@ -30,6 +32,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      * < 0 values mean nothing ever gets added in the first place.
      */
     private long timeOut = -1L;
+
     private Map<K, TimedValue<V>> map;
     /**
      * {@link TimerTask} of {@link TimedMapCache#verifyCache}
@@ -121,6 +124,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     {
         if (timeOut > 0)
             taskTimer.cancel();
+        map.clear();
     }
 
     /**
@@ -272,6 +276,15 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     public void restart()
     {
         reInit(timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void shutdown()
+    {
+        destructor();
     }
 
     /**

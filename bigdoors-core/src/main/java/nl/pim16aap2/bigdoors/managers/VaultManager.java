@@ -173,11 +173,23 @@ public class VaultManager extends Restartable
         return perms != null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void restart()
     {
+        shutdown();
+        init();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void shutdown()
+    {
         menu.clear();
         flatPrices.clear();
-        init();
     }
 }

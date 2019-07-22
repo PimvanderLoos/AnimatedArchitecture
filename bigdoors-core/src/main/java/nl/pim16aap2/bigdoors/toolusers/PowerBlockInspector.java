@@ -34,12 +34,13 @@ public class PowerBlockInspector extends ToolUser
     public void selector(Location loc)
     {
         done = true;
-        plugin.getDatabaseManager().doorFromPowerBlockLoc(loc).ifPresent(door ->
-                                                                         {
-                                                                             ((SubCommandInfo) plugin
-                                                                                     .getCommand(CommandData.INFO))
-                                                                                     .execute(player, door);
-                                                                             setIsDone(true);
-                                                                         });
+        plugin.getDatabaseManager().doorFromPowerBlockLoc(loc, loc.getWorld().getUID())
+              .ifPresent(door ->
+                         {
+                             ((SubCommandInfo) plugin
+                                     .getCommand(CommandData.INFO))
+                                     .execute(player, door);
+                             setIsDone(true);
+                         });
     }
 }

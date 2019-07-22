@@ -64,8 +64,17 @@ public final class Messages extends Restartable
     @Override
     public void restart()
     {
-        messageMap.clear();
+        shutdown();
         readFile();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void shutdown()
+    {
+        messageMap.clear();
     }
 
     private void writeDefaultFile()

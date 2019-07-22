@@ -50,9 +50,18 @@ public class ProtectionCompatManager extends Restartable implements Listener
     @Override
     public void restart()
     {
-        protectionCompats.clear();
+        shutdown();
         for (Plugin p : plugin.getServer().getPluginManager().getPlugins())
             loadFromPluginName(p.getName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void shutdown()
+    {
+        protectionCompats.clear();
     }
 
     /**

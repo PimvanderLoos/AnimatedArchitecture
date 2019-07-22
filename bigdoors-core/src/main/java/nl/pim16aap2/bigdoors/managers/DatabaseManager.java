@@ -22,6 +22,7 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,9 +48,15 @@ public class DatabaseManager extends Restartable
 {
     private final IStorage db;
     private final BigDoors plugin;
+    private final Map<Long, Boolean> busyDoors;
+    /**
+     * Timed cache of all power blocks. The key is the hash of a chunk, the value a nested map.
+     * <p>
+     * The key of the nested map is the hash of a location (in world space) and the value of the nested map is the UID
+     * of the door whose power block is stored in that location.
+     */
+    private final TimedMapCache<UUID, Map<Long /* Chunk */, Map<Long /* Loc */, Long /* doorUID */>>> pbCache;
     // Players map stores players for faster UUID / Name matching.
-    private ConcurrentHashMap<Long, Boolean> busyDoors;
-    private TimedMapCache<UUID, String> players;
     private boolean goOn = true;
     private boolean paused = false;
 
@@ -58,13 +66,26 @@ public class DatabaseManager extends Restartable
         db = new SQLiteJDBCDriverConnection(new File(plugin.getDataFolder(), dbFile), plugin.getPLogger(),
                                             plugin.getConfigLoader(), new WorldRetriever(),
                                             new PlayerRetriever());
+
+        pbCache = new TimedMapCache<>(plugin, Hashtable::new, plugin.getConfigLoader().cacheTimeout());
         this.plugin = plugin;
         busyDoors = new ConcurrentHashMap<>();
-        players = new TimedMapCache<>(plugin, HashMap::new, 1440);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void restart()
+    {
+        shutdown();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void shutdown()
     {
         busyDoors.clear();
     }
@@ -237,12 +258,6 @@ public class DatabaseManager extends Restartable
     public void updatePlayer(Player player)
     {
         db.updatePlayerName(player.getUniqueId().toString(), player.getName());
-        players.put(player.getUniqueId(), player.getName());
-    }
-
-    public void removePlayer(Player player)
-    {
-        players.remove(player.getUniqueId());
     }
 
     public Optional<DoorBase> getDoor(long doorUID)
@@ -324,12 +339,15 @@ public class DatabaseManager extends Restartable
     // Update the coordinates of a given door.
     public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
                                  int blockZMin, int blockXMax, int blockYMax, int blockZMax,
-                                 @NotNull PBlockFace newEngSide)
+                                 @Nullable PBlockFace newEngSide)
     {
-        db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax,
-                            blockZMax, newEngSide);
+        if (newEngSide == null)
+            updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax);
+        else
+            db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax,
+                                blockZMax, newEngSide);
     }
-    
+
     public boolean addOwner(DoorBase door, UUID playerUUID, int permission)
     {
         if (permission < 1 || permission > 2 || door.getPermission() != 0 || door.getPlayerUUID().equals(playerUUID))
@@ -378,29 +396,41 @@ public class DatabaseManager extends Restartable
     }
 
     // Get a door from the x,y,z coordinates of its power block.
-    public Optional<DoorBase> doorFromPowerBlockLoc(Location loc)
+    public Optional<DoorBase> doorFromPowerBlockLoc(@NotNull Location loc, @NotNull UUID worldUUID)
     {
-        long chunkHash = SpigotUtil.chunkHashFromLocation(loc);
-        @NotNull Map<Long, Long> powerBlockData = plugin.getPBCache().get(chunkHash);
-        if (powerBlockData == null)
+        long chunkHash = Util.simpleChunkHashFromLocation(loc.getBlockX(), loc.getBlockZ());
+        System.out.println("Checking chunkHash: " + chunkHash);
+
+        if (!pbCache.containsKey(worldUUID))
+            pbCache.put(worldUUID, new HashMap<>());
+
+        Map<Long, Map<Long, Long>> worldMap = pbCache.get(worldUUID);
+
+        Map<Long, Long> powerBlockData;
+        if (worldMap.containsKey(chunkHash))
+            powerBlockData = worldMap.get(chunkHash);
+        else
         {
             powerBlockData = db.getPowerBlockData(chunkHash);
-            plugin.getPBCache().put(chunkHash, powerBlockData);
+            worldMap.put(chunkHash, powerBlockData);
         }
-
-        Long doorUID = powerBlockData.get((long) loc.hashCode());
+        Long doorUID = powerBlockData.get(Util.simpleLocationhash(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
         return Optional.ofNullable(doorUID == null ? null : db.getDoor(doorUID).orElse(null));
     }
 
     // Change the location of a powerblock.
     public void updatePowerBlockLoc(long doorUID, @NotNull Location loc)
     {
-        // First, remove the chunk with the current power block location of this door from cache.
-        db.getDoor(doorUID).ifPresent(door -> plugin.getPBCache().remove(door.getPowerBlockChunkHash()));
+        Map<Long, Map<Long, Long>> worldMap = pbCache.getOrDefault(loc.getWorld().getUID(), null);
+
+        if (worldMap != null)
+            // First, remove the chunk with the current power block location of this door from cache.
+            db.getDoor(doorUID).ifPresent(door -> worldMap.remove(door.getSimplePowerBlockChunkHash()));
         db.updateDoorPowerBlockLoc(doorUID, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getUID());
         // Also make sure to remove the chunk of the new location of the power block from cache, so it gets
         // updated whenever its needed again.
-        plugin.getPBCache().remove(SpigotUtil.chunkHashFromLocation(loc));
+        if (worldMap != null)
+            worldMap.remove(Util.simpleChunkHashFromLocation(loc.getBlockX(), loc.getBlockZ()));
     }
 
     public boolean isPowerBlockLocationValid(@NotNull Location loc)

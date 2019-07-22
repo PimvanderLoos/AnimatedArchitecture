@@ -67,7 +67,6 @@ public class EventHandlers implements Listener
     {
         try
         {
-            plugin.getDatabaseManager().removePlayer(event.getPlayer());
             ToolUser tu = plugin.getToolUser(event.getPlayer());
             if (tu != null)
                 tu.abort();

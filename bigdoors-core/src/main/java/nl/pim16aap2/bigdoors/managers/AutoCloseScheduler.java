@@ -72,6 +72,15 @@ public class AutoCloseScheduler extends Restartable
     @Override
     public void restart()
     {
+        shutdown();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void shutdown()
+    {
         timers.forEach((K, V) -> V.cancel());
         timers.clear();
     }

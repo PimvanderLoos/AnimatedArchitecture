@@ -117,13 +117,13 @@ public abstract class BlockMover
 
     protected abstract void animateEntities();
 
-    // Can be overriden to get the radius of the block at the given coordinates.
+    // Can be overridden to get the radius of the block at the given coordinates.
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         return -1;
     }
 
-    // Can be overriden to get the start angle of the block at the given coordinates.
+    // Can be overridden to get the start angle of the block at the given coordinates.
     protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         return -1;
@@ -170,8 +170,8 @@ public abstract class BlockMover
             plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
     }
 
-    protected final void updateCoords(DoorBase door, PBlockFace openDirection, RotateDirection rotateDirection,
-                                      int moved)
+    private void updateCoords(DoorBase door, PBlockFace openDirection, RotateDirection rotateDirection,
+                              int moved)
     {
         Location newMin = new Location(world, 0, 0, 0);
         Location newMax = new Location(world, 0, 0, 0);
@@ -188,7 +188,8 @@ public abstract class BlockMover
         if (newEngineSide.getVal() != null)
             door.setEngineSide(newEngineSide.getVal());
 
-        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(),
+        toggleOpen(door);
+        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), door.isOpen(), newMin.getBlockX(),
                                                      newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
                                                      newMax.getBlockY(), newMax.getBlockZ(), newEngineSide.getVal());
     }
@@ -196,7 +197,7 @@ public abstract class BlockMover
     protected abstract Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
 
     // Toggle the open status of a drawbridge.
-    protected final void toggleOpen(DoorBase door)
+    private void toggleOpen(DoorBase door)
     {
         door.setOpenStatus(!door.isOpen());
     }

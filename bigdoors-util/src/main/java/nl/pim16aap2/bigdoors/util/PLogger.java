@@ -195,11 +195,6 @@ public class PLogger
      */
     private void writeToLog(@NotNull final String msg)
     {
-        if (msg == null) // TODO: This shouldn't happen, but it does. Once, after a new file was created.
-        {
-            dumpStackTrace("TRIED TO LOG NULL!");
-            return;
-        }
         try
         {
             BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true));
@@ -223,7 +218,7 @@ public class PLogger
     public void logException(@NotNull final Exception exception)
     {
         addToMessageQueue(this.new LogMessageException(exception.getMessage(), exception));
-        writeToConsole(Level.SEVERE, exception.toString());
+        exception.printStackTrace();
         if (debug)
             exception.printStackTrace();
     }
@@ -238,7 +233,8 @@ public class PLogger
     {
         message += "\n";
         addToMessageQueue(this.new LogMessageException(message, exception));
-        writeToConsole(Level.SEVERE, message + exception.toString());
+        writeToConsole(Level.SEVERE, message);
+        exception.printStackTrace();
         if (debug)
             exception.printStackTrace();
     }
@@ -251,7 +247,7 @@ public class PLogger
     public void logError(@NotNull final Error error)
     {
         addToMessageQueue(this.new LogMessageError(error.getMessage(), error));
-        writeToConsole(Level.SEVERE, error.toString());
+        error.printStackTrace();
         if (debug)
             error.printStackTrace();
     }
@@ -266,7 +262,8 @@ public class PLogger
     {
         message += "\n";
         addToMessageQueue(this.new LogMessageError(message, error));
-        writeToConsole(Level.SEVERE, message + error.toString());
+        writeToConsole(Level.SEVERE, message);
+        error.printStackTrace();
         if (debug)
             error.printStackTrace();
     }
@@ -324,7 +321,7 @@ public class PLogger
         if (numberOfLines < 0)
             numberOfLines = 0;
         StringBuilder sb = new StringBuilder();
-        for (int idx = 1; (idx == 0 || idx < (numberOfLines + 1)) && idx < stackTrace.length; ++idx)
+        for (int idx = 1; idx < (numberOfLines + 1) && idx < stackTrace.length; ++idx)
             sb.append("    ").append(stackTrace[idx]).append("\n");
         return sb.toString();
     }
@@ -376,6 +373,7 @@ public class PLogger
         @Override
         public @NotNull String toString()
         {
+            System.out.println("Writing exception!");
             return super.message + limitStackTraceLength(exception.getStackTrace(), numberOfLines);
         }
     }

@@ -631,15 +631,15 @@ public abstract class DoorBase
     }
 
     /**
-     * @return The hash of the chunk in which the power block resides.
+     * @return The simple hash of the chunk in which the power block resides.
      */
-    public long getPowerBlockChunkHash()
+    public long getSimplePowerBlockChunkHash()
     {
         if (powerBlock == null)
             throw new NullPointerException();
         if (world == null)
             throw new NullPointerException();
-        return SpigotUtil.chunkHashFromLocation(powerBlock.getBlockX(), powerBlock.getBlockZ(), world.getUID());
+        return Util.simpleChunkHashFromLocation(powerBlock.getBlockX(), powerBlock.getBlockZ());
     }
 
     /**
@@ -666,7 +666,7 @@ public abstract class DoorBase
                .append(SpigotUtil.locIntToString(max)
                ).append(", Engine: ").append(SpigotUtil.locIntToString(engine)).append("\n");
         builder.append("PowerBlock location: ").append(SpigotUtil.locIntToString(powerBlock)).append(". Hash: "
-        ).append(getPowerBlockChunkHash()).append("\n");
+        ).append(getSimplePowerBlockChunkHash()).append("\n");
         builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((isOpen ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("; Current Dir: ").append(getCurrentDirection())

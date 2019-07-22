@@ -11,9 +11,11 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -28,6 +30,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -204,7 +207,7 @@ public class SQLiteJDBCDriverConnectionTest
         door1.setMaximum(new Location(world, 144, 131, 167));
         door1.setEngineLocation(new Location(world, 144, 75, 153));
         door1.setEngineSide(PBlockFace.valueOf(-1));
-        door1.setPowerBlockLocation(new Location(world, 139, 74, 166));
+        door1.setPowerBlockLocation(new Location(world, 101, 101, 101));
         door1.setName("massive1");
         door1.setOpenStatus(false);
         door1.setLock(false);
@@ -219,7 +222,7 @@ public class SQLiteJDBCDriverConnectionTest
         door2.setMaximum(new Location(world, 144, 131, 182));
         door2.setEngineLocation(new Location(world, 144, 75, 153));
         door2.setEngineSide(PBlockFace.valueOf(-1));
-        door2.setPowerBlockLocation(new Location(world, 139, 74, 169));
+        door2.setPowerBlockLocation(new Location(world, 102, 102, 102));
         door2.setName("massive2");
         door2.setOpenStatus(false);
         door2.setLock(false);
@@ -234,7 +237,7 @@ public class SQLiteJDBCDriverConnectionTest
         door3.setMaximum(new Location(world, 144, 151, 112));
         door3.setEngineLocation(new Location(world, 144, 75, 153));
         door3.setEngineSide(PBlockFace.valueOf(1));
-        door3.setPowerBlockLocation(new Location(world, 139, 74, 169));
+        door3.setPowerBlockLocation(new Location(world, 103, 103, 103));
         door3.setName("massive2");
         door3.setOpenStatus(false);
         door3.setLock(false);
@@ -298,7 +301,8 @@ public class SQLiteJDBCDriverConnectionTest
         assertFalse(storage.getDoor(9999999).isPresent());
         assertTrue(storage.isPowerBlockLocationEmpty(new Location(world, 0, 0, 0)));
         assertFalse(storage.isPowerBlockLocationEmpty(door1.getPowerBlockLoc()));
-        assertEquals(door1.getDoorOwner(), storage.getOwnerOfDoor(1L));
+        assertTrue(storage.getOwnerOfDoor(1L).isPresent());
+        assertEquals(door1.getDoorOwner(), storage.getOwnerOfDoor(1L).get());
 
         // Check if adding owners works correctly.
         assertEquals(1, storage.getOwnersOfDoor(1L).size());
@@ -411,7 +415,8 @@ public class SQLiteJDBCDriverConnectionTest
         door3.setName(storage.getDoor(3L).get().getName());
 
         // Make sure the player name corresponds to the correct UUID.
-        assertEquals(player2Name, storage.getPlayerName(player2UUID.toString()));
+        assertTrue(storage.getPlayerName(player2UUID.toString()).isPresent());
+        assertEquals(player2Name, storage.getPlayerName(player2UUID.toString()).get());
         assertFalse(storage.getPlayerUUID(player2NameALT).isPresent());
         assertTrue(storage.getPlayerUUID(player2Name).isPresent());
         assertEquals(player2UUID, storage.getPlayerUUID(player2Name).get());
@@ -426,11 +431,17 @@ public class SQLiteJDBCDriverConnectionTest
         // Revert name change of player 2.
         storage.updatePlayerName(player2UUID.toString(), player2Name);
 
-//        // DISABLED FOR NOW! Fails the test because the hashing method won't work currently (retrieved the world object).
-//        // Make sure the chunk hashing system + retrieval works fine.
-//        long chunkHash = SpigotUtil.chunkHashFromLocation(door1.getPowerBlockLoc());
-//        assertNotNull(storage.getPowerBlockData(chunkHash));
-//        assertEquals(3, storage.getPowerBlockData(chunkHash).size());
+        long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlockLoc().getBlockX(),
+                                                          door1.getPowerBlockLoc().getBlockZ());
+        assertNotNull(storage.getPowerBlockData(chunkHash));
+
+        {
+            System.out.println("ChunkHash: " + chunkHash);
+            @NotNull Map<Long, Long> powerBlockData = storage.getPowerBlockData(chunkHash);
+            powerBlockData.forEach((K, V) -> System.out.println("K: " + K + ", V: " + V));
+        }
+
+        assertEquals(3, storage.getPowerBlockData(chunkHash).size());
     }
 
     private void assertDoor3Parity()
