@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -106,6 +107,19 @@ class VerticalMover extends BlockMover
                 }
                 else
                 {
+                    Bukkit.getScheduler().callSyncMethod(plugin, () ->
+                    {
+                        int fullBlocksMoved = (int) Math.round(stepSum + Math.max(0.5, 2 * step));
+                        Vector3D newMin = new Vector3D(door.getMinimum().getBlockX(),
+                                                       door.getMinimum().getBlockY() + fullBlocksMoved,
+                                                       door.getMinimum().getBlockZ());
+                        Vector3D newMax = new Vector3D(door.getMaximum().getBlockX(),
+                                                       door.getMaximum().getBlockY() + fullBlocksMoved,
+                                                       door.getMaximum().getBlockZ());
+                        updateSolidBlocks(newMin, newMax);
+                        return null;
+                    });
+
                     Location loc = firstBlockData.getStartLocation();
                     loc.add(0, stepSum, 0);
                     Vector vec = loc.toVector().subtract(firstBlockData.getFBlock().getLocation().toVector());

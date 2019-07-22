@@ -408,6 +408,8 @@ public class DatabaseManager extends Restartable
         Map<Long, Map<Long, List<Long>>> worldMap = pbCache.get(worldUUID);
 
         Map<Long, List<Long>> powerBlockData;
+        if (worldMap == null)
+            plugin.getPLogger().logException(new IllegalStateException(), "worldMap is somehow null!??");
         if (worldMap.containsKey(chunkHash))
             powerBlockData = worldMap.get(chunkHash);
         else

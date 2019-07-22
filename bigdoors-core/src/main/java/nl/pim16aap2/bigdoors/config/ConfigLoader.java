@@ -49,6 +49,7 @@ public class ConfigLoader
     private boolean plotSquaredHook;
     private boolean griefPreventionHook;
     private int headCacheTimeout;
+    private boolean consoleLogging;
     private boolean debug = false;
 
     public ConfigLoader(final BigDoors plugin)
@@ -128,12 +129,13 @@ public class ConfigLoader
                 "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), and parentheses.",
                 "For example: \"doorPrice='max(10, sqrt(16)^4/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
                 "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!"};
-
         String[] headCacheTimeoutComment = {
                 "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
                 "Takes up a bit more space than the powerblock caching, but makes GUI much faster."};
-
         String[] debugComment = {"Don't use this. Just leave it on false."};
+        String[] consoleLoggingComment = {
+                "Write errors and exceptions to console. If disabled, they will only be written to the bigdoors log. ",
+                "If enabled, they will be written to both the console and the bigdoors log."};
         String[] backupComment = {
                 "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
                 "In case anything goes wrong, you can just revert to the old version! Only the most recent backup will be kept."};
@@ -172,6 +174,7 @@ public class ConfigLoader
                                addNewConfigEntry(config, "priceOf" + doorTypes[idx].name(), "0",
                                                  idx == 0 ? pricesComment : null));
 
+        consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         // This is a bit special, as it's public static (for SpigotUtil debug messages).
         debug = addNewConfigEntry(config, "DEBUG", false, debugComment);
         if (debug)
@@ -406,5 +409,10 @@ public class ConfigLoader
     public double getMultiplier(DoorType type)
     {
         return doorMultipliers.get(type);
+    }
+
+    public boolean consoleLogging()
+    {
+        return consoleLogging;
     }
 }

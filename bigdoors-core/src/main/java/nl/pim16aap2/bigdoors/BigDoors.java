@@ -504,7 +504,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
             return;
 
         config.reloadConfig();
-        getPLogger().setDebug(config.debug());
+        getPLogger().setConsoleLogging(getConfigLoader().consoleLogging());
         messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
@@ -832,7 +832,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         fabf = null;
         if (version.equals("v1_14_R1"))
         {
-            glowingBlockSpawner = new GlowingBlockSpawner_V1_14_R1(this);
+            glowingBlockSpawner = new GlowingBlockSpawner_V1_14_R1(this, getPLogger());
             fabf = new FallingBlockFactory_V1_14_R1();
         }
 

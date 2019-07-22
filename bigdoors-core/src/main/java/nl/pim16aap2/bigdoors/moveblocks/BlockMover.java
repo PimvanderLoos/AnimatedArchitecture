@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -134,6 +135,7 @@ public abstract class BlockMover
     // Put the door blocks back, but change their state now.
     public final void putBlocks(boolean onDisable)
     {
+        removeSolidBlocks();
         for (PBlockData savedBlock : savedBlocks)
         {
             Location newPos = getNewLocation(savedBlock.getRadius(), savedBlock.getStartX(), savedBlock.getStartY(),
@@ -168,6 +170,42 @@ public abstract class BlockMover
         }
         else
             plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
+    }
+
+//    private Vector3D oldMin = null;
+//    private Vector3D oldMax = null;
+
+    protected final void removeSolidBlocks()
+    {
+//        if (oldMin == null || oldMax == null)
+//            return;
+//
+//        for (int x = oldMin.getX(); x <= oldMax.getX(); ++x)
+//            for (int y = oldMin.getY(); y <= oldMax.getY(); ++y)
+//                for (int z = oldMin.getZ(); z <= oldMax.getZ(); ++z)
+//                {
+//                    Block block = world.getBlockAt(x, y, z);
+//                    if (block.getType().equals(Material.BARRIER))
+//                        block.setType(Material.AIR);
+//                }
+    }
+
+    protected final void updateSolidBlocks(final Vector3D newMin, final Vector3D newMax)
+    {
+//        Player pim = Bukkit.getPlayer(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"));
+//        removeSolidBlocks();
+//        for (int x = newMin.getX(); x <= newMax.getX(); ++x)
+//            for (int y = newMin.getY(); y <= newMax.getY(); ++y)
+//                for (int z = newMin.getZ(); z <= newMax.getZ(); ++z)
+//                {
+//                    Block block = world.getBlockAt(x, y, z);
+//                    block.setType(Material.BARRIER);
+//                    plugin.getGlowingBlockSpawner()
+//                          .spawnGlowinBlock(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), world.getName(), 1,
+//                                            x, y, z, ChatColor.LIGHT_PURPLE);
+//                }
+//        oldMin = newMin;
+//        oldMax = newMax;
     }
 
     private void updateCoords(DoorBase door, PBlockFace openDirection, RotateDirection rotateDirection,

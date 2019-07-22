@@ -34,7 +34,7 @@ public class LoginMessageHandler implements Listener
                     public void run()
                     {
                         String loginString = plugin.getLoginString();
-                        if (!loginString.isEmpty())
+                        if (loginString != null && !loginString.isEmpty())
                             player.sendMessage(ChatColor.AQUA + plugin.getLoginString());
                     }
                 }.runTaskLater(plugin, 60);

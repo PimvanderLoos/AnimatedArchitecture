@@ -27,7 +27,7 @@ public class PLogger
     private final BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
     private final IMessagingInterface messagingInterface;
     private boolean success = false;
-    private boolean debug = false;
+    private boolean consoleLogging = false;
 
     /**
      * Constructor of PLogger
@@ -57,13 +57,13 @@ public class PLogger
     }
 
     /**
-     * Change debugging status.
+     * Enables or disables writing errors and exceptions to the console.
      *
-     * @param debug True to enable debugging.
+     * @param consoleLogging True will log errors and exception to the console.
      */
-    public void setDebug(boolean debug)
+    public void setConsoleLogging(boolean consoleLogging)
     {
-        this.debug = debug;
+        this.consoleLogging = consoleLogging;
     }
 
     /**
@@ -126,8 +126,11 @@ public class PLogger
             try
             {
                 if (!logFile.getParentFile().exists())
-                    logFile.getParentFile().mkdirs();
-                logFile.createNewFile();
+                    if (!logFile.getParentFile().mkdirs())
+                        writeToConsole(Level.SEVERE,
+                                       "Failed to create folder: \"" + logFile.getParentFile().toString() + "\"");
+                if (!logFile.createNewFile())
+                    writeToConsole(Level.SEVERE, "Failed to create file: \"" + logFile.toString() + "\"");
                 writeToConsole(Level.INFO, "New file created at " + logFile);
                 success = true;
             }
@@ -218,9 +221,8 @@ public class PLogger
     public void logException(@NotNull final Exception exception)
     {
         addToMessageQueue(this.new LogMessageException(exception.getMessage(), exception));
-        exception.printStackTrace();
-        if (debug)
-            exception.printStackTrace();
+        if (consoleLogging)
+            writeToConsole(Level.SEVERE, limitStackTraceLength(exception.getStackTrace(), 0));
     }
 
     /**
@@ -234,9 +236,8 @@ public class PLogger
         message += "\n";
         addToMessageQueue(this.new LogMessageException(message, exception));
         writeToConsole(Level.SEVERE, message);
-        exception.printStackTrace();
-        if (debug)
-            exception.printStackTrace();
+        if (consoleLogging)
+            writeToConsole(Level.SEVERE, limitStackTraceLength(exception.getStackTrace(), 0));
     }
 
     /**
@@ -247,9 +248,8 @@ public class PLogger
     public void logError(@NotNull final Error error)
     {
         addToMessageQueue(this.new LogMessageError(error.getMessage(), error));
-        error.printStackTrace();
-        if (debug)
-            error.printStackTrace();
+        if (consoleLogging)
+            writeToConsole(Level.SEVERE, limitStackTraceLength(error.getStackTrace(), 0));
     }
 
     /**
@@ -263,9 +263,8 @@ public class PLogger
         message += "\n";
         addToMessageQueue(this.new LogMessageError(message, error));
         writeToConsole(Level.SEVERE, message);
-        error.printStackTrace();
-        if (debug)
-            error.printStackTrace();
+        if (consoleLogging)
+            writeToConsole(Level.SEVERE, limitStackTraceLength(error.getStackTrace(), 0));
     }
 
     /**
@@ -357,15 +356,15 @@ public class PLogger
         private final Exception exception;
         private final int numberOfLines;
 
-        public LogMessageException(@NotNull final String message, @NotNull final Exception exception,
-                                   final int numberOfLines)
+        LogMessageException(@NotNull final String message, @NotNull final Exception exception,
+                            final int numberOfLines)
         {
             super(message);
             this.exception = exception;
             this.numberOfLines = numberOfLines;
         }
 
-        public LogMessageException(@NotNull final String message, @NotNull final Exception exception)
+        LogMessageException(@NotNull final String message, @NotNull final Exception exception)
         {
             this(message, exception, 0);
         }
@@ -388,14 +387,14 @@ public class PLogger
         private final Error error;
         private final int numberOfLines;
 
-        public LogMessageError(@NotNull final String message, @NotNull final Error error, final int numberOfLines)
+        LogMessageError(@NotNull final String message, @NotNull final Error error, final int numberOfLines)
         {
             super(message);
             this.error = error;
             this.numberOfLines = numberOfLines;
         }
 
-        public LogMessageError(@NotNull final String message, @NotNull final Error error)
+        LogMessageError(@NotNull final String message, @NotNull final Error error)
         {
             this(message, error, 0);
         }
@@ -414,7 +413,7 @@ public class PLogger
      */
     private class LogMessageString extends LogMessage
     {
-        public LogMessageString(@NotNull final String message)
+        LogMessageString(@NotNull final String message)
         {
             super(message);
         }

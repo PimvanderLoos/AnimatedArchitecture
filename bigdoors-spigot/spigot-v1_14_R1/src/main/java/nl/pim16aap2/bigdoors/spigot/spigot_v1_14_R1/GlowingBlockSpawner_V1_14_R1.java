@@ -7,6 +7,7 @@ import net.minecraft.server.v1_14_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_14_R1.PlayerConnection;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -32,29 +33,55 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
 {
     private final Map<ChatColor, Team> teams;
     private final Scoreboard scoreboard;
+    private final PLogger plogger;
 
-    public GlowingBlockSpawner_V1_14_R1(final IRestartableHolder holder)
+    /**
+     * Constructs a glowing block spawner.
+     *
+     * @param holder  The holder of this restartable. I.e., the object that manages the restarting / stopping of this
+     *                object.
+     * @param plogger The logger object to log to.
+     */
+    public GlowingBlockSpawner_V1_14_R1(final IRestartableHolder holder, final PLogger plogger)
     {
         super(holder);
+        this.plogger = plogger;
         teams = new HashMap<>();
         scoreboard = org.bukkit.Bukkit.getServer().getScoreboardManager().getMainScoreboard();
+        init();
     }
 
-    private Team registerScoreboard(ChatColor color)
+    /**
+     * Initialize all teams.
+     */
+    private void init()
+    {
+        for (ChatColor col : ChatColor.values())
+            if (col.isColor())
+                try
+                {
+                    registerTeam(col);
+                }
+                catch (Exception e)
+                {
+                    plogger.logException(e, "Failed to register color: " + col.name());
+                }
+    }
+
+    /**
+     * Register a new team with a specific color.
+     *
+     * @param color The color to register the team for.
+     */
+    private void registerTeam(ChatColor color)
     {
         String name = "BigDoors" + color.ordinal();
-        scoreboard.registerNewTeam(name);
+        // Try to get an existing team, in case something had gone wrong unregistering them last time.
         Team team = scoreboard.getTeam(name);
+        if (team == null)
+            team = scoreboard.registerNewTeam(name);
         team.setColor(color);
         teams.put(color, team);
-        return team;
-    }
-
-    private Team getTeam(ChatColor color)
-    {
-        if (teams.containsKey(color))
-            return teams.get(color);
-        return registerScoreboard(color);
     }
 
     /**
@@ -63,7 +90,6 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
     @Override
     public void restart()
     {
-        shutdown();
     }
 
     /**
@@ -95,11 +121,26 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
     {
         org.bukkit.ChatColor color;
         if (!(colorObject instanceof ChatColor))
-            throw new IllegalArgumentException("Color object not a ChatColor!");
+        {
+            plogger.logException(new IllegalArgumentException("Color object not a ChatColor!"));
+            return;
+        }
 
         color = (org.bukkit.ChatColor) colorObject;
+        if (!teams.containsKey(color))
+        {
+            plogger.logException(new IllegalArgumentException("Unsupported color: " + color.name()));
+            return;
+        }
+
         Player player = Bukkit.getPlayer(playerUUID);
         World bukkitWorld = Bukkit.getWorld(world);
+        if (player == null || bukkitWorld == null)
+        {
+            plogger.logException(new NullPointerException(),
+                                 (player == null ? "Player" : "bukkitWorld") + " unexpectedly null!");
+            return;
+        }
 
         new java.util.Timer().schedule(
                 new java.util.TimerTask()
@@ -117,7 +158,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
                         magmaCube.setInvisible(true);
                         magmaCube.setNoAI(true);
                         magmaCube.setSilent(true);
-                        getTeam(color).addEntry(magmaCube.getName());
+                        teams.get(color).addEntry(magmaCube.getName());
 
                         PacketPlayOutSpawnEntityLiving spawnMagmaCube = new PacketPlayOutSpawnEntityLiving(magmaCube);
                         connection.sendPacket(spawnMagmaCube);
