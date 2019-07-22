@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.commands.ICommand;
 import nl.pim16aap2.bigdoors.commands.SuperCommand;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandCancel;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandChangePowerBlock;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandClose;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDebug;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDelete;
@@ -19,6 +18,7 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInspectPowerBlock;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandListDoors;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandListPlayerDoors;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandMenu;
+import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandMovePowerBlock;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandOpen;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandPause;
@@ -464,7 +464,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
             {
                 commandBigDoors.registerSubCommand(new SubCommandAddOwner(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandCancel(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandChangePowerBlock(this, commandManager));
+                commandBigDoors.registerSubCommand(new SubCommandMovePowerBlock(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandClose(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandDebug(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandDelete(this, commandManager));

@@ -15,7 +15,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -30,7 +29,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -81,6 +79,9 @@ public class SQLiteJDBCDriverConnectionTest
     private static String testDir;
     private IStorage storage;
 
+    /**
+     * Initializes objects of files to be used for the test run.
+     */
     private static void initFiles()
     {
         try
@@ -96,6 +97,9 @@ public class SQLiteJDBCDriverConnectionTest
         dbFileV0 = new File(dbFile.toString() + ".v0");
     }
 
+    /**
+     * Initializes all objects to be used.
+     */
     private void init()
     {
         initFiles();
@@ -153,6 +157,9 @@ public class SQLiteJDBCDriverConnectionTest
                                                  playerRetriever);
     }
 
+    /**
+     * Prepares files for a test run.
+     */
     @BeforeClass
     public static void prepare()
     {
@@ -174,6 +181,10 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
+    /**
+     * Runs cleanup after the tests. Remove leftovers from previous runs and store the finished databases of this run
+     * (for debugging purposes).
+     */
     @AfterClass
     public static void cleanup()
     {
@@ -199,6 +210,9 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
+    /**
+     * Initializes all door objects.
+     */
     private void initDoors()
     {
         door1 = DoorType.BIGDOOR.getNewDoor(plogger, 1);
@@ -247,6 +261,9 @@ public class SQLiteJDBCDriverConnectionTest
         door3.setDoorOwner(new DoorOwner(door3.getDoorUID(), player2UUID, player2Name, 0));
     }
 
+    /**
+     * Tests inserting doors in the database.
+     */
     @Test
     public void insertDoors()
     {
@@ -257,6 +274,11 @@ public class SQLiteJDBCDriverConnectionTest
         storage.insert(door3);
     }
 
+    /**
+     * Checks if a door was successfully added to the database and that all data in intact.
+     *
+     * @param door The door to verify.
+     */
     private void testRetrieval(DoorBase door) throws TooManyDoorsException
     {
         assertNotNull(storage);
@@ -272,6 +294,9 @@ public class SQLiteJDBCDriverConnectionTest
             fail("Data of retrieved door is not the same!");
     }
 
+    /**
+     * Verifies that the data of all doors that have been added to the database so far is correct.
+     */
     @Test
     public void verifyDoors() throws TooManyDoorsException
     {
@@ -282,8 +307,11 @@ public class SQLiteJDBCDriverConnectionTest
         testRetrieval(door3);
     }
 
+    /**
+     * Tests the basic SQL methods.
+     */
     @Test
-    public void auxiliaryMethods() throws TooManyDoorsException
+    public void auxiliaryMethods()
     {
         init();
         initDoors();
@@ -299,8 +327,6 @@ public class SQLiteJDBCDriverConnectionTest
         assertTrue(storage.getDoor(1).isPresent());
         assertEquals(door1, storage.getDoor(1).get());
         assertFalse(storage.getDoor(9999999).isPresent());
-        assertTrue(storage.isPowerBlockLocationEmpty(new Location(world, 0, 0, 0)));
-        assertFalse(storage.isPowerBlockLocationEmpty(door1.getPowerBlockLoc()));
         assertTrue(storage.getOwnerOfDoor(1L).isPresent());
         assertEquals(door1.getDoorOwner(), storage.getOwnerOfDoor(1L).get());
 
@@ -434,16 +460,13 @@ public class SQLiteJDBCDriverConnectionTest
         long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlockLoc().getBlockX(),
                                                           door1.getPowerBlockLoc().getBlockZ());
         assertNotNull(storage.getPowerBlockData(chunkHash));
-
-        {
-            System.out.println("ChunkHash: " + chunkHash);
-            @NotNull Map<Long, Long> powerBlockData = storage.getPowerBlockData(chunkHash);
-            powerBlockData.forEach((K, V) -> System.out.println("K: " + K + ", V: " + V));
-        }
-
         assertEquals(3, storage.getPowerBlockData(chunkHash).size());
     }
 
+    /**
+     * Verifies that door 3 exists in the database, and that the database entry of door 3 does equals the object of door
+     * 3.
+     */
     private void assertDoor3Parity()
     {
         // Check if door 3 exists in the database.
@@ -452,6 +475,10 @@ public class SQLiteJDBCDriverConnectionTest
         assertEquals(door3, storage.getDoor(player2UUID, 3L).get());
     }
 
+    /**
+     * Verifies that door 3 exists in the database, and that the database entry of door 3 does not equal the object of
+     * door 3.
+     */
     private void assertDoor3NotParity()
     {
         // Check if door 3 exists in the database.
@@ -460,6 +487,9 @@ public class SQLiteJDBCDriverConnectionTest
         assertNotSame(door3, storage.getDoor(player2UUID, 3L).get());
     }
 
+    /**
+     * Runs tests of the methods that modify doors in the database.
+     */
     @Test
     public void modifyDoors()
     {
@@ -634,6 +664,9 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
+    /**
+     * Runs tests to verify that exceptions are caught when the should be and properly handled.
+     */
     @Test
     public void testFailures()
             throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException
@@ -679,19 +712,9 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
-//    @Test
-//    public void testBackup() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException
-//    {
-//        init();
-//        // Force the database to make a backup.
-//        final Method makeBackup = SQLiteJDBCDriverConnection.class.getDeclaredMethod("makeBackup");
-//        makeBackup.setAccessible(true);
-//        makeBackup.invoke(storage);
-//        // Check if the backed up file exists and if so, if it's the same size.
-//        assertTrue(dbFileBackup.exists());
-//        assertEquals(dbFile.length(), dbFileBackup.length());
-//    }
-
+    /**
+     * Runs tests to verify that upgrading the database from version 0 works as intended.
+     */
     @Test
     public void testUpgrade()
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException

@@ -7,7 +7,7 @@ public enum CommandData
 
     ADDOWNER("AddOwner", "bigdoors.user.addowner", CommandData.BIGDOORS),
     CANCEL("cancel", "bigdoors.user", CommandData.BIGDOORS),
-    CHANGEPOWERBLOCK("changepowerblock", "bigdoors.user.changepowerblock", CommandData.BIGDOORS),
+    MOVEPOWERBLOCK("movepowerblock", "bigdoors.user.movepowerblock", CommandData.BIGDOORS),
     CLOSE("close", "bigdoors.user.close", CommandData.BIGDOORS),
     DEBUG("debug", "bigdoorsdebug.iknowishouldnotusethis", CommandData.BIGDOORS),
     DELETE("delete", "bigdoors.user.delete", CommandData.BIGDOORS),

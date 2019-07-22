@@ -17,9 +17,11 @@ public interface IGlowingBlockSpawner
      * @param playerUUID The player who will see the glowing block.
      * @param world      The world in which the glowing block will be spawned
      * @param time       How long the glowing block will be visible (in seconds).
-     * @param x          The x-coordinate of the glowing block.
+     * @param x          The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by
+     *                   default.
      * @param y          The y-coordinate of the glowing block.
-     * @param z          The z-coordinate of the glowing block.
+     * @param z          The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by
+     *                   default.
      */
     void spawnGlowinBlock(@NotNull final UUID playerUUID, @NotNull String world, final long time, double x, double y,
                           double z);
@@ -30,9 +32,11 @@ public interface IGlowingBlockSpawner
      * @param playerUUID The player who will see the glowing block.
      * @param world      The world in which the glowing block will be spawned
      * @param time       How long the glowing block will be visible (in seconds).
-     * @param x          The x-coordinate of the glowing block.
+     * @param x          The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by
+     *                   default.
      * @param y          The y-coordinate of the glowing block.
-     * @param z          The z-coordinate of the glowing block.
+     * @param z          The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by
+     *                   default.
      * @param color      The color of the outline.
      */
     void spawnGlowinBlock(@NotNull final UUID playerUUID, @NotNull String world, final long time, double x, double y,

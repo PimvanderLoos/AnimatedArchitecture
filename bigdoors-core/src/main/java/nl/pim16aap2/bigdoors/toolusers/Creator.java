@@ -111,8 +111,8 @@ public abstract class Creator extends ToolUser
                 if (message != null)
                     SpigotUtil.messagePlayer(player, message);
                 plugin.getGlowingBlockSpawner()
-                      .spawnGlowinBlock(player.getUniqueId(), world.getName(), 30, engine.getBlockX() +
-                              0.5, engine.getBlockY(), engine.getBlockZ() + 0.5);
+                      .spawnGlowinBlock(player.getUniqueId(), world.getName(), 30, engine.getBlockX(),
+                                        engine.getBlockY(), engine.getBlockZ());
             }
         }
         super.finishUp();

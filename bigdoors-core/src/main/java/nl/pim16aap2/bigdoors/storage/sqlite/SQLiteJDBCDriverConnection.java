@@ -813,9 +813,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Map<Long, Long> getPowerBlockData(final long chunkHash)
+    public @NotNull Map<Long, List<Long>> getPowerBlockData(final long chunkHash)
     {
-        Map<Long, Long> doors = new HashMap<>();
+        Map<Long, List<Long>> doors = new HashMap<>();
 
         try (Connection conn = getConnection())
         {
@@ -828,12 +828,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 long locationHash = Util.simpleLocationhash(rs.getInt(DOOR_POWER_X),
                                                             rs.getInt(DOOR_POWER_Y),
                                                             rs.getInt(DOOR_POWER_Z));
-                System.out.println("FOUND DOOR: " + rs.getLong(DOOR_ID) + ", LocHash = " + locationHash +
-                                           ", x = " + rs.getInt(DOOR_POWER_X) +
-                                           ", y = " + rs.getInt(DOOR_POWER_Y) +
-                                           ", z = " + rs.getInt(DOOR_POWER_Z)
-                );
-                doors.put(locationHash, rs.getLong(DOOR_ID));
+                if (!doors.containsKey(locationHash))
+                    doors.put(locationHash, new ArrayList<>());
+                doors.get(locationHash).add(rs.getLong(DOOR_ID));
             }
             ps.close();
             rs.close();
@@ -993,41 +990,6 @@ public class SQLiteJDBCDriverConnection implements IStorage
         {
             logMessage("992", e);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isPowerBlockLocationEmpty(@NotNull final Location loc)
-    {
-        try (Connection conn = getConnection())
-        {
-            PreparedStatement ps = conn
-                    .prepareStatement(
-                            "SELECT COUNT(*) as sum FROM doors WHERE powerBlockX=? AND powerBlockY=? AND powerBlockZ=? " +
-                                    " AND world=?;");
-            ps.setInt(1, loc.getBlockX());
-            ps.setInt(2, loc.getBlockY());
-            ps.setInt(3, loc.getBlockZ());
-            ps.setString(4, loc.getWorld().getUID().toString());
-
-            ps.executeQuery();
-            ResultSet rs = ps.executeQuery();
-
-            boolean isLocationEmpty = true;
-            if (rs.next())
-                isLocationEmpty = rs.getInt("sum") == 0;
-
-            ps.close();
-            rs.close();
-            return isLocationEmpty;
-        }
-        catch (SQLException | NullPointerException e)
-        {
-            logMessage("1033", e);
-        }
-        return false;
     }
 
     /**

@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -55,7 +56,7 @@ public class DatabaseManager extends Restartable
      * The key of the nested map is the hash of a location (in world space) and the value of the nested map is the UID
      * of the door whose power block is stored in that location.
      */
-    private final TimedMapCache<UUID, Map<Long /* Chunk */, Map<Long /* Loc */, Long /* doorUID */>>> pbCache;
+    private final TimedMapCache<UUID, Map<Long /* Chunk */, Map<Long /* Loc */, List<Long> /* doorUIDs */>>> pbCache;
     // Players map stores players for faster UUID / Name matching.
     private boolean goOn = true;
     private boolean paused = false;
@@ -396,17 +397,17 @@ public class DatabaseManager extends Restartable
     }
 
     // Get a door from the x,y,z coordinates of its power block.
-    public Optional<DoorBase> doorFromPowerBlockLoc(@NotNull Location loc, @NotNull UUID worldUUID)
+    public @NotNull List<DoorBase> doorsFromPowerBlockLoc(@NotNull Location loc, @NotNull UUID worldUUID)
     {
+        List<DoorBase> ret = new ArrayList<>();
         long chunkHash = Util.simpleChunkHashFromLocation(loc.getBlockX(), loc.getBlockZ());
-        System.out.println("Checking chunkHash: " + chunkHash);
 
         if (!pbCache.containsKey(worldUUID))
             pbCache.put(worldUUID, new HashMap<>());
 
-        Map<Long, Map<Long, Long>> worldMap = pbCache.get(worldUUID);
+        Map<Long, Map<Long, List<Long>>> worldMap = pbCache.get(worldUUID);
 
-        Map<Long, Long> powerBlockData;
+        Map<Long, List<Long>> powerBlockData;
         if (worldMap.containsKey(chunkHash))
             powerBlockData = worldMap.get(chunkHash);
         else
@@ -414,14 +415,16 @@ public class DatabaseManager extends Restartable
             powerBlockData = db.getPowerBlockData(chunkHash);
             worldMap.put(chunkHash, powerBlockData);
         }
-        Long doorUID = powerBlockData.get(Util.simpleLocationhash(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
-        return Optional.ofNullable(doorUID == null ? null : db.getDoor(doorUID).orElse(null));
+        List<Long> doorUIDs = powerBlockData
+                .get(Util.simpleLocationhash(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+        doorUIDs.forEach(K -> db.getDoor(K).ifPresent(door -> ret.add(door)));
+        return ret;
     }
 
     // Change the location of a powerblock.
     public void updatePowerBlockLoc(long doorUID, @NotNull Location loc)
     {
-        Map<Long, Map<Long, Long>> worldMap = pbCache.getOrDefault(loc.getWorld().getUID(), null);
+        Map<Long, Map<Long, List<Long>>> worldMap = pbCache.getOrDefault(loc.getWorld().getUID(), null);
 
         if (worldMap != null)
             // First, remove the chunk with the current power block location of this door from cache.
@@ -431,10 +434,5 @@ public class DatabaseManager extends Restartable
         // updated whenever its needed again.
         if (worldMap != null)
             worldMap.remove(Util.simpleChunkHashFromLocation(loc.getBlockX(), loc.getBlockZ()));
-    }
-
-    public boolean isPowerBlockLocationValid(@NotNull Location loc)
-    {
-        return db.isPowerBlockLocationEmpty(loc);
     }
 }

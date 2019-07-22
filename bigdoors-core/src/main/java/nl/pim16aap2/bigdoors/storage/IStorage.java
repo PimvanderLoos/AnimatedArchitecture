@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -205,7 +204,7 @@ public interface IStorage
      * @param chunkHash The hash of the chunk the doors are in.
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
-    @NotNull Map<Long, Long> getPowerBlockData(final long chunkHash);
+    @NotNull Map<Long, List<Long>> getPowerBlockData(final long chunkHash);
 
     /**
      * Changes the blocksToMove value of a door.
@@ -274,14 +273,6 @@ public interface IStorage
      */
     void updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos,
                                  @NotNull final UUID worldUUID);
-
-    /**
-     * Check if a location is occupied by a powerblock.
-     *
-     * @param loc The location to check.
-     * @return False if there is a powerblock in this location.
-     */
-    boolean isPowerBlockLocationEmpty(@NotNull final Location loc);
 
     /**
      * Changes the lock status of a door.

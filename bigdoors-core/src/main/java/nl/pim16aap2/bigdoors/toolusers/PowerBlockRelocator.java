@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.toolusers;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -47,12 +48,10 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     public void selector(Location loc)
     {
-        if (plugin.getDatabaseManager().isPowerBlockLocationValid(loc))
-        {
-            newLoc = loc;
-            setIsDone(true);
-        }
-        else
-            SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_PBRELOCATOR_LOCATIONINUSE));
+        newLoc = loc;
+        setIsDone(true);
+        plugin.getGlowingBlockSpawner()
+              .spawnGlowinBlock(getPlayer().getUniqueId(), loc.getWorld().getName(), 10, loc.getBlockX(),
+                                loc.getBlockY(), loc.getBlockZ(), ChatColor.GREEN);
     }
 }

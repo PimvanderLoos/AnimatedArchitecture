@@ -11,6 +11,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.logging.Level;
 
 public class SubCommandInfo extends SubCommand
@@ -38,15 +39,21 @@ public class SubCommandInfo extends SubCommand
             {
                 plugin.getGlowingBlockSpawner().spawnGlowinBlock(((Player) sender).getUniqueId(),
                                                                  door.getWorld().getName(), 30L,
-                                                                 door.getPowerBlockLoc().getBlockX() + 0.5,
+                                                                 door.getPowerBlockLoc().getBlockX(),
                                                                  door.getPowerBlockLoc().getBlockY(),
-                                                                 door.getPowerBlockLoc().getBlockZ() + 0.5);
+                                                                 door.getPowerBlockLoc().getBlockZ());
             }
             catch (Exception e)
             {
                 plugin.getPLogger().logException(e, "Failed to spawn a glowing block!");
             }
         }
+        return true;
+    }
+
+    public boolean execute(CommandSender sender, List<DoorBase> doors)
+    {
+        doors.forEach(door -> execute(sender, door));
         return true;
     }
 

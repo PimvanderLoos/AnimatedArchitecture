@@ -23,10 +23,10 @@ public class RedstoneHandler implements Listener
             plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, true);
     }
 
-    private void checkDoor(Location loc)
+    private void checkDoors(Location loc)
     {
-        plugin.getDatabaseManager().doorFromPowerBlockLoc(loc, loc.getWorld().getUID())
-              .ifPresent(door -> toggleDoor(door));
+        plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID())
+              .forEach(door -> toggleDoor(door));
     }
 
     // When redstone changes, check if there's a power block on any side of it (just
@@ -46,27 +46,27 @@ public class RedstoneHandler implements Listener
 
             if (plugin.getConfigLoader().powerBlockTypes()
                       .contains(location.getWorld().getBlockAt(x, y, z - 1).getType())) // North
-                checkDoor(new Location(location.getWorld(), x, y, z - 1));
+                checkDoors(new Location(location.getWorld(), x, y, z - 1));
 
             if (plugin.getConfigLoader().powerBlockTypes()
                       .contains(location.getWorld().getBlockAt(x + 1, y, z).getType())) // East
-                checkDoor(new Location(location.getWorld(), x + 1, y, z));
+                checkDoors(new Location(location.getWorld(), x + 1, y, z));
 
             if (plugin.getConfigLoader().powerBlockTypes()
                       .contains(location.getWorld().getBlockAt(x, y, z + 1).getType())) // South
-                checkDoor(new Location(location.getWorld(), x, y, z + 1));
+                checkDoors(new Location(location.getWorld(), x, y, z + 1));
 
             if (plugin.getConfigLoader().powerBlockTypes()
                       .contains(location.getWorld().getBlockAt(x - 1, y, z).getType())) // West
-                checkDoor(new Location(location.getWorld(), x - 1, y, z));
+                checkDoors(new Location(location.getWorld(), x - 1, y, z));
 
             if (plugin.getConfigLoader().powerBlockTypes()
                       .contains(location.getWorld().getBlockAt(x, y + 1, z).getType())) // Above
-                checkDoor(new Location(location.getWorld(), x, y + 1, z));
+                checkDoors(new Location(location.getWorld(), x, y + 1, z));
 
             if (plugin.getConfigLoader().powerBlockTypes()
                       .contains(location.getWorld().getBlockAt(x, y - 1, z).getType())) // Under
-                checkDoor(new Location(location.getWorld(), x, y - 1, z));
+                checkDoors(new Location(location.getWorld(), x, y - 1, z));
         }
         catch (Exception e)
         {

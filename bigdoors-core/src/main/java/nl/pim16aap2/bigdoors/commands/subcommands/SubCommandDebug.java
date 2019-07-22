@@ -38,7 +38,7 @@ public class SubCommandDebug extends SubCommand
         if (sender instanceof Player)
             plugin.getGlowingBlockSpawner()
                   .spawnGlowinBlock(((Player) sender).getUniqueId(), ((Player) sender).getWorld().getName(), 60,
-                                    128 + 0.5, 76, 140 + 0.5);
+                                    128, 76, 140);
         return true;
     }
 

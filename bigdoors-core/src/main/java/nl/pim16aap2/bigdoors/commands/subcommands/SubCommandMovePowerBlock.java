@@ -12,14 +12,14 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class SubCommandChangePowerBlock extends SubCommand
+public class SubCommandMovePowerBlock extends SubCommand
 {
     protected static final String help = "Change the location of the powerblock of a door.";
     protected static final String argsHelp = "<doorUID/Name>";
     protected static final int minArgCount = 2;
-    protected static final CommandData command = CommandData.CHANGEPOWERBLOCK;
+    protected static final CommandData command = CommandData.MOVEPOWERBLOCK;
 
-    public SubCommandChangePowerBlock(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandMovePowerBlock(final BigDoors plugin, final CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
