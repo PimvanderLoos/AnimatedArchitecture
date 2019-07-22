@@ -314,14 +314,14 @@ public class PLogger
      *
      * @param stackTrace    The stack trace to be limited.
      * @param numberOfLines The number of lines to limit it to.
-     * @return A string of the stack trace for at most numberOfLines lines if lines > 0.
+     * @return A string of the stack trace for at most numberOfLines lines if numberOfLines > 0.
      */
-    private @NotNull String limitStackTraceLength(@NotNull final StackTraceElement[] stackTrace, int numberOfLines)
+    private @NotNull String limitStackTraceLength(@NotNull final StackTraceElement[] stackTrace,
+                                                  final int numberOfLines)
     {
-        if (numberOfLines < 0)
-            numberOfLines = 0;
+        int linesToWrite = numberOfLines > 0 ? Math.min(numberOfLines, stackTrace.length) : stackTrace.length;
         StringBuilder sb = new StringBuilder();
-        for (int idx = 1; idx < (numberOfLines + 1) && idx < stackTrace.length; ++idx)
+        for (int idx = 0; idx < linesToWrite; ++idx)
             sb.append("    ").append(stackTrace[idx]).append("\n");
         return sb.toString();
     }
