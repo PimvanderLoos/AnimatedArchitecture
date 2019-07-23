@@ -256,6 +256,8 @@ import java.util.Vector;
 // TODO: Switch RotateDirection values to line up with PBlockFace.
 // TODO: Remove all NONE RotateDirection values from the database.
 // TODO: When retrieving all doors for info, put them in a sorted map (treemap).
+// TODO: Consider doing all upgrades on a separate thread. Then the server won't have to wait for the upgrade to finish.
+//       Added bonus: startReplaceTempPlayerNames() can be simplified.
 
 /*
  * Commands
@@ -339,6 +341,9 @@ import java.util.Vector;
 // TODO: Drawbridge: Cleanup #getNewLocation().
 // TODO: When checking if a door's chunks are loaded, use the door's chunkRange variables.
 // TODO: Highlist blocks that prevent a door from opening.
+// TODO: Instead of having methods to open/close/toggle animated objects, instead have a single method that receives
+//       a redstone value or something. Then each animated object can determine how to handle it on its own.
+//       Open/close/toggle for doors, activate/deactivate for persitent movement (flags, clocks, etc).
 
 /*
 

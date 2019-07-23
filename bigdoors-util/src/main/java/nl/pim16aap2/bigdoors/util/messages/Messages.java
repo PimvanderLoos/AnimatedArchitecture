@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -41,11 +40,15 @@ public final class Messages extends Restartable
                     final PLogger logger)
     {
         super(holder);
-        if (!fileDir.exists())
-            fileDir.mkdirs();
-
         this.logger = logger;
         this.fileDir = fileDir;
+
+        if (!fileDir.exists())
+            if (!fileDir.mkdirs())
+            {
+                logger.logException(new IOException("Failed to create folder: \"" + fileDir.toString() + "\""));
+                return;
+            }
 
         textFile = new File(fileDir, fileName + ".txt");
         if (!textFile.exists())
@@ -85,8 +88,6 @@ public final class Messages extends Restartable
 
         // Load the DEFAULTFILENAME from the resources folder.
         InputStream in = null;
-        BufferedReader br = null;
-        BufferedWriter bw = null;
         try
         {
             URL url = getClass().getClassLoader().getResource(DEFAULTFILENAME);
@@ -115,28 +116,20 @@ public final class Messages extends Restartable
             }
             catch (IOException e)
             {
-            }
-            try
-            {
-                if (br != null)
-                    br.close();
-            }
-            catch (IOException e)
-            {
-            }
-            try
-            {
-                if (bw != null)
-                    bw.close();
-            }
-            catch (IOException e)
-            {
+                logger.logException(e);
             }
         }
-        defaultFile.setWritable(false);
+        if (defaultFile.setWritable(false))
+        {
+            logger.logException(new IOException("Failed to make default translation file writable! " +
+                                                        "This is not a big problem as long as you remember not to " +
+                                                        "edit it manually!"));
+        }
     }
 
-    // Read locale file.
+    /**
+     * Read the translations from the provided translations file.
+     */
     private void readFile()
     {
         try (BufferedReader br = new BufferedReader(new FileReader(textFile)))
@@ -154,12 +147,10 @@ public final class Messages extends Restartable
                 value = parts[1].replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
                 String[] newLineSplitter = value.split("\\\\n"); // Wut? Can I haz more backslash?
 
-                String values = newLineSplitter[0];
-
+                StringBuilder values = new StringBuilder(newLineSplitter[0]);
                 for (int idx = 1; idx < newLineSplitter.length; ++idx)
-                    values += "\n" + newLineSplitter[idx];
-
-                messageMap.put(key, values);
+                    values.append("\n").append(newLineSplitter[idx]);
+                messageMap.put(key, values.toString());
             }
         }
         catch (FileNotFoundException e)

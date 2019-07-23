@@ -176,7 +176,11 @@ class SpigotUpdater
         File updateFolder = Bukkit.getUpdateFolderFile();
         if (!updateFolder.exists())
             if (!updateFolder.mkdirs())
-                throw new RuntimeException("Failed to create update folder!");
+            {
+                RuntimeException e = new RuntimeException(new RuntimeException("Failed to create update folder!"));
+                plugin.getPLogger().logException(e);
+                throw e;
+            }
 
         String fileName = plugin.getName() + ".jar";
         File updateFile = new File(updateFolder + "/" + fileName);
@@ -184,8 +188,12 @@ class SpigotUpdater
         HttpURLConnection httpConnection = (HttpURLConnection) dlURL.openConnection();
         httpConnection.setRequestProperty("User-Agent", "SpigetResourceUpdater");
         if (httpConnection.getResponseCode() != 200)
-            throw new RuntimeException(
-                    "Download returned status #" + httpConnection.getResponseCode() + "\n for URL: " + dlURL);
+        {
+            RuntimeException e = new RuntimeException(new RuntimeException(
+                    "Download returned status #" + httpConnection.getResponseCode() + "\n for URL: " + dlURL));
+            plugin.getPLogger().logException(e);
+            throw e;
+        }
 
 //        // CloudFlare blocks direct access to spigotmc. Getting a specific version using Spiget,
 //        // You get a redirect to that specific version. Might be useful as a return message,

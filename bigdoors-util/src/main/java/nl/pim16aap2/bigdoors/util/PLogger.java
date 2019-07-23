@@ -21,12 +21,35 @@ import java.util.logging.Level;
  */
 public class PLogger
 {
+    /**
+     * The format of the date to be used when writing to the log file.
+     */
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+    /**
+     * The ID of the thread that's processing the queue of messages to write to the log.
+     */
     private static AtomicLong queueProcessor = null;
+    /**
+     * The file to write to.
+     */
     private final File logFile;
+    /**
+     * The queue of {@link LogMessage}s that will be written to the log.
+     */
     private final BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
+    /**
+     * The {@link IMessagingInterface} use for platform-specific messaging. For example writing to console, sending a
+     * message to a player.
+     */
     private final IMessagingInterface messagingInterface;
+    /**
+     * Check if the log file could be initialized properly.
+     */
     private boolean success = false;
+    /**
+     * Determine if errors and exceptions should be written to the console or not. They'll always be written to the log
+     * file.
+     */
     private boolean consoleLogging = false;
 
     /**
@@ -129,10 +152,16 @@ public class PLogger
             {
                 if (!logFile.getParentFile().exists())
                     if (!logFile.getParentFile().mkdirs())
+                    {
                         writeToConsole(Level.SEVERE,
                                        "Failed to create folder: \"" + logFile.getParentFile().toString() + "\"");
+                        return;
+                    }
                 if (!logFile.createNewFile())
+                {
                     writeToConsole(Level.SEVERE, "Failed to create file: \"" + logFile.toString() + "\"");
+                    return;
+                }
                 writeToConsole(Level.INFO, "New file created at " + logFile);
                 success = true;
             }

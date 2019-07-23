@@ -55,14 +55,9 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
     private boolean isHeightAllowed(Player player, PlotArea area, int height)
     {
         if (height == 0)
-        {
-            if (!plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.s()))
-                return false;
-        }
-        else if ((height > area.MAX_BUILD_HEIGHT || height < area.MIN_BUILD_HEIGHT) &&
-                !plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s()))
-            return false;
-        return true;
+            return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.s());
+        else return (height <= area.MAX_BUILD_HEIGHT && height >= area.MIN_BUILD_HEIGHT) ||
+                plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s());
     }
 
     /**

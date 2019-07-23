@@ -274,17 +274,36 @@ public class ConfigLoader
         {
             File dataFolder = plugin.getDataFolder();
             if (!dataFolder.exists())
-                dataFolder.mkdir();
+                if (!dataFolder.mkdirs())
+                {
+                    plugin.getPLogger()
+                          .logException(new IOException("Failed to create folder: \"" + dataFolder.toString() + "\""));
+                    return;
+                }
 
             File saveTo = new File(plugin.getDataFolder(), "config.yml");
             if (!saveTo.exists())
-                saveTo.createNewFile();
-            else
+                if (!saveTo.createNewFile())
+                {
+                    plugin.getPLogger()
+                          .logException(new IOException("Failed to create file: \"" + saveTo.toString() + "\""));
+                    return;
+                }
+
+            if (!saveTo.canWrite())
             {
-                saveTo.delete();
-                saveTo.createNewFile();
+                plugin.getPLogger().warn("=======================================");
+                plugin.getPLogger().warn("============== !WARNING! ==============");
+                plugin.getPLogger().warn("=======================================");
+                plugin.getPLogger().warn("====== CANNOT WRITE CONFIG FILE! ======");
+                plugin.getPLogger().warn("==== NEW OPTIONS WILL NOT SHOW UP! ====");
+                plugin.getPLogger().warn("==== THEY WILL USE DEFAULT VALUES! ====");
+                plugin.getPLogger().warn("=======================================");
+                plugin.getPLogger().warn("============== !WARNING! ==============");
+                plugin.getPLogger().warn("=======================================");
             }
-            FileWriter fw = new FileWriter(saveTo, true);
+
+            FileWriter fw = new FileWriter(saveTo, false);
             PrintWriter pw = new PrintWriter(fw);
 
             if (header != null)

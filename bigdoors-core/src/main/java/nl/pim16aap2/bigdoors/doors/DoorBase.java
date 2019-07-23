@@ -219,8 +219,12 @@ public abstract class DoorBase
      */
     public void setWorld(World world)
     {
-        if (this.world != null)
-            throw new IllegalStateException();
+        if (this.world != null && !this.world.equals(world))
+        {
+            IllegalStateException e = new IllegalStateException("World may not be changed!");
+            pLogger.logException(e);
+            throw e;
+        }
         this.world = world;
     }
 
@@ -445,7 +449,11 @@ public abstract class DoorBase
     public final void assertValidCoords()
     {
         if (!validCoords())
-            throw new IllegalStateException();
+        {
+            IllegalStateException e = new IllegalStateException("The coordinates of this door are invalid!");
+            pLogger.logException(e);
+            throw e;
+        }
     }
 
     /**
@@ -636,9 +644,17 @@ public abstract class DoorBase
     public long getSimplePowerBlockChunkHash()
     {
         if (powerBlock == null)
-            throw new NullPointerException();
+        {
+            NullPointerException e = new NullPointerException("Powerblock unexpectedly null!");
+            pLogger.logException(e);
+            throw e;
+        }
         if (world == null)
-            throw new NullPointerException();
+        {
+            NullPointerException e = new NullPointerException("world unexpectedly null!");
+            pLogger.logException(e);
+            throw e;
+        }
         return Util.simpleChunkHashFromLocation(powerBlock.getBlockX(), powerBlock.getBlockZ());
     }
 

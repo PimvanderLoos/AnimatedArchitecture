@@ -51,14 +51,10 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     private boolean isHeightAllowed(Player player, PlotArea area, int height)
     {
         if (height == 0)
-        {
-            if (!plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.s()))
-                return false;
-        }
-        else if ((height > area.MAX_BUILD_HEIGHT || height < area.MIN_BUILD_HEIGHT) &&
-                !plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s()))
-            return false;
-        return true;
+            return plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.s());
+
+        else return (height <= area.MAX_BUILD_HEIGHT && height >= area.MIN_BUILD_HEIGHT) ||
+                plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s());
     }
 
     // Check if a given player is allowed to build in a given plot.
@@ -81,15 +77,11 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
                 if (destroy.isPresent() && destroy.get().contains(PlotBlock.get(block.getType().name())))
                     return true;
 
-                if (plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_OTHER.s()))
-                    return true;
-                return false;
+                return plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_OTHER.s());
             }
             else if (Settings.Done.RESTRICT_BUILDING && plot.getFlags().containsKey(Flags.DONE))
-            {
-                if (!plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_OTHER.s()))
-                    return false;
-            }
+                return plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_OTHER.s());
+
             return true;
         }
         return plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_ROAD.s());
