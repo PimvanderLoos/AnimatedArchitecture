@@ -47,9 +47,9 @@ import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.HeadManager;
 import nl.pim16aap2.bigdoors.managers.VaultManager;
+import nl.pim16aap2.bigdoors.moveblocks.BigDoorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeOpener;
-import nl.pim16aap2.bigdoors.moveblocks.DoorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.ElevatorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.FlagOpener;
 import nl.pim16aap2.bigdoors.moveblocks.GarageDoorOpener;
@@ -396,7 +396,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
     private Vector<WaitForCommand> cmdWaiters;
     private Vector<BlockMover> blockMovers;
 
-    private DoorOpener doorOpener;
+    private BigDoorOpener bigDoorOpener;
     private BridgeOpener bridgeOpener;
     private SlidingDoorOpener slidingDoorOpener;
     private PortcullisOpener portcullisOpener;
@@ -454,7 +454,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = new DatabaseManager(this, config.dbFile());
 
-            doorOpener = new DoorOpener(this);
+            bigDoorOpener = new BigDoorOpener(this);
             flagOpener = new FlagOpener(this);
             bridgeOpener = new BridgeOpener(this);
             elevatorOpener = new ElevatorOpener(this);
@@ -678,7 +678,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         switch (type)
         {
             case BIGDOOR:
-                return doorOpener;
+                return bigDoorOpener;
             case DRAWBRIDGE:
                 return bridgeOpener;
             case PORTCULLIS:

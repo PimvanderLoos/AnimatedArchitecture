@@ -9,9 +9,9 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;
 
-public class DoorOpener extends Opener
+public class BigDoorOpener extends Opener
 {
-    public DoorOpener(BigDoors plugin)
+    public BigDoorOpener(BigDoors plugin)
     {
         super(plugin);
     }
