@@ -76,10 +76,9 @@ public class TimedCache<K, V>
     {
         if (timeout < 0)
             return null;
-//        if (hashtable.containsKey(key))
-//            return hashtable.get(key).timedOut() ? null : hashtable.get(key).value;
-//        return null;
-        return hashtable.get(key).timedOut() ? null : hashtable.get(key).value;
+        if (hashtable.containsKey(key))
+            return hashtable.get(key).timedOut() ? null : hashtable.get(key).value;
+        return null;
     }
 
     public boolean contains(K key)
