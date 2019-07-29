@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.events.PEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -15,25 +16,32 @@ import java.util.UUID;
  */
 public class DoorActionEvent extends PEvent implements IPCancellable
 {
+    /**
+     * The UID of the door this action will be applied to.
+     */
     private final long doorUID;
+    /**
+     * What initiated this DoorAction event.
+     */
     private final DoorActionCause cause;
     private final DoorActionType actionType;
-    private final UUID responsible;
+    private final Optional<UUID> responsible;
     private final DoorBase doorBase;
     private boolean isCancelled = false;
 
-    public DoorActionEvent(final long doorUID, final DoorActionCause cause, final DoorActionType actionType,
-                           @NotNull UUID responsible, @NotNull DoorBase doorBase)
+    public DoorActionEvent(final long doorUID, final @NotNull DoorActionCause cause,
+                           final @NotNull DoorActionType actionType, @Nullable final UUID responsible,
+                           final @NotNull DoorBase doorBase)
     {
         this.doorUID = doorUID;
         this.cause = cause;
         this.actionType = actionType;
-        this.responsible = responsible;
+        this.responsible = Optional.ofNullable(responsible);
         this.doorBase = doorBase;
     }
 
     /**
-     * Get the UID of the door that is being requested.
+     * Gets the UID of the door that is being requested.
      *
      * @return The UID of the door.
      */
@@ -43,9 +51,9 @@ public class DoorActionEvent extends PEvent implements IPCancellable
     }
 
     /**
-     * Get the {@link DoorBase} that the action will be applied on.
+     * Gets the {@link DoorBase} that the action will be applied to.
      *
-     * @return
+     * @return The {@link DoorBase} that the action will be applied to.
      */
     public DoorBase getDoorBase()
     {
@@ -53,7 +61,7 @@ public class DoorActionEvent extends PEvent implements IPCancellable
     }
 
     /**
-     * Get what caused the door action request to be created.
+     * Gets what caused the door action request to be created.
      *
      * @return The cause of the door action request.
      */
@@ -70,13 +78,13 @@ public class DoorActionEvent extends PEvent implements IPCancellable
      *
      * @see DoorActionRequestEvent#getCause()
      */
-    public @Nullable UUID getResponsible()
+    public Optional<UUID> getResponsible()
     {
         return responsible;
     }
 
     /**
-     * Get the type of action action requested.
+     * Gets the type of action action requested.
      *
      * @return The type of the requested action.
      */

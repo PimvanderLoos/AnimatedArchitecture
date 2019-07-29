@@ -11,8 +11,17 @@ import java.util.Random;
  */
 public final class Util
 {
+    /**
+     * Characters to use in (secure) random strings.
+     */
     static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    /**
+     * Used to generate secure random strings. It's more secure than {@link Util#rnd}, but slower.
+     */
     static SecureRandom srnd = new SecureRandom();
+    /**
+     * Used to generate simple random strings. It's faster than {@link Util#srnd}, but not secure.
+     */
     static Random rnd = new Random();
 
     /**

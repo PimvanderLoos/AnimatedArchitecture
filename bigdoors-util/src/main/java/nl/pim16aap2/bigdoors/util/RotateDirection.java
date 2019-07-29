@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +23,9 @@ public enum RotateDirection
     SOUTH(7, Message.GENERAL_DIRECTION_SOUTH),
     WEST(8, Message.GENERAL_DIRECTION_WEST);
 
+    /**
+     * Map of all indices with their respective {@link RotateDirection} constants as values.
+     */
     private static Map<Integer, RotateDirection> map = new HashMap<>();
 
     static
@@ -30,26 +34,46 @@ public enum RotateDirection
             map.put(dir.val, dir);
     }
 
-    private int val;
-    private Message message;
+    private final int val;
+    private final @NotNull Message message;
 
-    RotateDirection(int val, Message message)
+    RotateDirection(final int val, final @NotNull Message message)
     {
         this.val = val;
         this.message = message;
     }
 
-    public static int getValue(RotateDirection dir)
+    /**
+     * Gets the index value of a {@link RotateDirection}.
+     *
+     * @param dir The {@link RotateDirection}.
+     * @return The index value of a {@link RotateDirection}.
+     */
+    public static int getValue(final @NotNull RotateDirection dir)
     {
         return dir.val;
     }
 
-    public static RotateDirection valueOf(int dir)
+    /**
+     * Gets the {@link RotateDirection} from an index value.
+     *
+     * @param dir The {@link RotateDirection}.
+     * @return The {@link RotateDirection} associated with this index value.
+     */
+    @NotNull
+    public static RotateDirection valueOf(final int dir)
     {
         return map.get(dir);
     }
 
-    public static Message getMessage(RotateDirection dir)
+    /**
+     * Gets the {@link Message} associated with a {@link RotateDirection}.
+     *
+     * @param dir The {@link RotateDirection}.
+     * @return The {@link Message} associated with a {@link RotateDirection}.
+     */
+    @NotNull
+    public static Message getMessage(final @NotNull RotateDirection dir)
     {
         return dir.message;
     }
@@ -61,7 +85,8 @@ public enum RotateDirection
      * @param dir The current {@link RotateDirection}
      * @return The opposite direction of the current {@link RotateDirection}.
      */
-    public static RotateDirection getOpposite(RotateDirection dir)
+    @NotNull
+    public static RotateDirection getOpposite(final @NotNull RotateDirection dir)
     {
         switch (dir)
         {
@@ -83,7 +108,7 @@ public enum RotateDirection
                 return RotateDirection.CLOCKWISE;
             case NONE:
             default:
-                return null;
+                return RotateDirection.NONE;
         }
     }
 }

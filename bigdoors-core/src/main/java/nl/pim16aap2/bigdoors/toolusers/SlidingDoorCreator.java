@@ -7,26 +7,37 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a user creating a {@link DoorType#SLIDINGDOOR}.
+ *
+ * @author Pim
+ **/
 public class SlidingDoorCreator extends Creator
 {
-    public SlidingDoorCreator(BigDoors plugin, Player player, String name)
+    public SlidingDoorCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name, DoorType.SLIDINGDOOR);
         if (name == null)
             SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_GIVENAME));
         else
-            triggerGiveTool();
+            giveToolToPlayer();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected boolean isReadyToCreateDoor()
+    protected boolean isReadyToConstructDoor()
     {
         return one != null && two != null && engine != null;
     }
 
-    // Make sure the power point is in the middle.
-    protected void setEngine()
+    /**
+     * Puts the engine location in the center.
+     */
+    protected void updateEngineLoc()
     {
         int xMid = one.getBlockX() + (two.getBlockX() - one.getBlockX()) / 2;
         int zMid = one.getBlockZ() + (two.getBlockZ() - one.getBlockZ()) / 2;
@@ -34,19 +45,31 @@ public class SlidingDoorCreator extends Creator
         engine = new Location(one.getWorld(), xMid, yMin, zMid);
     }
 
-    // Make sure the second position is not the same as the first position
-    protected boolean isPositionValid(Location loc)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isPosTwoValid(final @NotNull Location loc)
     {
-        if (one == null && two == null)
-            return true;
-        return !loc.equals(one);
+        return true;
     }
 
-    // Take care of the selection points.
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void selector(Location loc)
+    protected boolean isEngineValid(final @NotNull Location loc)
     {
-        if (!hasName() || !creatorHasPermissionInLocation(loc) || !isPositionValid(loc))
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void selector(final @NotNull Location loc)
+    {
+        if (isUnnamed() || !creatorHasPermissionInLocation(loc) || !isPosTwoValid(loc))
             return;
 
         if (one == null)
@@ -60,7 +83,7 @@ public class SlidingDoorCreator extends Creator
         if (one != null && two != null)
         {
             minMaxFix();
-            setEngine();
+            updateEngineLoc();
             setIsDone(true);
         }
     }
@@ -69,34 +92,7 @@ public class SlidingDoorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getInitMessage()
-    {
-        return messages.getString(Message.CREATOR_SLIDINGDOOR_INIT);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected @NotNull String getStickLore()
-    {
-        return messages.getString(Message.CREATOR_SLIDINGDOOR_STICKLORE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected @NotNull String getStickReceived()
-    {
-        return messages.getString(Message.CREATOR_SLIDINGDOOR_INIT);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected @NotNull String getStep1()
+    protected @NotNull String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_SLIDINGDOOR_STEP1);
     }
@@ -105,7 +101,57 @@ public class SlidingDoorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep2()
+    protected @NotNull String getToolLore()
+    {
+        return messages.getString(Message.CREATOR_SLIDINGDOOR_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getInitMessage()
+    {
+        return messages.getString(Message.CREATOR_SLIDINGDOOR_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getStickLore()
+    {
+        return messages.getString(Message.CREATOR_SLIDINGDOOR_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getStickReceived()
+    {
+        return messages.getString(Message.CREATOR_SLIDINGDOOR_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getStep1()
+    {
+        return messages.getString(Message.CREATOR_SLIDINGDOOR_STEP1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getStep2()
     {
         return messages.getString(Message.CREATOR_SLIDINGDOOR_STEP2);
     }
@@ -114,7 +160,8 @@ public class SlidingDoorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep3()
+    @NotNull
+    protected String getStep3()
     {
         return "";
     }
@@ -123,7 +170,8 @@ public class SlidingDoorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getSuccessMessage()
+    @NotNull
+    protected String getSuccessMessage()
     {
         return messages.getString(Message.CREATOR_SLIDINGDOOR_SUCCESS);
     }

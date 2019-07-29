@@ -18,6 +18,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 class CylindricalMover extends BlockMover
 {
@@ -29,11 +33,12 @@ class CylindricalMover extends BlockMover
     private double multiplier;
     private double startStepSum;
 
-    CylindricalMover(final BigDoors plugin, final World world, final RotateDirection rotDirection,
-                     final double time, final PBlockFace currentDirection, final DoorBase door,
-                     final boolean instantOpen, final double multiplier)
+    CylindricalMover(final @NotNull BigDoors plugin, final @NotNull World world,
+                     final @NotNull RotateDirection rotDirection, final double time,
+                     final @NotNull PBlockFace currentDirection, final @NotNull DoorBase door,
+                     final boolean instantOpen, final double multiplier, @Nullable final UUID playerUUID)
     {
-        super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1);
+        super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1, playerUUID);
 
         turningPoint = door.getEngine();
         stepMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
@@ -204,7 +209,6 @@ class CylindricalMover extends BlockMover
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         // Get the radius of this pillar.
-        return Math.abs(xAxis - turningPoint.getBlockX()) > Math.abs(zAxis - turningPoint.getBlockZ()) ?
-               Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
+        return Math.max(Math.abs(xAxis - turningPoint.getBlockX()), Math.abs(zAxis - turningPoint.getBlockZ()));
     }
 }

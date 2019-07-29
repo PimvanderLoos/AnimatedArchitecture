@@ -12,9 +12,12 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class GUIPageDoorInfo implements IGUIPage
 {
@@ -48,8 +51,12 @@ public class GUIPageDoorInfo implements IGUIPage
         if (interactionIDX < 9)
             return;
 
+        GUIItem guiItem = gui.getItem(interactionIDX);
+        if (!guiItem.getDoorAttribute().isPresent())
+            return;
+
         if (!plugin.getDatabaseManager().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(),
-                                                                gui.getItem(interactionIDX).getDoorAttribute()))
+                                                                guiItem.getDoorAttribute().get()))
         {
             gui.update();
             return;
@@ -58,12 +65,12 @@ public class GUIPageDoorInfo implements IGUIPage
         DoorBase door = gui.getDoor();
         Player player = gui.getPlayer();
 
-        switch (gui.getItem(interactionIDX).getDoorAttribute())
+        switch (guiItem.getDoorAttribute().get())
         {
             case LOCK:
                 door.setLock(!door.isLocked());
                 plugin.getDatabaseManager().setLock(door.getDoorUID(), door.isLocked());
-                gui.updateItem(interactionIDX, getGUIItem(door, DoorAttribute.LOCK));
+                gui.updateItem(interactionIDX, createGUIItemOfAttribute(door, DoorAttribute.LOCK));
                 break;
             case TOGGLE:
                 ((SubCommandToggle) plugin.getCommand(CommandData.TOGGLE)).execute(player, door);
@@ -123,13 +130,9 @@ public class GUIPageDoorInfo implements IGUIPage
 
     protected void fillPage()
     {
-        int position = 9;
+        final AtomicInteger position = new AtomicInteger(9);
         for (DoorAttribute attr : DoorType.getAttributes(gui.getDoor().getType()))
-        {
-            GUIItem item = getGUIItem(gui.getDoor(), attr);
-            if (item != null)
-                gui.addItem(position++, item);
-        }
+            createGUIItemOfAttribute(gui.getDoor(), attr).ifPresent(I -> gui.addItem(position.addAndGet(1), I));
     }
 
     @Override
@@ -153,7 +156,7 @@ public class GUIPageDoorInfo implements IGUIPage
     private void changeOpenDir(DoorBase door, int index)
     {
         RotateDirection curOpenDir = door.getOpenDir();
-        RotateDirection newOpenDir = null;
+        RotateDirection newOpenDir = RotateDirection.NONE;
 
         DoorAttribute[] attributes = DoorType.getAttributes(door.getType());
         DoorAttribute openTypeAttribute = null;
@@ -196,14 +199,15 @@ public class GUIPageDoorInfo implements IGUIPage
         int idx = gui.indexOfDoor(door);
         gui.getDoor(idx).setOpenDir(newOpenDir);
         gui.setDoor(gui.getDoor(idx));
-        gui.updateItem(index, getGUIItem(door, openTypeAttribute));
+        gui.updateItem(index, createGUIItemOfAttribute(door, openTypeAttribute));
     }
 
-    private GUIItem getGUIItem(DoorBase door, DoorAttribute atr)
+    @NotNull
+    private Optional<GUIItem> createGUIItemOfAttribute(DoorBase door, DoorAttribute atr)
     {
-        // If the permission level is higher than the
+        // If the permission level is higher than the max permission of this action.
         if (door.getPermission() > DoorAttribute.getPermissionLevel(atr))
-            return null;
+            return Optional.empty();
 
         List<String> lore = new ArrayList<>();
         String desc, loreStr;
@@ -287,6 +291,6 @@ public class GUIPageDoorInfo implements IGUIPage
         }
         if (ret != null)
             ret.setDoorAttribute(atr);
-        return ret;
+        return Optional.ofNullable(ret);
     }
 }

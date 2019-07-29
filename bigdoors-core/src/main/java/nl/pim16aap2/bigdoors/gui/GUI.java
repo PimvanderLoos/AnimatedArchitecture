@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +17,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class GUI
 {
@@ -81,7 +83,12 @@ public class GUI
         update();
     }
 
-    void updateItem(int index, GUIItem guiItem)
+    void updateItem(int index, @NotNull Optional<GUIItem> guiItem)
+    {
+        guiItem.ifPresent(I -> setItem(index, I));
+    }
+
+    private void setItem(int index, @NotNull GUIItem guiItem)
     {
         items.put(index, guiItem);
         getInventory().setItem(index, guiItem.getItemStack());

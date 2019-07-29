@@ -12,7 +12,9 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -32,7 +34,7 @@ public class SubCommandRemoveOwner extends SubCommand
     }
 
     public boolean execute(CommandSender sender, DoorBase door, String playerArg)
-            throws CommandPlayerNotFoundException, CommandActionNotAllowedException
+        throws CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
         UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
 
@@ -52,54 +54,73 @@ public class SubCommandRemoveOwner extends SubCommand
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws IllegalArgumentException, CommandPlayerNotFoundException, CommandActionNotAllowedException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws IllegalArgumentException, CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
-        if (sender instanceof Player)
-        {
-            WaitForCommand cw = plugin.isCommandWaiter((Player) sender);
-            if (cw != null && cw.getCommand().equals(getName()))
-            {
-                if (args.length == minArgCount)
-                    return cw.executeCommand(args);
-                cw.abortSilently();
-            }
-        }
+        Optional<WaitForCommand> commandWaiter = commandManager.isCommandWaiter(sender, getName());
+        if (commandWaiter.isPresent())
+            return commandManager.commandWaiterExecute(commandWaiter.get(), args, minArgCount);
         return execute(sender, commandManager.getDoorFromArg(sender, args[getMinArgCount() - 2]),
                        args[getMinArgCount() - 1]);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
-    public String getHelp(CommandSender sender)
+    public String getHelp(@NotNull CommandSender sender)
     {
         return help;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getHelpArguments()
     {
         return helpArgs;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getMinArgCount()
     {
         return minArgCount;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public CommandData getCommandData()
     {
         return command;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public String getName()
     {

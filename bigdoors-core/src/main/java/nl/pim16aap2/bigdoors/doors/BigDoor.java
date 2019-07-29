@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Big Door doorType.
@@ -17,12 +18,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BigDoor extends DoorBase
 {
-    BigDoor(final PLogger pLogger, final long doorUID, DoorType type)
+    BigDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
         super(pLogger, doorUID, type);
     }
 
-    BigDoor(final PLogger pLogger, final long doorUID)
+    BigDoor(final @NotNull PLogger pLogger, final long doorUID)
     {
         this(pLogger, doorUID, DoorType.BIGDOOR);
     }
@@ -30,6 +31,7 @@ public class BigDoor extends DoorBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public PBlockFace calculateCurrentDirection()
     {
@@ -42,6 +44,7 @@ public class BigDoor extends DoorBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public Vector2D[] calculateChunkRange()
     {
@@ -65,8 +68,10 @@ public class BigDoor extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
-                                Location newMax, int blocksMoved, Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(final @Nullable PBlockFace openDirection,
+                                final @Nullable RotateDirection rotateDirection,
+                                final @NotNull Location newMin, final @NotNull Location newMax, final int blocksMoved,
+                                final @Nullable Mutable<PBlockFace> newEngineSide)
     {
         PBlockFace newDir = null;
         switch (getCurrentDirection())

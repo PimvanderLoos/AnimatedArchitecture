@@ -3,21 +3,44 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * Represents an opener for {@link DoorType#BIGDOOR}s.
+ *
+ * @author Pim
+ */
 public class BigDoorOpener extends Opener
 {
-    public BigDoorOpener(BigDoors plugin)
+    public BigDoorOpener(final @NotNull BigDoors plugin)
     {
         super(plugin);
     }
 
-    // Check if the block on the north/east/south/west side of the location is free.
-    private boolean isPosFree(DoorBase door, PBlockFace direction, Location newMin, Location newMax)
+    /**
+     * Checks if the block on the north/east/south/west side of the location is free.
+     *
+     * @param playerUUID The {@link UUID} of the player initiating the toggle or the original creator if the {@link
+     *                   DoorBase} was not toggled by a {@link org.bukkit.entity.Player}.
+     * @param door       The {@link DoorBase}.
+     * @param direction  The rotation direction of the {@link DoorBase}.
+     * @param newMin     The new minimum location of the {@link DoorBase} when it opens in the returned direction. It is
+     *                   modified in the method.
+     * @param newMax     The new maximum location of the {@link DoorBase} when it opens in the returned direction. It is
+     *                   modified in the method.
+     * @return True if the position is unobstructed.
+     */
+    private boolean isPosFree(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                              final @NotNull PBlockFace direction, final @NotNull Location newMin,
+                              final @NotNull Location newMax)
     {
         Location engLoc = door.getEngine();
         int endX = 0, endY = 0, endZ = 0;
@@ -64,121 +87,149 @@ public class BigDoorOpener extends Opener
                 break;
         }
 
-        for (int xAxis = startX; xAxis <= endX; ++xAxis)
-            for (int yAxis = startY; yAxis <= endY; ++yAxis)
-                for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
-                    if (!SpigotUtil.isAirOrLiquid(engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis)))
-                        return false;
-
         newMin.setX(startX);
-        newMin.setY(startZ);
+        newMin.setY(startY);
         newMin.setZ(startZ);
         newMax.setX(endX);
-        newMax.setY(endZ);
+        newMax.setY(endY);
         newMax.setZ(endZ);
 
-        return true;
+        return super.isLocationEmpty(newMin, newMax, playerUUID);
     }
 
-    // Determine which direction the door is going to rotate. Clockwise or
-    // counterclockwise.
-    private RotateDirection getRotationDirection(DoorBase door, PBlockFace currentDir, Location newMin, Location newMax)
+    /**
+     * Determines which direction the {@link DoorBase} is going to rotate. Either Clockwise or counterclockwise.
+     *
+     * @param playerUUID The {@link UUID} of the player initiating the toggle or the original creator if the {@link
+     *                   DoorBase} was not toggled by a {@link org.bukkit.entity.Player}.
+     * @param door       The {@link DoorBase}.
+     * @param currentDir The current direction.
+     * @param newMin     The new minimum location of the {@link DoorBase} when it opens in the returned direction. It is
+     *                   modified in the method.
+     * @param newMax     The new maximum location of the {@link DoorBase} when it opens in the returned direction. It is
+     *                   modified in the method.
+     * @return The rotation direction of this door, if one was found.
+     */
+    private Optional<RotateDirection> getRotationDirection(final @Nullable UUID playerUUID,
+                                                           final @NotNull DoorBase door,
+                                                           final @NotNull PBlockFace currentDir,
+                                                           final @NotNull Location newMin,
+                                                           final @NotNull Location newMax)
     {
-        RotateDirection openDir = door.getOpenDir();
-        openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
-                  openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE :
-                  openDir;
+        RotateDirection openDir = door.isOpen() ? RotateDirection.getOpposite(door.getOpenDir()) : door.getOpenDir();
+        if (openDir == null)
+        {
+            plugin.getPLogger().logException(new NullPointerException(
+                String.format("Could not determine RotateDirection of door %d", door.getDoorUID())));
+            return Optional.empty();
+        }
+
+        RotateDirection ret = null;
         switch (currentDir)
         {
             case NORTH:
                 if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) &&
-                        isPosFree(door, PBlockFace.EAST, newMin, newMax))
-                    return RotateDirection.CLOCKWISE;
-                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, PBlockFace.WEST, newMin, newMax))
-                    return RotateDirection.COUNTERCLOCKWISE;
+                    isPosFree(playerUUID, door, PBlockFace.EAST, newMin, newMax))
+                    ret = RotateDirection.CLOCKWISE;
+                else if (!openDir.equals(RotateDirection.CLOCKWISE) &&
+                    isPosFree(playerUUID, door, PBlockFace.WEST, newMin, newMax))
+                    ret = RotateDirection.COUNTERCLOCKWISE;
                 break;
 
             case EAST:
                 if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) &&
-                        isPosFree(door, PBlockFace.SOUTH, newMin, newMax))
-                    return RotateDirection.CLOCKWISE;
+                    isPosFree(playerUUID, door, PBlockFace.SOUTH, newMin, newMax))
+                    ret = RotateDirection.CLOCKWISE;
                 else if (!openDir.equals(RotateDirection.CLOCKWISE) &&
-                        isPosFree(door, PBlockFace.NORTH, newMin, newMax))
-                    return RotateDirection.COUNTERCLOCKWISE;
+                    isPosFree(playerUUID, door, PBlockFace.NORTH, newMin, newMax))
+                    ret = RotateDirection.COUNTERCLOCKWISE;
                 break;
 
             case SOUTH:
                 if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) &&
-                        isPosFree(door, PBlockFace.WEST, newMin, newMax))
-                    return RotateDirection.CLOCKWISE;
-                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, PBlockFace.EAST, newMin, newMax))
-                    return RotateDirection.COUNTERCLOCKWISE;
+                    isPosFree(playerUUID, door, PBlockFace.WEST, newMin, newMax))
+                    ret = RotateDirection.CLOCKWISE;
+                else if (!openDir.equals(RotateDirection.CLOCKWISE) &&
+                    isPosFree(playerUUID, door, PBlockFace.EAST, newMin, newMax))
+                    ret = RotateDirection.COUNTERCLOCKWISE;
                 break;
 
             case WEST:
                 if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) &&
-                        isPosFree(door, PBlockFace.NORTH, newMin, newMax))
-                    return RotateDirection.CLOCKWISE;
+                    isPosFree(playerUUID, door, PBlockFace.NORTH, newMin, newMax))
+                    ret = RotateDirection.CLOCKWISE;
                 else if (!openDir.equals(RotateDirection.CLOCKWISE) &&
-                        isPosFree(door, PBlockFace.SOUTH, newMin, newMax))
-                    return RotateDirection.COUNTERCLOCKWISE;
+                    isPosFree(playerUUID, door, PBlockFace.SOUTH, newMin, newMax))
+                    ret = RotateDirection.COUNTERCLOCKWISE;
                 break;
             default:
                 plugin.getPLogger().dumpStackTrace("Invalid currentDir for door opener: " + currentDir.toString());
                 break;
         }
-        return null;
+        return Optional.ofNullable(ret);
     }
 
-    // Get the direction the door is currently facing as seen from the engine to the
-    // end of the door.
-    private PBlockFace getCurrentDirection(DoorBase door)
+    /**
+     * Gets the current direction of a {@link DoorBase}.
+     *
+     * @param door The {@link DoorBase}.
+     * @return The current direction of a {@link DoorBase} if possible.
+     */
+    @NotNull
+    private Optional<PBlockFace> getCurrentDirection(final @NotNull DoorBase door)
     {
         // MinZ != EngineZ => Pointing North
         // MaxX != EngineX => Pointing East
         // MaxZ != EngineZ => Pointing South
         // MinX != EngineX => Pointing West
-        return door.getEngine().getBlockZ() != door.getMinimum().getBlockZ() ? PBlockFace.NORTH :
-               door.getEngine().getBlockX() != door.getMaximum().getBlockX() ? PBlockFace.EAST :
-               door.getEngine().getBlockZ() != door.getMaximum().getBlockZ() ? PBlockFace.SOUTH :
-               door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? PBlockFace.WEST : null;
+        return Optional.ofNullable(door.getEngine().getBlockZ() != door.getMinimum().getBlockZ() ? PBlockFace.NORTH :
+                                   door.getEngine().getBlockX() != door.getMaximum().getBlockX() ? PBlockFace.EAST :
+                                   door.getEngine().getBlockZ() != door.getMaximum().getBlockZ() ? PBlockFace.SOUTH :
+                                   door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? PBlockFace.WEST :
+                                   null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
+    @NotNull
+    public DoorToggleResult toggleDoor(final @NotNull UUID playerUUID, final @NotNull DoorBase door,
+                                       final double time, boolean instantOpen, final boolean playerToggle)
     {
-        DoorOpenResult isOpenable = super.isOpenable(door, silent);
-        if (isOpenable != DoorOpenResult.SUCCESS)
+        DoorToggleResult isOpenable = super.canBeToggled(door, playerToggle);
+        if (isOpenable != DoorToggleResult.SUCCESS)
             return abort(door, isOpenable);
 
         if (super.isTooBig(door))
             instantOpen = true;
 
-        PBlockFace currentDirection = getCurrentDirection(door);
-        if (currentDirection == null)
+        Optional<PBlockFace> currentDirection = getCurrentDirection(door);
+        if (!currentDirection.isPresent())
         {
             plugin.getPLogger()
                   .warn("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!");
-            return abort(door, DoorOpenResult.ERROR);
+            return abort(door, DoorToggleResult.ERROR);
         }
         Location newMin = new Location(door.getWorld(), 0, 0, 0);
         Location newMax = new Location(door.getWorld(), 0, 0, 0);
-        RotateDirection rotDirection = getRotationDirection(door, currentDirection, newMin, newMax);
-        if (rotDirection == null)
+
+        Optional<RotateDirection> rotDirection = getRotationDirection(playerUUID, door, currentDirection.get(), newMin,
+                                                                      newMax);
+        if (!rotDirection.isPresent())
         {
             plugin.getPLogger()
                   .warn("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!");
-            return abort(door, DoorOpenResult.NODIRECTION);
+            return abort(door, DoorToggleResult.NODIRECTION);
         }
 
-        // The door's owner does not have permission to move the door into the new
-        // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), newMin, newMax) != null)
-            return abort(door, DoorOpenResult.NOPERMISSION);
+        // Check if the owner of the door has permission to edit blocks in the new area of the door.
+        if (!super.canBreakBlocksBetweenLocs(door, newMin, newMax))
+            return abort(door, DoorToggleResult.NOPERMISSION);
 
-        plugin.addBlockMover(new CylindricalMover(plugin, door.getWorld(), rotDirection, time, currentDirection, door,
-                                                  instantOpen,
-                                                  plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR)));
-        return DoorOpenResult.SUCCESS;
+        plugin.addBlockMover(
+            new CylindricalMover(plugin, door.getWorld(), rotDirection.get(), time, currentDirection.get(), door,
+                                 instantOpen, plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR), playerUUID));
+        return DoorToggleResult.SUCCESS;
     }
 }

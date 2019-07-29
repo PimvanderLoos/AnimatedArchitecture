@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -16,7 +18,7 @@ public interface IMessagingInterface
      * @param level   Level of importance of the message.
      * @param message The message.
      */
-    void writeToConsole(Level level, String message);
+    void writeToConsole(final @NotNull Level level, final @NotNull String message);
 
     /**
      * Send a message to a player.
@@ -24,7 +26,7 @@ public interface IMessagingInterface
      * @param playerUUID UUID of the player that will receive the message.
      * @param message    The message.
      */
-    void messagePlayer(UUID playerUUID, String message);
+    void messagePlayer(final @NotNull UUID playerUUID, final @NotNull String message);
 
     /**
      * Send a message to whomever or whatever issued a command at a given level (if applicable).
@@ -33,5 +35,5 @@ public interface IMessagingInterface
      * @param level  The level of the message (info, warn, etc). Does not apply to players.
      * @param str    The message.
      */
-    void sendMessageToTarget(final Object target, final Level level, final String str);
+    void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level, final @NotNull String str);
 }

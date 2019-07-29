@@ -4,12 +4,17 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.function.BiFunction;
 
 class FlagMover extends BlockMover
@@ -20,10 +25,10 @@ class FlagMover extends BlockMover
     private final boolean NS;
     private int tickRate;
 
-    public FlagMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
-                     final double multiplier)
+    FlagMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
+              final @NotNull DoorBase door, final double multiplier, @Nullable UUID playerUUID)
     {
-        super(plugin, world, door, time, false, null, null, -1);
+        super(plugin, world, door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID);
 
         int xLen = Math.abs(xMax - xMin) + 1;
         int zLen = Math.abs(zMax - zMin) + 1;
@@ -31,7 +36,7 @@ class FlagMover extends BlockMover
         getGoalPos = NS ? this::getGoalPosNS : this::getGoalPosEW;
 
         double speed = 1 * multiplier;
-        speed = speed > maxSpeed ? 3 : speed < minSpeed ? minSpeed : speed;
+        speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
         this.time = time;
         tickRate = SpigotUtil.tickRateFromSpeed(speed);
         tickRate = 3;
@@ -43,8 +48,8 @@ class FlagMover extends BlockMover
     {
         double baseOffset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + distanceToEng);
         double maxVal = 0.25 * radius;
-        maxVal = maxVal > 0.75 ? 0.75 : maxVal;
-        return baseOffset > maxVal ? maxVal : baseOffset;
+        maxVal = Math.min(maxVal, 0.75);
+        return Math.min(baseOffset, maxVal);
     }
 
     private Vector getGoalPosNS(PBlockData block, double counter)

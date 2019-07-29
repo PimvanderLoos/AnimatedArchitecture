@@ -4,12 +4,17 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 class SlidingMover extends BlockMover
 {
@@ -17,11 +22,11 @@ class SlidingMover extends BlockMover
     private int tickRate;
     private int moveX, moveZ;
 
-    public SlidingMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
-                        final boolean instantOpen, final int blocksToMove, final RotateDirection openDirection,
-                        final double multiplier)
+    SlidingMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
+                 final @NotNull DoorBase door, final boolean instantOpen, final int blocksToMove,
+                 final @NotNull RotateDirection openDirection, final double multiplier, @Nullable final UUID playerUUID)
     {
-        super(plugin, world, door, time, instantOpen, null, openDirection, blocksToMove);
+        super(plugin, world, door, time, instantOpen, PBlockFace.UP, openDirection, blocksToMove, playerUUID);
 
         NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 
@@ -102,11 +107,11 @@ class SlidingMover extends BlockMover
                     stepSum = getBlocksMoved();
 
                 if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks ||
-                        firstBlockData == null)
+                    firstBlockData == null)
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (int idx = 0; idx < savedBlocks.size(); ++idx)
-                        savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
+                    for (PBlockData savedBlock : savedBlocks)
+                        savedBlock.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
                         if (!hasFinished)

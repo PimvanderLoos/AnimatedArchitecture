@@ -12,17 +12,17 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a Sliding Door doorType.
  *
- * @author pim
+ * @author Pim
  * @see HorizontalAxisAlignedBase
  */
 public class SlidingDoor extends HorizontalAxisAlignedBase
 {
-    SlidingDoor(PLogger pLogger, long doorUID, DoorType type)
+    SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
         super(pLogger, doorUID, type);
     }
 
-    SlidingDoor(PLogger pLogger, long doorUID)
+    SlidingDoor(final @NotNull PLogger pLogger, final long doorUID)
     {
         super(pLogger, doorUID, DoorType.SLIDINGDOOR);
     }
@@ -30,6 +30,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public Vector2D[] calculateChunkRange()
     {
@@ -50,6 +51,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
+    @NotNull
     public PBlockFace calculateCurrentDirection()
     {
         PBlockFace looking;
@@ -68,7 +70,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
                 looking = PBlockFace.WEST;
                 break;
             default:
-                return null;
+                return PBlockFace.NONE;
         }
         return isOpen ? PBlockFace.getOpposite(looking) : looking;
     }
@@ -88,6 +90,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
     {
@@ -101,9 +104,10 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, @NotNull RotateDirection rotateDirection,
-                                @NotNull Location newMin,
-                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(final @Nullable PBlockFace openDirection,
+                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
+                                final @NotNull Location newMax, final int blocksMoved,
+                                final @Nullable Mutable<PBlockFace> newEngineSide)
     {
         int addX = 0, addZ = 0;
 

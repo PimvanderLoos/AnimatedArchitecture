@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -36,8 +37,11 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         success = plotSquaredPlugin != null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public boolean canBreakBlock(@NotNull Player player, @NotNull Location loc)
     {
         com.github.intellectualsites.plotsquared.plot.object.Location psLocation = BukkitUtil.getLocation(loc);
         com.github.intellectualsites.plotsquared.plot.object.PlotArea area = psLocation.getPlotArea();
@@ -54,7 +58,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
             return plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.s());
 
         else return (height <= area.MAX_BUILD_HEIGHT && height >= area.MIN_BUILD_HEIGHT) ||
-                plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s());
+            plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT.s());
     }
 
     // Check if a given player is allowed to build in a given plot.
@@ -87,8 +91,11 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_ROAD.s());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public boolean canBreakBlocksBetweenLocs(@NotNull Player player, @NotNull Location loc1, @NotNull Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -128,18 +135,29 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean success()
     {
         return success;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public JavaPlugin getPlugin()
     {
         return plotSquaredPlugin;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public String getName()
     {

@@ -1,7 +1,8 @@
 package nl.pim16aap2.bigdoors.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -22,6 +23,8 @@ import java.util.function.Supplier;
  */
 public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
 {
+    private static final TimeUnit DEFAULTTIMEUNIT = TimeUnit.MINUTES;
+    private static final TimeUnit SMALLESTTIMEUNIT = TimeUnit.MILLISECONDS;
     private final Supplier<? extends Map> ctor;
     private final Class<? extends Map> mapType;
     /**
@@ -50,9 +53,11 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      * @param ctor     The type of the map to be used. For example, to use a {@link java.util.HashMap}, use
      *                 "HashMap::new"
      * @param time     The {@link TimedMapCache#timeOut}.
-     * @param timeUnit The {@link java.util.concurrent.TimeUnit} of the {@link TimedMapCache#timeOut}.
+     * @param timeUnit The {@link java.util.concurrent.TimeUnit} of the {@link TimedMapCache#timeOut}. Cannot be smaller
+     *                 than {@link TimeUnit#MILLISECONDS}
      */
-    public TimedMapCache(final IRestartableHolder holder, Supplier<? extends Map> ctor, long time, TimeUnit timeUnit)
+    public TimedMapCache(final @NotNull IRestartableHolder holder, final @NotNull Supplier<? extends Map> ctor,
+                         final long time, final @NotNull TimeUnit timeUnit)
     {
         super(holder);
 
@@ -79,9 +84,9 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      *               "HashMap::new"
      * @param time   The {@link TimedMapCache#timeOut}.
      */
-    public TimedMapCache(final IRestartableHolder holder, Supplier<? extends Map> ctor, long time)
+    public TimedMapCache(final @NotNull IRestartableHolder holder, Supplier<? extends Map> ctor, final long time)
     {
-        this(holder, ctor, time, TimeUnit.MINUTES);
+        this(holder, ctor, time, DEFAULTTIMEUNIT);
     }
 
     /**
@@ -91,8 +96,11 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      * @param time     The {@link TimedMapCache#timeOut}.
      * @param timeUnit The {@link java.util.concurrent.TimeUnit} of the {@link TimedMapCache#timeOut}
      */
-    private void reInit(long time, TimeUnit timeUnit)
+    public void reInit(long time, final @NotNull TimeUnit timeUnit)
     {
+        if (timeUnit.toNanos(time) < SMALLESTTIMEUNIT.toNanos(1))
+            throw new IllegalArgumentException(
+                "Resolution of TimeUnit " + timeUnit.name() + " is too small! Only MILLISECONDS and up are allowed.");
         time = timeUnit.toMillis(time);
         if (timeOut != time)
         {
@@ -101,6 +109,17 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
             startTask();
         }
         map.clear();
+    }
+
+    /**
+     * Reinitialize the map. If the {@link TimedMapCache#timeOut} has changed, reinitialize the {@link
+     * TimedMapCache#taskTimer} as well.
+     *
+     * @param time The {@link TimedMapCache#timeOut}.
+     */
+    public void reInit(final long time)
+    {
+        reInit(time, DEFAULTTIMEUNIT);
     }
 
     /**
@@ -113,6 +132,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
             // Verify cache 1/2 the timeOut time. Timeout is in minutes, task timer in
             // ticks, so 1200 * timeOut = timeOut in ticks.
             taskTimer = new Timer();
+            // TODO: This looks too manual. Use proper conversion.
             taskTimer.scheduleAtFixedRate(verifyTask, 60000 * timeOut, 60000 * timeOut / 2);
         }
     }
@@ -137,7 +157,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     @Override
     public V get(Object key)
     {
-        if (timeOut < 0)
+        if (timeOut < 0 || key == null)
             return null;
         if (map.containsKey(key))
             return map.get(key).timedOut() ? null : (V) map.get(key).value;
@@ -149,10 +169,8 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      */
     private void verifyCache()
     {
-        Iterator<Entry<K, TimedValue<V>>> it = map.entrySet().iterator();
-        while (it.hasNext())
+        for (Entry<K, TimedValue<V>> entry : map.entrySet())
         {
-            Entry<K, TimedValue<V>> entry = it.next();
             if (entry.getValue().timedOut())
                 map.remove(entry.getKey());
         }
@@ -275,7 +293,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     @Override
     public void restart()
     {
-        reInit(timeOut, TimeUnit.MILLISECONDS);
+        reInit(timeOut, SMALLESTTIMEUNIT);
     }
 
     /**

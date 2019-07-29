@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -30,7 +31,7 @@ public class SubCommandInfo extends SubCommand
     public boolean execute(CommandSender sender, DoorBase door)
     {
         if (sender instanceof Player && door.getPermission() >= 0 &&
-                door.getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
+            door.getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
             return true;
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, door.toString());
         if (sender instanceof Player)
@@ -57,9 +58,13 @@ public class SubCommandInfo extends SubCommand
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
         return execute(sender, commandManager.getDoorFromArg(sender, args[minArgCount - 1]));
     }

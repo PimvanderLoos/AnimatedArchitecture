@@ -7,11 +7,13 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * Class used to create a fake-online player who is actually offline.
@@ -20,7 +22,7 @@ import java.lang.reflect.Method;
  */
 class FakePlayerCreator
 {
-    public static final String FAKEPLAYERMETADATA = "isBigDoorsFakePlayer";
+    static final String FAKEPLAYERMETADATA = "isBigDoorsFakePlayer";
 
     private final String NMSbase;
     private final String CraftBase;
@@ -41,13 +43,13 @@ class FakePlayerCreator
     private Field uuid;
     private boolean success = false;
 
-    public FakePlayerCreator(final BigDoors plugin)
+    FakePlayerCreator(final @NotNull BigDoors plugin)
     {
         this.plugin = plugin;
 
         NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
         CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
-                + ".";
+            + ".";
         try
         {
             CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
@@ -80,15 +82,22 @@ class FakePlayerCreator
             plugin.getPLogger().logException(e);
             return;
         }
+        catch (LinkageError e)
+        {
+            plugin.getPLogger().logError(e);
+            return;
+        }
         success = true;
     }
 
-    private Class<?> getNMSClass(String name) throws ClassNotFoundException
+    @NotNull
+    private Class<?> getNMSClass(final @NotNull String name) throws LinkageError, ClassNotFoundException
     {
         return Class.forName(NMSbase + name);
     }
 
-    private Class<?> getCraftClass(String name) throws ClassNotFoundException
+    @NotNull
+    private Class<?> getCraftClass(final @NotNull String name) throws LinkageError, ClassNotFoundException
     {
         return Class.forName(CraftBase + name);
     }
@@ -100,10 +109,11 @@ class FakePlayerCreator
      * @param world   The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
-    public Player getFakePlayer(OfflinePlayer oPlayer, World world)
+    @NotNull
+    Optional<Player> getFakePlayer(final @NotNull OfflinePlayer oPlayer, final @NotNull World world)
     {
-        if (!success || oPlayer == null || world == null)
-            return null;
+        if (!success)
+            return Optional.empty();
 
         Player player = null;
 
@@ -130,6 +140,6 @@ class FakePlayerCreator
         if (player != null)
             player.setMetadata(FAKEPLAYERMETADATA, new FixedMetadataValue(plugin, true));
 
-        return player;
+        return Optional.ofNullable(player);
     }
 }

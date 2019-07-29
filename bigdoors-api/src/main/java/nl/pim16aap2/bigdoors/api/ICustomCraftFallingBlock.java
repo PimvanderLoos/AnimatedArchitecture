@@ -3,59 +3,62 @@ package nl.pim16aap2.bigdoors.api;
 import org.bukkit.Location;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a customized version of the CraftBukkitFallingBlock.
  *
- * @autor Pim
+ * @author Pim
  */
 public interface ICustomCraftFallingBlock
 {
     /**
-     * Teleport the entity to the provided location.
+     * Teleports the entity to the provided location.
      *
      * @param newPos The location that the entity will be reported to.
      * @return True if the teleport was successful.
      */
-    boolean teleport(Location newPos);
+    boolean teleport(final @NotNull Location newPos);
 
     /**
-     * Remove the entity from the world.
+     * Removes the entity from the world.
      */
     void remove();
 
     /**
-     * Get the current location of this entity.
+     * Gets the current location of this entity.
      *
      * @return The current location of this entity.
      */
+    @NotNull
     Location getLocation();
 
     /**
-     * Get the current velocity of this entity.
+     * Gets the current velocity of this entity.
      *
      * @return The current velocity of this entity.
      */
+    @NotNull
     Vector getVelocity();
 
     /**
-     * Set the velocity of the entity.
+     * Sets the velocity of the entity.
      *
      * @param vector The new velocity of the entity.
      */
-    void setVelocity(Vector vector);
+    void setVelocity(final @NotNull Vector vector);
 
     /**
-     * Set the headPose of this entity.
+     * Sets the headPose of this entity.
      *
      * @param pose The new pose of this entity's head.
      */
-    void setHeadPose(EulerAngle pose);
+    void setHeadPose(final @NotNull EulerAngle pose);
 
     /**
-     * Set the headPose of this entity.
+     * Sets the headPose of this entity.
      *
      * @param eulerAngle The new pose of this entity's head described as a EulerAngle.
      */
-    void setBodyPose(EulerAngle eulerAngle);
+    void setBodyPose(final @NotNull EulerAngle eulerAngle);
 }

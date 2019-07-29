@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class SubCommandInspectPowerBlock extends SubCommand
 {
@@ -26,21 +27,23 @@ public class SubCommandInspectPowerBlock extends SubCommand
 
     public boolean execute(Player player)
     {
-        plugin.getDatabaseManager().startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), 20 * 20);
+        plugin.getDatabaseManager().startTimerForAbortableTask(new PowerBlockInspector(plugin, player, -1), 20 * 20);
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
         Player player = (Player) sender;
 
-        ToolUser tu = plugin.getToolUser(player);
-        if (tu != null)
-            tu.abortSilently();
+        plugin.getToolUser(player).ifPresent(ToolUser::abortSilently);
         execute(player);
         return true;
     }

@@ -4,27 +4,36 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
-import nl.pim16aap2.bigdoors.spigotutil.Abortable;
+import nl.pim16aap2.bigdoors.spigotutil.AbortableTask;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class WaitForCommand extends Abortable
+/**
+ * Represents a delayed command.
+ *
+ * @author Pim
+ */
+public abstract class WaitForCommand extends AbortableTask
 {
     protected final BigDoors plugin;
     protected final SubCommand subCommand;
     protected Player player;
     protected boolean isFinished = false;
 
-    protected WaitForCommand(final BigDoors plugin, final SubCommand subCommand)
+    protected WaitForCommand(final @NotNull BigDoors plugin, final @NotNull SubCommand subCommand)
     {
         this.plugin = plugin;
         this.subCommand = subCommand;
         plugin.addCommandWaiter(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public final void abort(boolean onDisable)
+    public final void abort(final boolean onDisable)
     {
         if (!onDisable)
         {
@@ -35,6 +44,9 @@ public abstract class WaitForCommand extends Abortable
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final void abortSilently()
     {
@@ -42,20 +54,47 @@ public abstract class WaitForCommand extends Abortable
         abort();
     }
 
+    /**
+     * Gets the name of the command that this waiter is waiting for.
+     *
+     * @return The name of the command that this waiter is waiting for.
+     */
+    @NotNull
     public final String getCommand()
     {
         return subCommand.getName();
     }
 
-    public abstract boolean executeCommand(String[] args)
-            throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException;
+    /**
+     * Executes the command that this waiter is waiting for.
+     *
+     * @param args The arguments of the command.
+     * @return True if command execution was successful.
+     *
+     * @throws CommandPlayerNotFoundException   When a player specified in the arguments could not be found.
+     * @throws CommandActionNotAllowedException When the player executing the command does not have access to this
+     *                                          action.
+     * @throws IllegalArgumentException         If at least one of the provided arguments is illegal.
+     */
+    public abstract boolean executeCommand(final @NotNull String[] args)
+        throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException;
 
+    /**
+     * Gets the player that will execute the command.
+     *
+     * @return The player that will execute the command.
+     */
     public final Player getPlayer()
     {
         return player;
     }
 
-    public void setFinished(boolean finished)
+    /**
+     * Changes the finished status of this waiter.
+     *
+     * @param finished The finished status of this waiter.
+     */
+    void setFinished(final boolean finished)
     {
         isFinished = finished;
     }

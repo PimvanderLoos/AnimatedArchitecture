@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Compatibility hook for GriefPrevention.
@@ -23,7 +24,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     private final GriefPrevention griefPrevention;
     private boolean success = false;
 
-    public GriefPreventionProtectionCompat(BigDoors plugin)
+    public GriefPreventionProtectionCompat(final @NotNull BigDoors plugin)
     {
         this.plugin = plugin;
 
@@ -40,16 +41,23 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
         success = true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
         Block block = loc.getBlock();
         BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, player);
         return griefPrevention.allowBreak(player, block, loc, blockBreakEvent) == null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
+                                             final @NotNull Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -69,19 +77,30 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean success()
     {
         return success;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NotNull
     public JavaPlugin getPlugin()
     {
         return griefPrevention;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NotNull
     public String getName()
     {
         return griefPrevention.getName();

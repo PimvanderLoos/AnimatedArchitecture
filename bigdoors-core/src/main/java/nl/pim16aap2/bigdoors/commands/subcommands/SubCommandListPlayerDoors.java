@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,14 +44,18 @@ public class SubCommandListPlayerDoors extends SubCommand
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException
     {
         UUID playerUUID = CommandManager.getPlayerFromArg(args[0]);
         String name = args.length > 1 ? args[1] : null;
         List<DoorBase> doors = new ArrayList<>(
-                plugin.getDatabaseManager().getDoors(playerUUID, name).orElse(new ArrayList<>()));
+            plugin.getDatabaseManager().getDoors(playerUUID, name).orElse(new ArrayList<>()));
         return execute(sender, doors);
     }
 }

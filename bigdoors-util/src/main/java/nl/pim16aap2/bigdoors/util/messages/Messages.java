@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.util.messages;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,14 +31,14 @@ public final class Messages extends Restartable
     private File textFile;
 
     /**
-     * Constructor for Messages object.
+     * Constructs for Messages object.
      *
      * @param fileDir  The directory the messages file(s) will be in.
      * @param fileName The name of the file that will be loaded, if it exists. Extension excluded.
      * @param logger   The {@link PLogger} object that will be used for logging.
      */
-    public Messages(final IRestartableHolder holder, final File fileDir, String fileName,
-                    final PLogger logger)
+    public Messages(final @NotNull IRestartableHolder holder, final @NotNull File fileDir,
+                    final @NotNull String fileName, final @NotNull PLogger logger)
     {
         super(holder);
         this.logger = logger;
@@ -54,7 +55,7 @@ public final class Messages extends Restartable
         if (!textFile.exists())
         {
             logger.warn("Failed to load language file: \"" + textFile
-                                + "\": File not found! Using default file instead!");
+                            + "\": File not found! Using default file instead!");
             textFile = new File(fileDir, DEFAULTFILENAME);
         }
         writeDefaultFile();
@@ -93,8 +94,8 @@ public final class Messages extends Restartable
             URL url = getClass().getClassLoader().getResource(DEFAULTFILENAME);
             if (url == null)
                 logger.logMessage("Failed to read resources file from the jar! "
-                                          +
-                                          "The default translation file cannot be generated! Please contact pim16aap2");
+                                      +
+                                      "The default translation file cannot be generated! Please contact pim16aap2");
             else
             {
                 URLConnection connection = url.openConnection();
@@ -119,16 +120,16 @@ public final class Messages extends Restartable
                 logger.logException(e);
             }
         }
-        if (defaultFile.setWritable(false))
+        if (!defaultFile.setWritable(false))
         {
             logger.logException(new IOException("Failed to make default translation file writable! " +
-                                                        "This is not a big problem as long as you remember not to " +
-                                                        "edit it manually!"));
+                                                    "This is not a big problem as long as you remember not to " +
+                                                    "edit it manually!"));
         }
     }
 
     /**
-     * Read the translations from the provided translations file.
+     * Reads the translations from the provided translations file.
      */
     private void readFile()
     {
@@ -169,7 +170,8 @@ public final class Messages extends Restartable
      * @param key The key that could not be resolved.
      * @return The default String to return in case a value could not be found for a given String.
      */
-    private String getFailureString(String key)
+    @NotNull
+    private String getFailureString(final @NotNull String key)
     {
         return "Translation for key \"" + key + "\" not found! Contact server admin!";
     }
@@ -183,15 +185,19 @@ public final class Messages extends Restartable
      * @return The translated message of the provided {@link Message} and substitutes its variables for the provided
      * values.
      */
-    public String getString(Message msg, String... values)
+    @NotNull
+    public String getString(final @NotNull Message msg, final @NotNull String... values)
     {
+        if (msg.equals(Message.EMPTY))
+            return "";
+
         String key = Message.getKey(msg);
         if (values.length != Message.getVariableCount(msg))
         {
             logger.logException(new IllegalArgumentException("Expected " + Message.getVariableCount(msg)
-                                                                     + " variables for key " + key + " but only got " +
-                                                                     values.length
-                                                                     + ". This is a bug. Please contact pim16aap2!"));
+                                                                 + " variables for key " + key + " but only got " +
+                                                                 values.length
+                                                                 + ". This is a bug. Please contact pim16aap2!"));
             return getFailureString(key);
         }
 

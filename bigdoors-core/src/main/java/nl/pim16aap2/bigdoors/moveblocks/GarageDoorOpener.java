@@ -3,23 +3,41 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class GarageDoorOpener extends Opener
 {
-    public GarageDoorOpener(BigDoors plugin)
+    public GarageDoorOpener(final @NotNull BigDoors plugin)
     {
         super(plugin);
     }
 
-    // Check if the block on the north/east/south/west side of the location is free.
-    private boolean isPosFree(DoorBase door, PBlockFace currentDirection, RotateDirection rotateDirection, Location min,
-                              Location max)
+    /**
+     * Checks if the block on the north/east/south/west side of the location is free.
+     *
+     * @param playerUUID       The {@link UUID} of the player initiating the toggle or the original creator if the
+     *                         {@link DoorBase} was not toggled by a {@link org.bukkit.entity.Player}.
+     * @param door             The {@link DoorBase}.
+     * @param currentDirection The current direction of the {@link DoorBase}.
+     * @param rotateDirection  The rotation direction of the {@link DoorBase}.
+     * @param min              The new minimum location of the {@link DoorBase} when it opens in the returned direction.
+     *                         It is modified in the method.
+     * @param max              The new maximum location of the {@link DoorBase} when it opens in the returned direction.
+     *                         It is modified in the method.
+     * @return True if the position is unobstructed.
+     */
+    private boolean isPosFree(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                              final @NotNull PBlockFace currentDirection,
+                              final @NotNull RotateDirection rotateDirection, final @NotNull Location min,
+                              final @NotNull Location max)
     {
         int minX = door.getMinimum().getBlockX();
         int minY = door.getMinimum().getBlockY();
@@ -31,7 +49,7 @@ public class GarageDoorOpener extends Opener
         int yLen = maxY - minY;
         int zLen = maxZ - minZ;
 
-        Vector3D rotateVec = null;
+        Vector3D rotateVec;
         try
         {
             rotateVec = PBlockFace.getDirection(PBlockFace.valueOf(rotateDirection.toString()));
@@ -40,8 +58,8 @@ public class GarageDoorOpener extends Opener
         {
             plugin.getPLogger()
                   .severe("Failed to check if new position was free for garage door \"" + door.getDoorUID()
-                                  + "\" because of invalid rotateDirection \"" + rotateDirection.toString()
-                                  + "\". Please contact pim16aap2.");
+                              + "\" because of invalid rotateDirection \"" + rotateDirection.toString()
+                              + "\". Please contact pim16aap2.");
             return false;
         }
 
@@ -49,9 +67,9 @@ public class GarageDoorOpener extends Opener
         {
             minY = maxY = door.getMaximum().getBlockY() + 1;
 
-            minX += 1 * rotateVec.getX();
+            minX += rotateVec.getX();
             maxX += (1 + yLen) * rotateVec.getX();
-            minZ += 1 * rotateVec.getZ();
+            minZ += rotateVec.getZ();
             maxZ += (1 + yLen) * rotateVec.getZ();
         }
         else
@@ -96,35 +114,41 @@ public class GarageDoorOpener extends Opener
             maxZ = tmp;
         }
 
-        max.setX(maxX);
-        max.setY(maxY);
-        max.setZ(maxZ);
-
         min.setX(minX);
         min.setY(minY);
         min.setZ(minZ);
 
-        for (int xAxis = minX; xAxis <= maxX; ++xAxis)
-            for (int yAxis = minY; yAxis <= maxY; ++yAxis)
-                for (int zAxis = minZ; zAxis <= maxZ; ++zAxis)
-                    if (!SpigotUtil.isAirOrLiquid(door.getWorld().getBlockAt(xAxis, yAxis, zAxis)))
-                        return false;
-        return true;
+        max.setX(maxX);
+        max.setY(maxY);
+        max.setZ(maxZ);
+
+        return super.isLocationEmpty(min, max, playerUUID);
     }
 
-    // When closed (standing up), open in the specified direction.
-    // Otherwise, go in the close direction (opposite of openDir).
-    private RotateDirection getRotationDirection(DoorBase door, PBlockFace currentDir)
+    /**
+     * Gets the rotation direction of this {@link DoorBase}.
+     *
+     * @param door       {@link DoorBase}.
+     * @param currentDir The current direction.
+     * @return The rotation direction of this {@link DoorBase}.
+     */
+    private RotateDirection getRotationDirection(final @NotNull DoorBase door, final @NotNull PBlockFace currentDir)
     {
+        // When closed (standing up), open in the specified direction.
+        // Otherwise, go in the close direction (opposite of openDir).
         RotateDirection rotDir = door.getOpenDir();
         if (currentDir.equals(PBlockFace.UP))
             return rotDir;
         return RotateDirection.valueOf(PBlockFace.getOpposite(currentDir).toString());
     }
 
-    // Get the direction the door is currently facing as seen from the engine to the
-    // end of the door.
-    private PBlockFace getCurrentDirection(DoorBase door)
+    /**
+     * Gets the current direction of this {@link DoorBase}.
+     *
+     * @param door {@link DoorBase}.
+     * @return The current direction of this {@link DoorBase}.
+     */
+    private PBlockFace getCurrentDirection(final @NotNull DoorBase door)
     {
         int yLen = door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 
@@ -135,14 +159,19 @@ public class GarageDoorOpener extends Opener
         int dX = door.getEngine().getBlockX() - door.getMinimum().getBlockX();
         int dZ = door.getEngine().getBlockZ() - door.getMinimum().getBlockZ();
 
-        return PBlockFace.faceFromDir(new Vector3D(dX < 0 ? 1 : dX > 0 ? -1 : 0, 0, dZ < 0 ? 1 : dZ > 0 ? -1 : 0));
+        return PBlockFace.faceFromDir(new Vector3D(Integer.compare(0, dX), 0, Integer.compare(0, dZ)));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
+    @NotNull
+    public DoorToggleResult toggleDoor(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                                       final double time, boolean instantOpen, final boolean playerToggle)
     {
-        DoorOpenResult isOpenable = super.isOpenable(door, silent);
-        if (isOpenable != DoorOpenResult.SUCCESS)
+        DoorToggleResult isOpenable = super.canBeToggled(door, playerToggle);
+        if (isOpenable != DoorToggleResult.SUCCESS)
             return abort(door, isOpenable);
 
         if (super.isTooBig(door))
@@ -153,7 +182,7 @@ public class GarageDoorOpener extends Opener
         {
             plugin.getPLogger()
                   .warn("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!");
-            return abort(door, DoorOpenResult.ERROR);
+            return abort(door, DoorToggleResult.ERROR);
         }
 
         RotateDirection rotDirection = getRotationDirection(door, currentDirection);
@@ -161,31 +190,23 @@ public class GarageDoorOpener extends Opener
         Location newMin = new Location(door.getWorld(), 0, 0, 0);
         Location newMax = new Location(door.getWorld(), 0, 0, 0);
 
-        if (rotDirection == null || !isPosFree(door, currentDirection, rotDirection, newMin, newMax))
+        if (rotDirection == null || !isPosFree(playerUUID, door, currentDirection, rotDirection, newMin, newMax))
         {
             plugin.getPLogger()
                   .warn("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!");
-            return abort(door, DoorOpenResult.NODIRECTION);
+            return abort(door, DoorToggleResult.NODIRECTION);
         }
 
-        // The door's owner does not have permission to move the door into the new
-        // position (e.g. worldguard doens't allow it.
-        String canBreakResult = plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), newMin, newMax);
-        if (canBreakResult != null)
-        {
-            plugin.getPLogger()
-                  .warn("Player \"" + door.getPlayerUUID().toString() + "\" is not allowed to open door "
-                                + door.getName() + " (" + door.getDoorUID() + ") here! " + "Reason: " + canBreakResult);
-            return abort(door, DoorOpenResult.NOPERMISSION);
-        }
+        // Check if the owner of the door has permission to edit blocks in the new area of the door.
+        if (!super.canBreakBlocksBetweenLocs(door, newMin, newMax))
+            return abort(door, DoorToggleResult.NOPERMISSION);
 
         // TODO: Get rid of this.
-        if (time < 0.5)
-            time = 5;
+        double fixedTime = time < 0.5 ? 5 : time;
 
-        plugin.addBlockMover(new GarageDoorMover(plugin, door.getWorld(), door, time,
-                                                 plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR),
-                                                 currentDirection, rotDirection));
-        return DoorOpenResult.SUCCESS;
+        plugin.addBlockMover(new GarageDoorMover(plugin, door.getWorld(), door, fixedTime,
+                                                 plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR), instantOpen,
+                                                 currentDirection, rotDirection, playerUUID));
+        return DoorToggleResult.SUCCESS;
     }
 }

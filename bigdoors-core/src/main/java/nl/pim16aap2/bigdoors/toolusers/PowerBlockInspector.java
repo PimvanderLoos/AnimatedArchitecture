@@ -7,33 +7,56 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * Represents a user finding which {@link DoorBase}s have their power block in a location.
+ *
+ * @author Pim
+ **/
 public class PowerBlockInspector extends ToolUser
 {
-    public PowerBlockInspector(BigDoors plugin, Player player, long doorUID)
+    public PowerBlockInspector(final @NotNull BigDoors plugin, final @NotNull Player player, final long doorUID)
     {
         super(plugin, player);
         this.doorUID = doorUID;
-        triggerGiveTool();
+        giveToolToPlayer();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void triggerGiveTool()
+    protected @NotNull String getToolReceivedMessage()
     {
-        giveToolToPlayer(messages.getString(Message.CREATOR_PBINSPECTOR_STICKLORE).split("\n"),
-                         messages.getString(Message.CREATOR_PBINSPECTOR_INIT).split("\n"));
+        return messages.getString(Message.CREATOR_PBINSPECTOR_INIT);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getToolLore()
+    {
+        return messages.getString(Message.CREATOR_PBINSPECTOR_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void triggerFinishUp()
     {
         finishUp();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void selector(Location loc)
+    public void selector(final @NotNull Location loc)
     {
         done = true;
         List<DoorBase> doors = plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID());

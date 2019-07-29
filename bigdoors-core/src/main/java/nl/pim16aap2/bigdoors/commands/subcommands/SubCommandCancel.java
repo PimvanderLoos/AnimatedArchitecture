@@ -6,12 +6,12 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class SubCommandCancel extends SubCommand
 {
@@ -26,25 +26,25 @@ public class SubCommandCancel extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
         Player player = (Player) sender;
-        ToolUser tu = plugin.getToolUser(player);
-        if (tu != null)
-        {
-            tu.abortSilently();
-            SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_CANCELLED));
-        }
-        else
-        {
-            WaitForCommand cw = plugin.getCommandWaiter(player);
-            if (cw != null)
-                cw.abortSilently();
-        }
+
+        plugin.getToolUser(player).ifPresent(
+            TU ->
+            {
+                TU.abortSilently();
+                SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_CANCELLED));
+            });
+        plugin.getCommandWaiter(player).ifPresent(WaitForCommand::abortSilently);
         return true;
     }
 }

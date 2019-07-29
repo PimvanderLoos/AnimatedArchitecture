@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -59,7 +58,8 @@ public class PLogger
      * @param messagingInterface The implementation of {@link IMessagingInterface} for writing to the console etc.
      * @param name               The name that will be used for logging. For example "BigDoors".
      */
-    public PLogger(final File logFile, final IMessagingInterface messagingInterface, final String name)
+    public PLogger(final @NotNull File logFile, final @NotNull IMessagingInterface messagingInterface,
+                   final @NotNull String name)
     {
         this.logFile = logFile;
         this.messagingInterface = messagingInterface;
@@ -74,7 +74,8 @@ public class PLogger
      * @param name The name to be used for logging purposes.
      * @return The name in the proper format.
      */
-    public static @NotNull String formatName(@NotNull final String name)
+    @NotNull
+    public static String formatName(final @NotNull String name)
     {
         return "[" + name + "] ";
     }
@@ -84,7 +85,7 @@ public class PLogger
      *
      * @param consoleLogging True will log errors and exception to the console.
      */
-    public void setConsoleLogging(boolean consoleLogging)
+    public void setConsoleLogging(final boolean consoleLogging)
     {
         this.consoleLogging = consoleLogging;
     }
@@ -99,7 +100,7 @@ public class PLogger
         // Also, only a single instance is allowed
         if (Thread.currentThread().getId() == 1 || queueProcessor != null)
             throw new IllegalStateException("Trying to instantiate processQueue on thread "
-                                                    + Thread.currentThread().getId());
+                                                + Thread.currentThread().getId());
         queueProcessor = new AtomicLong(Thread.currentThread().getId());
 
         try
@@ -126,7 +127,7 @@ public class PLogger
      * @param str    The message.
      * @see IMessagingInterface#sendMessageToTarget(Object, Level, String)
      */
-    public void sendMessageToTarget(@NotNull final Object target, @NotNull Level level, @NotNull final String str)
+    public void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level, final @NotNull String str)
     {
         if (messagingInterface != null)
             messagingInterface.sendMessageToTarget(target, level, str);
@@ -137,7 +138,7 @@ public class PLogger
      *
      * @param logMessage The {@link LogMessage} to be written to the log file.
      */
-    private void addToMessageQueue(@NotNull final LogMessage logMessage)
+    private void addToMessageQueue(final @NotNull LogMessage logMessage)
     {
         messageQueue.add(logMessage);
     }
@@ -179,7 +180,7 @@ public class PLogger
      *
      * @param message An optional message to be printed along with the stack trace.
      */
-    public void dumpStackTrace(@NotNull final String message)
+    public void dumpStackTrace(final @NotNull String message)
     {
         dumpBoundedStackTrace(message, 0);
     }
@@ -190,9 +191,9 @@ public class PLogger
      * @param message       An optional message to be printed along with the stack trace.
      * @param numberOfLines The number of lines to be written to the log.
      */
-    public void dumpBoundedStackTrace(@NotNull final String message, final int numberOfLines)
+    public void dumpBoundedStackTrace(final @NotNull String message, final int numberOfLines)
     {
-        addToMessageQueue(this.new LogMessageException(message + "\n", new Exception(), numberOfLines));
+        addToMessageQueue(new LogMessageException(message + "\n", new Exception(), numberOfLines));
     }
 
     /**
@@ -202,7 +203,7 @@ public class PLogger
      * @param message The message.
      * @see IMessagingInterface#writeToConsole(Level, String)
      */
-    public void writeToConsole(@NotNull final Level level, @NotNull final String message)
+    public void writeToConsole(final @NotNull Level level, final @NotNull String message)
     {
         if (messagingInterface != null)
             messagingInterface.writeToConsole(level, message);
@@ -215,11 +216,11 @@ public class PLogger
      * @param level          The level at which the message is logged (info, warn, etc).
      * @param printToConsole If the message should be written to the console.
      */
-    private void logMessage(@NotNull final String msg, @NotNull final Level level, final boolean printToConsole)
+    private void logMessage(final @NotNull String msg, final @NotNull Level level, final boolean printToConsole)
     {
         if (printToConsole)
             writeToConsole(level, msg);
-        addToMessageQueue(this.new LogMessageString(msg));
+        addToMessageQueue(new LogMessageString(msg));
     }
 
     /**
@@ -227,7 +228,7 @@ public class PLogger
      *
      * @param msg The message to be written.
      */
-    private void writeToLog(@NotNull final String msg)
+    private void writeToLog(final @NotNull String msg)
     {
         try
         {
@@ -249,11 +250,14 @@ public class PLogger
      *
      * @param exception Exception to log.
      */
-    public void logException(@NotNull final Exception exception)
+    public void logException(final @NotNull Exception exception)
     {
-        addToMessageQueue(this.new LogMessageException(exception.getMessage(), exception));
+        addToMessageQueue(new LogMessageException(exception.getMessage() + "\n" + exception.getClass().getName() +
+                                                      "\n", exception));
+        writeToConsole(Level.SEVERE, exception.getMessage());
         if (consoleLogging)
-            writeToConsole(Level.SEVERE, limitStackTraceLength(exception.getStackTrace(), 0));
+            writeToConsole(Level.SEVERE, "\n" + exception.getClass().getName() + "\n" +
+                limitStackTraceLength(exception.getStackTrace(), 0));
     }
 
     /**
@@ -262,13 +266,13 @@ public class PLogger
      * @param exception Exception to log.
      * @param message   Message to accompany the exception.
      */
-    public void logException(@NotNull final Exception exception, @NotNull String message)
+    public void logException(final @NotNull Exception exception, final @NotNull String message)
     {
-        message += "\n";
-        addToMessageQueue(this.new LogMessageException(message, exception));
+        addToMessageQueue(new LogMessageException(message + "\n" + exception.getClass().getName() + "\n",
+                                                  exception));
         writeToConsole(Level.SEVERE, message);
         if (consoleLogging)
-            writeToConsole(Level.SEVERE, limitStackTraceLength(exception.getStackTrace(), 0));
+            writeToConsole(Level.SEVERE, "\n" + limitStackTraceLength(exception.getStackTrace(), 0));
     }
 
     /**
@@ -276,11 +280,12 @@ public class PLogger
      *
      * @param error Error to log.
      */
-    public void logError(@NotNull final Error error)
+    public void logError(final @NotNull Error error)
     {
-        addToMessageQueue(this.new LogMessageError(error.getMessage(), error));
+        addToMessageQueue(new LogMessageError(error.getMessage() + "\n", error));
+        writeToConsole(Level.SEVERE, error.getMessage());
         if (consoleLogging)
-            writeToConsole(Level.SEVERE, limitStackTraceLength(error.getStackTrace(), 0));
+            writeToConsole(Level.SEVERE, "\n" + limitStackTraceLength(error.getStackTrace(), 0));
     }
 
     /**
@@ -289,13 +294,12 @@ public class PLogger
      * @param error   Error to log.
      * @param message Message to accompany the error.
      */
-    public void logError(@NotNull final Error error, @NotNull String message)
+    public void logError(final @NotNull Error error, final @NotNull String message)
     {
-        message += "\n";
-        addToMessageQueue(this.new LogMessageError(message, error));
+        addToMessageQueue(new LogMessageError(message + "\n", error));
         writeToConsole(Level.SEVERE, message);
         if (consoleLogging)
-            writeToConsole(Level.SEVERE, limitStackTraceLength(error.getStackTrace(), 0));
+            writeToConsole(Level.SEVERE, "\n" + limitStackTraceLength(error.getStackTrace(), 0));
     }
 
     /**
@@ -303,9 +307,9 @@ public class PLogger
      *
      * @param message The message to log.
      */
-    public void logMessage(@NotNull final String message)
+    public void logMessage(final @NotNull String message)
     {
-        addToMessageQueue(this.new LogMessageString(message));
+        addToMessageQueue(new LogMessageString(message));
     }
 
     /**
@@ -313,7 +317,7 @@ public class PLogger
      *
      * @param str The message to log.
      */
-    public void info(@NotNull final String str)
+    public void info(final @NotNull String str)
     {
         logMessage(str, Level.INFO, true);
     }
@@ -323,7 +327,7 @@ public class PLogger
      *
      * @param str The message to log.
      */
-    public void warn(@NotNull final String str)
+    public void warn(final @NotNull String str)
     {
         logMessage(str, Level.WARNING, true);
     }
@@ -333,7 +337,7 @@ public class PLogger
      *
      * @param str The message to log.
      */
-    public void severe(@NotNull final String str)
+    public void severe(final @NotNull String str)
     {
         logMessage(str, Level.SEVERE, true);
     }
@@ -346,13 +350,17 @@ public class PLogger
      * @param numberOfLines The number of lines to limit it to.
      * @return A string of the stack trace for at most numberOfLines lines if numberOfLines > 0.
      */
-    private @NotNull String limitStackTraceLength(@NotNull final StackTraceElement[] stackTrace,
-                                                  final int numberOfLines)
+    @NotNull
+    private static String limitStackTraceLength(final @NotNull StackTraceElement[] stackTrace,
+                                                final int numberOfLines)
     {
         int linesToWrite = numberOfLines > 0 ? Math.min(numberOfLines, stackTrace.length) : stackTrace.length;
         StringBuilder sb = new StringBuilder();
         for (int idx = 0; idx < linesToWrite; ++idx)
-            sb.append("    ").append(stackTrace[idx]).append("\n");
+            sb.append("    at ").append(stackTrace[idx]).append("\n");
+        // If any lines were omitted, make sure to log that too.
+        if (linesToWrite < stackTrace.length)
+            sb.append((stackTrace.length - linesToWrite)).append(" lines omitted.");
         return sb.toString();
     }
 
@@ -361,19 +369,20 @@ public class PLogger
      *
      * @author Pim
      */
-    private abstract class LogMessage
+    private static abstract class LogMessage
     {
         protected final String message;
 
-        LogMessage(final @Nullable String message)
+        LogMessage(final @NotNull String message)
         {
             this.message = message;
         }
 
+        @NotNull
         @Override
         public String toString()
         {
-            return message == null ? "" : (message + "\n");
+            return message + "\n";
         }
     }
 
@@ -382,12 +391,12 @@ public class PLogger
      *
      * @author Pim
      */
-    private class LogMessageException extends LogMessage
+    private static class LogMessageException extends LogMessage
     {
         private final Exception exception;
         private final int numberOfLines;
 
-        LogMessageException(@NotNull final String message, @NotNull final Exception exception,
+        LogMessageException(final @NotNull String message, final @NotNull Exception exception,
                             final int numberOfLines)
         {
             super(message);
@@ -395,15 +404,15 @@ public class PLogger
             this.numberOfLines = numberOfLines;
         }
 
-        LogMessageException(@NotNull final String message, @NotNull final Exception exception)
+        LogMessageException(final @NotNull String message, final @NotNull Exception exception)
         {
             this(message, exception, 0);
         }
 
+        @NotNull
         @Override
-        public @NotNull String toString()
+        public String toString()
         {
-            System.out.println("Writing exception!");
             return super.message + limitStackTraceLength(exception.getStackTrace(), numberOfLines);
         }
     }
@@ -413,25 +422,26 @@ public class PLogger
      *
      * @author Pim
      */
-    private class LogMessageError extends LogMessage
+    private static class LogMessageError extends LogMessage
     {
         private final Error error;
         private final int numberOfLines;
 
-        LogMessageError(@NotNull final String message, @NotNull final Error error, final int numberOfLines)
+        LogMessageError(final @NotNull String message, final @NotNull Error error, final int numberOfLines)
         {
             super(message);
             this.error = error;
             this.numberOfLines = numberOfLines;
         }
 
-        LogMessageError(@NotNull final String message, @NotNull final Error error)
+        LogMessageError(final @NotNull String message, final @NotNull Error error)
         {
             this(message, error, 0);
         }
 
+        @NotNull
         @Override
-        public @NotNull String toString()
+        public String toString()
         {
             return super.toString() + limitStackTraceLength(error.getStackTrace(), numberOfLines);
         }
@@ -442,15 +452,16 @@ public class PLogger
      *
      * @author Pim
      */
-    private class LogMessageString extends LogMessage
+    private static class LogMessageString extends LogMessage
     {
-        LogMessageString(@NotNull final String message)
+        LogMessageString(final @NotNull String message)
         {
             super(message);
         }
 
+        @NotNull
         @Override
-        public @NotNull String toString()
+        public String toString()
         {
             return super.toString();
         }

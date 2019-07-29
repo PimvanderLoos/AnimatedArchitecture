@@ -3,27 +3,42 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;
-import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class BridgeOpener extends Opener
 {
-    public BridgeOpener(BigDoors plugin)
+    public BridgeOpener(final @NotNull BigDoors plugin)
     {
         super(plugin);
     }
 
-    // Check if the new position is free.
-    private boolean isNewPosFree(DoorBase door, PBlockFace upDown, PBlockFace cardinal, Location newMin,
-                                 Location newMax)
+    /**
+     * Checks if the new position is free.
+     *
+     * @param playerUUID The {@link UUID} of the {@link org.bukkit.entity.Player} who requested the door toggle if
+     *                   available or the original creator otherwise.
+     * @param door       The {@link DoorBase}.
+     * @param upDown     Whether to check the location when going up or down.
+     * @param cardinal   The direction to check.
+     * @param newMin     The new minimum location of the {@link DoorBase} when it opens in the returned direction. It is
+     *                   modified in the method.
+     * @param newMax     The new maximum location of the {@link DoorBase} when it opens in the returned direction. It is
+     *                   modified in the method.
+     * @return True if the new position is free.
+     */
+    private boolean isNewPosFree(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                                 final @NotNull PBlockFace upDown, final @NotNull PBlockFace cardinal,
+                                 final @NotNull Location newMin, final @NotNull Location newMax)
     {
         int startX = 0, startY = 0, startZ = 0;
         int endX = 0, endY = 0, endZ = 0;
-        World world = door.getWorld();
 
         if (upDown.equals(PBlockFace.UP))
             switch (cardinal)
@@ -38,7 +53,7 @@ public class BridgeOpener extends Opener
 
                     startY = door.getMinimum().getBlockY() + 1;
                     endY = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() -
-                            door.getMinimum().getBlockZ();
+                        door.getMinimum().getBlockZ();
 
                     startZ = door.getMinimum().getBlockZ();
                     endZ = door.getMinimum().getBlockZ();
@@ -50,7 +65,7 @@ public class BridgeOpener extends Opener
 
                     startY = door.getMinimum().getBlockY() + 1;
                     endY = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() -
-                            door.getMinimum().getBlockZ();
+                        door.getMinimum().getBlockZ();
 
                     startZ = door.getMaximum().getBlockZ();
                     endZ = door.getMaximum().getBlockZ();
@@ -62,7 +77,7 @@ public class BridgeOpener extends Opener
 
                     startY = door.getMinimum().getBlockY() + 1;
                     endY = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() -
-                            door.getMinimum().getBlockX();
+                        door.getMinimum().getBlockX();
 
                     startZ = door.getMinimum().getBlockZ();
                     endZ = door.getMaximum().getBlockZ();
@@ -74,7 +89,7 @@ public class BridgeOpener extends Opener
 
                     startY = door.getMinimum().getBlockY() + 1;
                     endY = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() -
-                            door.getMinimum().getBlockX();
+                        door.getMinimum().getBlockX();
 
                     startZ = door.getMinimum().getBlockZ();
                     endZ = door.getMaximum().getBlockZ();
@@ -98,7 +113,7 @@ public class BridgeOpener extends Opener
                     endY = door.getMinimum().getBlockY();
 
                     startZ = door.getMinimum().getBlockZ() - door.getMaximum().getBlockY() +
-                            door.getMinimum().getBlockY();
+                        door.getMinimum().getBlockY();
                     endZ = door.getMinimum().getBlockZ() - 1;
                     break;
 
@@ -111,13 +126,13 @@ public class BridgeOpener extends Opener
 
                     startZ = door.getMinimum().getBlockZ() + 1;
                     endZ = door.getMinimum().getBlockZ() + door.getMaximum().getBlockY() -
-                            door.getMinimum().getBlockY();
+                        door.getMinimum().getBlockY();
                     break;
 
                 case EAST:
                     startX = door.getMinimum().getBlockX() + 1;
                     endX = door.getMaximum().getBlockX() + door.getMaximum().getBlockY() -
-                            door.getMinimum().getBlockY();
+                        door.getMinimum().getBlockY();
 
                     startY = door.getMinimum().getBlockY();
                     endY = door.getMinimum().getBlockY();
@@ -128,7 +143,7 @@ public class BridgeOpener extends Opener
 
                 case WEST:
                     startX = door.getMinimum().getBlockX() - door.getMaximum().getBlockY() +
-                            door.getMinimum().getBlockY();
+                        door.getMinimum().getBlockY();
                     endX = door.getMinimum().getBlockX() - 1;
 
                     startY = door.getMinimum().getBlockY();
@@ -142,24 +157,25 @@ public class BridgeOpener extends Opener
                     break;
             }
 
-        for (int xAxis = startX; xAxis <= endX; ++xAxis)
-            for (int yAxis = startY; yAxis <= endY; ++yAxis)
-                for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
-                    if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
-                        return false;
-
         newMin.setX(startX);
-        newMin.setY(startZ);
+        newMin.setY(startY);
         newMin.setZ(startZ);
         newMax.setX(endX);
-        newMax.setY(endZ);
+        newMax.setY(endY);
         newMax.setZ(endZ);
 
-        return true;
+        return super.isLocationEmpty(newMin, newMax, playerUUID);
     }
 
-    // Check if the bridge should go up or down.
-    public PBlockFace getUpDown(DoorBase door)
+    // TODO: LSP!
+
+    /**
+     * Checks if the {@link DoorBase} should go up or down.
+     *
+     * @param door The {@link DoorBase}.
+     * @return {@link PBlockFace#DOWN} or {@link PBlockFace#UP}.
+     */
+    private PBlockFace getUpDown(final @NotNull DoorBase door)
     {
         int height = Math.abs(door.getMinimum().getBlockY() - door.getMaximum().getBlockY());
         if (height > 0)
@@ -167,48 +183,76 @@ public class BridgeOpener extends Opener
         return PBlockFace.UP;
     }
 
-    // Figure out which way the bridge should go.
-    private RotateDirection getOpenDirection(DoorBase door, Location newMin, Location newMax)
+    /**
+     * Figures out which way the bridge should go and finds the new minimum and maximum coordinates.
+     *
+     * @param playerUUID The {@link UUID} of the {@link org.bukkit.entity.Player} who requested the door toggle if
+     *                   available or the original creator otherwise.
+     * @param door       The {@link DoorBase}.
+     * @param newMin     The new minimum location of the {@link DoorBase} when it opens in the returned direction. It is
+     *                   modified in the method.
+     * @param newMax     The new maximum location of the {@link DoorBase} when it opens in the returned direction. It is
+     *                   modified in the method.
+     * @return The direction this {@link DoorType#DRAWBRIDGE} will open in.
+     */
+    private RotateDirection getOpenDirection(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                                             final @NotNull Location newMin, final @NotNull Location newMax)
     {
         PBlockFace upDown = getUpDown(door);
         PBlockFace cDir = getCurrentDirection(door);
         boolean NS = cDir == PBlockFace.NORTH || cDir == PBlockFace.SOUTH;
 
         if (upDown.equals(PBlockFace.UP))
-            return isNewPosFree(door, upDown, door.getEngineSide(), newMin, newMax) ?
+            return isNewPosFree(playerUUID, door, upDown, door.getEngineSide(), newMin, newMax) ?
                    RotateDirection.valueOf(door.getEngineSide().toString()) : null;
 
         if (door.getOpenDir().equals(RotateDirection.CLOCKWISE) && !door.isOpen() ||
-                door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen())
+            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen())
         {
-            return NS && isNewPosFree(door, upDown, PBlockFace.SOUTH, newMin, newMax) ? RotateDirection.SOUTH :
-                   !NS && isNewPosFree(door, upDown, PBlockFace.EAST, newMin, newMax) ? RotateDirection.EAST : null;
+            return NS && isNewPosFree(playerUUID, door, upDown, PBlockFace.SOUTH, newMin, newMax) ?
+                   RotateDirection.SOUTH :
+                   !NS && isNewPosFree(playerUUID, door, upDown, PBlockFace.EAST, newMin, newMax) ?
+                   RotateDirection.EAST : null;
         }
         if (door.getOpenDir().equals(RotateDirection.CLOCKWISE) && door.isOpen() ||
-                door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
+            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
         {
-            return NS && isNewPosFree(door, upDown, PBlockFace.NORTH, newMin, newMax) ? RotateDirection.NORTH :
-                   !NS && isNewPosFree(door, upDown, PBlockFace.WEST, newMin, newMax) ? RotateDirection.WEST : null;
+            return NS && isNewPosFree(playerUUID, door, upDown, PBlockFace.NORTH, newMin, newMax) ?
+                   RotateDirection.NORTH :
+                   !NS && isNewPosFree(playerUUID, door, upDown, PBlockFace.WEST, newMin, newMax) ?
+                   RotateDirection.WEST : null;
         }
 
-        return NS && isNewPosFree(door, upDown, PBlockFace.NORTH, newMin, newMax) ? RotateDirection.NORTH :
-               !NS && isNewPosFree(door, upDown, PBlockFace.EAST, newMin, newMax) ? RotateDirection.EAST :
-               NS && isNewPosFree(door, upDown, PBlockFace.SOUTH, newMin, newMax) ? RotateDirection.SOUTH :
-               !NS && isNewPosFree(door, upDown, PBlockFace.WEST, newMin, newMax) ? RotateDirection.WEST : null;
+        return NS && isNewPosFree(playerUUID, door, upDown, PBlockFace.NORTH, newMin, newMax) ? RotateDirection.NORTH :
+               !NS && isNewPosFree(playerUUID, door, upDown, PBlockFace.EAST, newMin, newMax) ? RotateDirection.EAST :
+               NS && isNewPosFree(playerUUID, door, upDown, PBlockFace.SOUTH, newMin, newMax) ? RotateDirection.SOUTH :
+               !NS && isNewPosFree(playerUUID, door, upDown, PBlockFace.WEST, newMin, newMax) ? RotateDirection.WEST :
+               null;
     }
 
-    // Get the "current direction". In this context this means on which side of the
-    // drawbridge the engine is.
-    private PBlockFace getCurrentDirection(DoorBase door)
+    /**
+     * Gets the "current direction". In this context this means on which side of the {@link DoorType#DRAWBRIDGE} the
+     * engine is.
+     *
+     * @param door The {@link DoorBase}.
+     * @return The current direction of the {@link DoorBase}.
+     */
+    @NotNull
+    private PBlockFace getCurrentDirection(final @NotNull DoorBase door)
     {
         return door.getEngineSide();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
+    @NotNull
+    public DoorToggleResult toggleDoor(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                                       final double time, boolean instantOpen, final boolean playerToggle)
     {
-        DoorOpenResult isOpenable = super.isOpenable(door, silent);
-        if (isOpenable != DoorOpenResult.SUCCESS)
+        DoorToggleResult isOpenable = super.canBeToggled(door, playerToggle);
+        if (isOpenable != DoorToggleResult.SUCCESS)
             return abort(door, isOpenable);
 
         if (super.isTooBig(door))
@@ -219,7 +263,7 @@ public class BridgeOpener extends Opener
         {
             plugin.getPLogger()
                   .warn("Current direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!");
-            return abort(door, DoorOpenResult.ERROR);
+            return abort(door, DoorToggleResult.ERROR);
         }
 
         PBlockFace upDown = getUpDown(door);
@@ -227,27 +271,25 @@ public class BridgeOpener extends Opener
         {
             plugin.getPLogger()
                   .warn("UpDown direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!");
-            return abort(door, DoorOpenResult.ERROR);
+            return abort(door, DoorToggleResult.ERROR);
         }
 
         Location newMin = new Location(door.getWorld(), 0, 0, 0);
         Location newMax = new Location(door.getWorld(), 0, 0, 0);
-        RotateDirection openDirection = getOpenDirection(door, newMin, newMax);
+        RotateDirection openDirection = getOpenDirection(playerUUID, door, newMin, newMax);
         if (openDirection == null)
         {
             plugin.getPLogger().warn("OpenDirection direction is null for bridge " + door.getName() + " ("
-                                             + door.getDoorUID() + ")!");
-            return abort(door, DoorOpenResult.NODIRECTION);
+                                         + door.getDoorUID() + ")!");
+            return abort(door, DoorToggleResult.NODIRECTION);
         }
 
-        // The door's owner does not have permission to move the door into the new
-        // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), newMin, newMax) != null)
-            return abort(door, DoorOpenResult.NOPERMISSION);
+        // Check if the owner of the door has permission to edit blocks in the new area of the door.
+        if (!super.canBreakBlocksBetweenLocs(door, newMin, newMax))
+            return abort(door, DoorToggleResult.NOPERMISSION);
 
         plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen,
-                                             plugin.getConfigLoader().getMultiplier(DoorType.DRAWBRIDGE)));
-
-        return DoorOpenResult.SUCCESS;
+                                             plugin.getConfigLoader().getMultiplier(DoorType.DRAWBRIDGE), playerUUID));
+        return DoorToggleResult.SUCCESS;
     }
 }

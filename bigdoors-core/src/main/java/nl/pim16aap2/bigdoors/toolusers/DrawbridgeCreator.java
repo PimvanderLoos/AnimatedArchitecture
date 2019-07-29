@@ -10,43 +10,49 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-/*
- * This class represents players in the process of creating doors.
- * Objects of this class are instantiated when the createdoor command is used and they are destroyed after
- * The creation process has been completed successfully or the timer ran out. In EventHandlers this class is used
- * To check whether a user that is left-clicking is a DoorCreator && tell this class a left-click happened.
- */
+/**
+ * Represents a user creating a {@link DoorType#DRAWBRIDGE}.
+ *
+ * @author Pim
+ **/
 public class DrawbridgeCreator extends Creator
 {
-    public DrawbridgeCreator(BigDoors plugin, Player player, String name)
+    public DrawbridgeCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name, DoorType.DRAWBRIDGE);
         super.init();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected boolean isReadyToCreateDoor()
+    protected boolean isReadyToConstructDoor()
     {
         return one != null && two != null && engine != null && engineSide != null;
     }
 
-    // Check if the engine selection is valid.
-    protected boolean isEngineValid(Location loc)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isEngineValid(final @NotNull Location loc)
     {
         // One is always the bottom one, so this makes sure it's on the bottom row.
         if (loc.getBlockY() != one.getBlockY())
             return false;
 
         boolean onEdge = loc.getBlockX() == one.getBlockX() ||
-                loc.getBlockX() == two.getBlockX() ||
-                loc.getBlockZ() == one.getBlockZ() ||
-                loc.getBlockZ() == two.getBlockZ();
+            loc.getBlockX() == two.getBlockX() ||
+            loc.getBlockZ() == one.getBlockZ() ||
+            loc.getBlockZ() == two.getBlockZ();
 
         boolean inArea = Util.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
-                Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
+            Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
 
-        if (!onEdge || !inArea || (engine != null && loc.equals(engine)))
+        if (!onEdge || !inArea || loc.equals(engine))
             return false;
 
         int xDepth = Math.abs(one.getBlockX() - two.getBlockX());
@@ -93,8 +99,8 @@ public class DrawbridgeCreator extends Creator
             int posZ = loc.getBlockZ();
 
             if (loc.equals(one) || loc.equals(two) || // "bottom left" or "top right" (on 2d grid)
-                    (posX == one.getBlockX() && posZ == two.getBlockZ()) || // "top left"
-                    (posX == two.getBlockX() && posZ == one.getBlockZ()))
+                (posX == one.getBlockX() && posZ == two.getBlockZ()) || // "top left"
+                (posX == two.getBlockX() && posZ == one.getBlockZ()))
                 engine = loc;
             else
             {
@@ -106,7 +112,7 @@ public class DrawbridgeCreator extends Creator
                     engineSide = PBlockFace.WEST;
                 else if (posX == two.getBlockX())
                     engineSide = PBlockFace.EAST;
-                drawBridgeEngineFix();
+                updateEngineLoc();
             }
             return true;
         }
@@ -156,12 +162,32 @@ public class DrawbridgeCreator extends Creator
         }
         else
             return false;
-        drawBridgeEngineFix();
+        updateEngineLoc();
         return engineSide != null;
     }
 
-    // Make sure the power point is in the middle.
-    protected void drawBridgeEngineFix()
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getToolReceivedMessage()
+    {
+        return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getToolLore()
+    {
+        return messages.getString(Message.CREATOR_DRAWBRIDGE_STICKLORE);
+    }
+
+    /**
+     * Puts the engine location in the center.
+     */
+    protected void updateEngineLoc()
     {
         if (engineSide == null || engine == null)
             return;
@@ -173,8 +199,11 @@ public class DrawbridgeCreator extends Creator
             engine.setZ(one.getZ() + (two.getZ() - one.getZ()) / 2);
     }
 
-    // Check if the second position is valid.
-    protected boolean isPosTwoValid(Location loc)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isPosTwoValid(final @NotNull Location loc)
     {
         int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
         int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());
@@ -185,11 +214,14 @@ public class DrawbridgeCreator extends Creator
         return xDepth != 0 ^ zDepth != 0;
     }
 
-    // Take care of the selection points.
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void selector(Location loc)
+    public void selector(final @NotNull Location loc)
     {
-        if (!hasName() || !creatorHasPermissionInLocation(loc))
+        if (isUnnamed() || !creatorHasPermissionInLocation(loc))
             return;
 
         if (one == null)
@@ -225,7 +257,7 @@ public class DrawbridgeCreator extends Creator
                 // If the engine side was found, print finish message.
                 if (engineSide != null)
                 {
-                    drawBridgeEngineFix();
+                    updateEngineLoc();
                     setIsDone(true);
                 }
                 // If the engine side could not be determined, branch out for additional information.
@@ -240,7 +272,7 @@ public class DrawbridgeCreator extends Creator
         {
             if (isEngineValid(loc))
             {
-                drawBridgeEngineFix();
+                updateEngineLoc();
                 setIsDone(true);
             }
             else
@@ -254,7 +286,8 @@ public class DrawbridgeCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getInitMessage()
+    @NotNull
+    protected String getInitMessage()
     {
         return messages.getString(Message.CREATOR_DRAWBRIDGE_INIT);
     }
@@ -263,7 +296,8 @@ public class DrawbridgeCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickLore()
+    @NotNull
+    protected String getStickLore()
     {
         return messages.getString(Message.CREATOR_DRAWBRIDGE_STICKLORE);
     }
@@ -272,7 +306,8 @@ public class DrawbridgeCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickReceived()
+    @NotNull
+    protected String getStickReceived()
     {
         return messages.getString(Message.CREATOR_DRAWBRIDGE_INIT);
     }
@@ -281,7 +316,8 @@ public class DrawbridgeCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep1()
+    @NotNull
+    protected String getStep1()
     {
         return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP1);
     }
@@ -290,7 +326,8 @@ public class DrawbridgeCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep2()
+    @NotNull
+    protected String getStep2()
     {
         return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP2);
     }
@@ -299,7 +336,8 @@ public class DrawbridgeCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep3()
+    @NotNull
+    protected String getStep3()
     {
         return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP3);
     }
@@ -308,7 +346,8 @@ public class DrawbridgeCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getSuccessMessage()
+    @NotNull
+    protected String getSuccessMessage()
     {
         return messages.getString(Message.CREATOR_DRAWBRIDGE_SUCCESS);
     }

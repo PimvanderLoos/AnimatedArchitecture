@@ -23,8 +23,8 @@ public interface IGlowingBlockSpawner
      * @param z          The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by
      *                   default.
      */
-    void spawnGlowinBlock(@NotNull final UUID playerUUID, @NotNull String world, final long time, double x, double y,
-                          double z);
+    void spawnGlowinBlock(final @NotNull UUID playerUUID, @NotNull String world, final long time, final double x,
+                          final double y, final double z);
 
     /**
      * Spawns a glowing block.
@@ -39,6 +39,6 @@ public interface IGlowingBlockSpawner
      *                   default.
      * @param color      The color of the outline.
      */
-    void spawnGlowinBlock(@NotNull final UUID playerUUID, @NotNull String world, final long time, double x, double y,
-                          double z, @NotNull Object color);
+    void spawnGlowinBlock(final @NotNull UUID playerUUID, @NotNull String world, final long time, final double x,
+                          final double y, final double z, final @NotNull Object color);
 }

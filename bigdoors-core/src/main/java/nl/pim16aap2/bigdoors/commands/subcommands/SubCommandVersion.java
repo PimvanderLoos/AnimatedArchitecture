@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
 
@@ -21,11 +22,15 @@ public class SubCommandVersion extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
     {
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, "This server uses version "
-                + plugin.getDescription().getVersion() + " of this plugin!");
+            + plugin.getDescription().getVersion() + " of this plugin!");
         return true;
     }
 }

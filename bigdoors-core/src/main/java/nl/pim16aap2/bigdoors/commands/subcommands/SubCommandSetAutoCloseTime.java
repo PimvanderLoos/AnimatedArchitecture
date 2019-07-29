@@ -14,7 +14,11 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class SubCommandSetAutoCloseTime extends SubCommand
@@ -31,7 +35,7 @@ public class SubCommandSetAutoCloseTime extends SubCommand
     }
 
     public boolean execute(CommandSender sender, DoorBase door, String timeArg)
-            throws CommandActionNotAllowedException, IllegalArgumentException
+        throws CommandActionNotAllowedException, IllegalArgumentException
     {
         if (sender instanceof Player && !plugin.getDatabaseManager()
                                                .hasPermissionForAction((Player) sender, door.getDoorUID(),
@@ -46,25 +50,25 @@ public class SubCommandSetAutoCloseTime extends SubCommand
                                                                     messages.getString(Message.COMMAND_SETTIME_SUCCESS,
                                                                                        Integer.toString(time)) :
                                                                     messages.getString(
-                                                                            Message.COMMAND_SETTIME_DISABLED));
+                                                                        Message.COMMAND_SETTIME_DISABLED));
+
+        @Nullable UUID player = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
+        plugin.getAutoCloseScheduler().scheduleAutoClose(player, door, time, false);
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
-                   CommandActionNotAllowedException, IllegalArgumentException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
+               CommandActionNotAllowedException, IllegalArgumentException
     {
-        if (sender instanceof Player)
-        {
-            WaitForCommand cw = plugin.isCommandWaiter((Player) sender);
-            if (cw != null && cw.getCommand().equals(getName()))
-            {
-                if (args.length == minArgCount)
-                    return cw.executeCommand(args);
-                cw.abortSilently();
-            }
-        }
+        Optional<WaitForCommand> commandWaiter = commandManager.isCommandWaiter(sender, getName());
+        if (commandWaiter.isPresent())
+            return commandManager.commandWaiterExecute(commandWaiter.get(), args, minArgCount);
         return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2]);
     }
 }

@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.spigotutil.Abortable;
+import nl.pim16aap2.bigdoors.spigotutil.AbortableTask;
 import nl.pim16aap2.bigdoors.spigotutil.PlayerRetriever;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigotutil.WorldRetriever;
@@ -45,6 +45,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages all database interactions.
+ */
 public class DatabaseManager extends Restartable
 {
     private final IStorage db;
@@ -54,14 +57,14 @@ public class DatabaseManager extends Restartable
      * Timed cache of all power blocks. The key is the hash of a chunk, the value a nested map.
      * <p>
      * The key of the nested map is the hash of a location (in world space) and the value of the nested map is the UID
-     * of the door whose power block is stored in that location.
+     * of the {@link DoorBase} whose power block is stored in that location.
      */
     private final TimedMapCache<UUID, Map<Long /* Chunk */, Map<Long /* Loc */, List<Long> /* doorUIDs */>>> pbCache;
     // Players map stores players for faster UUID / Name matching.
     private boolean goOn = true;
     private boolean paused = false;
 
-    public DatabaseManager(final BigDoors plugin, final String dbFile)
+    public DatabaseManager(final @NotNull BigDoors plugin, final @NotNull String dbFile)
     {
         super(plugin);
         db = new SQLiteJDBCDriverConnection(new File(plugin.getDataFolder(), dbFile), plugin.getPLogger(),
@@ -79,7 +82,8 @@ public class DatabaseManager extends Restartable
     @Override
     public void restart()
     {
-        shutdown();
+        busyDoors.clear();
+        pbCache.reInit(plugin.getConfigLoader().cacheTimeout());
     }
 
     /**
@@ -89,166 +93,297 @@ public class DatabaseManager extends Restartable
     public void shutdown()
     {
         busyDoors.clear();
+        pbCache.shutdown();
     }
 
-    public boolean isDoorBusy(long doorUID)
+    /**
+     * Checks if a {@link DoorBase} is 'busy', i.e. currently being animated.
+     *
+     * @param doorUID The UID of the {@link DoorBase}.
+     * @return True if the {@link DoorBase} is busy.
+     */
+    public boolean isDoorBusy(final long doorUID)
     {
         return busyDoors.containsKey(doorUID);
     }
 
-    public void setDoorBusy(long doorUID)
+    /**
+     * Register a {@link DoorBase} as busy.
+     *
+     * @param doorUID The UID of the {@link DoorBase}.
+     */
+    public void setDoorBusy(final long doorUID)
     {
         busyDoors.put(doorUID, true);
     }
 
-    public void setDoorAvailable(long doorUID)
+    /**
+     * Register a door as available.
+     *
+     * @param doorUID The UID of the door.
+     */
+    public void setDoorAvailable(final long doorUID)
     {
         busyDoors.remove(doorUID);
     }
 
-    public void setDoorOpenTime(long doorUID, int autoClose)
+    /**
+     * Changes the auto close time of a door.
+     *
+     * @param doorUID   The UID of the door.
+     * @param autoClose The new auto close time.
+     */
+    public void setDoorOpenTime(final long doorUID, final int autoClose)
     {
         updateDoorAutoClose(doorUID, autoClose);
     }
 
+    /**
+     * Clear all busy doors.
+     */
     private void emptyBusyDoors()
     {
         busyDoors.clear();
     }
 
+    /**
+     * Stop all doors that are currently active.
+     */
     public void stopDoors()
     {
         setCanGo(false);
-        emptyBusyDoors();
         new BukkitRunnable()
         {
             @Override
             public void run()
             {
                 setCanGo(true);
+                emptyBusyDoors();
             }
         }.runTaskLater(plugin, 5L);
     }
 
-    public UUID getPlayerUUIDFromString(String playerStr)
+    /**
+     * Gets the {@link UUID} associated with a player name if exactly 1 exists.
+     *
+     * @param playerStr The name of the player.
+     * @return The {@link UUID} associated with a player name
+     */
+    @NotNull
+    public Optional<UUID> getPlayerUUIDFromString(final @NotNull String playerStr)
     {
-        UUID playerUUID = SpigotUtil.playerUUIDFromString(playerStr);
-        if (playerUUID == null)
-            playerUUID = db.getPlayerUUID(playerStr).orElse(null);
-        return playerUUID;
+        return Optional.ofNullable(SpigotUtil.playerUUIDFromString(playerStr)
+                                             .orElse(db.getPlayerUUID(playerStr).orElse(null)));
     }
 
-    public void startTimerForAbortable(Abortable abortable, int time)
+    /**
+     * Starts the timer for an {@link AbortableTask}. The {@link AbortableTask} will be aborted after the provided
+     * amount of time (in seconds).
+     *
+     * @param abortableTask The {@link AbortableTask}.
+     * @param time          The amount of time (in seconds).
+     */
+    public void startTimerForAbortableTask(final @NotNull AbortableTask abortableTask, int time)
     {
         BukkitTask task = new BukkitRunnable()
         {
             @Override
             public void run()
             {
-                abortable.abort(false);
+                abortableTask.abort(false);
             }
         }.runTaskLater(plugin, time);
-        abortable.setTask(task);
+        abortableTask.setTask(task);
     }
 
-    public void startPowerBlockRelocator(Player player, DoorBase door)
+    /**
+     * Starts the {@link PowerBlockRelocator} process for a given player and {@link DoorBase}.
+     *
+     * @param player The player.
+     * @param door   The {@link DoorBase}.
+     */
+    public void startPowerBlockRelocator(final @NotNull Player player, final @NotNull DoorBase door)
     {
-        startTimerForAbortable(new PowerBlockRelocator(plugin, player, door.getDoorUID()), 20 * 20);
+        startTimerForAbortableTask(new PowerBlockRelocator(plugin, player, door.getDoorUID()), 20 * 20);
     }
 
-    public void startTimerSetter(Player player, DoorBase door)
+    /**
+     * Starts the {@link WaitForSetTime} process for a given player and {@link DoorBase}.
+     *
+     * @param player The player.
+     * @param door   The {@link DoorBase}.
+     */
+    public void startTimerSetter(final @NotNull Player player, final @NotNull DoorBase door)
     {
-        startTimerForAbortable(
-                new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand(CommandData.SETAUTOCLOSETIME),
+        startTimerForAbortableTask(
+            new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand(CommandData.SETAUTOCLOSETIME),
+                               player, door), 20 * 20);
+    }
+
+    /**
+     * Starts the {@link WaitForSetBlocksToMove} process for a given player and {@link DoorBase}.
+     *
+     * @param player The player.
+     * @param door   The {@link DoorBase}.
+     */
+    public void startBlocksToMoveSetter(final @NotNull Player player, final @NotNull DoorBase door)
+    {
+        startTimerForAbortableTask(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin
+            .getCommand(CommandData.SETBLOCKSTOMOVE), player, door), 20 * 20);
+    }
+
+    /**
+     * Starts the {@link WaitForAddOwner} process for a given player and {@link DoorBase}.
+     *
+     * @param player The player.
+     * @param door   The {@link DoorBase}.
+     */
+    public void startAddOwner(final @NotNull Player player, final @NotNull DoorBase door)
+    {
+        startTimerForAbortableTask(
+            new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand(CommandData.ADDOWNER), player, door),
+            20 * 20);
+    }
+
+    /**
+     * Starts the {@link WaitForRemoveOwner} process for a given player and {@link DoorBase}.
+     *
+     * @param player The player.
+     * @param door   The {@link DoorBase}.
+     */
+    public void startRemoveOwner(final @NotNull Player player, final @NotNull DoorBase door)
+    {
+        startTimerForAbortableTask(
+            new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand(CommandData.REMOVEOWNER),
                                    player, door), 20 * 20);
     }
 
-    public void startBlocksToMoveSetter(Player player, DoorBase door)
+    /**
+     * Changes the number of blocks a {@link DoorBase} will try to move.
+     *
+     * @param doorUID      The UID of a {@link DoorBase}.
+     * @param blocksToMove The number of blocks the {@link DoorBase} will try to move.
+     */
+    public void setDoorBlocksToMove(final long doorUID, final int blocksToMove)
     {
-        startTimerForAbortable(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin
-                .getCommand(CommandData.SETBLOCKSTOMOVE), player, door), 20 * 20);
+        plugin.getDatabaseManager().updateDoorBlocksToMove(doorUID, blocksToMove);
     }
 
-    public void startAddOwner(Player player, DoorBase door)
-    {
-        startTimerForAbortable(
-                new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand(CommandData.ADDOWNER), player, door),
-                20 * 20);
-    }
-
-    public void startRemoveOwner(Player player, DoorBase door)
-    {
-        startTimerForAbortable(
-                new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand(CommandData.REMOVEOWNER),
-                                       player, door), 20 * 20);
-    }
-
-    public void setDoorBlocksToMove(long doorUID, int autoClose)
-    {
-        plugin.getDatabaseManager().updateDoorBlocksToMove(doorUID, autoClose);
-    }
-
-    // Check if the doors are paused.
+    /**
+     * Checks if all doors are globally paused.
+     *
+     * @return True if all doors are globally paused.
+     */
     public boolean isPaused()
     {
         return paused;
     }
 
-    // Toggle the paused status of all doors.
+    /**
+     * Toggles the paused status of all doors.
+     */
     public void togglePaused()
     {
         paused = !paused;
     }
 
-    // Check if the doors can go. This differs from begin paused in that it will finish up
-    // all currently moving doors.
+    /**
+     * Check if the doors can go. When false, all doors will finish.
+     */
     public boolean canGo()
     {
         return goOn;
     }
 
-    // Change the canGo status of all doors.
-    public void setCanGo(boolean bool)
+    /**
+     * Changes whether or not doors are allowed to be animated.
+     *
+     * @param bool The new status.
+     */
+    public void setCanGo(final boolean bool)
     {
         goOn = bool;
     }
 
-    public void addDoorBase(DoorBase newDoor)
+    /**
+     * Inserts a {@link DoorBase} into the database.
+     *
+     * @param newDoor The new {@link DoorBase}.
+     */
+    public void addDoorBase(final @NotNull DoorBase newDoor)
     {
         db.insert(newDoor);
     }
 
-    public void removeDoor(long doorUID)
+    /**
+     * Removes a {@link DoorBase} from the database.
+     *
+     * @param doorUID The UID of the door.
+     */
+    public void removeDoor(final long doorUID)
     {
         db.removeDoor(doorUID);
     }
 
-    // Returns a list of doors owner by a player and with a specific name, if provided (can be null).
-    public Optional<List<DoorBase>> getDoors(@NotNull UUID playerUUID, @Nullable String name)
+    /**
+     * Gets all {@link DoorBase} owned by a player. Only searches for {@link DoorBase} with a given name if one was
+     * provided.
+     *
+     * @param playerUUID The {@link UUID} of the payer.
+     * @param name       The name of the {@link DoorBase} to search for. Can be null.
+     * @return All {@link DoorBase} owned by a player with a specific name.
+     */
+    @NotNull
+    public Optional<List<DoorBase>> getDoors(final @NotNull UUID playerUUID, final @Nullable String name)
     {
         return name == null ? getDoors(playerUUID) : db.getDoors(playerUUID, name);
     }
 
-    // Returns a List of doors owner by a player and with a specific name, if provided (can be null).
-    public Optional<List<DoorBase>> getDoors(@NotNull UUID playerUUID)
+    /**
+     * Gets all {@link DoorBase} owned by a player.
+     *
+     * @param playerUUID The {@link UUID} of the payer.
+     * @return All {@link DoorBase} owned by a player.
+     */
+    @NotNull
+    public Optional<List<DoorBase>> getDoors(final @NotNull UUID playerUUID)
     {
         return db.getDoors(playerUUID);
     }
 
-    // Returns a List of doors owner by a player and with a specific name, if provided (can be null),
-    // and where the player has a higher permission node (lower number) than specified.
-    public Optional<List<DoorBase>> getDoors(@NotNull String playerUUID, @NotNull String name, int maxPermission)
+    /**
+     * Gets all {@link DoorBase} owned by a player with a specific name.
+     *
+     * @param playerUUID    The {@link UUID} of the payer.
+     * @param name          The name of the {@link DoorBase} to search for.
+     * @param maxPermission The maximum level of ownership (inclusive) this player has over the {@link DoorBase}s.
+     * @return All {@link DoorBase} owned by a player with a specific name.
+     */
+    @NotNull
+    public Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID, final @NotNull String name,
+                                             final int maxPermission)
     {
         return db.getDoors(playerUUID, name, maxPermission);
     }
 
-    // Returns a List of doors with a specific name.
-    public Optional<List<DoorBase>> getDoors(String name)
+    /**
+     * Gets all {@link DoorBase}s with a specific name, regardless over ownership.
+     *
+     * @param name The name of the {@link DoorBase}s.
+     * @return All {@link DoorBase}s with a specific name.
+     */
+    @NotNull
+    public Optional<List<DoorBase>> getDoors(final @NotNull String name)
     {
         return db.getDoors(name);
     }
 
-    public void fillDoor(DoorBase door)
+    /**
+     * Replaces all blocks between the minimum and maximum coordinates of a {@link DoorBase} with stone.
+     *
+     * @param door The {@link DoorBase}.
+     */
+    public void fillDoor(final @NotNull DoorBase door)
     {
         for (int i = door.getMinimum().getBlockX(); i <= door.getMaximum().getBlockX(); ++i)
             for (int j = door.getMinimum().getBlockY(); j <= door.getMaximum().getBlockY(); ++j)
@@ -256,19 +391,43 @@ public class DatabaseManager extends Restartable
                     door.getWorld().getBlockAt(i, j, k).setType(Material.STONE);
     }
 
-    public void updatePlayer(Player player)
+    /**
+     * Updates the name of a player in the database, to make sure the player's name and UUID don't go out of sync.
+     *
+     * @param player The Player.
+     */
+    public void updatePlayer(final @NotNull Player player)
     {
         db.updatePlayerName(player.getUniqueId().toString(), player.getName());
     }
 
-    public Optional<DoorBase> getDoor(long doorUID)
+    /**
+     * Gets the {@link DoorBase} with a specific UID.
+     *
+     * @param doorUID The UID of the {@link DoorBase}.
+     * @return The {@link DoorBase} if it exists.
+     */
+    @NotNull
+    public Optional<DoorBase> getDoor(final long doorUID)
     {
         return db.getDoor(doorUID);
     }
 
-    // Get the door from the string. Can be use with a doorUID or a doorName.
-    public Optional<DoorBase> getDoor(UUID playerUUID, String doorName)
-            throws NotEnoughDoorsException, TooManyDoorsException
+    /**
+     * Gets the {@link DoorBase} with a specific name owned by a specific player if exactly one such {@link DoorBase}
+     * exists.
+     *
+     * @param playerUUID The {@link UUID} of the player.
+     * @param doorName   The name of the {@link DoorBase}.
+     * @return The {@link DoorBase} with a specific name owned by a specific player if exactly one such {@link DoorBase}
+     * exists.
+     *
+     * @throws NotEnoughDoorsException If no {@link DoorBase} meeting the criteria were found.
+     * @throws TooManyDoorsException   If more than 1 {@link DoorBase} meeting the criteria were found.
+     */
+    @NotNull
+    public Optional<DoorBase> getDoor(final @NotNull UUID playerUUID, final @NotNull String doorName)
+        throws NotEnoughDoorsException, TooManyDoorsException
     {
         // First try converting the doorName to a doorUID.
         try
@@ -280,8 +439,6 @@ public class DatabaseManager extends Restartable
         // If there is more than one, tell the player that they are going to have to make a choice.
         catch (NumberFormatException e)
         {
-            if (playerUUID == null)
-                return Optional.empty();
             int count = countDoorsOwnedByPlayer(playerUUID, doorName);
             if (count == 0)
                 throw new NotEnoughDoorsException();
@@ -291,56 +448,134 @@ public class DatabaseManager extends Restartable
         }
     }
 
-    // Get a door with a specific doorUID.
-    public Optional<DoorBase> getDoor(UUID playerUUID, long doorUID)
+    /**
+     * Gets the {@link DoorBase} with the given UID owned by the player, if provided. Otherwise, the original creator is
+     * used as {@link DoorOwner}.
+     *
+     * @param playerUUID The {@link UUID} of the player. Null will default to the original creator.
+     * @param doorUID    The UID of the {@link DoorBase}.
+     * @return The {@link DoorBase} with the given UID owned by the player, if provided.
+     */
+    @NotNull
+    public Optional<DoorBase> getDoor(final @Nullable UUID playerUUID, final long doorUID)
     {
-        return db.getDoor(playerUUID, doorUID);
+        return playerUUID == null ? db.getDoor(doorUID) : db.getDoor(playerUUID, doorUID);
     }
 
-    public int countDoorsOwnedByPlayer(@NotNull UUID playerUUID)
+    /**
+     * Gets the number of {@link DoorBase}s owned by a player.
+     *
+     * @param playerUUID The {@link UUID} of the player.
+     * @return The number of {@link DoorBase}s this player owns.
+     */
+    public int countDoorsOwnedByPlayer(final @NotNull UUID playerUUID)
     {
         return db.getDoorCountForPlayer(playerUUID);
     }
 
-    public int countDoorsOwnedByPlayer(@NotNull UUID playerUUID, @NotNull String doorName)
+    /**
+     * Counts the number of {@link DoorBase}s with a specific name owned by a player.
+     *
+     * @param playerUUID The {@link UUID} of the player.
+     * @param doorName   The name of the door.
+     * @return The number of {@link DoorBase}s with a specific name owned by a player.
+     */
+    public int countDoorsOwnedByPlayer(final @NotNull UUID playerUUID, final @NotNull String doorName)
     {
         return db.getDoorCountForPlayer(playerUUID, doorName);
     }
 
-    public int countDoorsByName(@NotNull String doorName)
+    /**
+     * The number of {@link DoorBase}s in the database with a specific name.
+     *
+     * @param doorName The name of the {@link DoorBase}.
+     * @return The number of {@link DoorBase}s with a specific name.
+     */
+    public int countDoorsByName(final @NotNull String doorName)
     {
         return db.getDoorCountByName(doorName);
     }
 
-    public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr)
+    /**
+     * Checks if a player has a high enough lever of ownership over a {@link DoorBase} to interact with a specific
+     * {@link DoorAttribute}.
+     *
+     * @param player  The {@link Player}.
+     * @param doorUID The UID of the {@link DoorBase}.
+     * @param atr     The {@link DoorAttribute}.
+     * @return True if the player has a high enough lever of ownership over a {@link DoorBase} to interact with a
+     * specific {@link DoorAttribute}.
+     */
+    public boolean hasPermissionForAction(final @NotNull Player player, final long doorUID,
+                                          final @NotNull DoorAttribute atr)
     {
         return hasPermissionForAction(player.getUniqueId(), doorUID, atr);
     }
 
-    public boolean hasPermissionForAction(UUID playerUUID, long doorUID, DoorAttribute atr)
+    /**
+     * Checks if a player has a high enough lever of ownership over a {@link DoorBase} to interact with a specific
+     * {@link DoorAttribute}.
+     *
+     * @param playerUUID The {@link UUID} of the {@link Player}.
+     * @param doorUID    The UID of the {@link DoorBase}.
+     * @param atr        The {@link DoorAttribute}.
+     * @return True if the player has a high enough lever of ownership over a {@link DoorBase} to interact with a
+     * specific {@link DoorAttribute}.
+     */
+    public boolean hasPermissionForAction(final @NotNull UUID playerUUID, final long doorUID,
+                                          final @NotNull DoorAttribute atr)
     {
         int playerPermission = getPermission(playerUUID.toString(), doorUID);
         return playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);
     }
 
-    // Get the permission of a player on a door.
-    public int getPermission(String playerUUID, long doorUID)
+    /**
+     * Gets the level of ownership a player has over a {@link DoorBase}.
+     *
+     * @param playerUUID The {@link UUID} of the player.
+     * @param doorUID    The UID of the {@link DoorBase}.
+     * @return The level of ownership a player has over a {@link DoorBase}.
+     */
+    public int getPermission(final @NotNull String playerUUID, final long doorUID)
     {
         return db.getPermission(playerUUID, doorUID);
     }
 
-    // Update the coordinates of a given door.
-    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
-                                 int blockZMin, int blockXMax, int blockYMax, int blockZMax)
+    /**
+     * Updates the coordinates of a {@link DoorBase} in the database.
+     *
+     * @param doorUID   The UID of the {@link DoorBase}.
+     * @param isOpen    Whether the {@link DoorBase} is now open or not.
+     * @param blockXMin The lower bound x coordinates.
+     * @param blockYMin The lower bound y coordinates.
+     * @param blockZMin The lower bound z coordinates.
+     * @param blockXMax The upper bound x coordinates.
+     * @param blockYMax The upper bound y coordinates.
+     * @param blockZMax The upper bound z coordinates.
+     */
+    public void updateDoorCoords(final long doorUID, final boolean isOpen, final int blockXMin, final int blockYMin,
+                                 final int blockZMin, final int blockXMax, final int blockYMax, final int blockZMax)
     {
         db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax,
                             blockYMax, blockZMax);
     }
 
-    // Update the coordinates of a given door.
-    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
-                                 int blockZMin, int blockXMax, int blockYMax, int blockZMax,
-                                 @Nullable PBlockFace newEngSide)
+    /**
+     * Updates the coordinates of a {@link DoorBase} in the database.
+     *
+     * @param doorUID    The UID of the {@link DoorBase}.
+     * @param isOpen     Whether the {@link DoorBase} is now open or not.
+     * @param blockXMin  The lower bound x coordinates.
+     * @param blockYMin  The lower bound y coordinates.
+     * @param blockZMin  The lower bound z coordinates.
+     * @param blockXMax  The upper bound x coordinates.
+     * @param blockYMax  The upper bound y coordinates.
+     * @param blockZMax  The upper bound z coordinates.
+     * @param newEngSide The new engine side of the {@link DoorBase}.
+     */
+    public void updateDoorCoords(final long doorUID, final boolean isOpen, final int blockXMin, final int blockYMin,
+                                 final int blockZMin, final int blockXMax, final int blockYMax, final int blockZMax,
+                                 final @Nullable PBlockFace newEngSide)
     {
         if (newEngSide == null)
             updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax);
@@ -349,7 +584,15 @@ public class DatabaseManager extends Restartable
                                 blockZMax, newEngSide);
     }
 
-    public boolean addOwner(DoorBase door, UUID playerUUID, int permission)
+    /**
+     * Adds a player as owner to a {@link DoorBase} at a given level of ownership.
+     *
+     * @param door       The {@link DoorBase}.
+     * @param playerUUID The {@link UUID} of the {@link Player}.
+     * @param permission The level of ownership.
+     * @return True if owner addition was successful.
+     */
+    public boolean addOwner(final @NotNull DoorBase door, final @NotNull UUID playerUUID, final int permission)
     {
         if (permission < 1 || permission > 2 || door.getPermission() != 0 || door.getPlayerUUID().equals(playerUUID))
             return false;
@@ -358,46 +601,96 @@ public class DatabaseManager extends Restartable
         return true;
     }
 
-    public boolean removeOwner(DoorBase door, UUID playerUUID)
+    /**
+     * Remove a {@link Player} as owner of a {@link DoorBase}.
+     *
+     * @param door       The {@link DoorBase}.
+     * @param playerUUID The {@link UUID} of the {@link Player}.
+     * @return True if owner removal was successful.
+     */
+    public boolean removeOwner(final @NotNull DoorBase door, final @NotNull UUID playerUUID)
     {
         return removeOwner(door.getDoorUID(), playerUUID);
     }
 
-    public boolean removeOwner(long doorUID, UUID playerUUID)
+    /**
+     * Remove a {@link Player} as owner of a {@link DoorBase}.
+     *
+     * @param doorUID    The UID of the {@link DoorBase}.
+     * @param playerUUID The {@link UUID} of the {@link Player}.
+     * @return True if owner removal was successful.
+     */
+    public boolean removeOwner(final long doorUID, final @NotNull UUID playerUUID)
     {
         if (db.getPermission(playerUUID.toString(), doorUID) == 0)
             return false;
         return db.removeOwner(doorUID, playerUUID.toString());
     }
 
-    public List<DoorOwner> getDoorOwners(long doorUID)
+    /**
+     * Gets all owners of a {@link DoorBase}.
+     *
+     * @param doorUID The UID of the {@link DoorBase}.
+     * @return All owners of a {@link DoorBase}.
+     */
+    public List<DoorOwner> getDoorOwners(final long doorUID)
     {
         return db.getOwnersOfDoor(doorUID);
     }
 
-    public void updateDoorOpenDirection(long doorUID, RotateDirection openDir)
+    /**
+     * Updates the opening direction of a {@link DoorBase}.
+     *
+     * @param doorUID The UID of the {@link DoorBase}.
+     * @param openDir The new opening direction.
+     */
+    public void updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir)
     {
-        db.updateDoorOpenDirection(doorUID, openDir == null ? RotateDirection.NONE : openDir);
+        db.updateDoorOpenDirection(doorUID, openDir);
     }
 
-    public void updateDoorAutoClose(long doorUID, int autoClose)
+    /**
+     * Updates the auto close timer of a {@link DoorBase}.
+     *
+     * @param doorUID   The UID of the {@link DoorBase}.
+     * @param autoClose The new auto close timer value.
+     */
+    public void updateDoorAutoClose(final long doorUID, final int autoClose)
     {
         db.updateDoorAutoClose(doorUID, autoClose);
     }
 
-    public void updateDoorBlocksToMove(long doorID, int blocksToMove)
+    /**
+     * Updates the number of blocks a {@link DoorBase} will try to move.
+     *
+     * @param doorUID      The UID of the {@link DoorBase}.
+     * @param blocksToMove The new number of blocks to move value.
+     */
+    public void updateDoorBlocksToMove(final long doorUID, final int blocksToMove)
     {
-        db.updateDoorBlocksToMove(doorID, blocksToMove);
+        db.updateDoorBlocksToMove(doorUID, blocksToMove);
     }
 
-    // Change the "locked" status of a door.
-    public void setLock(long doorUID, boolean newLockStatus)
+    /**
+     * Changes the locked status of a {@link DoorBase}.
+     *
+     * @param doorUID       The UID of the {@link DoorBase}.
+     * @param newLockStatus The new locked status.
+     */
+    public void setLock(final long doorUID, final boolean newLockStatus)
     {
         db.setLock(doorUID, newLockStatus);
     }
 
-    // Get a door from the x,y,z coordinates of its power block.
-    public @NotNull List<DoorBase> doorsFromPowerBlockLoc(@NotNull Location loc, @NotNull UUID worldUUID)
+    /**
+     * Gets all {@link DoorBase}s that have a powerblock at a location in a world.
+     *
+     * @param loc       The location.
+     * @param worldUUID The {@link UUID} of the world.
+     * @return All {@link DoorBase}s that have a powerblock at a location in a world.
+     */
+    @NotNull
+    public List<DoorBase> doorsFromPowerBlockLoc(final @NotNull Location loc, final @NotNull UUID worldUUID)
     {
         List<DoorBase> ret = new ArrayList<>();
         long chunkHash = Util.simpleChunkHashFromLocation(loc.getBlockX(), loc.getBlockZ());
@@ -418,13 +711,18 @@ public class DatabaseManager extends Restartable
             worldMap.put(chunkHash, powerBlockData);
         }
         List<Long> doorUIDs = powerBlockData
-                .get(Util.simpleLocationhash(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+            .get(Util.simpleLocationhash(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
         doorUIDs.forEach(K -> db.getDoor(K).ifPresent(door -> ret.add(door)));
         return ret;
     }
 
-    // Change the location of a powerblock.
-    public void updatePowerBlockLoc(long doorUID, @NotNull Location loc)
+    /**
+     * Updates the Location of the powerblock of a {@link DoorBase} in the database.
+     *
+     * @param doorUID The UID of the {@link DoorBase}.
+     * @param loc     The new Location.
+     */
+    public void updatePowerBlockLoc(final long doorUID, final @NotNull Location loc)
     {
         Map<Long, Map<Long, List<Long>>> worldMap = pbCache.getOrDefault(loc.getWorld().getUID(), null);
 

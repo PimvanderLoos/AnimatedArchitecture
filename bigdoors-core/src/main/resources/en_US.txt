@@ -23,47 +23,47 @@ DOORTYPE.CLOCK=Clock
 
 
 # Supported: %DOORLIMIT%
-ERROR.TOOMANYDOORSOWNED=§4You are not allowed to own more than %DOORLIMIT% doors!
+ERROR.TOOMANYDOORSOWNED=&4You are not allowed to own more than %DOORLIMIT% doors!
 
 # Supported: %INPUT%
-ERROR.INVALIDDOORNAME=§4"%INPUT% is not a valid door name!
-ERROR.INVALIDDOORID=§4"%INPUT% does not refer to an existing door!
+ERROR.INVALIDDOORNAME=&4"%INPUT% is not a valid door name!
+ERROR.INVALIDDOORID=&4"%INPUT% does not refer to an existing door!
 
 # Supported: %DOORTYPE%
-ERROR.DOORTYPEDISABLED=§4The door type "%DOORTYPE%" is not enabled!
+ERROR.DOORTYPEDISABLED=&4The door type "%DOORTYPE%" is not enabled!
 
 # Supported: %DOOR%
-ERROR.DOORALREADYCLOSED=§4"%DOOR%" is already closed!
-ERROR.DOORALREADYOPEN=§4"%DOOR%" is already open!
-ERROR.TOGGLEFAILURE=§4"%DOOR%" could not be toggled!
-ERROR.NOOPENDIRECTION=§4"%DOOR%" could not find an available open direction!
-ERROR.DOORISBUSY=§4"%DOOR%" is busy! Try again later.
-ERROR.DOORISLOCKED=§4"%DOOR%" is locked!
-ERROR.NOTOGGLEPERMISSION=§4You are not allowed to toggle "%DOOR%".
-ERROR.TOOMANYDOORSFOUND=§4You own multiple doors named "%DOORE%". Please use the ID of the desired door instead.
+ERROR.DOORALREADYCLOSED=&4"%DOOR%" is already closed!
+ERROR.DOORALREADYOPEN=&4"%DOOR%" is already open!
+ERROR.TOGGLEFAILURE=&4"%DOOR%" could not be toggled!
+ERROR.NOOPENDIRECTION=&4"%DOOR%" could not find an available open direction!
+ERROR.DOORISBUSY=&4"%DOOR%" is busy! Try again later.
+ERROR.DOORISLOCKED=&4"%DOOR%" is locked!
+ERROR.NOTOGGLEPERMISSION=&4You are not allowed to toggle "%DOOR%".
+ERROR.TOOMANYDOORSFOUND=&4You own multiple doors named "%DOORE%". Please use the ID of the desired door instead.
 
-ERROR.NODOORSFOUND=§4No doors found!
-ERROR.PLAYERISBUSY=§4You are already in a creation/relocation/inspector process.
-ERROR.PLAYERISNOTBUSY=§4You are not creating any doors right now! Please initiate the creation process in the GUI! Type "/BigDoors Menu" or "/BDM" for short.
+ERROR.NODOORSFOUND=&4No doors found!
+ERROR.PLAYERISBUSY=&4You are already in a creation/relocation/inspector process.
+ERROR.PLAYERISNOTBUSY=&4You are not creating any doors right now! Please initiate the creation process in the GUI! Type "/BigDoors Menu" or "/BDM" for short.
 
 # Supported: %INPUT%
-ERROR.INVALIDINPUT=§4"%INPUT%" is an invalid input value!
-ERROR.PLAYERNOTFOUND=§4Could not find player "%INPUT%"!
+ERROR.INVALIDINPUT=&4"%INPUT%" is an invalid input value!
+ERROR.PLAYERNOTFOUND=&4Could not find player "%INPUT%"!
 
-ERROR.GENERALERROR=§4An error occurred. Contact a server administrator!
-ERROR.NOPERMISSIONFORDOORTYPE=§4You do not have permission to create a door of this type!
+ERROR.GENERALERROR=&4An error occurred. Contact a server administrator!
+ERROR.NOPERMISSIONFORDOORTYPE=&4You do not have permission to create a door of this type!
 
 # Supported: %HOOKNAME%
-ERROR.NOPERMISSIONFORLOCATION=§4"%HOOKNAME%" does not allow you to use or create doors in this area!
+ERROR.NOPERMISSIONFORLOCATION=&4"%HOOKNAME%" does not allow you to use or create doors in this area!
 
-ERROR.NOPERMISSIONFORACTION=§4You do not have the required permissions for this action!
-ERROR.COMMAND.NOPERMISSION=§4You do not have the required permissions to execute this command!
+ERROR.NOPERMISSIONFORACTION=&4You do not have the required permissions for this action!
+ERROR.COMMAND.NOPERMISSION=&4You do not have the required permissions to execute this command!
 
 # Supported: %INPUT%
-ERROR.COMMAND.INVALIDPERMISSIONVALUE=§4"%INPUT%" is not a valid permission value! Defaulting to permission level 1.
+ERROR.COMMAND.INVALIDPERMISSIONVALUE=&4"%INPUT%" is not a valid permission value! Defaulting to permission level 1.
 
 ERROR.COMMAND.NOTAPLAYER=Only players can execute this command!
-ERROR.COMMAND.NOTFOUND=§4Command not found!
+ERROR.COMMAND.NOTFOUND=&4Command not found!
 
 
 GUI.PAGE.DOORLIST=Door Menu
@@ -146,9 +146,9 @@ COMMAND.ADDOWNER.INIT=&aType "/BigDoors AddOwner <playerName> [permission]" in c
 COMMAND.ADDOWNER.SUCCESS=&aSuccessfully added another owner!
 COMMAND.REMOVEOWNER.INIT=&aType "/BigDoors RemoveOwner <playerName>" in chat. Replace "<playerName>" by the name of the player you want to remove as owner.
 COMMAND.REMOVEOWNER.SUCCESS=&aSuccessfully removed another owner!
-COMMAND.SETTIME.DISABLED=§aThe door will no longer close automatically.
+COMMAND.SETTIME.DISABLED=&aThe door will no longer close automatically.
 COMMAND.BLOCKSTOMOVE.INIT=&aType "/BigDoors SetBlocksToMove <distance>" in chat. Replace "<distance>" by the number of blocks that you want the door to attempt to move.\nAny value lower than 1 will make the door use default values.
-COMMAND.BLOCKSTOMOVE.DISABLED=§aThe door will now use the default values for movement again.
+COMMAND.BLOCKSTOMOVE.DISABLED=&aThe door will now use the default values for movement again.
 COMMAND.REMOVEOWNER.LIST=&aThese are the current owners of this door:
 COMMAND.SETTIME.INIT=&aType "/BigDoors SetAutoCloseTime <time>" in chat. Replace "<time>" by a number in seconds. After that number of seconds, the door will close again.\nSetting a negative amount of time disables it!
 
@@ -160,113 +160,113 @@ COMMAND.REMOVEOWNER.FAIL=&aCould not remove player "%INPUT%" as owner! Are you s
 COMMAND.ADDOWNER.FAIL=&aCould not add owner "%INPUT%"! Are you sure the name is correct the permission is valid?
 
 # Supported: %AUTOCLOSE%
-COMMAND.SETTIME.SUCCESS=§aThe door will now close after %AUTOCLOSE% seconds.
+COMMAND.SETTIME.SUCCESS=&aThe door will now close after %AUTOCLOSE% seconds.
 
 # Supported: %BLOCKSTOMOVE%
-COMMAND.BLOCKSTOMOVE.SUCCESS=§aThe door will now try to move %BLOCKSTOMOVE% blocks.
+COMMAND.BLOCKSTOMOVE.SUCCESS=&aThe door will now try to move %BLOCKSTOMOVE% blocks.
 
 
 
-CREATOR.GENERAL.GIVENAME=§aPlease start by giving the door/drawbridge/portcullis a message using the command: "/BigDoors SetName <message>"
-CREATOR.GENERAL.INVALIDPOINT=§4The selected point was invalid! Try again!
-CREATOR.GENERAL.INVALIDROTATIONPOINT=§4Invalid rotation point selected! Try again!
-CREATOR.GENERAL.INVALIDROTATIONDIRECTION=§4Invalid rotation point selection! Try again!
-CREATOR.GENERAL.CANCELLED=§4The creation process has been cancelled.
-CREATOR.GENERAL.TIMEOUT=§4Time's up! Creation was aborted, please try again.
+CREATOR.GENERAL.GIVENAME=&aPlease start by giving the door/drawbridge/portcullis a message using the command: "/BigDoors SetName <message>"
+CREATOR.GENERAL.INVALIDPOINT=&4The selected point was invalid! Try again!
+CREATOR.GENERAL.INVALIDROTATIONPOINT=&4Invalid rotation point selected! Try again!
+CREATOR.GENERAL.INVALIDROTATIONDIRECTION=&4Invalid rotation point selection! Try again!
+CREATOR.GENERAL.CANCELLED=&4The creation process has been cancelled.
+CREATOR.GENERAL.TIMEOUT=&4Time's up! Creation was aborted, please try again.
 CREATOR.GENERAL.STICKNAME=Big Door Tool
-CREATOR.GENERAL.INIT=§aProcess initiated! You have 60 seconds to complete this process!\nIf you wish to cancel the process sooner, type "/BigDoors cancel" in chat.
+CREATOR.GENERAL.INIT=&aProcess initiated! You have 60 seconds to complete this process!\nIf you wish to cancel the process sooner, type "/BigDoors cancel" in chat.
 
 # Supported: %BLOCKLIMIT%
-CREATOR.GENERAL.AREATOOBIG=§4You are not allowed to create a door this big. Your size limit is %BLOCKLIMIT%.
+CREATOR.GENERAL.AREATOOBIG=&4You are not allowed to create a door this big. Your size limit is %BLOCKLIMIT%.
 
 # Supported: %DOORPRICE%
-CREATOR.GENERAL.INSUFFICIENTFUNDS=§4You have insufficient funds to create this door! You'd need %DOORPRICE%.
-CREATOR.GENERAL.MONEYWITHDRAWN=§a%DOORPRICE% has been withdrawn from your account.
+CREATOR.GENERAL.INSUFFICIENTFUNDS=&4You have insufficient funds to create this door! You'd need %DOORPRICE%.
+CREATOR.GENERAL.MONEYWITHDRAWN=&a%DOORPRICE% has been withdrawn from your account.
 
 
 CREATOR.PBRELOCATOR.STICKLORE=This tool is used to change the location of a power block.
-CREATOR.PBRELOCATOR.INIT=§aYou have been given a Big Door Relocator stick! You can use this tool to change the location of a powerblock. Just hit a new block!
-CREATOR.PBRELOCATOR.SUCCESS=§aPower Block Relocation successful! Don't forget to put a powerblock (default: Gold block) here! Otherwise, it won't work!
-CREATOR.PBRELOCATOR.LOCATIONINUSE=§4Invalid Power Block Location selected! Location already in use by another door!
+CREATOR.PBRELOCATOR.INIT=&aYou have been given a Big Door Relocator stick! You can use this tool to change the location of a powerblock. Just hit a new block!
+CREATOR.PBRELOCATOR.SUCCESS=&aPower Block Relocation successful! Don't forget to put a powerblock (default: Gold block) here! Otherwise, it won't work!
+CREATOR.PBRELOCATOR.LOCATIONINUSE=&4Invalid Power Block Location selected! Location already in use by another door!
 
 
 CREATOR.PBINSPECTOR.STICKLORE=This tool is used to inspect a power block.
-CREATOR.PBINSPECTOR.INIT=§aYou have been given a Big Door Power Block Inspector Stick! You can use this tool to inspect a powerblock. Just hit a block!
+CREATOR.PBINSPECTOR.INIT=&aYou have been given a Big Door Power Block Inspector Stick! You can use this tool to inspect a powerblock. Just hit a block!
 
 
 CREATOR.PORTCULLIS.STICKLORE=This tool is used to create a portcullise.
-CREATOR.PORTCULLIS.INIT=§aYou have been given a Portcullis Creator Stick!
-CREATOR.PORTCULLIS.SUCCESS=§aPortcullis creation process successful!
-CREATOR.PORTCULLIS.STEP1=§aStep 1/2: Please select the first corner of the portcullis.
-CREATOR.PORTCULLIS.STEP2=§aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the portcullis.
+CREATOR.PORTCULLIS.INIT=&aYou have been given a Portcullis Creator Stick!
+CREATOR.PORTCULLIS.SUCCESS=&aPortcullis creation process successful!
+CREATOR.PORTCULLIS.STEP1=&aStep 1/2: Please select the first corner of the portcullis.
+CREATOR.PORTCULLIS.STEP2=&aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the portcullis.
 
 
 CREATOR.DRAWBRIDGE.STICKLORE=This tool is used to create a drawbridge.
-CREATOR.DRAWBRIDGE.INIT=§aYou have been given a Drawbridge Creator Stick!
-CREATOR.DRAWBRIDGE.SUCCESS=§aDrawbridge creation successful!
-CREATOR.DRAWBRIDGE.STEP1=§aStep 1/3: Please select the first corner of the drawbridge.
-CREATOR.DRAWBRIDGE.STEP2=§aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the drawbridge.
-CREATOR.DRAWBRIDGE.STEP3=§aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire drawbridge will swing.
-CREATOR.DRAWBRIDGE.STEP4=§aStep 4/4: First rotation point selected! Please select a second rotation point on the same axis to prevent ambiguity.
+CREATOR.DRAWBRIDGE.INIT=&aYou have been given a Drawbridge Creator Stick!
+CREATOR.DRAWBRIDGE.SUCCESS=&aDrawbridge creation successful!
+CREATOR.DRAWBRIDGE.STEP1=&aStep 1/3: Please select the first corner of the drawbridge.
+CREATOR.DRAWBRIDGE.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the drawbridge.
+CREATOR.DRAWBRIDGE.STEP3=&aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire drawbridge will swing.
+CREATOR.DRAWBRIDGE.STEP4=&aStep 4/4: First rotation point selected! Please select a second rotation point on the same axis to prevent ambiguity.
 
 
 CREATOR.ELEVATOR.STICKLORE=This tool is used to create an elevator.
-CREATOR.ELEVATOR.INIT=§aYou have been given a Elevators Creator Stick
-CREATOR.ELEVATOR.SUCCESS=§aElevator creation process successful!
-CREATOR.ELEVATOR.STEP1=§aStep 1/2: Please select the first corner of the elevator.
-CREATOR.ELEVATOR.STEP2=§aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the elevator.
+CREATOR.ELEVATOR.INIT=&aYou have been given a Elevators Creator Stick
+CREATOR.ELEVATOR.SUCCESS=&aElevator creation process successful!
+CREATOR.ELEVATOR.STEP1=&aStep 1/2: Please select the first corner of the elevator.
+CREATOR.ELEVATOR.STEP2=&aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the elevator.
 
 
 CREATOR.SLIDINGDOOR.STICKLORE=This tool is used to create a sliding door
-CREATOR.SLIDINGDOOR.INIT=§aYou have been given a Sliding Door Creator Stick!
-CREATOR.SLIDINGDOOR.SUCCESS=§aSliding Door creation successful!
-CREATOR.SLIDINGDOOR.STEP1=§aStep 1/2: Please select the first corner of the sliding door.
-CREATOR.SLIDINGDOOR.STEP2=§aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the sliding door.
+CREATOR.SLIDINGDOOR.INIT=&aYou have been given a Sliding Door Creator Stick!
+CREATOR.SLIDINGDOOR.SUCCESS=&aSliding Door creation successful!
+CREATOR.SLIDINGDOOR.STEP1=&aStep 1/2: Please select the first corner of the sliding door.
+CREATOR.SLIDINGDOOR.STEP2=&aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the sliding door.
 
 
 CREATOR.BIGDOOR.STICKLORE=This tool is used to create a big door.
-CREATOR.BIGDOOR.INIT=§aYou have been given a Big Door Creator Stick!
-CREATOR.BIGDOOR.SUCCESS=§aBig Door creation successful!
-CREATOR.BIGDOOR.STEP1=§aStep 1/3: Please select the first corner of the big door.
-CREATOR.BIGDOOR.STEP2=§aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the big door.
-CREATOR.BIGDOOR.STEP3=§aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire big door will swing.
+CREATOR.BIGDOOR.INIT=&aYou have been given a Big Door Creator Stick!
+CREATOR.BIGDOOR.SUCCESS=&aBig Door creation successful!
+CREATOR.BIGDOOR.STEP1=&aStep 1/3: Please select the first corner of the big door.
+CREATOR.BIGDOOR.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the big door.
+CREATOR.BIGDOOR.STEP3=&aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire big door will swing.
 
 
 CREATOR.FLAG.STICKLORE=This tool is used to create a flag.
-CREATOR.FLAG.INIT=§aYou have been given a Flag Creator Stick!
-CREATOR.FLAG.SUCCESS=§aFlag creation successful!
-CREATOR.FLAG.STEP1=§aStep 1/3: Please select the first corner of the flag.
-CREATOR.FLAG.STEP2=§aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the flag.
-CREATOR.FLAG.STEP3=§aStep 3/3: Second point selected! Please select the point where the flag is attached to the pole.
+CREATOR.FLAG.INIT=&aYou have been given a Flag Creator Stick!
+CREATOR.FLAG.SUCCESS=&aFlag creation successful!
+CREATOR.FLAG.STEP1=&aStep 1/3: Please select the first corner of the flag.
+CREATOR.FLAG.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the flag.
+CREATOR.FLAG.STEP3=&aStep 3/3: Second point selected! Please select the point where the flag is attached to the pole.
 
 
 CREATOR.WINDMILL.STICKLORE=This tool is used to create a windmill.
-CREATOR.WINDMILL.INIT=§aYou have been given a Windmill Creator Stick!
-CREATOR.WINDMILL.SUCCESS=§aWindmill creation successful!
-CREATOR.WINDMILL.STEP1=§aStep 1/3: Please select the first corner of the windmill.
-CREATOR.WINDMILL.STEP2=§aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the windmill.
-CREATOR.WINDMILL.STEP3=§aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire windmill will swing.
+CREATOR.WINDMILL.INIT=&aYou have been given a Windmill Creator Stick!
+CREATOR.WINDMILL.SUCCESS=&aWindmill creation successful!
+CREATOR.WINDMILL.STEP1=&aStep 1/3: Please select the first corner of the windmill.
+CREATOR.WINDMILL.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the windmill.
+CREATOR.WINDMILL.STEP3=&aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire windmill will swing.
 
 
 CREATOR.REVOLVINGDOOR.STICKLORE=This tool is used to create a revolving door.
-CREATOR.REVOLVINGDOOR.INIT=§aYou have been given a Revolving Door Creator Stick!
-CREATOR.REVOLVINGDOOR.SUCCESS=§aRevolving Door creation successful!
-CREATOR.REVOLVINGDOOR.STEP1=§aStep 1/3: Please select the first corner of the revolving door.
-CREATOR.REVOLVINGDOOR.STEP2=§aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the revolving door.
-CREATOR.REVOLVINGDOOR.STEP3=§aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire revolving door will swing.
+CREATOR.REVOLVINGDOOR.INIT=&aYou have been given a Revolving Door Creator Stick!
+CREATOR.REVOLVINGDOOR.SUCCESS=&aRevolving Door creation successful!
+CREATOR.REVOLVINGDOOR.STEP1=&aStep 1/3: Please select the first corner of the revolving door.
+CREATOR.REVOLVINGDOOR.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the revolving door.
+CREATOR.REVOLVINGDOOR.STEP3=&aStep 3/3: Second point selected! Please select a first rotation point (aka the hinge).\nThis is the column of blocks around which the entire revolving door will swing.
 
 
 CREATOR.GARAGEDOOR.STICKLORE=This tool is used to create a garage door.
-CREATOR.GARAGEDOOR.INIT=§aYou have been given a Garage Door Creator Stick!
-CREATOR.GARAGEDOOR.SUCCESS=§aGarage Door creation successful!
-CREATOR.GARAGEDOOR.STEP1=§aStep 1/3: Please select the first corner of the garage door.
-CREATOR.GARAGEDOOR.STEP2=§aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the garage door.
-CREATOR.GARAGEDOOR.STEP3=§aStep 3/3: Second point selected! Please select a rotation point!\nThis is the direction the garage door will go when closing. Should be on one of the 4 edges of the garage door.
+CREATOR.GARAGEDOOR.INIT=&aYou have been given a Garage Door Creator Stick!
+CREATOR.GARAGEDOOR.SUCCESS=&aGarage Door creation successful!
+CREATOR.GARAGEDOOR.STEP1=&aStep 1/3: Please select the first corner of the garage door.
+CREATOR.GARAGEDOOR.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the garage door.
+CREATOR.GARAGEDOOR.STEP3=&aStep 3/3: Second point selected! Please select a rotation point!\nThis is the direction the garage door will go when closing. Should be on one of the 4 edges of the garage door.
 
 
 CREATOR.CLOCK.STICKLORE=This tool is used to create a clock.
-CREATOR.CLOCK.INIT=§aYou have been given a clock Creator Stick!
-CREATOR.CLOCK.SUCCESS=§aclock creation successful!
-CREATOR.CLOCK.STEP1=§aStep 1/3: Please select the first corner of the clock.
-CREATOR.CLOCK.STEP2=§aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the clock. Note that the clock must be 2 blocks deep!
-CREATOR.CLOCK.STEP3=§aStep 3/3: Second point selected! Please select a rotation point!\nIn a conventional clock this would be in the center.
+CREATOR.CLOCK.INIT=&aYou have been given a clock Creator Stick!
+CREATOR.CLOCK.SUCCESS=&aclock creation successful!
+CREATOR.CLOCK.STEP1=&aStep 1/3: Please select the first corner of the clock.
+CREATOR.CLOCK.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the clock. Note that the clock must be 2 blocks deep!
+CREATOR.CLOCK.STEP3=&aStep 3/3: Second point selected! Please select a rotation point!\nIn a conventional clock this would be in the center.

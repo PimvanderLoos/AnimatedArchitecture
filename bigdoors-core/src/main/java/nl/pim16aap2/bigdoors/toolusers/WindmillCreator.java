@@ -7,16 +7,16 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * This class represents players in the process of creating doors. Objects of this class are instantiated when the
- * createdoor command is used and they are destroyed after The creation process has been completed successfully or the
- * timer ran out. In EventHandlers this class is used To check whether a user that is left-clicking is a DoorCreator &&
- * tell this class a left-click happened.
+ * Represents a user creating a {@link DoorType#WINDMILL}.
+ *
+ * @author Pim
  **/
 public class WindmillCreator extends BigDoorCreator
 {
-    public WindmillCreator(BigDoors plugin, Player player, String name)
+    public WindmillCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name);
         type = DoorType.WINDMILL;
@@ -34,8 +34,9 @@ public class WindmillCreator extends BigDoorCreator
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    protected Location getPowerBlockLoc(World world)
+    protected Location getPowerBlockLoc(final @NotNull World world)
     {
         return engine;
     }
@@ -44,13 +45,13 @@ public class WindmillCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected boolean isEngineValid(Location loc)
+    protected boolean isEngineValid(final @NotNull Location loc)
     {
         // Check if the engine selection is valid. In the case of a windmill, all this
         // means is that the selected block should be within x/y/z bounds.
         if (loc.getBlockX() < one.getBlockX() || loc.getBlockX() > two.getBlockX() ||
-                loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY() ||
-                loc.getBlockZ() < one.getBlockZ() || loc.getBlockZ() > two.getBlockZ())
+            loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY() ||
+            loc.getBlockZ() < one.getBlockZ() || loc.getBlockZ() > two.getBlockZ())
             return false;
         return true;
     }
@@ -59,7 +60,7 @@ public class WindmillCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected boolean isPosTwoValid(Location loc)
+    protected boolean isPosTwoValid(final @NotNull Location loc)
     {
         // Check if the second position is valid (door is 1 deep).
         int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
@@ -74,7 +75,8 @@ public class WindmillCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getInitMessage()
+    @NotNull
+    protected String getInitMessage()
     {
         return messages.getString(Message.CREATOR_WINDMILL_INIT);
     }
@@ -83,7 +85,8 @@ public class WindmillCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickLore()
+    @NotNull
+    protected String getStickLore()
     {
         return messages.getString(Message.CREATOR_WINDMILL_STICKLORE);
     }
@@ -92,7 +95,8 @@ public class WindmillCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickReceived()
+    @NotNull
+    protected String getStickReceived()
     {
         return messages.getString(Message.CREATOR_WINDMILL_INIT);
     }
@@ -101,7 +105,8 @@ public class WindmillCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep1()
+    @NotNull
+    protected String getStep1()
     {
         return messages.getString(Message.CREATOR_WINDMILL_STEP1);
     }
@@ -110,7 +115,8 @@ public class WindmillCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep2()
+    @NotNull
+    protected String getStep2()
     {
         return messages.getString(Message.CREATOR_WINDMILL_STEP2);
     }
@@ -119,7 +125,8 @@ public class WindmillCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep3()
+    @NotNull
+    protected String getStep3()
     {
         return messages.getString(Message.CREATOR_WINDMILL_STEP3);
     }
@@ -128,7 +135,8 @@ public class WindmillCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getSuccessMessage()
+    @NotNull
+    protected String getSuccessMessage()
     {
         return messages.getString(Message.CREATOR_WINDMILL_SUCCESS);
     }

@@ -13,17 +13,17 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a Garage Door doorType.
  *
- * @author pim
+ * @author Pim
  * @see HorizontalAxisAlignedBase
  */
 public class GarageDoor extends HorizontalAxisAlignedBase
 {
-    GarageDoor(PLogger pLogger, long doorUID, DoorType type)
+    GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
         super(pLogger, doorUID, type);
     }
 
-    GarageDoor(PLogger pLogger, long doorUID)
+    GarageDoor(final @NotNull PLogger pLogger, final long doorUID)
     {
         super(pLogger, doorUID, DoorType.GARAGEDOOR);
     }
@@ -31,6 +31,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public Vector2D[] calculateChunkRange()
     {
@@ -48,6 +49,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public PBlockFace calculateCurrentDirection()
     {
@@ -57,9 +59,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         int dX = engine.getBlockX() - min.getBlockX();
         int dZ = engine.getBlockZ() - min.getBlockZ();
 
-        int dirX = dX < 0 ? 1 : dX > 0 ? -1 : 0;
-        int dirZ = dZ < 0 ? 1 : dZ > 0 ? -1 : 0;
-        return PBlockFace.faceFromDir(new Vector3D(dirX, 0, dirZ));
+        return PBlockFace.faceFromDir(new Vector3D(Integer.compare(0, dX), 0, Integer.compare(0, dZ)));
     }
 
     /**
@@ -98,8 +98,10 @@ public class GarageDoor extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
-                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(final @Nullable PBlockFace openDirection,
+                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
+                                final @NotNull Location newMax, final int blocksMoved,
+                                final @Nullable Mutable<PBlockFace> newEngineSide)
     {
         int xMin = min.getBlockX();
         int yMin = min.getBlockY();
@@ -127,8 +129,8 @@ public class GarageDoor extends HorizontalAxisAlignedBase
             default:
                 directionVec = null;
                 pLogger.dumpStackTrace("Failed to get new locations of garage door \"" + getDoorUID()
-                                               + "\". Reason: Invalid rotateDirection \"" +
-                                               rotateDirection.toString() + "\"");
+                                           + "\". Reason: Invalid rotateDirection \"" +
+                                           rotateDirection.toString() + "\"");
                 return;
         }
 

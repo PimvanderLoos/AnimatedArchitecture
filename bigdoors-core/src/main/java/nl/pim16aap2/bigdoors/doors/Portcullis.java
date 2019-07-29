@@ -13,17 +13,17 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a Portcullis doorType.
  *
- * @author pim
+ * @author Pim
  * @see DoorBase
  */
 public class Portcullis extends DoorBase
 {
-    Portcullis(PLogger pLogger, long doorUID, DoorType type)
+    Portcullis(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
         super(pLogger, doorUID, type);
     }
 
-    Portcullis(PLogger pLogger, long doorUID)
+    Portcullis(final @NotNull PLogger pLogger, final long doorUID)
     {
         this(pLogger, doorUID, DoorType.PORTCULLIS);
     }
@@ -31,6 +31,7 @@ public class Portcullis extends DoorBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public PBlockFace calculateCurrentDirection()
     {
@@ -40,6 +41,7 @@ public class Portcullis extends DoorBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public Vector2D[] calculateChunkRange()
     {
@@ -63,8 +65,10 @@ public class Portcullis extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
-                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(final @Nullable PBlockFace openDirection,
+                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
+                                final @NotNull Location newMax, final int blocksMoved,
+                                final @Nullable Mutable<PBlockFace> newEngineSide)
     {
         newMin.setX(min.getBlockX());
         newMin.setY(min.getBlockY() + blocksMoved);

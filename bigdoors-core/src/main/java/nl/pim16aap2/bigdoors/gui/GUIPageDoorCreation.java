@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class GUIPageDoorCreation implements IGUIPage
     protected final GUI gui;
     protected final SubCommandNew subCommand;
 
-    protected GUIPageDoorCreation(final BigDoors plugin, final GUI gui)
+    GUIPageDoorCreation(final @NotNull BigDoors plugin, final @NotNull GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;
@@ -26,6 +27,7 @@ public class GUIPageDoorCreation implements IGUIPage
     }
 
     @Override
+    @NotNull
     public PageType getPageType()
     {
         return PageType.DOORCREATION;
@@ -46,7 +48,7 @@ public class GUIPageDoorCreation implements IGUIPage
         if (!(item.getSpecialValue() instanceof DoorType))
         {
             plugin.getPLogger().warn("Something went wrong constructing the selected GUIItem at " + interactionIDX
-                                             + ":\n" + item.toString());
+                                         + ":\n" + item.toString());
             return;
         }
         startCreationProcess(gui.getPlayer(), (DoorType) item.getSpecialValue());
@@ -86,7 +88,7 @@ public class GUIPageDoorCreation implements IGUIPage
 
     }
 
-    private void startCreationProcess(Player player, DoorType type)
+    private void startCreationProcess(final @NotNull Player player, final @NotNull DoorType type)
     {
         player.closeInventory();
         subCommand.execute(player, null, type);

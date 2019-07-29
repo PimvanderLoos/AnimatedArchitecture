@@ -6,26 +6,40 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a user relocating the power block of a {@link nl.pim16aap2.bigdoors.doors.DoorBase}.
+ *
+ * @author Pim
+ **/
 public class PowerBlockRelocator extends ToolUser
 {
     protected Location newLoc = null;
 
-    public PowerBlockRelocator(BigDoors plugin, Player player, long doorUID)
+    public PowerBlockRelocator(final @NotNull BigDoors plugin, final @NotNull Player player, final long doorUID)
     {
         super(plugin, player);
         this.doorUID = doorUID;
-        triggerGiveTool();
+        giveToolToPlayer();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void triggerGiveTool()
+    protected @NotNull String getToolReceivedMessage()
     {
-        giveToolToPlayer(messages.getString(Message.CREATOR_PBRELOCATOR_STICKLORE).split("\n"),
-                         messages.getString(Message.CREATOR_PBRELOCATOR_INIT).split("\n"));
+        return messages.getString(Message.CREATOR_PBRELOCATOR_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getToolLore()
+    {
+        return messages.getString(Message.CREATOR_PBRELOCATOR_STICKLORE);
     }
 
     /**
@@ -46,7 +60,7 @@ public class PowerBlockRelocator extends ToolUser
      * {@inheritDoc}
      */
     @Override
-    public void selector(Location loc)
+    public void selector(final @NotNull Location loc)
     {
         newLoc = loc;
         setIsDone(true);

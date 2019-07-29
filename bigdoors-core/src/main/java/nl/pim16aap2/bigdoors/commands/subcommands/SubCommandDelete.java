@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
 
@@ -39,10 +40,14 @@ public class SubCommandDelete extends SubCommand
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
-                   CommandActionNotAllowedException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
+               CommandActionNotAllowedException
     {
         DoorBase door = commandManager.getDoorFromArg(sender, args[getMinArgCount() - 1]);
 

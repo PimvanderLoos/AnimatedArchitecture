@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.handlers;
+package nl.pim16aap2.bigdoors.listener;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -6,13 +6,23 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class ChunkUnloadHandler implements Listener
+/**
+ * Represents a listener that keeps track of chunks being unloaded.
+ *
+ * @author Pim
+ */
+public class ChunkUnloadListener implements Listener
 {
     private final BigDoors plugin;
+    /**
+     * Checks if the ChunkUnloadEvent can be cancelled or not. In version 1.14 of Minecraft and later, that's no longer
+     * the case.
+     */
     private final boolean isCancellable;
     private boolean success = false;
     // <1.14 method.
@@ -20,13 +30,16 @@ public class ChunkUnloadHandler implements Listener
     // 1.14 => method.
     private Method isForceLoaded;
 
-    public ChunkUnloadHandler(BigDoors plugin)
+    public ChunkUnloadListener(final @NotNull BigDoors plugin)
     {
         this.plugin = plugin;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
         init();
     }
 
+    /**
+     * Initializes the listener.
+     */
     private void init()
     {
         try
@@ -50,8 +63,14 @@ public class ChunkUnloadHandler implements Listener
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onChunkUnload(ChunkUnloadEvent event)
+    /**
+     * Listens to chunks being unloaded and checks if it intersects with the region of any of the active {@link
+     * nl.pim16aap2.bigdoors.doors.DoorBase}s.
+     *
+     * @param event The {@link ChunkUnloadEvent}.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onChunkUnload(final @NotNull ChunkUnloadEvent event)
     {
         try
         {
@@ -69,7 +88,7 @@ public class ChunkUnloadHandler implements Listener
             // Find any and all doors currently operating in the chunk that's to be unloaded.
             for (BlockMover bm : plugin.getBlockMovers())
                 if (bm.getDoor().getWorld().equals(event.getWorld()) &&
-                        bm.getDoor().chunkInRange(event.getChunk()))
+                    bm.getDoor().chunkInRange(event.getChunk()))
                     // Abort currently running blockMovers.
                     bm.abort();
         }
@@ -79,7 +98,13 @@ public class ChunkUnloadHandler implements Listener
         }
     }
 
-    private boolean isChunkUnloadCancelled(ChunkUnloadEvent event)
+    /**
+     * Checks if a {@link ChunkUnloadEvent} is cancelled or not.
+     *
+     * @param event The {@link ChunkUnloadEvent}.
+     * @return The if the {@link ChunkUnloadEvent} is cancelled.
+     */
+    private boolean isChunkUnloadCancelled(final @NotNull ChunkUnloadEvent event)
     {
         try
         {

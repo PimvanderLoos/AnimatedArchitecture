@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Represents an object that can issue a restart to {@link IRestartable} objects.
  *
@@ -12,5 +14,5 @@ public interface IRestartableHolder
      *
      * @param restartable A {@link IRestartable} object that can be restarted by this object.
      */
-    public void registerRestartable(final IRestartable restartable);
+    void registerRestartable(final @NotNull IRestartable restartable);
 }

@@ -8,17 +8,16 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a Big Door.
+ * Represents a user creating a {@link DoorType#BIGDOOR}.
  *
  * @author Pim
- * @see Creator
  **/
-
 public class BigDoorCreator extends Creator
 {
-    public BigDoorCreator(BigDoors plugin, Player player, String name)
+    public BigDoorCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name, DoorType.BIGDOOR);
     }
@@ -27,13 +26,16 @@ public class BigDoorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected boolean isReadyToCreateDoor()
+    protected boolean isReadyToConstructDoor()
     {
         return one != null && two != null && engine != null;
     }
 
-    // Check if the engine selection is valid.
-    protected boolean isEngineValid(Location loc)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isEngineValid(final @NotNull Location loc)
     {
         if (loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY())
             return false;
@@ -50,8 +52,11 @@ public class BigDoorCreator extends Creator
         return false;
     }
 
-    // Check if the second position is valid (door is 1 deep).
-    protected boolean isPosTwoValid(Location loc)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isPosTwoValid(final @NotNull Location loc)
     {
         int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
         int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());
@@ -65,21 +70,22 @@ public class BigDoorCreator extends Creator
         return xDepth == 0 ^ zDepth == 0;
     }
 
-    // The engine should be at the very bottom, so put it there once created.
+    /**
+     * Updates the {@link Location} of the engine. For a {@link DoorType#BIGDOOR}, for example, this sets the Y-value of
+     * the engine coordinates to the 1 block under lowest Y-value of the {@link nl.pim16aap2.bigdoors.doors.DoorBase}.
+     */
     protected void updateEngineLoc()
     {
         engine.setY(one.getBlockY());
     }
 
-    // Take care of the selection points.
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public void selector(Location loc)
+    public void selector(final @NotNull Location loc)
     {
-        if (!hasName() || !creatorHasPermissionInLocation(loc))
+        if (isUnnamed() || !creatorHasPermissionInLocation(loc))
             return;
 
         if (one == null)
@@ -125,34 +131,7 @@ public class BigDoorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getInitMessage()
-    {
-        return messages.getString(Message.CREATOR_BIGDOOR_INIT);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected @NotNull String getStickLore()
-    {
-        return messages.getString(Message.CREATOR_BIGDOOR_STICKLORE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected @NotNull String getStickReceived()
-    {
-        return messages.getString(Message.CREATOR_BIGDOOR_INIT);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected @NotNull String getStep1()
+    protected @NotNull String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_BIGDOOR_STEP1);
     }
@@ -161,7 +140,57 @@ public class BigDoorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep2()
+    protected @NotNull String getToolLore()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getInitMessage()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getStickLore()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getStickReceived()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_INIT);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getStep1()
+    {
+        return messages.getString(Message.CREATOR_BIGDOOR_STEP1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    protected String getStep2()
     {
         return messages.getString(Message.CREATOR_BIGDOOR_STEP2);
     }
@@ -170,7 +199,8 @@ public class BigDoorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep3()
+    @NotNull
+    protected String getStep3()
     {
         return messages.getString(Message.CREATOR_BIGDOOR_STEP3);
     }
@@ -179,7 +209,8 @@ public class BigDoorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getSuccessMessage()
+    @NotNull
+    protected String getSuccessMessage()
     {
         return messages.getString(Message.CREATOR_BIGDOOR_SUCCESS);
     }

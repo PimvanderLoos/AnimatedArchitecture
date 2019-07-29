@@ -115,9 +115,9 @@ public class SQLiteJDBCDriverConnectionTest
         when(playerRetriever.getOfflinePlayer(player1UUID)).thenReturn(player1);
         when(playerRetriever.getOfflinePlayer(player2UUID)).thenReturn(player2);
         when(playerRetriever.getOfflinePlayer(player3UUID)).thenReturn(player3);
-        when(playerRetriever.nameFromUUID(player1UUID)).thenReturn(player1Name);
-        when(playerRetriever.nameFromUUID(player2UUID)).thenReturn(player2Name);
-        when(playerRetriever.nameFromUUID(player3UUID)).thenReturn(player3Name);
+        when(playerRetriever.nameFromUUID(player1UUID)).thenReturn(Optional.of(player1Name));
+        when(playerRetriever.nameFromUUID(player2UUID)).thenReturn(Optional.of(player2Name));
+        when(playerRetriever.nameFromUUID(player3UUID)).thenReturn(Optional.of(player3Name));
         doAnswer(invocation ->
                  {
                      Object[] args = invocation.getArguments();
@@ -220,7 +220,7 @@ public class SQLiteJDBCDriverConnectionTest
         door1.setMinimum(new Location(world, 144, 75, 153));
         door1.setMaximum(new Location(world, 144, 131, 167));
         door1.setEngineLocation(new Location(world, 144, 75, 153));
-        door1.setEngineSide(PBlockFace.valueOf(-1));
+        door1.setEngineSide(PBlockFace.NORTH);
         door1.setPowerBlockLocation(new Location(world, 101, 101, 101));
         door1.setName("massive1");
         door1.setOpenStatus(false);
@@ -235,7 +235,7 @@ public class SQLiteJDBCDriverConnectionTest
         door2.setMinimum(new Location(world, 144, 75, 168));
         door2.setMaximum(new Location(world, 144, 131, 182));
         door2.setEngineLocation(new Location(world, 144, 75, 153));
-        door2.setEngineSide(PBlockFace.valueOf(-1));
+        door2.setEngineSide(PBlockFace.NORTH);
         door2.setPowerBlockLocation(new Location(world, 102, 102, 102));
         door2.setName("massive2");
         door2.setOpenStatus(false);
@@ -250,7 +250,7 @@ public class SQLiteJDBCDriverConnectionTest
         door3.setMinimum(new Location(world, 144, 70, 168));
         door3.setMaximum(new Location(world, 144, 151, 112));
         door3.setEngineLocation(new Location(world, 144, 75, 153));
-        door3.setEngineSide(PBlockFace.valueOf(1));
+        door3.setEngineSide(PBlockFace.EAST);
         door3.setPowerBlockLocation(new Location(world, 103, 103, 103));
         door3.setName("massive2");
         door3.setOpenStatus(false);
@@ -669,7 +669,7 @@ public class SQLiteJDBCDriverConnectionTest
      */
     @Test
     public void testFailures()
-            throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException
+        throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException
     {
         init();
         // Disable printing errors:
@@ -698,7 +698,7 @@ public class SQLiteJDBCDriverConnectionTest
         {
             // Set the enabled status of the database to false.
             final Method databaseLock = SQLiteJDBCDriverConnection.class
-                    .getDeclaredMethod("setDatabaseLock", boolean.class);
+                .getDeclaredMethod("setDatabaseLock", boolean.class);
             databaseLock.setAccessible(true);
             databaseLock.invoke(storage, true);
 
@@ -717,7 +717,7 @@ public class SQLiteJDBCDriverConnectionTest
      */
     @Test
     public void testUpgrade()
-            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException
+        throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException
     {
         init();
         initDoors();
@@ -727,7 +727,7 @@ public class SQLiteJDBCDriverConnectionTest
         final Method upgrade = SQLiteJDBCDriverConnection.class.getDeclaredMethod("upgrade");
         upgrade.setAccessible(true);
         final Method replaceTempPlayerNames = SQLiteJDBCDriverConnection.class
-                .getDeclaredMethod("replaceTempPlayerNames");
+            .getDeclaredMethod("replaceTempPlayerNames");
         replaceTempPlayerNames.setAccessible(true);
 
         Files.copy(dbFile.toPath(), dbFileV0.toPath());

@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public enum Message implements MessageVariable
 {
+    EMPTY("EMPTY"),
+
     DOORTYPE_BIGDOOR("DOORTYPE.BIGDOOR"),
     DOORTYPE_DRAWBRIDGE("DOORTYPE.DRAWBRIDGE"),
     DOORTYPE_PORTCULLIS("DOORTYPE.PORTCULLIS"),
@@ -207,7 +209,18 @@ public enum Message implements MessageVariable
 
     ;
 
+    /**
+     * The list of names that can be used as variables in this message.
+     * <p>
+     * For example: "This door will move %BLOCKSTOMOVE% blocks." Would contain at least "%BLOCKSTOMOVE%".
+     */
     private final String[] variableNames;
+
+    /**
+     * The key this file has in the translation file.
+     * <p>
+     * For example: The key in "DOORTYPE.BIGDOOR=Big Door" is "DOORTYPE.BIGDOOR".
+     */
     private final String key;
 
     /**
@@ -216,7 +229,7 @@ public enum Message implements MessageVariable
      * @param key           The name of the key.
      * @param variableNames The names of the variables in the value that can be replaced.
      */
-    Message(@NotNull final String key, final String... variableNames)
+    Message(final @NotNull String key, final @NotNull String... variableNames)
     {
         this.variableNames = variableNames;
         this.key = key;
@@ -229,7 +242,8 @@ public enum Message implements MessageVariable
      * @param idx The index of the variable name.
      * @return The name of the variable at the given position of this message.
      */
-    public static String getVariableName(Message msg, int idx)
+    @NotNull
+    public static String getVariableName(final @NotNull Message msg, final int idx)
     {
         return msg.variableNames[idx];
     }
@@ -240,7 +254,8 @@ public enum Message implements MessageVariable
      * @param msg The message for which to retrieve the variable names.
      * @return The names of the variables of this message.
      */
-    public static String[] getVariableNames(Message msg)
+    @NotNull
+    public static String[] getVariableNames(final @NotNull Message msg)
     {
         return msg.variableNames;
     }
@@ -251,7 +266,8 @@ public enum Message implements MessageVariable
      * @param msg The message to retrieve the key for.
      * @return The key of the message.
      */
-    public static String getKey(Message msg)
+    @NotNull
+    public static String getKey(final @NotNull Message msg)
     {
         return msg.key;
     }
@@ -262,7 +278,7 @@ public enum Message implements MessageVariable
      * @param msg The message to retrieve the variable count for.
      * @return The number of variables in this message that can be substituted.
      */
-    public static int getVariableCount(Message msg)
+    public static int getVariableCount(final @NotNull Message msg)
     {
         return msg.variableNames.length;
     }

@@ -42,7 +42,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
      *                object.
      * @param plogger The logger object to log to.
      */
-    public GlowingBlockSpawner_V1_14_R1(final IRestartableHolder holder, final PLogger plogger)
+    public GlowingBlockSpawner_V1_14_R1(final @NotNull IRestartableHolder holder, final @NotNull PLogger plogger)
     {
         super(holder);
         this.plogger = plogger;
@@ -52,7 +52,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
     }
 
     /**
-     * Initialize all teams.
+     * Initializes all teams.
      */
     private void init()
     {
@@ -69,11 +69,11 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
     }
 
     /**
-     * Register a new team with a specific color.
+     * Registers a new team with a specific color.
      *
      * @param color The color to register the team for.
      */
-    private void registerTeam(ChatColor color)
+    private void registerTeam(final @NotNull ChatColor color)
     {
         String name = "BigDoors" + color.ordinal();
         // Try to get an existing team, in case something had gone wrong unregistering them last time.
@@ -106,8 +106,8 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(@NotNull UUID playerUUID, @NotNull String world, long time, double x, double y,
-                                 double z)
+    public void spawnGlowinBlock(final @NotNull UUID playerUUID, final @NotNull String world, final long time,
+                                 final double x, final double y, final double z)
     {
         spawnGlowinBlock(playerUUID, world, time, x + 0, y + 0, z, ChatColor.WHITE);
     }
@@ -116,8 +116,8 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(@NotNull UUID playerUUID, @NotNull String world, long time, double x,
-                                 double y, double z, @NotNull Object colorObject)
+    public void spawnGlowinBlock(final @NotNull UUID playerUUID, final @NotNull String world, final long time,
+                                 final double x, final double y, final double z, final @NotNull Object colorObject)
     {
         org.bukkit.ChatColor color;
         if (!(colorObject instanceof ChatColor))
@@ -143,41 +143,41 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
         }
 
         new java.util.Timer().schedule(
-                new java.util.TimerTask()
+            new java.util.TimerTask()
+            {
+                @Override
+                public void run()
                 {
-                    @Override
-                    public void run()
-                    {
-                        PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-                        EntityMagmaCube magmaCube = new EntityMagmaCube(EntityTypes.MAGMA_CUBE,
-                                                                        ((CraftWorld) bukkitWorld).getHandle());
-                        magmaCube.setLocation(x, y, z, 0, 0);
-                        magmaCube.setSize(2, true);
-                        magmaCube.setFlag(6, true); //Glow
-                        magmaCube.setNoGravity(true);
-                        magmaCube.setInvisible(true);
-                        magmaCube.setNoAI(true);
-                        magmaCube.setSilent(true);
-                        teams.get(color).addEntry(magmaCube.getName());
+                    PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+                    EntityMagmaCube magmaCube = new EntityMagmaCube(EntityTypes.MAGMA_CUBE,
+                                                                    ((CraftWorld) bukkitWorld).getHandle());
+                    magmaCube.setLocation(x, y, z, 0, 0);
+                    magmaCube.setSize(2, true);
+                    magmaCube.setFlag(6, true); //Glow
+                    magmaCube.setNoGravity(true);
+                    magmaCube.setInvisible(true);
+                    magmaCube.setNoAI(true);
+                    magmaCube.setSilent(true);
+                    teams.get(color).addEntry(magmaCube.getName());
 
-                        PacketPlayOutSpawnEntityLiving spawnMagmaCube = new PacketPlayOutSpawnEntityLiving(magmaCube);
-                        connection.sendPacket(spawnMagmaCube);
+                    PacketPlayOutSpawnEntityLiving spawnMagmaCube = new PacketPlayOutSpawnEntityLiving(magmaCube);
+                    connection.sendPacket(spawnMagmaCube);
 
-                        new java.util.Timer().schedule(
-                                new java.util.TimerTask()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        PacketPlayOutEntityDestroy killMagmaCube = new PacketPlayOutEntityDestroy(
-                                                magmaCube.getId());
-                                        connection.sendPacket(killMagmaCube);
-                                        cancel();
-                                    }
-                                }, time * 1000);
-                        cancel();
-                    }
-                }, 0
+                    new java.util.Timer().schedule(
+                        new java.util.TimerTask()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                PacketPlayOutEntityDestroy killMagmaCube = new PacketPlayOutEntityDestroy(
+                                    magmaCube.getId());
+                                connection.sendPacket(killMagmaCube);
+                                cancel();
+                            }
+                        }, time * 1000);
+                    cancel();
+                }
+            }, 0
         );
     }
 }

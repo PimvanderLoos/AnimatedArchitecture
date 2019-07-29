@@ -26,7 +26,7 @@ public interface IStorage
      * @param doorUID    The door to retrieve this player's level of ownership of.
      * @return The level of ownership this player has over this door or -1 for no ownership at all.
      */
-    int getPermission(@NotNull final String playerUUID, final long doorUID);
+    int getPermission(final @NotNull String playerUUID, final long doorUID);
 
     /**
      * Delete the door with the given doorUID from the database.
@@ -43,7 +43,7 @@ public interface IStorage
      * @param doorName   The name of the doors to delete.
      * @return True if at least 1 door was successfully removed.
      */
-    boolean removeDoors(@NotNull final String playerUUID, @NotNull final String doorName);
+    boolean removeDoors(final @NotNull String playerUUID, final @NotNull String doorName);
 
     /**
      * Gets the total number of doors own by the given player.
@@ -78,7 +78,8 @@ public interface IStorage
      * @param doorUID    The UID of the door to retrieve.
      * @return The door if it exists and if the player is an owner of it.
      */
-    @NotNull Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID);
+    @NotNull
+    Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID);
 
 
     /**
@@ -87,7 +88,8 @@ public interface IStorage
      * @param doorUID The UID of the door to retrieve.
      * @return The door with the given doorUID and the original creator.
      */
-    @NotNull Optional<DoorBase> getDoor(final long doorUID);
+    @NotNull
+    Optional<DoorBase> getDoor(final long doorUID);
 
     /**
      * Gets all the doors owned by the the given player with the given name.
@@ -96,7 +98,8 @@ public interface IStorage
      * @param name       The name of the doors to search for.
      * @return All doors owned by the given player with the given name.
      */
-    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID, @NotNull final String name);
+    @NotNull
+    Optional<List<DoorBase>> getDoors(final @NotNull UUID playerUUID, final @NotNull String name);
 
     /**
      * Gets all the doors owned by the the given player.
@@ -104,7 +107,8 @@ public interface IStorage
      * @param playerUUID The UUID of the player to search for.
      * @return All doors owned by the given player.
      */
-    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID);
+    @NotNull
+    Optional<List<DoorBase>> getDoors(final @NotNull UUID playerUUID);
 
     /**
      * Gets all the doors with the given name, regardless of who owns them.
@@ -112,7 +116,8 @@ public interface IStorage
      * @param name The name of the doors to search for.
      * @return All doors with the given name.
      */
-    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String name);
+    @NotNull
+    Optional<List<DoorBase>> getDoors(final @NotNull String name);
 
     /**
      * Gets all the doors with the given name, owned by the player with at least a certain permission level.
@@ -122,8 +127,9 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
-    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, @NotNull final String doorName,
-                                               int maxPermission);
+    @NotNull
+    Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID, final @NotNull String doorName,
+                                      int maxPermission);
 
     /**
      * Gets all the doors owned by a given player with at least a certain permission level.
@@ -132,7 +138,8 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors owned by the player with at least a certain permission level.
      */
-    @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID, int maxPermission);
+    @NotNull
+    Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID, int maxPermission);
 
     /**
      * Gets the {@link DoorBase} with the given name owned by the given player. If the player owns 0 or more than 1
@@ -142,8 +149,9 @@ public interface IStorage
      * @param doorName   The name of the {@link DoorBase} to look for.
      * @return The {@link DoorBase} with the given name owned by this player if exactly 1 such DoorBase exists.
      */
-    @NotNull Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName)
-            throws TooManyDoorsException;
+    @NotNull
+    Optional<DoorBase> getDoor(final @NotNull String playerUUID, final @NotNull String doorName)
+        throws TooManyDoorsException;
 
     /**
      * Gets the {@link DoorBase} with the given name owned by the given player. If the player owns 0 or more than 1
@@ -156,9 +164,9 @@ public interface IStorage
      *                      are included in the search.
      * @return The {@link DoorBase} with the given name owned by this player if exactly 1 such DoorBase exists.
      */
-    @NotNull Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName,
-                                        int maxPermission)
-            throws TooManyDoorsException;
+    @NotNull
+    Optional<DoorBase> getDoor(final @NotNull String playerUUID, final @NotNull String doorName, int maxPermission)
+        throws TooManyDoorsException;
 
     /**
      * Updates the name of the player.
@@ -169,7 +177,7 @@ public interface IStorage
      * @param playerName The current name of the player.
      * @return True if at least 1 record was modified.
      */
-    boolean updatePlayerName(@NotNull final String playerUUID, @NotNull final String playerName);
+    boolean updatePlayerName(final @NotNull String playerUUID, final @NotNull String playerName);
 
     /**
      * Gets the UUID of a player with a given name.
@@ -177,7 +185,8 @@ public interface IStorage
      * @param playerName The name of the player to search for.
      * @return The UUID of the player if there is exactly one player with this name.
      */
-    @NotNull Optional<UUID> getPlayerUUID(@NotNull final String playerName);
+    @NotNull
+    Optional<UUID> getPlayerUUID(final @NotNull String playerName);
 
     /**
      * Gets the name this player had when they last connected to the server from their UUID.
@@ -185,7 +194,8 @@ public interface IStorage
      * @param playerUUID The UUID of the player to search for.
      * @return The name this player had when they last connected to the server.
      */
-    @NotNull Optional<String> getPlayerName(@NotNull final String playerUUID);
+    @NotNull
+    Optional<String> getPlayerName(final @NotNull String playerUUID);
 
     /**
      * Gets the original creator of a door.
@@ -193,7 +203,8 @@ public interface IStorage
      * @param doorUID The door whose owner to get.
      * @return The original creator of a door.
      */
-    @NotNull Optional<DoorOwner> getOwnerOfDoor(final long doorUID);
+    @NotNull
+    Optional<DoorOwner> getOwnerOfDoor(final long doorUID);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
@@ -204,7 +215,8 @@ public interface IStorage
      * @param chunkHash The hash of the chunk the doors are in.
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
-    @NotNull Map<Long, List<Long>> getPowerBlockData(final long chunkHash);
+    @NotNull
+    Map<Long, List<Long>> getPowerBlockData(final long chunkHash);
 
     /**
      * Changes the blocksToMove value of a door.
@@ -229,7 +241,7 @@ public interface IStorage
      */
     void updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin,
                           final int zMin, final int xMax, final int yMax, final int zMax,
-                          @NotNull final PBlockFace engSide);
+                          final @NotNull PBlockFace engSide);
 
     /**
      * Updates the coordinates of a door.
@@ -260,7 +272,7 @@ public interface IStorage
      * @param doorUID The door to modify.
      * @param openDir The new rotation direction of this door.
      */
-    void updateDoorOpenDirection(final long doorUID, @NotNull final RotateDirection openDir);
+    void updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir);
 
     /**
      * Changes the location of the powerblock of a door.
@@ -272,7 +284,7 @@ public interface IStorage
      * @param worldUUID The UUID of the world the power block is now in.
      */
     void updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos,
-                                 @NotNull final UUID worldUUID);
+                                 final @NotNull UUID worldUUID);
 
     /**
      * Changes the lock status of a door.
@@ -287,7 +299,7 @@ public interface IStorage
      *
      * @param door The door to insert.
      */
-    void insert(@NotNull final DoorBase door);
+    void insert(final @NotNull DoorBase door);
 
     /**
      * Removes an owner of a door. Note that the original creator (= permission level 0) can never be removed.
@@ -296,7 +308,7 @@ public interface IStorage
      * @param playerUUID The UUID of the player to remove as owner of the door.
      * @return True if an owner was removed.
      */
-    boolean removeOwner(final long doorUID, @NotNull final String playerUUID);
+    boolean removeOwner(final long doorUID, final @NotNull String playerUUID);
 
     /**
      * Gets a list of all owners of a door. Contains at least 1 entry (creator).
@@ -304,7 +316,8 @@ public interface IStorage
      * @param doorUID The door to get the owners of.
      * @return A list of all owners of the door.
      */
-    @NotNull List<DoorOwner> getOwnersOfDoor(final long doorUID);
+    @NotNull
+    List<DoorOwner> getOwnersOfDoor(final long doorUID);
 
     /**
      * Adds a player as owner of a door with at a certain permission level to a door.
@@ -315,5 +328,5 @@ public interface IStorage
      * @param playerUUID The UUID of the player to add as owner.
      * @param permission The level of ownership the player will have over the door.
      */
-    void addOwner(final long doorUID, @NotNull final UUID playerUUID, final int permission);
+    void addOwner(final long doorUID, final @NotNull UUID playerUUID, final int permission);
 }

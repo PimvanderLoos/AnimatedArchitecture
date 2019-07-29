@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.managers.CommandManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class SubCommandMenu extends SubCommand
 {
@@ -23,9 +24,13 @@ public class SubCommandMenu extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();

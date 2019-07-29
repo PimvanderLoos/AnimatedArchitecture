@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -22,7 +23,7 @@ class SpigotUpdater
 {
     final static String DOWNLOAD_URL = "https://api.spiget.org/v2/resources/58669/versions/";
     final static String VERSIONS_URL = "https://api.spiget.org/v2/resources/58669/versions?size=" +
-            Integer.MAX_VALUE + "&spiget__ua=SpigetDocs";
+        Integer.MAX_VALUE + "&spiget__ua=SpigetDocs";
     final static String INFO_URL = "https://api.spiget.org/v2/resources/58669";
     private final BigDoors plugin;
     private int project = 0;
@@ -31,7 +32,7 @@ class SpigotUpdater
     private int newVersionID = -1;
     private boolean success = false;
 
-    public SpigotUpdater(BigDoors plugin, int projectID)
+    public SpigotUpdater(final @NotNull BigDoors plugin, final int projectID)
     {
         this.plugin = plugin;
         newVersion = plugin.getDescription().getVersion();
@@ -49,12 +50,12 @@ class SpigotUpdater
                         if (!plugin.getConfigLoader().autoDLUpdate() || versionsAgo > 1)
                         {
                             plugin.getLogger().info("An update was found! New version: " +
-                                                            getLatestVersion() + " download: " + getResourceURL() +
-                                                            ", Currently running: " +
-                                                            plugin.getDescription().getVersion());
+                                                        getLatestVersion() + " download: " + getResourceURL() +
+                                                        ", Currently running: " +
+                                                        plugin.getDescription().getVersion());
                             plugin.setLoginString("The BigDoors plugin is out of date. Found: " +
-                                                          getLatestVersion() + ", Currently running: " +
-                                                          plugin.getDescription().getVersion());
+                                                      getLatestVersion() + ", Currently running: " +
+                                                      plugin.getDescription().getVersion());
                         }
                         else if (success)
                             plugin.setLoginString("Update for BigDoors has been downloaded! Restart to apply it!");
@@ -88,7 +89,7 @@ class SpigotUpdater
         return "https://www.spigotmc.org/resources/" + project;
     }
 
-    private int getAge(long updateTime)
+    private int getAge(final long updateTime)
     {
         long currentTime = Instant.now().getEpochSecond();
         return (int) (currentTime - updateTime);
@@ -106,8 +107,8 @@ class SpigotUpdater
         try
         {
             versionsArray = (JSONArray) JSONValue.parseWithException(
-                    org.bukkit.craftbukkit.libs.org.apache.commons.io.IOUtils
-                            .toString(new URL(String.valueOf(VERSIONS_URL))));
+                org.bukkit.craftbukkit.libs.org.apache.commons.io.IOUtils
+                    .toString(new URL(String.valueOf(VERSIONS_URL))));
         }
         catch (NoClassDefFoundError e)
         {
@@ -127,7 +128,7 @@ class SpigotUpdater
                 if (plugin.getDescription().getVersion().equals(versionName))
                     return false;
                 age = getAge(Long.parseLong(
-                        ((JSONObject) versionsArray.get(versionsArray.size() - count)).get("releaseDate").toString()));
+                    ((JSONObject) versionsArray.get(versionsArray.size() - count)).get("releaseDate").toString()));
             }
         else
             ++count;
@@ -136,7 +137,7 @@ class SpigotUpdater
             versionsAgo = count;
             newVersion = ((JSONObject) versionsArray.get(versionsArray.size() - count)).get("name").toString();
             newVersionID = Integer
-                    .parseInt(((JSONObject) versionsArray.get(versionsArray.size() - count)).get("id").toString());
+                .parseInt(((JSONObject) versionsArray.get(versionsArray.size() - count)).get("id").toString());
         }
         return true;
     }
@@ -165,12 +166,12 @@ class SpigotUpdater
         {
             success = false;
             plugin.getPLogger().info("Update available! (" + newVersion
-                                             + ", current version = " + plugin.getDescription().getVersion() + ")\n"
-                                             +
-                                             "Cannot be downloaded automatically, as it is not the most recent version "
-                                             + "(the config doesn't allow me to download that!).\n"
-                                             + "You can download it manually at: " + (SpigotUpdater.DOWNLOAD_URL
-                    + newVersionID + "/download"));
+                                         + ", current version = " + plugin.getDescription().getVersion() + ")\n"
+                                         +
+                                         "Cannot be downloaded automatically, as it is not the most recent version "
+                                         + "(the config doesn't allow me to download that!).\n"
+                                         + "You can download it manually at: " + (SpigotUpdater.DOWNLOAD_URL
+                + newVersionID + "/download"));
             return;
         }
         File updateFolder = Bukkit.getUpdateFolderFile();
@@ -190,7 +191,7 @@ class SpigotUpdater
         if (httpConnection.getResponseCode() != 200)
         {
             RuntimeException e = new RuntimeException(new RuntimeException(
-                    "Download returned status #" + httpConnection.getResponseCode() + "\n for URL: " + dlURL));
+                "Download returned status #" + httpConnection.getResponseCode() + "\n for URL: " + dlURL));
             plugin.getPLogger().logException(e);
             throw e;
         }
@@ -226,6 +227,6 @@ class SpigotUpdater
         fos.close();
         success = true;
         plugin.getPLogger().info("Update downloaded! Restart to apply it! New version is " +
-                                         newVersion + ", Currently running " + plugin.getDescription().getVersion());
+                                     newVersion + ", Currently running " + plugin.getDescription().getVersion());
     }
 }

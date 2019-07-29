@@ -7,23 +7,34 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a user creating a {@link DoorType#PORTCULLIS}.
+ *
+ * @author Pim
+ **/
 public class PortcullisCreator extends Creator
 {
-    public PortcullisCreator(BigDoors plugin, Player player, String name)
+    public PortcullisCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name, DoorType.PORTCULLIS);
         super.init();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected boolean isReadyToCreateDoor()
+    protected boolean isReadyToConstructDoor()
     {
         return one != null && two != null && engine != null;
     }
 
-    // Make sure the power point is in the middle.
-    protected void setEngine()
+    /**
+     * Puts the engine location in the center.
+     */
+    protected void updateEngineLoc()
     {
         int xMid = one.getBlockX() + (two.getBlockX() - one.getBlockX()) / 2;
         int zMid = one.getBlockZ() + (two.getBlockZ() - one.getBlockZ()) / 2;
@@ -31,17 +42,49 @@ public class PortcullisCreator extends Creator
         engine = new Location(one.getWorld(), xMid, yMin, zMid);
     }
 
-    // Check if the second position is valid (door is 1 deep).
-    protected boolean isPosTwoValid(Location loc)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getToolReceivedMessage()
+    {
+        return messages.getString(Message.CREATOR_PORTCULLIS_STEP1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getToolLore()
+    {
+        return messages.getString(Message.CREATOR_PORTCULLIS_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isPosTwoValid(final @NotNull Location loc)
     {
         return true;
     }
 
-    // Take care of the selection points.
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void selector(Location loc)
+    protected boolean isEngineValid(final @NotNull Location loc)
     {
-        if (!hasName() || !creatorHasPermissionInLocation(loc))
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void selector(final @NotNull Location loc)
+    {
+        if (isUnnamed() || !creatorHasPermissionInLocation(loc))
             return;
 
         if (one == null)
@@ -60,7 +103,7 @@ public class PortcullisCreator extends Creator
         if (one != null && two != null)
         {
             minMaxFix();
-            setEngine();
+            updateEngineLoc();
             setIsDone(true);
         }
     }
@@ -69,7 +112,8 @@ public class PortcullisCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getInitMessage()
+    @NotNull
+    protected String getInitMessage()
     {
         return messages.getString(Message.CREATOR_PORTCULLIS_INIT);
     }
@@ -78,7 +122,8 @@ public class PortcullisCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickLore()
+    @NotNull
+    protected String getStickLore()
     {
         return messages.getString(Message.CREATOR_PORTCULLIS_STICKLORE);
     }
@@ -87,7 +132,8 @@ public class PortcullisCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickReceived()
+    @NotNull
+    protected String getStickReceived()
     {
         return messages.getString(Message.CREATOR_PORTCULLIS_INIT);
     }
@@ -96,7 +142,8 @@ public class PortcullisCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep1()
+    @NotNull
+    protected String getStep1()
     {
         return messages.getString(Message.CREATOR_PORTCULLIS_STEP1);
     }
@@ -105,7 +152,8 @@ public class PortcullisCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep2()
+    @NotNull
+    protected String getStep2()
     {
         return messages.getString(Message.CREATOR_PORTCULLIS_STEP2);
     }
@@ -114,7 +162,8 @@ public class PortcullisCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep3()
+    @NotNull
+    protected String getStep3()
     {
         return "";
     }
@@ -123,7 +172,8 @@ public class PortcullisCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getSuccessMessage()
+    @NotNull
+    protected String getSuccessMessage()
     {
         return messages.getString(Message.CREATOR_PORTCULLIS_SUCCESS);
     }

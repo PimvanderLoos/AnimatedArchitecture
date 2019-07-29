@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.handlers;
+package nl.pim16aap2.bigdoors.listener;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import org.bukkit.ChatColor;
@@ -8,6 +8,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+/**
+ * Represents a listener that keeps track of {@link Player}s logging in to send them any messages if needed.
+ *
+ * @author Pim
+ */
 public class LoginMessageHandler implements Listener
 {
     BigDoors plugin;
@@ -17,6 +22,11 @@ public class LoginMessageHandler implements Listener
         this.plugin = plugin;
     }
 
+    /**
+     * Listens to {@link Player}s logging in and sends them the login message.
+     *
+     * @param event The {@link PlayerJoinEvent}.
+     */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {

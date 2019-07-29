@@ -4,26 +4,31 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.DoorOpenResult;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class ElevatorOpener extends Opener
 {
-    PBlockFace ddirection;
-
-    public ElevatorOpener(BigDoors plugin)
+    public ElevatorOpener(final @NotNull BigDoors plugin)
     {
         super(plugin);
     }
 
-    // Open a door.
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
+    @NotNull
+    public DoorToggleResult toggleDoor(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                                       final double time, boolean instantOpen, final boolean playerToggle)
     {
-        DoorOpenResult isOpenable = super.isOpenable(door, silent);
-        if (isOpenable != DoorOpenResult.SUCCESS)
+        DoorToggleResult isOpenable = super.canBeToggled(door, playerToggle);
+        if (isOpenable != DoorToggleResult.SUCCESS)
             return abort(door, isOpenable);
 
         if (super.isTooBig(door))
@@ -32,13 +37,14 @@ public class ElevatorOpener extends Opener
         int blocksToMove = getBlocksToMove(door);
         if (blocksToMove != 0)
             plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
-                                                   plugin.getConfigLoader().getMultiplier(DoorType.ELEVATOR)));
+                                                   plugin.getConfigLoader().getMultiplier(DoorType.ELEVATOR),
+                                                   playerUUID));
         else
-            return abort(door, DoorOpenResult.NODIRECTION);
-        return DoorOpenResult.SUCCESS;
+            return abort(door, DoorToggleResult.NODIRECTION);
+        return DoorToggleResult.SUCCESS;
     }
 
-    private int getBlocksInDir(DoorBase door, RotateDirection upDown)
+    private int getBlocksInDir(final @NotNull DoorBase door, final @NotNull RotateDirection upDown)
     {
         int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksMoved = 0, step;
         xMin = door.getMinimum().getBlockX();
@@ -68,11 +74,11 @@ public class ElevatorOpener extends Opener
         return blocksMoved;
     }
 
-    private int getBlocksToMove(DoorBase door)
+    private int getBlocksToMove(final @NotNull DoorBase door)
     {
         int blocksUp = 0, blocksDown = 0;
         if (door.getOpenDir() == RotateDirection.UP && !door.isOpen() ||
-                door.getOpenDir() == RotateDirection.DOWN && door.isOpen())
+            door.getOpenDir() == RotateDirection.DOWN && door.isOpen())
             blocksUp = getBlocksInDir(door, RotateDirection.UP);
         else
             blocksDown = getBlocksInDir(door, RotateDirection.DOWN);

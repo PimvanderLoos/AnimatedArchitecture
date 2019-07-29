@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.BigDoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.Creator;
 import nl.pim16aap2.bigdoors.toolusers.DrawbridgeCreator;
 import nl.pim16aap2.bigdoors.toolusers.ElevatorCreator;
 import nl.pim16aap2.bigdoors.toolusers.FlagCreator;
@@ -15,13 +16,16 @@ import nl.pim16aap2.bigdoors.toolusers.GarageDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.PortcullisCreator;
 import nl.pim16aap2.bigdoors.toolusers.RevolvingDoorCreator;
 import nl.pim16aap2.bigdoors.toolusers.SlidingDoorCreator;
-import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.WindmillCreator;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class SubCommandNew extends SubCommand
 {
@@ -30,27 +34,27 @@ public class SubCommandNew extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.NEW;
 
-    public SubCommandNew(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandNew(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public static boolean hasCreationPermission(Player player, DoorType type)
+    public static boolean hasCreationPermission(final @NotNull Player player, final @NotNull DoorType type)
     {
         return player.hasPermission(CommandData.getPermission(CommandData.NEW) + type.toString().toLowerCase());
     }
 
-    private boolean isPlayerBusy(Player player)
+    private boolean isPlayerBusy(final @NotNull Player player)
     {
-        boolean isBusy = (plugin.getToolUser(player) != null || plugin.isCommandWaiter(player) != null);
+        boolean isBusy = (plugin.getToolUser(player).isPresent() || plugin.getCommandWaiter(player).isPresent());
         if (isBusy)
             SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_PLAYERISBUSY));
         return isBusy;
     }
 
     // Create a new door.
-    public void execute(Player player, String name, DoorType type)
+    public void execute(final @NotNull Player player, final @Nullable String name, final @NotNull DoorType type)
     {
         if (!DoorType.isEnabled(type))
         {
@@ -62,7 +66,7 @@ public class SubCommandNew extends SubCommand
         if (!hasCreationPermission(player, type))
         {
             SpigotUtil
-                    .messagePlayer(player, messages.getString(Message.ERROR_NOPERMISSIONFORDOORTYPE));
+                .messagePlayer(player, messages.getString(Message.ERROR_NOPERMISSIONFORDOORTYPE));
             return;
         }
 
@@ -84,53 +88,57 @@ public class SubCommandNew extends SubCommand
         if (isPlayerBusy(player))
             return;
 
-        ToolUser tu = null;
+        Creator creator = null;
         switch (type)
         {
             case BIGDOOR:
-                tu = new BigDoorCreator(plugin, player, name);
+                creator = new BigDoorCreator(plugin, player, name);
                 break;
             case DRAWBRIDGE:
-                tu = new DrawbridgeCreator(plugin, player, name);
+                creator = new DrawbridgeCreator(plugin, player, name);
                 break;
             case PORTCULLIS:
-                tu = new PortcullisCreator(plugin, player, name);
+                creator = new PortcullisCreator(plugin, player, name);
                 break;
             case ELEVATOR:
-                tu = new ElevatorCreator(plugin, player, name);
+                creator = new ElevatorCreator(plugin, player, name);
                 break;
             case SLIDINGDOOR:
-                tu = new SlidingDoorCreator(plugin, player, name);
+                creator = new SlidingDoorCreator(plugin, player, name);
                 break;
             case FLAG:
-                tu = new FlagCreator(plugin, player, name);
+                creator = new FlagCreator(plugin, player, name);
                 break;
             case WINDMILL:
-                tu = new WindmillCreator(plugin, player, name);
+                creator = new WindmillCreator(plugin, player, name);
                 break;
             case REVOLVINGDOOR:
-                tu = new RevolvingDoorCreator(plugin, player, name);
+                creator = new RevolvingDoorCreator(plugin, player, name);
                 break;
             case GARAGEDOOR:
-                tu = new GarageDoorCreator(plugin, player, name);
+                creator = new GarageDoorCreator(plugin, player, name);
                 break;
             default:
                 break;
         }
 
-        if (tu == null)
+        if (creator == null)
         {
             plugin.getPLogger()
                   .warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
             return;
         }
 
-        plugin.getDatabaseManager().startTimerForAbortable(tu, 60 * 20);
+        plugin.getDatabaseManager().startTimerForAbortableTask(creator, 60 * 20);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
@@ -140,21 +148,24 @@ public class SubCommandNew extends SubCommand
 
         if (args.length == minArgCount + 1)
         {
-            type = DoorType.valueOfFlag(args[args.length - 2].toUpperCase());
-            if (type == null)
+            Optional<DoorType> optType = DoorType.valueOfCommandFlag(args[args.length - 2].toUpperCase());
+            if (!optType.isPresent())
                 return false;
+            else type = optType.get();
         }
         execute((Player) sender, name, type);
         return true;
     }
 
     @Override
-    public String getHelp(CommandSender sender)
+    @NotNull
+    public String getHelp(final @NotNull CommandSender sender)
     {
         return help;
     }
 
     @Override
+    @NotNull
     public String getHelpArguments()
     {
         return argsHelp;
@@ -166,6 +177,7 @@ public class SubCommandNew extends SubCommand
         return minArgCount;
     }
 
+    @NotNull
     @Override
     public CommandData getCommandData()
     {
@@ -173,12 +185,14 @@ public class SubCommandNew extends SubCommand
     }
 
     @Override
+    @NotNull
     public String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
     @Override
+    @NotNull
     public String getName()
     {
         return CommandData.getCommandName(command);

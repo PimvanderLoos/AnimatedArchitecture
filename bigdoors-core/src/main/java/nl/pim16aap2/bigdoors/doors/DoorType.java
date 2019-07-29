@@ -3,179 +3,274 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
+/**
+ * Represents a type of door.
+ */
 public enum DoorType
 {
     BIGDOOR(0, true, "-BD", Message.DOORTYPE_BIGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
             DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
             DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_HORIZONTAL)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new BigDoor(pLogger, doorUID);
-                }
-            },
+                return new BigDoor(pLogger, doorUID);
+            }
+        },
 
     DRAWBRIDGE(1, true, "-DB", Message.DOORTYPE_DRAWBRIDGE, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new Drawbridge(pLogger, doorUID);
-                }
-            },
+                return new Drawbridge(pLogger, doorUID);
+            }
+        },
 
     PORTCULLIS(2, true, "-PC", Message.DOORTYPE_PORTCULLIS, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT_VERTICAL,
                DoorAttribute.BLOCKSTOMOVE)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new Portcullis(pLogger, doorUID);
-                }
-            },
+                return new Portcullis(pLogger, doorUID);
+            }
+        },
 
     ELEVATOR(3, true, "-EL", Message.DOORTYPE_ELEVATOR, DoorType.PORTCULLIS.attributes)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new Elevator(pLogger, doorUID);
-                }
-            },
+                return new Elevator(pLogger, doorUID);
+            }
+        },
 
     SLIDINGDOOR(4, true, "-SD", Message.DOORTYPE_SLIDINGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                 DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                 DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT_HORIZONTAL,
                 DoorAttribute.BLOCKSTOMOVE)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new SlidingDoor(pLogger, doorUID);
-                }
-            },
+                return new SlidingDoor(pLogger, doorUID);
+            }
+        },
 
     FLAG(5, true, "-FL", Message.DOORTYPE_FLAG, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
          DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
          DoorAttribute.REMOVEOWNER)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new Flag(pLogger, doorUID);
-                }
-            },
+                return new Flag(pLogger, doorUID);
+            }
+        },
 
     GARAGEDOOR(6, true, "-GD", Message.DOORTYPE_GARAGEDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new GarageDoor(pLogger, doorUID);
-                }
-            },
+                return new GarageDoor(pLogger, doorUID);
+            }
+        },
 
     WINDMILL(7, true, "-WM", Message.DOORTYPE_WINDMILL, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
              DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER,
              DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new Windmill(pLogger, doorUID);
-                }
-            },
+                return new Windmill(pLogger, doorUID);
+            }
+        },
 
     REVOLVINGDOOR(8, true, "-RD", Message.DOORTYPE_REVOLVINGDOOR, DoorType.BIGDOOR.attributes)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new RevolvingDoor(pLogger, doorUID);
-                }
-            },
+                return new RevolvingDoor(pLogger, doorUID);
+            }
+        },
 
-    CLOCK(7, true, "-CL", Message.DOORTYPE_CLOCK, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
+    CLOCK(9, true, "-CL", Message.DOORTYPE_CLOCK, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
           DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER,
           DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
+        {
+            @NotNull
+            @Override
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
             {
-                @Override
-                public DoorBase getNewDoor(final PLogger pLogger, final long doorUID)
-                {
-                    return new Windmill(pLogger, doorUID);
-                }
-            },
+                return new Windmill(pLogger, doorUID);
+            }
+        },
     ;
 
     private final static Map<Integer, DoorType> valMap = new HashMap<>();
-    private final static Map<String, DoorType> flagMap = new HashMap<>();
+    private final static Map<String, DoorType> commandFlagMap = new HashMap<>();
 
     static
     {
         for (DoorType type : DoorType.values())
         {
             valMap.put(type.val, type);
-            flagMap.put(type.flag, type);
+            commandFlagMap.put(type.commandFlag, type);
         }
     }
 
+    /**
+     * The index value of this type.
+     */
     private final int val;
-    private final String flag;
+    /**
+     * The flag of this type (as used in commands).
+     */
+    private final String commandFlag;
+    /**
+     * The {@link Message} associated with the name of this type.
+     */
     private final Message message;
+    /**
+     * Whether or not this type is enabled.
+     */
     private final boolean enabled;
+    /**
+     * The attributes of this door. For example, a {@link DoorType#BIGDOOR} would have no use for {@link
+     * DoorAttribute#BLOCKSTOMOVE} because it moves in quarter circles, not in numbers of blocks.
+     */
     private final DoorAttribute[] attributes;
 
-    DoorType(final int val, final boolean enabled, final String flag, final Message message,
-             final DoorAttribute... attributes)
+    DoorType(final int val, final boolean enabled, final @NotNull String commandFlag, final @NotNull Message message,
+             final @NotNull DoorAttribute... attributes)
     {
         this.val = val;
         this.enabled = enabled;
-        this.flag = flag;
+        this.commandFlag = commandFlag;
         this.message = message;
         this.attributes = attributes;
     }
 
-    public static int getValue(DoorType type)
+    /**
+     * Gets the index value of a {@link DoorType}.
+     *
+     * @param type The {@link DoorType}.
+     * @return The index value of a {@link DoorType}.
+     */
+    public static int getValue(final @NotNull DoorType type)
     {
         return type.val;
     }
 
-    public static Message getMessage(DoorType type)
+    /**
+     * Gets the {@link Message} associated with the name of a {@link DoorType}.
+     *
+     * @param type The {@link DoorType}.
+     * @return The {@link Message} associated with the name of a {@link DoorType}.
+     */
+    @NotNull
+    public static Message getMessage(final @NotNull DoorType type)
     {
         return type.message;
     }
 
-
-    public static DoorType valueOf(int type)
+    /**
+     * Gets the {@link DoorType} from an index value.
+     *
+     * @param type The index value of this type.
+     * @return The {@link DoorType} with this index value.
+     */
+    @NotNull
+    public static DoorType valueOf(final int type) throws IllegalArgumentException
     {
+        if (type >= valMap.size())
+            throw new IllegalArgumentException(
+                "Requested DoorType(" + type + "), but only " + valMap.size() + " are available!");
         return valMap.get(type);
     }
 
-    public static DoorType valueOfFlag(String flag)
+    /**
+     * Gets the {@link DoorType} from its commandFlag, e.g. "-BD" for {@link DoorType#BIGDOOR}).
+     *
+     * @param commandFlag The command flag
+     * @return The {@link DoorType} associated with this command flag or null if none was found.
+     */
+    public static Optional<DoorType> valueOfCommandFlag(final @NotNull String commandFlag)
     {
-        return flagMap.get(flag);
+        return Optional.ofNullable(commandFlagMap.getOrDefault(commandFlag, null));
     }
 
-    public static DoorAttribute[] getAttributes(DoorType type)
+    /**
+     * Gets all {@link DoorAttribute}s of the {@link DoorType}.
+     *
+     * @param type The {@link DoorType}.
+     * @return All {@link DoorAttribute}s of the {@link DoorType}.
+     */
+    @NotNull
+    public static DoorAttribute[] getAttributes(final @NotNull DoorType type)
     {
         return type.attributes;
     }
 
-    public static boolean isEnabled(DoorType type)
+    /**
+     * Checks if a {@link DoorType} is enabled or not.
+     *
+     * @param type The {@link DoorType}.
+     * @return True if a {@link DoorType} is enabled.
+     */
+    public static boolean isEnabled(final @NotNull DoorType type)
     {
         return type.enabled;
     }
 
-    public abstract DoorBase getNewDoor(final PLogger pLogger, final long doorUID);
+    /**
+     * Constructs a new {@link DoorBase} of this type.
+     *
+     * @param pLogger The {@link PLogger} to be used for exception handling.
+     * @param doorUID The UID of the {@link DoorBase} to instantiate.
+     * @return A new {@link DoorBase} of this type.
+     */
+    @NotNull
+    public abstract DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID);
+
+    /**
+     * Constructs a new {@link DoorBase} of a {@link DoorType}.
+     *
+     * @param type    The {@link DoorType} of the {@link DoorBase} to instantiate.
+     * @param pLogger The {@link PLogger} to be used for exception handling.
+     * @param doorUID The UID of the {@link DoorBase} to instantiate.
+     * @return A new {@link DoorBase} of a {@link DoorType}.
+     */
+    @NotNull
+    public static DoorBase getNewDoor(final @NotNull DoorType type, final @NotNull PLogger pLogger,
+                                      final long doorUID)
+    {
+        return type.getNewDoor(pLogger, doorUID);
+    }
 }

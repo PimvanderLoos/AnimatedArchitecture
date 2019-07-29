@@ -10,10 +10,10 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class SubCommandListDoors extends SubCommand
@@ -43,27 +43,30 @@ public class SubCommandListDoors extends SubCommand
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException
     {
         List<DoorBase> doors = new ArrayList<>();
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
+        // If a player requested the door, just get the doors they own.
         if (sender instanceof Player)
             doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name)
                                .orElse(new ArrayList<>()));
         else if (name != null)
         {
+            // TODO: Shouldn't this use UIDs instead?
+            // If the console requested the door(s), first try to get all doors with the provided name.
             doors.addAll(plugin.getDatabaseManager().getDoors(name).orElse(new ArrayList<>()));
             // If no door with the provided name could be found, list all doors owned by the
             // player with that name instead.
             if (doors.size() == 0)
-            {
-                UUID playerUUID = plugin.getDatabaseManager().getPlayerUUIDFromString(name);
-                if (playerUUID == null)
-                    return true;
-                doors.addAll(plugin.getDatabaseManager().getDoors(playerUUID).orElse(new ArrayList<>()));
-            }
+                plugin.getDatabaseManager().getPlayerUUIDFromString(name).ifPresent(
+                    P -> doors.addAll(plugin.getDatabaseManager().getDoors(P).orElse(new ArrayList<>())));
         }
         else
             return false;

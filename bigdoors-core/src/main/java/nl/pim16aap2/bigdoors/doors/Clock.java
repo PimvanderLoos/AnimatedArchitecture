@@ -14,17 +14,17 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a Clock doorType.
  *
- * @author pim
+ * @author Pim
  * @see HorizontalAxisAlignedBase
  */
 public class Clock extends HorizontalAxisAlignedBase
 {
-    Clock(final PLogger pLogger, final long doorUID, DoorType type)
+    Clock(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
         super(pLogger, doorUID, type);
     }
 
-    Clock(final PLogger pLogger, final long doorUID)
+    Clock(final @NotNull PLogger pLogger, final long doorUID)
     {
         this(pLogger, doorUID, DoorType.CLOCK);
     }
@@ -32,6 +32,7 @@ public class Clock extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public Vector2D[] calculateChunkRange()
     {
@@ -46,6 +47,7 @@ public class Clock extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
+    @NotNull
     public PBlockFace calculateCurrentDirection()
     {
         switch (openDir)
@@ -59,7 +61,7 @@ public class Clock extends HorizontalAxisAlignedBase
             case WEST:
                 return PBlockFace.WEST;
             default:
-                return null;
+                return PBlockFace.NONE;
         }
     }
 
@@ -79,8 +81,10 @@ public class Clock extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
-                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(final @Nullable PBlockFace openDirection,
+                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
+                                final @NotNull Location newMax, final int blocksMoved,
+                                final @Nullable Mutable<PBlockFace> newEngineSide)
     {
         newMin.setX(min.getBlockX());
         newMin.setY(min.getBlockY());

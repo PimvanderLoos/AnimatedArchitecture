@@ -8,23 +8,34 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a user creating an {@link DoorType#ELEVATOR}.
+ *
+ * @author Pim
+ **/
 public class ElevatorCreator extends Creator
 {
-    public ElevatorCreator(BigDoors plugin, Player player, String name)
+    public ElevatorCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name, DoorType.ELEVATOR);
         super.init();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected boolean isReadyToCreateDoor()
+    protected boolean isReadyToConstructDoor()
     {
         return one != null && two != null && engine != null;
     }
 
-    // Make sure the power point is in the middle.
-    protected void setEngine()
+    /**
+     * Updates the location of the engine.
+     */
+    protected void updateEngineLoc()
     {
         int xMid = one.getBlockX() + (two.getBlockX() - one.getBlockX()) / 2;
         int zMid = one.getBlockZ() + (two.getBlockZ() - one.getBlockZ()) / 2;
@@ -32,11 +43,49 @@ public class ElevatorCreator extends Creator
         engine = new Location(one.getWorld(), xMid, yMin, zMid);
     }
 
-    // Take care of the selection points.
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void selector(Location loc)
+    protected @NotNull String getToolReceivedMessage()
     {
-        if (!hasName() || !creatorHasPermissionInLocation(loc))
+        return messages.getString(Message.CREATOR_ELEVATOR_STEP1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull String getToolLore()
+    {
+        return messages.getString(Message.CREATOR_ELEVATOR_STICKLORE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isPosTwoValid(final @NotNull Location loc)
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isEngineValid(final @NotNull Location loc)
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void selector(final @NotNull Location loc)
+    {
+        if (isUnnamed() || !creatorHasPermissionInLocation(loc) || !isPosTwoValid(loc))
             return;
 
         if (one == null)
@@ -50,7 +99,7 @@ public class ElevatorCreator extends Creator
         if (one != null && two != null)
         {
             minMaxFix();
-            setEngine();
+            updateEngineLoc();
             setIsDone(true);
         }
     }
@@ -59,7 +108,8 @@ public class ElevatorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getInitMessage()
+    @NotNull
+    protected String getInitMessage()
     {
         return messages.getString(Message.CREATOR_ELEVATOR_INIT);
     }
@@ -68,7 +118,8 @@ public class ElevatorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickLore()
+    @NotNull
+    protected String getStickLore()
     {
         return messages.getString(Message.CREATOR_ELEVATOR_STICKLORE);
     }
@@ -77,7 +128,8 @@ public class ElevatorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickReceived()
+    @NotNull
+    protected String getStickReceived()
     {
         return messages.getString(Message.CREATOR_ELEVATOR_INIT);
     }
@@ -86,7 +138,8 @@ public class ElevatorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep1()
+    @NotNull
+    protected String getStep1()
     {
         return messages.getString(Message.CREATOR_ELEVATOR_STEP1);
     }
@@ -95,7 +148,8 @@ public class ElevatorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep2()
+    @NotNull
+    protected String getStep2()
     {
         return messages.getString(Message.CREATOR_ELEVATOR_STEP2);
     }
@@ -104,7 +158,8 @@ public class ElevatorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep3()
+    @NotNull
+    protected String getStep3()
     {
         return "";
     }
@@ -113,7 +168,8 @@ public class ElevatorCreator extends Creator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getSuccessMessage()
+    @NotNull
+    protected String getSuccessMessage()
     {
         return messages.getString(Message.CREATOR_ELEVATOR_SUCCESS);
     }

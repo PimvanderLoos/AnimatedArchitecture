@@ -5,53 +5,87 @@ import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a user creating a {@link DoorType#FLAG}.
+ *
+ * @author Pim
+ **/
 public class FlagCreator extends BigDoorCreator
 {
-    public FlagCreator(BigDoors plugin, Player player, String name)
+    public FlagCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name);
         type = DoorType.FLAG;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected @NotNull String getInitMessage()
+    @NotNull
+    protected String getInitMessage()
     {
         return messages.getString(Message.CREATOR_FLAG_INIT);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected @NotNull String getStickLore()
+    @NotNull
+    protected String getStickLore()
     {
         return messages.getString(Message.CREATOR_FLAG_STICKLORE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected @NotNull String getStickReceived()
+    @NotNull
+    protected String getStickReceived()
     {
         return messages.getString(Message.CREATOR_FLAG_INIT);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected @NotNull String getStep1()
+    @NotNull
+    protected String getStep1()
     {
         return messages.getString(Message.CREATOR_FLAG_STEP1);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected @NotNull String getStep2()
+    @NotNull
+    protected String getStep2()
     {
         return messages.getString(Message.CREATOR_FLAG_STEP2);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected @NotNull String getStep3()
+    @NotNull
+    protected String getStep3()
     {
         return messages.getString(Message.CREATOR_FLAG_STEP3);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected @NotNull String getSuccessMessage()
+    @NotNull
+    protected String getSuccessMessage()
     {
         return messages.getString(Message.CREATOR_FLAG_SUCCESS);
     }

@@ -1,13 +1,17 @@
-package nl.pim16aap2.bigdoors.handlers;
+package nl.pim16aap2.bigdoors.listener;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
+/**
+ * Represents a listener that keeps track redstone changes.
+ *
+ * @author Pim
+ */
 public class RedstoneHandler implements Listener
 {
     private final BigDoors plugin;
@@ -17,21 +21,19 @@ public class RedstoneHandler implements Listener
         this.plugin = plugin;
     }
 
-    private void toggleDoor(DoorBase door)
-    {
-        if (!door.isLocked())
-            plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, true);
-    }
-
     private void checkDoors(Location loc)
     {
         plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID())
-              .forEach(door -> toggleDoor(door));
+              .forEach(door -> plugin.getDoorOpener(door.getType())
+                                     .map(O -> O.toggleDoor(door.getPlayerUUID(), door, 0.0, false, true)));
     }
 
-    // When redstone changes, check if there's a power block on any side of it (just
-    // not below it).
-    // If so, a door has (probably) been found, so try to open it.
+    /**
+     * Listens to redstone changes and checks if there are any doors attached to it. Any doors that are found are then
+     * toggled, if possible.
+     *
+     * @param event The {@link BlockRedstoneEvent}.
+     */
     @EventHandler
     public void onBlockRedstoneChange(BlockRedstoneEvent event)
     {

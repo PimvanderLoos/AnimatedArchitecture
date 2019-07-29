@@ -1,18 +1,22 @@
 package nl.pim16aap2.bigdoors.gui;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.managers.HeadManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Represents an item in a BigDoors GUI.
+ */
 class GUIItem
 {
     private ItemStack is;
@@ -20,16 +24,23 @@ class GUIItem
     private List<String> lore;
     private int count;
     private String name;
-    private Material mat;
     private DoorOwner doorOwner = null;
     private boolean missingHeadTexture;
     private DoorAttribute attribute = null;
     private Object specialValue;
 
-    public GUIItem(Material mat, String name, List<String> lore, int count, Object specialValue)
+    /**
+     * Constructs a new {@link GUIItem}.
+     *
+     * @param mat          The material of this item.
+     * @param name         The display name of this item.
+     * @param lore         The lore of this item.
+     * @param count        The number of items on this stack.
+     * @param specialValue An unspecified special value that can be used for various purposes.
+     */
+    GUIItem(Material mat, String name, List<String> lore, int count, Object specialValue)
     {
         this.name = name;
-        this.mat = mat;
         this.lore = lore;
         this.count = count;
         this.specialValue = specialValue;
@@ -37,11 +48,28 @@ class GUIItem
         construct();
     }
 
+    /**
+     * Constructs a new {@link GUIItem}.
+     *
+     * @param mat   The material of this item.
+     * @param name  The display name of this item.
+     * @param lore  The lore of this item.
+     * @param count The number of items on this stack.
+     */
     public GUIItem(Material mat, String name, List<String> lore, int count)
     {
         this(mat, name, lore, count, null);
     }
 
+    /**
+     * Constructs a new {@link GUIItem}.
+     *
+     * @param is           The ItemStack to use.
+     * @param name         The display name of this item.
+     * @param lore         The lore of this item.
+     * @param count        The number of items on this stack.
+     * @param specialValue An unspecified special value that can be used for various purposes.
+     */
     public GUIItem(ItemStack is, String name, List<String> lore, int count, Object specialValue)
     {
         this.name = name;
@@ -53,33 +81,180 @@ class GUIItem
         construct();
     }
 
+    /**
+     * Constructs a new {@link GUIItem}.
+     *
+     * @param name  The display name of this item.
+     * @param lore  The lore of this item.
+     * @param count The number of items on this stack.
+     */
     public GUIItem(ItemStack is, String name, List<String> lore, int count)
     {
         this(is, name, lore, count, null);
     }
 
-    public GUIItem(BigDoors plugin, DoorOwner doorOwner, Player guiOwner)
+    /**
+     * Constructs a new {@link GUIItem}.
+     *
+     * @param headManager The {@link HeadManager} to use for retrieving player heads.
+     * @param doorOwner   The {@link DoorOwner} whose head will be used.
+     */
+    public GUIItem(final @NotNull HeadManager headManager, final @NotNull DoorOwner doorOwner)
     {
         this.doorOwner = doorOwner;
         count = doorOwner.getPermission() == 0 ? 1 : doorOwner.getPermission();
         name = doorOwner.getPlayerName() == null ? doorOwner.getPlayerUUID().toString() : doorOwner.getPlayerName();
 
-//        Location loc = guiOwner.getLocation();
-//        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(), loc.getBlockX(),
-//                                  loc.getBlockY(), loc.getBlockZ(), guiOwner);
-        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(),
-                                  Bukkit.getOfflinePlayer(doorOwner.getPlayerUUID()));
-        if (is == null)
-        {
+        missingHeadTexture = headManager.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName()).map(
+            HEAD ->
+            {
+                is = HEAD;
+                return false;
+            }).orElse(true);
+        if (missingHeadTexture)
             is = new ItemStack(Material.PLAYER_HEAD, 1);
-            missingHeadTexture = true;
-        }
-        else
-            missingHeadTexture = false;
 
         name = doorOwner.getPlayerName();
         lore = null;
         construct();
+    }
+
+    /**
+     * Constructs a new ItemStack from the data received in the constructor.
+     */
+    private void construct()
+    {
+        ItemMeta meta = is.getItemMeta();
+        meta.setDisplayName(name);
+        meta.setLore(lore);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        is.setItemMeta(meta);
+    }
+
+    /**
+     * Checks if this {@link GUIItem}'s is missing its player head texture. It is only applicable if a player head is
+     * used.
+     *
+     * @return True if the player's head texture is missing.
+     */
+    public boolean missingHeadTexture()
+    {
+        return missingHeadTexture;
+    }
+
+    /**
+     * Gets the {@link ItemStack} of this {@link GUIItem}.
+     *
+     * @return The ItemStack.
+     */
+    @NotNull
+    public ItemStack getItemStack()
+    {
+        return is;
+    }
+
+    /**
+     * Gets the {@link DoorAttribute} associated with this {@link GUIItem}.
+     *
+     * @return The {@link DoorAttribute} associated with this {@link GUIItem}. Returns null if unavailable.
+     */
+    @NotNull
+    public Optional<DoorAttribute> getDoorAttribute()
+    {
+        return Optional.ofNullable(attribute);
+    }
+
+    /**
+     * Sets the {@link DoorAttribute} associated with this {@link GUIItem}.
+     *
+     * @param atr The {@link DoorAttribute} to be associated with this {@link GUIItem}.
+     */
+    public void setDoorAttribute(final @NotNull DoorAttribute atr)
+    {
+        attribute = atr;
+    }
+
+    /**
+     * Gets the {@link DoorBase} associated with this {@link GUIItem}.
+     *
+     * @return The {@link DoorBase} associated with this {@link GUIItem}. Returns null if unavailable.
+     */
+    @Nullable
+    public DoorBase getDoor()
+    {
+        return door;
+    }
+
+    /**
+     * Sets the {@link DoorBase} associated with this {@link GUIItem}.
+     *
+     * @param door The {@link DoorBase} to be associated with this {@link GUIItem}.
+     */
+    public void setDoor(final @NotNull DoorBase door)
+    {
+        this.door = door;
+    }
+
+    /**
+     * Gets the name of this {@link GUIItem}.
+     *
+     * @return The name of this {@link GUIItem}.
+     */
+    @NotNull
+    public String getName()
+    {
+        return name;
+    }
+
+    /**
+     * Gets the lore of this {@link GUIItem}.
+     *
+     * @return The lore of this {@link GUIItem}.
+     */
+    @NotNull
+    public List<String> getLore()
+    {
+        return lore;
+    }
+
+    /**
+     * Gets the stacksize of this {@link GUIItem}.
+     *
+     * @return The stacksize of this {@link GUIItem}.
+     */
+    public int getCount()
+    {
+        return count;
+    }
+
+    /**
+     * Gets the {@link DoorOwner} of this {@link GUIItem}.
+     *
+     * @return The {@link DoorOwner} of this {@link GUIItem}.
+     */
+    public DoorOwner getDoorOwner()
+    {
+        return doorOwner;
+    }
+
+    /**
+     * Gets the special value of this {@link GUIItem}.
+     *
+     * @return The special value of this {@link GUIItem}.
+     */
+    public Object getSpecialValue()
+    {
+        return specialValue;
+    }
+
+    /**
+     * Sets the special value of this {@link GUIItem}.
+     *
+     * @param specialValue The special value of this {@link GUIItem}.
+     */
+    public void setSpecialValue(Object specialValue)
+    {
+        this.specialValue = specialValue;
     }
 
     @Override
@@ -99,79 +274,5 @@ class GUIItem
             sb.append("\nName: ").append(name);
 
         return sb.toString();
-    }
-
-    private void construct()
-    {
-        ItemMeta meta = is.getItemMeta();
-        meta.setDisplayName(name);
-        meta.setLore(lore);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        is.setItemMeta(meta);
-    }
-
-    public boolean missingHeadTexture()
-    {
-        return missingHeadTexture;
-    }
-
-    public ItemStack getItemStack()
-    {
-        return is;
-    }
-
-    public DoorAttribute getDoorAttribute()
-    {
-        return attribute;
-    }
-
-    public void setDoorAttribute(DoorAttribute atr)
-    {
-        attribute = atr;
-    }
-
-    public DoorBase getDoor()
-    {
-        return door;
-    }
-
-    public void setDoor(DoorBase door)
-    {
-        this.door = door;
-    }
-
-    public Material getMaterial()
-    {
-        return mat;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public List<String> getLore()
-    {
-        return lore;
-    }
-
-    public int getCount()
-    {
-        return count;
-    }
-
-    public DoorOwner getDoorOwner()
-    {
-        return doorOwner;
-    }
-
-    public Object getSpecialValue()
-    {
-        return specialValue;
-    }
-
-    public void setSpecialValue(Object specialValue)
-    {
-        this.specialValue = specialValue;
     }
 }

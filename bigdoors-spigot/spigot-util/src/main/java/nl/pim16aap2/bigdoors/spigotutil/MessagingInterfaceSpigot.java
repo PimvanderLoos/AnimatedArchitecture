@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 import java.util.logging.Level;
@@ -20,7 +21,7 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
 {
     private final String formattedName;
 
-    public MessagingInterfaceSpigot(JavaPlugin plugin)
+    public MessagingInterfaceSpigot(final @NotNull JavaPlugin plugin)
     {
         formattedName = PLogger.formatName(plugin.getName());
     }
@@ -29,7 +30,7 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
      * {@inheritDoc}
      */
     @Override
-    public void writeToConsole(Level level, String message)
+    public void writeToConsole(final @NotNull Level level, final @NotNull String message)
     {
         Bukkit.getLogger().log(level, formattedName + message);
     }
@@ -38,16 +39,19 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
      * {@inheritDoc}
      */
     @Override
-    public void messagePlayer(UUID playerUUID, String message)
+    public void messagePlayer(final @NotNull UUID playerUUID, final @NotNull String message)
     {
-        SpigotUtil.messagePlayer(Bukkit.getPlayer(playerUUID), message);
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player == null)
+            return;
+        SpigotUtil.messagePlayer(player, message);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void sendMessageToTarget(final Object target, final Level level, final String str)
+    public void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level, final @NotNull String str)
     {
         if (target instanceof Player)
             SpigotUtil.messagePlayer((Player) target, str);

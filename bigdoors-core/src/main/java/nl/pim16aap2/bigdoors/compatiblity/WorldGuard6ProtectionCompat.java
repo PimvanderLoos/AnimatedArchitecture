@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -51,8 +52,11 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public boolean canBreakBlock(@NotNull Player player, @NotNull Location loc)
     {
         try
         {
@@ -65,8 +69,11 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public boolean canBreakBlocksBetweenLocs(@NotNull Player player, @NotNull Location loc1, @NotNull Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -86,18 +93,29 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean success()
     {
         return success;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public JavaPlugin getPlugin()
     {
         return worldGuard;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public String getName()
     {

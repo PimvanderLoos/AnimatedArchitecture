@@ -1,12 +1,13 @@
 package nl.pim16aap2.bigdoors.gui;
 
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import org.jetbrains.annotations.NotNull;
 
 interface IGUIPage
 {
-    public void handleInput(int interactionIDX);
+    void handleInput(int interactionIDX);
 
-    public void refresh();
+    void refresh();
 
-    public PageType getPageType();
+    @NotNull PageType getPageType();
 }

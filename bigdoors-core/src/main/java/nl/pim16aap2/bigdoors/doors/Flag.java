@@ -18,12 +18,12 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Flag extends DoorBase
 {
-    Flag(PLogger pLogger, long doorUID, DoorType type)
+    Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
         super(pLogger, doorUID, type);
     }
 
-    Flag(PLogger pLogger, long doorUID)
+    Flag(final @NotNull PLogger pLogger, final long doorUID)
     {
         super(pLogger, doorUID, DoorType.FLAG);
     }
@@ -31,6 +31,7 @@ public class Flag extends DoorBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public PBlockFace calculateCurrentDirection()
     {
@@ -43,6 +44,7 @@ public class Flag extends DoorBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public Vector2D[] calculateChunkRange()
     {
@@ -72,6 +74,7 @@ public class Flag extends DoorBase
      *
      * @return The current open direction.
      */
+    @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
     {
@@ -84,8 +87,10 @@ public class Flag extends DoorBase
      * Because flags do not move when toggled, newMin and newMax are simply equal to the current min and max.
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
-                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(final @Nullable PBlockFace openDirection,
+                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
+                                final @NotNull Location newMax, final int blocksMoved,
+                                final @Nullable Mutable<PBlockFace> newEngineSide)
     {
         newMin.setX(min.getBlockX());
         newMin.setY(min.getBlockY());

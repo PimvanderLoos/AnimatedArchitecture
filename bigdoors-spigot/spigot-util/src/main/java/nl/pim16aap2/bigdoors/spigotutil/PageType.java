@@ -1,43 +1,63 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * Represents a page in a BigDoors GUI.
+ */
 public enum PageType
 {
-    NOTBIGDOORS(null),                     // This PageType does not belong to this plugin!
-    DOORLIST(Message.GUI_PAGE_DOORLIST), // Page showing a list of doors.
-    DOORINFO(Message.GUI_PAGE_SUBMENU), // Page showing the information of one specific door.
-    CONFIRMATION(Message.GUI_PAGE_CONFIRM), // Confirm delete.
-    DOORCREATION(Message.GUI_PAGE_NEWDOORS), // Create new doors and such.
-    REMOVEOWNER(Message.GUI_PAGE_REMOVEOWNER); // Delete other owners.
+    /**
+     * The GUI page does not belong to BigDoors.
+     */
+    NOTBIGDOORS(null),
 
-    private static Map<Message, PageType> map = new HashMap<>();
+    /**
+     * Page showing a list of doors.
+     */
+    DOORLIST(Message.GUI_PAGE_DOORLIST),
 
-    static
-    {
-        for (PageType type : PageType.values())
-            map.put(type.message, type);
-    }
+    /**
+     * Page showing the information of one specific door.
+     */
+    DOORINFO(Message.GUI_PAGE_SUBMENU),
 
-    private Message message;
+    /**
+     * Confirm deletion.
+     */
+    CONFIRMATION(Message.GUI_PAGE_CONFIRM),
+
+    /**
+     * A page with all types that can be created.
+     */
+    DOORCREATION(Message.GUI_PAGE_NEWDOORS),
+
+    /**
+     * Delete an owner.
+     */
+    REMOVEOWNER(Message.GUI_PAGE_REMOVEOWNER),
+
+    ;
+
+    /**
+     * The {@link Message} associated with the name of the {@link PageType}.
+     */
+    private final Message message;
 
     PageType(final Message message)
     {
         this.message = message;
     }
 
-    public static Message getMessage(PageType type)
+    /**
+     * Gets the {@link Message} associated with the name of the {@link PageType}.
+     *
+     * @param type The {@link PageType}.
+     * @return The {@link Message} associated with the name of the {@link PageType}.
+     */
+    public static Message getMessage(final @NotNull PageType type)
     {
         return type.message;
-    }
-
-    public static PageType valueOfName(String str)
-    {
-        if (map.containsKey(str))
-            return map.get(str);
-        return PageType.NOTBIGDOORS;
     }
 }

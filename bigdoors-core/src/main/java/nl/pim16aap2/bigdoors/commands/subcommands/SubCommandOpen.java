@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +32,13 @@ public class SubCommandOpen extends SubCommandToggle
         return (door.getOpenDir().equals(RotateDirection.NONE) || !door.isOpen());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
         List<DoorBase> doors = new ArrayList<>();
         double time = parseDoorsAndTime(sender, args, doors);

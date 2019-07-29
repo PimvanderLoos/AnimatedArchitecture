@@ -15,7 +15,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,21 +116,22 @@ public class SQLiteJDBCDriverConnection implements IStorage
      *
      * @return A database connection.
      */
-    private @NotNull Connection getConnection()
+    @NotNull
+    private Connection getConnection()
     {
         if (!enabled)
         {
             IllegalStateException e = new IllegalStateException(
-                    "Database disabled! This probably means an upgrade failed! " +
-                            "Please contact pim16aap2.");
+                "Database disabled! This probably means an upgrade failed! " +
+                    "Please contact pim16aap2.");
             pLogger.logException(e);
             throw e;
         }
         if (locked.get())
         {
             IllegalStateException e = new IllegalStateException(
-                    "Database locked! Please try again later! " +
-                            "Please contact pim16aap2 if the issue persists.");
+                "Database locked! Please try again later! " +
+                    "Please contact pim16aap2 if the issue persists.");
             pLogger.logException(e);
             throw e;
         }
@@ -166,8 +166,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 if (!dbFile.getParentFile().exists() && !dbFile.getParentFile().mkdirs())
                 {
                     pLogger.logException(
-                            new IOException(
-                                    "Failed to create directory \"" + dbFile.getParentFile().toString() + "\""));
+                        new IOException(
+                            "Failed to create directory \"" + dbFile.getParentFile().toString() + "\""));
                     return;
                 }
                 if (!dbFile.createNewFile())
@@ -193,47 +193,47 @@ public class SQLiteJDBCDriverConnection implements IStorage
             {
                 Statement stmt1 = conn.createStatement();
                 String sql1 = "CREATE TABLE IF NOT EXISTS doors\n" +
-                        "(id            INTEGER    PRIMARY KEY autoincrement,\n" +
-                        " name          TEXT       NOT NULL,\n" +
-                        " world         TEXT       NOT NULL,\n" +
-                        " isOpen        INTEGER    NOT NULL,\n" +
-                        " xMin          INTEGER    NOT NULL,\n" +
-                        " yMin          INTEGER    NOT NULL,\n" +
-                        " zMin          INTEGER    NOT NULL,\n" +
-                        " xMax          INTEGER    NOT NULL,\n" +
-                        " yMax          INTEGER    NOT NULL,\n" +
-                        " zMax          INTEGER    NOT NULL,\n" +
-                        " engineX       INTEGER    NOT NULL,\n" +
-                        " engineY       INTEGER    NOT NULL,\n" +
-                        " engineZ       INTEGER    NOT NULL,\n" +
-                        " isLocked      INTEGER    NOT NULL,\n" +
-                        " type          INTEGER    NOT NULL DEFAULT  0,\n" +
-                        " engineSide    INTEGER    NOT NULL DEFAULT -1,\n" +
-                        " powerBlockX   INTEGER    NOT NULL DEFAULT -1,\n" +
-                        " powerBlockY   INTEGER    NOT NULL DEFAULT -1,\n" +
-                        " powerBlockZ   INTEGER    NOT NULL DEFAULT -1,\n" +
-                        " openDirection INTEGER    NOT NULL DEFAULT  0,\n" +
-                        " autoClose     INTEGER    NOT NULL DEFAULT -1,\n" +
-                        " chunkHash     INTEGER    NOT NULL DEFAULT -1,\n" +
-                        " blocksToMove  INTEGER    NOT NULL DEFAULT -1);";
+                    "(id            INTEGER    PRIMARY KEY autoincrement,\n" +
+                    " name          TEXT       NOT NULL,\n" +
+                    " world         TEXT       NOT NULL,\n" +
+                    " isOpen        INTEGER    NOT NULL,\n" +
+                    " xMin          INTEGER    NOT NULL,\n" +
+                    " yMin          INTEGER    NOT NULL,\n" +
+                    " zMin          INTEGER    NOT NULL,\n" +
+                    " xMax          INTEGER    NOT NULL,\n" +
+                    " yMax          INTEGER    NOT NULL,\n" +
+                    " zMax          INTEGER    NOT NULL,\n" +
+                    " engineX       INTEGER    NOT NULL,\n" +
+                    " engineY       INTEGER    NOT NULL,\n" +
+                    " engineZ       INTEGER    NOT NULL,\n" +
+                    " isLocked      INTEGER    NOT NULL,\n" +
+                    " type          INTEGER    NOT NULL DEFAULT  0,\n" +
+                    " engineSide    INTEGER    NOT NULL DEFAULT -1,\n" +
+                    " powerBlockX   INTEGER    NOT NULL DEFAULT -1,\n" +
+                    " powerBlockY   INTEGER    NOT NULL DEFAULT -1,\n" +
+                    " powerBlockZ   INTEGER    NOT NULL DEFAULT -1,\n" +
+                    " openDirection INTEGER    NOT NULL DEFAULT  0,\n" +
+                    " autoClose     INTEGER    NOT NULL DEFAULT -1,\n" +
+                    " chunkHash     INTEGER    NOT NULL DEFAULT -1,\n" +
+                    " blocksToMove  INTEGER    NOT NULL DEFAULT -1);";
                 stmt1.executeUpdate(sql1);
                 stmt1.close();
 
                 Statement stmt2 = conn.createStatement();
                 String sql2 = "CREATE TABLE IF NOT EXISTS players\n" +
-                        "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
-                        " playerUUID  TEXT       NOT NULL,\n" +
-                        " playerName  TEXT       NOT NULL);";
+                    "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
+                    " playerUUID  TEXT       NOT NULL,\n" +
+                    " playerName  TEXT       NOT NULL);";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
                 Statement stmt3 = conn.createStatement();
                 String sql3 = "CREATE TABLE IF NOT EXISTS sqlUnion\n" +
-                        "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
-                        " permission  INTEGER    NOT NULL,\n" +
-                        " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE,\n" +
-                        " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE, \n" +
-                        " unique (playerID, doorUID));";
+                    "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
+                    " permission  INTEGER    NOT NULL,\n" +
+                    " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE,\n" +
+                    " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE, \n" +
+                    " unique (playerID, doorUID));";
                 stmt3.executeUpdate(sql3);
                 stmt3.close();
                 setDBVersion(conn, DATABASE_VERSION);
@@ -255,8 +255,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
      *
      * @throws SQLException
      */
-    // TODO: Delete this.
-    private long getPlayerID(@NotNull final Connection conn, @NotNull final String playerUUID) throws SQLException
+    // TODO: Delete this. Methods should just do this themselves. This only adds unnecessary overhead.
+    private long getPlayerID(final @NotNull Connection conn, final @NotNull String playerUUID) throws SQLException
     {
         long playerID = -1;
         PreparedStatement ps1 = conn.prepareStatement("SELECT id FROM players WHERE playerUUID = ?;");
@@ -273,15 +273,15 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public int getPermission(@NotNull final String playerUUID, final long doorUID)
+    public int getPermission(final @NotNull String playerUUID, final long doorUID)
     {
         int ret = -1;
         try (Connection conn = getConnection())
         {
             {
                 String sql = "SELECT permission \n" +
-                        "FROM sqlUnion INNER JOIN players ON players.id = sqlUnion.playerID\n" +
-                        "WHERE players.playerUUID = ? AND doorUID = ?;";
+                    "FROM sqlUnion INNER JOIN players ON players.id = sqlUnion.playerID\n" +
+                    "WHERE players.playerUUID = ? AND doorUID = ?;";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ps.setString(1, playerUUID);
                 ps.setString(2, Long.toString(doorUID));
@@ -304,16 +304,18 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * Construct a new Door from a resultset.
      *
      * @param rs        The resultset that contains the data of the animated object.
-     * @param DoorOwner The owner of this Door.
+     * @param doorOwner The owner of this Door.
      * @return An Door if one could be found.
      */
-    private @Nullable DoorBase newDoorFromRS(@NotNull final ResultSet rs,
-                                             @NotNull final DoorOwner DoorOwner)
+    @NotNull
+    private Optional<DoorBase> newDoorFromRS(final @NotNull ResultSet rs,
+                                             final @NotNull DoorOwner doorOwner)
     {
+        DoorBase ret = null;
         try
         {
             DoorBase door = DoorType.valueOf(rs.getInt("type"))
-                                    .getNewDoor(pLogger, DoorOwner.getDoorUID());
+                                    .getNewDoor(pLogger, doorOwner.getDoorUID());
 
             World world = worldRetriever.worldFromString(UUID.fromString(rs.getString("world")));
             door.setWorld(world);
@@ -327,18 +329,18 @@ public class SQLiteJDBCDriverConnection implements IStorage
             door.setName(rs.getString("name"));
             door.setOpenStatus(rs.getInt("isOpen") == 1);
             door.setLock(rs.getInt("isLocked") == 1);
-            door.setDoorOwner(DoorOwner);
+            door.setDoorOwner(doorOwner);
             door.setOpenDir(RotateDirection.valueOf(rs.getInt("openDirection")));
             door.setAutoClose(rs.getInt("autoClose"));
             door.setBlocksToMove(rs.getInt("blocksToMove"));
 
-            return door;
+            ret = door;
         }
-        catch (SQLException | NullPointerException e)
+        catch (SQLException | NullPointerException | IllegalArgumentException e)
         {
             logMessage("282", e);
-            return null;
         }
+        return Optional.ofNullable(ret);
     }
 
     /**
@@ -366,16 +368,16 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public boolean removeDoors(@NotNull final String playerUUID, @NotNull final String doorName)
+    public boolean removeDoors(final @NotNull String playerUUID, final @NotNull String doorName)
     {
         try (Connection conn = getConnection())
         {
             String sql = "DELETE FROM doors \n" +
-                    "WHERE doors.id IN \n" +
-                    "      (SELECT D.id \n" +
-                    "       FROM doors AS D INNER JOIN sqlUnion AS U ON U.doorUID = D.id, \n" +
-                    "            (SELECT P.id FROM players as P WHERE P.playerUUID=?) AS R \n" +
-                    "      WHERE D.name=? AND R.id = U.playerID);";
+                "WHERE doors.id IN \n" +
+                "      (SELECT D.id \n" +
+                "       FROM doors AS D INNER JOIN sqlUnion AS U ON U.doorUID = D.id, \n" +
+                "            (SELECT P.id FROM players as P WHERE P.playerUUID=?) AS R \n" +
+                "      WHERE D.name=? AND R.id = U.playerID);";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerUUID);
             ps.setString(2, doorName);
@@ -400,8 +402,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
         {
             int count = 0;
             String sql = "SELECT COUNT(*) AS total \n" +
-                    "FROM sqlUnion AS U INNER JOIN players AS P on U.playerID = P.id \n" +
-                    "WHERE P.playerUUID=?;";
+                "FROM sqlUnion AS U INNER JOIN players AS P on U.playerID = P.id \n" +
+                "WHERE P.playerUUID=?;";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerUUID.toString());
             ResultSet rs = ps.executeQuery();
@@ -429,10 +431,10 @@ public class SQLiteJDBCDriverConnection implements IStorage
         try (Connection conn = getConnection())
         {
             String sql = "SELECT COUNT(*) AS total \n" +
-                    "FROM sqlUnion AS U \n" +
-                    "    INNER JOIN players AS P on U.playerID = P.id \n" +
-                    "    INNER JOIN doors AS D ON U.doorUID = D.id \n" +
-                    "WHERE P.playerUUID=? AND D.name=?;";
+                "FROM sqlUnion AS U \n" +
+                "    INNER JOIN players AS P on U.playerID = P.id \n" +
+                "    INNER JOIN doors AS D ON U.doorUID = D.id \n" +
+                "WHERE P.playerUUID=? AND D.name=?;";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerUUID.toString());
             ps.setString(2, doorName);
@@ -478,15 +480,16 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID)
+    @NotNull
+    public Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID)
     {
         Optional<DoorBase> door = Optional.empty();
 
         try (Connection conn = getConnection())
         {
             String sql = "SELECT D.*, P.playerUUID, P.playerName, U.permission\n" +
-                    "FROM doors as D INNER JOIN sqlUnion AS U ON U.doorUID = D.id INNER JOIN players AS P ON P.id = U.playerID\n" +
-                    "WHERE P.playerUUID = ? AND D.id = ?;";
+                "FROM doors as D INNER JOIN sqlUnion AS U ON U.doorUID = D.id INNER JOIN players AS P ON P.id = U.playerID\n" +
+                "WHERE P.playerUUID = ? AND D.id = ?;";
 
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerUUID.toString());
@@ -495,11 +498,11 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
             while (rs.next())
             {
-                DoorOwner DoorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(
-                        rs.getString("playerUUID")),
+                DoorOwner doorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(
+                    rs.getString("playerUUID")),
                                                     rs.getString("playerName"),
                                                     rs.getInt("permission"));
-                door = Optional.ofNullable(newDoorFromRS(rs, DoorOwner));
+                door = newDoorFromRS(rs, doorOwner);
             }
 
             ps.close();
@@ -516,20 +519,23 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<DoorBase> getDoor(final long doorUID)
+    @NotNull
+    public Optional<DoorBase> getDoor(final long doorUID)
     {
         Optional<DoorBase> door = Optional.empty();
 
         try (Connection conn = getConnection())
         {
-            DoorOwner DoorOwner = getOwnerOfDoor(conn, doorUID);
+            Optional<DoorOwner> doorOwner = getOwnerOfDoor(conn, doorUID);
+            if (!doorOwner.isPresent())
+                return door;
             String sql = "SELECT * FROM doors WHERE id=?;";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, Long.toString(doorUID));
             ResultSet rs = ps.executeQuery();
 
             if (rs.next())
-                door = Optional.ofNullable(newDoorFromRS(rs, DoorOwner));
+                door = newDoorFromRS(rs, doorOwner.get());
 
             ps.close();
             rs.close();
@@ -545,7 +551,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID, @NotNull final String name)
+    @NotNull
+    public Optional<List<DoorBase>> getDoors(final @NotNull UUID playerUUID, final @NotNull String name)
     {
         return getDoors(playerUUID.toString(), name, 0);
     }
@@ -554,7 +561,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull final UUID playerUUID)
+    @NotNull
+    public Optional<List<DoorBase>> getDoors(final @NotNull UUID playerUUID)
     {
         return getDoors(playerUUID.toString(), 0);
     }
@@ -563,7 +571,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String name)
+    @NotNull
+    public Optional<List<DoorBase>> getDoors(final @NotNull String name)
     {
         List<DoorBase> doors = new ArrayList<>();
 
@@ -575,11 +584,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
             ResultSet rs1 = ps1.executeQuery();
 
             while (rs1.next())
-            {
-                DoorOwner owner = getOwnerOfDoor(conn, rs1.getLong(DOOR_ID));
-                if (owner != null)
-                    doors.add(newDoorFromRS(rs1, owner));
-            }
+                getOwnerOfDoor(conn, rs1.getLong(DOOR_ID)).flatMap(O -> newDoorFromRS(rs1, O)).ifPresent(doors::add);
             ps1.close();
             rs1.close();
         }
@@ -594,17 +599,18 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull final String playerUUID,
-                                                      @NotNull final String doorName,
-                                                      int maxPermission)
+    @NotNull
+    public Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID,
+                                             final @NotNull String doorName,
+                                             int maxPermission)
     {
         List<DoorBase> doors = new ArrayList<>();
 
         try (Connection conn = getConnection())
         {
             String sql = "SELECT D.*, P.playerName, P.playerUUID, U.permission\n" +
-                    "FROM sqlUnion AS U INNER JOIN players AS P ON U.playerID = P.id INNER JOIN doors AS D ON U.doorUID = D.id\n" +
-                    "WHERE P.playerUUID = ? AND D.name = ? AND U.permission <= ?;";
+                "FROM sqlUnion AS U INNER JOIN players AS P ON U.playerID = P.id INNER JOIN doors AS D ON U.doorUID = D.id\n" +
+                "WHERE P.playerUUID = ? AND D.name = ? AND U.permission <= ?;";
 
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerUUID);
@@ -613,11 +619,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
             ResultSet rs = ps.executeQuery();
             while (rs.next())
             {
-                DoorOwner DoorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(
-                        rs.getString("playerUUID")),
-                                                    rs.getString("playerName"),
-                                                    rs.getInt("permission"));
-                doors.add(newDoorFromRS(rs, DoorOwner));
+                DoorOwner doorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(rs.getString("playerUUID")),
+                                                    rs.getString("playerName"), rs.getInt("permission"));
+                newDoorFromRS(rs, doorOwner).ifPresent(doors::add);
             }
         }
         catch (SQLException | NullPointerException e)
@@ -631,14 +635,15 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<List<DoorBase>> getDoors(@NotNull String playerUUID, int maxPermission)
+    @NotNull
+    public Optional<List<DoorBase>> getDoors(@NotNull String playerUUID, int maxPermission)
     {
         List<DoorBase> ret = new ArrayList<>();
         try (Connection conn = getConnection())
         {
             String sql = "SELECT D.*, P.playerUUID, P.playerName, U.permission\n" +
-                    "FROM doors as D INNER JOIN sqlUnion AS U ON U.doorUID = D.id INNER JOIN players AS P ON P.id = U.playerID\n" +
-                    "WHERE P.playerUUID = ? AND permission <= ?;";
+                "FROM doors as D INNER JOIN sqlUnion AS U ON U.doorUID = D.id INNER JOIN players AS P ON P.id = U.playerID\n" +
+                "WHERE P.playerUUID = ? AND permission <= ?;";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerUUID);
             ps.setInt(2, maxPermission);
@@ -646,13 +651,10 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
             while (rs.next())
             {
-                DoorOwner DoorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(
-                        rs.getString("playerUUID")),
-                                                    rs.getString("playerName"),
-                                                    rs.getInt("permission"));
-                ret.add(newDoorFromRS(rs, DoorOwner));
+                DoorOwner doorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(rs.getString("playerUUID")),
+                                                    rs.getString("playerName"), rs.getInt("permission"));
+                newDoorFromRS(rs, doorOwner).ifPresent(ret::add);
             }
-
             ps.close();
             rs.close();
         }
@@ -667,8 +669,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName)
-            throws TooManyDoorsException
+    @NotNull
+    public Optional<DoorBase> getDoor(final @NotNull String playerUUID, final @NotNull String doorName)
+        throws TooManyDoorsException
     {
         return getDoor(playerUUID, doorName, Integer.MAX_VALUE);
     }
@@ -677,18 +680,19 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<DoorBase> getDoor(@NotNull final String playerUUID, @NotNull final String doorName,
-                                               int maxPermission)
-            throws TooManyDoorsException
+    @NotNull
+    public Optional<DoorBase> getDoor(final @NotNull String playerUUID, final @NotNull String doorName,
+                                      int maxPermission)
+        throws TooManyDoorsException
     {
-        DoorBase door = null;
+        Optional<DoorBase> door = Optional.empty();
         int count = 0;
 
         try (Connection conn = getConnection())
         {
             String sql = "SELECT D.*, P.playerUUID, P.playerName, U.permission\n" +
-                    "FROM doors as D INNER JOIN sqlUnion AS U ON U.doorUID = D.id INNER JOIN players AS P ON P.id = U.playerID\n" +
-                    "WHERE P.playerUUID = ? AND permission <= ? AND D.name = ?;";
+                "FROM doors as D INNER JOIN sqlUnion AS U ON U.doorUID = D.id INNER JOIN players AS P ON P.id = U.playerID\n" +
+                "WHERE P.playerUUID = ? AND permission <= ? AND D.name = ?;";
 
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerUUID);
@@ -701,11 +705,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 ++count;
                 if (count > 1)
                     break;
-                DoorOwner DoorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(
-                        rs.getString("playerUUID")),
-                                                    rs.getString("playerName"),
-                                                    rs.getInt("permission"));
-                door = newDoorFromRS(rs, DoorOwner);
+                DoorOwner doorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(rs.getString("playerUUID")),
+                                                    rs.getString("playerName"), rs.getInt("permission"));
+                door = newDoorFromRS(rs, doorOwner);
             }
 
             ps.close();
@@ -717,20 +719,20 @@ public class SQLiteJDBCDriverConnection implements IStorage
         }
         if (count > 1)
             throw new TooManyDoorsException();
-        return Optional.ofNullable(door);
+        return door;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean updatePlayerName(@NotNull final String playerUUID, @NotNull final String playerName)
+    public boolean updatePlayerName(final @NotNull String playerUUID, final @NotNull String playerName)
     {
         try (Connection conn = getConnection())
         {
             String sql = "UPDATE players " +
-                    "SET playerName=? " +
-                    "WHERE playerUUID=?;";
+                "SET playerName=? " +
+                "WHERE playerUUID=?;";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerName);
             ps.setString(2, playerUUID);
@@ -749,14 +751,15 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<UUID> getPlayerUUID(@NotNull final String playerName)
+    @NotNull
+    public Optional<UUID> getPlayerUUID(final @NotNull String playerName)
     {
         UUID playerUUID = null;
         try (Connection conn = getConnection())
         {
             String sql = "SELECT P.playerUUID " +
-                    "FROM players AS P " +
-                    "WHERE P.playerName=?;";
+                "FROM players AS P " +
+                "WHERE P.playerName=?;";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerName);
             ResultSet rs = ps.executeQuery();
@@ -785,14 +788,15 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<String> getPlayerName(@NotNull final String playerUUID)
+    @NotNull
+    public Optional<String> getPlayerName(final @NotNull String playerUUID)
     {
         String playerName = null;
         try (Connection conn = getConnection())
         {
             String sql = "SELECT P.playerName " +
-                    "FROM players AS P " +
-                    "WHERE P.playerUUID=?;";
+                "FROM players AS P " +
+                "WHERE P.playerUUID=?;";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerUUID);
             ResultSet rs = ps.executeQuery();
@@ -807,53 +811,53 @@ public class SQLiteJDBCDriverConnection implements IStorage
         return Optional.ofNullable(playerName);
     }
 
-    private DoorOwner getOwnerOfDoor(@NotNull final Connection conn, final long doorUID) throws SQLException
+    @NotNull
+    private Optional<DoorOwner> getOwnerOfDoor(final @NotNull Connection conn, final long doorUID)
+        throws SQLException
     {
-        DoorOwner DoorOwner = null;
+        DoorOwner doorOwner = null;
         String sql = "SELECT playerUUID, playerName\n" +
-                "FROM players,\n" +
-                "     (SELECT U.playerID, U.permission, doors.name\n" +
-                "      FROM sqlUnion as U INNER JOIN doors ON doors.id = U.doorUID\n" +
-                "      WHERE U.permission = '0' AND doors.id = ?) AS R\n" +
-                "WHERE id = R.playerID;";
+            "FROM players,\n" +
+            "     (SELECT U.playerID, U.permission, doors.name\n" +
+            "      FROM sqlUnion as U INNER JOIN doors ON doors.id = U.doorUID\n" +
+            "      WHERE U.permission = '0' AND doors.id = ?) AS R\n" +
+            "WHERE id = R.playerID;";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, Long.toString(doorUID));
         ResultSet rs = ps.executeQuery();
         if (rs.next())
-        {
-            DoorOwner = new DoorOwner(doorUID, UUID.fromString(rs.getString("playerUUID")),
-                                      rs.getString("playerName"), 0);
-        }
+            doorOwner = new DoorOwner(doorUID, UUID.fromString(rs.getString("playerUUID")), rs.getString("playerName"),
+                                      0);
         ps.close();
         rs.close();
 
-        return DoorOwner;
+        return Optional.ofNullable(doorOwner);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Optional<DoorOwner> getOwnerOfDoor(final long doorUID)
+    @NotNull
+    public Optional<DoorOwner> getOwnerOfDoor(final long doorUID)
     {
-        DoorOwner DoorOwner = null;
-
         try (Connection conn = getConnection())
         {
-            DoorOwner = getOwnerOfDoor(conn, doorUID);
+            return getOwnerOfDoor(conn, doorUID);
         }
         catch (SQLException | NullPointerException e)
         {
             logMessage("788", e);
         }
-        return Optional.ofNullable(DoorOwner);
+        return Optional.empty();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Map<Long, List<Long>> getPowerBlockData(final long chunkHash)
+    @NotNull
+    public Map<Long, List<Long>> getPowerBlockData(final long chunkHash)
     {
         Map<Long, List<Long>> doors = new HashMap<>();
 
@@ -909,13 +913,13 @@ public class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public void updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin,
                                  final int zMin, final int xMax, final int yMax, final int zMax,
-                                 @NotNull final PBlockFace engSide)
+                                 final @NotNull PBlockFace engSide)
     {
         try (Connection conn = getConnection())
         {
             conn.setAutoCommit(false);
             PreparedStatement ps = conn.prepareStatement("UPDATE doors SET xMin=?,yMin=?,zMin=?,xMax=?" +
-                                                                 ",yMax=?,zMax=?,isOpen=?,engineSide=? WHERE id =?;");
+                                                             ",yMax=?,zMax=?,isOpen=?,engineSide=? WHERE id =?;");
             ps.setInt(1, xMin);
             ps.setInt(2, yMin);
             ps.setInt(3, zMin);
@@ -945,7 +949,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
         {
             conn.setAutoCommit(false);
             PreparedStatement ps = conn.prepareStatement("UPDATE doors SET xMin=?,yMin=?,zMin=?,xMax=?" +
-                                                                 ",yMax=?,zMax=?,isOpen=? WHERE id =?;");
+                                                             ",yMax=?,zMax=?,isOpen=? WHERE id =?;");
             ps.setInt(1, xMin);
             ps.setInt(2, yMin);
             ps.setInt(3, zMin);
@@ -988,7 +992,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public void updateDoorOpenDirection(final long doorUID, @NotNull final RotateDirection openDir)
+    public void updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir)
     {
         try (Connection conn = getConnection())
         {
@@ -1010,14 +1014,14 @@ public class SQLiteJDBCDriverConnection implements IStorage
      */
     @Override
     public void updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos,
-                                        @NotNull final UUID worldUUID)
+                                        final @NotNull UUID worldUUID)
     {
         try (Connection conn = getConnection())
         {
             conn.setAutoCommit(false);
             PreparedStatement ps = conn
-                    .prepareStatement("UPDATE doors SET powerBlockX=?, powerBlockY=?, powerBlockZ=?, " +
-                                              "chunkHash=? WHERE id=?;");
+                .prepareStatement("UPDATE doors SET powerBlockX=?, powerBlockY=?, powerBlockZ=?, " +
+                                      "chunkHash=? WHERE id=?;");
             ps.setInt(1, xPos);
             ps.setInt(2, yPos);
             ps.setInt(3, zPos);
@@ -1058,7 +1062,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public void insert(@NotNull final DoorBase door)
+    public void insert(final @NotNull DoorBase door)
     {
         try (Connection conn = getConnection())
         {
@@ -1082,9 +1086,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
             }
 
             String doorInsertsql = "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,"
-                    + "engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,"
-                    + "openDirection,autoClose,chunkHash,blocksToMove) "
-                    + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                + "engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,"
+                + "openDirection,autoClose,chunkHash,blocksToMove) "
+                + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 
             doorstatement.setString(DOOR_NAME - 1, door.getName());
@@ -1124,7 +1128,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
             Statement stmt3 = conn.createStatement();
             String sql3 = "INSERT INTO sqlUnion (permission, playerID, doorUID) "
-                    + "VALUES ('" + door.getPermission() + "', '" + playerID + "', '" + doorUID + "');";
+                + "VALUES ('" + door.getPermission() + "', '" + playerID + "', '" + doorUID + "');";
             stmt3.executeUpdate(sql3);
             stmt3.close();
         }
@@ -1138,16 +1142,16 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public boolean removeOwner(final long doorUID, @NotNull final String playerUUID)
+    public boolean removeOwner(final long doorUID, final @NotNull String playerUUID)
     {
         try (Connection conn = getConnection())
         {
             String sql = "DELETE " +
-                    "FROM sqlUnion " +
-                    "WHERE sqlUnion.id IN " +
-                    "(SELECT U.id " +
-                    "FROM sqlUnion AS U INNER JOIN players AS P on U.playerID=P.id " +
-                    "WHERE P.playerUUID=? AND U.permission > '0' AND U.doorUID=?);";
+                "FROM sqlUnion " +
+                "WHERE sqlUnion.id IN " +
+                "(SELECT U.id " +
+                "FROM sqlUnion AS U INNER JOIN players AS P on U.playerID=P.id " +
+                "WHERE P.playerUUID=? AND U.permission > '0' AND U.doorUID=?);";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, playerUUID);
             ps.setString(2, Long.toString(doorUID));
@@ -1166,14 +1170,15 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public @NotNull List<DoorOwner> getOwnersOfDoor(final long doorUID)
+    @NotNull
+    public List<DoorOwner> getOwnersOfDoor(final long doorUID)
     {
         List<DoorOwner> ret = new ArrayList<>();
         try (Connection conn = getConnection())
         {
             String sql = "SELECT U.permission, P.playerUUID, P.playerName " +
-                    "FROM sqlUnion AS U INNER JOIN players AS P ON U.playerID = P.id " +
-                    "WHERE doorUID=?;";
+                "FROM sqlUnion AS U INNER JOIN players AS P ON U.playerID = P.id " +
+                "WHERE doorUID=?;";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, Long.toString(doorUID));
             ResultSet rs = ps.executeQuery();
@@ -1195,7 +1200,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public void addOwner(final long doorUID, @NotNull final UUID playerUUID, final int permission)
+    public void addOwner(final long doorUID, final @NotNull UUID playerUUID, final int permission)
     {
         // permission level 0 is reserved for the creator, and negative values are not allowed.
         if (permission < 1)
@@ -1207,13 +1212,13 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
             if (playerID == -1)
             {
-                String playerName = playerRetriever.nameFromUUID(playerUUID);
-                if (playerName == null)
+                Optional<String> playerName = playerRetriever.nameFromUUID(playerUUID);
+                if (!playerName.isPresent())
                     return;
                 String sql = "INSERT INTO players (playerUUID, playerName) VALUES (?,?);";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ps.setString(1, playerUUID.toString());
-                ps.setString(2, playerName);
+                ps.setString(2, playerName.get());
                 ps.executeUpdate();
                 ps.close();
 
@@ -1311,8 +1316,8 @@ public class SQLiteJDBCDriverConnection implements IStorage
             {
                 conn.close();
                 upgradeToV5();
-                replaceTempPlayerNames = true;
                 conn = getConnection();
+                replaceTempPlayerNames = fakeUUIDExists(conn);
             }
 
             if (dbVersion < 6)
@@ -1348,7 +1353,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * @param conn The active connection to the database.
      * @return True if the {@link SQLiteJDBCDriverConnection#FAKEUUID} exists in the database.
      */
-    private boolean fakeUUIDExists(@NotNull final Connection conn)
+    private boolean fakeUUIDExists(final @NotNull Connection conn)
     {
         try
         {
@@ -1386,7 +1391,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
         catch (IOException e)
         {
             pLogger.logException(e, "Failed to create backup of the database! "
-                    + "Database upgrade aborted and access is disabled!");
+                + "Database upgrade aborted and access is disabled!");
             enabled = false;
             return false;
         }
@@ -1399,7 +1404,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * @param conn    An active connection to the database.
      * @param version The new version of the database.
      */
-    private void setDBVersion(@NotNull final Connection conn, final int version)
+    private void setDBVersion(final @NotNull Connection conn, final int version)
     {
         try
         {
@@ -1422,7 +1427,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      *   "chunkHash" to table "doors".
      * - Whether or not a drawbridge is considered open or closed is changed in this version.
      */
-    private void upgradeToV1(@NotNull final Connection conn)
+    private void upgradeToV1(final @NotNull Connection conn)
     {
         try
         {
@@ -1491,7 +1496,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 addColumn = "ALTER TABLE doors ADD COLUMN openDirection int NOT NULL DEFAULT 0";
                 conn.createStatement().execute(addColumn);
                 pLogger
-                        .warn("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!");
+                    .warn("Upgrading database! Swapping open-status of drawbridges to conform to the new standard!");
 
                 String update;
                 {
@@ -1572,7 +1577,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * Changes in V2:
      * - Added column "blocksToMove" to table "doors".
      */
-    private void upgradeToV2(@NotNull final Connection conn)
+    private void upgradeToV2(final @NotNull Connection conn)
     {
         try
         {
@@ -1610,7 +1615,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * can just copy all the data, right? I hate speed. Maybe I should just copy all
      * database data every 5 seconds.
      */
-    private void upgradeToV3(@NotNull final Connection conn)
+    private void upgradeToV3(final @NotNull Connection conn)
     {
         try
         {
@@ -1622,11 +1627,11 @@ public class SQLiteJDBCDriverConnection implements IStorage
             // Create updated version of sqlUnion.
             conn.createStatement()
                 .execute("CREATE TABLE IF NOT EXISTS sqlUnion "
-                                 + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
-                                 + " permission  INTEGER    NOT NULL, "
-                                 + " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, "
-                                 + " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE,"
-                                 + " unique (playerID, doorUID));");
+                             + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
+                             + " permission  INTEGER    NOT NULL, "
+                             + " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, "
+                             + " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE,"
+                             + " unique (playerID, doorUID));");
 
             // Copy data from old sqlUnion to new sqlUnion.
             conn.createStatement().execute("INSERT INTO sqlUnion SELECT * FROM sqlUnion_old;");
@@ -1659,7 +1664,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * Changes in V4:
      * - Added column "playerName" to table "players".
      */
-    private void upgradeToV4(@NotNull final Connection conn)
+    private void upgradeToV4(final @NotNull Connection conn)
     {
         try
         {
@@ -1759,9 +1764,9 @@ public class SQLiteJDBCDriverConnection implements IStorage
             // Create updated version of sqlUnion.
             conn.createStatement()
                 .execute("CREATE TABLE IF NOT EXISTS players "
-                                 + "(id          INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                 + " playerUUID  TEXT    NOT NULL,"
-                                 + " playerName  TEXT    NOT NULL)");
+                             + "(id          INTEGER PRIMARY KEY AUTOINCREMENT, "
+                             + " playerUUID  TEXT    NOT NULL,"
+                             + " playerName  TEXT    NOT NULL)");
 
             // Copy data from old sqlUnion to new sqlUnion.
             conn.createStatement().execute("INSERT INTO players SELECT * FROM players_old;");
@@ -1807,7 +1812,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
      * Changes in V6:
      * - Updating chunkHash of all doors because the algorithm was changed.
      */
-    private void upgradeToV6(@NotNull final Connection conn)
+    private void upgradeToV6(final @NotNull Connection conn)
     {
         try
         {
@@ -1886,7 +1891,7 @@ public class SQLiteJDBCDriverConnection implements IStorage
                 String playerName = playerRetriever.getOfflinePlayer(playerUUID).getName();
 
                 String update = "UPDATE players SET playerName='" + playerName + "' \n" +
-                        "WHERE playerUUID='" + playerUUID.toString() + "';";
+                    "WHERE playerUUID='" + playerUUID.toString() + "';";
                 conn.prepareStatement(update).executeUpdate();
             }
             rs2.close();
@@ -1950,26 +1955,26 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
                 conn.createStatement()
                     .execute("CREATE TABLE doors" +
-                                     "(id            INTEGER    PRIMARY KEY autoincrement," +
-                                     " name          TEXT       NOT NULL," +
-                                     " world         TEXT       NOT NULL," +
-                                     " isOpen        INTEGER    NOT NULL," +
-                                     " xMin          INTEGER    NOT NULL," +
-                                     " yMin          INTEGER    NOT NULL," +
-                                     " zMin          INTEGER    NOT NULL," +
-                                     " xMax          INTEGER    NOT NULL," +
-                                     " yMax          INTEGER    NOT NULL," +
-                                     " zMax          INTEGER    NOT NULL," +
-                                     " engineX       INTEGER    NOT NULL," +
-                                     " engineY       INTEGER    NOT NULL," +
-                                     " engineZ       INTEGER    NOT NULL," +
-                                     " isLocked      INTEGER    NOT NULL);");
+                                 "(id            INTEGER    PRIMARY KEY autoincrement," +
+                                 " name          TEXT       NOT NULL," +
+                                 " world         TEXT       NOT NULL," +
+                                 " isOpen        INTEGER    NOT NULL," +
+                                 " xMin          INTEGER    NOT NULL," +
+                                 " yMin          INTEGER    NOT NULL," +
+                                 " zMin          INTEGER    NOT NULL," +
+                                 " xMax          INTEGER    NOT NULL," +
+                                 " yMax          INTEGER    NOT NULL," +
+                                 " zMax          INTEGER    NOT NULL," +
+                                 " engineX       INTEGER    NOT NULL," +
+                                 " engineY       INTEGER    NOT NULL," +
+                                 " engineZ       INTEGER    NOT NULL," +
+                                 " isLocked      INTEGER    NOT NULL);");
 
 
                 conn.createStatement().execute("INSERT INTO doors \n" +
-                                                       "SELECT id, name, world, isOpen, xMin, yMin, zMin, xMax, yMax, " +
-                                                       "zMax, engineX, engineY, engineZ, isLocked \n" +
-                                                       "FROM doors_old;");
+                                                   "SELECT id, name, world, isOpen, xMin, yMin, zMin, xMax, yMax, " +
+                                                   "zMax, engineX, engineY, engineZ, isLocked \n" +
+                                                   "FROM doors_old;");
 
                 conn.createStatement().execute("DROP TABLE IF EXISTS doors_old;");
                 conn.commit();
@@ -1981,13 +1986,13 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
                 conn.createStatement()
                     .execute("CREATE TABLE players\n" +
-                                     "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
-                                     " playerUUID  TEXT       NOT NULL);");
+                                 "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
+                                 " playerUUID  TEXT       NOT NULL);");
 
 
                 conn.createStatement().execute("INSERT INTO players\n" +
-                                                       "SELECT id, playerUUID\n" +
-                                                       "FROM players_old;");
+                                                   "SELECT id, playerUUID\n" +
+                                                   "FROM players_old;");
 
                 conn.createStatement().execute("DROP TABLE players_old;");
                 conn.commit();
@@ -1999,15 +2004,15 @@ public class SQLiteJDBCDriverConnection implements IStorage
 
                 conn.createStatement()
                     .execute("CREATE TABLE sqlUnion\n" +
-                                     "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
-                                     " permission  INTEGER    NOT NULL,\n" +
-                                     " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE,\n" +
-                                     " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE);");
+                                 "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
+                                 " permission  INTEGER    NOT NULL,\n" +
+                                 " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE,\n" +
+                                 " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE);");
 
 
                 conn.createStatement().execute("INSERT INTO sqlUnion\n" +
-                                                       "SELECT *\n" +
-                                                       "FROM sqlUnion_old;");
+                                                   "SELECT *\n" +
+                                                   "FROM sqlUnion_old;");
 
                 conn.createStatement().execute("DROP TABLE IF EXISTS sqlUnion_old;");
                 conn.commit();

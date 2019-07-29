@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.events.IPCancellable;
 import nl.pim16aap2.bigdoors.events.PEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -16,7 +17,7 @@ public class DoorActionRequestEvent extends PEvent implements IPCancellable
     private final long doorUID;
     private final DoorActionCause cause;
     private final DoorActionType actionType;
-    private final UUID initiator;
+    private final Optional<UUID> initiator;
     private boolean isCancelled = false;
     private String name = null;
 
@@ -26,7 +27,7 @@ public class DoorActionRequestEvent extends PEvent implements IPCancellable
         this.doorUID = doorUID;
         this.cause = cause;
         this.actionType = actionType;
-        this.initiator = initiator;
+        this.initiator = Optional.ofNullable(initiator);
     }
 
     public DoorActionRequestEvent(final long doorUID, final DoorActionCause cause, final DoorActionType actionType)
@@ -61,7 +62,7 @@ public class DoorActionRequestEvent extends PEvent implements IPCancellable
      *
      * @see DoorActionRequestEvent#getCause()
      */
-    public @Nullable UUID getInitiator()
+    public Optional<UUID> getInitiator()
     {
         return initiator;
     }

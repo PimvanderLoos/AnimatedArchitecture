@@ -28,6 +28,7 @@ import net.minecraft.server.v1_14_R1.Vec3D;
 import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +40,7 @@ import java.util.List;
  * @see ICustomEntityFallingBlock
  */
 public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.EntityFallingBlock
-        implements ICustomEntityFallingBlock
+    implements ICustomEntityFallingBlock
 {
     protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
                                                                               DataWatcherRegistry.l);
@@ -53,8 +54,8 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
     private float fallHurtAmount;
     private org.bukkit.World bukkitWorld;
 
-    public CustomEntityFallingBlock_V1_14_R1(org.bukkit.World world, double d0, double d1, double d2,
-                                             IBlockData iblockdata)
+    public CustomEntityFallingBlock_V1_14_R1(final @NotNull org.bukkit.World world, final double d0, final double d1,
+                                             final double d2, final @NotNull IBlockData iblockdata)
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
         bukkitWorld = world;
@@ -100,7 +101,8 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
     }
 
     @SuppressWarnings("unused")
-    private List<Entity> getFallingBlocksOnSide(AxisAlignedBB bb, EnumDirection dir)
+    @NotNull
+    private List<Entity> getFallingBlocksOnSide(final @NotNull AxisAlignedBB bb, final @NotNull EnumDirection dir)
     {
         /**
          * AxisAlignedBB: a/d = min/max x, b/e = min/max y, c/f = min/max z.
@@ -197,12 +199,12 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
                 if (isConcretePowder && d0 > 1.0D)
                 {
                     MovingObjectPositionBlock movingobjectpositionblock = world
-                            .rayTrace(new RayTrace(new Vec3D(lastX, lastY, lastZ), new Vec3D(locX, locY, locZ),
-                                                   RayTrace.BlockCollisionOption.COLLIDER,
-                                                   RayTrace.FluidCollisionOption.SOURCE_ONLY, this));
+                        .rayTrace(new RayTrace(new Vec3D(lastX, lastY, lastZ), new Vec3D(locX, locY, locZ),
+                                               RayTrace.BlockCollisionOption.COLLIDER,
+                                               RayTrace.FluidCollisionOption.SOURCE_ONLY, this));
 
                     if (movingobjectpositionblock.getType() != MovingObjectPosition.EnumMovingObjectType.MISS &&
-                            world.getFluid(movingobjectpositionblock.getBlockPosition()).a(TagsFluid.WATER))
+                        world.getFluid(movingobjectpositionblock.getBlockPosition()).a(TagsFluid.WATER))
                     {
                         blockposition = movingobjectpositionblock.getBlockPosition();
                         flag1 = true;
@@ -215,7 +217,7 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
                     // PIM: Changed to make them live longer (12k ticks instead of 600 -> 10min
                     // instead of .5min).
                     if (ticksLived > 100 && !world.isClientSide &&
-                            (blockposition.getY() < 1 || blockposition.getY() > 256) || ticksLived > 12000)
+                        (blockposition.getY() < 1 || blockposition.getY() > 256) || ticksLived > 12000)
                         // if (this.dropItem && this.world.getGameRules().getBoolean("doEntityDrops"))
 //                            this.a((IMaterial) block);
                         die();
@@ -488,7 +490,7 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
 //    }
 
     @Override
-    protected void b(NBTTagCompound nbttagcompound)
+    protected void b(final @NotNull NBTTagCompound nbttagcompound)
     {
         nbttagcompound.set("BlockState", GameProfileSerializer.a(block));
         nbttagcompound.setInt("Time", ticksLived);
@@ -502,7 +504,7 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
     }
 
     @Override
-    protected void a(NBTTagCompound nbttagcompound)
+    protected void a(final @NotNull NBTTagCompound nbttagcompound)
     {
         block = GameProfileSerializer.d(nbttagcompound.getCompound("BlockState"));
         ticksLived = nbttagcompound.getInt("Time");
@@ -527,27 +529,22 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
     }
 
     @Override
-    public void a(boolean flag)
+    public void a(final boolean flag)
     {
         hurtEntities = flag;
     }
 
     @Override
-    public void appendEntityCrashDetails(CrashReportSystemDetails crashreportsystemdetails)
+    public void appendEntityCrashDetails(final @NotNull CrashReportSystemDetails crashreportsystemdetails)
     {
         super.appendEntityCrashDetails(crashreportsystemdetails);
-        crashreportsystemdetails.a("Immitating BlockState", block.toString());
+        crashreportsystemdetails.a("Imitating BlockState", block.toString());
     }
 
+    @NotNull
     @Override
     public IBlockData getBlock()
     {
         return block;
     }
-
-//    @Override
-//    public boolean bM()
-//    {
-//        return true;
-//    }
 }

@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class SubCommandMovePowerBlock extends SubCommand
 {
@@ -34,10 +35,14 @@ public class SubCommandMovePowerBlock extends SubCommand
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, CommandActionNotAllowedException,
-                   IllegalArgumentException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, CommandActionNotAllowedException,
+               IllegalArgumentException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();

@@ -13,17 +13,17 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a Revolving Door doorType.
  *
- * @author pim
+ * @author Pim
  * @see DoorBase
  */
 public class RevolvingDoor extends DoorBase
 {
-    RevolvingDoor(PLogger pLogger, long doorUID, DoorType type)
+    RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
         super(pLogger, doorUID, type);
     }
 
-    RevolvingDoor(PLogger pLogger, long doorUID)
+    RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID)
     {
         super(pLogger, doorUID, DoorType.REVOLVINGDOOR);
     }
@@ -31,6 +31,7 @@ public class RevolvingDoor extends DoorBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public Vector2D[] calculateChunkRange()
     {
@@ -56,17 +57,20 @@ public class RevolvingDoor extends DoorBase
      * {@inheritDoc}
      */
     @Override
+    @NotNull
     public PBlockFace calculateCurrentDirection()
     {
-        return null;
+        return PBlockFace.NONE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
-                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(final @Nullable PBlockFace openDirection,
+                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
+                                final @NotNull Location newMax, final int blocksMoved,
+                                final @Nullable Mutable<PBlockFace> newEngineSide)
     {
         newMin.setX(min.getBlockX());
         newMin.setY(min.getBlockY());

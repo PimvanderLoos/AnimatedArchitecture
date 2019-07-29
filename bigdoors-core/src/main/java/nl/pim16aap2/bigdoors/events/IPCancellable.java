@@ -1,5 +1,11 @@
 package nl.pim16aap2.bigdoors.events;
 
+/**
+ * Represents a cancellable BigDoors event.
+ *
+ * @author Pim
+ * @see PEvent
+ */
 public interface IPCancellable
 {
     /**

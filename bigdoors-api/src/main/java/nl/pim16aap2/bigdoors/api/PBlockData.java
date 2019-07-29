@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the data of an animated block.
@@ -17,7 +18,7 @@ public final class PBlockData
     private float startAngle;
 
     /**
-     * Constructor of {@link PBlockData}.
+     * Constructs of {@link PBlockData}.
      *
      * @param newFBlock     The {@link ICustomCraftFallingBlock} that will be animated.
      * @param radius        The number of blocks between this block and the rotation point.
@@ -26,8 +27,9 @@ public final class PBlockData
      * @param startLocation The location the block was spawned at initially.
      * @param startAngle    The angle the block had in regards to the rotation point when it was first spawned.
      */
-    public PBlockData(ICustomCraftFallingBlock newFBlock, float radius, INMSBlock newBlock, boolean canRot,
-                      Location startLocation, float startAngle)
+    public PBlockData(final @NotNull ICustomCraftFallingBlock newFBlock, final float radius,
+                      final @NotNull INMSBlock newBlock, final boolean canRot, final @NotNull Location startLocation,
+                      final float startAngle)
     {
         block = newBlock;
         fBlock = newFBlock;
@@ -38,8 +40,9 @@ public final class PBlockData
     }
 
     /**
-     * Get the {@link ICustomCraftFallingBlock} that is being be animated.
+     * Gets the {@link ICustomCraftFallingBlock} that is being be animated.
      */
+    @NotNull
     public ICustomCraftFallingBlock getFBlock()
     {
         return fBlock;
@@ -50,13 +53,13 @@ public final class PBlockData
      *
      * @param block The new {@link ICustomCraftFallingBlock} that will be animated.
      */
-    public void setFBlock(ICustomCraftFallingBlock block)
+    public void setFBlock(final @NotNull ICustomCraftFallingBlock block)
     {
         fBlock = block;
     }
 
     /**
-     * Kill the {@link ICustomCraftFallingBlock} that is being be animated.
+     * Kills the {@link ICustomCraftFallingBlock} that is being be animated.
      */
     public void killFBlock()
     {
@@ -65,7 +68,7 @@ public final class PBlockData
     }
 
     /**
-     * Get the number of blocks between this block and the rotation point.
+     * Gets the number of blocks between this block and the rotation point.
      *
      * @return The number of blocks between this block and the rotation point.
      */
@@ -75,17 +78,18 @@ public final class PBlockData
     }
 
     /**
-     * If it exist, get the rotated {@link INMSBlock}. If this block cannot rotate, this value does not exist.
+     * Gets the rotated {@link INMSBlock} if it exists. If this block cannot rotate, this value does not exist.
      *
      * @return The rotated {@link INMSBlock} if it exists.
      */
+    @NotNull
     public INMSBlock getBlock()
     {
         return block;
     }
 
     /**
-     * Check if this block can rotate.
+     * Checks if this block can rotate.
      *
      * @return True if this block can rotate.
      */
@@ -95,10 +99,11 @@ public final class PBlockData
     }
 
     /**
-     * Get the location the block was first spawned at.
+     * Gets the location the block was first spawned at.
      *
      * @return The location the block was first spawned at.
      */
+    @NotNull
     public Location getStartLocation()
     {
         // block.getStartLocation() acts as a reference. I don't want that, so return a
@@ -107,7 +112,7 @@ public final class PBlockData
     }
 
     /**
-     * Get the x-coordinate of the location the block was first spawned at.
+     * Gets the x-coordinate of the location the block was first spawned at.
      *
      * @return The x-coordinate of the location the block was first spawned at.
      */
@@ -117,7 +122,7 @@ public final class PBlockData
     }
 
     /**
-     * Get the y-coordinate of the location the block was first spawned at.
+     * Gets the y-coordinate of the location the block was first spawned at.
      *
      * @return The y-coordinate of the location the block was first spawned at.
      */
@@ -127,7 +132,7 @@ public final class PBlockData
     }
 
     /**
-     * Get the z-coordinate of the location the block was first spawned at.
+     * Gets the z-coordinate of the location the block was first spawned at.
      *
      * @return The 1-coordinate of the location the block was first spawned at.
      */
@@ -137,7 +142,7 @@ public final class PBlockData
     }
 
     /**
-     * Get the angle the block had in regards to the rotation point when it was first spawned.
+     * Gets the angle the block had in regards to the rotation point when it was first spawned.
      *
      * @return The angle the block had in regards to the rotation point when it was first spawned.
      */
@@ -145,5 +150,4 @@ public final class PBlockData
     {
         return startAngle;
     }
-
 }

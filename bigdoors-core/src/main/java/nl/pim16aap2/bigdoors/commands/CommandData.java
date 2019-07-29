@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public enum CommandData
 {
     BDM("bdm", "bigdoors.user", null),
@@ -34,24 +37,28 @@ public enum CommandData
     private final String permission;
     private final CommandData superCommand;
 
-    CommandData(String commandName, String permission, CommandData superCommand)
+    CommandData(final @NotNull String commandName, final @NotNull String permission,
+                final @Nullable CommandData superCommand)
     {
         this.superCommand = superCommand;
         this.permission = permission;
         this.commandName = commandName;
     }
 
-    public static String getPermission(CommandData command)
+    @NotNull
+    public static String getPermission(final @NotNull CommandData command)
     {
         return command.permission;
     }
 
-    public static CommandData getSuperCommand(CommandData command)
+    @Nullable
+    public static CommandData getSuperCommand(final @NotNull CommandData command)
     {
         return command.superCommand;
     }
 
-    public static String getCommandName(CommandData command)
+    @NotNull
+    public static String getCommandName(final @NotNull CommandData command)
     {
         return command.commandName;
     }

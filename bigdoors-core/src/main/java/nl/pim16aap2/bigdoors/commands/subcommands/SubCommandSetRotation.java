@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class SubCommandSetRotation extends SubCommand
 {
@@ -31,10 +32,14 @@ public class SubCommandSetRotation extends SubCommand
         plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), openDir);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
-                   CommandActionNotAllowedException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
+               CommandActionNotAllowedException
     {
         DoorBase door = commandManager.getDoorFromArg(sender, args[1]);
 
@@ -45,6 +50,6 @@ public class SubCommandSetRotation extends SubCommand
 
         RotateDirection openDir = RotateDirection.valueOf(args[2].toUpperCase());
         return openDir == RotateDirection.NONE || openDir == RotateDirection.CLOCKWISE ||
-                openDir == RotateDirection.COUNTERCLOCKWISE;
+            openDir == RotateDirection.COUNTERCLOCKWISE;
     }
 }

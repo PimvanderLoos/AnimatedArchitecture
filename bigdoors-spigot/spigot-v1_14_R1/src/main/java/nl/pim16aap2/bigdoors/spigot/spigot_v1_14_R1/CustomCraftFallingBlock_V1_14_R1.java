@@ -11,6 +11,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * V1_14_R1 implementation of {@link ICustomCraftFallingBlock}.
@@ -20,37 +21,56 @@ import org.bukkit.util.Vector;
  */
 public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements FallingBlock, ICustomCraftFallingBlock
 {
-    public CustomCraftFallingBlock_V1_14_R1(Server server, CustomEntityFallingBlock_V1_14_R1 entity)
+    CustomCraftFallingBlock_V1_14_R1(final @NotNull Server server,
+                                     final @NotNull CustomEntityFallingBlock_V1_14_R1 entity)
     {
         super((org.bukkit.craftbukkit.v1_14_R1.CraftServer) server, entity);
         setVelocity(new Vector(0, 0, 0));
         setDropItem(false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public CustomEntityFallingBlock_V1_14_R1 getHandle()
     {
         return (CustomEntityFallingBlock_V1_14_R1) entity;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isOnGround()
     {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString()
     {
         return "CraftFallingBlock";
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public EntityType getType()
     {
         return EntityType.FALLING_BLOCK;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     @Deprecated
     public Material getMaterial()
@@ -58,38 +78,57 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return CraftMagicNumbers.getMaterial(getHandle().getBlock()).getItemType();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public BlockData getBlockData()
     {
         return CraftBlockData.fromData(getHandle().getBlock());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean getDropItem()
     {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void setDropItem(boolean drop)
+    public void setDropItem(final boolean drop)
     {
         getHandle().dropItem = false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canHurtEntities()
     {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void setHurtEntities(boolean hurtEntities)
+    public void setHurtEntities(final boolean hurtEntities)
     {
         getHandle().hurtEntities = false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void setTicksLived(int value)
+    public void setTicksLived(final int value)
     {
         super.setTicksLived(value);
 
@@ -97,12 +136,6 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         getHandle().ticksLived = value;
     }
 
-    @Override
-    public Spigot spigot()
-    {
-        return null;
-    }
-
     /**
      * {@inheritDoc}
      *
@@ -110,7 +143,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
      */
     @Deprecated
     @Override
-    public void setHeadPose(EulerAngle pose)
+    public void setHeadPose(final @NotNull EulerAngle pose)
     {
     }
 
@@ -121,7 +154,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
      */
     @Deprecated
     @Override
-    public void setBodyPose(EulerAngle eulerAngle)
+    public void setBodyPose(final @NotNull EulerAngle eulerAngle)
     {
     }
 }

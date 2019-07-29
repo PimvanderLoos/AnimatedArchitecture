@@ -11,11 +11,15 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+/**
+ * Represents a base command that {@link SubCommand}s can register with.
+ */
 public class SuperCommand implements ICommand
 {
     protected final BigDoors plugin;
@@ -24,34 +28,44 @@ public class SuperCommand implements ICommand
     protected int minArgCount;
     protected CommandData command;
 
-    protected SuperCommand(final BigDoors plugin, final CommandManager commandManager)
+    protected SuperCommand(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         this.plugin = plugin;
         this.commandManager = commandManager;
         subCommands = new HashMap<>();
     }
 
-    protected final void init(int minArgCount, CommandData command)
+    /**
+     * Initializes the command.
+     *
+     * @param minArgCount The minimum number of arguments of the command.
+     * @param command     The {@link CommandData} of the command.
+     */
+    protected final void init(final int minArgCount, final @NotNull CommandData command)
     {
         this.minArgCount = minArgCount;
         this.command = command;
     }
 
-    public void registerSubCommand(SubCommand subCommand)
+    /**
+     * Register a {@link SubCommand} with this {@link SuperCommand}.
+     *
+     * @param subCommand The {@link SubCommand}.
+     */
+    public void registerSubCommand(final @NotNull SubCommand subCommand)
     {
         subCommands.put(subCommand.getName().toLowerCase(), subCommand);
         commandManager.registerCommandShortcut(subCommand);
     }
 
-    public ICommand getCommand(String name)
-    {
-        return subCommands.get(name);
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
-                   CommandPlayerNotFoundException, CommandActionNotAllowedException
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
+               CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
         if (args.length == 0 || (args.length == 1 && args[0].toLowerCase().equals("help")))
         {
@@ -83,8 +97,12 @@ public class SuperCommand implements ICommand
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
-    public String getHelp(CommandSender sender)
+    public String getHelp(final @NotNull CommandSender sender)
     {
         StringBuilder builder = new StringBuilder();
         subCommands.forEach((K, V) ->
@@ -99,34 +117,50 @@ public class SuperCommand implements ICommand
         return builder.toString();
     }
 
-    private String getHelpOfSubCommand(CommandSender sender, SubCommand subCommand)
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    private String getHelpOfSubCommand(final @NotNull CommandSender sender, final @NotNull SubCommand subCommand)
     {
         String help = subCommand.getHelp(sender);
         String args = subCommand.getHelpArguments();
-        if (help != null)
-            return SpigotUtil.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args),
-                                         help);
-        return null;
+        return SpigotUtil.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args), help);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public String getName()
     {
         return CommandData.getCommandName(command);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getMinArgCount()
     {
         return minArgCount;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public CommandData getCommandData()
     {

@@ -9,16 +9,22 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * Represents a delayed command to remove an owner of a {@link DoorBase}.
+ *
+ * @author Pim
+ */
 public class WaitForRemoveOwner extends WaitForCommand
 {
     private final DoorBase door;
     private final SubCommandRemoveOwner subCommand;
 
-    public WaitForRemoveOwner(final BigDoors plugin, final SubCommandRemoveOwner subCommand, final Player player,
-                              final DoorBase door)
+    public WaitForRemoveOwner(final @NotNull BigDoors plugin, final @NotNull SubCommandRemoveOwner subCommand,
+                              final @NotNull Player player, final @NotNull DoorBase door)
     {
         super(plugin, subCommand);
         this.subCommand = subCommand;
@@ -34,9 +40,12 @@ public class WaitForRemoveOwner extends WaitForCommand
         SpigotUtil.messagePlayer(player, builder.toString());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean executeCommand(String[] args)
-            throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException
+    public boolean executeCommand(final @NotNull String[] args)
+        throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException
     {
         abortSilently();
         return subCommand.execute(player, door, args[2]);

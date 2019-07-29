@@ -12,7 +12,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.function.BiFunction;
 
 class GarageDoorMover extends BlockMover
@@ -26,21 +29,22 @@ class GarageDoorMover extends BlockMover
     private BiFunction<PBlockData, Double, Vector> getVector;
     private int xLen, yLen, zLen;
 
-    public GarageDoorMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
-                           final double multiplier, final PBlockFace currentDirection,
-                           final RotateDirection rotateDirection)
+    GarageDoorMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
+                    final double time, final double multiplier, final boolean instantOpen,
+                    final @NotNull PBlockFace currentDirection, final @NotNull RotateDirection rotateDirection,
+                    @Nullable final UUID playerUUID)
     {
-        super(plugin, world, door, 30, false, currentDirection, rotateDirection, -1);
+        super(plugin, world, door, 30, instantOpen, currentDirection, rotateDirection, -1, playerUUID);
         this.time = time;
 
         double speed = 1 * multiplier;
-        speed = speed > maxSpeed ? 3 : speed < minSpeed ? minSpeed : speed;
+        speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
         tickRate = SpigotUtil.tickRateFromSpeed(speed);
         tickRate = 3;
 
         resultHeight = door.getMaximum().getBlockY() + 1;
 
-        BiFunction<PBlockData, Double, Vector> getVectorTmp = null;
+        BiFunction<PBlockData, Double, Vector> getVectorTmp;
         switch (rotateDirection)
         {
             case NORTH:
@@ -62,8 +66,8 @@ class GarageDoorMover extends BlockMover
             default:
                 directionVec = null;
                 plugin.getPLogger().dumpStackTrace("Failed to open garage door \"" + getDoorUID()
-                                                           + "\". Reason: Invalid rotateDirection \"" +
-                                                           rotateDirection.toString() + "\"");
+                                                       + "\". Reason: Invalid rotateDirection \"" +
+                                                       rotateDirection.toString() + "\"");
                 return;
         }
 
@@ -79,14 +83,14 @@ class GarageDoorMover extends BlockMover
         else
         {
             super.blocksMoved = (xLen + 1) * directionVec.getX() + (yLen + 1) * directionVec.getY()
-                    + (zLen + 1) * directionVec.getZ();
+                + (zLen + 1) * directionVec.getZ();
             getVector = getVectorTmp;
         }
 
         super.constructFBlocks();
     }
 
-    private Vector getVectorUp(PBlockData block, double stepSum)
+    private Vector getVectorUp(final @NotNull PBlockData block, final double stepSum)
     {
         double currentHeight = Math.min(resultHeight, block.getStartY() + stepSum);
         double xMod = 0;
@@ -103,7 +107,7 @@ class GarageDoorMover extends BlockMover
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector getVectorDownNorth(PBlockData block, double stepSum)
+    private Vector getVectorDownNorth(final @NotNull PBlockData block, final double stepSum)
     {
         double goalZ = door.getEngine().getBlockZ() - 0.5;
         double pivotZ = goalZ + 1.5;
@@ -122,7 +126,7 @@ class GarageDoorMover extends BlockMover
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector getVectorDownSouth(PBlockData block, double stepSum)
+    private Vector getVectorDownSouth(final @NotNull PBlockData block, final double stepSum)
     {
         double goalZ = door.getEngine().getBlockZ() - 0.5;
         double pivotZ = goalZ - 1.5;
@@ -140,7 +144,7 @@ class GarageDoorMover extends BlockMover
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector getVectorDownEast(PBlockData block, double stepSum)
+    private Vector getVectorDownEast(final @NotNull PBlockData block, final double stepSum)
     {
         double goalX = door.getEngine().getBlockX() - 0.5;
         double pivotX = goalX - 1.5;
@@ -158,7 +162,7 @@ class GarageDoorMover extends BlockMover
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector getVectorDownWest(PBlockData block, double stepSum)
+    private Vector getVectorDownWest(final @NotNull PBlockData block, final double stepSum)
     {
 
         double goalX = door.getEngine().getBlockX() - 0.5;
@@ -179,18 +183,18 @@ class GarageDoorMover extends BlockMover
         }
 
         SpigotUtil.broadcastMessage(String.format(
-                "%.5b: goalX: %.2f, pivotX: %.2f, currentX: %.2f, stepSum: %.2f, "
-                        + "yMod: %.2f, xMod: %.2f, radius: %.2f, startX: %.2f, BTM: %.1f, test: %.2f",
-                test, goalX, pivotX, currentX, stepSum, yMod, xMod, block.getRadius(),
-                block.getStartX(), getBlocksMoved(), (goalX - block.getStartLocation().getBlockX() + 0.5)));
+            "%.5b: goalX: %.2f, pivotX: %.2f, currentX: %.2f, stepSum: %.2f, "
+                + "yMod: %.2f, xMod: %.2f, radius: %.2f, startX: %.2f, BTM: %.1f, test: %.2f",
+            test, goalX, pivotX, currentX, stepSum, yMod, xMod, block.getRadius(),
+            block.getStartX(), getBlocksMoved(), (goalX - block.getStartLocation().getBlockX() + 0.5)));
 
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
     @Override
-    protected Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected Location getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
-        double newX = 0, newY = 0, newZ = 0;
+        double newX, newY, newZ;
 
         if (currentDirection.equals(PBlockFace.UP))
         {
@@ -287,7 +291,7 @@ class GarageDoorMover extends BlockMover
     }
 
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
         if (currentDirection.equals(PBlockFace.UP))
         {

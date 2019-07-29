@@ -18,6 +18,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 class BridgeMover extends BlockMover
 {
@@ -32,11 +36,25 @@ class BridgeMover extends BlockMover
     private double startStepSum;
     private int stepMultiplier;
 
-    public BridgeMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
-                       final PBlockFace upDown, final RotateDirection openDirection, final boolean instantOpen,
-                       final double multiplier)
+    /**
+     * Constructs a {@link BlockMover}.
+     *
+     * @param plugin        The {@link BigDoors}.
+     * @param world         The {@link World} in which the blocks will be moved.
+     * @param door          The {@link DoorBase}.
+     * @param time          The amount of time (in seconds) the door will try to toggle itself in.
+     * @param instantOpen   If the door should be opened instantly (i.e. skip animation) or not.
+     * @param upDown        Whether the {@link nl.pim16aap2.bigdoors.doors.DoorType#DRAWBRIDGE} should go up or down.
+     * @param openDirection The direction the {@link DoorBase} will move.
+     * @param multiplier    The speed multiplier.
+     * @param playerUUID    The {@link UUID} of the player who opened this door.
+     */
+    BridgeMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
+                final @NotNull DoorBase door, final @NotNull PBlockFace upDown,
+                final @NotNull RotateDirection openDirection, final boolean instantOpen, final double multiplier,
+                @Nullable final UUID playerUUID)
     {
-        super(plugin, world, door, time, instantOpen, upDown, openDirection, -1);
+        super(plugin, world, door, time, instantOpen, upDown, openDirection, -1, playerUUID);
 
         engineSide = door.getEngineSide();
         NS = engineSide == PBlockFace.NORTH || engineSide == PBlockFace.SOUTH;
@@ -162,7 +180,7 @@ class BridgeMover extends BlockMover
             default:
                 plugin.getPLogger()
                       .warn("Failed to open door \"" + getDoorUID() + "\". Reason: Invalid rotateDirection \""
-                                    + openDirection.toString() + "\"");
+                                + openDirection.toString() + "\"");
                 gnl = null;
                 getDelta = null;
                 return;
@@ -224,10 +242,7 @@ class BridgeMover extends BlockMover
                     stepSum = startStepSum + step * counter;
                 else
                     stepSum = endStepSum;
-
-                replace = false;
-                if (counter == replaceCount)
-                    replace = true;
+                replace = counter == replaceCount;
 
                 if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
                 {

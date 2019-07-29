@@ -6,16 +6,16 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * This class represents players in the process of creating doors. Objects of this class are instantiated when the
- * createdoor command is used and they are destroyed after The creation process has been completed successfully or the
- * timer ran out. In EventHandlers this class is used To check whether a user that is left-clicking is a DoorCreator &&
- * tell this class a left-click happened.
+ * Represents a user creating a {@link DoorType#GARAGEDOOR}.
+ *
+ * @author Pim
  **/
 public class GarageDoorCreator extends BigDoorCreator
 {
-    public GarageDoorCreator(BigDoors plugin, Player player, String name)
+    public GarageDoorCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name);
         type = DoorType.GARAGEDOOR;
@@ -42,7 +42,7 @@ public class GarageDoorCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected boolean isPosTwoValid(Location loc)
+    protected boolean isPosTwoValid(final @NotNull Location loc)
     {
         int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
         int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());
@@ -59,7 +59,8 @@ public class GarageDoorCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getInitMessage()
+    @NotNull
+    protected String getInitMessage()
     {
         return messages.getString(Message.CREATOR_GARAGEDOOR_INIT);
     }
@@ -68,7 +69,8 @@ public class GarageDoorCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickLore()
+    @NotNull
+    protected String getStickLore()
     {
         return messages.getString(Message.CREATOR_GARAGEDOOR_STICKLORE);
     }
@@ -77,7 +79,8 @@ public class GarageDoorCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStickReceived()
+    @NotNull
+    protected String getStickReceived()
     {
         return messages.getString(Message.CREATOR_GARAGEDOOR_INIT);
     }
@@ -86,7 +89,8 @@ public class GarageDoorCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep1()
+    @NotNull
+    protected String getStep1()
     {
         return messages.getString(Message.CREATOR_GARAGEDOOR_STEP1);
     }
@@ -95,7 +99,8 @@ public class GarageDoorCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep2()
+    @NotNull
+    protected String getStep2()
     {
         return messages.getString(Message.CREATOR_GARAGEDOOR_STEP2);
     }
@@ -104,7 +109,8 @@ public class GarageDoorCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getStep3()
+    @NotNull
+    protected String getStep3()
     {
         return messages.getString(Message.CREATOR_GARAGEDOOR_STEP3);
     }
@@ -113,7 +119,8 @@ public class GarageDoorCreator extends BigDoorCreator
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull String getSuccessMessage()
+    @NotNull
+    protected String getSuccessMessage()
     {
         return messages.getString(Message.CREATOR_GARAGEDOOR_SUCCESS);
     }

@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.commands.ICommand;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class SubCommand implements ICommand
 {
@@ -18,14 +19,15 @@ public abstract class SubCommand implements ICommand
     protected int minArgCount;
     protected CommandData command;
 
-    public SubCommand(final BigDoors plugin, CommandManager commandManager)
+    public SubCommand(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         this.plugin = plugin;
         messages = plugin.getMessages();
         this.commandManager = commandManager;
     }
 
-    protected final void init(String help, String argsHelp, int minArgCount, CommandData command)
+    protected final void init(final @NotNull String help, final @NotNull String argsHelp, final int minArgCount,
+                              final @NotNull CommandData command)
     {
         this.help = help;
         this.argsHelp = argsHelp;
@@ -33,35 +35,59 @@ public abstract class SubCommand implements ICommand
         this.command = command;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
-    public String getHelp(CommandSender sender)
+    public String getHelp(final @NotNull CommandSender sender)
     {
         return help;
     }
 
+    /**
+     * Gets the help information of the arguments of this command.
+     *
+     * @return The help information of the arguments of this command.
+     */
     public String getHelpArguments()
     {
         return argsHelp;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getMinArgCount()
     {
         return commandManager.getCommand(CommandData.getSuperCommand(command)).getMinArgCount() + minArgCount;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public CommandData getCommandData()
     {
         return command;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
     @Override
     public String getName()
     {

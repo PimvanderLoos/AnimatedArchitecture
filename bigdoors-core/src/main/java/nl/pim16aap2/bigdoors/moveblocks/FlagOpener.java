@@ -3,29 +3,38 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorToggleResult;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class FlagOpener extends Opener
 {
-    public FlagOpener(BigDoors plugin)
+    public FlagOpener(final @NotNull BigDoors plugin)
     {
         super(plugin);
     }
 
-    // Open a door.
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
+    @NotNull
+    public DoorToggleResult toggleDoor(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                                       final double time, boolean instantOpen, final boolean playerToggle)
     {
-        DoorOpenResult isOpenable = super.isOpenable(door, silent);
-        if (isOpenable != DoorOpenResult.SUCCESS)
+        DoorToggleResult isOpenable = super.canBeToggled(door, playerToggle);
+        if (isOpenable != DoorToggleResult.SUCCESS)
             return abort(door, isOpenable);
 
         if (super.isTooBig(door))
-            return abort(door, DoorOpenResult.ERROR);
+            return abort(door, DoorToggleResult.ERROR);
 
-        plugin.addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door,
-                                           plugin.getConfigLoader().getMultiplier(DoorType.FLAG)));
+        plugin.addBlockMover(
+            new FlagMover(plugin, door.getWorld(), 60, door, plugin.getConfigLoader().getMultiplier(DoorType.FLAG),
+                          playerUUID));
 
-        return DoorOpenResult.SUCCESS;
+        return DoorToggleResult.SUCCESS;
     }
 }

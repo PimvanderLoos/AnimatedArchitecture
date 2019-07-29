@@ -14,7 +14,9 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class SubCommandSetBlocksToMove extends SubCommand
@@ -31,7 +33,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
     }
 
     public boolean execute(CommandSender sender, DoorBase door, String blocksToMoveArg)
-            throws CommandActionNotAllowedException, IllegalArgumentException
+        throws CommandActionNotAllowedException, IllegalArgumentException
     {
         if (sender instanceof Player && !plugin.getDatabaseManager()
                                                .hasPermissionForAction((Player) sender, door.getDoorUID(),
@@ -44,31 +46,28 @@ public class SubCommandSetBlocksToMove extends SubCommand
 
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, blocksToMove > 0 ?
                                                                     messages.getString(
-                                                                            Message.COMMAND_BLOCKSTOMOVE_SUCCESS,
-                                                                            Integer.toString(blocksToMove)) :
+                                                                        Message.COMMAND_BLOCKSTOMOVE_SUCCESS,
+                                                                        Integer.toString(blocksToMove)) :
                                                                     messages.getString(
-                                                                            Message.COMMAND_BLOCKSTOMOVE_DISABLED));
+                                                                        Message.COMMAND_BLOCKSTOMOVE_DISABLED));
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
-                   CommandActionNotAllowedException, IllegalArgumentException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
+               CommandActionNotAllowedException, IllegalArgumentException
     {
         if (args.length < minArgCount)
             return false;
 
-        if (sender instanceof Player)
-        {
-            WaitForCommand cw = plugin.isCommandWaiter((Player) sender);
-            if (cw != null && cw.getCommand().equals(getName()))
-            {
-                if (args.length == minArgCount)
-                    return cw.executeCommand(args);
-                cw.abortSilently();
-            }
-        }
+        Optional<WaitForCommand> commandWaiter = commandManager.isCommandWaiter(sender, getName());
+        if (commandWaiter.isPresent())
+            return commandManager.commandWaiterExecute(commandWaiter.get(), args, minArgCount);
         return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2]);
     }
 }

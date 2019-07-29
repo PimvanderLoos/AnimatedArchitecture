@@ -6,14 +6,14 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
-import nl.pim16aap2.bigdoors.moveblocks.Opener;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,17 +65,17 @@ public class SubCommandToggle extends SubCommand
 
         else
         {
-            Opener opener = plugin.getDoorOpener(newDoor.get().getType());
-            DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(newDoor.get(), time);
-
-            if (result != DoorOpenResult.SUCCESS)
+            DoorToggleResult result = plugin.getDoorOpener(newDoor.get().getType())
+                                            .map(O -> O.toggleDoor(playerUUID, newDoor.get(), time))
+                                            .orElse(DoorToggleResult.ERROR);
+            if (!result.equals(DoorToggleResult.SUCCESS))
                 plugin.getPLogger()
-                      .sendMessageToTarget(sender, Level.INFO, messages.getString(DoorOpenResult.getMessage(result)));
+                      .sendMessageToTarget(sender, Level.INFO, messages.getString(DoorToggleResult.getMessage(result)));
         }
     }
 
-    public double parseDoorsAndTime(CommandSender sender, String[] args, List<DoorBase> doors)
-            throws IllegalArgumentException
+    double parseDoorsAndTime(CommandSender sender, String[] args, List<DoorBase> doors)
+        throws IllegalArgumentException
     {
         String lastStr = args[args.length - 1];
         // Last argument sets speed if it's a double.
@@ -92,9 +92,13 @@ public class SubCommandToggle extends SubCommand
         return time;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
         List<DoorBase> doors = new ArrayList<>();
         double time = parseDoorsAndTime(sender, args, doors);

@@ -1,5 +1,10 @@
 package nl.pim16aap2.bigdoors.events;
 
+/**
+ * Represents a BigDoors event.
+ *
+ * @author Pim
+ */
 public abstract class PEvent
 {
     private String name = null;
@@ -12,7 +17,7 @@ public abstract class PEvent
     public String getEventName()
     {
         if (name == null)
-            name = this.getClass().getName();
+            name = getClass().getName();
         return name;
     }
 }

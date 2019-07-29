@@ -13,6 +13,9 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 public class SubCommandSetName extends SubCommand
 {
@@ -27,20 +30,24 @@ public class SubCommandSetName extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-            throws CommandSenderNotPlayerException, CommandPermissionException
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
+                             @NotNull String[] args)
+        throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
 
         Player player = (Player) sender;
-        ToolUser tu = plugin.getToolUser(player);
-        if (tu instanceof Creator)
+        Optional<ToolUser> tu = plugin.getToolUser(player);
+        if (tu.isPresent() && tu.get() instanceof Creator)
         {
             if (args.length == getMinArgCount() && Util.isValidDoorName(args[getMinArgCount() - 1]))
             {
-                ((Creator) tu).setName(args[getMinArgCount() - 1]);
+                ((Creator) tu.get()).setName(args[getMinArgCount() - 1]);
                 return true;
             }
             return false;

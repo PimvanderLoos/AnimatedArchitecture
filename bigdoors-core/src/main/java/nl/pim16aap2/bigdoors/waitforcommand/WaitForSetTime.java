@@ -7,14 +7,20 @@ import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a delayed command to change the auto close timer of a {@link DoorBase}.
+ *
+ * @author Pim
+ */
 public class WaitForSetTime extends WaitForCommand
 {
     private final DoorBase door;
     private final SubCommandSetAutoCloseTime subCommand;
 
-    public WaitForSetTime(final BigDoors plugin, final SubCommandSetAutoCloseTime subCommand, final Player player,
-                          final DoorBase door)
+    public WaitForSetTime(final @NotNull BigDoors plugin, final @NotNull SubCommandSetAutoCloseTime subCommand,
+                          final @NotNull Player player, final @NotNull DoorBase door)
     {
         super(plugin, subCommand);
         this.player = player;
@@ -23,9 +29,12 @@ public class WaitForSetTime extends WaitForCommand
         SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_SETTIME_INIT));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean executeCommand(String[] args)
-            throws CommandActionNotAllowedException, IllegalArgumentException
+    public boolean executeCommand(@NotNull String[] args)
+        throws CommandActionNotAllowedException, IllegalArgumentException
     {
         abortSilently();
         return subCommand.execute(player, door, args[1]);

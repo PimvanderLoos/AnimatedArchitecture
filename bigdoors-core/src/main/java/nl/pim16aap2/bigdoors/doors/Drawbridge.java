@@ -13,17 +13,17 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a DrawBrige doorType.
  *
- * @author pim
+ * @author Pim
  * @see HorizontalAxisAlignedBase
  */
 public class Drawbridge extends HorizontalAxisAlignedBase
 {
-    Drawbridge(PLogger pLogger, long doorUID, DoorType type)
+    Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
         super(pLogger, doorUID, type);
     }
 
-    Drawbridge(PLogger pLogger, long doorUID)
+    Drawbridge(final @NotNull PLogger pLogger, final long doorUID)
     {
         super(pLogger, doorUID, DoorType.DRAWBRIDGE);
     }
@@ -50,6 +50,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public Vector2D[] calculateChunkRange()
     {
@@ -71,6 +72,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public PBlockFace calculateCurrentDirection()
     {
@@ -85,14 +87,14 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             int dZ = engine.getBlockZ() - min.getBlockZ();
             if (dZ == 0)
                 dZ = engine.getBlockZ() - max.getBlockZ();
-            dirZ = dZ < 0 ? 1 : dZ > 0 ? -1 : 0;
+            dirZ = Integer.compare(0, dZ);
         }
         else
         {
             int dX = engine.getBlockX() - min.getBlockX();
             if (dX == 0)
                 dX = engine.getBlockX() - max.getBlockX();
-            dirX = dX < 0 ? 1 : dX > 0 ? -1 : 0;
+            dirX = Integer.compare(0, dX);
         }
 
         return PBlockFace.faceFromDir(new Vector3D(dirX, 0, dirZ));
@@ -114,8 +116,10 @@ public class Drawbridge extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(PBlockFace openDirection, RotateDirection rotateDirection, @NotNull Location newMin,
-                                @NotNull Location newMax, int blocksMoved, @Nullable Mutable<PBlockFace> newEngineSide)
+    public void getNewLocations(final @Nullable PBlockFace openDirection,
+                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
+                                final @NotNull Location newMax, final int blocksMoved,
+                                final @Nullable Mutable<PBlockFace> newEngineSide)
     {
         int xLen = dimensions.getX();
         int yLen = dimensions.getY();

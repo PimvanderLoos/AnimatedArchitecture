@@ -32,12 +32,18 @@ public class GUIPageRemoveOwner implements IGUIPage
         refresh();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PageType getPageType()
     {
         return PageType.REMOVEOWNER;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void handleInput(int interactionIDX)
     {
@@ -118,20 +124,23 @@ public class GUIPageRemoveOwner implements IGUIPage
         missingHeadTextures = 0;
         for (DoorOwner owner : owners)
         {
-            GUIItem item = new GUIItem(plugin, owner, gui.getPlayer());
+            GUIItem item = new GUIItem(plugin.getHeadManager(), owner);
             if (item.missingHeadTexture())
                 ++missingHeadTextures;
             gui.addItem(idx++, item);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void refresh()
     {
         owners = plugin.getDatabaseManager().getDoorOwners(gui.getDoor().getDoorUID());
         Collections.sort(owners, Comparator.comparing(DoorOwner::getPlayerName));
         maxDoorOwnerPageCount =
-                owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
+            owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
 
         fillHeader();
         fillPage();

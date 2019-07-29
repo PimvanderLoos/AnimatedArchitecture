@@ -14,9 +14,12 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -47,7 +50,8 @@ public final class SpigotUtil
      * @param color  Color of the message
      * @param msg    The message to be sent.
      */
-    public static void messagePlayer(Player player, ChatColor color, String msg)
+    public static void messagePlayer(final @NotNull Player player, final @NotNull ChatColor color,
+                                     final @NotNull String msg)
     {
         player.sendMessage(color + msg);
     }
@@ -59,7 +63,8 @@ public final class SpigotUtil
      * @param explanation Explanation of how to use the command.
      * @return String in the helperformat.
      */
-    public static String helpFormat(String command, String explanation)
+    @NotNull
+    public static String helpFormat(final @NotNull String command, final @NotNull String explanation)
     {
         return String.format(ChatColor.GREEN + "/%s: " + ChatColor.BLUE + "%s\n", command, explanation);
     }
@@ -70,7 +75,8 @@ public final class SpigotUtil
      * @param mbf {@link PBlockFace} that will be converted.
      * @return The parallel {@link org.bukkit.block.BlockFace}.
      */
-    public static BlockFace getBukkitFace(PBlockFace mbf)
+    @NotNull
+    public static BlockFace getBukkitFace(final @NotNull PBlockFace mbf)
     {
         return toBlockFace.get(mbf);
     }
@@ -81,7 +87,8 @@ public final class SpigotUtil
      * @param bf {@link org.bukkit.block.BlockFace} that will be converted.
      * @return The parallel {@link PBlockFace}.
      */
-    public static PBlockFace getPBlockFace(BlockFace bf)
+    @NotNull
+    public static PBlockFace getPBlockFace(final @NotNull BlockFace bf)
     {
         return toPBlockFace.get(bf);
     }
@@ -91,7 +98,7 @@ public final class SpigotUtil
      *
      * @param message The message to broadcast.
      */
-    public static void broadcastMessage(String message)
+    public static void broadcastMessage(final @NotNull String message)
     {
         if (printDebugMessages)
             Bukkit.broadcastMessage(message);
@@ -103,7 +110,8 @@ public final class SpigotUtil
      * @param loc The location to convert to a string.
      * @return A string of the coordinates of the location.
      */
-    public static String locIntToString(Location loc)
+    @NotNull
+    public static String locIntToString(final @NotNull Location loc)
     {
         return String.format("(%d;%d;%d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
@@ -114,18 +122,17 @@ public final class SpigotUtil
      * @param loc The location to convert to a string.
      * @return A string of the coordinates of the location.
      */
-    public static String locDoubleToString(Location loc)
+    @NotNull
+    public static String locDoubleToString(final @NotNull Location loc)
     {
         return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
     }
 
-    public static String nameFromUUID(UUID playerUUID)
+    @NotNull
+    public static Optional<String> nameFromUUID(final @NotNull UUID playerUUID)
     {
-        if (playerUUID == null)
-            return null;
         Player player = Bukkit.getPlayer(playerUUID);
-
-        return player != null ? player.getName() : Bukkit.getOfflinePlayer(playerUUID).getName();
+        return Optional.ofNullable(player != null ? player.getName() : Bukkit.getOfflinePlayer(playerUUID).getName());
     }
 
     /**
@@ -138,10 +145,10 @@ public final class SpigotUtil
      * First try to get the UUID from an online player, then try an offline player;
      * the first option is faster.
      */
-    public static UUID playerUUIDFromString(String playerName)
+    @NotNull
+    public static Optional<UUID> playerUUIDFromString(final @NotNull String playerName)
     {
-        Player player = null;
-        player = Bukkit.getPlayer(playerName);
+        Player player = Bukkit.getPlayer(playerName);
         if (player == null)
             try
             {
@@ -156,7 +163,7 @@ public final class SpigotUtil
              * because player retrieval from a name is not exact. "pim" would match
              * "pim16aap2", for example.
              */
-            return player.getName().equals(playerName) ? player.getUniqueId() : null;
+            return Optional.ofNullable(player.getName().equals(playerName) ? player.getUniqueId() : null);
 
         OfflinePlayer offPlayer = null;
         try
@@ -166,9 +173,8 @@ public final class SpigotUtil
         catch (Exception dontcare)
         {
         }
-        if (offPlayer != null)
-            return offPlayer.getName().equals(playerName) ? offPlayer.getUniqueId() : null;
-        return null;
+        return Optional.ofNullable(
+            offPlayer == null ? null : offPlayer.getName().equals(playerName) ? offPlayer.getUniqueId() : null);
     }
 
     /**
@@ -179,7 +185,8 @@ public final class SpigotUtil
      * @param volume The volume
      * @param pitch  The pitch
      */
-    public static void playSound(Location loc, String sound, float volume, float pitch)
+    public static void playSound(final @NotNull Location loc, final @NotNull String sound, final float volume,
+                                 final float pitch)
     {
         for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
             if (ent instanceof Player)
@@ -192,7 +199,7 @@ public final class SpigotUtil
      * @param player The player for whom to retrieve the limit.
      * @return The limit if one was found, or -1 if unlimited.
      */
-    public static int getMaxDoorsForPlayer(Player player)
+    public static int getMaxDoorsForPlayer(final @NotNull Player player)
     {
         if (player.isOp())
             return -1;
@@ -205,7 +212,7 @@ public final class SpigotUtil
      * @param player The player for whom to retrieve the limit.
      * @return The limit if one was found, or -1 if unlimited.
      */
-    public static int getMaxDoorSizeForPlayer(Player player)
+    public static int getMaxDoorSizeForPlayer(final @NotNull Player player)
     {
         if (player.isOp())
             return -1;
@@ -221,14 +228,14 @@ public final class SpigotUtil
      * @param permissionNode The base permission node.
      * @return The highest value of the variable suffix of the permission node or -1 if none was found.
      */
-    private static int getHighestPermissionSuffix(Player player, String permissionNode)
+    private static int getHighestPermissionSuffix(final @NotNull Player player, final @NotNull String permissionNode)
     {
         int ret = -1;
         for (PermissionAttachmentInfo perms : player.getEffectivePermissions())
             if (perms.getPermission().startsWith(permissionNode))
                 try
                 {
-                    ret = Math.max(ret, Integer.valueOf(perms.getPermission().split(permissionNode)[1]));
+                    ret = Math.max(ret, Integer.parseInt(perms.getPermission().split(permissionNode)[1]));
                 }
                 catch (Exception e)
                 {
@@ -242,7 +249,7 @@ public final class SpigotUtil
      * @param player Player to receive the message.
      * @param msg    The message.
      */
-    public static void messagePlayer(Player player, String msg)
+    public static void messagePlayer(final @NotNull Player player, final @NotNull String msg)
     {
         messagePlayer(player, ChatColor.WHITE, msg);
     }
@@ -253,7 +260,7 @@ public final class SpigotUtil
      * @param player The player that will receive the message
      * @param msg    The messages
      */
-    public static void messagePlayer(Player player, String[] msg)
+    public static void messagePlayer(final @NotNull Player player, final @NotNull String[] msg)
     {
         messagePlayer(player, Util.stringFromArray(msg));
     }
@@ -265,7 +272,8 @@ public final class SpigotUtil
      * @param color  The color of the message
      * @param msg    The messages
      */
-    public static void messagePlayer(Player player, ChatColor color, String[] msg)
+    public static void messagePlayer(final @NotNull Player player, final @NotNull ChatColor color,
+                                     final @NotNull String[] msg)
     {
         messagePlayer(player, color, Util.stringFromArray(msg));
     }
@@ -276,7 +284,7 @@ public final class SpigotUtil
      * @param block The block to be checked.
      * @return True if it is air or liquid.
      */
-    public static boolean isAirOrLiquid(Block block)
+    public static boolean isAirOrLiquid(final @NotNull Block block)
     {
         // Empty means it's air.
         return block.isLiquid() || block.isEmpty();
@@ -291,7 +299,7 @@ public final class SpigotUtil
      * @deprecated I'm pretty sure this is no longer needed.
      */
     @Deprecated
-    public static boolean needsRefresh(Material mat)
+    public static boolean needsRefresh(final @NotNull Material mat)
     {
         switch (mat)
         {
@@ -337,49 +345,46 @@ public final class SpigotUtil
      * @param block The block to be checked
      * @return True if the block can be used for animations.
      */
-    public static boolean isAllowedBlock(Block block)
+    public static boolean isAllowedBlock(final @Nullable Block block)
     {
         if (block == null || isAirOrLiquid(block))
-            return false;
-
-        Material mat = block.getType();
-        if (mat == null)
             return false;
 
         BlockData blockData = block.getBlockData();
         BlockState blockState = block.getState();
 
         if (blockData instanceof org.bukkit.block.data.type.Stairs ||
-                blockData instanceof org.bukkit.block.data.type.Gate)
+            blockData instanceof org.bukkit.block.data.type.Gate)
             return true;
 
         if (blockState instanceof org.bukkit.inventory.InventoryHolder
-                // Door, Stairs, TrapDoor, sunflower, tall grass, tall seagrass, large fern,
-                // peony, rose bush, lilac,
-                || blockData instanceof org.bukkit.block.data.Bisected ||
-                blockData instanceof org.bukkit.block.data.Rail
-                // Cauldron, Composter, Water, Lava
-                || blockData instanceof org.bukkit.block.data.Levelled
+            // Door, Stairs, TrapDoor, sunflower, tall grass, tall seagrass, large fern,
+            // peony, rose bush, lilac,
+            || blockData instanceof org.bukkit.block.data.Bisected ||
+            blockData instanceof org.bukkit.block.data.Rail
+            // Cauldron, Composter, Water, Lava
+            || blockData instanceof org.bukkit.block.data.Levelled
 
-                || blockData instanceof org.bukkit.block.data.type.Bed ||
-                blockData instanceof org.bukkit.block.data.type.BrewingStand ||
-                blockData instanceof org.bukkit.block.data.type.Cake ||
-                blockData instanceof org.bukkit.block.data.type.CommandBlock ||
-                blockData instanceof org.bukkit.block.data.type.EnderChest ||
-                blockData instanceof org.bukkit.block.data.type.Ladder ||
-                blockData instanceof org.bukkit.block.data.type.Sapling ||
-                blockData instanceof org.bukkit.block.data.type.Sign ||
-                blockData instanceof org.bukkit.block.data.type.TechnicalPiston ||
-                blockData instanceof org.bukkit.block.data.type.WallSign ||
-                blockData instanceof org.bukkit.block.data.type.RedstoneWire ||
-                blockData instanceof org.bukkit.block.data.type.RedstoneWallTorch ||
-                blockData instanceof org.bukkit.block.data.type.Tripwire ||
-                blockData instanceof org.bukkit.block.data.type.TripwireHook ||
-                blockData instanceof org.bukkit.block.data.type.Repeater ||
-                blockData instanceof org.bukkit.block.data.type.Switch ||
-                blockData instanceof org.bukkit.block.data.type.Comparator)
+            || blockData instanceof org.bukkit.block.data.type.Bed ||
+            blockData instanceof org.bukkit.block.data.type.BrewingStand ||
+            blockData instanceof org.bukkit.block.data.type.Cake ||
+            blockData instanceof org.bukkit.block.data.type.CommandBlock ||
+            blockData instanceof org.bukkit.block.data.type.EnderChest ||
+            blockData instanceof org.bukkit.block.data.type.Ladder ||
+            blockData instanceof org.bukkit.block.data.type.Sapling ||
+            blockData instanceof org.bukkit.block.data.type.Sign ||
+            blockData instanceof org.bukkit.block.data.type.TechnicalPiston ||
+            blockData instanceof org.bukkit.block.data.type.WallSign ||
+            blockData instanceof org.bukkit.block.data.type.RedstoneWire ||
+            blockData instanceof org.bukkit.block.data.type.RedstoneWallTorch ||
+            blockData instanceof org.bukkit.block.data.type.Tripwire ||
+            blockData instanceof org.bukkit.block.data.type.TripwireHook ||
+            blockData instanceof org.bukkit.block.data.type.Repeater ||
+            blockData instanceof org.bukkit.block.data.type.Switch ||
+            blockData instanceof org.bukkit.block.data.type.Comparator)
             return false;
 
+        Material mat = block.getType();
         switch (mat)
         {
             case WALL_TORCH:
@@ -410,13 +415,13 @@ public final class SpigotUtil
         if (matName.startsWith("POTTED"))
             return true;
         if (matName.endsWith("TULIP") || matName.endsWith("BANNER") || matName.endsWith("CARPET") ||
-                matName.endsWith("HEAD"))
+            matName.endsWith("HEAD"))
             return false;
         return true;
     }
 
     @Deprecated
-    public static int tickRateFromSpeed(double speed)
+    public static int tickRateFromSpeed(final double speed)
     {
         int tickRate;
         if (speed > 9)
@@ -432,7 +437,8 @@ public final class SpigotUtil
 
     // Return {time, tickRate, distanceMultiplier} for a given door size.
     @Deprecated
-    public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
+    public static double[] calculateTimeAndTickRate(final int doorSize, double time, final double speedMultiplier,
+                                                    final double baseSpeed)
     {
         double ret[] = new double[3];
         double distance = Math.PI * doorSize / 2;

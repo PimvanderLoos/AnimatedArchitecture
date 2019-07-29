@@ -4,13 +4,17 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.function.BiFunction;
 
 class WindmillMover extends BlockMover
@@ -21,15 +25,15 @@ class WindmillMover extends BlockMover
     private final BiFunction<PBlockData, Double, Vector> getVector;
     private int tickRate;
 
-    public WindmillMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
-                         final double multiplier,
-                         final RotateDirection rotateDirection)
+    WindmillMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
+                  final double time, final double multiplier, final @NotNull RotateDirection rotateDirection,
+                  @Nullable final UUID playerUUID)
     {
-        super(plugin, world, door, time, false, null, null, -1);
+        super(plugin, world, door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID);
 
         int xLen = Math.abs(xMax - xMin) + 1;
         int zLen = Math.abs(zMax - zMin) + 1;
-        NS = zLen > xLen ? true : false;
+        NS = zLen > xLen;
 
         tickRate = 3;
 
@@ -50,8 +54,8 @@ class WindmillMover extends BlockMover
             default:
                 getVector = null;
                 plugin.getPLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
-                                                           + "\". Reason: Invalid rotateDirection \"" +
-                                                           rotateDirection.toString() + "\"");
+                                                       + "\". Reason: Invalid rotateDirection \"" +
+                                                       rotateDirection.toString() + "\"");
                 return;
         }
 

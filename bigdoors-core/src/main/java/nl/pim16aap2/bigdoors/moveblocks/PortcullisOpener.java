@@ -4,24 +4,32 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class PortcullisOpener extends Opener
 {
-    public PortcullisOpener(BigDoors plugin)
+    public PortcullisOpener(final @NotNull BigDoors plugin)
     {
         super(plugin);
     }
 
-    // Open a door.
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public DoorOpenResult openDoor(DoorBase door, double time, boolean instantOpen, boolean silent)
+    @NotNull
+    public DoorToggleResult toggleDoor(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                                       final double time, boolean instantOpen, final boolean playerToggle)
     {
-        DoorOpenResult isOpenable = super.isOpenable(door, silent);
-        if (isOpenable != DoorOpenResult.SUCCESS)
+        DoorToggleResult isOpenable = super.canBeToggled(door, playerToggle);
+        if (isOpenable != DoorToggleResult.SUCCESS)
             return abort(door, isOpenable);
 
         if (super.isTooBig(door))
@@ -31,20 +39,20 @@ public class PortcullisOpener extends Opener
         Location newMax = door.getMaximum().clone();
         int blocksToMove = getBlocksToMove(door, newMin, newMax);
 
-        // The door's owner does not have permission to move the door into the new
-        // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), newMin, newMax) != null)
-            return abort(door, DoorOpenResult.NOPERMISSION);
+        // Check if the owner of the door has permission to edit blocks in the new area of the door.
+        if (!super.canBreakBlocksBetweenLocs(door, newMin, newMax))
+            return abort(door, DoorToggleResult.NOPERMISSION);
 
         if (blocksToMove != 0)
             plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
-                                                   plugin.getConfigLoader().getMultiplier(DoorType.PORTCULLIS)));
+                                                   plugin.getConfigLoader().getMultiplier(DoorType.PORTCULLIS),
+                                                   playerUUID));
         else
-            return abort(door, DoorOpenResult.NODIRECTION);
-        return DoorOpenResult.SUCCESS;
+            return abort(door, DoorToggleResult.NODIRECTION);
+        return DoorToggleResult.SUCCESS;
     }
 
-    private int getBlocksInDir(DoorBase door, RotateDirection upDown)
+    private int getBlocksInDir(final @NotNull DoorBase door, final @NotNull RotateDirection upDown)
     {
         int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksUp = 0, delta;
         xMin = door.getMinimum().getBlockX();
@@ -75,7 +83,8 @@ public class PortcullisOpener extends Opener
         return blocksUp;
     }
 
-    private int getBlocksToMove(DoorBase door, Location newMin, Location newMax)
+    private int getBlocksToMove(final @NotNull DoorBase door, final @NotNull Location newMin,
+                                final @NotNull Location newMax)
     {
         int blocksUp = getBlocksInDir(door, RotateDirection.UP);
         int blocksDown = getBlocksInDir(door, RotateDirection.DOWN);

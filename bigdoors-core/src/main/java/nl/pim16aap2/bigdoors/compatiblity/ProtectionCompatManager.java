@@ -10,9 +10,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -33,7 +35,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
      *
      * @param plugin The instance of {@link BigDoors}.
      */
-    public ProtectionCompatManager(final BigDoors plugin)
+    public ProtectionCompatManager(final @NotNull BigDoors plugin)
     {
         super(plugin);
         this.plugin = plugin;
@@ -71,7 +73,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
      * @param player The {@link Player} to check the permissions for.
      * @return True if the player can bypass the checks.
      */
-    private boolean canByPass(Player player)
+    private boolean canByPass(final @NotNull Player player)
     {
         if (player.isOp())
             return true;
@@ -92,12 +94,13 @@ public class ProtectionCompatManager extends Restartable implements Listener
      *
      * @see FakePlayerCreator
      */
-    private Player getPlayer(UUID playerUUID, World world)
+    @NotNull
+    private Optional<Player> getPlayer(final @NotNull UUID playerUUID, final @NotNull World world)
     {
         Player player = Bukkit.getPlayer(playerUUID);
         if (player == null)
-            player = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(playerUUID), world);
-        return player;
+            player = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(playerUUID), world).orElse(null);
+        return Optional.ofNullable(player);
     }
 
     /**
@@ -105,29 +108,34 @@ public class ProtectionCompatManager extends Restartable implements Listener
      *
      * @param playerUUID The {@link UUID} of the player to check for.
      * @param loc        The {@link Location} to check.
-     * @return The name of the {@link IProtectionCompat} that objects, if any, or null if allowed by all compats.
+     * @return The name of the {@link IProtectionCompat} that objects, if any, or an empty Optional if allowed by all
+     * compats.
      */
-    public String canBreakBlock(UUID playerUUID, Location loc)
+    @NotNull
+    public Optional<String> canBreakBlock(final @NotNull UUID playerUUID, final @NotNull Location loc)
     {
         if (protectionCompats.size() == 0)
-            return null;
+            return Optional.empty();
 
-        Player fakePlayer = getPlayer(playerUUID, loc.getWorld());
-        if (canByPass(fakePlayer))
-            return null;
+        Optional<Player> fakePlayer = getPlayer(playerUUID, loc.getWorld());
+        if (!fakePlayer.isPresent())
+            return Optional.empty();
+
+        if (canByPass(fakePlayer.get()))
+            return Optional.empty();
 
         for (IProtectionCompat compat : protectionCompats)
             try
             {
-                if (!compat.canBreakBlock(fakePlayer, loc))
-                    return compat.getName();
+                if (!compat.canBreakBlock(fakePlayer.get(), loc))
+                    return Optional.of(compat.getName());
             }
             catch (Exception e)
             {
                 plugin.getPLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
-                        + "\"! Please send this error to pim16aap2:");
+                    + "\"! Please send this error to pim16aap2:");
             }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -136,29 +144,36 @@ public class ProtectionCompatManager extends Restartable implements Listener
      * @param playerUUID The {@link UUID} of the player to check for.
      * @param loc1       The start {@link Location} to check.
      * @param loc2       The end {@link Location} to check.
-     * @return The name of the {@link IProtectionCompat} that objects, if any, or null if allowed by all compats.
+     * @return The name of the {@link IProtectionCompat} that objects, if any, or an empty Optional if allowed by all
+     * compats.
      */
-    public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
+    @NotNull
+    public Optional<String> canBreakBlocksBetweenLocs(final @NotNull UUID playerUUID,
+                                                      final @NotNull Location loc1,
+                                                      final @NotNull Location loc2)
     {
         if (protectionCompats.size() == 0)
-            return null;
+            return Optional.empty();
 
-        Player fakePlayer = getPlayer(playerUUID, loc1.getWorld());
-        if (canByPass(fakePlayer))
-            return null;
+        Optional<Player> fakePlayer = getPlayer(playerUUID, loc1.getWorld());
+        if (!fakePlayer.isPresent())
+            return Optional.empty();
+
+        if (canByPass(fakePlayer.get()))
+            return Optional.empty();
 
         for (IProtectionCompat compat : protectionCompats)
             try
             {
-                if (!compat.canBreakBlocksBetweenLocs(fakePlayer, loc1, loc2))
-                    return compat.getName();
+                if (!compat.canBreakBlocksBetweenLocs(fakePlayer.get(), loc1, loc2))
+                    return Optional.of(compat.getName());
             }
             catch (Exception e)
             {
                 plugin.getPLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
-                        + "\"! Please send this error to pim16aap2:");
+                    + "\"! Please send this error to pim16aap2:");
             }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -167,7 +182,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
      * @param compatClass The class of the {@link IProtectionCompat} to check.
      * @return True if the compat has already been loaded.
      */
-    private boolean protectionAlreadyLoaded(Class<? extends IProtectionCompat> compatClass)
+    private boolean protectionAlreadyLoaded(final @NotNull Class<? extends IProtectionCompat> compatClass)
     {
         for (IProtectionCompat compat : protectionCompats)
             if (compat.getClass().equals(compatClass))
@@ -180,7 +195,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
      *
      * @param hook The compat to add.
      */
-    private void addProtectionCompat(IProtectionCompat hook)
+    private void addProtectionCompat(final @NotNull IProtectionCompat hook)
     {
         if (hook.success())
         {
@@ -197,7 +212,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
      * @param event The event of the plugin that is loaded.
      */
     @EventHandler
-    protected void onPluginEnable(final PluginEnableEvent event)
+    protected void onPluginEnable(final @NotNull PluginEnableEvent event)
     {
         loadFromPluginName(event.getPlugin().getName());
     }
@@ -207,7 +222,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
      *
      * @param compatName The name of the plugin to load a compat for.
      */
-    private void loadFromPluginName(final String compatName)
+    private void loadFromPluginName(final @NotNull String compatName)
     {
         ProtectionCompat compat = ProtectionCompat.getFromName(compatName);
         if (compat == null)
@@ -220,7 +235,7 @@ public class ProtectionCompatManager extends Restartable implements Listener
         {
             Class<? extends IProtectionCompat> compatClass = compat.getClass(plugin.getServer().getPluginManager()
                                                                                    .getPlugin(ProtectionCompat
-                                                                                                      .getName(compat))
+                                                                                                  .getName(compat))
                                                                                    .getDescription().getVersion());
 
             // No need to load compats twice.

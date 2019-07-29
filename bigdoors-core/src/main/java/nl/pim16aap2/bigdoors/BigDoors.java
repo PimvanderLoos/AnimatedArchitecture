@@ -36,12 +36,12 @@ import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.gui.GUI;
-import nl.pim16aap2.bigdoors.handlers.ChunkUnloadHandler;
-import nl.pim16aap2.bigdoors.handlers.EventHandlers;
-import nl.pim16aap2.bigdoors.handlers.GUIHandler;
-import nl.pim16aap2.bigdoors.handlers.LoginMessageHandler;
-import nl.pim16aap2.bigdoors.handlers.LoginResourcePackHandler;
-import nl.pim16aap2.bigdoors.handlers.RedstoneHandler;
+import nl.pim16aap2.bigdoors.listener.ChunkUnloadListener;
+import nl.pim16aap2.bigdoors.listener.EventListeners;
+import nl.pim16aap2.bigdoors.listener.GUIListener;
+import nl.pim16aap2.bigdoors.listener.LoginMessageHandler;
+import nl.pim16aap2.bigdoors.listener.LoginResourcePackHandler;
+import nl.pim16aap2.bigdoors.listener.RedstoneHandler;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -61,10 +61,9 @@ import nl.pim16aap2.bigdoors.moveblocks.WindmillOpener;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.GlowingBlockSpawner_V1_14_R1;
 import nl.pim16aap2.bigdoors.spigotutil.MessagingInterfaceSpigot;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
-import nl.pim16aap2.bigdoors.util.DoorOpenResult;
+import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -74,12 +73,12 @@ import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -88,6 +87,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -96,6 +96,18 @@ import java.util.Vector;
  */
 // TODO: Make blocks massive
 // TODO: Implement perpetual motion (for flags, clocks, ??).
+// TODO: Allow custom sounds. Every type should have its own sound file. This file should describe the name of the
+//       sounds in the resource pack and the length of the sound. It should contain both movement and finish sounds.
+// TODO: Implement my own Optional that allows ifPresent(Consumer<? super T> consumer).orElse(Consumer<? super T> consumer).
+//       Or implement's Java9's ifPresentOrElse:
+//       https://docs.oracle.com/javase/9/docs/api/java/util/Optional.html#ifPresentOrElse-java.util.function.Consumer-java.lang.Runnable-
+// TODO: Use custom events for door opening. Perhaps allow other plugins (keys-plugin?) to hook into those plugins.
+// TODO: Write an event to open doors. It should be able to retrieve door from the database on a secondary thread and also check offline permission on the second thread.
+// TODO: Door pooling. When a door is requested from the database, store it in a timedCache. Only get the creator by default, but store
+//       the other owners if needed. Add a Door::Sync function to sync (new) data with the database.
+//       Also part of this should be a DoorManager. NO setters should be available to any class other than the doorManager.
+//       Creators/Database might have to go back to the awful insanely long constructor.
+//       When a door is modified, post a doorModificationEvent. Instead of firing events, perhaps look into observers?
 
 /*
  * Modules
@@ -106,28 +118,8 @@ import java.util.Vector;
 // TODO: Remove BigDoors dependency in SQLiteJDBCDriverConnection class.
 
 /*
- * Messages
- */
-// TODO: Redo all messages. Create enum to store them, to prevent typos and to use for string replacing.
-//       Then get a replace function to insert variables. Example: getMessage(Message.PAGENUM, new String(currentPage), new String(nextPage)).
-// TODO: Store Message in GUI page. Then use that instead of reverse string search of messages to check if an inventory if a BigDoors inventory.
-// TODO: Put all messages in enum.
-// TODO: Replace all Messages#getString(String).
-
-/*
- * Doors
- */
-// TODO: getBlocksToMove() should return the number of blocks it'll move, regardless of if this value was set.
-//       Internally, keep track if the specified and the default value, then return the specified value if possible,
-//       otherwise the default value. Also distinguish between goal and actual.
-// TODO: Create method in DoorBase for checking distance. Take Vector3D for distance and direction.
-// TODO: Get rid of the engineSide and currentDirection. It's basically the same thing. I don't think the database
-//       should be troubled with storing this data either, so remove it there.
-
-/*
  * Experimental
  */
-// TODO: Use custom events for door opening. Perhaps allow other plugins (keys-plugin?) to hook into those plugins.
 // TODO: Look into allowing people to set a (estimated) max size in RAM for certain caches.
 //       Example: https://www.javaworld.com/article/2074458/estimating-java-object-sizes-with-instrumentation.html
 //       Simpler example: https://stackoverflow.com/questions/52353/in-java-what-is-the-best-way-to-determine-the-size-of-an-object#
@@ -159,29 +151,42 @@ import java.util.Vector;
 // TODO: Look into Aikar's command system to replace everything I just made myself: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
 // TODO: Add 1 block depth requirement to assertValidCoords() in HorizontalAxisAlignedBase.
 // TODO: Check if SpigotUtil#needsRefresh(Material mat) is still needed.
-// TODO: Door pooling. When a door is requested from the database, store it in a timedCache. Only get the creator by default, but store
-//       the other owners if needed. Add a Door::Sync function to sync (new) data with the database.
-//       Also part of this should be a DoorManager. NO setters should be available to any class other than the doorManager.
-//       Creators/Database might have to go back to the awful insanely long constructor.
-//       When a door is modified, post a doorModificationEvent. Instead of firing events, perhaps look into observers?
 // TODO: Get rid of the DoorType enum. Instead, allow dynamic registration of door types.
 // TODO: Stop naming all animatable objects "doors". An elevator is hardly a door.
 // TODO: Add a system that can check the integrity of the plugin. If something goes wrong during startup, make sure OPs get a message on login.
 //       Tell them to use the command to run the self-check. Then it can say "not the latest version!", "Money formulas set, but Vault not enabled!",
 //       "Enabled PlotSquared support, but failed to initialize it!", "Trying to load on version X, but this version isn't supported!", etc.
-// TODO: Write a events to open doors. It should be able to retrieve door from the database on a secondary thread and also check offline permission on the second thread.
 // TODO: Special PBlockData subclass for every type of opener. This is a messy system.
 // TODO: Use Spigot Premium's placeholders: https://www.spigotmc.org/wiki/premium-resource-placeholders-identifiers/
 //       Then send the placeholder to my site on startup. Why? As evidence the buyer has, in fact, downloaded the plugin.
 //       This could be useful in case of a PayPal chargeback.
+// TODO: Implement admin command to show database statistics (player count, door count, owner count, etc).
 
+/*
+ * Messages
+ */
+// TODO: Redo all messages. Create enum to store them, to prevent typos and to use for string replacing.
+//       Then get a replace function to insert variables. Example: getMessage(Message.PAGENUM, new String(currentPage), new String(nextPage)).
+// TODO: Store Message in GUI page. Then use that instead of reverse string search of messages to check if an inventory if a BigDoors inventory.
+// TODO: Put all messages in enum.
+// TODO: Replace all Messages#getString(String).
+
+/*
+ * Doors
+ */
+// TODO: getBlocksToMove() should return the number of blocks it'll move, regardless of if this value was set.
+//       Internally, keep track if the specified and the default value, then return the specified value if possible,
+//       otherwise the default value. Also distinguish between goal and actual.
+// TODO: Create method in DoorBase for checking distance. Take Vector3D for distance and direction.
+// TODO: Get rid of the engineSide and currentDirection. It's basically the same thing. I don't think the database
+//       should be troubled with storing this data either, so remove it there.
+// TODO: Do not allow @Nullable for players in doors. This happens throughout the code (for example the BlockMovers,
+//       Openers, AutoCloseScheduler). It should be @NotNull. If no player was found, use the original creator instead.
+// TODO: Having both openDirection and rotateDirection is stupid. Check DoorBase#getNewLocations for example.
 
 /*
  * General
  */
-// TODO: Use Optional where applicable: https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html
-// TODO: Put @Nullable everywhere where applicable.
-//       More info about which to use: https://stackoverflow.com/questions/4963300/which-notnull-java-annotation-should-i-use
 // TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
@@ -202,11 +207,9 @@ import java.util.Vector;
 // TODO: Creators: updateEngineLoc from DoorCreator() and setEngine() should be the same and declared as abstract method in Creator.
 // TODO: GarageDoorCreator: Should extend DrawBridgeCreator.
 // TODO: Store PBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
-// TODO: Make sure ALL players stored in maps are cleaned up when they leave to avoid a memory leak!!
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
 // TODO: When returning null after unexpected input, just fucking thrown an IllegalArgumentException. Will make debugging a lot easier.
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
-// TODO: When truncating exceptions etc, make sure to write it down in the log.
 // TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
 // TODO: Do not enable PlotSquared and WorldGuard etc by default.
 // TODO: Make sure redstone block checking is within bounds.
@@ -226,6 +229,13 @@ import java.util.Vector;
 //       Objects do NOT get reinitialized on restart and then pass references to class that need them. Should reduce the
 //       clutter in this class a bit and reduce dependency on this class.
 // TODO: Rename bigdoors-api. Maybe bigdoors-abstraction? Just to make it clear that it's not the actual API.
+// TODO: Fix up TimedCache class. Some actions that SHOULD BE supported aren't (such as keySet()).
+// TODO: Keep VaultManager#setupPermissions result.
+// TODO: Get rid of DatabaseManager#canGo. Instead, all mover should be aborted via abortable. The openers should
+//       receive an IRestartableHolder in their constructor to take care of this. This could even replace the current
+//       DatabaseManager#busyDoors.
+// TODO: Keep track of the DoorActionCause when opening doors. Don't use a dumb boolean anymore for isSilent.
+// TODO: Remove blockMovers from BigDoors.
 
 /*
  * GUI
@@ -248,9 +258,9 @@ import java.util.Vector;
  * SQL
  */
 // TODO: Get rid of the private methods. Use nested statements instead.
-// TODO: Use preparedStatements for everything (with values(?,?,?) etc).
 // TODO: See if inserting into doors works when adding another question mark for the UUID (but leaving it empty).
 //       Then +1 won't have to be appended to everything.
+// TODO: Consider getting rid of the EngineSide column in the doors table. It can just be calculated.
 // TODO: Use proper COUNT operation for getting the number of doors.
 // TODO: Merge isOpen and isLocked into single FLAG value.
 // TODO: Switch RotateDirection values to line up with PBlockFace.
@@ -289,6 +299,11 @@ import java.util.Vector;
 // TODO: Also look into SubCommandRemoveOwner.
 // TODO: Let users verify door price (if more than 0) if they're buying a door.
 // TODO: What's going on with the newDoor variable in SubCommandToggle::execute(CommandSender, DoorBase, double)?
+// TODO: Add an isWaiter() method to the commands. If true, it should catch those calls before calling the command implementations.
+//       Gets rid of some code duplication.
+// TODO: CHeck if minArgCount is used properly.
+// TODO: Implement pausedoors again.
+// TODO: Make "/BigDoors new" require the type. No more defaulting to regular doors.
 
 /*
  * Openers / Movers
@@ -296,6 +311,7 @@ import java.util.Vector;
 // TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick. Then set the direction
 //       in the creator.
 // TODO: Remove NONE openDirection. Update all doors that currently have this property in the database using DoorBase#setDefaultOpenDirection()
+//       Do this on a separate thread and use ChunkSnapshot to have thread-safe read-only access to the blocks.
 // TODO: Rotate Sea Pickle and turtle egg.
 // TODO: Replace current time/speed/tickRate system. It's a mess.
 // TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
@@ -340,10 +356,9 @@ import java.util.Vector;
 //       radius = maxRadius -> offset = 0. Should probably only look at the last 3 blocks. e.g.: offset = Min((offset / 4) * (totalRadius - radius)).
 // TODO: Drawbridge: Cleanup #getNewLocation().
 // TODO: When checking if a door's chunks are loaded, use the door's chunkRange variables.
-// TODO: Highlist blocks that prevent a door from opening.
 // TODO: Instead of having methods to open/close/toggle animated objects, instead have a single method that receives
 //       a redstone value or something. Then each animated object can determine how to handle it on its own.
-//       Open/close/toggle for doors, activate/deactivate for persitent movement (flags, clocks, etc).
+//       Open/close/toggle for doors, activate/deactivate for persistent movement (flags, clocks, etc).
 
 /*
 
@@ -377,12 +392,14 @@ import java.util.Vector;
 // TODO: Make ConfigLoader final again. Also make the retrieve World etc classes final. Figure out a way to convince
 //       mockito to work with final classes.
 
-public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
+public final class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
 {
     public static final boolean DEVBUILD = true;
-    // Minimum number of ticks a door needs to cool down before it can be
-    // toggled again. This should help with some rare cases of overlapping
-    // processes and whatnot.
+
+    /**
+     * Minimum number of ticks a door needs to cool down before it can be toggled again. This should help with some rare
+     * cases of overlapping processes and whatnot.
+     */
     private static final int MINIMUMDOORDELAY = 10;
 
     private ToolVerifier tf;
@@ -393,7 +410,6 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
     private Metrics metrics;
     private Messages messages;
     private DatabaseManager databaseManager = null;
-    private Vector<WaitForCommand> cmdWaiters;
     private Vector<BlockMover> blockMovers;
 
     private BigDoorOpener bigDoorOpener;
@@ -410,6 +426,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
     private boolean validVersion;
     private String loginString;
     private CommandManager commandManager;
+    private Map<UUID, WaitForCommand> cmdWaiters;
     private Map<UUID, ToolUser> toolUsers;
     private Map<UUID, GUI> playerGUIs;
     private List<IRestartable> restartables = new ArrayList<>();
@@ -434,9 +451,9 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
             if (!validVersion)
             {
                 logger.severe("Trying to load the plugin on an incompatible version of Minecraft! (\""
-                                      + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
-                                               .split(",")[3])
-                                      + "\"). This plugin will NOT be enabled!");
+                                  + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
+                                           .split(",")[3])
+                                  + "\"). This plugin will NOT be enabled!");
                 return;
             }
 
@@ -445,11 +462,11 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
 
-            headManager = new HeadManager(this);
+            headManager = new HeadManager(this, getConfigLoader());
 
-            Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
-            Bukkit.getPluginManager().registerEvents(new GUIHandler(this), this);
-            Bukkit.getPluginManager().registerEvents(new ChunkUnloadHandler(this), this);
+            Bukkit.getPluginManager().registerEvents(new EventListeners(this), this);
+            Bukkit.getPluginManager().registerEvents(new GUIListener(this), this);
+            Bukkit.getPluginManager().registerEvents(new ChunkUnloadListener(this), this);
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = new DatabaseManager(this, config.dbFile());
@@ -513,8 +530,8 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
+        cmdWaiters = new HashMap<>();
         blockMovers = new Vector<>(2);
-        cmdWaiters = new Vector<>(2);
         tf = new ToolVerifier(messages.getString(Message.CREATOR_GENERAL_STICKNAME));
         loginString = DEVBUILD ? "[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!" : "";
 
@@ -552,7 +569,7 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
             // Y u do dis? :(
             metrics = null;
             logger.info("Stats disabled; not loading stats :(... Please consider enabling it! "
-                                + "It helps me stay motivated to keep working on this plugin!");
+                            + "It helps me stay motivated to keep working on this plugin!");
         }
 
         // Load update checker if allowed, otherwise unload it if needed or simply don't
@@ -569,7 +586,8 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
             databaseManager.setCanGo(true);
     }
 
-    public ICommand getCommand(CommandData command)
+    @NotNull
+    public ICommand getCommand(final @NotNull CommandData command)
     {
         return commandManager.getCommand(command);
     }
@@ -579,18 +597,22 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         return MINIMUMDOORDELAY;
     }
 
-    public String canBreakBlock(UUID playerUUID, Location loc)
+    @NotNull
+    public Optional<String> canBreakBlock(final @NotNull UUID playerUUID, final @NotNull Location loc)
     {
         return protCompatMan.canBreakBlock(playerUUID, loc);
     }
 
-    public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
+    @NotNull
+    public Optional<String> canBreakBlocksBetweenLocs(final @NotNull UUID playerUUID,
+                                                      final @NotNull Location loc1,
+                                                      final @NotNull Location loc2)
     {
         return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
     }
 
     @Override
-    public void registerRestartable(IRestartable restartable)
+    public void registerRestartable(final @NotNull IRestartable restartable)
     {
         restartables.add(restartable);
     }
@@ -613,14 +635,14 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
 
         init();
 
-        restartables.forEach((K) -> K.restart());
+        restartables.forEach(IRestartable::restart);
     }
 
     @Override
     public void onDisable()
     {
         shutdown();
-        restartables.forEach((K) -> K.shutdown());
+        restartables.forEach(IRestartable::shutdown);
     }
 
     private void shutdown()
@@ -646,181 +668,186 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         blockMovers.clear();
     }
 
+    @NotNull
     public IFallingBlockFactory getFABF()
     {
         return fabf;
     }
 
+    @NotNull
     public IGlowingBlockSpawner getGlowingBlockSpawner()
     {
         return glowingBlockSpawner;
     }
 
+    @NotNull
     public BigDoors getPlugin()
     {
         return this;
     }
 
+    @NotNull
     public AutoCloseScheduler getAutoCloseScheduler()
     {
         return autoCloseScheduler;
     }
 
-    public Opener getDoorOpener(DoorType type)
+    @NotNull
+    public Optional<Opener> getDoorOpener(final @NotNull DoorType type)
     {
-        if (!DoorType.isEnabled(type))
-        {
-            getPLogger()
-                    .severe("Trying to open door of type: \"" + type.toString() + "\", but this type is not enabled!");
-            return null;
-        }
-
+        Opener ret = null;
         switch (type)
         {
             case BIGDOOR:
-                return bigDoorOpener;
+                ret = bigDoorOpener;
+                break;
             case DRAWBRIDGE:
-                return bridgeOpener;
+                ret = bridgeOpener;
+                break;
             case PORTCULLIS:
-                return portcullisOpener;
+                ret = portcullisOpener;
+                break;
             case SLIDINGDOOR:
-                return slidingDoorOpener;
+                ret = slidingDoorOpener;
+                break;
             case ELEVATOR:
-                return elevatorOpener;
+                ret = elevatorOpener;
+                break;
             case FLAG:
-                return flagOpener;
+                ret = flagOpener;
+                break;
             case WINDMILL:
-                return windmillOpener;
+                ret = windmillOpener;
+                break;
             case REVOLVINGDOOR:
-                return revolvingDoorOpener;
+                ret = revolvingDoorOpener;
+                break;
             case GARAGEDOOR:
-                return garageDoorOpener;
+                ret = garageDoorOpener;
+                break;
             default:
-                return null;
+                break;
         }
+        return Optional.ofNullable(ret);
     }
 
-    public void addBlockMover(BlockMover blockMover)
+    public void addBlockMover(final @NotNull BlockMover blockMover)
     {
         blockMovers.add(blockMover);
     }
 
-    public void removeBlockMover(BlockMover blockMover)
+    public void removeBlockMover(final @NotNull BlockMover blockMover)
     {
         blockMovers.remove(blockMover);
     }
 
+    @NotNull
     public Vector<BlockMover> getBlockMovers()
     {
         return blockMovers;
     }
 
-    public ToolUser getToolUser(Player player)
+    @NotNull
+    public Optional<ToolUser> getToolUser(final @NotNull Player player)
     {
-        ToolUser tu = null;
-        if (toolUsers.containsKey(player.getUniqueId()))
-            tu = toolUsers.get(player.getUniqueId());
-        return tu;
+//        if (toolUsers.containsKey(player.getUniqueId()))
+//            return Optional.of(toolUsers.get(player.getUniqueId()));
+//        return Optional.empty();
+        return Optional.ofNullable(toolUsers.get(player.getUniqueId()));
     }
 
-    public void addToolUser(ToolUser toolUser)
+    public void addToolUser(final @NotNull ToolUser toolUser)
     {
         toolUsers.put(toolUser.getPlayer().getUniqueId(), toolUser);
     }
 
-    public void removeToolUser(ToolUser toolUser)
+    public void removeToolUser(final @NotNull ToolUser toolUser)
     {
         toolUsers.remove(toolUser.getPlayer().getUniqueId());
     }
 
-    public boolean isPlayerBusy(Player player)
-    {
-        boolean isBusy = (getToolUser(player) != null || isCommandWaiter(player) != null);
-        if (isBusy)
-            SpigotUtil.messagePlayer(player, getMessages().getString(Message.ERROR_PLAYERISBUSY));
-        return isBusy;
-    }
-
-    public GUI getGUIUser(Player player)
+    @NotNull
+    public Optional<GUI> getGUIUser(final @NotNull Player player)
     {
         GUI gui = null;
         if (playerGUIs.containsKey(player.getUniqueId()))
             gui = playerGUIs.get(player.getUniqueId());
-        return gui;
+        return Optional.ofNullable(gui);
     }
 
-    public void addGUIUser(GUI gui)
+    public void addGUIUser(final @NotNull GUI gui)
     {
         playerGUIs.put(gui.getPlayer().getUniqueId(), gui);
     }
 
-    public void removeGUIUser(GUI gui)
+    public void removeGUIUser(final @NotNull GUI gui)
     {
         playerGUIs.remove(gui.getPlayer().getUniqueId());
     }
 
-    public WaitForCommand getCommandWaiter(Player player)
+    @NotNull
+    public Optional<WaitForCommand> getCommandWaiter(final @NotNull Player player)
     {
-        for (final WaitForCommand wfc : cmdWaiters)
-            if (wfc.getPlayer().equals(player))
-                return wfc;
-        return null;
+        if (cmdWaiters.containsKey(player.getUniqueId()))
+            return Optional.of(cmdWaiters.get(player.getUniqueId()));
+        return Optional.empty();
     }
 
-    // Get the Vector of WaitForCommand.
-    public Vector<WaitForCommand> getCommandWaiters()
+    public void addCommandWaiter(final @NotNull WaitForCommand cmdWaiter)
     {
-        return cmdWaiters;
+        cmdWaiters.put(cmdWaiter.getPlayer().getUniqueId(), cmdWaiter);
     }
 
-    public WaitForCommand isCommandWaiter(Player player)
+    public void removeCommandWaiter(final @NotNull WaitForCommand cmdWaiter)
     {
-        for (WaitForCommand cw : cmdWaiters)
-            if (cw.getPlayer() == player)
-                return cw;
-        return null;
+        cmdWaiters.remove(cmdWaiter.getPlayer().getUniqueId());
     }
 
-    public void addCommandWaiter(WaitForCommand cmdWaiter)
+    public void onPlayerLogout(final @NotNull Player player)
     {
-        cmdWaiters.add(cmdWaiter);
-    }
-
-    public void removeCommandWaiter(WaitForCommand cmdWaiter)
-    {
-        cmdWaiters.remove(cmdWaiter);
+        getCommandWaiter(player).ifPresent(WaitForCommand::abortSilently);
+        cmdWaiters.remove(player.getUniqueId());
+        playerGUIs.remove(player.getUniqueId());
+        getToolUser(player).ifPresent(ToolUser::abortSilently);
+        toolUsers.remove(player.getUniqueId());
     }
 
     // Get the commander (class executing commands).
+    @NotNull
     public DatabaseManager getDatabaseManager()
     {
         return databaseManager;
     }
 
     // Get the logger.
+    @NotNull
     public PLogger getPLogger()
     {
         return logger;
     }
 
     // Get the messages.
+    @NotNull
     public Messages getMessages()
     {
         return messages;
     }
 
     // Returns the config handler.
+    @NotNull
     public ConfigLoader getConfigLoader()
     {
         return config;
     }
 
+    @NotNull
     public VaultManager getVaultManager()
     {
         return vaultManager;
     }
 
     // Get the ToolVerifier.
+    @NotNull
     public ToolVerifier getTF()
     {
         return tf;
@@ -852,19 +879,21 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
         return fabf != null;
     }
 
+    @NotNull
     public String getLoginString()
     {
         return loginString;
     }
 
-    public void setLoginString(String str)
+    public void setLoginString(final @NotNull String str)
     {
         loginString = str;
     }
 
-    public ItemStack getPlayerHead(UUID playerUUID, String displayName, OfflinePlayer oPlayer)
+    @NotNull
+    public HeadManager getHeadManager()
     {
-        return headManager.getPlayerHead(playerUUID, displayName, oPlayer);
+        return headManager;
     }
 
     /*
@@ -872,43 +901,46 @@ public class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
      */
 
     // (Instantly?) Toggle a door with a given time.
-    private DoorOpenResult toggleDoor(DoorBase door, double time, boolean instantOpen)
+    private DoorToggleResult toggleDoor(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
+                                        final double time, final boolean instantOpen)
     {
-        return getDoorOpener(door.getType()).openDoor(door, time, instantOpen, false);
+        return getDoorOpener(door.getType()).map(O -> O.toggleDoor(playerUUID, door, time, instantOpen, false))
+                                            .orElse(DoorToggleResult.ERROR);
     }
 
     // Toggle a door from a doorUID and instantly or not.
-    public boolean toggleDoor(long doorUID, boolean instantOpen)
+    public boolean toggleDoor(final long doorUID, final boolean instantOpen)
     {
         return getDatabaseManager().getDoor(doorUID)
-                                   .filter(door -> toggleDoor(door, 0.0, instantOpen) == DoorOpenResult.SUCCESS)
+                                   .filter(door -> toggleDoor(null, door, 0.0, instantOpen) ==
+                                       DoorToggleResult.SUCCESS)
                                    .isPresent();
     }
 
     // Toggle a door from a doorUID and a given time.
-    public boolean toggleDoor(long doorUID, double time)
+    public boolean toggleDoor(final long doorUID, final double time)
     {
         return getDatabaseManager().getDoor(doorUID)
-                                   .filter(door -> toggleDoor(door, time, false) == DoorOpenResult.SUCCESS)
+                                   .filter(door -> toggleDoor(null, door, time, false) == DoorToggleResult.SUCCESS)
                                    .isPresent();
     }
 
     // Toggle a door from a doorUID using default values.
-    public boolean toggleDoor(long doorUID)
+    public boolean toggleDoor(final long doorUID)
     {
         return getDatabaseManager().getDoor(doorUID)
-                                   .filter(door -> toggleDoor(door, 0.0, false) == DoorOpenResult.SUCCESS)
+                                   .filter(door -> toggleDoor(null, door, 0.0, false) == DoorToggleResult.SUCCESS)
                                    .isPresent();
     }
 
     // Check the open-status of a door.
-    private boolean isOpen(DoorBase door)
+    private boolean isOpen(final @NotNull DoorBase door)
     {
         return door.isOpen();
     }
 
     // Check the open-status of a door from a doorUID.
-    public boolean isOpen(long doorUID)
+    public boolean isOpen(final long doorUID)
     {
         return getDatabaseManager().getDoor(doorUID)
                                    .filter(door -> isOpen(door.getDoorUID()))

@@ -17,16 +17,24 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Represents a class that animates blocks.
+ */
 public abstract class BlockMover
 {
     protected final BigDoors plugin;
     protected final World world;
     protected final DoorBase door;
+    @Nullable
+    protected final UUID playerUUID;
     protected final IFallingBlockFactory fabf;
     protected double time;
     protected boolean instantOpen;
@@ -38,13 +46,25 @@ public abstract class BlockMover
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
 
-
-    protected BlockMover(final BigDoors plugin, final World world, final DoorBase door, final double time,
-                         final boolean instantOpen, final PBlockFace currentDirection,
-                         final RotateDirection openDirection,
-                         final int blocksMoved)
+    /**
+     * Constructs a {@link BlockMover}.
+     *
+     * @param plugin           The {@link BigDoors}.
+     * @param world            The {@link World} in which the blocks will be moved.
+     * @param door             The {@link DoorBase}.
+     * @param time             The amount of time (in seconds) the door will try to toggle itself in.
+     * @param instantOpen      If the door should be opened instantly (i.e. skip animation) or not.
+     * @param currentDirection The current direction of the door.
+     * @param openDirection    The direction the {@link DoorBase} will move.
+     * @param blocksMoved      The number of blocks the {@link DoorBase} will move.
+     * @param playerUUID       The {@link UUID} of the player who opened this door.
+     */
+    protected BlockMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
+                         final double time, final boolean instantOpen, final @NotNull PBlockFace currentDirection,
+                         final @NotNull RotateDirection openDirection, final int blocksMoved,
+                         @Nullable final UUID playerUUID)
     {
-        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
+        plugin.getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
         this.plugin = plugin;
         this.world = world;
         this.door = door;
@@ -53,6 +73,7 @@ public abstract class BlockMover
         this.currentDirection = currentDirection;
         this.openDirection = openDirection;
         this.blocksMoved = blocksMoved;
+        this.playerUUID = playerUUID;
         fabf = plugin.getFABF();
         savedBlocks = new ArrayList<>();
 
@@ -64,11 +85,17 @@ public abstract class BlockMover
         zMax = door.getMaximum().getBlockZ();
     }
 
+    /**
+     * Aborts movement.
+     */
     public void abort()
     {
         isAborted.set(true);
     }
 
+    /**
+     * Replaces all blocks of the {@link DoorBase} by Falling Blocks.
+     */
     protected void constructFBlocks()
     {
         for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
@@ -107,8 +134,7 @@ public abstract class BlockMover
                     }
                 }
         for (PBlockData mbd : savedBlocks)
-            if (mbd.getBlock() != null)
-                mbd.getBlock().deleteOriginalBlock();
+            mbd.getBlock().deleteOriginalBlock();
 
         if (instantOpen)
             putBlocks(false);
@@ -116,24 +142,45 @@ public abstract class BlockMover
             animateEntities();
     }
 
+    /**
+     * Runs the animation of the animated blocks.
+     */
     protected abstract void animateEntities();
 
-    // Can be overridden to get the radius of the block at the given coordinates.
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    /**
+     * Gets the radius of a block at the given coordinates.
+     *
+     * @param xAxis The x coordinate.
+     * @param yAxis The y coordinate.
+     * @param zAxis The z coordinate.
+     * @return The radius of a block at the given coordinates.
+     */
+    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
         return -1;
     }
 
-    // Can be overridden to get the start angle of the block at the given coordinates.
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    /**
+     * Gets the starting angle of a block at the given coordinates.
+     *
+     * @param xAxis The x coordinate.
+     * @param yAxis The y coordinate.
+     * @param zAxis The z coordinate.
+     * @return The starting angle of a block at the given coordinates.
+     */
+    protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
     {
         return -1;
     }
 
-    // Put blocks in their final position.
-    // Use onDisable = false to make it safe to use during onDisable().
-    // Put the door blocks back, but change their state now.
-    public final void putBlocks(boolean onDisable)
+    /**
+     * Places all the blocks of the door in their final position and kills all the animated blocks.
+     * <p>
+     * When the plugin is currently not in the process of disabling, it also schedules the auto close.
+     *
+     * @param onDisable Whether or not the plugin is currently being disabled.
+     */
+    public final void putBlocks(final boolean onDisable)
     {
         removeSolidBlocks();
         for (PBlockData savedBlock : savedBlocks)
@@ -164,7 +211,7 @@ public abstract class BlockMover
                 public void run()
                 {
                     plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
-                    plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
+                    plugin.getAutoCloseScheduler().scheduleAutoClose(playerUUID, door, time, instantOpen);
                 }
             }.runTaskLater(plugin, delay);
         }
@@ -175,6 +222,9 @@ public abstract class BlockMover
 //    private Vector3D oldMin = null;
 //    private Vector3D oldMax = null;
 
+    /**
+     * Kills all barrier blocks.
+     */
     protected final void removeSolidBlocks()
     {
 //        if (oldMin == null || oldMax == null)
@@ -190,8 +240,16 @@ public abstract class BlockMover
 //                }
     }
 
-    protected final void updateSolidBlocks(final Vector3D newMin, final Vector3D newMax)
+    /**
+     * Updates all the barriers from the old locations to the new locations.
+     *
+     * @param newMin New minimum coordinates.
+     * @param newMax New maximum coordinates.
+     */
+    protected final void updateSolidBlocks(final @NotNull Vector3D newMin, final @NotNull Vector3D newMax)
     {
+//        if (newMin.equals(oldMin) && newMax.equals(oldMax))
+//            return;
 //        Player pim = Bukkit.getPlayer(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"));
 //        removeSolidBlocks();
 //        for (int x = newMin.getX(); x <= newMax.getX(); ++x)
@@ -208,8 +266,16 @@ public abstract class BlockMover
 //        oldMax = newMax;
     }
 
-    private void updateCoords(DoorBase door, PBlockFace openDirection, RotateDirection rotateDirection,
-                              int moved)
+    /**
+     * Updates the coordinates of a {@link DoorBase} and toggles its open status.
+     *
+     * @param door            The {@link DoorBase}.
+     * @param openDirection   The direction this {@link DoorBase} was opened in.
+     * @param rotateDirection The direction this {@link DoorBase} rotated.
+     * @param moved           How many blocks this {@link DoorBase} moved.
+     */
+    private void updateCoords(final @NotNull DoorBase door, final @NotNull PBlockFace openDirection,
+                              final @NotNull RotateDirection rotateDirection, final int moved)
     {
         Location newMin = new Location(world, 0, 0, 0);
         Location newMax = new Location(world, 0, 0, 0);
@@ -232,15 +298,37 @@ public abstract class BlockMover
                                                      newMax.getBlockY(), newMax.getBlockZ(), newEngineSide.getVal());
     }
 
+    /**
+     * Gets the new location of a block from its old coordinates.
+     *
+     * @param radius The radius of the block.
+     * @param xAxis  The old x-coordinate of the block.
+     * @param yAxis  The old y-coordinate of the block.
+     * @param zAxis  The old z-coordinate of the block.
+     * @return The new Location of the block.
+     */
     protected abstract Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
 
-    // Toggle the open status of a drawbridge.
+    /**
+     * Toggles the open status of a {@link DoorBase}.
+     *
+     * @param door The {@link DoorBase}.
+     */
     private void toggleOpen(DoorBase door)
     {
         door.setOpenStatus(!door.isOpen());
     }
 
-    protected final ICustomCraftFallingBlock fallingBlockFactory(Location loc, INMSBlock block)
+    /**
+     * Constructs a new {@link ICustomCraftFallingBlock}.
+     *
+     * @param loc   The {@link Location} where the {@link ICustomCraftFallingBlock} will be created.
+     * @param block The block of the {@link ICustomCraftFallingBlock}.
+     * @return A new {@link ICustomCraftFallingBlock}.
+     */
+    @NotNull
+    protected final ICustomCraftFallingBlock fallingBlockFactory(final @NotNull Location loc,
+                                                                 final @NotNull INMSBlock block)
     {
         ICustomCraftFallingBlock entity = fabf.fallingBlockFactory(loc, block);
         Entity bukkitEntity = (Entity) entity;
@@ -249,11 +337,21 @@ public abstract class BlockMover
         return entity;
     }
 
+    /**
+     * Gets the UID of the {@link DoorBase} being moved.
+     *
+     * @return The UID of the {@link DoorBase} being moved.
+     */
     public final long getDoorUID()
     {
         return door.getDoorUID();
     }
 
+    /**
+     * Gets the {@link DoorBase} being moved.
+     *
+     * @return The {@link DoorBase} being moved.
+     */
     public final DoorBase getDoor()
     {
         return door;

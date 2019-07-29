@@ -4,21 +4,29 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.UUID;
 
 class VerticalMover extends BlockMover
 {
     private int tickRate;
 
-    public VerticalMover(final BigDoors plugin, final World world, final double time, final DoorBase door,
-                         final boolean instantOpen, final int blocksToMove, final double multiplier)
+    VerticalMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
+                  final @NotNull DoorBase door, final boolean instantOpen, final int blocksToMove,
+                  final double multiplier, @Nullable final UUID playerUUID)
     {
-        super(plugin, world, door, time, instantOpen, null, null, blocksToMove);
+        super(plugin, world, door, time, instantOpen, PBlockFace.UP, RotateDirection.NONE, blocksToMove, playerUUID);
 
         double speed = 1;
         double pcMult = multiplier;
@@ -89,7 +97,7 @@ class VerticalMover extends BlockMover
                     stepSum = getBlocksMoved();
 
                 if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || firstBlockData == null ||
-                        isAborted.get())
+                    isAborted.get())
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (PBlockData block : savedBlocks)
@@ -101,7 +109,7 @@ class VerticalMover extends BlockMover
                             putBlocks(false);
                             hasFinished = true;
                         }
-                        return null;
+                        return Optional.empty();
                     });
                     cancel();
                 }

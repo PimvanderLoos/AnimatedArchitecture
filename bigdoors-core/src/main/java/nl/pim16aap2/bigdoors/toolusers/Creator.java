@@ -12,13 +12,16 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
- * Represents a ToolUser that creates new doors.
+ * Represents a user creating a {@link DoorBase}.
  *
  * @author Pim
- * @see ToolUser
- */
+ **/
 public abstract class Creator extends ToolUser
 {
     protected DoorType type;
@@ -27,7 +30,8 @@ public abstract class Creator extends ToolUser
     protected boolean isOpen = false;
     protected Location one, two, engine;
 
-    protected Creator(BigDoors plugin, Player player, String doorName, DoorType type)
+    protected Creator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String doorName,
+                      final @NotNull DoorType type)
     {
         super(plugin, player);
         doorUID = -1;
@@ -39,46 +43,73 @@ public abstract class Creator extends ToolUser
         this.type = type;
     }
 
+    /**
+     * Initializes this {@link Creator}. Sends the appropriate messages to the initiator and potentially gives them a
+     * creator tool (if a name was supplied).
+     */
     protected final void init()
     {
         SpigotUtil.messagePlayer(player, getInitMessage());
         if (doorName == null)
             SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_GIVENAME));
         else
-            triggerGiveTool();
+            giveToolToPlayer();
     }
 
+    /**
+     * Notifies the {@link Player} that the selected rotation point is not valid.
+     */
     protected void sendInvalidRotationMessage()
     {
         SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_INVALIDROTATIONPOINT));
     }
 
+    /**
+     * Notifies the {@link Player} that the selected point is not valid.
+     */
     protected void sendInvalidPointMessage()
     {
-
         SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_INVALIDPOINT));
     }
 
-    protected void sendNoPermissionForLocationMessage(String hook)
+    /**
+     * Parses the result of {@link BigDoors#canBreakBlocksBetweenLocs(UUID, Location, Location)} or {@link
+     * BigDoors#canBreakBlock(UUID, Location)}. If the player is not allowed to break the block(s), they'll receive a
+     * message about this.
+     *
+     * @param canBreakBlock The result of {@link BigDoors#canBreakBlocksBetweenLocs(UUID, Location, Location)} or {@link
+     *                      BigDoors#canBreakBlock(UUID, Location)}
+     * @return True if the player is allowed to break the block(s).
+     */
+    private boolean hasPermission(final @NotNull Optional<String> canBreakBlock)
     {
-        SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, hook));
+        return !canBreakBlock.filter(P ->
+                                     {
+                                         SpigotUtil.messagePlayer(player,
+                                                                  messages.getString(
+                                                                      Message.ERROR_NOPERMISSIONFORLOCATION,
+                                                                      P));
+                                         return true;
+                                     }).isPresent();
     }
 
-
-    // Final cleanup and door creation.
-    protected void finishUp(String message)
+    /**
+     * Constructs a new {@link DoorBase} from the provided data and removes the creator tool from the {@link Player}'s
+     * inventory.
+     *
+     * @param message The message that will be send to the {@link Player} if the {@link DoorBase} was constructed
+     *                successfully.
+     */
+    protected void finishUp(final @Nullable String message)
     {
-        if (isReadyToCreateDoor() && !aborting)
+        if (isReadyToConstructDoor() && !aborting)
         {
             World world = one.getWorld();
             Location min = new Location(world, one.getBlockX(), one.getBlockY(), one.getBlockZ());
             Location max = new Location(world, two.getBlockX(), two.getBlockY(), two.getBlockZ());
 
-            String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max);
-            if (canBreakBlock != null)
+            if (!hasPermission(plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max)))
             {
-                SpigotUtil.messagePlayer(player,
-                                         messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, canBreakBlock));
                 abort(false);
                 return;
             }
@@ -118,54 +149,65 @@ public abstract class Creator extends ToolUser
         super.finishUp();
     }
 
-    public final String getName()
-    {
-        return doorName;
-    }
-
-    public final void setName(String newName)
+    /**
+     * Changes the name that will be given to the object constructed in this {@link Creator}.
+     *
+     * @param newName The new name.
+     */
+    public final void setName(final @NotNull String newName)
     {
         doorName = newName;
-        triggerGiveTool();
+        giveToolToPlayer();
     }
 
-    // Make sure position "one" contains the minimum values, "two" the maximum
-    // values and engine min.Y;
+    /**
+     * Makes sure that {@link Creator#one} contains the lowest coordinates and than {@link Creator#two} contains the
+     * highest coordinates.
+     */
     protected final void minMaxFix()
     {
-        int minX = one.getBlockX();
-        int minY = one.getBlockY();
-        int minZ = one.getBlockZ();
-        int maxX = two.getBlockX();
-        int maxY = two.getBlockY();
-        int maxZ = two.getBlockZ();
-
-        one.setX(minX > maxX ? maxX : minX);
-        one.setY(minY > maxY ? maxY : minY);
-        one.setZ(minZ > maxZ ? maxZ : minZ);
-        two.setX(minX < maxX ? maxX : minX);
-        two.setY(minY < maxY ? maxY : minY);
-        two.setZ(minZ < maxZ ? maxZ : minZ);
+        one.setX(Math.min(one.getBlockX(), two.getBlockX()));
+        one.setY(Math.min(one.getBlockY(), two.getBlockY()));
+        one.setZ(Math.min(one.getBlockZ(), two.getBlockZ()));
+        two.setX(Math.max(one.getBlockX(), two.getBlockX()));
+        two.setY(Math.max(one.getBlockY(), two.getBlockY()));
+        two.setZ(Math.max(one.getBlockZ(), two.getBlockZ()));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public abstract void selector(Location loc);
+    public abstract void selector(final @NotNull Location loc);
 
     /**
-     * Checks if the door to be created has a name already. If not, the player creating the door will receive an
-     * instruction message.
+     * Checks if a {@link Location} is a valid second {@link Location}.
      *
-     * @return True is the door has a name.
+     * @param loc The {@link Location}.
+     * @return True if the {@link Location} is valid.
      */
-    protected final boolean hasName()
+    protected abstract boolean isPosTwoValid(final @NotNull Location loc);
+
+    /**
+     * Checks if a {@link Location} is a valid one for the engine.
+     *
+     * @param loc The {@link Location}.
+     * @return True if the {@link Location} is valid as an engine.
+     */
+    protected abstract boolean isEngineValid(final @NotNull Location loc);
+
+    /**
+     * Checks if the {@link DoorBase} to be created has a name already. If not, the player creating the door will
+     * receive an instruction message.
+     *
+     * @return True is the {@link DoorBase} has a name.
+     */
+    protected final boolean isUnnamed()
     {
         if (doorName != null)
-            return true;
+            return false;
         SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_GIVENAME));
-        return false;
+        return true;
     }
 
     /**
@@ -175,26 +217,9 @@ public abstract class Creator extends ToolUser
      * @param loc The location to check.
      * @return True if the creator is allowed to break blocks here.
      */
-    protected final boolean creatorHasPermissionInLocation(Location loc)
+    protected final boolean creatorHasPermissionInLocation(final @NotNull Location loc)
     {
-        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
-        if (canBreakBlock != null)
-        {
-            sendNoPermissionForLocationMessage(canBreakBlock);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected final void triggerGiveTool()
-    {
-        giveToolToPlayer(getStickLore().split("\n"),
-                         getStickReceived().split("\n"));
-        SpigotUtil.messagePlayer(player, getStep1());
+        return hasPermission(plugin.canBreakBlock(player.getUniqueId(), loc));
     }
 
     /**
@@ -206,8 +231,12 @@ public abstract class Creator extends ToolUser
         finishUp(getSuccessMessage());
     }
 
-    // Check if all the variables that cannot be null are not null.
-    protected abstract boolean isReadyToCreateDoor();
+    /**
+     * Checks if the {@link Creator} is ready to construct the {@link DoorBase}.
+     *
+     * @return True if all data needed to construct a {@link DoorBase} is available.
+     */
+    protected abstract boolean isReadyToConstructDoor();
 
 
     /**
@@ -215,49 +244,56 @@ public abstract class Creator extends ToolUser
      *
      * @return The initialization message.
      */
-    protected abstract @NotNull String getInitMessage();
+    @NotNull
+    protected abstract String getInitMessage();
 
     /**
      * Gets the success message.
      *
      * @return The success message.
      */
-    protected abstract @NotNull String getSuccessMessage();
+    @NotNull
+    protected abstract String getSuccessMessage();
 
     /**
      * Gets the lore of the creator stick.
      *
      * @return The lore of the creator stick.
      */
-    protected abstract @NotNull String getStickLore();
+    @NotNull
+    protected abstract String getStickLore();
 
     /**
      * Gets the message that is sent to the player upon receiving the creator stick.
      *
      * @return The message that is sent to the player upon receiving the creator stick.
      */
-    protected abstract @NotNull String getStickReceived();
+    @NotNull
+    protected abstract String getStickReceived();
 
     /**
      * Gets the message explaining the first step of the creation process.
      *
      * @return The message explaining the first step of the creation process.
      */
-    protected abstract @NotNull String getStep1();
+    @NotNull
+    protected abstract String getStep1();
 
     /**
      * Gets the explanation of the second step in the creation process.
      *
      * @return The explanation of the second step in the creation process.
      */
-    protected abstract @NotNull String getStep2();
+    @NotNull
+    protected abstract String getStep2();
 
     /**
      * Gets the explanation of the third step in the creation process.
      *
      * @return The explanation of the third step in the creation process.
      */
-    protected abstract @NotNull String getStep3();
+    @NotNull
+    protected abstract String getStep3();
 
     /**
      * Calculate the location of the power block.
@@ -265,7 +301,8 @@ public abstract class Creator extends ToolUser
      * @param world The world the power block should be in.
      * @return The location of the power block.
      */
-    protected Location getPowerBlockLoc(World world)
+    @NotNull
+    protected Location getPowerBlockLoc(final @NotNull World world)
     {
         return new Location(world, engine.getBlockX(), engine.getBlockY() - 1, engine.getBlockZ());
     }
