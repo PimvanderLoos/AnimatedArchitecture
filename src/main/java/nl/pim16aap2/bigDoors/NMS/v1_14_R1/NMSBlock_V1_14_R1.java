@@ -41,7 +41,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
 
         constructBlockDataFromBukkit();
 
-        xmat = XMaterial.fromString(world.getBlockAt(x, y, z).getType().toString());
+        xmat = XMaterial.matchXMaterial(world.getBlockAt(x, y, z).getType().toString());
         // Update iBlockData in NMS Block.
         super.o(blockData);
     }

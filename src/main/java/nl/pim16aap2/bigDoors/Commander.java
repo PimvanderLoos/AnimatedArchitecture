@@ -23,7 +23,7 @@ import nl.pim16aap2.bigDoors.util.Util;
 public class Commander
 {
     private final BigDoors plugin;
-    private ConcurrentHashMap<Long, Boolean> busyDoors;
+    private Map<Long, Boolean> busyDoors;
     private HashMap<UUID, String> players;
     private boolean goOn   = true;
     private boolean paused = false;
@@ -42,7 +42,7 @@ public class Commander
     // Check if a door is busy
     public boolean isDoorBusy(long doorUID)
     {
-        return busyDoors.contains(doorUID);
+        return busyDoors.containsKey(doorUID);
     }
 
     public void emptyBusyDoors()
@@ -237,13 +237,6 @@ public class Commander
         return db.getDoor(playerUUID, doorUID);
     }
 
-//    // Get a door with a specific doorUID.
-//    @Deprecated
-//    public Door getDoor2(@Nullable UUID playerUUID, long doorUID)
-//    {
-//        return db.getDoor2(playerUUID, doorUID);
-//    }
-
     public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr)
     {
         return hasPermissionForAction(player, doorUID, atr, true);
@@ -251,6 +244,8 @@ public class Commander
 
     public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr, boolean printMessage)
     {
+        if (player.isOp() || player.hasPermission("bigdoors.admin.ignoreownership"))
+            return true;
         int playerPermission = getPermission(player.getUniqueId().toString(), doorUID);
         boolean hasPermission = playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);
         if (!hasPermission && printMessage)

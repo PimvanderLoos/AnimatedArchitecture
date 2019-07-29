@@ -23,10 +23,8 @@ public class RedstoneHandler implements Listener
     public boolean checkDoor(Location loc)
     {
         Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
-
-        if (door != null && !door.isLocked())
-            return plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, true) == DoorOpenResult.SUCCESS;
-        return false;
+        return door != null && !door.isLocked() &&
+            plugin.getDoorOpener(door.getType()).openDoor(door, 0.0, false, true) == DoorOpenResult.SUCCESS;
     }
 
     // When redstone changes, check if there's a power block on any side of it (just

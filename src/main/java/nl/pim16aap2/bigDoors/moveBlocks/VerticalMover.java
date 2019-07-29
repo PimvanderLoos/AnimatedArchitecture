@@ -70,7 +70,7 @@ public class VerticalMover implements BlockMover
         // If the non-default exceeds the max-speed or isn't set, calculate default speed.
         if (time == 0.0 || speed > maxSpeed)
         {
-            speed     = blocksToMove < 0 ? 1.7 : 0.8 * pcMult;
+            speed     = (blocksToMove < 0 ? 1.7 : 0.8) * pcMult;
             speed     = speed > maxSpeed ? maxSpeed : speed;
             this.time = Math.abs(blocksToMove) / speed;
         }

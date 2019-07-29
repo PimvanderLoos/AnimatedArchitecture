@@ -289,7 +289,7 @@ public class ConfigLoader
         {
             File dataFolder = plugin.getDataFolder();
             if (!dataFolder.exists())
-                dataFolder.mkdir();
+                dataFolder.mkdirs();
 
             File saveTo = new File(plugin.getDataFolder(), "config.yml");
             if (!saveTo.exists())

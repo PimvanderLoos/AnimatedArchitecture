@@ -22,4 +22,10 @@
 	<property name="skip-renaming" value="disable"/>
  	<property name="line-numbers" value="keep"/>
 	<property name="methods-naming" value="compact"/>
+    <ignore-classes>
+        <class template="class java_cup.*"/>
+        <class template="class cup.*"/>
+        <class template="class nl.pim16aap2.jcalculator.*"/>
+        <class template="class main.jflex.*"/>
+    </ignore-classes>
 </config>

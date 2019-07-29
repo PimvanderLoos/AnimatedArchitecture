@@ -202,4 +202,10 @@ public abstract class ToolUser extends Abortable
     {
         abort(false);
     }
+
+    public final void abortSilently()
+    {
+        setIsDone(true);
+        abort();
+    }
 }

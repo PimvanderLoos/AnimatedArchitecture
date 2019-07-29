@@ -61,6 +61,9 @@ import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
+// TODO: Force dev builds to check for the latest version. Checking should be enabled ny force,
+//       while downloading should be disabled by force.
+
 public class BigDoors extends JavaPlugin implements Listener
 {
     public static final boolean DEVBUILD = true;
@@ -77,7 +80,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private File logFile;
     private Messages messages;
     private Commander commander = null;
-    private Vector<WaitForCommand> cmdWaiters;
     private DoorOpener doorOpener;
     private Vector<BlockMover> blockMovers;
     private BridgeOpener bridgeOpener;
@@ -92,6 +94,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private FlagOpener flagOpener;
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
+    private HashMap<UUID, WaitForCommand> cmdWaiters;
     private boolean is1_13 = false;
     private FakePlayerCreator fakePlayerCreator;
     private AutoCloseScheduler autoCloseScheduler;
@@ -195,8 +198,8 @@ public class BigDoors extends JavaPlugin implements Listener
         messages    = new Messages(this);
         toolUsers   = new HashMap<>();
         playerGUIs  = new HashMap<>();
+        cmdWaiters  = new HashMap<>();
         blockMovers = new Vector<>(2);
-        cmdWaiters  = new Vector<>(2);
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
         loginString = DEVBUILD ? "[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!" : "";
 
@@ -238,6 +241,18 @@ public class BigDoors extends JavaPlugin implements Listener
 
         if (commander != null)
             commander.setCanGo(true);
+    }
+
+    public void onPlayerLogout(final Player player)
+    {
+        WaitForCommand cw = getCommandWaiter(player);
+        if (cw != null)
+            cw.abortSilently();
+
+        playerGUIs.remove(player.getUniqueId());
+        ToolUser tu = getToolUser(player);
+        if (tu != null)
+            tu.abortSilently();
     }
 
     public String canBreakBlock(UUID playerUUID, Location loc)
@@ -359,10 +374,11 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public ToolUser getToolUser(Player player)
     {
-        ToolUser tu = null;
-        if (toolUsers.containsKey(player.getUniqueId()))
-            tu = toolUsers.get(player.getUniqueId());
-        return tu;
+//        ToolUser tu = null;
+//        if (toolUsers.containsKey(player.getUniqueId()))
+//            tu = toolUsers.get(player.getUniqueId());
+//        return tu;
+        return toolUsers.get(player.getUniqueId());
     }
 
     public void addToolUser(ToolUser toolUser)
@@ -377,10 +393,11 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public GUI getGUIUser(Player player)
     {
-        GUI gui = null;
-        if (playerGUIs.containsKey(player.getUniqueId()))
-            gui = playerGUIs.get(player.getUniqueId());
-        return gui;
+//        GUI gui = null;
+//        if (playerGUIs.containsKey(player.getUniqueId()))
+//            gui = playerGUIs.get(player.getUniqueId());
+//        return gui;
+        return playerGUIs.get(player.getUniqueId());
     }
 
     public void addGUIUser(GUI gui)
@@ -395,26 +412,20 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public WaitForCommand getCommandWaiter(Player player)
     {
-        for (final WaitForCommand wfc : cmdWaiters)
-            if (wfc.getPlayer().equals(player))
-                return wfc;
-        return null;
-    }
-
-    // Get the Vector of WaitForCommand.
-    public Vector<WaitForCommand> getCommandWaiters()
-    {
-        return cmdWaiters;
+//        if (cmdWaiters.containsKey(player.getUniqueId()))
+//            return cmdWaiters.get(player.getUniqueId());
+//        return null;
+        return cmdWaiters.get(player.getUniqueId());
     }
 
     public void addCommandWaiter(WaitForCommand cmdWaiter)
     {
-        cmdWaiters.add(cmdWaiter);
+        cmdWaiters.put(cmdWaiter.getPlayer().getUniqueId(), cmdWaiter);
     }
 
     public void removeCommandWaiter(WaitForCommand cmdWaiter)
     {
-        cmdWaiters.remove(cmdWaiter);
+        cmdWaiters.remove(cmdWaiter.getPlayer().getUniqueId());
     }
 
     // Get the command Handler.
@@ -598,6 +609,14 @@ public class BigDoors extends JavaPlugin implements Listener
     public int getMinimumDoorDelay()
     {
         return MINIMUMDOORDELAY;
+    }
+
+    /**
+     * @return
+     */
+    public RedstoneHandler getRedstoneHandler()
+    {
+        return redstoneHandler;
     }
 
 //    public long createNewDoor(Location min, Location max, Location engine,

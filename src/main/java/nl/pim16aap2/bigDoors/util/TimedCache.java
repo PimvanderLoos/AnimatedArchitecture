@@ -34,8 +34,8 @@ public class TimedCache<K, V>
         {
             sb.append(K.toString() + "=" + V.toString() + ", ");
         });
-        if (sb.length() > 3)
-            sb.delete(sb.length() - 1, sb.length() - 3);
+//        if (sb.length() > 3)
+//            sb.delete(sb.length() - 1, sb.length() - 3);
         sb.append("}");
         return sb.toString();
     }
@@ -76,9 +76,10 @@ public class TimedCache<K, V>
     {
         if (timeout < 0)
             return null;
-        if (hashtable.containsKey(key))
-            return hashtable.get(key).timedOut() ? null : hashtable.get(key).value;
-        return null;
+//        if (hashtable.containsKey(key))
+//            return hashtable.get(key).timedOut() ? null : hashtable.get(key).value;
+//        return null;
+        return hashtable.get(key).timedOut() ? null : hashtable.get(key).value;
     }
 
     public boolean contains(K key)

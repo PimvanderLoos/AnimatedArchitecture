@@ -55,9 +55,7 @@ public class EventHandlers implements Listener
     public void onLogout(PlayerQuitEvent event)
     {
         plugin.getCommander().removePlayer(event.getPlayer());
-        ToolUser tu = plugin.getToolUser(event.getPlayer());
-        if (tu != null)
-            tu.abort();
+        plugin.onPlayerLogout(event.getPlayer());
     }
 
     // Do not allow the player to drop the door creation tool.

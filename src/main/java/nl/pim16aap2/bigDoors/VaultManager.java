@@ -242,6 +242,8 @@ public class VaultManager
 
     private boolean setupEconomy()
     {
+        try
+        {
         if (plugin.getServer().getPluginManager().getPlugin("Vault") == null)
             return false;
         RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
@@ -249,6 +251,13 @@ public class VaultManager
             economy = economyProvider.getProvider();
 
         return (economy != null);
+        }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logMessage("Exception encountered while initiating Vault dependency! It will be disabled! Please contact pim16aap2!", true, false);
+            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            return false;
+        }
     }
 
     private boolean setupPermissions()

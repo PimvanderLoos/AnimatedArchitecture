@@ -6,6 +6,7 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -260,14 +261,6 @@ public class CommandHandler implements CommandExecutor
         abortable.setTask(task);
     }
 
-    public WaitForCommand isCommandWaiter(Player player)
-    {
-        for (WaitForCommand cw : plugin.getCommandWaiters())
-            if (cw.getPlayer() == player)
-                return cw;
-        return null;
-    }
-
     public void setDoorOpenTime(Player player, long doorUID, int autoClose)
     {
         if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.CHANGETIMER))
@@ -317,7 +310,7 @@ public class CommandHandler implements CommandExecutor
 
     private boolean isPlayerBusy(Player player)
     {
-        boolean isBusy = (plugin.getToolUser(player) != null || isCommandWaiter(player) != null);
+        boolean isBusy = (plugin.getToolUser(player) != null || plugin.getCommandWaiter(player) != null);
         if (isBusy)
             Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.IsBusy"));
         return isBusy;
@@ -392,7 +385,7 @@ public class CommandHandler implements CommandExecutor
 
                 if (args.length > 1)
                 {
-                    WaitForCommand cw = isCommandWaiter(player);
+                    WaitForCommand cw = plugin.getCommandWaiter(player);
                     if (cw != null)
                         return cw.executeCommand(args);
 
@@ -442,14 +435,14 @@ public class CommandHandler implements CommandExecutor
 
                 if (args.length == 2)
                 {
-                    WaitForCommand cw = isCommandWaiter(player);
+                    WaitForCommand cw = plugin.getCommandWaiter(player);
                     if (cw != null)
                         return cw.executeCommand(args);
                 }
                 else if (args.length > 2)
                 {
                     // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
-                    WaitForCommand cw = isCommandWaiter(player);
+                    WaitForCommand cw = plugin.getCommandWaiter(player);
                     if (cw != null && cw.getCommand().equals("removeowner"))
                         cw.abortSilently();
 
@@ -507,14 +500,14 @@ public class CommandHandler implements CommandExecutor
             // And therefore the Door is already defined somewhere else (e.g. selected from the GUI).
             if (args.length == 1 && player != null)
             {
-                WaitForCommand cw = isCommandWaiter(player);
+                WaitForCommand cw = plugin.getCommandWaiter(player);
                 if (cw != null)
                     return cw.executeCommand(args);
             }
             else if (args.length == 2)
             {
                 // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
-                WaitForCommand cw = isCommandWaiter(player);
+                WaitForCommand cw = plugin.getCommandWaiter(player);
                 if (cw != null && cw.getCommand().equals("setautoclosetime"))
                     cw.abortSilently();
 
@@ -546,14 +539,14 @@ public class CommandHandler implements CommandExecutor
             // And therefore the Door is already defined somewhere else (e.g. selected from the GUI).
             if (args.length == 1 && player != null)
             {
-                WaitForCommand cw = isCommandWaiter(player);
+                WaitForCommand cw = plugin.getCommandWaiter(player);
                 if (cw != null)
                     return cw.executeCommand(args);
             }
             else if (args.length == 2)
             {
                 // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
-                WaitForCommand cw = isCommandWaiter(player);
+                WaitForCommand cw = plugin.getCommandWaiter(player);
                 if (cw != null && cw.getCommand().equals("setblockstomove"))
                     cw.abortSilently();
 
@@ -874,20 +867,47 @@ public class CommandHandler implements CommandExecutor
     // Used for various debugging purposes (you don't say!).
     public void doorDebug(Player player)
     {
-        Util.broadcastMessage("Currently in powerBlock cache: ");
-        Util.broadcastMessage(plugin.getPBCache().toString());
+        Location loc = new Location(player.getWorld(), 128, 75, 140);
+        long toSecond = 1000000000L;
+        long secondstToRun = 10L;
+        new BukkitRunnable()
+        {
+            long startTime = System.nanoTime();
+            long count = 0;
+            long toggles = 0;
+            long seconds = 0;
+            long lastDebugSecond = 0;
 
+            @Override
+            public void run()
+            {
+                long currentTime = System.nanoTime();
+                long delta = currentTime - startTime;
+                seconds = delta / toSecond;
 
+                if (seconds >= lastDebugSecond)
+                {
+                    String message = String.format("Activated the powerblock %d times in %d ns (%d s). This resulted in %d toggles.",
+                                                   count, delta, seconds, toggles);
+                    System.out.println(message);
+                    if (seconds == secondstToRun)
+                        Bukkit.broadcastMessage(message);
+                    ++lastDebugSecond;
+                }
 
-//        Location loc = new Location(player.getWorld(), 444, 74, -5122);
-//
-//        Door door = plugin.getCommander().doorFromPowerBlockLoc(loc);
-//        if (door == null)
-//            Util.broadcastMessage("No doors found at the given location!");
-//        else
-//            Util.broadcastMessage("Found door " + door.getDoorUID() + " at the given location!");
-//
-//        plugin.getCommander().recalculatePowerBlockHashes();
+                if (seconds >= 10)
+                    cancel();
+                else
+                {
+                    for (int i = 0; i < 100; ++i)
+                    {
+                        if (plugin.getRedstoneHandler().checkDoor(loc))
+                            ++toggles;
+                        ++count;
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 0, 1);
     }
 
     private String helpFormat(String command, String explanation)

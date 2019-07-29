@@ -7,11 +7,16 @@ Alpha 0.1.8.11
 - Fixed error on player join when trying to send a resource pack to a player that was not allowed to join. Thanks, @Relaxing for the bug report!
 - Added configurable timeout value for commands and raised default timeout to 40 seconds for commands and 120 for door creation. Thanks, @ToBugs for the suggestion.
 - Fixed lack of error message when trying to open a door you do not own via command if the invalid door was the first argument.
-- Read-only status of config file is now respected. It will just show an obnoxious warning message now. Thanks, @bbayu for the bug report!
+- Read-only status of the config file is now respected. It will just show an obnoxious warning message now. Thanks, @bbayu for the bug report!
 - Instead of faceplanting when an error occurs while writing the config file, it'll now give a clear error message so I can resolve the issue. Thanks, @bbayu for the bug report!
-- Fixed issue with LuckPerms. Thanks, @Relaxing and others for the bug reports!
-- Fixed CAVE_AIR (???) not being treated as air, meaning it could prevent doors from opening. Thanks, @ for the bug report!
+- Fixed issue with LuckPerms. Thanks, @Relaxing, and others for the bug reports!
+- Fixed CAVE_AIR (???) not being treated like regular air, meaning it could prevent doors from opening. Thanks, @ChurchT for the bug report!
 - Fixed ladder and pressure plate duplication. Thanks, @mindw0rm for the bug report!
+- Updated XMaterial. Fixes issues with stained clay in <= 1.12. Thanks, @PaulBan for the bug report!
+- Fixed issue with JCalculator. Thanks, @bbayu, and @Netrick for your bug reports.
+- OPs and players with the "bigdoors.admin.ignoreownership" permission node can now access all doors via commands, even if they don't own them.
+- Cleaned up the formatting of the default translation file a bit.
+- Fixed minor memory leak when players disconnect with their BigDoors menu still open.
 
 Alpha 0.1.8.10
 - Fixed being able to modify properties of doors you have no access to via direct commands when using doorUIDs.

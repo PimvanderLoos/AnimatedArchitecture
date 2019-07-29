@@ -126,9 +126,10 @@ public enum ProtectionCompat
      */
     public static ProtectionCompat getFromName(final String name)
     {
-        if (nameMap.containsKey(name))
-            return nameMap.get(name);
-        return null;
+//        if (nameMap.containsKey(name))
+//            return nameMap.get(name);
+//        return null;
+        return nameMap.get(name);
     }
 
     static

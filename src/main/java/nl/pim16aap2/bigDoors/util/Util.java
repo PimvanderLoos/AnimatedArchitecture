@@ -328,7 +328,7 @@ public final class Util
 
     public static boolean isAirOrWater(Material mat)
     {
-        XMaterial xmat = XMaterial.fromString(mat.toString());
+        XMaterial xmat = XMaterial.matchXMaterial(mat.toString());
         if (xmat == null)
             return false;
         return xmat.equals(XMaterial.AIR)   || xmat.equals(XMaterial.CAVE_AIR) ||
@@ -338,7 +338,7 @@ public final class Util
     // Logs, stairs and glass panes can rotate, but they don't rotate in exactly the same way.
     public static int canRotate(Material mat)
     {
-        XMaterial xmat = XMaterial.fromString(mat.toString());
+        XMaterial xmat = XMaterial.matchXMaterial(mat.toString());
         if (xmat.equals(XMaterial.ACACIA_LOG)             || xmat.equals(XMaterial.BIRCH_LOG)           || xmat.equals(XMaterial.DARK_OAK_LOG)       ||
             xmat.equals(XMaterial.JUNGLE_LOG)             || xmat.equals(XMaterial.OAK_LOG)             || xmat.equals(XMaterial.SPRUCE_LOG))
             return 1;
@@ -382,7 +382,7 @@ public final class Util
         if (name.endsWith("TULIP"))
             return false;
 
-        XMaterial xmat = XMaterial.fromString(name);
+        XMaterial xmat = XMaterial.matchXMaterial(name);
         if (xmat == null)
         {
             Util.broadcastMessage("Could not determine material of mat: " + name);
@@ -531,8 +531,8 @@ public final class Util
         case PEONY:
         case GRASS:
         case TALL_GRASS:
-        case SEA_GRASS:
-        case TALL_SEA_GRASS:
+        case SEAGRASS:
+        case TALL_SEAGRASS:
 
         case ACACIA_SAPLING:
         case BIRCH_SAPLING:
