@@ -71,7 +71,7 @@ public class SlidingDoorOpener implements Opener
         {
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());
-            plugin.addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove, moveDirection, plugin.getConfigLoader().sdMultiplier()));
+            plugin.getCommander().addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove, moveDirection, plugin.getConfigLoader().sdMultiplier()));
         }
         return DoorOpenResult.SUCCESS;
     }

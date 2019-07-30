@@ -10,7 +10,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class ChunkUnloadHandler implements Listener
@@ -70,12 +69,10 @@ public class ChunkUnloadHandler implements Listener
         if (isChunkUnloadCancelled(event))
             return;
 
-        // Find any and all doors currently operating in the chunk that's to be unloaded.
-        for (BlockMover bm : plugin.getBlockMovers())
-            if (bm.getDoor().getWorld().equals(event.getWorld()) &&
-                bm.getDoor().chunkInRange(event.getChunk()))
-                // Abort currently running chunks.
-                bm.getDoor().setCanGo(false);
+        // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
+        plugin.getCommander().getBlockMovers()
+              .filter(BM -> BM.getDoor().chunkInRange(event.getChunk()))
+              .forEach(BM -> BM.getDoor().setCanGo(false));
     }
 
     private boolean isChunkUnloadCancelled(ChunkUnloadEvent event)

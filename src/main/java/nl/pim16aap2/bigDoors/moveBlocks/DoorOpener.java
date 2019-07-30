@@ -216,7 +216,7 @@ public class DoorOpener implements Opener
         // Change door availability so it cannot be opened again (just temporarily, don't worry!).
         plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-        plugin.addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint, currentDirection, door, instantOpen, plugin.getConfigLoader().bdMultiplier()));
+        plugin.getCommander().addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint, currentDirection, door, instantOpen, plugin.getConfigLoader().bdMultiplier()));
 
         return DoorOpenResult.SUCCESS;
     }

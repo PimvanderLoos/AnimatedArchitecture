@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -50,6 +51,7 @@ public class CylindricalMover implements BlockMover
     private final DoorDirection currentDirection;
     private final Location          turningPoint;
     private final List<MyBlockData> savedBlocks = new ArrayList<>();
+    private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
 
     @SuppressWarnings("deprecation")
     public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
@@ -209,6 +211,9 @@ public class CylindricalMover implements BlockMover
     @Override
     public void putBlocks(boolean onDisable)
     {
+        if (blocksPlaced.get())
+            return;
+        blocksPlaced.set(true);
         for (MyBlockData savedBlock : savedBlocks)
         {
             /*
@@ -258,7 +263,6 @@ public class CylindricalMover implements BlockMover
 
         if (!onDisable)
         {
-            plugin.removeBlockMover(this);
             int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {

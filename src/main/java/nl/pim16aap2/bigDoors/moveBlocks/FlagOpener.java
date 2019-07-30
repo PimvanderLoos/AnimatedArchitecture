@@ -66,7 +66,7 @@ public class FlagOpener implements Opener
         // Change door availability so it cannot be opened again (just temporarily, don't worry!).
         plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-        plugin.addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door));
+        plugin.getCommander().addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door));
 
         return DoorOpenResult.SUCCESS;
     }

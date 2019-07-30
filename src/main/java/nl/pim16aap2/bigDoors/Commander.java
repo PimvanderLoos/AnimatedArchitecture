@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -12,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
@@ -23,12 +25,13 @@ import nl.pim16aap2.bigDoors.util.Util;
 public class Commander
 {
     private final BigDoors plugin;
-    private Map<Long, Boolean> busyDoors;
+    private Map<Long, BlockMover> busyDoors;
     private HashMap<UUID, String> players;
     private boolean goOn   = true;
     private boolean paused = false;
     private SQLiteJDBCDriverConnection db;
     private Messages messages;
+    private static final DummyMover DUMMYMOVER = new DummyMover();
 
     public Commander(BigDoors plugin, SQLiteJDBCDriverConnection db)
     {
@@ -50,16 +53,37 @@ public class Commander
         busyDoors.clear();
     }
 
+    public void stopMovers()
+    {
+        busyDoors.forEach((K, V) -> V.putBlocks(true));
+    }
+
     // Change the busy-status of a door.
     public void setDoorBusy(long doorUID)
     {
-        busyDoors.put(doorUID, true);
+        busyDoors.put(doorUID, DUMMYMOVER);
     }
 
     // Set the availability of the door.
     public void setDoorAvailable(long doorUID)
     {
         busyDoors.remove(doorUID);
+    }
+
+    public void addBlockMover(BlockMover mover)
+    {
+        busyDoors.replace(mover.getDoorUID(), mover);
+    }
+
+    public BlockMover getBlockMover(long doorUID)
+    {
+        BlockMover mover = busyDoors.get(doorUID);
+        return mover instanceof DummyMover ? null : mover;
+    }
+
+    public Stream<BlockMover> getBlockMovers()
+    {
+        return busyDoors.values().stream().filter(BM -> !(BM instanceof DummyMover));
     }
 
     // Check if the doors are paused.
@@ -362,5 +386,26 @@ public class Commander
     public boolean isPowerBlockLocationValid(Location loc)
     {
         return db.isPowerBlockLocationEmpty(loc);
+    }
+
+    private static final class DummyMover implements BlockMover
+    {
+
+        @Override
+        public void putBlocks(boolean onDisable)
+        {}
+
+        @Override
+        public long getDoorUID()
+        {
+            return -1;
+        }
+
+        @Override
+        public Door getDoor()
+        {
+            return null;
+        }
+
     }
 }

@@ -2,7 +2,7 @@ Alpha 0.1.8.11
 - Fixed InsufficientFunds message appearing even if the price is just 0. Thanks, @0fficerMike for the bug report!
 - Added project URL to update available message received on login. Thanks, @Panda_Nesthesia for the suggestion.
 - Fixed "/DoorInfo <doorName>" only working if you provided a doorUID.
-- Fixed doors potentially getting corrupted when toggling power blocks in rapid succession, specifically at medium TPS. Thanks, @Ashh for the bug report!
+- Fixed doors potentially getting corrupted when toggling power blocks in rapid succession, specifically at medium TPS. Thanks, @Ashh for the bug report and being so patient!
 - ChunkUnloadEvent now also compares worlds before aborting door movement. Thanks, @IkHeetRemco_ for the bug report!
 - Fixed error on player join when trying to send a resource pack to a player that was not allowed to join. Thanks, @Relaxing for the bug report!
 - Added configurable timeout value for commands and raised default timeout to 40 seconds for commands and 120 for door creation. Thanks, @ToBugs for the suggestion.

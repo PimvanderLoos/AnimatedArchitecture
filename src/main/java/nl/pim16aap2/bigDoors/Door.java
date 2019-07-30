@@ -210,6 +210,9 @@ public class Door
 
     public boolean chunkInRange(Chunk chunk)
     {
+        if (!world.equals(chunk.getWorld()))
+            return false;
+
         getChunkCoords();
         getLength();
 

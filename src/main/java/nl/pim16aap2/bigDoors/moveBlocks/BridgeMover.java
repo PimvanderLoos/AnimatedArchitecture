@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -53,6 +54,7 @@ public class BridgeMover implements BlockMover
     private int           xMin, yMin, zMin;
     private int           xMax, yMax, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
+    private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
 
     @SuppressWarnings("deprecation")
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
@@ -316,6 +318,10 @@ public class BridgeMover implements BlockMover
     @Override
     public void putBlocks(boolean onDisable)
     {
+        if (blocksPlaced.get())
+            return;
+        blocksPlaced.set(true);
+
         int index = 0;
         double xAxis = turningPoint.getX();
         do
@@ -380,7 +386,6 @@ public class BridgeMover implements BlockMover
 
         if (!onDisable)
         {
-            plugin.removeBlockMover(this);
             int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {

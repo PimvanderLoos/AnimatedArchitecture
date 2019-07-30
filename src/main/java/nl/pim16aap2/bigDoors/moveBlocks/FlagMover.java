@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,6 +35,7 @@ public class FlagMover implements BlockMover
     private int           xMin, xMax, yMin;
     private int           yMax, zMin, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
+    private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
 
     @SuppressWarnings("deprecation")
     public FlagMover(BigDoors plugin, World world, double time, Door door)
@@ -111,6 +113,9 @@ public class FlagMover implements BlockMover
     @Override
     public void putBlocks(boolean onDisable)
     {
+        if (blocksPlaced.get())
+            return;
+        blocksPlaced.set(true);
         int index = 0;
         double yAxis = yMin;
         do
@@ -162,7 +167,6 @@ public class FlagMover implements BlockMover
 
         if (!onDisable)
         {
-            plugin.removeBlockMover(this);
             int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {

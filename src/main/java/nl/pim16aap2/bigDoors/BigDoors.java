@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.Vector;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -37,7 +36,6 @@ import nl.pim16aap2.bigDoors.handlers.GUIHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
-import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.ElevatorOpener;
@@ -81,7 +79,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private Messages messages;
     private Commander commander = null;
     private DoorOpener doorOpener;
-    private Vector<BlockMover> blockMovers;
     private BridgeOpener bridgeOpener;
     private CommandHandler commandHandler;
     private SlidingDoorOpener slidingDoorOpener;
@@ -199,7 +196,6 @@ public class BigDoors extends JavaPlugin implements Listener
         toolUsers   = new HashMap<>();
         playerGUIs  = new HashMap<>();
         cmdWaiters  = new HashMap<>();
-        blockMovers = new Vector<>(2);
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
         loginString = DEVBUILD ? "[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!" : "";
 
@@ -296,6 +292,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         // Stop all toolUsers and take all BigDoor tools from players.
         commander.setCanGo(false);
+        commander.stopMovers();
 
         Iterator<Entry<UUID, ToolUser>> it = toolUsers.entrySet().iterator();
         while (it.hasNext())
@@ -304,12 +301,8 @@ public class BigDoors extends JavaPlugin implements Listener
             entry.getValue().abort();
         }
 
-        for (final BlockMover bm : blockMovers)
-            bm.putBlocks(true);
-
         toolUsers.clear();
         cmdWaiters.clear();
-        blockMovers.clear();
     }
 
     public TimedCache<Long, HashMap<Long, Long>> getPBCache()
@@ -357,27 +350,8 @@ public class BigDoors extends JavaPlugin implements Listener
         }
     }
 
-    public void addBlockMover(BlockMover blockMover)
-    {
-        blockMovers.add(blockMover);
-    }
-
-    public void removeBlockMover(BlockMover blockMover)
-    {
-        blockMovers.remove(blockMover);
-    }
-
-    public Vector<BlockMover> getBlockMovers()
-    {
-        return blockMovers;
-    }
-
     public ToolUser getToolUser(Player player)
     {
-//        ToolUser tu = null;
-//        if (toolUsers.containsKey(player.getUniqueId()))
-//            tu = toolUsers.get(player.getUniqueId());
-//        return tu;
         return toolUsers.get(player.getUniqueId());
     }
 
@@ -393,10 +367,6 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public GUI getGUIUser(Player player)
     {
-//        GUI gui = null;
-//        if (playerGUIs.containsKey(player.getUniqueId()))
-//            gui = playerGUIs.get(player.getUniqueId());
-//        return gui;
         return playerGUIs.get(player.getUniqueId());
     }
 
