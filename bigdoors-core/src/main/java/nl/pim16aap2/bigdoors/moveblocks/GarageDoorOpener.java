@@ -204,7 +204,8 @@ public class GarageDoorOpener extends Opener
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
-        plugin.addBlockMover(new GarageDoorMover(plugin, door.getWorld(), door, fixedTime,
+        plugin.getDatabaseManager()
+              .addBlockMover(new GarageDoorMover(plugin, door.getWorld(), door, fixedTime,
                                                  plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR), instantOpen,
                                                  currentDirection, rotDirection, playerUUID));
         return DoorToggleResult.SUCCESS;

@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Pim
  */
-public class SQLiteJDBCDriverConnection implements IStorage
+public final class SQLiteJDBCDriverConnection implements IStorage
 {
     private static final String DRIVER = "org.sqlite.JDBC";
     private static final int DATABASE_VERSION = 6;

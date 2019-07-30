@@ -36,7 +36,8 @@ public class ElevatorOpener extends Opener
 
         int blocksToMove = getBlocksToMove(door);
         if (blocksToMove != 0)
-            plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
+            plugin.getDatabaseManager()
+                  .addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
                                                    plugin.getConfigLoader().getMultiplier(DoorType.ELEVATOR),
                                                    playerUUID));
         else

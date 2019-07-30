@@ -94,7 +94,6 @@ class RevolvingDoorMover extends BlockMover
             long lastTime;
             long currentTime = System.nanoTime();
             double step = (Math.PI / 2) / endCount * -1;
-            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -114,11 +113,7 @@ class RevolvingDoorMover extends BlockMover
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        if (!hasFinished)
-                        {
-                            putBlocks(false);
-                            hasFinished = true;
-                        }
+                        putBlocks(false);
                         return null;
                     });
                     cancel();

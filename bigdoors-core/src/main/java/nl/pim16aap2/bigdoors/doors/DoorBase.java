@@ -134,6 +134,8 @@ public abstract class DoorBase
      */
     public final boolean chunkInRange(final @NotNull Chunk chunk)
     {
+        if (!chunk.getWorld().equals(getWorld()))
+            return false;
         verifyChunkRange();
         return Util.between(chunk.getX(), minChunkCoords.getX(), maxChunkCoords.getX()) &&
             Util.between(chunk.getZ(), minChunkCoords.getY(), maxChunkCoords.getY());

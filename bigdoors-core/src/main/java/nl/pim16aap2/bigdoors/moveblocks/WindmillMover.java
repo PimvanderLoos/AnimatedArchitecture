@@ -117,7 +117,6 @@ class WindmillMover extends BlockMover
             long lastTime;
             long currentTime = System.nanoTime();
             double step = (Math.PI / 2) / (endCount / 4) * -1 * 6;
-            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -137,11 +136,7 @@ class WindmillMover extends BlockMover
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        if (!hasFinished)
-                        {
-                            putBlocks(false);
-                            hasFinished = true;
-                        }
+                        putBlocks(false);
                         return null;
                     });
                     cancel();

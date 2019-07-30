@@ -51,7 +51,8 @@ public class SlidingDoorOpener extends Opener
         if (!super.canBreakBlocksBetweenLocs(door, newMin, newMax))
             return abort(door, DoorToggleResult.NOPERMISSION);
 
-        plugin.addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove.getVal(),
+        plugin.getDatabaseManager()
+              .addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove.getVal(),
                                               rotateDirection.getVal(),
                                               plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR),
                                               playerUUID));

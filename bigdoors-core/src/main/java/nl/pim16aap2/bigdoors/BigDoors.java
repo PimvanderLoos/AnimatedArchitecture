@@ -36,19 +36,18 @@ import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.gui.GUI;
-import nl.pim16aap2.bigdoors.listener.ChunkUnloadListener;
-import nl.pim16aap2.bigdoors.listener.EventListeners;
-import nl.pim16aap2.bigdoors.listener.GUIListener;
-import nl.pim16aap2.bigdoors.listener.LoginMessageHandler;
-import nl.pim16aap2.bigdoors.listener.LoginResourcePackHandler;
-import nl.pim16aap2.bigdoors.listener.RedstoneHandler;
+import nl.pim16aap2.bigdoors.listeners.ChunkUnloadListener;
+import nl.pim16aap2.bigdoors.listeners.EventListeners;
+import nl.pim16aap2.bigdoors.listeners.GUIListener;
+import nl.pim16aap2.bigdoors.listeners.LoginMessageHandler;
+import nl.pim16aap2.bigdoors.listeners.LoginResourcePackHandler;
+import nl.pim16aap2.bigdoors.listeners.RedstoneHandler;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.HeadManager;
 import nl.pim16aap2.bigdoors.managers.VaultManager;
 import nl.pim16aap2.bigdoors.moveblocks.BigDoorOpener;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeOpener;
 import nl.pim16aap2.bigdoors.moveblocks.ElevatorOpener;
 import nl.pim16aap2.bigdoors.moveblocks.FlagOpener;
@@ -89,7 +88,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.Vector;
 
 /*
  * Moonshoots
@@ -236,6 +234,7 @@ import java.util.Vector;
 //       DatabaseManager#busyDoors.
 // TODO: Keep track of the DoorActionCause when opening doors. Don't use a dumb boolean anymore for isSilent.
 // TODO: Remove blockMovers from BigDoors.
+// TODO: Make sure to keep the config file's maxDoorCount in mind. Or just remove it.
 
 /*
  * GUI
@@ -410,7 +409,6 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private Metrics metrics;
     private Messages messages;
     private DatabaseManager databaseManager = null;
-    private Vector<BlockMover> blockMovers;
 
     private BigDoorOpener bigDoorOpener;
     private BridgeOpener bridgeOpener;
@@ -531,7 +529,6 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
         cmdWaiters = new HashMap<>();
-        blockMovers = new Vector<>(2);
         tf = new ToolVerifier(messages.getString(Message.CREATOR_GENERAL_STICKNAME));
         loginString = DEVBUILD ? "[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!" : "";
 
@@ -660,12 +657,8 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             entry.getValue().abort();
         }
 
-        for (final BlockMover bm : blockMovers)
-            bm.putBlocks(true);
-
         toolUsers.clear();
         cmdWaiters.clear();
-        blockMovers.clear();
     }
 
     @NotNull
@@ -729,22 +722,6 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
                 break;
         }
         return Optional.ofNullable(ret);
-    }
-
-    public void addBlockMover(final @NotNull BlockMover blockMover)
-    {
-        blockMovers.add(blockMover);
-    }
-
-    public void removeBlockMover(final @NotNull BlockMover blockMover)
-    {
-        blockMovers.remove(blockMover);
-    }
-
-    @NotNull
-    public Vector<BlockMover> getBlockMovers()
-    {
-        return blockMovers;
     }
 
     @NotNull

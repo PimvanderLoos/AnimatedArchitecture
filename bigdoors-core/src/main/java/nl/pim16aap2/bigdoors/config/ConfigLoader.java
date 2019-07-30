@@ -17,13 +17,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents the config loader.
  *
  * @author Pim
  */
-public class ConfigLoader
+public final class ConfigLoader
 {
     private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Arrays.asList("GOLD_BLOCK"));
     private final String header;
@@ -43,7 +44,7 @@ public class ConfigLoader
     private boolean autoDLUpdate;
     private int downloadDelay;
     private boolean enableRedstone;
-    private HashSet<Material> powerBlockTypesMap;
+    private Set<Material> powerBlockTypesMap;
     private boolean worldGuardHook;
     private boolean checkForUpdates;
     private boolean plotSquaredHook;
@@ -394,7 +395,7 @@ public class ConfigLoader
         return enableRedstone;
     }
 
-    public HashSet<Material> powerBlockTypes()
+    public Set<Material> powerBlockTypes()
     {
         return powerBlockTypesMap;
     }

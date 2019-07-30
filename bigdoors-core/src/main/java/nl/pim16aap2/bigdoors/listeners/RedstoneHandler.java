@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.listener;
+package nl.pim16aap2.bigdoors.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import org.bukkit.Location;

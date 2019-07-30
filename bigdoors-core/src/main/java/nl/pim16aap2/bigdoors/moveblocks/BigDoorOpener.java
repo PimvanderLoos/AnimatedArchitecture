@@ -227,9 +227,11 @@ public class BigDoorOpener extends Opener
         if (!super.canBreakBlocksBetweenLocs(door, newMin, newMax))
             return abort(door, DoorToggleResult.NOPERMISSION);
 
-        plugin.addBlockMover(
-            new CylindricalMover(plugin, door.getWorld(), rotDirection.get(), time, currentDirection.get(), door,
-                                 instantOpen, plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR), playerUUID));
+        plugin.getDatabaseManager()
+              .addBlockMover(
+                  new CylindricalMover(plugin, door.getWorld(), rotDirection.get(), time, currentDirection.get(), door,
+                                       instantOpen, plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR),
+                                       playerUUID));
         return DoorToggleResult.SUCCESS;
     }
 }

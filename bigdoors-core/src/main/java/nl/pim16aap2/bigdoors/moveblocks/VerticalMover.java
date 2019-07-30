@@ -15,7 +15,6 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.UUID;
 
 class VerticalMover extends BlockMover
@@ -75,7 +74,6 @@ class VerticalMover extends BlockMover
             long currentTime = System.nanoTime();
             PBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst()
                                                    .orElse(null);
-            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -104,12 +102,8 @@ class VerticalMover extends BlockMover
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        if (!hasFinished)
-                        {
-                            putBlocks(false);
-                            hasFinished = true;
-                        }
-                        return Optional.empty();
+                        putBlocks(false);
+                        return null;
                     });
                     cancel();
                 }

@@ -44,7 +44,8 @@ public class PortcullisOpener extends Opener
             return abort(door, DoorToggleResult.NOPERMISSION);
 
         if (blocksToMove != 0)
-            plugin.addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
+            plugin.getDatabaseManager()
+                  .addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
                                                    plugin.getConfigLoader().getMultiplier(DoorType.PORTCULLIS),
                                                    playerUUID));
         else

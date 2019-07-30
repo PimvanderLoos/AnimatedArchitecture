@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.listener;
+package nl.pim16aap2.bigdoors.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -85,12 +85,10 @@ public class ChunkUnloadListener implements Listener
             if (isChunkUnloadCancelled(event))
                 return;
 
-            // Find any and all doors currently operating in the chunk that's to be unloaded.
-            for (BlockMover bm : plugin.getBlockMovers())
-                if (bm.getDoor().getWorld().equals(event.getWorld()) &&
-                    bm.getDoor().chunkInRange(event.getChunk()))
-                    // Abort currently running blockMovers.
-                    bm.abort();
+            // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
+            plugin.getDatabaseManager().getBlockMovers()
+                  .filter(BM -> BM.getDoor().chunkInRange(event.getChunk()))
+                  .forEach(BlockMover::abort);
         }
         catch (Exception e)
         {

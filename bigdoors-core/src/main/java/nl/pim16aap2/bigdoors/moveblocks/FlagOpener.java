@@ -31,9 +31,10 @@ public class FlagOpener extends Opener
         if (super.isTooBig(door))
             return abort(door, DoorToggleResult.ERROR);
 
-        plugin.addBlockMover(
-            new FlagMover(plugin, door.getWorld(), 60, door, plugin.getConfigLoader().getMultiplier(DoorType.FLAG),
-                          playerUUID));
+        plugin.getDatabaseManager()
+              .addBlockMover(
+                  new FlagMover(plugin, door.getWorld(), 60, door,
+                                plugin.getConfigLoader().getMultiplier(DoorType.FLAG), playerUUID));
 
         return DoorToggleResult.SUCCESS;
     }

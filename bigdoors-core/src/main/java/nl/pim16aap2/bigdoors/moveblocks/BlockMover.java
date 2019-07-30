@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -28,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Represents a class that animates blocks.
  */
-public abstract class BlockMover
+public abstract class BlockMover implements IRestartable
 {
     protected final BigDoors plugin;
     protected final World world;
@@ -45,6 +46,7 @@ public abstract class BlockMover
     protected int blocksMoved;
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
+    private final AtomicBoolean isFinished = new AtomicBoolean(false);
 
     /**
      * Constructs a {@link BlockMover}.
@@ -86,11 +88,30 @@ public abstract class BlockMover
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void restart()
+    {
+        shutdown();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void shutdown()
+    {
+        abort();
+    }
+
+    /**
      * Aborts movement.
      */
     public void abort()
     {
         isAborted.set(true);
+        putBlocks(true);
     }
 
     /**
@@ -182,6 +203,12 @@ public abstract class BlockMover
      */
     public final void putBlocks(final boolean onDisable)
     {
+        // Only allow this method to be run once! If it can be run multiple times, it'll cause door corruption because
+        // While the blocks have already been placed, the coordinates can still be toggled!
+        if (isFinished.get())
+            return;
+        isFinished.set(true);
+
         removeSolidBlocks();
         for (PBlockData savedBlock : savedBlocks)
         {
@@ -196,9 +223,6 @@ public abstract class BlockMover
 
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door, currentDirection, openDirection, blocksMoved);
-
-        if (!onDisable)
-            plugin.removeBlockMover(this);
 
         savedBlocks.clear();
 
@@ -215,8 +239,6 @@ public abstract class BlockMover
                 }
             }.runTaskLater(plugin, delay);
         }
-        else
-            plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
     }
 
 //    private Vector3D oldMin = null;

@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * Represents a cached map. Entries can not be accessed after the provided time anymore and they are removed at certain
  * intervals.
  * <p>
- * Usage example: new TimedMapCache<>(holder, Hashtable::new, 10, TimeUnit.MINUTES);
+ * Usage example: new TimedMapCache<>(holder, HashMap::new, 10, TimeUnit.MINUTES);
  *
  * @param <K> Type of the Key of the map.
  * @param <V> Type of the value of the map.

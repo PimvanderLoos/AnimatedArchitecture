@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.UUID;
 
-public class PlayerRetriever
+public final class PlayerRetriever
 {
     @NotNull
     public OfflinePlayer getOfflinePlayer(final @NotNull UUID uuid)

@@ -288,7 +288,8 @@ public class BridgeOpener extends Opener
         if (!super.canBreakBlocksBetweenLocs(door, newMin, newMax))
             return abort(door, DoorToggleResult.NOPERMISSION);
 
-        plugin.addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen,
+        plugin.getDatabaseManager()
+              .addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection, instantOpen,
                                              plugin.getConfigLoader().getMultiplier(DoorType.DRAWBRIDGE), playerUUID));
         return DoorToggleResult.SUCCESS;
     }

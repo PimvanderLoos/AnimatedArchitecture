@@ -85,7 +85,6 @@ class SlidingMover extends BlockMover
             long currentTime = System.nanoTime();
             PBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst()
                                                    .orElse(null);
-            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -114,11 +113,7 @@ class SlidingMover extends BlockMover
                         savedBlock.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        if (!hasFinished)
-                        {
-                            putBlocks(false);
-                            hasFinished = true;
-                        }
+                        putBlocks(false);
                         return null;
                     });
                     cancel();

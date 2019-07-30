@@ -50,7 +50,8 @@ public class RevolvingDoorOpener extends Opener
         if (super.isTooBig(door))
             return abort(door, DoorToggleResult.ERROR);
 
-        plugin.addBlockMover(new RevolvingDoorMover(plugin, door.getWorld(), door, time,
+        plugin.getDatabaseManager()
+              .addBlockMover(new RevolvingDoorMover(plugin, door.getWorld(), door, time,
                                                     plugin.getConfigLoader().getMultiplier(DoorType.REVOLVINGDOOR),
                                                     getOpenDirection(door), playerUUID));
         return DoorToggleResult.SUCCESS;

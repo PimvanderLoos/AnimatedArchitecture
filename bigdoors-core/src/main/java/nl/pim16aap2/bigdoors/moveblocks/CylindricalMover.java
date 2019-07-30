@@ -100,7 +100,6 @@ class CylindricalMover extends BlockMover
             Long startTime = null; // Initialize on the first run, for better accuracy.
             long lastTime;
             long currentTime = System.nanoTime();
-            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -134,11 +133,7 @@ class CylindricalMover extends BlockMover
 
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        if (!hasFinished)
-                        {
-                            putBlocks(false);
-                            hasFinished = true;
-                        }
+                        putBlocks(false);
                         return null;
                     });
                     cancel();

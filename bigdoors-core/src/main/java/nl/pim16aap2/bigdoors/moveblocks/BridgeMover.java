@@ -222,7 +222,6 @@ class BridgeMover extends BlockMover
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
-            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -251,11 +250,7 @@ class BridgeMover extends BlockMover
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        if (!hasFinished)
-                        {
-                            putBlocks(false);
-                            hasFinished = true;
-                        }
+                        putBlocks(false);
                         return null;
                     });
                     cancel();

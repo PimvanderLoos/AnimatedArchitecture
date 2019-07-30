@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.AbortableTask;
 import nl.pim16aap2.bigdoors.spigotutil.PlayerRetriever;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -38,21 +39,21 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * Manages all database interactions.
  */
-public class DatabaseManager extends Restartable
+public final class DatabaseManager extends Restartable
 {
     private final IStorage db;
     private final BigDoors plugin;
-    private final Map<Long, Boolean> busyDoors;
+    private final Map<Long, Optional<BlockMover>> busyDoors;
     /**
      * Timed cache of all power blocks. The key is the hash of a chunk, the value a nested map.
      * <p>
@@ -71,7 +72,7 @@ public class DatabaseManager extends Restartable
                                             plugin.getConfigLoader(), new WorldRetriever(),
                                             new PlayerRetriever());
 
-        pbCache = new TimedMapCache<>(plugin, Hashtable::new, plugin.getConfigLoader().cacheTimeout());
+        pbCache = new TimedMapCache<>(plugin, ConcurrentHashMap::new, plugin.getConfigLoader().cacheTimeout());
         this.plugin = plugin;
         busyDoors = new ConcurrentHashMap<>();
     }
@@ -82,6 +83,7 @@ public class DatabaseManager extends Restartable
     @Override
     public void restart()
     {
+        busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::restart));
         busyDoors.clear();
         pbCache.reInit(plugin.getConfigLoader().cacheTimeout());
     }
@@ -92,6 +94,7 @@ public class DatabaseManager extends Restartable
     @Override
     public void shutdown()
     {
+        busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::shutdown));
         busyDoors.clear();
         pbCache.shutdown();
     }
@@ -114,7 +117,7 @@ public class DatabaseManager extends Restartable
      */
     public void setDoorBusy(final long doorUID)
     {
-        busyDoors.put(doorUID, true);
+        busyDoors.put(doorUID, Optional.empty());
     }
 
     /**
@@ -125,6 +128,37 @@ public class DatabaseManager extends Restartable
     public void setDoorAvailable(final long doorUID)
     {
         busyDoors.remove(doorUID);
+    }
+
+    /**
+     * Stores a {@link BlockMover} in the appropriate slot in {@link DatabaseManager#busyDoors}
+     *
+     * @param mover The {@link BlockMover}.
+     */
+    public void addBlockMover(final @NotNull BlockMover mover)
+    {
+        busyDoors.replace(mover.getDoorUID(), Optional.of(mover));
+    }
+
+    /**
+     * Gets all the currently active {@link BlockMover}s.
+     *
+     * @return All the currently active {@link BlockMover}s.
+     */
+    public Stream<BlockMover> getBlockMovers()
+    {
+        return busyDoors.values().stream().filter(Optional::isPresent).map(Optional::get);
+    }
+
+    /**
+     * Gets the {@link BlockMover} of a busy {@link DoorBase}, if it has been registered.
+     *
+     * @param doorUID The UID of the {@link DoorBase}.
+     * @return The {@link BlockMover} of a busy {@link DoorBase}.
+     */
+    public Optional<BlockMover> getBlockMover(final long doorUID)
+    {
+        return busyDoors.containsKey(doorUID) ? busyDoors.get(doorUID) : Optional.empty();
     }
 
     /**

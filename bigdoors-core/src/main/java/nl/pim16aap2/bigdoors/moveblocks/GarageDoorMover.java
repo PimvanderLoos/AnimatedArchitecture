@@ -246,7 +246,6 @@ class GarageDoorMover extends BlockMover
             long currentTime = System.nanoTime();
             double step = getBlocksMoved() / endCount;
             double stepSum = 0;
-            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -266,11 +265,7 @@ class GarageDoorMover extends BlockMover
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        if (!hasFinished)
-                        {
-                            putBlocks(false);
-                            hasFinished = true;
-                        }
+                        putBlocks(false);
                         return null;
                     });
                     cancel();

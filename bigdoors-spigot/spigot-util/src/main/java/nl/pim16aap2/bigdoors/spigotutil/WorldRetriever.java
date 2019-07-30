@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class WorldRetriever
+public final class WorldRetriever
 {
     @Nullable
     public World worldFromString(final @NotNull UUID uuid)
