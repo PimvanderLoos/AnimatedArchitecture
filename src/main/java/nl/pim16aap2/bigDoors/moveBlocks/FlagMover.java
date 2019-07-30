@@ -179,8 +179,6 @@ public class FlagMover implements BlockMover
                 }
             }.runTaskLater(plugin, delay);
         }
-        else
-            plugin.getCommander().setDoorAvailable(door.getDoorUID());
     }
 
     private Location getNewLocation(double xAxis, double yAxis, double zAxis)

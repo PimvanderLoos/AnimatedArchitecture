@@ -220,8 +220,6 @@ public class SlidingMover implements BlockMover
                 }
             }.runTaskLater(plugin, delay);
         }
-        else
-            plugin.getCommander().setDoorAvailable(door.getDoorUID());
     }
 
     private Location getNewLocation(double xAxis, double yAxis, double zAxis)
@@ -243,7 +241,6 @@ public class SlidingMover implements BlockMover
             long lastTime;
             long currentTime = System.nanoTime();
             MyBlockData firstBlockData = savedBlocks.stream().filter(block -> !block.getMat().equals(Material.AIR)).findFirst().orElse(null);
-            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -272,11 +269,7 @@ public class SlidingMover implements BlockMover
                             savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        if (!hasFinished)
-                        {
-                            putBlocks(false);
-                            hasFinished = true;
-                        }
+                        putBlocks(false);
                         return null;
                     });
                     cancel();

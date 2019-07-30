@@ -275,8 +275,6 @@ public class CylindricalMover implements BlockMover
                 }
             }.runTaskLater(plugin, delay);
         }
-        else
-            plugin.getCommander().setDoorAvailable(door.getDoorUID());
     }
 
     // Method that takes care of the rotation aspect.
@@ -295,7 +293,6 @@ public class CylindricalMover implements BlockMover
             long startTime    = System.nanoTime();
             long lastTime;
             long currentTime  = System.nanoTime();
-            boolean hasFinished = false;
 
             @Override
             public void run()
@@ -329,11 +326,7 @@ public class CylindricalMover implements BlockMover
 
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
-                        if (!hasFinished)
-                        {
-                            putBlocks(false);
-                            hasFinished = true;
-                        }
+                        putBlocks(false);
                         return null;
                     });
                     cancel();
