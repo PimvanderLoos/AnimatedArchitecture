@@ -188,7 +188,7 @@ public class ConfigLoader
         makeBackup = config.getBoolean("makeBackup", true);
         configOptionsList.add(new ConfigOption("makeBackup", makeBackup, backupComment));
 
-        cacheTimeout = config.getInt("cacheTimeout", 0);
+        cacheTimeout = config.getInt("cacheTimeout", 120);
         configOptionsList.add(new ConfigOption("cacheTimeout", cacheTimeout, cacheTimeoutComment));
 
         doorPrice = config.getString("doorPrice", "0");

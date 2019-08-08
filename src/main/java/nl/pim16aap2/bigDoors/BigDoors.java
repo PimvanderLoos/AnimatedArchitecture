@@ -564,13 +564,13 @@ public class BigDoors extends JavaPlugin implements Listener
     }
 
     // Check the open-status of a door.
-    private boolean isOpen (Door door)
+    private boolean isOpen(Door door)
     {
         return door.isOpen();
     }
 
     // Check the open-status of a door from a doorUID.
-    public boolean isOpen (long doorUID)
+    public boolean isOpen(long doorUID)
     {
         final Door door = getCommander().getDoor(null, doorUID);
         return this.isOpen(door);
