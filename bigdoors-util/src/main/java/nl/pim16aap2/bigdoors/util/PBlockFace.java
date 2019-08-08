@@ -78,6 +78,12 @@ public enum PBlockFace
         }
     }
 
+    /**
+     * Gets the integer value of a {@link PBlockFace}.
+     *
+     * @param dir The {@link PBlockFace}.
+     * @return The integer value of a {@link PBlockFace}.
+     */
     public static int getValue(final @NotNull PBlockFace dir)
     {
         return dir.val;
@@ -305,7 +311,7 @@ public enum PBlockFace
     /**
      * Rotate a PBlockFace in a given direction for a number of steps.
      *
-     * @param mbf   The {@link PBlockFace} that will be rotated.
+     * @param pbf   The {@link PBlockFace} that will be rotated.
      * @param steps The number of times to apply the rotation.
      * @param dir   The function the applies the rotation.
      * @return The rotated {@link PBlockFace}.
@@ -313,17 +319,19 @@ public enum PBlockFace
      * @see PBlockFace#getDirFun
      */
     @NotNull
-    public static PBlockFace rotate(final @NotNull PBlockFace mbf, int steps,
+    public static PBlockFace rotate(final @NotNull PBlockFace pbf, int steps,
                                     final @NotNull Function<PBlockFace, PBlockFace> dir)
     {
+        if (pbf.equals(PBlockFace.NONE))
+            return pbf;
         // Every 4 steps results in the same outcome.
         steps = steps % 4;
         if (steps == 0)
-            return mbf;
+            return pbf;
 
-        PBlockFace newFace = mbf;
+        PBlockFace newFace = pbf;
         while (steps-- > 0)
-            newFace = dir.apply(mbf);
+            newFace = dir.apply(pbf);
         return newFace;
     }
 }

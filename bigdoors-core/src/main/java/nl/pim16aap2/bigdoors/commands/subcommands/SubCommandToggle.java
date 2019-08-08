@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands.subcommands;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
@@ -65,12 +66,17 @@ public class SubCommandToggle extends SubCommand
 
         else
         {
-            DoorToggleResult result = plugin.getDoorOpener(newDoor.get().getType())
-                                            .map(O -> O.toggleDoor(playerUUID, newDoor.get(), time))
-                                            .orElse(DoorToggleResult.ERROR);
-            if (!result.equals(DoorToggleResult.SUCCESS))
+            DoorActionCause cause = playerUUID == null ? DoorActionCause.SERVER : DoorActionCause.PLAYER;
+            DoorToggleResult result = door.toggle(plugin.getDoorOpener(), cause, time, false);
+            // If it's a success, there's no need to inform the user. If they didn't have permission for the location,
+            // they'll already have received a message.
+            if (!result.equals(DoorToggleResult.SUCCESS) && !result.equals(DoorToggleResult.NOPERMISSION))
+            {
                 plugin.getPLogger()
-                      .sendMessageToTarget(sender, Level.INFO, messages.getString(DoorToggleResult.getMessage(result)));
+                      .sendMessageToTarget(sender, Level.INFO,
+                                           messages.getString(DoorToggleResult.getMessage(result),
+                                                              Long.toString(door.getDoorUID())));
+            }
         }
     }
 

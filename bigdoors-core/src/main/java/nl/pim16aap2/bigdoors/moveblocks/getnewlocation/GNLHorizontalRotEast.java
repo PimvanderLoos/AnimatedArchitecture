@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.moveblocks.getnewlocation;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 public class GNLHorizontalRotEast implements IGetNewLocation
 {
@@ -21,6 +22,7 @@ public class GNLHorizontalRotEast implements IGetNewLocation
         this.zMax = zMax;
     }
 
+    @NotNull
     @Override
     public Location getNewLocation(double radius, double xPos, double yPos, double zPos)
     {

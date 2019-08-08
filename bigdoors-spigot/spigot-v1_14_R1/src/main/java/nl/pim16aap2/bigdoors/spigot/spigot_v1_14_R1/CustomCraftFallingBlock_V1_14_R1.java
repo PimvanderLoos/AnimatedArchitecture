@@ -27,6 +27,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         super((org.bukkit.craftbukkit.v1_14_R1.CraftServer) server, entity);
         setVelocity(new Vector(0, 0, 0));
         setDropItem(false);
+        entity.noclip = true;
     }
 
     /**

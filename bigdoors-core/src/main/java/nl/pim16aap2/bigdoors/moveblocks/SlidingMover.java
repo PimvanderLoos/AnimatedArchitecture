@@ -16,15 +16,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-class SlidingMover extends BlockMover
+public class SlidingMover extends BlockMover
 {
     private boolean NS;
     private int tickRate;
     private int moveX, moveZ;
 
-    SlidingMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
-                 final @NotNull DoorBase door, final boolean instantOpen, final int blocksToMove,
-                 final @NotNull RotateDirection openDirection, final double multiplier, @Nullable final UUID playerUUID)
+    public SlidingMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
+                        final @NotNull DoorBase door, final boolean instantOpen, final int blocksToMove,
+                        final @NotNull RotateDirection openDirection, final double multiplier,
+                        @Nullable final UUID playerUUID)
     {
         super(plugin, world, door, time, instantOpen, PBlockFace.UP, openDirection, blocksToMove, playerUUID);
 
@@ -58,6 +59,9 @@ class SlidingMover extends BlockMover
         super.constructFBlocks();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
@@ -69,7 +73,9 @@ class SlidingMover extends BlockMover
         return super.blocksMoved;
     }
 
-    // Method that takes care of the rotation aspect.
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void animateEntities()
     {

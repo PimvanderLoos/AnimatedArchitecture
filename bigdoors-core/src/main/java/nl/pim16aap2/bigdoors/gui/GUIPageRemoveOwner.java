@@ -106,7 +106,7 @@ public class GUIPageRemoveOwner implements IGUIPage
                                                     Integer.toString(doorOwnerPage + 2),
                                                     Integer.toString(doorOwnerPage),
                                                     Integer.toString(maxDoorOwnerPageCount)));
-            gui.addItem(7, new GUIItem(GUI.PAGESWITCHMAT, messages.getString(Message.GUI_BUTTON_NEXTPAGE), lore,
+            gui.addItem(8, new GUIItem(GUI.PAGESWITCHMAT, messages.getString(Message.GUI_BUTTON_NEXTPAGE), lore,
                                        doorOwnerPage + 2));
             lore.clear();
         }

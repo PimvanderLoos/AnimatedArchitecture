@@ -38,6 +38,11 @@ public enum DoorToggleResult
     NOPERMISSION(Message.ERROR_NOPERMISSIONFORLOCATION),
 
     /**
+     * An attempt to toggle (or open/close) a door failed because it was obstructed.
+     */
+    OBSTRUCTED(Message.ERROR_DOORISOBSTRUCTED),
+
+    /**
      * The door did not have enough space to move.
      */
     NODIRECTION(Message.ERROR_NOOPENDIRECTION),

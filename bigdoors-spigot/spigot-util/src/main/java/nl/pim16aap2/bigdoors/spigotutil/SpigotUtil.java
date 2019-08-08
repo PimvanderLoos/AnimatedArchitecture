@@ -35,11 +35,15 @@ public final class SpigotUtil
 
     static
     {
-        for (PBlockFace mbf : PBlockFace.values())
+        for (PBlockFace pbf : PBlockFace.values())
         {
-            BlockFace mappedBlockFace = BlockFace.valueOf(mbf.toString());
-            toBlockFace.put(mbf, mappedBlockFace);
-            toPBlockFace.put(mappedBlockFace, mbf);
+            BlockFace mappedBlockFace;
+            if (pbf.equals(PBlockFace.NONE))
+                mappedBlockFace = BlockFace.SELF;
+            else
+                mappedBlockFace = BlockFace.valueOf(pbf.toString());
+            toBlockFace.put(pbf, mappedBlockFace);
+            toPBlockFace.put(mappedBlockFace, pbf);
         }
     }
 

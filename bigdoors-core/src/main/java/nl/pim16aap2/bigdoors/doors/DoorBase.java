@@ -1,7 +1,11 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -31,11 +35,10 @@ public abstract class DoorBase
     protected Location min;
     protected Location max;
     protected String name;
-    protected World world = null;
+    protected World world;
     protected boolean isOpen;
     protected Location engine;
     protected RotateDirection openDir;
-    protected PBlockFace engineSide;
     protected int blocksToMove;
     protected Vector3D dimensions;
 
@@ -44,15 +47,26 @@ public abstract class DoorBase
     private Location powerBlock;
     private DoorOwner doorOwner;
 
+    @Deprecated
+    private PBlockFace engineSide;
+
     // "cached" values.
     private Chunk engineChunk = null;
     private Integer blockCount = null;
     private PBlockFace currentDirection = null;
-    // Min and Max chunk coordinates of the range of chunks that
-    // this {@link DoorBase} might interact with.
-    private Vector2D minChunkCoords = null;
-    private Vector2D maxChunkCoords = null;
 
+    /**
+     * Min and Max chunk coordinates of the range of chunks that this {@link DoorBase} might interact with.
+     */
+    private Vector2D minChunkCoords = null, maxChunkCoords = null;
+
+    /**
+     * Constructs a new DoorBase.
+     *
+     * @param pLogger  The {@link PLogger} used for logging.
+     * @param doorUID  The UID of this door.
+     * @param doorType The type of this door.
+     */
     DoorBase(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType doorType)
     {
         this.pLogger = pLogger;
@@ -61,17 +75,179 @@ public abstract class DoorBase
     }
 
     /**
+     * Initializes all basic data of this door. This refers to all data required to put this door in a basic valid
+     * state. It can then infer further details from this data (such as NorthSouthAxis and dimensions).
+     *
+     * @param min        The location with the coordinates closest to the origin.
+     * @param max        The location with the coordinates furthest away from the origin.
+     * @param engine     The location of the engine.
+     * @param powerBlock The location of the powerblock.
+     * @param world      The world this door is in.
+     * @param openDir    The open direction of this door.
+     * @param isOpen     Whether or not this door is currently open.
+     */
+    public final void initBasicData(final @NotNull Location min, final @NotNull Location max,
+                                    final @NotNull Location engine, final @NotNull Location powerBlock,
+                                    final @NotNull World world, final @NotNull RotateDirection openDir,
+                                    final boolean isOpen)
+    {
+        this.min = min;
+        this.max = max;
+        this.engine = engine;
+        this.powerBlock = powerBlock;
+        this.world = world;
+        this.isOpen = isOpen;
+        this.openDir = openDir;
+        onCoordsUpdate();
+    }
+
+    /**
+     * Checks if this door can be opened right now.
+     *
+     * @return True if this door can be opened right now.
+     */
+    public abstract boolean isOpenable();
+
+    /**
+     * Checks if this door can be closed right now.
+     *
+     * @return True if this door can be closed right now.
+     */
+    public abstract boolean isCloseable();
+
+    // TODO: ABSTRACT! (also, implement)
+    public boolean isValidOpenDirection(final @NotNull RotateDirection openDir)
+    {
+        return false;
+    }
+
+    /**
+     * Attempts to open a door.
+     *
+     * @param opener      The {@link DoorOpener} to use.
+     * @param cause       What caused this action.
+     * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
+     *                    limited, so at a certain point lower values will not increase door speed.
+     * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @return The result of the attempt.
+     */
+    @NotNull
+    public final DoorToggleResult open(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+                                       final double time, final boolean instantOpen)
+    {
+        if (!isOpenable())
+            return DoorToggleResult.ALREADYCLOSED;
+        return toggle(opener, cause, time, instantOpen);
+    }
+
+    /**
+     * Attempts to close a door.
+     *
+     * @param opener      The {@link DoorOpener} to use.
+     * @param cause       What caused this action.
+     * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
+     *                    limited, so at a certain point lower values will not increase door speed.
+     * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @return The result of the attempt.
+     */
+    @NotNull
+    public final DoorToggleResult close(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+                                        final double time, final boolean instantOpen)
+    {
+        if (!isCloseable())
+            return DoorToggleResult.ALREADYOPEN;
+        return toggle(opener, cause, time, instantOpen);
+    }
+
+    /**
+     * Attempts to toggle a door.
+     *
+     * @param opener      The {@link DoorOpener} to use.
+     * @param cause       What caused this action.
+     * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
+     *                    limited, so at a certain point lower values will not increase door speed.
+     * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @return The result of the attempt.
+     */
+    @NotNull
+    public final DoorToggleResult toggle(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+                                         final double time, boolean instantOpen)
+    {
+        DoorToggleResult isOpenable = opener.canBeToggled(this, cause);
+        if (isOpenable != DoorToggleResult.SUCCESS)
+            return opener.abort(this, isOpenable, cause);
+
+        if (opener.isTooBig(this))
+            instantOpen = true;
+
+        Location newMin = getMinimum();
+        Location newMax = getMaximum();
+
+        if (!getPotentialNewCoordinates(newMin, newMax))
+            return opener.abort(this, DoorToggleResult.ERROR, cause);
+
+        if (!opener.isLocationEmpty(newMin, newMax, getMinimum(), getMaximum(),
+                                    cause.equals(DoorActionCause.PLAYER) ? getPlayerUUID() : null, getWorld()))
+            return opener.abort(this, DoorToggleResult.OBSTRUCTED, cause);
+
+        if (!opener.canBreakBlocksBetweenLocs(this, newMin, newMax))
+            return opener.abort(this, DoorToggleResult.NOPERMISSION, cause);
+
+        registerBlockMover(opener, cause, time, instantOpen, newMin, newMax, BigDoors.INSTANCE);
+        return DoorToggleResult.SUCCESS;
+    }
+
+    /**
+     * Handles a change in redstone current for this door's powerblock.
+     *
+     * @param newCurrent The new current of the powerblock.
+     */
+    public final void redstoneChange(final int newCurrent)
+    {
+
+    }
+
+    /**
+     * Starts and registers a new {@link BlockMover}.
+     *
+     * @param opener      The {@link DoorOpener} to use.
+     * @param cause       What caused this action.
+     * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
+     *                    limited, so at a certain point lower values will not increase door speed.
+     * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param newMin      The new minimum location this door will have after the toggle.
+     * @param newMax      The new maximmum location this door will have after the toggle.
+     */
+    protected abstract void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+                                               final double time, final boolean instantOpen,
+                                               final @NotNull Location newMin, final @NotNull Location newMax,
+                                               final @NotNull BigDoors plugin);
+
+    /**
+     * Gets the direction the door would go given its {@link #getCurrentDirection()} and its {@link #isOpen()} status.
+     *
+     * @return The direction the door would go if it were to be toggled.
+     */
+    @NotNull
+    public abstract RotateDirection getCurrentToggleDir();
+
+    /**
+     * Finds the new minimum and maximum coordinates of this door that would be the result of toggling it.
+     *
+     * @param min Used to store the new minimum coordinates.
+     * @param max Used to store the new maximum coordinates.
+     * @return True if the new locations are available.
+     */
+    protected abstract boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max);
+
+    /**
      * Cycle the {@link nl.pim16aap2.bigdoors.util.RotateDirection} direction this {@link DoorBase} will open in. By
      * default it'll set and return the opposite direction of the current direction.
      *
      * @return The new {@link nl.pim16aap2.bigdoors.util.RotateDirection} direction this {@link DoorBase} will open in.
      */
     @NotNull
-    public RotateDirection cycleOpenDirection()
-    {
-        openDir = RotateDirection.getOpposite(openDir);
-        return openDir;
-    }
+    public abstract RotateDirection cycleOpenDirection();
 
     /**
      * Calculate the {@link PBlockFace} of the side the {@link DoorBase} is on relative to its engine.
@@ -119,7 +295,10 @@ public abstract class DoorBase
      * @param newEngineSide   The new {@link PBlockFace} describing the side the engine would be on if opened according
      *                        to the provided variables. Using {@link nl.pim16aap2.bigdoors.util.Mutable} to make it
      *                        mutable.
+     * @deprecated To be removed once everything has been moved to the new system (without dedicated Openers).
      */
+    // TODO: REMOVE
+    @Deprecated
     public abstract void getNewLocations(final @Nullable PBlockFace openDirection,
                                          final @Nullable RotateDirection rotateDirection,
                                          final @NotNull Location newMin, final @NotNull Location newMax,
@@ -162,7 +341,7 @@ public abstract class DoorBase
      *
      * @return The number of blocks the {@link DoorBase} will try to move.
      */
-    public int getBlocksToMove()
+    public final int getBlocksToMove()
     {
         return blocksToMove;
     }
@@ -176,7 +355,7 @@ public abstract class DoorBase
      *
      * @param newBTM The number of blocks the {@link DoorBase} will try to move.
      */
-    public void setBlocksToMove(final int newBTM)
+    public final void setBlocksToMove(final int newBTM)
     {
         blocksToMove = newBTM;
         invalidateChunkRange();
@@ -188,7 +367,7 @@ public abstract class DoorBase
      * @return The {@link nl.pim16aap2.bigdoors.doors.DoorType} of this door.
      */
     @NotNull
-    public DoorType getType()
+    public final DoorType getType()
     {
         return doorType;
     }
@@ -199,7 +378,7 @@ public abstract class DoorBase
      * @return The name of this door.
      */
     @NotNull
-    public String getName()
+    public final String getName()
     {
         return name;
     }
@@ -209,7 +388,7 @@ public abstract class DoorBase
      *
      * @param name The new name of this door.
      */
-    public void setName(final @NotNull String name)
+    public final void setName(final @NotNull String name)
     {
         this.name = name;
     }
@@ -220,7 +399,7 @@ public abstract class DoorBase
      * @return The world this {@link DoorBase} exists in
      */
     @NotNull
-    public World getWorld()
+    public final World getWorld()
     {
         return world;
     }
@@ -231,7 +410,7 @@ public abstract class DoorBase
      * @param world The world the {@link DoorBase} exists in.
      * @throws IllegalStateException when trying to change the world when it's already been set.
      */
-    public void setWorld(final @NotNull World world)
+    public final void setWorld(final @NotNull World world)
     {
         if (this.world != null && !this.world.equals(world))
         {
@@ -257,7 +436,7 @@ public abstract class DoorBase
      *
      * @return True if the {@link DoorBase} is locked
      */
-    public boolean isLocked()
+    public final boolean isLocked()
     {
         return isLocked;
     }
@@ -267,7 +446,7 @@ public abstract class DoorBase
      *
      * @return True if the {@link DoorBase} is open
      */
-    public boolean isOpen()
+    public final boolean isOpen()
     {
         return isOpen;
     }
@@ -281,7 +460,7 @@ public abstract class DoorBase
      * @return The UUID of the current owner if available
      */
     @NotNull
-    public UUID getPlayerUUID()
+    public final UUID getPlayerUUID()
     {
         if (doorOwner == null)
         {
@@ -298,7 +477,7 @@ public abstract class DoorBase
      *
      * @return The permission of the current owner if available, -1 otherwise
      */
-    public int getPermission()
+    public final int getPermission()
     {
         if (doorOwner == null)
             return -1;
@@ -311,8 +490,11 @@ public abstract class DoorBase
      * the z axis (North/South) and the engine was at the north-most point.
      *
      * @return The side of the {@link DoorBase} the engine is on relative to the rest of the door.
+     *
+     * @deprecated engineSide will be removed.
      */
     @NotNull
+    @Deprecated
     public PBlockFace getEngineSide()
     {
         return engineSide;
@@ -322,8 +504,9 @@ public abstract class DoorBase
      * Change the engineSide of this door.
      *
      * @param newEngineSide The new {@link PBlockFace} engine side of this door
+     * @deprecated engineSide will be removed.
      */
-    public void setEngineSide(final @NotNull PBlockFace newEngineSide)
+    public final void setEngineSide(final @NotNull PBlockFace newEngineSide)
     {
         engineSide = newEngineSide;
     }
@@ -336,7 +519,7 @@ public abstract class DoorBase
      * @return The {@link nl.pim16aap2.bigdoors.util.RotateDirection} this {@link DoorBase} will open in.
      */
     @NotNull
-    public RotateDirection getOpenDir()
+    public final RotateDirection getOpenDir()
     {
         return openDir;
     }
@@ -349,8 +532,14 @@ public abstract class DoorBase
      * @param newRotDir New {@link nl.pim16aap2.bigdoors.util.RotateDirection} direction the {@link DoorBase} will open
      *                  in.
      */
-    public void setOpenDir(final @NotNull RotateDirection newRotDir)
+    public final void setOpenDir(final @NotNull RotateDirection newRotDir)
     {
+        if (newRotDir.equals(RotateDirection.NONE))
+        {
+            setDefaultOpenDirection();
+            pLogger.logMessage("\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
+            return;
+        }
         openDir = newRotDir;
         invalidateChunkRange();
     }
@@ -361,7 +550,7 @@ public abstract class DoorBase
      *
      * @return The amount of time (in seconds) after which the {@link DoorBase} will close automatically.
      */
-    public int getAutoClose()
+    public final int getAutoClose()
     {
         return autoClose;
     }
@@ -372,7 +561,7 @@ public abstract class DoorBase
      *
      * @param newVal Time (in seconds) after which the {@link DoorBase} will close after opening.
      */
-    public void setAutoClose(final int newVal)
+    public final void setAutoClose(final int newVal)
     {
         autoClose = newVal;
     }
@@ -382,7 +571,7 @@ public abstract class DoorBase
      *
      * @param bool The new open-status of the door.
      */
-    public void setOpenStatus(final boolean bool)
+    public final void setOpenStatus(final boolean bool)
     {
         isOpen = bool;
     }
@@ -393,7 +582,7 @@ public abstract class DoorBase
      * @return A copy of the power block location of this door.
      */
     @NotNull
-    public Location getPowerBlockLoc()
+    public final Location getPowerBlockLoc()
     {
         return powerBlock.clone();
     }
@@ -404,7 +593,7 @@ public abstract class DoorBase
      * @return A copy of the engine location of this door.
      */
     @NotNull
-    public Location getEngine()
+    public final Location getEngine()
     {
         return engine.clone();
     }
@@ -415,7 +604,7 @@ public abstract class DoorBase
      * @return A copy of the minimum location of this door.
      */
     @NotNull
-    public Location getMinimum()
+    public final Location getMinimum()
     {
         return min.clone();
     }
@@ -427,7 +616,7 @@ public abstract class DoorBase
      *
      * @param loc The new minimum location to copy
      */
-    public void setMinimum(final @NotNull Location loc)
+    public final void setMinimum(final @NotNull Location loc)
     {
         min = loc.clone();
         onCoordsUpdate();
@@ -439,7 +628,7 @@ public abstract class DoorBase
      * @return A copy of the maximum location of this door.
      */
     @NotNull
-    public Location getMaximum()
+    public final Location getMaximum()
     {
         return max.clone();
     }
@@ -451,35 +640,10 @@ public abstract class DoorBase
      *
      * @param loc The new maximum location to copy.
      */
-    public void setMaximum(final @NotNull Location loc)
+    public final void setMaximum(final @NotNull Location loc)
     {
         max = loc.clone();
         onCoordsUpdate();
-    }
-
-    /**
-     * Check if the coordinates of the {@link DoorBase} are in a valid state.
-     *
-     * @return True if all coordinates are in a valid state.
-     */
-    private boolean validCoords()
-    {
-        return engine != null && max != null && min != null;
-    }
-
-    /**
-     * Make sure all coordinates are in a valid state as described by {@link #validCoords()}.
-     *
-     * @throws IllegalStateException if any of the coordinates are not in a valid state.
-     */
-    private void assertValidCoords()
-    {
-        if (!validCoords())
-        {
-            IllegalStateException e = new IllegalStateException("The coordinates of this door are invalid!");
-            pLogger.logException(e);
-            throw e;
-        }
     }
 
     /**
@@ -489,8 +653,7 @@ public abstract class DoorBase
     private void onCoordsUpdate()
     {
         invalidateCoordsDependents();
-        if (validCoords())
-            updateCoordsDependents();
+        updateCoordsDependents();
     }
 
     /**
@@ -533,7 +696,6 @@ public abstract class DoorBase
      */
     protected void updateCoordsDependents()
     {
-        assertValidCoords();
         dimensions = new Vector3D(max.getBlockX() - min.getBlockX(), max.getBlockY() - min.getBlockY(),
                                   max.getBlockZ() - min.getBlockZ());
     }
@@ -545,7 +707,7 @@ public abstract class DoorBase
      *
      * @param loc The new location of the engine location to copy.
      */
-    public void setEngineLocation(final @NotNull Location loc)
+    public final void setEngineLocation(final @NotNull Location loc)
     {
         engine = loc.clone();
         onCoordsUpdate();
@@ -558,7 +720,7 @@ public abstract class DoorBase
      *
      * @param loc The new location of the power block location to copy.
      */
-    public void setPowerBlockLocation(final @NotNull Location loc)
+    public final void setPowerBlockLocation(final @NotNull Location loc)
     {
         powerBlock = loc.clone();
         onCoordsUpdate();
@@ -569,7 +731,7 @@ public abstract class DoorBase
      *
      * @param lock New lock status.
      */
-    public void setLock(final boolean lock)
+    public final void setLock(final boolean lock)
     {
         isLocked = lock;
     }
@@ -579,7 +741,7 @@ public abstract class DoorBase
      *
      * @param doorOwner The new {@link DoorOwner} doorOwner of this door
      */
-    public void setDoorOwner(final @NotNull DoorOwner doorOwner)
+    public final void setDoorOwner(final @NotNull DoorOwner doorOwner)
     {
         this.doorOwner = doorOwner;
     }
@@ -590,7 +752,7 @@ public abstract class DoorBase
      * @return The owner of this door.
      */
     @NotNull
-    public DoorOwner getDoorOwner()
+    public final DoorOwner getDoorOwner()
     {
         return doorOwner;
     }
@@ -603,9 +765,7 @@ public abstract class DoorBase
     @NotNull
     private Chunk calculateEngineChunk()
     {
-        assertValidCoords();
-        return world.getBlockAt((int) engine.getX(), (int) engine.getY(), (int) engine.getZ())
-                    .getChunk();
+        return world.getBlockAt((int) engine.getX(), (int) engine.getY(), (int) engine.getZ()).getChunk();
     }
 
     /**
@@ -630,11 +790,7 @@ public abstract class DoorBase
      */
     private int calculateBlockCount()
     {
-        assertValidCoords();
-        int xLen = Math.abs(max.getBlockX() - min.getBlockX()) + 1;
-        int yLen = Math.abs(max.getBlockY() - min.getBlockY()) + 1;
-        int zLen = Math.abs(max.getBlockZ() - min.getBlockZ()) + 1;
-        return xLen * yLen * zLen;
+        return (dimensions.getX() + 1) * (dimensions.getY() + 1) * (dimensions.getZ() + 1);
     }
 
     /**
@@ -658,7 +814,8 @@ public abstract class DoorBase
      *
      * @return The side the {@link DoorBase} is on relative to the engine
      */
-    public final @NotNull PBlockFace getCurrentDirection()
+    @NotNull
+    public final PBlockFace getCurrentDirection()
     {
         if (currentDirection == null)
             currentDirection = calculateCurrentDirection();
@@ -668,7 +825,7 @@ public abstract class DoorBase
     /**
      * @return The simple hash of the chunk in which the power block resides.
      */
-    public long getSimplePowerBlockChunkHash()
+    public final long getSimplePowerBlockChunkHash()
     {
         if (powerBlock == null)
         {
@@ -691,7 +848,7 @@ public abstract class DoorBase
      * @return Basic {@link DoorBase} info
      */
     @NotNull
-    public String getBasicInfo()
+    public final String getBasicInfo()
     {
         return doorUID + " (" + getPermission() + ")" + ": " + name;
     }

@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.moveblocks.GarageDoorMover;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -25,7 +28,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
 
     GarageDoor(final @NotNull PLogger pLogger, final long doorUID)
     {
-        super(pLogger, doorUID, DoorType.GARAGEDOOR);
+        this(pLogger, doorUID, DoorType.GARAGEDOOR);
     }
 
     /**
@@ -49,6 +52,24 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @Override
+    public boolean isOpenable()
+    {
+        return !isOpen;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCloseable()
+    {
+        return isOpen;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
     public PBlockFace calculateCurrentDirection()
@@ -60,26 +81,6 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         int dZ = engine.getBlockZ() - min.getBlockZ();
 
         return PBlockFace.faceFromDir(new Vector3D(Integer.compare(0, dX), 0, Integer.compare(0, dZ)));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Because garage doors can also lie flat (and therefore violate the 1-block depth requirement of {@link
-     * HorizontalAxisAlignedBase}), garage doors need to implement additional checks if that is the case.
-     */
-    @Override
-    protected boolean calculateNorthSouthAxis()
-    {
-        if (dimensions.getY() != 1)
-            return super.calculateNorthSouthAxis();
-
-        PBlockFace engineSide = getEngineSide();
-
-        // The door is on the north/south axis if the engine is on the north or south
-        // side
-        // of the door; that's the rotation point.
-        return engineSide.equals(PBlockFace.NORTH) || engineSide.equals(PBlockFace.SOUTH);
     }
 
     /**
@@ -193,5 +194,129 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         newMax.setX(xMax);
         newMax.setY(yMax);
         newMax.setZ(zMax);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public RotateDirection getCurrentToggleDir()
+    {
+        RotateDirection rotDir = getOpenDir();
+        if (getCurrentDirection().equals(PBlockFace.UP))
+            return rotDir;
+        // TODO: Make this less dumb.
+        return RotateDirection.valueOf(PBlockFace.getOpposite(getCurrentDirection()).toString());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    {
+        RotateDirection rotateDirection = getCurrentToggleDir();
+        int minX = getMinimum().getBlockX();
+        int minY = getMinimum().getBlockY();
+        int minZ = getMinimum().getBlockZ();
+        int maxX = getMaximum().getBlockX();
+        int maxY = getMaximum().getBlockY();
+        int maxZ = getMaximum().getBlockZ();
+        int xLen = dimensions.getX();
+        int yLen = dimensions.getY();
+        int zLen = dimensions.getZ();
+
+        Vector3D rotateVec;
+        try
+        {
+            rotateVec = PBlockFace.getDirection(PBlockFace.valueOf(rotateDirection.toString()));
+        }
+        catch (Exception e)
+        {
+            pLogger.logException(new IllegalArgumentException(
+                "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
+                    getType().name() + "\""));
+            return false;
+        }
+
+        if (getCurrentDirection().equals(PBlockFace.UP))
+        {
+            minY = maxY = getMaximum().getBlockY() + 1;
+
+            minX += rotateVec.getX();
+            maxX += (1 + yLen) * rotateVec.getX();
+            minZ += rotateVec.getZ();
+            maxZ += (1 + yLen) * rotateVec.getZ();
+        }
+        else
+        {
+            maxY = maxY - 1;
+            minY -= Math.abs(rotateVec.getX() * xLen);
+            minY -= Math.abs(rotateVec.getZ() * zLen);
+            minY -= 1;
+
+            if (rotateDirection.equals(RotateDirection.SOUTH))
+            {
+                maxZ = maxZ + 1;
+                minZ = maxZ;
+            }
+            else if (rotateDirection.equals(RotateDirection.NORTH))
+            {
+                maxZ = minZ - 1;
+                minZ = maxZ;
+            }
+            if (rotateDirection.equals(RotateDirection.EAST))
+            {
+                maxX = maxX + 1;
+                minX = maxX;
+            }
+            else if (rotateDirection.equals(RotateDirection.WEST))
+            {
+                maxX = minX - 1;
+                minX = maxX;
+            }
+        }
+
+        if (minX > maxX)
+        {
+            int tmp = minX;
+            minX = maxX;
+            maxX = tmp;
+        }
+        if (minZ > maxZ)
+        {
+            int tmp = minZ;
+            minZ = maxZ;
+            maxZ = tmp;
+        }
+
+        min.setX(minX);
+        min.setY(minY);
+        min.setZ(minZ);
+
+        max.setX(maxX);
+        max.setY(maxY);
+        max.setZ(maxZ);
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+    {
+        // TODO: Get rid of this.
+        double fixedTime = time < 0.5 ? 5 : time;
+
+        opener.registerBlockMover(
+            new GarageDoorMover(plugin, getWorld(), this, fixedTime,
+                                plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR), instantOpen,
+                                getCurrentDirection(), getCurrentToggleDir(),
+                                cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
     }
 }

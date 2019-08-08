@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -27,6 +29,24 @@ public class Clock extends HorizontalAxisAlignedBase
     Clock(final @NotNull PLogger pLogger, final long doorUID)
     {
         this(pLogger, doorUID, DoorType.CLOCK);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isOpenable()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCloseable()
+    {
+        return true;
     }
 
     /**
@@ -93,5 +113,34 @@ public class Clock extends HorizontalAxisAlignedBase
         newMax.setX(max.getBlockX());
         newMax.setY(max.getBlockY());
         newMax.setZ(max.getBlockZ());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerBlockMover(@NotNull DoorOpener opener, @NotNull DoorActionCause cause,
+                                      double time, boolean instantOpen, @NotNull Location newMin,
+                                      @NotNull Location newMax, @NotNull BigDoors plugin)
+    {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NotNull RotateDirection getCurrentToggleDir()
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean getPotentialNewCoordinates(@NotNull Location min, @NotNull Location max)
+    {
+        return false;
     }
 }

@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotEast;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotNorth;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotSouth;
@@ -12,7 +13,6 @@ import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.IGetNewLocation;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.TriFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,202 +22,144 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.function.BiFunction;
 
-class BridgeMover extends BlockMover
+public class BridgeMover extends BlockMover
 {
-    private final TriFunction<PBlockData, Double, Location, Vector> getDelta;
     private final IGetNewLocation gnl;
-    private int tickRate;
-    private double multiplier;
-    private boolean NS;
-    private PBlockFace engineSide;
-    private double endStepSum;
-    private Location turningPoint;
-    private double startStepSum;
-    private int stepMultiplier;
+    protected final boolean NS;
+    protected final BiFunction<PBlockData, Double, Vector> getVector;
+    protected final int tickRate;
 
     /**
      * Constructs a {@link BlockMover}.
      *
-     * @param plugin        The {@link BigDoors}.
-     * @param world         The {@link World} in which the blocks will be moved.
-     * @param door          The {@link DoorBase}.
-     * @param time          The amount of time (in seconds) the door will try to toggle itself in.
-     * @param instantOpen   If the door should be opened instantly (i.e. skip animation) or not.
-     * @param upDown        Whether the {@link nl.pim16aap2.bigdoors.doors.DoorType#DRAWBRIDGE} should go up or down.
-     * @param openDirection The direction the {@link DoorBase} will move.
-     * @param multiplier    The speed multiplier.
-     * @param playerUUID    The {@link UUID} of the player who opened this door.
+     * @param plugin          The {@link BigDoors}.
+     * @param world           The {@link World} in which the blocks will be moved.
+     * @param door            The {@link DoorBase}.
+     * @param time            The amount of time (in seconds) the door will try to toggle itself in.
+     * @param instantOpen     If the door should be opened instantly (i.e. skip animation) or not.
+     * @param upDown          Whether the {@link nl.pim16aap2.bigdoors.doors.DoorType#DRAWBRIDGE} should go up or down.
+     * @param rotateDirection The direction the {@link DoorBase} will move.
+     * @param multiplier      The speed multiplier.
+     * @param playerUUID      The {@link UUID} of the player who opened this door.
      */
-    BridgeMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
-                final @NotNull DoorBase door, final @NotNull PBlockFace upDown,
-                final @NotNull RotateDirection openDirection, final boolean instantOpen, final double multiplier,
-                @Nullable final UUID playerUUID)
+    public BridgeMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
+                       final @NotNull HorizontalAxisAlignedBase door, final @NotNull PBlockFace upDown,
+                       final @NotNull RotateDirection rotateDirection, final boolean instantOpen,
+                       final double multiplier, final @Nullable UUID playerUUID, final @NotNull Location finalMin,
+                       final @NotNull Location finalMax)
     {
-        super(plugin, world, door, time, instantOpen, upDown, openDirection, -1, playerUUID);
+        super(plugin, world, door, time, instantOpen, upDown, rotateDirection, -1, playerUUID, finalMin, finalMax);
 
-        engineSide = door.getEngineSide();
-        NS = engineSide == PBlockFace.NORTH || engineSide == PBlockFace.SOUTH;
+        NS = door.onNorthSouthAxis();
 
         int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
         int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
         int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
         int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-        double vars[] = SpigotUtil.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
+        double[] vars = SpigotUtil.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
         this.time = vars[0];
         tickRate = (int) vars[1];
-        this.multiplier = vars[2];
 
-        // Pointing: Degrees:
-        // UP__________0 or 360
-        // EAST_______90
-        // WEST______270
-        // NORTH_____270
-        // SOUTH______90
-
-        startStepSum = -1;
-        stepMultiplier = -1;
-
-        // Calculate turningpoint and pointOpposite.
-        switch (engineSide)
-        {
-            case NORTH:
-                // When EngineSide is North, x goes from low to high and z goes from low to high
-                turningPoint = new Location(world, xMin, yMin, zMin);
-                if (upDown.equals(PBlockFace.UP))
-                {
-                    startStepSum = Math.PI / 2;
-                    stepMultiplier = -1;
-                }
-                else
-                {
-                    if (openDirection.equals(RotateDirection.NORTH))
-                        stepMultiplier = -1;
-                    else if (openDirection.equals(RotateDirection.SOUTH))
-                        stepMultiplier = 1;
-                }
-                break;
-
-            case SOUTH:
-                // When EngineSide is South, x goes from high to low and z goes from high to low
-                turningPoint = new Location(world, xMax, yMin, zMax);
-
-                if (upDown.equals(PBlockFace.UP))
-                {
-                    startStepSum = -Math.PI / 2;
-                    stepMultiplier = 1;
-                }
-                else
-                {
-                    if (openDirection.equals(RotateDirection.NORTH))
-                        stepMultiplier = -1;
-                    else if (openDirection.equals(RotateDirection.SOUTH))
-                        stepMultiplier = 1;
-                }
-                break;
-
-            case EAST:
-                // When EngineSide is East, x goes from high to low and z goes from low to high
-                turningPoint = new Location(world, xMax, yMin, zMin);
-
-                if (upDown.equals(PBlockFace.UP))
-                {
-                    startStepSum = -Math.PI / 2;
-                    stepMultiplier = 1;
-                }
-                else
-                {
-                    if (openDirection.equals(RotateDirection.EAST))
-                        stepMultiplier = 1;
-                    else if (openDirection.equals(RotateDirection.WEST))
-                        stepMultiplier = -1;
-                }
-                break;
-
-            case WEST:
-                // When EngineSide is West, x goes from low to high and z goes from high to low
-                turningPoint = new Location(world, xMin, yMin, zMax);
-
-                if (upDown.equals(PBlockFace.UP))
-                {
-                    startStepSum = Math.PI / 2;
-                    stepMultiplier = -1;
-                }
-                else
-                {
-                    if (openDirection.equals(RotateDirection.EAST))
-                        stepMultiplier = 1;
-                    else if (openDirection.equals(RotateDirection.WEST))
-                        stepMultiplier = -1;
-                }
-                break;
-            default:
-                plugin.getPLogger().dumpStackTrace("Invalid engine side for bridge mover: " + engineSide.toString());
-                break;
-        }
-
-        endStepSum = upDown.equals(PBlockFace.UP) ? 0 : Math.PI / 2 * stepMultiplier;
-        startStepSum = upDown.equals(PBlockFace.DOWN) ? 0 : startStepSum;
-
-        switch (openDirection)
+        switch (rotateDirection)
         {
             case NORTH:
                 gnl = new GNLVerticalRotNorth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-                getDelta = this::getDeltaNS;
+                getVector = this::getVectorNorth;
                 break;
             case EAST:
                 gnl = new GNLVerticalRotEast(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-                getDelta = this::getDeltaEW;
+                getVector = this::getVectorEast;
                 break;
             case SOUTH:
                 gnl = new GNLVerticalRotSouth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-                getDelta = this::getDeltaNS;
+                getVector = this::getVectorSouth;
                 break;
             case WEST:
                 gnl = new GNLVerticalRotWest(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-                getDelta = this::getDeltaEW;
+                getVector = this::getVectorWest;
                 break;
             default:
-                plugin.getPLogger()
-                      .warn("Failed to open door \"" + getDoorUID() + "\". Reason: Invalid rotateDirection \""
-                                + openDirection.toString() + "\"");
                 gnl = null;
-                getDelta = null;
-                return;
+                getVector = null;
+                plugin.getPLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
+                                                       + "\". Reason: Invalid rotateDirection \"" +
+                                                       rotateDirection.toString() + "\"");
+                return; // TODO: MEMORY LEAK!!
         }
 
         super.constructFBlocks();
     }
 
-    private Vector getDeltaNS(PBlockData block, double stepSum, Location center)
+    @NotNull
+    private Vector getVectorNorth(final @NotNull PBlockData block, final double stepSum)
     {
+
+        double startAngle = block.getStartAngle();
         double posX = block.getFBlock().getLocation().getX();
-        double posY = center.getY() + block.getRadius() * Math.cos(stepSum);
-        double posZ = center.getZ() + block.getRadius() * Math.sin(stepSum);
-        return new Vector(posX, posY, posZ);
+        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
+        double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle - stepSum);
+//        Bukkit.broadcastMessage("VectorNorth: startAngle: " + startAngle + ", stepSum: " + stepSum + ", speed: " +
+//                                    SpigotUtil.locDoubleToString(new Location(null, posX, posY, posZ)) +
+//                                    ", startAngle: " + block.getStartAngle());
+        return new Vector(posX, posY, posZ + 0.5);
     }
 
-    private Vector getDeltaEW(PBlockData block, double stepSum, Location center)
+    @NotNull
+    private Vector getVectorWest(final @NotNull PBlockData block, final double stepSum)
     {
-        double posX = center.getX() + block.getRadius() * Math.sin(stepSum);
-        double posY = center.getY() + block.getRadius() * Math.cos(stepSum);
+        double startAngle = block.getStartAngle();
+        double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - stepSum);
+        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
         double posZ = block.getFBlock().getLocation().getZ();
-        return new Vector(posX, posY, posZ);
+//        Bukkit.broadcastMessage("VectorWest: startAngle: " + startAngle + ", stepSum: " + stepSum + ", speed: " +
+//                                    SpigotUtil.locDoubleToString(new Location(null, posX, posY, posZ)) +
+//                                    ", startAngle: " + block.getStartAngle());
+        return new Vector(posX + 0.5, posY, posZ);
     }
 
-    // Method that takes care of the rotation aspect.
+    @NotNull
+    private Vector getVectorSouth(final @NotNull PBlockData block, final double stepSum)
+    {
+        float startAngle = block.getStartAngle();
+        double posX = block.getFBlock().getLocation().getX();
+        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
+        double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle + stepSum);
+//        Bukkit.broadcastMessage("VectorSouth: startAngle: " + startAngle + ", stepSum: " + stepSum + ", speed: " +
+//                                    SpigotUtil.locDoubleToString(new Location(null, posX, posY, posZ)) +
+//                                    ", startAngle: " + block.getStartAngle());
+        return new Vector(posX, posY, posZ + 0.5);
+    }
+
+    @NotNull
+    private Vector getVectorEast(final @NotNull PBlockData block, final double stepSum)
+    {
+        float startAngle = block.getStartAngle();
+        double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + stepSum);
+        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
+        double posZ = block.getFBlock().getLocation().getZ();
+//        Bukkit.broadcastMessage("VectorEast: startAngle: " + startAngle + ", stepSum: " + stepSum + ", speed: " +
+//                                    SpigotUtil.locDoubleToString(new Location(null, posX, posY, posZ)) +
+//                                    ", startAngle: " + block.getStartAngle());
+        return new Vector(posX + 0.5, posY, posZ);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void animateEntities()
     {
         new BukkitRunnable()
         {
-            Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
             boolean replace = false;
             double counter = 0;
             int endCount = (int) (20 / tickRate * time);
-            double step = (Math.PI / 2) / endCount * stepMultiplier;
-            double stepSum = startStepSum;
-            int totalTicks = (int) (endCount * multiplier);
+            double step = (Math.PI / 2) / endCount;
+            // Add a half a second or the smallest number of ticks closest to it to the timer
+            // to make sure the animation doesn't jump at the end.
+            int totalTicks = endCount + Math.max(1, 10 / tickRate);
             int replaceCount = endCount / 2;
             long startTime = System.nanoTime();
             long lastTime;
@@ -226,7 +168,7 @@ class BridgeMover extends BlockMover
             @Override
             public void run()
             {
-                if (counter == 0 || (counter < endCount - 45 / tickRate && counter % (6 * tickRate / 4) == 0))
+                if (counter == 0 || (counter < endCount - (45 / tickRate) && counter % (6 * tickRate / 4) == 0))
                     SpigotUtil.playSound(door.getEngine(), "bd.drawbridge-rattling", 0.8f, 0.7f);
 
                 lastTime = currentTime;
@@ -236,12 +178,8 @@ class BridgeMover extends BlockMover
                     counter = msSinceStart / (50 * tickRate);
                 else
                     startTime += currentTime - lastTime;
-
-                if (counter < endCount - 1)
-                    stepSum = startStepSum + step * counter;
-                else
-                    stepSum = endStepSum;
                 replace = counter == replaceCount;
+                double stepSum = step * Math.min(counter, endCount);
 
                 if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
                 {
@@ -280,14 +218,13 @@ class BridgeMover extends BlockMover
                                     block.getFBlock().setVelocity(veloc);
                                 }
                         }, 0);
-
                     for (PBlockData block : savedBlocks)
                     {
                         double radius = block.getRadius();
                         if (radius != 0)
                         {
-                            Vector vec = getDelta.apply(block, stepSum, center)
-                                                 .subtract(block.getFBlock().getLocation().toVector());
+                            Vector vec = getVector.apply(block, stepSum)
+                                                  .subtract(block.getFBlock().getLocation().toVector());
                             vec.multiply(0.101);
                             block.getFBlock().setVelocity(vec);
                         }
@@ -297,24 +234,39 @@ class BridgeMover extends BlockMover
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
+    {
+        // Get the current radius of a block between used axis (either x and y, or z and y).
+        // When the engine is positioned along the NS axis, the Z values does not change.
+        double deltaA = (door.getEngine().getY() - yAxis);
+        double deltaB = NS ? (door.getEngine().getX() - xAxis) : (door.getEngine().getZ() - zAxis);
+        return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Location getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return gnl.getNewLocation(radius, xAxis, yAxis, zAxis);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
     {
-        if (currentDirection == PBlockFace.UP)
-        {
-            if (NS)
-                return Math.abs(zAxis - turningPoint.getBlockZ());
-            return Math.abs(xAxis - turningPoint.getBlockX());
-        }
-        if (currentDirection == PBlockFace.DOWN)
-            return yAxis - turningPoint.getBlockY();
-        plugin.getPLogger().dumpStackTrace("Invalid BridgeMover direction \"" + currentDirection.toString() + "\"");
-        return -1;
+        // Get the angle between the used axes (either x and y, or z and y).
+        // When the engine is positioned along the NS axis, the Z values does not change.
+        float deltaA = NS ? door.getEngine().getBlockX() - xAxis : door.getEngine().getBlockZ() - zAxis;
+        float deltaB = door.getEngine().getBlockY() - yAxis;
+        return (float) Math.atan2(deltaA, deltaB);
     }
 }

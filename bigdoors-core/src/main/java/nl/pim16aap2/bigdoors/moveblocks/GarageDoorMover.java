@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
-class GarageDoorMover extends BlockMover
+public class GarageDoorMover extends BlockMover
 {
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
@@ -29,10 +29,10 @@ class GarageDoorMover extends BlockMover
     private BiFunction<PBlockData, Double, Vector> getVector;
     private int xLen, yLen, zLen;
 
-    GarageDoorMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
-                    final double time, final double multiplier, final boolean instantOpen,
-                    final @NotNull PBlockFace currentDirection, final @NotNull RotateDirection rotateDirection,
-                    @Nullable final UUID playerUUID)
+    public GarageDoorMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
+                           final double time, final double multiplier, final boolean instantOpen,
+                           final @NotNull PBlockFace currentDirection, final @NotNull RotateDirection rotateDirection,
+                           @Nullable final UUID playerUUID)
     {
         super(plugin, world, door, 30, instantOpen, currentDirection, rotateDirection, -1, playerUUID);
         this.time = time;
@@ -191,6 +191,9 @@ class GarageDoorMover extends BlockMover
         return new Vector(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Location getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
@@ -232,7 +235,9 @@ class GarageDoorMover extends BlockMover
         return Math.abs(blocksMoved);
     }
 
-    // Method that takes care of the rotation aspect.
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void animateEntities()
     {
@@ -285,6 +290,9 @@ class GarageDoorMover extends BlockMover
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {

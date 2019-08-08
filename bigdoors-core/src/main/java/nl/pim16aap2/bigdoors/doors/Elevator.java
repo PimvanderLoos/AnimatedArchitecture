@@ -18,6 +18,6 @@ public class Elevator extends Portcullis
 
     Elevator(final @NotNull PLogger pLogger, final long doorUID)
     {
-        super(pLogger, doorUID, DoorType.ELEVATOR);
+        this(pLogger, doorUID, DoorType.ELEVATOR);
     }
 }

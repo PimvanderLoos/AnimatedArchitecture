@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public enum DoorAttribute
 {
     /**
-     * (Un)lock a door.
+     * (Un)lock the door.
      */
     LOCK(2),
 
@@ -19,6 +19,11 @@ public enum DoorAttribute
      * instead.
      */
     TOGGLE(2),
+
+    /**
+     * Turns a door on or off. When on, the door will rotate until turned off or until the chunks are unloaded.
+     */
+    SWITCH(2),
 
     /**
      * Get the info of the door.

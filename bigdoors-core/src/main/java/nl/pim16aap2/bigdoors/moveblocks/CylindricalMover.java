@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-class CylindricalMover extends BlockMover
+public class CylindricalMover extends BlockMover
 {
     private final int tickRate;
     private final int stepMultiplier;
@@ -33,10 +33,10 @@ class CylindricalMover extends BlockMover
     private double multiplier;
     private double startStepSum;
 
-    CylindricalMover(final @NotNull BigDoors plugin, final @NotNull World world,
-                     final @NotNull RotateDirection rotDirection, final double time,
-                     final @NotNull PBlockFace currentDirection, final @NotNull DoorBase door,
-                     final boolean instantOpen, final double multiplier, @Nullable final UUID playerUUID)
+    public CylindricalMover(final @NotNull BigDoors plugin, final @NotNull World world,
+                            final @NotNull RotateDirection rotDirection, final double time,
+                            final @NotNull PBlockFace currentDirection, final @NotNull DoorBase door,
+                            final boolean instantOpen, final double multiplier, @Nullable final UUID playerUUID)
     {
         super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1, playerUUID);
 
@@ -83,7 +83,9 @@ class CylindricalMover extends BlockMover
         super.constructFBlocks();
     }
 
-    // Method that takes care of the rotation aspect.
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void animateEntities()
     {
@@ -194,12 +196,18 @@ class CylindricalMover extends BlockMover
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return gnl.getNewLocation(radius, xAxis, yAxis, zAxis);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {

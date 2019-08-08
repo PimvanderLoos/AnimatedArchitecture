@@ -1,11 +1,15 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.moveblocks.BridgeMover;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Drawbridge extends HorizontalAxisAlignedBase
 {
+    private RotateDirection currentToggleDir = null;
+
     Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
         super(pLogger, doorUID, type);
@@ -25,26 +31,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
 
     Drawbridge(final @NotNull PLogger pLogger, final long doorUID)
     {
-        super(pLogger, doorUID, DoorType.DRAWBRIDGE);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Because drawbridges can also lie flat (and therefore violate the 1-block depth requirement of {@link
-     * HorizontalAxisAlignedBase}), drawbridges need to implement additional checks if that is the case.
-     */
-    @Override
-    protected boolean calculateNorthSouthAxis()
-    {
-        if (dimensions.getY() != 0)
-            return super.calculateNorthSouthAxis();
-
-        PBlockFace engineSide = getEngineSide();
-
-        // The door is on the north/south axis if the engine is on the north or south
-        // side of the door; that's the rotation point.
-        return engineSide.equals(PBlockFace.NORTH) || engineSide.equals(PBlockFace.SOUTH);
+        this(pLogger, doorUID, DoorType.DRAWBRIDGE);
     }
 
     /**
@@ -54,9 +41,9 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     @Override
     public Vector2D[] calculateChunkRange()
     {
-        int xLen = max.getBlockX() - min.getBlockX();
-        int yLen = max.getBlockY() - min.getBlockY();
-        int zLen = max.getBlockZ() - min.getBlockZ();
+        int xLen = dimensions.getX();
+        int yLen = dimensions.getY();
+        int zLen = dimensions.getZ();
 
         int radius = 0;
 
@@ -72,32 +59,40 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @Override
+    public boolean isOpenable()
+    {
+        return !isOpen;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCloseable()
+    {
+        return isOpen;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
     public PBlockFace calculateCurrentDirection()
     {
-        if (dimensions.getY() != 0)
+        Bukkit.broadcastMessage("calculateCurrentDirection: isOpen: " + isOpen + ", openDir: " +
+                                    getOpenDir() + ", engSide: " + getEngineSide());
+        if (!isOpen)
             return PBlockFace.UP;
 
-        int dirX = 0;
-        int dirZ = 0;
+        // TODO: REMOVE THIS. NONE should not be a valid open direction anymore. Needs to be changed in the database
+        //  first, though.
+        if (getOpenDir().equals(RotateDirection.NONE))
+            return PBlockFace.getOpposite(getEngineSide());
 
-        if (onNorthSouthAxis())
-        {
-            int dZ = engine.getBlockZ() - min.getBlockZ();
-            if (dZ == 0)
-                dZ = engine.getBlockZ() - max.getBlockZ();
-            dirZ = Integer.compare(0, dZ);
-        }
-        else
-        {
-            int dX = engine.getBlockX() - min.getBlockX();
-            if (dX == 0)
-                dX = engine.getBlockX() - max.getBlockX();
-            dirX = Integer.compare(0, dX);
-        }
-
-        return PBlockFace.faceFromDir(new Vector3D(dirX, 0, dirZ));
+        Bukkit.broadcastMessage("OpenDirection: " + getOpenDir().name());
+        return PBlockFace.valueOf(getOpenDir().toString());
     }
 
     /**
@@ -107,9 +102,9 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     public void setDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            openDir = RotateDirection.NORTH;
-        else
             openDir = RotateDirection.EAST;
+        else
+            openDir = RotateDirection.NORTH;
     }
 
     /**
@@ -121,115 +116,137 @@ public class Drawbridge extends HorizontalAxisAlignedBase
                                 final @NotNull Location newMax, final int blocksMoved,
                                 final @Nullable Mutable<PBlockFace> newEngineSide)
     {
-        int xLen = dimensions.getX();
-        int yLen = dimensions.getY();
-        int zLen = dimensions.getZ();
+        throw new IllegalStateException("THIS SHOULD NOT HAVE BEEN REACHED");
+    }
 
-        int xMin = min.getBlockX();
-        int yMin = min.getBlockY();
-        int zMin = min.getBlockY();
-
-        int xMax = max.getBlockX();
-        int zMax = max.getBlockY();
-
-        int newXMin = min.getBlockX();
-        int newYMin = min.getBlockY();
-        int newZMin = min.getBlockZ();
-        int newXMax = max.getBlockX();
-        int newYMax = max.getBlockY();
-        int newZMax = max.getBlockZ();
-
-        switch (rotateDirection)
+    @NotNull
+    private RotateDirection calculateCurrentToggleDir()
+    {
+        RotateDirection ret;
+        if (isOpen)
         {
-            case NORTH:
-                if (openDirection == PBlockFace.UP)
-                {
-                    newEngineSide.setVal(PBlockFace.NORTH);
-//                newMin = new Location(world, xMin, yMin, zMin);
-//                newMax = new Location(world, xMax, yMin + zLen, zMin);
-                    newYMax = yMin + dimensions.getZ();
-                    newZMax = zMin;
-                }
-                else
-                {
-                    newEngineSide.setVal(PBlockFace.SOUTH);
-//                newMin = new Location(world, xMin, yMin, zMin - yLen);
-//                newMax = new Location(world, xMax, yMin, zMin);
-                    newZMin = zMin - dimensions.getY();
-                    newYMax = yMin;
-                    newZMax = zMin;
-                }
-                break;
-
-            case EAST:
-                if (openDirection == PBlockFace.UP)
-                {
-                    newEngineSide.setVal(PBlockFace.EAST);
-//                newMin = new Location(world, xMax, yMin, zMin);
-//                newMax = new Location(world, xMax, yMin + xLen, zMax);
-                    newXMin = xMax;
-                    newYMax = yMin + xLen;
-                }
-                else
-                {
-                    newEngineSide.setVal(PBlockFace.WEST);
-//                newMin = new Location(world, xMax, yMin, zMin);
-//                newMax = new Location(world, xMax + yLen, yMin, zMax);
-                    newXMin = xMax;
-                    newXMax = xMax + yLen;
-                    newYMax = yMin;
-                }
-                break;
-
-            case SOUTH:
-                if (openDirection == PBlockFace.UP)
-                {
-                    newEngineSide.setVal(PBlockFace.SOUTH);
-//                newMin = new Location(world, xMin, yMin, zMax);
-//                newMax = new Location(world, xMax, yMin + zLen, zMax);
-                    newZMin = zMax;
-                    newYMax = yMin + zLen;
-                }
-                else
-                {
-                    newEngineSide.setVal(PBlockFace.NORTH);
-//                newMin = new Location(world, xMin, yMin, zMax);
-//                newMax = new Location(world, xMax, yMin, zMax + yLen);
-                    newZMin = zMax;
-                    newYMax = yMin;
-                    newZMax = zMax + yLen;
-                }
-                break;
-
-            case WEST:
-                if (openDirection == PBlockFace.UP)
-                {
-                    newEngineSide.setVal(PBlockFace.WEST);
-//                newMin = new Location(world, xMin, yMin, zMin);
-//                newMax = new Location(world, xMin, yMin + xLen, zMax);
-                    newXMax = xMin;
-                    newYMax = yMin + xLen;
-                }
-                else
-                {
-                    newEngineSide.setVal(PBlockFace.EAST);
-//                newMin = new Location(world, xMin - yLen, yMin, zMin);
-//                newMax = new Location(world, xMin, yMin, zMax);
-                    newXMin = xMin - yLen;
-                    newXMax = xMin;
-                    newYMax = yMin;
-                }
-                break;
-            default:
-                pLogger.dumpStackTrace("Invalid openDirection for bridge mover: " + openDirection.toString());
-                return;
+            switch (getCurrentDirection())
+            {
+                case NORTH:
+                    ret = RotateDirection.SOUTH;
+                    break;
+                case EAST:
+                    ret = RotateDirection.WEST;
+                    break;
+                case SOUTH:
+                    ret = RotateDirection.NORTH;
+                    break;
+                case WEST:
+                    ret = RotateDirection.EAST;
+                    break;
+                default:
+                    ret = RotateDirection.NONE;
+            }
         }
-        newMin.setX(newXMin);
-        newMin.setY(newYMin);
-        newMin.setZ(newZMin);
+        else
+        {
+            ret = getOpenDir();
+            // TODO: This should be fixed in the database when upgrading.
+            //       Additionally, considering checking input in the DatabaseCommander.
+            if (onNorthSouthAxis())
+                return ret.equals(RotateDirection.EAST) || ret.equals(RotateDirection.WEST) ? ret :
+                       RotateDirection.EAST;
+            return ret.equals(RotateDirection.NORTH) || ret.equals(RotateDirection.SOUTH) ? ret :
+                   RotateDirection.NORTH;
+        }
+        return ret;
 
-        newMax.setX(newXMax);
-        newMax.setY(newYMax);
-        newMax.setZ(newZMax);
+
+//        if (isOpen)
+//            return RotateDirection.valueOf(PBlockFace.getOpposite(getCurrentDirection()).name());
+//        RotateDirection rotDir = getOpenDir();
+//
+//        // TODO: This should be fixed in the database when upgrading.
+//        //       Additionally, considering checking input in the DatabaseCommander.
+//        if (onNorthSouthAxis())
+//            return rotDir.equals(RotateDirection.EAST) || rotDir.equals(RotateDirection.WEST) ? rotDir :
+//                   RotateDirection.EAST;
+//        return rotDir.equals(RotateDirection.NORTH) || rotDir.equals(RotateDirection.SOUTH) ? rotDir :
+//               RotateDirection.NORTH;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public RotateDirection getCurrentToggleDir()
+    {
+        if (currentToggleDir == null)
+            currentToggleDir = calculateCurrentToggleDir();
+        return currentToggleDir;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    {
+        Vector3D vec = PBlockFace.getDirection(getCurrentDirection());
+        Bukkit.broadcastMessage(
+            "DOORBASE: on NS axis: " + onNorthSouthAxis() + ", vector: " + vec.toString() + ", currentDirection: " +
+                getCurrentDirection().name());
+        RotateDirection currentToggleDir = getCurrentToggleDir();
+        if (isOpen)
+        {
+            if (onNorthSouthAxis())
+            {
+                max.setY(min.getBlockY() + dimensions.getX());
+                int newX = vec.getX() > 0 ? min.getBlockX() : max.getBlockX();
+                min.setX(newX);
+                max.setX(newX);
+            }
+            else
+            {
+                max.setY(min.getBlockY() + dimensions.getZ());
+                int newZ = vec.getZ() > 0 ? min.getBlockZ() : max.getBlockZ();
+                min.setZ(newZ);
+                max.setZ(newZ);
+            }
+        }
+        else
+        {
+            if (onNorthSouthAxis()) // On Z-axis, i.e. Z doesn't change
+            {
+                max.setY(min.getBlockY());
+                min.add(currentToggleDir.equals(RotateDirection.WEST) ? -dimensions.getY() : 0, 0, 0);
+                max.add(currentToggleDir.equals(RotateDirection.EAST) ? dimensions.getY() : 0, 0, 0);
+            }
+            else
+            {
+                max.setY(min.getBlockY());
+                min.add(0, 0, currentToggleDir.equals(RotateDirection.NORTH) ? -dimensions.getY() : 0);
+                max.add(0, 0, currentToggleDir.equals(RotateDirection.SOUTH) ? dimensions.getY() : 0);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+    {
+        PBlockFace upDown =
+            Math.abs(getMinimum().getBlockY() - getMaximum().getBlockY()) > 0 ? PBlockFace.DOWN : PBlockFace.UP;
+
+        Bukkit.broadcastMessage(
+            "DRAWBRIDGE: IsOpen: " + isOpen + ", upDown: " + upDown.name() + ", currentToggleDir: " +
+                getCurrentToggleDir().name() +
+                ", currentDirection = " + getCurrentDirection());
+
+        opener.registerBlockMover(
+            new BridgeMover(plugin, getWorld(), time, this, upDown, getCurrentToggleDir(), instantOpen,
+                            plugin.getConfigLoader().getMultiplier(DoorType.DRAWBRIDGE),
+                            cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

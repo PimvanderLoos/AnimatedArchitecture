@@ -12,7 +12,9 @@ import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -47,6 +49,7 @@ public abstract class BlockMover implements IRestartable
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
+    private final Location finalMin, finalMax;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -60,11 +63,14 @@ public abstract class BlockMover implements IRestartable
      * @param openDirection    The direction the {@link DoorBase} will move.
      * @param blocksMoved      The number of blocks the {@link DoorBase} will move.
      * @param playerUUID       The {@link UUID} of the player who opened this door.
+     * @param finalMin         The resulting minimum coordinates.
+     * @param finalMax         The resulting maximum coordinates.
      */
     protected BlockMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
                          final double time, final boolean instantOpen, final @NotNull PBlockFace currentDirection,
                          final @NotNull RotateDirection openDirection, final int blocksMoved,
-                         @Nullable final UUID playerUUID)
+                         @Nullable final UUID playerUUID, final @Nullable Location finalMin,
+                         final @Nullable Location finalMax)
     {
         plugin.getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
         this.plugin = plugin;
@@ -78,6 +84,8 @@ public abstract class BlockMover implements IRestartable
         this.playerUUID = playerUUID;
         fabf = plugin.getFABF();
         savedBlocks = new ArrayList<>();
+        this.finalMin = finalMin;
+        this.finalMax = finalMax;
 
         xMin = door.getMinimum().getBlockX();
         yMin = door.getMinimum().getBlockY();
@@ -85,6 +93,33 @@ public abstract class BlockMover implements IRestartable
         xMax = door.getMaximum().getBlockX();
         yMax = door.getMaximum().getBlockY();
         zMax = door.getMaximum().getBlockZ();
+    }
+
+
+    /**
+     * Constructs a {@link BlockMover}.
+     *
+     * @param plugin           The {@link BigDoors}.
+     * @param world            The {@link World} in which the blocks will be moved.
+     * @param door             The {@link DoorBase}.
+     * @param time             The amount of time (in seconds) the door will try to toggle itself in.
+     * @param instantOpen      If the door should be opened instantly (i.e. skip animation) or not.
+     * @param currentDirection The current direction of the door.
+     * @param openDirection    The direction the {@link DoorBase} will move.
+     * @param blocksMoved      The number of blocks the {@link DoorBase} will move.
+     * @param playerUUID       The {@link UUID} of the player who opened this door.
+     * @deprecated All BlockMovers should use {@link #BlockMover(BigDoors, World, DoorBase, double, boolean, PBlockFace,
+     * RotateDirection, int, UUID, Location, Location)} instead. That constructor accepts the final locations so they
+     * don't have to be calculated more than once.
+     */
+    @Deprecated
+    protected BlockMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
+                         final double time, final boolean instantOpen, final @NotNull PBlockFace currentDirection,
+                         final @NotNull RotateDirection openDirection, final int blocksMoved,
+                         @Nullable final UUID playerUUID)
+    {
+        this(plugin, world, door, time, instantOpen, currentDirection, openDirection, blocksMoved, playerUUID, null,
+             null);
     }
 
     /**
@@ -106,7 +141,7 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Aborts movement.
+     * Aborts the animation.
      */
     public void abort()
     {
@@ -138,7 +173,7 @@ public abstract class BlockMover implements IRestartable
                         INMSBlock block2 = null;
                         boolean canRotate = false;
 
-                        if (openDirection != null && block.canRotate())
+                        if (openDirection != null && !openDirection.equals(RotateDirection.NONE) && block.canRotate())
                         {
                             block2 = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
                             block2.rotateBlock(openDirection);
@@ -147,6 +182,10 @@ public abstract class BlockMover implements IRestartable
 
                         float radius = getRadius(xAxis, yAxis, zAxis);
                         float startAngle = getStartAngle(xAxis, yAxis, zAxis);
+
+//                        Bukkit.broadcastMessage("Block at: " + SpigotUtil.locIntToString(startLocation) + " (" +
+//                                                    vBlock.getType().toString() + "). Radius: " + radius +
+//                                                    ", startAngle: " + startAngle);
 
                         ICustomCraftFallingBlock fBlock = instantOpen ? null :
                                                           fallingBlockFactory(newFBlockLocation, block);
@@ -214,6 +253,7 @@ public abstract class BlockMover implements IRestartable
         {
             Location newPos = getNewLocation(savedBlock.getRadius(), savedBlock.getStartX(), savedBlock.getStartY(),
                                              savedBlock.getStartZ());
+//            Location newPos = savedBlock.getStartLocation();
             savedBlock.killFBlock();
             savedBlock.getBlock().putBlock(newPos);
             Block b = world.getBlockAt(newPos);
@@ -241,25 +281,25 @@ public abstract class BlockMover implements IRestartable
         }
     }
 
-//    private Vector3D oldMin = null;
-//    private Vector3D oldMax = null;
+    private Vector3D oldMin = null;
+    private Vector3D oldMax = null;
 
     /**
      * Kills all barrier blocks.
      */
     protected final void removeSolidBlocks()
     {
-//        if (oldMin == null || oldMax == null)
-//            return;
-//
-//        for (int x = oldMin.getX(); x <= oldMax.getX(); ++x)
-//            for (int y = oldMin.getY(); y <= oldMax.getY(); ++y)
-//                for (int z = oldMin.getZ(); z <= oldMax.getZ(); ++z)
-//                {
-//                    Block block = world.getBlockAt(x, y, z);
-//                    if (block.getType().equals(Material.BARRIER))
-//                        block.setType(Material.AIR);
-//                }
+        if (oldMin == null || oldMax == null)
+            return;
+
+        for (int x = oldMin.getX(); x <= oldMax.getX(); ++x)
+            for (int y = oldMin.getY(); y <= oldMax.getY(); ++y)
+                for (int z = oldMin.getZ(); z <= oldMax.getZ(); ++z)
+                {
+                    Block block = world.getBlockAt(x, y, z);
+                    if (block.getType().equals(Material.BARRIER))
+                        block.setType(Material.AIR);
+                }
     }
 
     /**
@@ -270,22 +310,22 @@ public abstract class BlockMover implements IRestartable
      */
     protected final void updateSolidBlocks(final @NotNull Vector3D newMin, final @NotNull Vector3D newMax)
     {
-//        if (newMin.equals(oldMin) && newMax.equals(oldMax))
-//            return;
-//        Player pim = Bukkit.getPlayer(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"));
-//        removeSolidBlocks();
-//        for (int x = newMin.getX(); x <= newMax.getX(); ++x)
-//            for (int y = newMin.getY(); y <= newMax.getY(); ++y)
-//                for (int z = newMin.getZ(); z <= newMax.getZ(); ++z)
-//                {
-//                    Block block = world.getBlockAt(x, y, z);
-//                    block.setType(Material.BARRIER);
-//                    plugin.getGlowingBlockSpawner()
-//                          .spawnGlowinBlock(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), world.getName(), 1,
-//                                            x, y, z, ChatColor.LIGHT_PURPLE);
-//                }
-//        oldMin = newMin;
-//        oldMax = newMax;
+        if (newMin.equals(oldMin) && newMax.equals(oldMax))
+            return;
+
+        removeSolidBlocks();
+        for (int x = newMin.getX(); x <= newMax.getX(); ++x)
+            for (int y = newMin.getY(); y <= newMax.getY(); ++y)
+                for (int z = newMin.getZ(); z <= newMax.getZ(); ++z)
+                {
+                    Block block = world.getBlockAt(x, y, z);
+                    block.setType(Material.BARRIER);
+                    plugin.getGlowingBlockSpawner()
+                          .spawnGlowinBlock(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), world.getName(), 1,
+                                            x, y, z, ChatColor.LIGHT_PURPLE);
+                }
+        oldMin = newMin;
+        oldMax = newMax;
     }
 
     /**
@@ -303,7 +343,13 @@ public abstract class BlockMover implements IRestartable
         Location newMax = new Location(world, 0, 0, 0);
         Mutable<PBlockFace> newEngineSide = new Mutable<>(null);
 
-        door.getNewLocations(openDirection, rotateDirection, newMin, newMax, moved, newEngineSide);
+        if (finalMin == null || finalMax == null)
+            door.getNewLocations(openDirection, rotateDirection, newMin, newMax, moved, newEngineSide);
+        else
+        {
+            newMin = finalMin;
+            newMax = finalMax;
+        }
 
         if (newMin.equals(door.getMinimum()) && newMax.equals(door.getMaximum()))
             return;
@@ -311,7 +357,7 @@ public abstract class BlockMover implements IRestartable
         door.setMaximum(newMax);
         door.setMinimum(newMin);
 
-        if (newEngineSide.getVal() != null)
+        if (!newEngineSide.isEmpty())
             door.setEngineSide(newEngineSide.getVal());
 
         toggleOpen(door);

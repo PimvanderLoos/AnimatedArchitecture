@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -314,23 +315,30 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         DoorBase ret = null;
         try
         {
-            DoorBase door = DoorType.valueOf(rs.getInt("type"))
-                                    .getNewDoor(pLogger, doorOwner.getDoorUID());
+            DoorBase door = DoorType.valueOf(rs.getInt("type")).getNewDoor(pLogger, doorOwner.getDoorUID());
 
-            World world = worldRetriever.worldFromString(UUID.fromString(rs.getString("world")));
-            door.setWorld(world);
-            door.setMinimum(new Location(world, rs.getInt("xMin"), rs.getInt("yMin"), rs.getInt("zMin")));
-            door.setMaximum(new Location(world, rs.getInt("xMax"), rs.getInt("yMax"), rs.getInt("zMax")));
+
             door.setEngineSide(PBlockFace.valueOf(rs.getInt("engineSide")));
-            door.setEngineLocation(new Location(world, rs.getInt("engineX"), rs.getInt("engineY"),
-                                                rs.getInt("engineZ")));
-            door.setPowerBlockLocation(new Location(world, rs.getInt("powerBlockX"), rs.getInt("powerBlockY"),
-                                                    rs.getInt("powerBlockZ")));
+
+            {
+                World world = Objects
+                    .requireNonNull(worldRetriever.worldFromString(UUID.fromString(rs.getString("world"))),
+                                    "Failed to obtain the world of door \"" + door.getDoorUID() + "\".");
+                Location min = new Location(world, rs.getInt("xMin"), rs.getInt("yMin"), rs.getInt("zMin"));
+                Location max = new Location(world, rs.getInt("xMax"), rs.getInt("yMax"), rs.getInt("zMax"));
+                Location engine = new Location(world, rs.getInt("engineX"), rs.getInt("engineY"), rs.getInt("engineZ"));
+                Location powerBlock = new Location(world, rs.getInt("powerBlockX"), rs.getInt("powerBlockY"),
+                                                   rs.getInt("powerBlockZ"));
+                RotateDirection openDir = Objects.requireNonNull(RotateDirection.valueOf(rs.getInt("openDirection")),
+                                                                 "Failed to obtain the open direction of door \"" +
+                                                                     door.getDoorUID() + "\".");
+                boolean isOpen = rs.getInt("isOpen") == 1;
+                door.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
+            }
+
             door.setName(rs.getString("name"));
-            door.setOpenStatus(rs.getInt("isOpen") == 1);
             door.setLock(rs.getInt("isLocked") == 1);
             door.setDoorOwner(doorOwner);
-            door.setOpenDir(RotateDirection.valueOf(rs.getInt("openDirection")));
             door.setAutoClose(rs.getInt("autoClose"));
             door.setBlocksToMove(rs.getInt("blocksToMove"));
 
@@ -1085,36 +1093,38 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 rs2.close();
             }
 
-            String doorInsertsql = "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,"
-                + "engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,"
-                + "openDirection,autoClose,chunkHash,blocksToMove) "
-                + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String doorInsertsql = "INSERT INTO doors(id, name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,\n" +
+                "                  engineX,engineY,engineZ,isLocked,type,engineSide,\n" +
+                "                  powerBlockX,powerBlockY,powerBlockZ,openDirection,\n" +
+                "                  autoClose,chunkHash,blocksToMove) \n" +
+                "                  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
             PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 
-            doorstatement.setString(DOOR_NAME - 1, door.getName());
-            doorstatement.setString(DOOR_WORLD - 1, door.getWorld().getUID().toString());
-            doorstatement.setInt(DOOR_OPEN - 1, door.isOpen() ? 1 : 0);
-            doorstatement.setInt(DOOR_MIN_X - 1, door.getMinimum().getBlockX());
-            doorstatement.setInt(DOOR_MIN_Y - 1, door.getMinimum().getBlockY());
-            doorstatement.setInt(DOOR_MIN_Z - 1, door.getMinimum().getBlockZ());
-            doorstatement.setInt(DOOR_MAX_X - 1, door.getMaximum().getBlockX());
-            doorstatement.setInt(DOOR_MAX_Y - 1, door.getMaximum().getBlockY());
-            doorstatement.setInt(DOOR_MAX_Z - 1, door.getMaximum().getBlockZ());
-            doorstatement.setInt(DOOR_ENG_X - 1, door.getEngine().getBlockX());
-            doorstatement.setInt(DOOR_ENG_Y - 1, door.getEngine().getBlockY());
-            doorstatement.setInt(DOOR_ENG_Z - 1, door.getEngine().getBlockZ());
-            doorstatement.setInt(DOOR_LOCKED - 1, door.isLocked() ? 1 : 0);
-            doorstatement.setInt(DOOR_TYPE - 1, DoorType.getValue(door.getType()));
+            doorstatement.setString(1, null);
+            doorstatement.setString(DOOR_NAME, door.getName());
+            doorstatement.setString(DOOR_WORLD, door.getWorld().getUID().toString());
+            doorstatement.setInt(DOOR_OPEN, door.isOpen() ? 1 : 0);
+            doorstatement.setInt(DOOR_MIN_X, door.getMinimum().getBlockX());
+            doorstatement.setInt(DOOR_MIN_Y, door.getMinimum().getBlockY());
+            doorstatement.setInt(DOOR_MIN_Z, door.getMinimum().getBlockZ());
+            doorstatement.setInt(DOOR_MAX_X, door.getMaximum().getBlockX());
+            doorstatement.setInt(DOOR_MAX_Y, door.getMaximum().getBlockY());
+            doorstatement.setInt(DOOR_MAX_Z, door.getMaximum().getBlockZ());
+            doorstatement.setInt(DOOR_ENG_X, door.getEngine().getBlockX());
+            doorstatement.setInt(DOOR_ENG_Y, door.getEngine().getBlockY());
+            doorstatement.setInt(DOOR_ENG_Z, door.getEngine().getBlockZ());
+            doorstatement.setInt(DOOR_LOCKED, door.isLocked() ? 1 : 0);
+            doorstatement.setInt(DOOR_TYPE, DoorType.getValue(door.getType()));
             // Set -1 if the door has no engineSide (normal doors don't use it)
-            doorstatement.setInt(DOOR_ENG_SIDE - 1,
+            doorstatement.setInt(DOOR_ENG_SIDE,
                                  door.getEngineSide() == null ? -1 : PBlockFace.getValue(door.getEngineSide()));
-            doorstatement.setInt(DOOR_POWER_X - 1, door.getPowerBlockLoc().getBlockX());
-            doorstatement.setInt(DOOR_POWER_Y - 1, door.getPowerBlockLoc().getBlockY());
-            doorstatement.setInt(DOOR_POWER_Z - 1, door.getPowerBlockLoc().getBlockZ());
-            doorstatement.setInt(DOOR_OPEN_DIR - 1, RotateDirection.getValue(door.getOpenDir()));
-            doorstatement.setInt(DOOR_AUTO_CLOSE - 1, door.getAutoClose());
-            doorstatement.setString(DOOR_CHUNK_HASH - 1, Long.toString(door.getSimplePowerBlockChunkHash()));
-            doorstatement.setString(DOOR_BLOCKS_TO_MOVE - 1, Long.toString(door.getBlocksToMove()));
+            doorstatement.setInt(DOOR_POWER_X, door.getPowerBlockLoc().getBlockX());
+            doorstatement.setInt(DOOR_POWER_Y, door.getPowerBlockLoc().getBlockY());
+            doorstatement.setInt(DOOR_POWER_Z, door.getPowerBlockLoc().getBlockZ());
+            doorstatement.setInt(DOOR_OPEN_DIR, RotateDirection.getValue(door.getOpenDir()));
+            doorstatement.setInt(DOOR_AUTO_CLOSE, door.getAutoClose());
+            doorstatement.setString(DOOR_CHUNK_HASH, Long.toString(door.getSimplePowerBlockChunkHash()));
+            doorstatement.setString(DOOR_BLOCKS_TO_MOVE, Long.toString(door.getBlocksToMove()));
 
             doorstatement.execute();
             doorstatement.close();

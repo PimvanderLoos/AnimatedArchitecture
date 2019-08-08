@@ -168,32 +168,33 @@ public class GUIPageDoorInfo implements IGUIPage
             {
                 case DIRECTION_ROTATE_HORIZONTAL:
                     openTypeAttribute = DoorAttribute.DIRECTION_ROTATE_HORIZONTAL;
-                    //$FALL-THROUGH$
+                    break outerLoop;
                 case DIRECTION_ROTATE_VERTICAL:
                     openTypeAttribute = DoorAttribute.DIRECTION_ROTATE_VERTICAL;
-                    newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.CLOCKWISE :
-                                 curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
-                                 RotateDirection.CLOCKWISE;
+//                    newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.CLOCKWISE :
+//                                 curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
+//                                 RotateDirection.CLOCKWISE;
                     break outerLoop;
 
                 case DIRECTION_ROTATE_VERTICAL2:
                     openTypeAttribute = DoorAttribute.DIRECTION_ROTATE_VERTICAL2;
-                    //$FALL-THROUGH$
+                    break outerLoop;
                 case DIRECTION_STRAIGHT_HORIZONTAL:
                     openTypeAttribute = DoorAttribute.DIRECTION_STRAIGHT_HORIZONTAL;
-                    newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.NORTH :
-                                 curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST :
-                                 curOpenDir == RotateDirection.EAST ? RotateDirection.SOUTH :
-                                 curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST : RotateDirection.NORTH;
+//                    newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.NORTH :
+//                                 curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST :
+//                                 curOpenDir == RotateDirection.EAST ? RotateDirection.SOUTH :
+//                                 curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST : RotateDirection.NORTH;
                     break outerLoop;
                 case DIRECTION_STRAIGHT_VERTICAL:
                     openTypeAttribute = DoorAttribute.DIRECTION_STRAIGHT_VERTICAL;
-                    newOpenDir = curOpenDir == RotateDirection.UP ? RotateDirection.DOWN : RotateDirection.UP;
+//                    newOpenDir = curOpenDir == RotateDirection.UP ? RotateDirection.DOWN : RotateDirection.UP;
                     break outerLoop;
                 default:
                     break;
             }
         }
+        newOpenDir = door.cycleOpenDirection();
 
         plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
         int idx = gui.indexOfDoor(door);

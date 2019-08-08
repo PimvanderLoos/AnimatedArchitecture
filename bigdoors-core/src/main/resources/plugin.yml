@@ -1,4 +1,4 @@
-name: BigDoors
+name: BigDoors2
 main: nl.pim16aap2.bigdoors.BigDoors
 version: ${project.version}
 author: pim16aap2

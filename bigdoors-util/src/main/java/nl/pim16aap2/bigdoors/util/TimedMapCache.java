@@ -40,7 +40,15 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     /**
      * {@link TimerTask} of {@link TimedMapCache#verifyCache}
      */
-    private TimerTask verifyTask;
+    private final TimerTask verifyTask = new TimerTask()
+    {
+        @Override
+        public void run()
+        {
+            verifyCache();
+        }
+    };
+
     /**
      * Periodically run the {@link TimedMapCache#verifyTask}.
      */
@@ -64,15 +72,6 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         this.ctor = Objects.requireNonNull(ctor);
         map = ctor.get();
         mapType = map.getClass();
-
-        verifyTask = new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                verifyCache();
-            }
-        };
         reInit(time, timeUnit);
     }
 
@@ -98,9 +97,9 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      */
     public void reInit(long time, final @NotNull TimeUnit timeUnit)
     {
-        if (timeUnit.toNanos(time) < SMALLESTTIMEUNIT.toNanos(1))
+        if (time > 0 && timeUnit.toNanos(time) < SMALLESTTIMEUNIT.toNanos(1))
             throw new IllegalArgumentException(
-                "Resolution of TimeUnit " + timeUnit.name() + " is too small! Only MILLISECONDS and up are allowed.");
+                "Resolution of TimeUnit " + timeUnit.name() + " is too low! Only MILLISECONDS and up are allowed.");
         time = timeUnit.toMillis(time);
         if (timeOut != time)
         {
@@ -129,11 +128,12 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     {
         if (timeOut > 0)
         {
-            // Verify cache 1/2 the timeOut time. Timeout is in minutes, task timer in
-            // ticks, so 1200 * timeOut = timeOut in ticks.
+            // Verify cache 1/2 the timeOut time.
             taskTimer = new Timer();
             // TODO: This looks too manual. Use proper conversion.
-            taskTimer.scheduleAtFixedRate(verifyTask, 60000 * timeOut, 60000 * timeOut / 2);
+            // TODO: Also, this is a pretty blunt solution. Try to find something with a bit more elegance.
+            //       If something is to be cached for 1 year, don't store the data for 1.5 years...
+            taskTimer.scheduleAtFixedRate(verifyTask, timeOut, timeOut / 2);
         }
     }
 
@@ -160,7 +160,13 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         if (timeOut < 0 || key == null)
             return null;
         if (map.containsKey(key))
-            return map.get(key).timedOut() ? null : (V) map.get(key).value;
+        {
+            // Return the value or if the value has timed out, remove it and return null instead.
+            TimedValue<V> value = map.get(key);
+            if (!value.timedOut())
+                return value.value;
+            remove(key);
+        }
         return null;
     }
 
@@ -239,7 +245,8 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     @Override
     public V remove(Object key)
     {
-        return map.remove(key).value;
+        TimedValue<V> timedValue = map.remove(key);
+        return timedValue == null ? null : timedValue.value;
     }
 
     /**
@@ -334,6 +341,8 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
          */
         public boolean timedOut()
         {
+            if (timeOut == 0)
+                return false;
             return (System.currentTimeMillis() - insertTime) > timeOut;
         }
 

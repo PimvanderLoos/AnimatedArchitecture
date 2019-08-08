@@ -17,13 +17,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-class VerticalMover extends BlockMover
+public class VerticalMover extends BlockMover
 {
     private int tickRate;
 
-    VerticalMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
-                  final @NotNull DoorBase door, final boolean instantOpen, final int blocksToMove,
-                  final double multiplier, @Nullable final UUID playerUUID)
+    public VerticalMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
+                         final @NotNull DoorBase door, final boolean instantOpen, final int blocksToMove,
+                         final double multiplier, @Nullable final UUID playerUUID)
     {
         super(plugin, world, door, time, instantOpen, PBlockFace.UP, RotateDirection.NONE, blocksToMove, playerUUID);
 
@@ -58,7 +58,9 @@ class VerticalMover extends BlockMover
         return super.blocksMoved;
     }
 
-    // Method that takes care of the rotation aspect.
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void animateEntities()
     {
@@ -134,6 +136,9 @@ class VerticalMover extends BlockMover
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {

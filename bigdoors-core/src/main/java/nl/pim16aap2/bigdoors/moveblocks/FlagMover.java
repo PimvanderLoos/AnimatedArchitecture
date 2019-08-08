@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
-class FlagMover extends BlockMover
+public class FlagMover extends BlockMover
 {
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
@@ -25,8 +25,8 @@ class FlagMover extends BlockMover
     private final boolean NS;
     private int tickRate;
 
-    FlagMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
-              final @NotNull DoorBase door, final double multiplier, @Nullable UUID playerUUID)
+    public FlagMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
+                     final @NotNull DoorBase door, final double multiplier, @Nullable UUID playerUUID)
     {
         super(plugin, world, door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID);
 
@@ -68,13 +68,18 @@ class FlagMover extends BlockMover
         return new Vector(block.getStartX(), block.getStartY(), block.getStartZ() + zOff);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return new Location(world, xAxis, yAxis, zAxis);
     }
 
-    // Method that takes care of the rotation aspect.
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void animateEntities()
     {
@@ -122,6 +127,9 @@ class FlagMover extends BlockMover
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {

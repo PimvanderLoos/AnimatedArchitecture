@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class GNLVerticalRotSouth implements IGetNewLocation
@@ -28,6 +29,7 @@ public class GNLVerticalRotSouth implements IGetNewLocation
         this.zMax = zMax;
     }
 
+    @NotNull
     @Override
     public Location getNewLocation(double radius, double xPos, double yPos, double zPos)
     {

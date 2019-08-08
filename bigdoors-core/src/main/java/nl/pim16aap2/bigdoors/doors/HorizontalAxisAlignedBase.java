@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,14 +14,28 @@ import org.jetbrains.annotations.NotNull;
  * @author Pim
  * @see DoorBase
  */
-abstract class HorizontalAxisAlignedBase extends DoorBase
+public abstract class HorizontalAxisAlignedBase extends DoorBase
 {
-    // Check if this door is positioned along the North/South axis
+    /**
+     * If this door is positioned along the North/South axis or null if it hasn't been calculated yet.
+     */
     private Boolean northSouthAxis = null;
 
-    HorizontalAxisAlignedBase(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType doorType)
+    HorizontalAxisAlignedBase(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
     {
-        super(pLogger, doorUID, doorType);
+        super(pLogger, doorUID, type);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public RotateDirection cycleOpenDirection()
+    {
+        if (onNorthSouthAxis())
+            return getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
+        return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.SOUTH : RotateDirection.NORTH;
     }
 
     /**
@@ -30,10 +46,7 @@ abstract class HorizontalAxisAlignedBase extends DoorBase
     {
         super.updateCoordsDependents();
         northSouthAxis = null;
-        // EngineSide is required to calculate the axis in many cases.
-        // So, if it hasn't been set yet, do not update it yet to avoid problems.
-        if (engineSide != null)
-            onNorthSouthAxis();
+        onNorthSouthAxis();
     }
 
     /**
@@ -43,9 +56,14 @@ abstract class HorizontalAxisAlignedBase extends DoorBase
      */
     protected boolean calculateNorthSouthAxis()
     {
-        // When it's 1 block deep in the X-axis (East/West), it means it
-        // it positioned along the North/South axis.
-        return (dimensions.getX()) == 0;
+        // When the door is laying flat and is 1 block deep in the X-axis (East/West), it means the door extends along
+        // the z axis, which means it is also positioned along the North/South axis.
+        if (dimensions.getY() != 0)
+            return (dimensions.getX()) == 0;
+
+        // The engine of the door is aligned with the north/south axis if the engine is
+        // on the east or west side of the door.
+        return getCurrentDirection().equals(PBlockFace.EAST) || getCurrentDirection().equals(PBlockFace.WEST);
     }
 
     /**
@@ -54,7 +72,7 @@ abstract class HorizontalAxisAlignedBase extends DoorBase
      *
      * @return True if aligned with the z-axis (North/South), False when aligned with the x-axis (East/West).
      */
-    public boolean onNorthSouthAxis()
+    public final boolean onNorthSouthAxis()
     {
         if (northSouthAxis == null)
             northSouthAxis = calculateNorthSouthAxis();

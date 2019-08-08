@@ -55,12 +55,16 @@ public final class DatabaseManager extends Restartable
     private final BigDoors plugin;
     private final Map<Long, Optional<BlockMover>> busyDoors;
     /**
-     * Timed cache of all power blocks. The key is the hash of a chunk, the value a nested map.
+     * Timed cache of all power blocks. The key is the {@link UUID} of the {@link org.bukkit.World}, the value is a
+     * nested map.
      * <p>
-     * The key of the nested map is the hash of a location (in world space) and the value of the nested map is the UID
-     * of the {@link DoorBase} whose power block is stored in that location.
+     * The key of the first nested map if the hash of a chunk and yet another nested map.
+     * <p>
+     * The key of the second nested map is the hash of a location (in world space) and the value of the nested map is
+     * the UID of the {@link DoorBase} whose power block is stored in that location.
      */
-    private final TimedMapCache<UUID, Map<Long /* Chunk */, Map<Long /* Loc */, List<Long> /* doorUIDs */>>> pbCache;
+//    private final TimedMapCache<UUID /* World */, Map<Long /* Chunk */, Map<Long /* Loc */, List<Long> /* doorUIDs */>>> pbCache;
+    private final Map<UUID /* World */, TimedMapCache<Long /* Chunk */, Map<Long /* Loc */, List<Long> /* doorUIDs */>>> pbCache;
     // Players map stores players for faster UUID / Name matching.
     private boolean goOn = true;
     private boolean paused = false;
@@ -71,9 +75,8 @@ public final class DatabaseManager extends Restartable
         db = new SQLiteJDBCDriverConnection(new File(plugin.getDataFolder(), dbFile), plugin.getPLogger(),
                                             plugin.getConfigLoader(), new WorldRetriever(),
                                             new PlayerRetriever());
-
-        pbCache = new TimedMapCache<>(plugin, ConcurrentHashMap::new, plugin.getConfigLoader().cacheTimeout());
         this.plugin = plugin;
+        pbCache = new HashMap<>();
         busyDoors = new ConcurrentHashMap<>();
     }
 
@@ -85,7 +88,7 @@ public final class DatabaseManager extends Restartable
     {
         busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::restart));
         busyDoors.clear();
-        pbCache.reInit(plugin.getConfigLoader().cacheTimeout());
+        pbCache.forEach((K, V) -> V.reInit(plugin.getConfigLoader().cacheTimeout()));
     }
 
     /**
@@ -96,7 +99,7 @@ public final class DatabaseManager extends Restartable
     {
         busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::shutdown));
         busyDoors.clear();
-        pbCache.shutdown();
+        pbCache.forEach((K, V) -> V.shutdown());
     }
 
     /**
@@ -730,23 +733,20 @@ public final class DatabaseManager extends Restartable
         long chunkHash = Util.simpleChunkHashFromLocation(loc.getBlockX(), loc.getBlockZ());
 
         if (!pbCache.containsKey(worldUUID))
-            pbCache.put(worldUUID, new HashMap<>());
+            pbCache.put(worldUUID, new TimedMapCache<>(plugin, HashMap::new, plugin.getConfigLoader().cacheTimeout()));
 
-        Map<Long, Map<Long, List<Long>>> worldMap = pbCache.get(worldUUID);
+        TimedMapCache<Long, Map<Long, List<Long>>> worldMap = pbCache.get(worldUUID);
 
-        Map<Long, List<Long>> powerBlockData;
-        if (worldMap == null)
-            plugin.getPLogger().logException(new IllegalStateException(), "worldMap is somehow null!??");
-        if (worldMap.containsKey(chunkHash))
-            powerBlockData = worldMap.get(chunkHash);
-        else
+        Map<Long, List<Long>> powerBlockData = worldMap.get(chunkHash);
+        if (powerBlockData == null)
         {
             powerBlockData = db.getPowerBlockData(chunkHash);
             worldMap.put(chunkHash, powerBlockData);
         }
         List<Long> doorUIDs = powerBlockData
-            .get(Util.simpleLocationhash(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
-        doorUIDs.forEach(K -> db.getDoor(K).ifPresent(door -> ret.add(door)));
+            .getOrDefault(Util.simpleLocationhash(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()),
+                          new ArrayList<>());
+        doorUIDs.forEach(K -> db.getDoor(K).ifPresent(ret::add));
         return ret;
     }
 

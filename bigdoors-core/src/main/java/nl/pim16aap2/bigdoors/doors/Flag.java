@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.moveblocks.FlagMover;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -25,7 +28,25 @@ public class Flag extends DoorBase
 
     Flag(final @NotNull PLogger pLogger, final long doorUID)
     {
-        super(pLogger, doorUID, DoorType.FLAG);
+        this(pLogger, doorUID, DoorType.FLAG);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isOpenable()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCloseable()
+    {
+        return true;
     }
 
     /**
@@ -99,5 +120,42 @@ public class Flag extends DoorBase
         newMax.setX(max.getBlockX());
         newMax.setY(max.getBlockY());
         newMax.setZ(max.getBlockZ());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public RotateDirection getCurrentToggleDir()
+    {
+        return RotateDirection.NONE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    {
+        // get some invalid coordinates, to make sure there aren't any blocks in the way.
+        max.setX(min.getBlockX());
+        max.setY(1000);
+        min.setY(1000);
+        max.setY(min.getBlockZ());
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+    {
+        opener.registerBlockMover(
+            new FlagMover(plugin, getWorld(), 60, this, plugin.getConfigLoader().getMultiplier(DoorType.FLAG),
+                          cause.equals(DoorActionCause.PLAYER) ? getPlayerUUID() : null));
     }
 }

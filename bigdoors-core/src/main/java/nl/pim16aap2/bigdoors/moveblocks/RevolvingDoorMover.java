@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
-class RevolvingDoorMover extends BlockMover
+public class RevolvingDoorMover extends BlockMover
 {
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
@@ -25,9 +25,10 @@ class RevolvingDoorMover extends BlockMover
     private final double time;
     private int tickRate;
 
-    RevolvingDoorMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
-                       final double time, final double multiplier, final @NotNull RotateDirection rotateDirection,
-                       @Nullable final UUID playerUUID)
+    public RevolvingDoorMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
+                              final double time, final double multiplier,
+                              final @NotNull RotateDirection rotateDirection,
+                              @Nullable final UUID playerUUID)
     {
         super(plugin, world, door, 30, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID);
         this.time = time;
@@ -75,13 +76,18 @@ class RevolvingDoorMover extends BlockMover
         return new Vector(posX, posY, posZ);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return new Location(world, xAxis, yAxis, zAxis);
     }
 
-    // Method that takes care of the rotation aspect.
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void animateEntities()
     {
@@ -136,6 +142,9 @@ class RevolvingDoorMover extends BlockMover
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
@@ -144,6 +153,9 @@ class RevolvingDoorMover extends BlockMover
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {

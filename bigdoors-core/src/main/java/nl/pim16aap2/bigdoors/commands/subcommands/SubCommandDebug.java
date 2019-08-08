@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /*
@@ -36,10 +35,11 @@ public class SubCommandDebug extends SubCommand
     {
 //        plugin.getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140);
 //        plugin.getDatabaseManager().getDoor(236L).ifPresent(door -> plugin.getDatabaseManager().fillDoor((door)));
-        if (sender instanceof Player)
-            plugin.getGlowingBlockSpawner()
-                  .spawnGlowinBlock(((Player) sender).getUniqueId(), ((Player) sender).getWorld().getName(), 60,
-                                    128, 76, 140);
+//        if (sender instanceof Player)
+//            plugin.getGlowingBlockSpawner()
+//                  .spawnGlowinBlock(((Player) sender).getUniqueId(), ((Player) sender).getWorld().getName(), 60,
+//                                    128, 76, 140);
+        
         return true;
     }
 

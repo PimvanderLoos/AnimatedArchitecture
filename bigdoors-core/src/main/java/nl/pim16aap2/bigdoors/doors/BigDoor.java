@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.moveblocks.CylindricalMover;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -31,6 +34,24 @@ public class BigDoor extends DoorBase
     /**
      * {@inheritDoc}
      */
+    @Override
+    public boolean isOpenable()
+    {
+        return !isOpen;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCloseable()
+    {
+        return isOpen;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
     public PBlockFace calculateCurrentDirection()
@@ -38,7 +59,7 @@ public class BigDoor extends DoorBase
         return engine.getBlockZ() != min.getBlockZ() ? PBlockFace.NORTH :
                engine.getBlockX() != max.getBlockX() ? PBlockFace.EAST :
                engine.getBlockZ() != max.getBlockZ() ? PBlockFace.SOUTH :
-               engine.getBlockX() != min.getBlockX() ? PBlockFace.WEST : null;
+               engine.getBlockX() != min.getBlockX() ? PBlockFace.WEST : PBlockFace.NONE;
     }
 
     /**
@@ -62,6 +83,17 @@ public class BigDoor extends DoorBase
     public void setDefaultOpenDirection()
     {
         openDir = RotateDirection.CLOCKWISE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public RotateDirection cycleOpenDirection()
+    {
+        return getOpenDir().equals(RotateDirection.CLOCKWISE) ? RotateDirection.COUNTERCLOCKWISE :
+               RotateDirection.CLOCKWISE;
     }
 
     /**
@@ -107,5 +139,73 @@ public class BigDoor extends DoorBase
         newMax.setX(xMax);
         newMax.setY(max.getBlockY());
         newMax.setZ(zMax);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public RotateDirection getCurrentToggleDir()
+    {
+        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    {
+        PBlockFace newDir;
+        RotateDirection rotateDirection = getCurrentToggleDir();
+        switch (getCurrentDirection())
+        {
+            case NORTH:
+                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.EAST : PBlockFace.WEST;
+                break;
+            case EAST:
+                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.SOUTH : PBlockFace.NORTH;
+                break;
+            case SOUTH:
+                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.WEST : PBlockFace.EAST;
+                break;
+            case WEST:
+                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.NORTH : PBlockFace.SOUTH;
+                break;
+            default:
+                pLogger.warn("Invalid currentDirection for BigDoor! \"" + getCurrentDirection().toString() + "\"");
+                return false;
+        }
+
+        Vector3D newVec = PBlockFace.getDirection(newDir);
+        int xMin = Math.min(engine.getBlockX(), engine.getBlockX() + dimensions.getZ() * newVec.getX());
+        int xMax = Math.max(engine.getBlockX(), engine.getBlockX() + dimensions.getZ() * newVec.getX());
+
+        int zMin = Math.min(engine.getBlockZ(), engine.getBlockZ() + dimensions.getX() * newVec.getZ());
+        int zMax = Math.max(engine.getBlockZ(), engine.getBlockZ() + dimensions.getX() * newVec.getZ());
+
+        min.setX(xMin);
+        min.setY(min.getBlockY());
+        min.setZ(zMin);
+
+        max.setX(xMax);
+        max.setY(max.getBlockY());
+        max.setZ(zMax);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+    {
+        opener.registerBlockMover(
+            new CylindricalMover(plugin, getWorld(), getCurrentToggleDir(), time, getCurrentDirection(), this,
+                                 instantOpen, opener.getMultiplier(this),
+                                 cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
     }
 }

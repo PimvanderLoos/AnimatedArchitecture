@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.moveblocks.WindmillMover;
 import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -31,6 +34,24 @@ public class Windmill extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @Override
+    public boolean isOpenable()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCloseable()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
     public Vector2D[] calculateChunkRange()
@@ -45,23 +66,24 @@ public class Windmill extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
+    @Override
+    public RotateDirection cycleOpenDirection()
+    {
+        // This type goes exactly the other way as most usual axis aligned ones.
+        if (!onNorthSouthAxis())
+            return getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
+        return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.SOUTH : RotateDirection.NORTH;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @NotNull
     public PBlockFace calculateCurrentDirection()
     {
-        switch (openDir)
-        {
-            case NORTH:
-                return PBlockFace.NORTH;
-            case EAST:
-                return PBlockFace.EAST;
-            case SOUTH:
-                return PBlockFace.SOUTH;
-            case WEST:
-                return PBlockFace.WEST;
-            default:
-                return PBlockFace.NONE;
-        }
+        return PBlockFace.NONE;
     }
 
     /**
@@ -92,5 +114,48 @@ public class Windmill extends HorizontalAxisAlignedBase
         newMax.setX(max.getBlockX());
         newMax.setY(max.getBlockY());
         newMax.setZ(max.getBlockZ());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public RotateDirection getCurrentToggleDir()
+    {
+        if (getOpenDir().equals(RotateDirection.NONE))
+            setDefaultOpenDirection();
+        return getOpenDir();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    {
+        // get some invalid coordinates, to make sure there aren't any blocks in the way.
+        max.setX(min.getBlockX());
+        max.setY(1000);
+        min.setY(1000);
+        max.setY(min.getBlockZ());
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+    {
+        // TODO: Get rid of this.
+        double fixedTime = time < 0.5 ? 5 : time;
+
+        opener.registerBlockMover(
+            new WindmillMover(plugin, getWorld(), this, fixedTime,
+                              plugin.getConfigLoader().getMultiplier(DoorType.WINDMILL), getCurrentToggleDir(),
+                              cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
     }
 }

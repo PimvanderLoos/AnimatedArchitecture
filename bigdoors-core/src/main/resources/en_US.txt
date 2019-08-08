@@ -31,16 +31,18 @@ ERROR.INVALIDDOORID=&4"%INPUT% does not refer to an existing door!
 
 # Supported: %DOORTYPE%
 ERROR.DOORTYPEDISABLED=&4The door type "%DOORTYPE%" is not enabled!
+ERROR.NOPERMISSIONFORDOORTYPE=&4You do not have permission to create a %DOORTYPE%!
 
 # Supported: %DOOR%
-ERROR.DOORALREADYCLOSED=&4"%DOOR%" is already closed!
-ERROR.DOORALREADYOPEN=&4"%DOOR%" is already open!
-ERROR.TOGGLEFAILURE=&4"%DOOR%" could not be toggled!
-ERROR.NOOPENDIRECTION=&4"%DOOR%" could not find an available open direction!
 ERROR.DOORISBUSY=&4"%DOOR%" is busy! Try again later.
 ERROR.DOORISLOCKED=&4"%DOOR%" is locked!
+ERROR.TOGGLEFAILURE=&4"%DOOR%" could not be toggled!
+ERROR.DOORALREADYCLOSED=&4"%DOOR%" is already closed!
+ERROR.DOORALREADYOPEN=&4"%DOOR%" is already open!
+ERROR.NOOPENDIRECTION=&4"%DOOR%" could not find an available open direction!
 ERROR.NOTOGGLEPERMISSION=&4You are not allowed to toggle "%DOOR%".
-ERROR.TOOMANYDOORSFOUND=&4You own multiple doors named "%DOORE%". Please use the ID of the desired door instead.
+ERROR.TOOMANYDOORSFOUND=&4You own multiple doors named "%DOOR%". Please use the ID of the desired door instead.
+ERROR.DOORISOBSTRUCTED=&4Door %DOOR% is obstructed! Please clear the area and try again!
 
 ERROR.NODOORSFOUND=&4No doors found!
 ERROR.PLAYERISBUSY=&4You are already in a creation/relocation/inspector process.
@@ -51,7 +53,7 @@ ERROR.INVALIDINPUT=&4"%INPUT%" is an invalid input value!
 ERROR.PLAYERNOTFOUND=&4Could not find player "%INPUT%"!
 
 ERROR.GENERALERROR=&4An error occurred. Contact a server administrator!
-ERROR.NOPERMISSIONFORDOORTYPE=&4You do not have permission to create a door of this type!
+
 
 # Supported: %HOOKNAME%
 ERROR.NOPERMISSIONFORLOCATION=&4"%HOOKNAME%" does not allow you to use or create doors in this area!
@@ -78,10 +80,8 @@ GUI.SORTING.NUMERICAL=Numerically sorted.
 GUI.SORTING.TYPICALLY=Sorted by type
 
 
-
-
 GUI.BUTTON.PREVIOUSPAGE=Go to the previous page.
-
+GUI.BUTTON.NEXTPAGE=Go to the next page.
 GUI.BUTTON.SORT=Change sorting of doors
 GUI.BUTTON.NEW=Create a new door.
 GUI.BUTTON.LOCK=Lock door.

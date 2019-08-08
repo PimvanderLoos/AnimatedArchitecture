@@ -63,7 +63,6 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
         i = true;
         setPosition(d0, d1 + (1.0F - getHeight()) / 2.0F, d2);
         dropItem = false;
-        noclip = true;
         setNoGravity(true);
         fallHurtMax = 0;
         fallHurtAmount = 0.0F;
@@ -71,8 +70,12 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
         lastX = d0;
         lastY = d1;
         lastZ = d2;
+
+        // try setting noclip twice, because it doesn't seem to stick.
+        noclip = true;
         a(new BlockPosition(this));
         spawn();
+        noclip = true;
     }
 
     @Override

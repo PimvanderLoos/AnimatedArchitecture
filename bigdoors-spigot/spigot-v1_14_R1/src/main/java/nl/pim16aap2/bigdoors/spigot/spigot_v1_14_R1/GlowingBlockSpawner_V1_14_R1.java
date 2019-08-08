@@ -81,6 +81,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
         if (team == null)
             team = scoreboard.registerNewTeam(name);
         team.setColor(color);
+        team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
         teams.put(color, team);
     }
 
@@ -109,7 +110,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
     public void spawnGlowinBlock(final @NotNull UUID playerUUID, final @NotNull String world, final long time,
                                  final double x, final double y, final double z)
     {
-        spawnGlowinBlock(playerUUID, world, time, x + 0, y + 0, z, ChatColor.WHITE);
+        spawnGlowinBlock(playerUUID, world, time, x, y, z, ChatColor.WHITE);
     }
 
     /**
@@ -151,13 +152,16 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
                     PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
                     EntityMagmaCube magmaCube = new EntityMagmaCube(EntityTypes.MAGMA_CUBE,
                                                                     ((CraftWorld) bukkitWorld).getHandle());
-                    magmaCube.setLocation(x, y, z, 0, 0);
+                    magmaCube.setLocation(x + 0.5, y, z + 0.5, 0, 0);
                     magmaCube.setSize(2, true);
-                    magmaCube.setFlag(6, true); //Glow
+                    magmaCube.setFlag(6, true); //Glowing
                     magmaCube.setNoGravity(true);
                     magmaCube.setInvisible(true);
                     magmaCube.setNoAI(true);
                     magmaCube.setSilent(true);
+                    magmaCube.setInvulnerable(true);
+                    magmaCube.setHeadRotation(0);
+                    magmaCube.collides = false;
                     teams.get(color).addEntry(magmaCube.getName());
 
                     PacketPlayOutSpawnEntityLiving spawnMagmaCube = new PacketPlayOutSpawnEntityLiving(magmaCube);

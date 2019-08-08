@@ -7,12 +7,15 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class SubCommandInfo extends SubCommand
@@ -28,6 +31,13 @@ public class SubCommandInfo extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
+    private void highlightBlock(final @NotNull Location loc, final @NotNull UUID playerUUID,
+                                final @NotNull ChatColor color)
+    {
+        plugin.getGlowingBlockSpawner().spawnGlowinBlock(playerUUID, loc.getWorld().getName(), 15L,
+                                                         loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), color);
+    }
+
     public boolean execute(CommandSender sender, DoorBase door)
     {
         if (sender instanceof Player && door.getPermission() >= 0 &&
@@ -38,11 +48,25 @@ public class SubCommandInfo extends SubCommand
         {
             try
             {
-                plugin.getGlowingBlockSpawner().spawnGlowinBlock(((Player) sender).getUniqueId(),
-                                                                 door.getWorld().getName(), 30L,
-                                                                 door.getPowerBlockLoc().getBlockX(),
-                                                                 door.getPowerBlockLoc().getBlockY(),
-                                                                 door.getPowerBlockLoc().getBlockZ());
+                UUID playerUUID = ((Player) sender).getUniqueId();
+                highlightBlock(door.getPowerBlockLoc(), playerUUID, ChatColor.GOLD);
+                highlightBlock(door.getEngine(), playerUUID, ChatColor.DARK_PURPLE);
+                highlightBlock(door.getMinimum(), playerUUID, ChatColor.BLUE);
+                highlightBlock(door.getMaximum(), playerUUID, ChatColor.RED);
+
+                Location loc = new Location(door.getWorld(), 0, 0, 0);
+                for (int x = door.getMinimum().getBlockX(); x <= door.getMaximum().getBlockX(); ++x)
+                    for (int y = door.getMinimum().getBlockY(); y <= door.getMaximum().getBlockY(); ++y)
+                        for (int z = door.getMinimum().getBlockZ(); z <= door.getMaximum().getBlockZ(); ++z)
+                        {
+                            loc.setX(x);
+                            loc.setY(y);
+                            loc.setZ(z);
+                            if (loc.equals(door.getMinimum()) || loc.equals(door.getMaximum()) ||
+                                loc.equals(door.getEngine()))
+                                continue;
+                            highlightBlock(loc, playerUUID, ChatColor.GREEN);
+                        }
             }
             catch (Exception e)
             {

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -86,9 +87,8 @@ public class AutoCloseScheduler extends Restartable
                 if (door.isOpen())
                 {
                     plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
-                    plugin.getDatabaseManager().getDoor(door.getDoorUID())
-                          .flatMap(door -> plugin.getDoorOpener(door.getType()))
-                          .ifPresent(O -> O.toggleDoor(playerUUID, door, speed, instantOpen, false));
+                    plugin.getDatabaseManager().getDoor(door.getDoorUID()).ifPresent(
+                        door -> door.open(plugin.getDoorOpener(), DoorActionCause.REDSTONE, speed, instantOpen));
                 }
                 deleteTimer(door.getDoorUID());
             }

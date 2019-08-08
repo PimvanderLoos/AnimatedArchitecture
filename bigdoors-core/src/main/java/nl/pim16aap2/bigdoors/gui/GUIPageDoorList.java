@@ -94,7 +94,7 @@ class GUIPageDoorList implements IGUIPage
                                                     Integer.toString(gui.getPage() + 2),
                                                     Integer.toString(gui.getPage()),
                                                     Integer.toString(gui.getMaxPageCount())));
-            gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT, plugin.getMessages().getString(Message.GUI_BUTTON_NEXTPAGE),
+            gui.addItem(8, new GUIItem(GUI.PAGESWITCHMAT, plugin.getMessages().getString(Message.GUI_BUTTON_NEXTPAGE),
                                        lore, page + 2));
             lore.clear();
         }

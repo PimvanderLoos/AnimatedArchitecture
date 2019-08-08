@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -24,8 +25,7 @@ public class RedstoneHandler implements Listener
     private void checkDoors(Location loc)
     {
         plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID())
-              .forEach(door -> plugin.getDoorOpener(door.getType())
-                                     .map(O -> O.toggleDoor(door.getPlayerUUID(), door, 0.0, false, true)));
+              .forEach(door -> door.toggle(plugin.getDoorOpener(), DoorActionCause.REDSTONE, 0.0, false));
     }
 
     /**
@@ -37,13 +37,14 @@ public class RedstoneHandler implements Listener
     @EventHandler
     public void onBlockRedstoneChange(BlockRedstoneEvent event)
     {
+        // Only boolean status is allowed, so a varying degree of "on" has no effect.
+        if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
+            return;
+
         try
         {
             Block block = event.getBlock();
             Location location = block.getLocation();
-            if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
-                return;
-
             int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
 
             if (plugin.getConfigLoader().powerBlockTypes()

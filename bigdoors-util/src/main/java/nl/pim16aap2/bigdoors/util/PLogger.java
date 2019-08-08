@@ -272,7 +272,8 @@ public class PLogger
                                                   exception));
         writeToConsole(Level.SEVERE, message);
         if (consoleLogging)
-            writeToConsole(Level.SEVERE, "\n" + limitStackTraceLength(exception.getStackTrace(), 0));
+            writeToConsole(Level.SEVERE, "\n" + exception.getClass().getName() + "\n" +
+                limitStackTraceLength(exception.getStackTrace(), 0));
     }
 
     /**

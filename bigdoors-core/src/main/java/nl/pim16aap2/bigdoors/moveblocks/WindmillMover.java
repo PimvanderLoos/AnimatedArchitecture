@@ -2,8 +2,7 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
@@ -15,108 +14,45 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
-import java.util.function.BiFunction;
 
-class WindmillMover extends BlockMover
+public class WindmillMover extends BridgeMover
 {
-    private static final double maxSpeed = 3;
-    private static final double minSpeed = 0.1;
-    private final boolean NS;
-    private final BiFunction<PBlockData, Double, Vector> getVector;
-    private int tickRate;
-
-    WindmillMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
-                  final double time, final double multiplier, final @NotNull RotateDirection rotateDirection,
-                  @Nullable final UUID playerUUID)
+    public WindmillMover(final @NotNull BigDoors plugin, final @NotNull World world,
+                         final @NotNull HorizontalAxisAlignedBase door, final double time, final double multiplier,
+                         final @NotNull RotateDirection rotateDirection, final @Nullable UUID playerUUID)
     {
-        super(plugin, world, door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID);
-
-        int xLen = Math.abs(xMax - xMin) + 1;
-        int zLen = Math.abs(zMax - zMin) + 1;
-        NS = zLen > xLen;
-
-        tickRate = 3;
-
-        switch (rotateDirection)
-        {
-            case NORTH:
-                getVector = this::getVectorNorth;
-                break;
-            case EAST:
-                getVector = this::getVectorEast;
-                break;
-            case SOUTH:
-                getVector = this::getVectorSouth;
-                break;
-            case WEST:
-                getVector = this::getVectorWest;
-                break;
-            default:
-                getVector = null;
-                plugin.getPLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
-                                                       + "\". Reason: Invalid rotateDirection \"" +
-                                                       rotateDirection.toString() + "\"");
-                return;
-        }
-
-        super.constructFBlocks();
+        super(plugin, world, time, door, PBlockFace.NONE, rotateDirection, false, -1, playerUUID, door.getMinimum(),
+              door.getMaximum());
     }
 
-    private Vector getVectorNorth(PBlockData block, double stepSum)
-    {
-        double startAngle = block.getStartAngle();
-        double posX = block.getFBlock().getLocation().getX();
-        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
-        double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle - stepSum);
-        return new Vector(posX, posY, posZ + 0.5);
-    }
-
-    private Vector getVectorEast(PBlockData block, double stepSum)
-    {
-        double startAngle = block.getStartAngle();
-        double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - stepSum);
-        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
-        double posZ = block.getFBlock().getLocation().getZ();
-        return new Vector(posX + 0.5, posY, posZ);
-    }
-
-    private Vector getVectorSouth(PBlockData block, double stepSum)
-    {
-        float startAngle = block.getStartAngle();
-        double posX = block.getFBlock().getLocation().getX();
-        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
-        double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle + stepSum);
-        return new Vector(posX, posY, posZ + 0.5);
-    }
-
-    private Vector getVectorWest(PBlockData block, double stepSum)
-    {
-        float startAngle = block.getStartAngle();
-        double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + stepSum);
-        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
-        double posZ = block.getFBlock().getLocation().getZ();
-        return new Vector(posX + 0.5, posY, posZ);
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Location getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return new Location(world, xAxis, yAxis, zAxis);
     }
 
-    // Method that takes care of the rotation aspect.
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void animateEntities()
     {
         new BukkitRunnable()
         {
+            boolean replace = false;
             double counter = 0;
             int endCount = (int) (20 / tickRate * time) * 4;
-            int totalTicks = (int) (endCount * 1.1);
+            double step = (Math.PI / 2) / endCount;
+            // Add a half a second or the smallest number of ticks closest to it to the timer
+            // to make sure the animation doesn't jump at the end.
+            int totalTicks = endCount + Math.max(1, 10 / tickRate);
+            int replaceCount = endCount / 2;
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
-            double step = (Math.PI / 2) / (endCount / 4) * -1 * 6;
 
             @Override
             public void run()
@@ -128,10 +64,11 @@ class WindmillMover extends BlockMover
                     counter = msSinceStart / (50 * tickRate);
                 else
                     startTime += currentTime - lastTime;
+                replace = counter == replaceCount;
+                double stepSum = step * Math.min(counter, endCount);
 
                 if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
                 {
-                    SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
@@ -147,7 +84,6 @@ class WindmillMover extends BlockMover
                     {
                         if (Math.abs(block.getRadius()) > 2 * Double.MIN_VALUE)
                         {
-                            double stepSum = step * counter;
                             Vector vec = getVector.apply(block, stepSum)
                                                   .subtract(block.getFBlock().getLocation().toVector());
                             vec.multiply(0.101);
@@ -159,18 +95,28 @@ class WindmillMover extends BlockMover
         }.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
+        // Get the current radius of a block between used axis (either x and y, or z and y).
+        // When the engine is positioned along the NS axis, the X values does not change for this type.
         double deltaA = (door.getEngine().getY() - yAxis);
-        double deltaB = NS ? (door.getEngine().getZ() - zAxis) : (door.getEngine().getX() - xAxis);
+        double deltaB = !NS ? (door.getEngine().getX() - xAxis) : (door.getEngine().getZ() - zAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
     {
-        float deltaA = NS ? door.getEngine().getBlockZ() - zAxis : door.getEngine().getBlockX() - xAxis;
+        // Get the angle between the used axes (either x and y, or z and y).
+        // When the engine is positioned along the NS axis, the X values does not change for this type.
+        float deltaA = !NS ? door.getEngine().getBlockX() - xAxis : door.getEngine().getBlockZ() - zAxis;
         float deltaB = door.getEngine().getBlockY() - yAxis;
         return (float) Math.atan2(deltaA, deltaB);
     }

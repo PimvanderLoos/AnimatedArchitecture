@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.util.BitFlag;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -329,4 +330,65 @@ public interface IStorage
      * @param permission The level of ownership the player will have over the door.
      */
     void addOwner(final long doorUID, final @NotNull UUID playerUUID, final int permission);
+
+    /**
+     * Gets the flag value of various boolean properties of a {@link DoorBase}.
+     *
+     * @param door The {@link DoorBase}.
+     * @return The flag value of a {@link DoorBase}.
+     */
+    default int getFlag(final @NotNull DoorBase door)
+    {
+        int flag = 0;
+        flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), door.isOpen(), flag);
+        flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), door.isLocked(), flag);
+        return flag;
+    }
+
+    /**
+     * Set of bit flags to represent various properties of doors.
+     *
+     * @author Pim
+     */
+    enum DoorFlag implements BitFlag
+    {
+        /**
+         * Consider a door to be opened if this flag is enabled.
+         */
+        ISOPEN(1),
+
+        /**
+         * Consider a door to be locked if this flag is enabled.
+         */
+        ISLOCKED(2),
+
+        /**
+         * Consider a door switched on if this flag is enabled. Used in cases of perpetual movement.
+         */
+        ISSWITCHEDON(4),
+
+        /**
+         * Not used for anything at the moment.
+         */
+        UNUSED(8),
+        ;
+
+        private final int flagValue;
+
+        DoorFlag(final int flagValue)
+        {
+            this.flagValue = flagValue;
+        }
+
+        /**
+         * Gets the flag value of a {@link DoorFlag}.
+         *
+         * @param flag The {@link DoorFlag}.
+         * @return The flag value of a {@link DoorFlag}.
+         */
+        public static int getFlagValue(final @NotNull DoorFlag flag)
+        {
+            return flag.flagValue;
+        }
+    }
 }

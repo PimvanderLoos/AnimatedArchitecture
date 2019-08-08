@@ -306,7 +306,7 @@ public class CommandManager implements CommandExecutor
             catch (TooManyDoorsException e)
             {
                 SpigotUtil.messagePlayer((Player) sender,
-                                         plugin.getMessages().getString(Message.ERROR_TOOMANYDOORSFOUND));
+                                         plugin.getMessages().getString(Message.ERROR_TOOMANYDOORSFOUND, doorArg));
             }
             catch (NotEnoughDoorsException e)
             {
@@ -320,7 +320,8 @@ public class CommandManager implements CommandExecutor
             catch (NumberFormatException e)
             {
                 plugin.getPLogger()
-                      .info("\"" + doorArg + "\" " + plugin.getMessages().getString(Message.ERROR_INVALIDDOORID));
+                      .info("\"" + doorArg + "\" " +
+                                plugin.getMessages().getString(Message.ERROR_INVALIDDOORID, doorArg));
             }
         if (door == null)
             throw new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!");
