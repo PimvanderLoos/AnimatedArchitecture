@@ -175,7 +175,6 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
                             {
                                 PacketPlayOutEntityDestroy killMagmaCube = new PacketPlayOutEntityDestroy(
                                     magmaCube.getId());
-                                teams.get(color).removeEntry(magmaCube.getName());
                                 connection.sendPacket(killMagmaCube);
                                 cancel();
                             }
