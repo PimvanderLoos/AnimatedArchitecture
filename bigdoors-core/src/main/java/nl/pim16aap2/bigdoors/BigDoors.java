@@ -47,6 +47,7 @@ import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.HeadManager;
+import nl.pim16aap2.bigdoors.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.GlowingBlockSpawner_V1_14_R1;
@@ -433,14 +434,12 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private IFallingBlockFactory fabf;
     private ConfigLoader config;
     private PLogger logger;
-    private SpigotUpdater updater;
     private Metrics metrics;
     private Messages messages;
     private DatabaseManager databaseManager = null;
 
     private RedstoneHandler redstoneHandler;
     private boolean validVersion;
-    private String loginString;
     private CommandManager commandManager;
     private Map<UUID, WaitForCommand> cmdWaiters;
     private Map<UUID, ToolUser> toolUsers;
@@ -453,6 +452,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private HeadManager headManager;
     private IGlowingBlockSpawner glowingBlockSpawner;
     private DoorOpener doorOpener;
+    private UpdateManager updateManager;
 
     @Override
     public void onEnable()
@@ -460,6 +460,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         INSTANCE = this;
 
         logger = new PLogger(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this), getName());
+        updateManager = new UpdateManager(this, 58669);
 
         try
         {
@@ -542,7 +543,6 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         playerGUIs = new HashMap<>();
         cmdWaiters = new HashMap<>();
         tf = new ToolVerifier(messages.getString(Message.CREATOR_GENERAL_STICKNAME));
-        loginString = DEVBUILD ? "[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!" : "";
 
         if (config.enableRedstone())
         {
@@ -581,15 +581,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
                             + "It helps me stay motivated to keep working on this plugin!");
         }
 
-        // Load update checker if allowed, otherwise unload it if needed or simply don't
-        // load it in the first place.
-        if (config.checkForUpdates() && !DEVBUILD)
-        {
-            if (updater == null)
-                updater = new SpigotUpdater(this, 58669);
-        }
-        else
-            updater = null;
+        updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
 
         if (databaseManager != null)
             databaseManager.setCanGo(true);
@@ -833,14 +825,20 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     }
 
     @NotNull
-    public String getLoginString()
+    public String getLoginMessage()
     {
-        return loginString;
-    }
-
-    public void setLoginString(final @NotNull String str)
-    {
-        loginString = str;
+        String ret = "";
+        if (DEVBUILD)
+            ret += "[BigDoors] Warning: You are running a devbuild!\n";
+        if (updateManager.updateAvailable())
+        {
+            if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
+                ret += "[BigDoors] A new update (" + updateManager.getNewestVersion() + ") has been downloaded! "
+                    + "Restart your server to apply the update!\n";
+            else if (updateManager.updateAvailable())
+                ret += "[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n";
+        }
+        return ret;
     }
 
     @NotNull

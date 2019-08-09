@@ -43,9 +43,9 @@ public class LoginMessageHandler implements Listener
                     @Override
                     public void run()
                     {
-                        String loginString = plugin.getLoginString();
+                        String loginString = plugin.getLoginMessage();
                         if (loginString != null && !loginString.isEmpty())
-                            player.sendMessage(ChatColor.AQUA + plugin.getLoginString());
+                            player.sendMessage(ChatColor.AQUA + plugin.getLoginMessage());
                     }
                 }.runTaskLater(plugin, 60);
         }
