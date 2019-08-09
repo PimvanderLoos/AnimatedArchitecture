@@ -421,6 +421,9 @@ public class ConfigLoader
 
     public boolean autoDLUpdate()
     {
+        if (BigDoors.DEVBUILD) // Setting override.
+            return true;
+
         return autoDLUpdate;
     }
 
@@ -451,6 +454,9 @@ public class ConfigLoader
 
     public boolean checkForUpdates()
     {
+        if (BigDoors.DEVBUILD) // Setting override.
+            return true;
+
         return checkForUpdates;
     }
 

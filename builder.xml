@@ -2,39 +2,38 @@
 <!-- Configuration of the Ant build system to generate a Jar file -->
 <project name="BigDoors" default="all">
 
-    <!--<property name="compiler.debug" value="on"/>-->
-    <!--<property name="compiler.generate.no.warnings" value="off"/>-->
-    <!--<property name="compiler.args" value=""/>-->
-    <!--<property name="compiler.max.memory" value="700m"/>-->
-    <!--<property file="builder.properties"/>-->
-
     <xmlproperty file="pom.xml" prefix="pom" />
 
     <echo>The version is ${pom.project.version}</echo>
-	
+    
     <property name="resources" location="${basedir}/src/main/resources"/>
 
+	<buildnumber/>
+    <!-- Force refresh these files, so Ant won't ignore them -->
     <target name="init">
         <mkdir dir="${basedir}/classes"/>
         <!-- Force refresh these files, so Ant won't ignore them -->
         <delete file="./target/classes/config.yml"/>
         <delete file="./target/classes/plugin.yml"/>
         <delete file="./target/classes/en_US.txt"/>
+    	<delete file="./target/classes/build.number"/>
+    	
         <copy file="${resources}/plugin.yml" tofile="./target/classes/plugin.yml"/>
         <copy file="${resources}/config.yml" tofile="./target/classes/config.yml"/>
-        <copy file="${resources}/en_US.txt" tofile="./target/classes/en_US.txt"/>
+        <copy file="${resources}/en_US.txt"  tofile="./target/classes/en_US.txt"/>
+        <copy file="./build.number"          tofile="./target/classes/build.number"/>
 
         <delete file="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
         <delete file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar"/>
         <delete file="${basedir}/Servers/SpigotServer_1.14/plugins/BigDoors.jar"/>
     </target>
-	
+    
     <target name="CreateJar" description="Create Jar file" depends="init">
-    	<jar jarfile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" basedir="./target/classes/" includes="**/*.*">
+        <jar jarfile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" basedir="./target/classes/" includes="**/*.*">
             <zipgroupfileset dir="/home/pim/Documents/workspace/JCalculator/" includes="JCalculator.jar"/>
         </jar>
-    	<copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
-    	<copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.14/plugins/BigDoors.jar"/>
+        <copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
+        <copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.14/plugins/BigDoors.jar"/>
     </target>
 
     <target name="allatori" depends="CreateJar">
@@ -48,7 +47,7 @@
         <copy file="${basedir}/BigDoors_Obf.jar" tofile="${basedir}/Jars/BigDoors.jar"/>
         <delete file="${basedir}/BigDoors_Obf.jar"/>
     </target>
-    	
+        
     <target name="cleanup" depends="rename">
         <delete dir="${basedir}/classes"/>
     </target>

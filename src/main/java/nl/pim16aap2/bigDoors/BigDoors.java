@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigDoors;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -43,9 +45,9 @@ import nl.pim16aap2.bigDoors.moveBlocks.FlagOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.moveBlocks.PortcullisOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.SlidingDoorOpener;
-import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
-import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
-import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationSouth;
+import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationEast;
+import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationNorth;
+import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationSouth;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
@@ -59,12 +61,11 @@ import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
-// TODO: Force dev builds to check for the latest version. Checking should be enabled ny force,
-//       while downloading should be disabled by force.
-
 public class BigDoors extends JavaPlugin implements Listener
 {
     public static final boolean DEVBUILD = true;
+    private int buildNumber = -1;
+
     public static final int MINIMUMDOORDELAY = 10;
 
     private ToolVerifier tf;
@@ -73,7 +74,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private ConfigLoader config;
     private String locale;
     private MyLogger logger;
-    private SpigotUpdater updater;
     private Metrics metrics;
     private File logFile;
     private Messages messages;
@@ -86,7 +86,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private RedstoneHandler redstoneHandler;
     private ElevatorOpener elevatorOpener;
     private boolean validVersion;
-    private String loginString;
     @SuppressWarnings("unused")
     private FlagOpener flagOpener;
     private HashMap<UUID, ToolUser> toolUsers;
@@ -100,12 +99,20 @@ public class BigDoors extends JavaPlugin implements Listener
     private TimedCache<Long /*Chunk*/, HashMap<Long /*Loc*/, Long /*doorUID*/>> pbCache = null;
     private HeadManager headManager;
     private VaultManager vaultManager;
+    private UpdateManager updateManager;
 
     @Override
     public void onEnable()
     {
         logFile = new File(getDataFolder(), "log.txt");
         logger  = new MyLogger(this, logFile);
+        updateManager = new UpdateManager(this, 58669);
+        if (DEVBUILD)
+        {
+            buildNumber = readBuildNumber();
+            logger.logMessageToConsoleOnly("WARNING! You are running a devbuild (build: " + buildNumber + ")! "
+                + "Update checking + downloading has been enabled (overrides config options)!");
+        }
 
         try
         {
@@ -185,7 +192,6 @@ public class BigDoors extends JavaPlugin implements Listener
         getCommand(command).setExecutor(new CommandHandler(this));
     }
 
-    @SuppressWarnings("unused")
     private void init()
     {
         if (!validVersion)
@@ -197,7 +203,6 @@ public class BigDoors extends JavaPlugin implements Listener
         playerGUIs  = new HashMap<>();
         cmdWaiters  = new HashMap<>();
         tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
-        loginString = DEVBUILD ? "[BigDoors] Warning: You are running a devbuild! Auto-Updater has been disabled!" : "";
 
         if (config.enableRedstone())
         {
@@ -226,14 +231,7 @@ public class BigDoors extends JavaPlugin implements Listener
             logger.myLogger(Level.INFO, "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
         }
 
-        // Load update checker if allowed, otherwise unload it if needed or simply don't load it in the first place.
-        if (config.checkForUpdates() && !DEVBUILD)
-        {
-            if (updater == null)
-                updater = new SpigotUpdater(this, 58669);
-        }
-        else
-            updater = null;
+        updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
 
         if (commander != null)
             commander.setCanGo(true);
@@ -305,6 +303,32 @@ public class BigDoors extends JavaPlugin implements Listener
         cmdWaiters.clear();
     }
 
+    public String getUpdateURL()
+    {
+        return null;
+    }
+
+    public String getLoginMessage()
+    {
+        String ret = "";
+        if (DEVBUILD)
+            ret += "[BigDoors] Warning: You are running a devbuild!\n";
+        if (updateManager.updateAvailable())
+        {
+            if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
+                ret += "[BigDoors] A new update (" + updateManager.getNewestVersion() + ") has been downloaded! "
+                    + "Restart your server to apply the update!\n";
+            else if (updateManager.updateAvailable())
+                ret += "[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n";
+        }
+        return ret;
+    }
+
+    public UpdateManager getUpdateManager()
+    {
+        return updateManager;
+    }
+
     public TimedCache<Long, HashMap<Long, Long>> getPBCache()
     {
         return pbCache;
@@ -328,6 +352,11 @@ public class BigDoors extends JavaPlugin implements Listener
     public FakePlayerCreator getFakePlayerCreator()
     {
         return fakePlayerCreator;
+    }
+
+    public int getBuildNumber()
+    {
+        return buildNumber;
     }
 
     public Opener getDoorOpener(DoorType type)
@@ -515,19 +544,23 @@ public class BigDoors extends JavaPlugin implements Listener
         return fabf != null;
     }
 
-    public String getLoginString()
-    {
-        return loginString;
-    }
-
-    public void setLoginString(String str)
-    {
-        loginString = str;
-    }
-
     public ItemStack getPlayerHead(UUID playerUUID, String playerName, int x, int y, int z, Player player)
     {
         return headManager.getPlayerHead(playerUUID, playerName, x, y, z, player);
+    }
+
+    private int readBuildNumber()
+    {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/build.number"))))
+        {
+            for (int idx = 0; idx != 2; ++idx)
+                reader.readLine();
+            return Integer.parseInt(reader.readLine().replace("build.number=", ""));
+        }
+        catch(Exception e)
+        {
+            return -1;
+        }
     }
 
 

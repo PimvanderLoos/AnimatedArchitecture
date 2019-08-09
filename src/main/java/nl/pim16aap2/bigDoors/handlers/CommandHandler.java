@@ -6,7 +6,6 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -356,7 +355,7 @@ public class CommandHandler implements CommandExecutor
             {
             case "version":
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " +
-                    plugin.getDescription().getVersion() + " of this plugin!");
+                    plugin.getDescription().getVersion() + (BigDoors.DEVBUILD ? " (build " + plugin.getBuildNumber() + ")" : "") + " of this plugin!");
                 break;
 
             case "menu":
@@ -867,47 +866,59 @@ public class CommandHandler implements CommandExecutor
     // Used for various debugging purposes (you don't say!).
     public void doorDebug(Player player)
     {
-        Location loc = new Location(player.getWorld(), 128, 75, 140);
-        long toSecond = 1000000000L;
-        long secondstToRun = 10L;
+        plugin.getUpdateManager().checkForUpdates();
+
         new BukkitRunnable()
         {
-            long startTime = System.nanoTime();
-            long count = 0;
-            long toggles = 0;
-            long seconds = 0;
-            long lastDebugSecond = 0;
-
             @Override
             public void run()
             {
-                long currentTime = System.nanoTime();
-                long delta = currentTime - startTime;
-                seconds = delta / toSecond;
-
-                if (seconds >= lastDebugSecond)
-                {
-                    String message = String.format("Activated the powerblock %d times in %d ns (%d s). This resulted in %d toggles.",
-                                                   count, delta, seconds, toggles);
-                    System.out.println(message);
-                    if (seconds == secondstToRun)
-                        Bukkit.broadcastMessage(message);
-                    ++lastDebugSecond;
-                }
-
-                if (seconds >= 10)
-                    cancel();
-                else
-                {
-                    for (int i = 0; i < 100; ++i)
-                    {
-                        if (plugin.getRedstoneHandler().checkDoor(loc))
-                            ++toggles;
-                        ++count;
-                    }
-                }
+                player.sendMessage(plugin.getLoginMessage());
             }
-        }.runTaskTimer(plugin, 0, 1);
+        }.runTaskLater(plugin, 20L);
+
+
+//        Location loc = new Location(player.getWorld(), 128, 75, 140);
+//        long toSecond = 1000000000L;
+//        long secondstToRun = 10L;
+//        new BukkitRunnable()
+//        {
+//            long startTime = System.nanoTime();
+//            long count = 0;
+//            long toggles = 0;
+//            long seconds = 0;
+//            long lastDebugSecond = 0;
+//
+//            @Override
+//            public void run()
+//            {
+//                long currentTime = System.nanoTime();
+//                long delta = currentTime - startTime;
+//                seconds = delta / toSecond;
+//
+//                if (seconds >= lastDebugSecond)
+//                {
+//                    String message = String.format("Activated the powerblock %d times in %d ns (%d s). This resulted in %d toggles.",
+//                                                   count, delta, seconds, toggles);
+//                    System.out.println(message);
+//                    if (seconds == secondstToRun)
+//                        Bukkit.broadcastMessage(message);
+//                    ++lastDebugSecond;
+//                }
+//
+//                if (seconds >= 10)
+//                    cancel();
+//                else
+//                {
+//                    for (int i = 0; i < 100; ++i)
+//                    {
+//                        if (plugin.getRedstoneHandler().checkDoor(loc))
+//                            ++toggles;
+//                        ++count;
+//                    }
+//                }
+//            }
+//        }.runTaskTimer(plugin, 0, 1);
     }
 
     private String helpFormat(String command, String explanation)
