@@ -12,10 +12,10 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a manager of player heads with the texture of a certain player.
@@ -44,7 +44,7 @@ public final class HeadManager extends Restartable
     {
         super(holder);
         this.config = config;
-        headMap = new TimedMapCache<>(holder, HashMap::new, config.headCacheTimeout());
+        headMap = new TimedMapCache<>(holder, ConcurrentHashMap::new, config.headCacheTimeout());
     }
 
     /**
