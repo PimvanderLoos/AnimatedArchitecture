@@ -22,7 +22,6 @@ public enum CommandData
     MENU("menu", CommandData.BDM.permission, CommandData.BIGDOORS),
     NEW("new", "bigdoors.user.new", CommandData.BIGDOORS),
     OPEN("open", "bigdoors.user.open", CommandData.BIGDOORS),
-    PAUSE("pause", "bigdoors.user.pause", CommandData.BIGDOORS),
     REMOVEOWNER("removeowner", "bigdoors.user.removeowner", CommandData.BIGDOORS),
     RESTART("restart", "bigdoors.admin.restart", CommandData.BIGDOORS),
     SETAUTOCLOSETIME("setautoclosetime", "bigdoors.user.setautoclosetime", CommandData.BIGDOORS),

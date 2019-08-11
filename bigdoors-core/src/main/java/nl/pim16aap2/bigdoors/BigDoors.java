@@ -21,7 +21,6 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandMenu;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandMovePowerBlock;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandOpen;
-import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandPause;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRestart;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetAutoCloseTime;
@@ -46,6 +45,7 @@ import nl.pim16aap2.bigdoors.listeners.RedstoneHandler;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorManager;
 import nl.pim16aap2.bigdoors.managers.HeadManager;
 import nl.pim16aap2.bigdoors.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.managers.VaultManager;
@@ -222,9 +222,6 @@ Tests not done:
 // TODO: Rename bigdoors-api. Maybe bigdoors-abstraction? Just to make it clear that it's not the actual API.
 // TODO: Fix up TimedCache class. Some actions that SHOULD BE supported aren't (such as keySet()).
 // TODO: Keep VaultManager#setupPermissions result.
-// TODO: Get rid of DatabaseManager#canGo. Instead, all mover should be aborted via abortable. The openers should
-//       receive an IRestartableHolder in their constructor to take care of this. This could even replace the current
-//       DatabaseManager#busyDoors.
 // TODO: Keep track of the DoorActionCause when opening doors. Don't use a dumb boolean anymore for isSilent.
 // TODO: Remove blockMovers from BigDoors.
 // TODO: Make sure to keep the config file's maxDoorCount in mind. Or just remove it.
@@ -311,7 +308,6 @@ Tests not done:
 // TODO: Add an isWaiter() method to the commands. If true, it should catch those calls before calling the command implementations.
 //       Gets rid of some code duplication.
 // TODO: CHeck if minArgCount is used properly.
-// TODO: Get rid of all code related to "/pausedoors". I don't need it anymore and I cannot think of a usecase for a regular user.
 // TODO: Make "/BigDoors new" require the type as flag input. No more defaulting to regular doors.
 // TODO: Fix "/BigDoors toggle db4". "/BigDoors toggle db4 10.0" works fine, though. Same goes for FillDoor and probably others too.
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
@@ -319,7 +315,7 @@ Tests not done:
 /*
  * Creators
  */
-// TODO: Make users explicitly specify the
+// TODO: Make users explicitly specify the openDirection on door creation.
 
 /*
  * Openers / Movers
@@ -379,7 +375,7 @@ Tests not done:
 // TODO: Highlight all blocking blocks if BlocksToMove is set.
 // TODO: Pass new min and new max to the movers. Then they can just update it.
 // TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
-
+// TODO: Reduce code duplication in the blockmovers (specifically animateEntities).
 
 /*
 
@@ -440,6 +436,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private IGlowingBlockSpawner glowingBlockSpawner;
     private DoorOpener doorOpener;
     private UpdateManager updateManager;
+    private DoorManager doorManager;
 
     @Override
     public void onEnable()
@@ -465,6 +462,8 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             }
 
             config = ConfigLoader.init(this, getPLogger());
+            doorManager = DoorManager.init(this);
+
             init();
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
@@ -477,8 +476,9 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = DatabaseManager.init(this, config.dbFile());
-            doorOpener = new DoorOpener(getPLogger(), getDatabaseManager(), getGlowingBlockSpawner(), getConfigLoader(),
-                                        protCompatMan);
+            doorOpener = DoorOpener
+                .init(getPLogger(), getDoorManager(), getGlowingBlockSpawner(), getConfigLoader(),
+                      protCompatMan);
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
             {
@@ -497,7 +497,6 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
                 commandBigDoors.registerSubCommand(new SubCommandSetName(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandNew(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandOpen(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandPause(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandRemoveOwner(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandRestart(this, commandManager));
                 commandBigDoors.registerSubCommand(new SubCommandSetAutoCloseTime(this, commandManager));
@@ -569,9 +568,6 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         }
 
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
-
-        if (databaseManager != null)
-            databaseManager.setCanGo(true);
     }
 
     @NotNull
@@ -638,9 +634,6 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         if (!validVersion)
             return;
 
-        // Stop all toolUsers and take all BigDoor tools from players.
-        databaseManager.setCanGo(false);
-
         Iterator<Entry<UUID, ToolUser>> it = toolUsers.entrySet().iterator();
         while (it.hasNext())
         {
@@ -674,12 +667,6 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     public AutoCloseScheduler getAutoCloseScheduler()
     {
         return autoCloseScheduler;
-    }
-
-    @NotNull
-    public DoorOpener getDoorOpener()
-    {
-        return doorOpener;
     }
 
     @NotNull
@@ -744,11 +731,18 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         toolUsers.remove(player.getUniqueId());
     }
 
-    // Get the commander (class executing commands).
+    // Get the DatabaseManager
     @NotNull
     public DatabaseManager getDatabaseManager()
     {
         return databaseManager;
+    }
+
+    // Get the DoorManager.
+    @NotNull
+    public DoorManager getDoorManager()
+    {
+        return doorManager;
     }
 
     // Get the logger.
@@ -842,8 +836,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private DoorToggleResult toggleDoor(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
                                         final double time, final boolean instantOpen)
     {
-        return door.toggle(getDoorOpener(), playerUUID == null ? DoorActionCause.REDSTONE : DoorActionCause.PLAYER,
-                           time, instantOpen);
+        return door.toggle(playerUUID == null ? DoorActionCause.REDSTONE : DoorActionCause.PLAYER, time, instantOpen);
     }
 
     // Toggle a door from a doorUID and instantly or not.

@@ -232,8 +232,8 @@ public class Drawbridge extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
-                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+    protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                      final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax, final @NotNull BigDoors plugin)
     {
         PBlockFace upDown =
@@ -244,7 +244,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
                 getCurrentToggleDir().name() +
                 ", currentDirection = " + getCurrentDirection());
 
-        opener.registerBlockMover(
+        doorOpener.registerBlockMover(
             new BridgeMover(plugin, getWorld(), time, this, upDown, getCurrentToggleDir(), instantOpen,
                             plugin.getConfigLoader().getMultiplier(DoorType.DRAWBRIDGE),
                             cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));

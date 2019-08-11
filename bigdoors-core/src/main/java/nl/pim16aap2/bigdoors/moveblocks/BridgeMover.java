@@ -173,15 +173,11 @@ public class BridgeMover extends BlockMover
 
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
-                long msSinceStart = (currentTime - startTime) / 1000000;
-                if (!plugin.getDatabaseManager().isPaused())
-                    counter = msSinceStart / (50 * tickRate);
-                else
-                    startTime += currentTime - lastTime;
+                startTime += currentTime - lastTime;
                 replace = counter == replaceCount;
                 double stepSum = step * Math.min(counter, endCount);
 
-                if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
+                if (isAborted.get() || counter > totalTicks)
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (PBlockData block : savedBlocks)

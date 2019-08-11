@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
@@ -22,27 +23,71 @@ import java.util.UUID;
 // TODO: Rename this class.
 
 /**
- * Represents a class that is used to open {@link DoorBase}s.
+ * Represents a utility singleton that is used to open {@link DoorBase}s.
  *
  * @author Pim
  */
 public final class DoorOpener
 {
+    private static DoorOpener instance;
+
     private final PLogger pLogger;
-    private final DatabaseManager databaseManager;
+    private final DoorManager doorManager;
     private final IGlowingBlockSpawner glowingBlockSpawner;
     private final ConfigLoader config;
     private final ProtectionCompatManager protectionManager;
 
-    public DoorOpener(final @NotNull PLogger pLogger, final @NotNull DatabaseManager databaseManager,
-                      final @NotNull IGlowingBlockSpawner glowingBlockSpawner, final @NotNull ConfigLoader config,
-                      final @NotNull ProtectionCompatManager protectionManager)
+    /**
+     * Constructs a new {@link DoorOpener}.
+     *
+     * @param pLogger             The logger.
+     * @param doorManager         The class that manages the doors.
+     * @param glowingBlockSpawner The class that
+     * @param config              The configuration of the BigDoors plugin.
+     * @param protectionManager   The class used to check with compatibility hooks if it is allowed to be toggled.
+     */
+    private DoorOpener(final @NotNull PLogger pLogger, final @NotNull DoorManager doorManager,
+                       final @NotNull IGlowingBlockSpawner glowingBlockSpawner, final @NotNull ConfigLoader config,
+                       final @NotNull ProtectionCompatManager protectionManager)
     {
         this.pLogger = pLogger;
-        this.databaseManager = databaseManager;
+        this.doorManager = doorManager;
         this.glowingBlockSpawner = glowingBlockSpawner;
         this.config = config;
         this.protectionManager = protectionManager;
+    }
+
+
+    /**
+     * Initializes the {@link DoorOpener}. If it has already been initialized, it'll return that instance instead.
+     *
+     * @param pLogger             The logger.
+     * @param doorManager         The class that manages the doors.
+     * @param glowingBlockSpawner The class that
+     * @param config              The configuration of the BigDoors plugin.
+     * @param protectionManager   The class used to check with compatibility hooks if it is allowed to be toggled.
+     * @return The instance of this {@link DoorOpener}.
+     */
+    @NotNull
+    public static DoorOpener init(final @NotNull PLogger pLogger, final @NotNull DoorManager doorManager,
+                                  final @NotNull IGlowingBlockSpawner glowingBlockSpawner,
+                                  final @NotNull ConfigLoader config,
+                                  final @NotNull ProtectionCompatManager protectionManager)
+    {
+        return (instance == null) ?
+               instance = new DoorOpener(pLogger, doorManager, glowingBlockSpawner, config, protectionManager) :
+               instance;
+    }
+
+    /**
+     * Gets the instance of the {@link DoorOpener} if it exists.
+     *
+     * @return The instance of the {@link DoorOpener}.
+     */
+    @Nullable
+    public static DoorOpener get()
+    {
+        return instance;
     }
 
     /**
@@ -61,7 +106,7 @@ public final class DoorOpener
         // not reset the busy status of this door. However, in every other case it should, because the door is
         // registered as busy before all the other checks take place.
         if (!result.equals(DoorToggleResult.BUSY))
-            databaseManager.setDoorAvailable(door.getDoorUID());
+            doorManager.setDoorAvailable(door.getDoorUID());
 
         if (!result.equals(DoorToggleResult.NOPERMISSION))
             if (!cause.equals(DoorActionCause.PLAYER))
@@ -157,9 +202,9 @@ public final class DoorOpener
      */
     private boolean isBusySetIfNot(final long doorUID)
     {
-        if (databaseManager.isDoorBusy(doorUID))
+        if (doorManager.isDoorBusy(doorUID))
             return true;
-        databaseManager.setDoorBusy(doorUID);
+        doorManager.setDoorBusy(doorUID);
         return false;
     }
 
@@ -226,7 +271,7 @@ public final class DoorOpener
      */
     void registerBlockMover(final @NotNull BlockMover blockMover)
     {
-        databaseManager.addBlockMover(blockMover);
+        doorManager.addBlockMover(blockMover);
     }
 
     /**
@@ -250,7 +295,7 @@ public final class DoorOpener
     @NotNull
     Optional<BlockMover> getBlockMover(final long doorUID)
     {
-        return databaseManager.getBlockMover(doorUID);
+        return doorManager.getBlockMover(doorUID);
     }
 
     /**

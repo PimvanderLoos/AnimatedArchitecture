@@ -55,6 +55,8 @@ public abstract class DoorBase
     private Integer blockCount = null;
     private PBlockFace currentDirection = null;
 
+    protected final DoorOpener doorOpener;
+
     /**
      * Min and Max chunk coordinates of the range of chunks that this {@link DoorBase} might interact with.
      */
@@ -72,6 +74,7 @@ public abstract class DoorBase
         this.pLogger = pLogger;
         this.doorUID = doorUID;
         this.doorType = doorType;
+        doorOpener = DoorOpener.get();
     }
 
     /**
@@ -124,7 +127,6 @@ public abstract class DoorBase
     /**
      * Attempts to open a door.
      *
-     * @param opener      The {@link DoorOpener} to use.
      * @param cause       What caused this action.
      * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
      *                    limited, so at a certain point lower values will not increase door speed.
@@ -132,18 +134,17 @@ public abstract class DoorBase
      * @return The result of the attempt.
      */
     @NotNull
-    public final DoorToggleResult open(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+    public final DoorToggleResult open(final @NotNull DoorActionCause cause,
                                        final double time, final boolean instantOpen)
     {
         if (!isOpenable())
             return DoorToggleResult.ALREADYCLOSED;
-        return toggle(opener, cause, time, instantOpen);
+        return toggle(cause, time, instantOpen);
     }
 
     /**
      * Attempts to close a door.
      *
-     * @param opener      The {@link DoorOpener} to use.
      * @param cause       What caused this action.
      * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
      *                    limited, so at a certain point lower values will not increase door speed.
@@ -151,18 +152,17 @@ public abstract class DoorBase
      * @return The result of the attempt.
      */
     @NotNull
-    public final DoorToggleResult close(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+    public final DoorToggleResult close(final @NotNull DoorActionCause cause,
                                         final double time, final boolean instantOpen)
     {
         if (!isCloseable())
             return DoorToggleResult.ALREADYOPEN;
-        return toggle(opener, cause, time, instantOpen);
+        return toggle(cause, time, instantOpen);
     }
 
     /**
      * Attempts to toggle a door.
      *
-     * @param opener      The {@link DoorOpener} to use.
      * @param cause       What caused this action.
      * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
      *                    limited, so at a certain point lower values will not increase door speed.
@@ -170,30 +170,30 @@ public abstract class DoorBase
      * @return The result of the attempt.
      */
     @NotNull
-    public final DoorToggleResult toggle(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+    public final DoorToggleResult toggle(final @NotNull DoorActionCause cause,
                                          final double time, boolean instantOpen)
     {
-        DoorToggleResult isOpenable = opener.canBeToggled(this, cause);
+        DoorToggleResult isOpenable = doorOpener.canBeToggled(this, cause);
         if (isOpenable != DoorToggleResult.SUCCESS)
-            return opener.abort(this, isOpenable, cause);
+            return doorOpener.abort(this, isOpenable, cause);
 
-        if (opener.isTooBig(this))
+        if (doorOpener.isTooBig(this))
             instantOpen = true;
 
         Location newMin = getMinimum();
         Location newMax = getMaximum();
 
         if (!getPotentialNewCoordinates(newMin, newMax))
-            return opener.abort(this, DoorToggleResult.ERROR, cause);
+            return doorOpener.abort(this, DoorToggleResult.ERROR, cause);
 
-        if (!opener.isLocationEmpty(newMin, newMax, getMinimum(), getMaximum(),
-                                    cause.equals(DoorActionCause.PLAYER) ? getPlayerUUID() : null, getWorld()))
-            return opener.abort(this, DoorToggleResult.OBSTRUCTED, cause);
+        if (!doorOpener.isLocationEmpty(newMin, newMax, getMinimum(), getMaximum(),
+                                        cause.equals(DoorActionCause.PLAYER) ? getPlayerUUID() : null, getWorld()))
+            return doorOpener.abort(this, DoorToggleResult.OBSTRUCTED, cause);
 
-        if (!opener.canBreakBlocksBetweenLocs(this, newMin, newMax))
-            return opener.abort(this, DoorToggleResult.NOPERMISSION, cause);
+        if (!doorOpener.canBreakBlocksBetweenLocs(this, newMin, newMax))
+            return doorOpener.abort(this, DoorToggleResult.NOPERMISSION, cause);
 
-        registerBlockMover(opener, cause, time, instantOpen, newMin, newMax, BigDoors.INSTANCE);
+        registerBlockMover(cause, time, instantOpen, newMin, newMax, BigDoors.INSTANCE);
         return DoorToggleResult.SUCCESS;
     }
 
@@ -210,7 +210,6 @@ public abstract class DoorBase
     /**
      * Starts and registers a new {@link BlockMover}.
      *
-     * @param opener      The {@link DoorOpener} to use.
      * @param cause       What caused this action.
      * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
      *                    limited, so at a certain point lower values will not increase door speed.
@@ -218,7 +217,7 @@ public abstract class DoorBase
      * @param newMin      The new minimum location this door will have after the toggle.
      * @param newMax      The new maximmum location this door will have after the toggle.
      */
-    protected abstract void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
+    protected abstract void registerBlockMover(final @NotNull DoorActionCause cause,
                                                final double time, final boolean instantOpen,
                                                final @NotNull Location newMin, final @NotNull Location newMax,
                                                final @NotNull BigDoors plugin);

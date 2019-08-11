@@ -25,7 +25,7 @@ public class RedstoneHandler implements Listener
     private void checkDoors(Location loc)
     {
         plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID())
-              .forEach(door -> door.toggle(plugin.getDoorOpener(), DoorActionCause.REDSTONE, 0.0, false));
+              .forEach(door -> door.toggle(DoorActionCause.REDSTONE, 0.0, false));
     }
 
     /**

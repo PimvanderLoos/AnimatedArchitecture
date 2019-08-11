@@ -150,11 +150,11 @@ public class Flag extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
-                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+    protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                      final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax, final @NotNull BigDoors plugin)
     {
-        opener.registerBlockMover(
+        doorOpener.registerBlockMover(
             new FlagMover(plugin, getWorld(), 60, this, plugin.getConfigLoader().getMultiplier(DoorType.FLAG),
                           cause.equals(DoorActionCause.PLAYER) ? getPlayerUUID() : null));
     }

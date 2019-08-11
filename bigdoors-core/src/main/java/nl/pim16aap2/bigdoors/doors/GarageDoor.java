@@ -306,14 +306,14 @@ public class GarageDoor extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
-                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+    protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                      final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax, final @NotNull BigDoors plugin)
     {
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
-        opener.registerBlockMover(
+        doorOpener.registerBlockMover(
             new GarageDoorMover(plugin, getWorld(), this, fixedTime,
                                 plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR), instantOpen,
                                 getCurrentDirection(), getCurrentToggleDir(),

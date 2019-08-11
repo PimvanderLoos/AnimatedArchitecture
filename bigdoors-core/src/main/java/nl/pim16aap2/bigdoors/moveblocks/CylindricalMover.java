@@ -114,11 +114,7 @@ public class CylindricalMover extends BlockMover
 
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
-                long msSinceStart = (currentTime - startTime) / 1000000;
-                if (!plugin.getDatabaseManager().isPaused())
-                    counter = msSinceStart / (50 * tickRate);
-                else
-                    startTime += currentTime - lastTime;
+                startTime += currentTime - lastTime;
 
                 if (counter < endCount - 1)
                     stepSum = startStepSum + step * counter;
@@ -127,7 +123,7 @@ public class CylindricalMover extends BlockMover
 
                 replace = (counter == replaceCount);
 
-                if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
+                if (counter > totalTicks || isAborted.get())
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.closing-vault-door", 0.2f, 1f);
                     for (PBlockData savedBlock : savedBlocks)

@@ -119,9 +119,9 @@ public class Clock extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    protected void registerBlockMover(@NotNull DoorOpener opener, @NotNull DoorActionCause cause,
-                                      double time, boolean instantOpen, @NotNull Location newMin,
-                                      @NotNull Location newMax, @NotNull BigDoors plugin)
+    protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                      final boolean instantOpen, final @NotNull Location newMin,
+                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
     {
 
     }

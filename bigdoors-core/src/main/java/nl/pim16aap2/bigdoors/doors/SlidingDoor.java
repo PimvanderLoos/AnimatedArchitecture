@@ -296,8 +296,8 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
-                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+    protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                      final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax, final @NotNull BigDoors plugin)
     {
         RotateDirection currentToggleDir = getCurrentToggleDir();
@@ -305,7 +305,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
             (currentToggleDir.equals(RotateDirection.NORTH) || currentToggleDir.equals(RotateDirection.SOUTH)) ?
             newMin.getBlockZ() - min.getBlockZ() : newMin.getBlockX() - min.getBlockX();
 
-        opener.registerBlockMover(
+        doorOpener.registerBlockMover(
             new SlidingMover(plugin, getWorld(), time, this, instantOpen, blocksToMove, currentToggleDir,
                              plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR),
                              cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));

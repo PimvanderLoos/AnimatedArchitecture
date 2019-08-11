@@ -100,18 +100,14 @@ public class SlidingMover extends BlockMover
 
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
-                long msSinceStart = (currentTime - startTime) / 1000000;
-                if (!plugin.getDatabaseManager().isPaused())
-                    counter = msSinceStart / (50 * tickRate);
-                else
-                    startTime += currentTime - lastTime;
+                startTime += currentTime - lastTime;
 
                 if (counter < endCount - 1)
                     stepSum = step * counter;
                 else
                     stepSum = getBlocksMoved();
 
-                if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks ||
+                if (isAborted.get() || counter > totalTicks ||
                     firstBlockData == null)
                 {
                     SpigotUtil.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);

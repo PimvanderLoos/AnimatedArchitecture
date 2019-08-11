@@ -59,15 +59,11 @@ public class WindmillMover extends BridgeMover
             {
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
-                long msSinceStart = (currentTime - startTime) / 1000000;
-                if (!plugin.getDatabaseManager().isPaused())
-                    counter = msSinceStart / (50 * tickRate);
-                else
-                    startTime += currentTime - lastTime;
+                startTime += currentTime - lastTime;
                 replace = counter == replaceCount;
                 double stepSum = step * Math.min(counter, endCount);
 
-                if (!plugin.getDatabaseManager().canGo() || isAborted.get() || counter > totalTicks)
+                if (isAborted.get() || counter > totalTicks)
                 {
                     for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));

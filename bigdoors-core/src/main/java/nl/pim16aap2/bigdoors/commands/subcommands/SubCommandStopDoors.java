@@ -27,7 +27,7 @@ public class SubCommandStopDoors extends SubCommand
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
                              @NotNull String[] args)
     {
-        plugin.getDatabaseManager().stopDoors();
+        plugin.getDoorManager().stopDoors();
         return true;
     }
 }

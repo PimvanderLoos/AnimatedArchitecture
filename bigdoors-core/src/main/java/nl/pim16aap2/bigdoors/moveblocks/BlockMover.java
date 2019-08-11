@@ -274,7 +274,7 @@ public abstract class BlockMover implements IRestartable
                 @Override
                 public void run()
                 {
-                    plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
+                    plugin.getDoorManager().setDoorAvailable(door.getDoorUID());
                     plugin.getAutoCloseScheduler().scheduleAutoClose(playerUUID, door, time, instantOpen);
                 }
             }.runTaskLater(plugin, delay);

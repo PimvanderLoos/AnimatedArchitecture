@@ -86,9 +86,9 @@ public class AutoCloseScheduler extends Restartable
             {
                 if (door.isOpen())
                 {
-                    plugin.getDatabaseManager().setDoorAvailable(door.getDoorUID());
+                    plugin.getDoorManager().setDoorAvailable(door.getDoorUID());
                     plugin.getDatabaseManager().getDoor(door.getDoorUID()).ifPresent(
-                        door -> door.open(plugin.getDoorOpener(), DoorActionCause.REDSTONE, speed, instantOpen));
+                        door -> door.open(DoorActionCause.REDSTONE, speed, instantOpen));
                 }
                 deleteTimer(door.getDoorUID());
             }

@@ -86,7 +86,7 @@ public class ChunkUnloadListener implements Listener
                 return;
 
             // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
-            plugin.getDatabaseManager().getBlockMovers()
+            plugin.getDoorManager().getBlockMovers()
                   .filter(BM -> BM.getDoor().chunkInRange(event.getChunk()))
                   .forEach(BlockMover::abort);
         }

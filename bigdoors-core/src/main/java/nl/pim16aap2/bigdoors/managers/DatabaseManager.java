@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.AbortableTask;
 import nl.pim16aap2.bigdoors.spigotutil.PlayerRetriever;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -43,8 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 /**
  * Manages all database interactions.
@@ -55,7 +52,6 @@ public final class DatabaseManager extends Restartable
 
     private final IStorage db;
     private final BigDoors plugin;
-    private final Map<Long, Optional<BlockMover>> busyDoors;
 
     /**
      * Timed cache of all power blocks. The key is the {@link UUID} of the {@link org.bukkit.World}, the value is a
@@ -68,9 +64,6 @@ public final class DatabaseManager extends Restartable
      */
 //    private final TimedMapCache<UUID /* World */, Map<Long /* Chunk */, Map<Long /* Loc */, List<Long> /* doorUIDs */>>> pbCache;
     private final Map<UUID /* World */, TimedMapCache<Long /* Chunk */, Map<Long /* Loc */, List<Long> /* doorUIDs */>>> pbCache;
-    // Players map stores players for faster UUID / Name matching.
-    private boolean goOn = true;
-    private boolean paused = false;
 
     /**
      * Constructs a new {@link DatabaseManager}.
@@ -86,7 +79,6 @@ public final class DatabaseManager extends Restartable
                                             new PlayerRetriever());
         this.plugin = plugin;
         pbCache = new HashMap<>();
-        busyDoors = new ConcurrentHashMap<>();
     }
 
     /**
@@ -119,8 +111,6 @@ public final class DatabaseManager extends Restartable
     @Override
     public void restart()
     {
-        busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::restart));
-        busyDoors.clear();
         pbCache.forEach((K, V) -> V.reInit(plugin.getConfigLoader().cacheTimeout()));
     }
 
@@ -130,71 +120,7 @@ public final class DatabaseManager extends Restartable
     @Override
     public void shutdown()
     {
-        busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::shutdown));
-        busyDoors.clear();
         pbCache.forEach((K, V) -> V.shutdown());
-    }
-
-    /**
-     * Checks if a {@link DoorBase} is 'busy', i.e. currently being animated.
-     *
-     * @param doorUID The UID of the {@link DoorBase}.
-     * @return True if the {@link DoorBase} is busy.
-     */
-    public boolean isDoorBusy(final long doorUID)
-    {
-        return busyDoors.containsKey(doorUID);
-    }
-
-    /**
-     * Register a {@link DoorBase} as busy.
-     *
-     * @param doorUID The UID of the {@link DoorBase}.
-     */
-    public void setDoorBusy(final long doorUID)
-    {
-        busyDoors.put(doorUID, Optional.empty());
-    }
-
-    /**
-     * Register a door as available.
-     *
-     * @param doorUID The UID of the door.
-     */
-    public void setDoorAvailable(final long doorUID)
-    {
-        busyDoors.remove(doorUID);
-    }
-
-    /**
-     * Stores a {@link BlockMover} in the appropriate slot in {@link DatabaseManager#busyDoors}
-     *
-     * @param mover The {@link BlockMover}.
-     */
-    public void addBlockMover(final @NotNull BlockMover mover)
-    {
-        busyDoors.replace(mover.getDoorUID(), Optional.of(mover));
-    }
-
-    /**
-     * Gets all the currently active {@link BlockMover}s.
-     *
-     * @return All the currently active {@link BlockMover}s.
-     */
-    public Stream<BlockMover> getBlockMovers()
-    {
-        return busyDoors.values().stream().filter(Optional::isPresent).map(Optional::get);
-    }
-
-    /**
-     * Gets the {@link BlockMover} of a busy {@link DoorBase}, if it has been registered.
-     *
-     * @param doorUID The UID of the {@link DoorBase}.
-     * @return The {@link BlockMover} of a busy {@link DoorBase}.
-     */
-    public Optional<BlockMover> getBlockMover(final long doorUID)
-    {
-        return busyDoors.containsKey(doorUID) ? busyDoors.get(doorUID) : Optional.empty();
     }
 
     /**
@@ -206,31 +132,6 @@ public final class DatabaseManager extends Restartable
     public void setDoorOpenTime(final long doorUID, final int autoClose)
     {
         updateDoorAutoClose(doorUID, autoClose);
-    }
-
-    /**
-     * Clear all busy doors.
-     */
-    private void emptyBusyDoors()
-    {
-        busyDoors.clear();
-    }
-
-    /**
-     * Stop all doors that are currently active.
-     */
-    public void stopDoors()
-    {
-        setCanGo(false);
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                setCanGo(true);
-                emptyBusyDoors();
-            }
-        }.runTaskLater(plugin, 5L);
     }
 
     /**
@@ -337,42 +238,6 @@ public final class DatabaseManager extends Restartable
     public void setDoorBlocksToMove(final long doorUID, final int blocksToMove)
     {
         plugin.getDatabaseManager().updateDoorBlocksToMove(doorUID, blocksToMove);
-    }
-
-    /**
-     * Checks if all doors are globally paused.
-     *
-     * @return True if all doors are globally paused.
-     */
-    public boolean isPaused()
-    {
-        return paused;
-    }
-
-    /**
-     * Toggles the paused status of all doors.
-     */
-    public void togglePaused()
-    {
-        paused = !paused;
-    }
-
-    /**
-     * Check if the doors can go. When false, all doors will finish.
-     */
-    public boolean canGo()
-    {
-        return goOn;
-    }
-
-    /**
-     * Changes whether or not doors are allowed to be animated.
-     *
-     * @param bool The new status.
-     */
-    public void setCanGo(final boolean bool)
-    {
-        goOn = bool;
     }
 
     /**

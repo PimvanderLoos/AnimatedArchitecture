@@ -185,13 +185,13 @@ public class Portcullis extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    protected void registerBlockMover(final @NotNull DoorOpener opener, final @NotNull DoorActionCause cause,
-                                      final double time, final boolean instantOpen, final @NotNull Location newMin,
+    protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                      final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax, final @NotNull BigDoors plugin)
     {
         int blocksToMove = newMin.getBlockY() - min.getBlockY();
-        opener.registerBlockMover(
-            new VerticalMover(plugin, getWorld(), time, this, instantOpen, blocksToMove, opener.getMultiplier(this),
+        doorOpener.registerBlockMover(
+            new VerticalMover(plugin, getWorld(), time, this, instantOpen, blocksToMove, doorOpener.getMultiplier(this),
                               cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
     }
 }

@@ -67,7 +67,7 @@ public class SubCommandToggle extends SubCommand
         else
         {
             DoorActionCause cause = playerUUID == null ? DoorActionCause.SERVER : DoorActionCause.PLAYER;
-            DoorToggleResult result = door.toggle(plugin.getDoorOpener(), cause, time, false);
+            DoorToggleResult result = door.toggle(cause, time, false);
             // If it's a success, there's no need to inform the user. If they didn't have permission for the location,
             // they'll already have received a message.
             if (!result.equals(DoorToggleResult.SUCCESS) && !result.equals(DoorToggleResult.NOPERMISSION))

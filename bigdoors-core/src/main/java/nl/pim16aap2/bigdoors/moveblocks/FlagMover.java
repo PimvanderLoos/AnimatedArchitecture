@@ -97,14 +97,9 @@ public class FlagMover extends BlockMover
             {
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
-                long msSinceStart = (currentTime - startTime) / 1000000;
+                startTime += currentTime - lastTime;
 
-                if (!plugin.getDatabaseManager().isPaused())
-                    counter = msSinceStart / (50 * tickRate);
-                else
-                    startTime += currentTime - lastTime;
-
-                if (!plugin.getDatabaseManager().canGo() || counter > totalTicks || isAborted.get())
+                if (counter > totalTicks || isAborted.get())
                 {
                     for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
