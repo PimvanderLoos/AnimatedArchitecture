@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a manager of player heads with the texture of a certain player.
@@ -71,27 +72,34 @@ public final class HeadManager extends Restartable
     }
 
     /**
-     * Gets the ItemStack of a head with the texture of the player's head.
+     * Requests the ItemStack of a head with the texture of the player's head. This is done asynchronously because it
+     * can take quite a bit of time.
      *
      * @param playerUUID  The {@link UUID} of the player whose head to get.
      * @param displayName The display name to give assign to the {@link ItemStack}.
      * @return The ItemStack of a head with the texture of the player's head if possible.
      */
-    public Optional<ItemStack> getPlayerHead(final @NotNull UUID playerUUID, final @NotNull String displayName)
+    public CompletableFuture<Optional<ItemStack>> getPlayerHead(final @NotNull UUID playerUUID,
+                                                                final @NotNull String displayName)
     {
-        if (headMap.containsKey(playerUUID))
-            return Optional.of(headMap.get(playerUUID));
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
 
-        OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
-        ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
-        SkullMeta smeta = (SkullMeta) skull.getItemMeta();
-        if (smeta == null)
-            return Optional.empty();
-        smeta.setOwningPlayer(oPlayer);
-        smeta.setDisplayName(displayName);
-        skull.setItemMeta(smeta);
+                if (headMap.containsKey(playerUUID))
+                    return Optional.of(headMap.get(playerUUID));
 
-        return Optional.ofNullable(headMap.put(oPlayer.getUniqueId(), skull));
+                OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
+                ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
+                SkullMeta smeta = (SkullMeta) skull.getItemMeta();
+                if (smeta == null)
+                    return Optional.empty();
+                smeta.setOwningPlayer(oPlayer);
+                smeta.setDisplayName(displayName);
+                skull.setItemMeta(smeta);
+
+                return Optional.ofNullable(headMap.put(oPlayer.getUniqueId(), skull));
+            });
     }
 
     /**

@@ -6,28 +6,30 @@ import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class GUIPageRemoveOwner implements IGUIPage
 {
     protected final BigDoors plugin;
     protected final GUI gui;
     protected final Messages messages;
-    protected int missingHeadTextures = 0;
+    protected final int doorOwnerCount;
     private int doorOwnerPage = 0;
     private int maxDoorOwnerPageCount = 0;
 
     private List<DoorOwner> owners;
 
-    protected GUIPageRemoveOwner(final BigDoors plugin, final GUI gui)
+    protected GUIPageRemoveOwner(final @NotNull BigDoors plugin, final @NotNull GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;
+        doorOwnerCount = plugin.getDatabaseManager().countOwnersOfDoor(gui.getDoor().getDoorUID());
         messages = plugin.getMessages();
         refresh();
     }
@@ -121,13 +123,22 @@ public class GUIPageRemoveOwner implements IGUIPage
     protected void fillPage()
     {
         int idx = 9;
-        missingHeadTextures = 0;
         for (DoorOwner owner : owners)
         {
-            GUIItem item = new GUIItem(plugin.getHeadManager(), owner);
-            if (item.missingHeadTexture())
-                ++missingHeadTextures;
-            gui.addItem(idx++, item);
+            final int currentIDX = idx;
+            // First add a regular player head without a special texture.
+            gui.addItem(idx++, new GUIItem(owner));
+            // Then request a player head with that player's head texture. This is a CompletableFuture, so just update
+            // the player head whenever it becomes available.
+            plugin.getHeadManager().getPlayerHead(owner.getPlayerUUID(), owner.getPlayerName()).whenComplete(
+                (result, throwable) ->
+                {
+                    result.ifPresent(
+                        HEAD -> gui.updateItem(currentIDX,
+                                               Optional.of(new GUIItem(HEAD, owner.getPlayerName(), null,
+                                                                       owner.getPermission()))));
+                }
+            );
         }
     }
 
@@ -144,29 +155,11 @@ public class GUIPageRemoveOwner implements IGUIPage
 
         fillHeader();
         fillPage();
-
-        if (missingHeadTextures == 0)
-            return;
-
-        // It usually takes a while for the skull textures to load.
-        // This will refresh the skulls every now and then.
-        // Until a texture is found, the default player texture is used.
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                if (missingHeadTextures == 0 || !gui.isOpen())
-                    cancel();
-                else
-                    refresh();
-            }
-        }.runTaskTimer(plugin, 10, 20);
     }
 
     private void removeOwner(DoorOwner owner)
     {
         plugin.getDatabaseManager().removeOwner(owner.getDoorUID(), owner.getPlayerUUID());
-        owners.remove(owners.indexOf(owner));
+        owners.remove(owner);
     }
 }

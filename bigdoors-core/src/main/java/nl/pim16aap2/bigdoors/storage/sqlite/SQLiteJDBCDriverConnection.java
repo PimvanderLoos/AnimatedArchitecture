@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class SQLiteJDBCDriverConnection implements IStorage
 {
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 11;
     private static final int DOOR_ID = 1;
     private static final int DOOR_NAME = 2;
     private static final int DOOR_WORLD = 3;
@@ -404,7 +404,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public int getDoorCountForPlayer(@NotNull UUID playerUUID)
+    public int getDoorCountForPlayer(final @NotNull UUID playerUUID)
     {
         try (Connection conn = getConnection())
         {
@@ -434,7 +434,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public int getDoorCountForPlayer(@NotNull UUID playerUUID, @NotNull String doorName)
+    public int getDoorCountForPlayer(final @NotNull UUID playerUUID, final @NotNull String doorName)
     {
         try (Connection conn = getConnection())
         {
@@ -464,7 +464,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
-    public int getDoorCountByName(@NotNull String doorName)
+    public int getDoorCountByName(final @NotNull String doorName)
     {
         try (Connection conn = getConnection())
         {
@@ -488,8 +488,32 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
+    public int getOwnerCountOfDoor(final long doorUID)
+    {
+        try (Connection conn = getConnection())
+        {
+            String sql = "SELECT COUNT(*) AS total FROM sqlUnion WHERE doorUID=?;";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, Long.toString(doorUID));
+            ResultSet rs = ps.executeQuery();
+            int count = rs.next() ? rs.getInt("total") : 0;
+            ps.close();
+            rs.close();
+            return count;
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("402", e);
+        }
+        return -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @NotNull
-    public Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID)
+    public Optional<DoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID)
     {
         Optional<DoorBase> door = Optional.empty();
 
@@ -644,7 +668,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Override
     @NotNull
-    public Optional<List<DoorBase>> getDoors(@NotNull String playerUUID, int maxPermission)
+    public Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID, int maxPermission)
     {
         List<DoorBase> ret = new ArrayList<>();
         try (Connection conn = getConnection())
@@ -1331,7 +1355,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
 
             if (dbVersion < 6)
-                upgradeToV6(conn);
+                upgradeToV11(conn);
 
             // Do this at the very end, so the db version isn't altered if anything fails.
             setDBVersion(conn, DATABASE_VERSION);
@@ -1814,15 +1838,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Upgrade the database from V5 to V6.
+     * Upgrade the database from V5 to V11.
      *
      * @param conn Opened database connection.
      */
     /*
-     * Changes in V6:
+     * Changes in V11:
      * - Updating chunkHash of all doors because the algorithm was changed.
      */
-    private void upgradeToV6(final @NotNull Connection conn)
+    private void upgradeToV11(final @NotNull Connection conn)
     {
         try
         {

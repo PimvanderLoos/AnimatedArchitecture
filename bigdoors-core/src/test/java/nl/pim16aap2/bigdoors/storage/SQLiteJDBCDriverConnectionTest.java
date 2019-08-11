@@ -330,6 +330,8 @@ public class SQLiteJDBCDriverConnectionTest
         assertTrue(storage.getOwnerOfDoor(1L).isPresent());
         assertEquals(door1.getDoorOwner(), storage.getOwnerOfDoor(1L).get());
 
+        assertEquals(1, storage.getOwnerCountOfDoor(1L));
+
         // Check if adding owners works correctly.
         assertEquals(1, storage.getOwnersOfDoor(1L).size());
         // Try adding player2 as owner of door 2.

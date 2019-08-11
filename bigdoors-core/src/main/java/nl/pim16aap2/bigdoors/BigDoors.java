@@ -250,7 +250,6 @@ Tests not done:
 // TODO: Cannot toggle openDirection for portcullis type. Might be related to the fact that it says that the portcullis openDirection is North instead of Up/Down.
 // TODO: Use ButtonAction GUI and GUIItem::specialValue to phase out raw interactionIDX stuff for getting actions.
 // TODO: Update items in inventory instead of opening a completely new inventory. No longer requires dirty code to check is it's refreshing etc. Bweugh.
-// TODO: Make sure all player head construction is handled on a secondary thread. Only getting from hashMap should be done on the main thread.
 // TODO: Once door pooling is implemented, use Observers to update doors in the GUI when needed.
 // TODO: Move rotation cycling away from GUI and into the Door class.
 // TODO: Put all GUI buttons and whatnot in try/catch blocks.

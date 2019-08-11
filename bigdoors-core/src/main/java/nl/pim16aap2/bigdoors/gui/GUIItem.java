@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.gui;
 
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.managers.HeadManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import org.bukkit.Material;
@@ -94,26 +93,16 @@ class GUIItem
     }
 
     /**
-     * Constructs a new {@link GUIItem}.
+     * Creates a player head without a special head texture for a given {@link DoorOwner}.
      *
-     * @param headManager The {@link HeadManager} to use for retrieving player heads.
-     * @param doorOwner   The {@link DoorOwner} whose head will be used.
+     * @param doorOwner The {@link DoorOwner}.
      */
-    public GUIItem(final @NotNull HeadManager headManager, final @NotNull DoorOwner doorOwner)
+    public GUIItem(final @NotNull DoorOwner doorOwner)
     {
         this.doorOwner = doorOwner;
         count = doorOwner.getPermission() == 0 ? 1 : doorOwner.getPermission();
         name = doorOwner.getPlayerName() == null ? doorOwner.getPlayerUUID().toString() : doorOwner.getPlayerName();
-
-        missingHeadTexture = headManager.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName()).map(
-            HEAD ->
-            {
-                is = HEAD;
-                return false;
-            }).orElse(true);
-        if (missingHeadTexture)
-            is = new ItemStack(Material.PLAYER_HEAD, 1);
-
+        is = new ItemStack(Material.PLAYER_HEAD, 1);
         name = doorOwner.getPlayerName();
         lore = null;
         construct();

@@ -555,6 +555,11 @@ public final class DatabaseManager extends Restartable
         return db.getDoorCountForPlayer(playerUUID, doorName);
     }
 
+    public int countOwnersOfDoor(final long doorUID)
+    {
+        return db.getOwnerCountOfDoor(doorUID);
+    }
+
     /**
      * The number of {@link DoorBase}s in the database with a specific name.
      *

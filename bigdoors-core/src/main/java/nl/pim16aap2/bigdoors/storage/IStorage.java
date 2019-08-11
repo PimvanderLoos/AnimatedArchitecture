@@ -52,7 +52,7 @@ public interface IStorage
      * @param playerUUID The uuid of the player whose doors to count.
      * @return The total number of doors own by the given player.
      */
-    int getDoorCountForPlayer(@NotNull UUID playerUUID);
+    int getDoorCountForPlayer(final @NotNull UUID playerUUID);
 
     /**
      * Gets the number of doors own by the given player with the given name.
@@ -61,7 +61,7 @@ public interface IStorage
      * @param doorName   The name of the door to search for.
      * @return The number of doors own by the given player with the given name.
      */
-    int getDoorCountForPlayer(@NotNull UUID playerUUID, @NotNull String doorName);
+    int getDoorCountForPlayer(final @NotNull UUID playerUUID, final @NotNull String doorName);
 
     /**
      * Gets the total number of doors with the given name regardless of who owns them.
@@ -69,7 +69,15 @@ public interface IStorage
      * @param doorName The name of the doors to search for.
      * @return The total number of doors with the given name.
      */
-    int getDoorCountByName(@NotNull String doorName);
+    int getDoorCountByName(final @NotNull String doorName);
+
+    /**
+     * Gets the total number of owners of a door.
+     *
+     * @param doorUID The {@link DoorBase}.
+     * @return The total number of owners of this door.
+     */
+    int getOwnerCountOfDoor(final long doorUID);
 
     /**
      * Gets the door with the given UID for the given player at the level of ownership this player has over this door,
@@ -80,7 +88,7 @@ public interface IStorage
      * @return The door if it exists and if the player is an owner of it.
      */
     @NotNull
-    Optional<DoorBase> getDoor(@NotNull UUID playerUUID, final long doorUID);
+    Optional<DoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID);
 
 
     /**
@@ -130,7 +138,7 @@ public interface IStorage
      */
     @NotNull
     Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID, final @NotNull String doorName,
-                                      int maxPermission);
+                                      final int maxPermission);
 
     /**
      * Gets all the doors owned by a given player with at least a certain permission level.
@@ -140,7 +148,7 @@ public interface IStorage
      * @return All the doors owned by the player with at least a certain permission level.
      */
     @NotNull
-    Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID, int maxPermission);
+    Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID, final int maxPermission);
 
     /**
      * Gets the {@link DoorBase} with the given name owned by the given player. If the player owns 0 or more than 1
