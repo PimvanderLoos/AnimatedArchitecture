@@ -373,6 +373,9 @@ public interface IStorage
         UNUSED(8),
         ;
 
+        /**
+         * The bit value of the flag.
+         */
         private final int flagValue;
 
         DoorFlag(final int flagValue)

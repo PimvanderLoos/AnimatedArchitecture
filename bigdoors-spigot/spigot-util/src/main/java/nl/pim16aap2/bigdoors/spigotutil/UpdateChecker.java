@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
  */
 public final class UpdateChecker
 {
-
     public static final VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
     {
         String[] firstSplit = splitVersionInfo(first), secondSplit = splitVersionInfo(second);

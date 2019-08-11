@@ -67,7 +67,7 @@ public abstract class DoorBase
      * @param doorUID  The UID of this door.
      * @param doorType The type of this door.
      */
-    DoorBase(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType doorType)
+    protected DoorBase(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType doorType)
     {
         this.pLogger = pLogger;
         this.doorUID = doorUID;
@@ -202,7 +202,7 @@ public abstract class DoorBase
      *
      * @param newCurrent The new current of the powerblock.
      */
-    public final void redstoneChange(final int newCurrent)
+    public final void onRedstoneChange(final int newCurrent)
     {
 
     }

@@ -3,8 +3,11 @@ package nl.pim16aap2.bigdoors.config;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -26,10 +29,14 @@ import java.util.Set;
  */
 public final class ConfigLoader
 {
+    private static ConfigLoader instance;
+
+    private final BigDoors plugin;
+    private final PLogger logger;
+
     private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Arrays.asList("GOLD_BLOCK"));
     private final String header;
     private final List<ConfigEntry<?>> configEntries;
-    private final BigDoors plugin;
     private final Map<DoorType, String> doorPrices;
     private final Map<DoorType, Double> doorMultipliers;
     private String dbFile;
@@ -53,15 +60,45 @@ public final class ConfigLoader
     private boolean consoleLogging;
     private boolean debug = false;
 
-    public ConfigLoader(final BigDoors plugin)
+    /**
+     * Constructs a new {@link ConfigLoader}.
+     *
+     * @param plugin The Spigot core.
+     * @param logger The logger used for error logging.
+     */
+    private ConfigLoader(final @NotNull BigDoors plugin, final @NotNull PLogger logger)
     {
         this.plugin = plugin;
+        this.logger = logger;
         configEntries = new ArrayList<>();
         powerBlockTypesMap = new HashSet<>();
         doorPrices = new HashMap<>();
         doorMultipliers = new HashMap<>();
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
-        makeConfig();
+    }
+
+    /**
+     * Initializes the {@link ConfigLoader}. If it has already been initialized, it'll return that instance instead.
+     *
+     * @param plugin The spigot core.
+     * @param logger The logger used for error logging.
+     * @return The instance of this {@link ConfigLoader}.
+     */
+    @NotNull
+    public static ConfigLoader init(final @NotNull BigDoors plugin, final @NotNull PLogger logger)
+    {
+        return (instance == null) ? instance = new ConfigLoader(plugin, logger) : instance;
+    }
+
+    /**
+     * Gets the instance of the {@link ConfigLoader} if it exists.
+     *
+     * @return The instance of the {@link ConfigLoader}.
+     */
+    @Nullable
+    public static ConfigLoader get()
+    {
+        return instance;
     }
 
     /**
@@ -164,9 +201,9 @@ public final class ConfigLoader
         autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
         downloadDelay = addNewConfigEntry(config, "downloadDelay", 1440, downloadDelayComment);
         allowStats = addNewConfigEntry(config, "allowStats", true, allowStatsComment);
-        worldGuardHook = addNewConfigEntry(config, "worldGuard", true, compatibilityHooks);
-        plotSquaredHook = addNewConfigEntry(config, "plotSquared", true, null);
-        griefPreventionHook = addNewConfigEntry(config, "griefPrevention", true, null);
+        worldGuardHook = addNewConfigEntry(config, "worldGuard", false, compatibilityHooks);
+        plotSquaredHook = addNewConfigEntry(config, "plotSquared", false, null);
+        griefPreventionHook = addNewConfigEntry(config, "griefPrevention", false, null);
         resourcePack = addNewConfigEntry(config, "resourcePack", defResPackUrl1_13, resourcePackComment);
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
@@ -229,14 +266,13 @@ public final class ConfigLoader
                     powerBlockTypesMap.add(mat);
                 else
                 {
-                    plugin.getPLogger()
-                          .warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
+                    logger.warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
                     it.remove();
                 }
             }
             catch (Exception e)
             {
-                plugin.getPLogger().warn("Failed to parse material: \"" + str + "\"");
+                logger.warn("Failed to parse material: \"" + str + "\"");
                 it.remove();
             }
         }
@@ -246,17 +282,18 @@ public final class ConfigLoader
         {
             StringBuilder sb = new StringBuilder();
             DEFAULTPOWERBLOCK.forEach(K -> sb.append(K + " "));
-            plugin.getPLogger().warn("No materials found for powerBlockType! Defaulting to:" + sb.toString());
-            DEFAULTPOWERBLOCK.forEach(K ->
-                                      {
-                                          powerBlockTypesMap.add(Material.valueOf(K));
-                                          materials.add(K);
-                                      });
+            logger.warn("No materials found for powerBlockType! Defaulting to:" + sb.toString());
+            DEFAULTPOWERBLOCK.forEach(
+                K ->
+                {
+                    powerBlockTypesMap.add(Material.valueOf(K));
+                    materials.add(K);
+                });
         }
 
         addNewConfigEntry(config, "powerBlockTypes", materials, powerBlockTypeComment);
-        plugin.getPLogger().info("Power Block Types:");
-        powerBlockTypesMap.forEach(K -> plugin.getPLogger().info(" - " + K.toString()));
+        logger.info("Power Block Types:");
+        powerBlockTypesMap.forEach(K -> logger.info(" - " + K.toString()));
     }
 
     /**
@@ -288,8 +325,7 @@ public final class ConfigLoader
             if (!dataFolder.exists())
                 if (!dataFolder.mkdirs())
                 {
-                    plugin.getPLogger()
-                          .logException(new IOException("Failed to create folder: \"" + dataFolder.toString() + "\""));
+                    logger.logException(new IOException("Failed to create folder: \"" + dataFolder.toString() + "\""));
                     return;
                 }
 
@@ -297,22 +333,21 @@ public final class ConfigLoader
             if (!saveTo.exists())
                 if (!saveTo.createNewFile())
                 {
-                    plugin.getPLogger()
-                          .logException(new IOException("Failed to create file: \"" + saveTo.toString() + "\""));
+                    logger.logException(new IOException("Failed to create file: \"" + saveTo.toString() + "\""));
                     return;
                 }
 
             if (!saveTo.canWrite())
             {
-                plugin.getPLogger().warn("=======================================");
-                plugin.getPLogger().warn("============== !WARNING! ==============");
-                plugin.getPLogger().warn("=======================================");
-                plugin.getPLogger().warn("====== CANNOT WRITE CONFIG FILE! ======");
-                plugin.getPLogger().warn("==== NEW OPTIONS WILL NOT SHOW UP! ====");
-                plugin.getPLogger().warn("==== THEY WILL USE DEFAULT VALUES! ====");
-                plugin.getPLogger().warn("=======================================");
-                plugin.getPLogger().warn("============== !WARNING! ==============");
-                plugin.getPLogger().warn("=======================================");
+                logger.warn("=======================================");
+                logger.warn("============== !WARNING! ==============");
+                logger.warn("=======================================");
+                logger.warn("====== CANNOT WRITE CONFIG FILE! ======");
+                logger.warn("==== NEW OPTIONS WILL NOT SHOW UP! ====");
+                logger.warn("==== THEY WILL USE DEFAULT VALUES! ====");
+                logger.warn("=======================================");
+                logger.warn("============== !WARNING! ==============");
+                logger.warn("=======================================");
             }
 
             FileWriter fw = new FileWriter(saveTo, false);
@@ -332,7 +367,7 @@ public final class ConfigLoader
         }
         catch (IOException e)
         {
-            plugin.getPLogger().logException(e, "Could not save config.yml! "
+            logger.logException(e, "Could not save config.yml! "
                 + "Please contact pim16aap2 and show him the following code:");
         }
     }

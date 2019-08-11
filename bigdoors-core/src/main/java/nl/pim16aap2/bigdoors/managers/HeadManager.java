@@ -10,6 +10,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -18,16 +19,55 @@ import java.util.UUID;
 /**
  * Represents a manager of player heads with the texture of a certain player.
  */
-public class HeadManager extends Restartable
+public final class HeadManager extends Restartable
 {
+    private static HeadManager instance;
+
+    /**
+     * Timed cache of player heads.
+     * <p>
+     * Key: The player's UUID.
+     * <p>
+     * Value: The player's head as item.
+     */
     private final TimedMapCache<UUID, ItemStack> headMap;
     private final ConfigLoader config;
 
-    public HeadManager(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoader config)
+    /**
+     * Constructs a new {@link HeadManager}.
+     *
+     * @param holder The {@link IRestartableHolder} that manages this object.
+     * @param config The BigDoors configuration.
+     */
+    private HeadManager(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoader config)
     {
         super(holder);
         this.config = config;
         headMap = new TimedMapCache<>(holder, HashMap::new, config.headCacheTimeout());
+    }
+
+    /**
+     * Initializes the {@link HeadManager}. If it has already been initialized, it'll return that instance instead.
+     *
+     * @param holder The {@link IRestartableHolder} that manages this object.
+     * @param config The BigDoors configuration.
+     * @return The instance of this {@link HeadManager}.
+     */
+    @NotNull
+    public static HeadManager init(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoader config)
+    {
+        return (instance == null) ? instance = new HeadManager(holder, config) : instance;
+    }
+
+    /**
+     * Gets the instance of the {@link HeadManager} if it exists.
+     *
+     * @return The instance of the {@link HeadManager}.
+     */
+    @Nullable
+    public static HeadManager get()
+    {
+        return instance;
     }
 
     /**

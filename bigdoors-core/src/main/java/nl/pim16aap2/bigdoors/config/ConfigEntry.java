@@ -28,7 +28,7 @@ public final class ConfigEntry<V>
      * @param defaultValue The default value of this option.
      * @param comment      The comment that will preceed this option.
      */
-    public ConfigEntry(BigDoors plugin, FileConfiguration config, String optionName, V defaultValue, String[] comment)
+    ConfigEntry(BigDoors plugin, FileConfiguration config, String optionName, V defaultValue, String[] comment)
     {
         this.plugin = plugin;
         this.config = config;

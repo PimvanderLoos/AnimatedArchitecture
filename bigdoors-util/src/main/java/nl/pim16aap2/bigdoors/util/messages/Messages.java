@@ -24,15 +24,35 @@ import java.util.Map;
  */
 public final class Messages extends Restartable
 {
+    /**
+     * The name of the default language file.
+     */
     private static final String DEFAULTFILENAME = "en_US.txt";
     private final PLogger logger;
+
+    /**
+     * The directory of the language file.
+     */
     private final File fileDir;
+
+    /**
+     * The map of all messages.
+     * <p>
+     * Key: Translation key.
+     * <p>
+     * Value: The translated message.
+     */
     private Map<String, String> messageMap = new HashMap<>();
+
+    /**
+     * The selected language file.
+     */
     private File textFile;
 
     /**
      * Constructs for Messages object.
      *
+     * @param holder   The {@link IRestartableHolder} that manages this object.
      * @param fileDir  The directory the messages file(s) will be in.
      * @param fileName The name of the file that will be loaded, if it exists. Extension excluded.
      * @param logger   The {@link PLogger} object that will be used for logging.
@@ -81,6 +101,10 @@ public final class Messages extends Restartable
         messageMap.clear();
     }
 
+    /**
+     * Copies the default language file to the default location. The default location is the directory of the language
+     * specified in the config + the {@link #DEFAULTFILENAME}.
+     */
     private void writeDefaultFile()
     {
         File defaultFile = new File(fileDir, DEFAULTFILENAME);

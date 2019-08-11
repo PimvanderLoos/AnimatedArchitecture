@@ -92,6 +92,8 @@ import java.util.UUID;
 //       Or implement's Java9's ifPresentOrElse:
 //       https://docs.oracle.com/javase/9/docs/api/java/util/Optional.html#ifPresentOrElse-java.util.function.Consumer-java.lang.Runnable-
 // TODO: Use custom events for door opening. Perhaps allow other plugins (keys-plugin?) to hook into those plugins.
+//       The implementation for Spigot can use Spigot's event handling system, but don't forget to keep other
+//       implementations in mind!
 // TODO: Write an event to open doors. It should be able to retrieve door from the database on a secondary thread and also check offline permission on the second thread.
 // TODO: Door pooling. When a door is requested from the database, store it in a timedCache. Only get the creator by default, but store
 //       the other owners if needed. Add a Door::Sync function to sync (new) data with the database.
@@ -104,9 +106,10 @@ import java.util.UUID;
  */
 // TODO: Use AbstractWorld and AbstractLocation etc for API related stuff. Also use an abstracted player. This can also
 //       be used to store additional data, such as sorting preferences and whatnot.
-// TODO: Put Config-related stuff in SpigotUtil and don't use Bukkit stuff for reading it. Just give it a regular file.
+// TODO: Put Config-related stuff in BigDoorsUtil and don't use Bukkit stuff for reading it. Just give it a regular file.
+//       Make the ConfigLoader abstract and extend a Spigot-specific config in SpigotUtil with Spigot-Specific options
+//       such as resource packs.
 // TODO: Put isAllowed block and such in appropriate modules.
-// TODO: Remove BigDoors dependency in SQLiteJDBCDriverConnection class.
 
 /*
  * Experimental
@@ -116,32 +119,20 @@ import java.util.UUID;
 //       Simpler example: https://stackoverflow.com/questions/52353/in-java-what-is-the-best-way-to-determine-the-size-of-an-object#
 //       Another: https://javamagic.blog/2018/07/11/how-to-find-size-of-java-object-in-memory-using-jol/
 //       Also: https://www.baeldung.com/java-size-of-object
-// TODO: Fix violation of Liskov Substituion Problem in certain subclasses of Door (i.e. Revovlving Door, as it has no lookingDir).
+// TODO: Fix violation of Liskov Substitution Problem in certain subclasses of Door (i.e. Revovlving Door, as it has no lookingDir).
 //       Though, thinking about it, DoorBase doesn't really need this function anyway, if all opener code is put in the doorClass anyway.
 // TODO: Fix violation of LSP for doorAttributes. Instead of having a switch per type in the GUI, override a return in the DoorAttribute enum.
 // TODO: Data is duplicated a lot! Currently, the falling block has the IBlockData, and so does PBlockData. If the block can rotate, it has it twice, even!
 //       This is a huge waste of Ram. The falling block should be the only place to store the block data.
-// TODO: Instead of killing the FBlock, rotating it and then respawning it, rotate the FBlockData and then send the appropriate packets to the appropriate players.
+// TODO: Instead of killing the FBlock, rotating it and then respawning it, rotate the FBlockData and then send the
+//       appropriate packets to the appropriate players. This can also be done async, so no more sync scheduling needed.
 // TODO: Add command to upload error log to pastebin or something similar.
 // TODO: Add config option to limit logging file size: https://kodejava.org/how-do-i-limit-the-size-of-log-file/
 // TODO: Look into previously-blacklisted material. Torches, for example, work just fine in 1.13. They just need to be removed first and placed last.
 // TODO: Replace the enum of DoorTypes by a static list. Types should then statically register themselves.
 // TODO: Figure out a way to use Interfaces or something to generate 2 separate builds: Premium and non-premium.
-// TODO: Redo all messages. Create enum to store them, to prevent typos and to use for string replacing.
-//       Then get a replace function to insert variables. Example: getMessage(Message.PAGENUM, new String(currentPage), new String(nextPage)).
-//       Store the variables that will be replaced in the enum or something. Also, get some software or unit test to make sure the number of arguments matches.
-//       More info about asserts: https://stackoverflow.com/questions/998553/how-to-assert-something-at-compile-time-in-java
-//       Also look at this: https://stackoverflow.com/questions/36538133/can-i-use-java-annotations-to-define-compile-time-checks
-//       And this: https://stackoverflow.com/questions/42644170/compile-time-validation-of-method-arguments
-//       And this: https://www.logicbig.com/tutorials/core-java-tutorial/java-se-annotation-processing-api/annotation-processor-validation.html
-//       Also, remove nameKeys from DoorTypes enum.
-//       In the new ENUM, perhaps have a method getMessage(MessageEnum msg, Object ...). Every message should be something like
-//       NextPage("GUI.nextPage", {Integer.class, Integer.class}); Then, verify using an interface that the passed objects
-//       are of the correct type and count. (in this case, the result should be messages.getMessage(Message.NextPage, currentPage, nextPage);
-//       Another Solution: https://www.jetbrains.com/help/idea/contract-annotations.html
-// TODO: Look into Aikar's command system to replace everything I just made myself: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
-// TODO: Add 1 block depth requirement to assertValidCoords() in HorizontalAxisAlignedBase.
-// TODO: Check if SpigotUtil#needsRefresh(Material mat) is still needed.
+// TODO: Look into Aikar's command system to replace my command system: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
+//       Alternatively, fix up the current system and use abstraction to make sure it does NOT rely on bukkit anymore.
 // TODO: Get rid of the DoorType enum. Instead, allow dynamic registration of door types.
 // TODO: Stop naming all animatable objects "doors". An elevator is hardly a door.
 // TODO: Add a system that can check the integrity of the plugin. If something goes wrong during startup, make sure OPs get a message on login.
@@ -154,16 +145,19 @@ import java.util.UUID;
 // TODO: Implement admin command to show database statistics (player count, door count, owner count, etc).
 // TODO: Process ALL redstone actions on a separate thread. Then allow async powerblock cache checking so the queue can
 //       query the cache and if needed schedule a sync event to either update the cache or toggle a door.
-// TODO: Look into using singletons a bit more. Perhaps the database? Databasemanager? Other managers?
+// TODO: Make more use of CompletableFuture. It's useful as fuck.
+// TODO: Move all database interaction off of the main thread.
+// TODO: Consider storing original locations in the database. Then use the OpenDirection as the direction to go when in
+//       the original position. Then you cannot make regular doors go in a full circle anymore.
+// TODO: Make sure the old branch can update doors to whatever value is needed. Then disable the plugin when an older
+//       version of the plugin. So if you want to keep your database, you'll need to upgrade it using 0.1.X.X first.
+//       Then use that version to make sure that open directions etc are properly set.
 
 /*
  * Messages
  */
-// TODO: Redo all messages. Create enum to store them, to prevent typos and to use for string replacing.
-//       Then get a replace function to insert variables. Example: getMessage(Message.PAGENUM, new String(currentPage), new String(nextPage)).
-// TODO: Store Message in GUI page. Then use that instead of reverse string search of messages to check if an inventory if a BigDoors inventory.
-// TODO: Put all messages in enum.
-// TODO: Replace all Messages#getString(String).
+// TODO: Store Message in GUI pages. Then use that instead of reverse string search of messages to check if an
+//       inventory if a BigDoors inventory.
 
 /*
  * Doors
@@ -174,12 +168,14 @@ import java.util.UUID;
 // TODO: Create method in DoorBase for checking distance. Take Vector3D for distance and direction.
 // TODO: Get rid of the engineSide and currentDirection. It's basically the same thing. I don't think the database
 //       should be troubled with storing this data either, so remove it there.
-// TODO: Do not allow @Nullable for players in doors. This happens throughout the code (for example the BlockMovers,
-//       Openers, AutoCloseScheduler). It should be @NotNull. If no player was found, use the original creator instead.
 // TODO: Having both openDirection and rotateDirection is stupid. Check DoorBase#getNewLocations for example.
-// TODO: Fix upright Drawbridge creation.
-// TODO: Somehow, some rotation directions may be incorrect. When updating the database to v2,
-//       ALL RotateDirections will have to be checked!
+// TODO: Fix Drawbridge creation.
+// TODO: Take a basic data POD object in the constructor to prevent issues with incorrect initialization.
+// TODO: Don't use Locations for the locations. Use vectors instead.
+// TODO: Cache value of DoorBase#getSimplePowerBlockChunkHash().
+// TODO: Use the IGetNewLocation code to check new pos etc.
+// TODO: Statically store GNL's in each door type.
+
 /*
 Tests done:
 - Portcullis
@@ -196,40 +192,26 @@ Tests not done:
 /*
  * General
  */
-// TODO: Catch specific exceptions in update checker. Or at least ssl exception, it's very spammy.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
-// TODO: Update version checker. Start using the new format. Also, decide what the new format will be. R200? 200R? %100 = Stable?
-// TODO: Rename RotateDirection to moveDirection. Lifts don't rotate. They lift.
-// TODO: Update rotatable blocks after finishing rotation etc.
-// TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
-// TODO: ConfigLoader should figure out which resource pack version to use on its own.
 // TODO: Move all non-database related stuff out of DatabaseManager.
 // TODO: Rename region bypass permission to bigdoors.admin.bypass.region.
 // TODO: ICustomEntityFallingBlock: Clean this damn class up!
-// TODO: Portcullis info prints it'll open going North when looking east. That's not right.
-//       Same issue for regular doors.
-// TODO: Don't use TypeString for DoorCreator, but use DoorType codeName instead. Also, the entire format is pretty stupid. Lots of repetition in the language file for every type.
 // TODO: Look into restartables interface. Perhaps it's a good idea to split restart() into stop() and init().
 //       This way, it can call all init()s in BigDoors::onEnable and all stop()s in BigDoors::onDisable.
-// TODO: Allow position etc validation code to be used on existing doors one way or another.
-// TODO: Creators: updateEngineLoc from DoorCreator() and setEngine() should be the same and declared as abstract method in Creator.
-// TODO: GarageDoorCreator: Should extend DrawBridgeCreator.
 // TODO: Store PBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
-// TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
+//       Alternatively, merge PBlockFace and RotateDirection into Direction.
 // TODO: When returning null after unexpected input, just fucking thrown an IllegalArgumentException. Will make debugging a lot easier.
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
 // TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
-// TODO: Do not enable PlotSquared and WorldGuard etc by default.
+// TODO: ConfigLoader: Use dynamic protection compat listing. Just like how door prices etc are handled.
 // TODO: Make sure redstone block checking is within bounds.
 // TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
 // TODO: Allow wand material selection in config.
 // TODO: Get rid of code duplication in ProtectionCompatManager.
 // TODO: Make sure permission checking for offline users isn't done on the main thread.
 // TODO: Make timeout for CommandWaiters and Creators configurable and put variable in messages.
-// TODO: Look into scheduleAutoClose(). It can probably be simplified.
-// TODO: Rename ListenerClasses to nameListener instead of Handler.
-// TODO: Cache value of DoorBase#getSimplePowerBlockChunkHash().
+// TODO: Rename listener classes to ___Listener instead of ___Handler.
 // TODO: In addition to doors/chunk caching, also keep a set of worlds that do or do not contain doors. This could
 //       cancel the entire event after a single cache lookup, thus potentially skipping at best 6 cache lookups, and at
 //       worst 3 database lookups + 3 cache lookups.
@@ -248,13 +230,15 @@ Tests not done:
 // TODO: Make sure to keep the config file's maxDoorCount in mind. Or just remove it.
 // TODO: Give TimedMapCache some TLC. Make sure all methods are implemented properly and find a solution for timely removal of entries.
 //       Also: Use lastAccessTime instead of addTime for timeout values.
+//       Alternatively, consider deleting it and using this instead: https://github.com/jhalterman/expiringmap
 // TODO: Use "Message" as key instead of String as key in Messages#messageMap.
-// TODO: Merge PBlockFace and RotateDirection into Direction.
 // TODO: Fix (big) mushroom blocks changing color.
-// TODO: Don't log the powerblock types twice on startup.
 // TODO: Get rid of the stupid .101 multiplier for vectors. Use proper normalization and shit instead.
 //       Look at this: https://github.com/InventivetalentDev/AdvancedSlabs/blob/ad2932d5293fa913b9a0670a0bc8ea52f1e27e0d/Plugin/src/main/java/org.inventivetalent.advancedslabs/movement/path/types/CircularSwitchController.java#L85
 // TODO: When creating doors, make sure to use DoorBase#initBasicData.
+// TODO: Configurable timeouts for commands + creators. Also, put variable in messages.
+// TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
+// TODO: Respect downloadDelay for automatic update downloading again. Or remove it.
 
 /*
  * GUI
@@ -291,13 +275,16 @@ Tests not done:
 //       Added bonus: startReplaceTempPlayerNames() can be simplified.
 // TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME}, with UNIQUE(PLUGIN, TYPENAME).
 //       Then use FK from doors to doortypes. Useful for allowing custom door types.
+// TODO: Somehow, some rotation directions may be incorrect. When updating the database to v2,
+//       ALL RotateDirections will have to be checked!
+// TODO: Implement method to check if there are 1 or more doors in a world.
 
 /*
  * Commands
  */
 // TODO: Add /BDM [PlayerName (when online) || PlayerUUID || Server] to open a doorMenu for a specific player
 // TODO: Make invalid input stuff more informative (e.g. int, float etc).
-// TODO: Improve recovering from invalid input. When people use a float instead of an int, cast to int.
+// TODO: Properly use flags for stuff. For example: "/bigdoors open testDoor -time 10" to open door "testDoor" in 10 seconds.
 // TODO: Allow adding owners to doors from console.
 // TODO: When the plugin fails to initialize properly, register alternative command handler to display this info.
 // TODO: Move stuff such as StartTimerForAbortable into appropriate command classes.
@@ -312,10 +299,10 @@ Tests not done:
 // TODO: Explain why there are 2 hashMaps storing seemingly the same data in the CommandManager.
 // TODO: Make sure super command can be chained.
 // TODO: Fix bigdoors doorinfo in console.
-// TODO: Cancelling command can result in NPE. possible after timeout.
+// TODO: Cancelling command can result in NPE. Possibly after timeout.
 // TODO: SetBlocksToMove: Waiter is cancelled both by the subCommand and the waiter. Make sure all commandWaiters are disabled in the waiter.
-// TODO: CommandWaiters should register themselves in the CommandManager class. No outside class should even know about this stuff. Especially not
-//       the fucking DatabaseManager.
+// TODO: CommandWaiters should register themselves in the CommandManager class. No outside class should even know about
+//       this stuff. Especially not the fucking DatabaseManager.
 // TODO: Make more liberal use of IllegalArgumentException.
 // TODO: SubCommandSetRotation should be updated/removed, as it doesn't work properly with types that do not go (counter)clockwise.
 // TODO: Make system similar to door initialization for DoorCreators. Look at SubCommandNew.
@@ -325,40 +312,43 @@ Tests not done:
 // TODO: Add an isWaiter() method to the commands. If true, it should catch those calls before calling the command implementations.
 //       Gets rid of some code duplication.
 // TODO: CHeck if minArgCount is used properly.
-// TODO: Implement pausedoors again.
+// TODO: Get rid of all code related to "/pausedoors". I don't need it anymore and I cannot think of a usecase for a regular user.
 // TODO: Make "/BigDoors new" require the type as flag input. No more defaulting to regular doors.
 // TODO: Fix "/BigDoors toggle db4". "/BigDoors toggle db4 10.0" works fine, though. Same goes for FillDoor and probably others too.
+// TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
 
+/*
+ * Creators
+ */
+// TODO: Make users explicitly specify the
 
 /*
  * Openers / Movers
  */
-// TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick. Then set the direction
-//       in the creator.
+// TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick.
+//       Then set the direction in the creator.
 // TODO: Remove NONE openDirection. Update all doors that currently have this property in the database using DoorBase#setDefaultOpenDirection()
 //       Do this on a separate thread and use ChunkSnapshot to have thread-safe read-only access to the blocks.
 // TODO: Rotate Sea Pickle and turtle egg.
 // TODO: Replace current time/speed/tickRate system. It's a mess.
 // TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
 // TODO: Consider using HashSet for blocks. It's faster: https://stackoverflow.com/questions/10196343/hash-set-and-array-list-performances
-// TODO: Do second pass (possibly remove first pass) after placing all blocks to make sure that all connected blocks are actually connected.
-//       Currently, connected blocks will only be connected to blocks that have already been processed.
+// TODO: Do block deleting + placing in two passes: For removal: First remove all "attached" blocks such as torches.
+//       Then do the rest on the second pass. For placing: Place all non-"attached" blocks on the first pass. Then
+//       place all "attached" blocks on the second pass and at the same time verify all connected blocks (fences, etc)
+//       are properly connected to each other.
 // TODO: Test and finish flag type.
 // TODO: Rewrite parts of the drawBridge opener and mover. The upDown etc stuff should not be used.
-// TODO: ElevatorOpener should extend PortcullisOpener.
 // TODO: ElevatorOpener and PortcullisOpener should respect setOpenDirection and min/max world height (0, 256).
-// TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the x,y,z values, but the entire block and blocksMoved. Then
-//       they can figure it out for themselves.
-// TODO: Make some kind of interface TravelingDoor, that includes the updateCoords and getNewLocation methods. Then movers that don't actually move the object (flag, windmill)
-//       Don't need to include those methods.
+// TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the
+//       x,y,z values, but the entire block and blocksMoved. Then they can figure it out for themselves.
+// TODO: Make some kind of interface TravelingDoor, that includes the updateCoords and getNewLocation methods.
+//       Then movers that don't actually move the object (flag, windmill) don't need to include those methods.
 // TODO: Move rotation/respawning block code out of runnables. Perhaps even into BLockMover. Same goes for termination conditions.
-// TODO: Windmill: Remove magic values in endCount and Stap variables in WindmillMover::animateEntities();
-// TODO: Windmill: Allow perpetual movement (or at least while players are nearby AND chunks are loaded).
+// TODO: Windmill: Remove magic values in endCount and Step variables in WindmillMover::animateEntities();
 // TODO: Windmill: Allow setting rotational speed (seconds per rotation).
-// TODO: Drawbridge: Learn from WindmillMover and simplify the class. Also applies to CylindricalMover.
 // TODO: Clamp angles to [-2PI ; 2PI].
 // TODO: Either use time or ticks. Not both.
-// TODO: Use the IGetNewLocation code to check new pos etc.
 // TODO: Make sure the new types don't just open instantly without a provided time parameter    !!!!!!!!
 // TODO: Rename variables in updateCoords to avoid confusion. Perhaps a complete removal altogether would be nice as well.
 // TODO: Get rid of the GNL interface etc. The movers class can handle it on its own using Function interface.
@@ -366,9 +356,6 @@ Tests not done:
 // TODO: GarageDoorCreator: Fix having to double click last block.
 // TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
 // TODO: Allow blocks with inventories to be moved.
-// TODO: GarageDoor: Use EngineSide to figure out what the current direction is.
-// TODO: Do not update engine position when opening doors that actually change position: Portcullis, Elevator, Sliding door, etc.
-//       This way, the original position is still stored after opening it.
 // TODO: Do not allow setting of invalid rotation directions. If a garage door is positioned along the z axis, only North and South are valid options.
 // TODO: Instead of creating and running the runnables in the animateEntities method, create the runnable earlier and store it. Then call animateEntities()
 //       from BlockMover. Then let BlockMover extend Restartable and/or abortable, so that the it can cancel all movers etc on restart, so this code doesn't have to be part
@@ -392,6 +379,8 @@ Tests not done:
 // TODO: Potentially implement BlockMover#animateEntities in BlockMover. Then use function pointers to calculate everything.
 // TODO: Highlight all blocking blocks if BlocksToMove is set.
 // TODO: Pass new min and new max to the movers. Then they can just update it.
+// TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
+
 
 /*
 
@@ -417,7 +406,6 @@ Tests not done:
 // TODO: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
 // TODO: https://www.spigotmc.org/threads/using-junit-to-test-plugins.71420/#post-789671
 // TODO: https://github.com/seeseemelk/MockBukkit
-// TODO: Figure out why the SQL unit test sometimes fails.
 
 public final class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
 {
@@ -459,7 +447,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     {
         INSTANCE = this;
 
-        logger = new PLogger(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this), getName());
+        logger = PLogger.init(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this));
         updateManager = new UpdateManager(this, 58669);
 
         try
@@ -477,19 +465,19 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
                 return;
             }
 
-            config = new ConfigLoader(this);
+            config = ConfigLoader.init(this, getPLogger());
             init();
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
 
-            headManager = new HeadManager(this, getConfigLoader());
+            headManager = HeadManager.init(this, getConfigLoader());
 
             Bukkit.getPluginManager().registerEvents(new EventListeners(this), this);
             Bukkit.getPluginManager().registerEvents(new GUIListener(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkUnloadListener(this), this);
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
-            databaseManager = new DatabaseManager(this, config.dbFile());
+            databaseManager = DatabaseManager.init(this, config.dbFile());
             doorOpener = new DoorOpener(getPLogger(), getDatabaseManager(), getGlowingBlockSpawner(), getConfigLoader(),
                                         protCompatMan);
             commandManager = new CommandManager(this);

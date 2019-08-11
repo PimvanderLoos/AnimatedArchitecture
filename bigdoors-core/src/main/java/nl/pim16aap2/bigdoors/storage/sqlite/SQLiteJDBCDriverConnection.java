@@ -98,9 +98,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @param worldRetriever  Object that converts a UUID to a World.
      * @param playerRetriever Object that converts a UUID to an OfflinePlayer.
      */
-    public SQLiteJDBCDriverConnection(final File dbFile, final PLogger pLogger, final ConfigLoader config,
-                                      final WorldRetriever worldRetriever,
-                                      final PlayerRetriever playerRetriever)
+    public SQLiteJDBCDriverConnection(final @NotNull File dbFile, final @NotNull PLogger pLogger,
+                                      final @NotNull ConfigLoader config, final @NotNull WorldRetriever worldRetriever,
+                                      final @NotNull PlayerRetriever playerRetriever)
     {
         this.pLogger = pLogger;
         this.dbFile = dbFile;

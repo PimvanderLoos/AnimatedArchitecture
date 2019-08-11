@@ -31,9 +31,9 @@ public interface IMessagingInterface
     /**
      * Send a message to whomever or whatever issued a command at a given level (if applicable).
      *
-     * @param target The recipient of this message of unspecified type (console, player, whatever).
-     * @param level  The level of the message (info, warn, etc). Does not apply to players.
-     * @param str    The message.
+     * @param target  The recipient of this message of unspecified type (console, player, whatever).
+     * @param level   The level of the message (info, warn, etc). Does not apply to players.
+     * @param message The message.
      */
-    void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level, final @NotNull String str);
+    void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level, final @NotNull String message);
 }

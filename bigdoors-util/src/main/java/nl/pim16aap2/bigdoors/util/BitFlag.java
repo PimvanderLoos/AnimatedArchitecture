@@ -1,5 +1,10 @@
 package nl.pim16aap2.bigdoors.util;
 
+/**
+ * Represents a bitflag utility.
+ *
+ * @author Pim
+ */
 public interface BitFlag
 {
     /**

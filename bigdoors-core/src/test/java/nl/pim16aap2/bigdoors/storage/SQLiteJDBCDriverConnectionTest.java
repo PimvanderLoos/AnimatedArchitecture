@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.spigotutil.PlayerRetriever;
 import nl.pim16aap2.bigdoors.spigotutil.WorldRetriever;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.MessagingInterfaceStdout;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -16,11 +17,14 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 
 import java.io.File;
@@ -34,14 +38,11 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SQLiteJDBCDriverConnectionTest
 {
-    @Mock
-    private PLogger plogger;
     @Mock
     private ConfigLoader config;
     @Mock
@@ -49,14 +50,14 @@ public class SQLiteJDBCDriverConnectionTest
 
     private static final String DELETEDOORNAME = "deletemeh";
 
-    private UUID player1UUID = UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935");
-    private UUID player2UUID = UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed");
-    private UUID player3UUID = UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f");
-    private String player1Name = "pim16aap2";
-    private String player2Name = "TestBoy";
-    private String player2NameALT = "TestMan";
-    private String player3Name = "thirdwheel";
-    private UUID worldUUID = UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360");
+    private static final UUID player1UUID = UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935");
+    private static final UUID player2UUID = UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed");
+    private static final UUID player3UUID = UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f");
+    private static final String player1Name = "pim16aap2";
+    private static final String player2Name = "TestBoy";
+    private static final String player2NameALT = "TestMan";
+    private static final String player3Name = "thirdwheel";
+    private static final UUID worldUUID = UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360");
 
     @Mock
     private Player player1, player2, player3;
@@ -79,82 +80,117 @@ public class SQLiteJDBCDriverConnectionTest
     private static String testDir;
     private IStorage storage;
 
-    /**
-     * Initializes objects of files to be used for the test run.
-     */
-    private static void initFiles()
+    // Initialize files.
+    static
     {
         try
         {
             testDir = new File(".").getCanonicalPath() + "/tests";
+            dbFile = new File(testDir + "/test.db");
+            dbFileBackup = new File(dbFile.toString() + ".BACKUP");
+            dbFileV0 = new File(dbFile.toString() + ".v0");
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
-        dbFile = new File(testDir + "/test.db");
-        dbFileBackup = new File(dbFile.toString() + ".BACKUP");
-        dbFileV0 = new File(dbFile.toString() + ".v0");
     }
 
-    /**
-     * Initializes all objects to be used.
-     */
-    private void init()
+    private static final PLogger plogger = PLogger
+        .init(new File(testDir, "log.txt"), new MessagingInterfaceStdout("BigDoorsTest"));
+
+    static
     {
-        initFiles();
-        when(config.dbBackup()).thenReturn(true);
+        plogger.setConsoleLogging(true);
+    }
+
+    // Initialize mocking.
+    @Before
+    public void setupMocking()
+    {
         when(world.getUID()).thenReturn(worldUUID);
         when(worldRetriever.worldFromString(worldUUID)).thenReturn(world);
         when(player1.getName()).thenReturn(player1Name);
         when(player2.getName()).thenReturn(player2Name);
         when(player3.getName()).thenReturn(player3Name);
-        when(player1.getUniqueId()).thenReturn(player1UUID);
-        when(player2.getUniqueId()).thenReturn(player2UUID);
-        when(player3.getUniqueId()).thenReturn(player3UUID);
+//        when(player1.getUniqueId()).thenReturn(player1UUID);
+//        when(player2.getUniqueId()).thenReturn(player2UUID);
+//        when(player3.getUniqueId()).thenReturn(player3UUID);
         when(playerRetriever.getOfflinePlayer(player1UUID)).thenReturn(player1);
         when(playerRetriever.getOfflinePlayer(player2UUID)).thenReturn(player2);
         when(playerRetriever.getOfflinePlayer(player3UUID)).thenReturn(player3);
-        when(playerRetriever.nameFromUUID(player1UUID)).thenReturn(Optional.of(player1Name));
-        when(playerRetriever.nameFromUUID(player2UUID)).thenReturn(Optional.of(player2Name));
+//        when(playerRetriever.nameFromUUID(player1UUID)).thenReturn(Optional.of(player1Name));
+//        when(playerRetriever.nameFromUUID(player2UUID)).thenReturn(Optional.of(player2Name));
         when(playerRetriever.nameFromUUID(player3UUID)).thenReturn(Optional.of(player3Name));
-        doAnswer(invocation ->
-                 {
-                     Object[] args = invocation.getArguments();
-                     ((Exception) args[0]).printStackTrace();
-                     System.out.println(args[1]);
-                     fail(((Exception) args[0]).getMessage());
-                     return null;
-                 }).when(plogger).logException(any(Exception.class), any(String.class));
 
-        doAnswer(invocation ->
-                 {
-                     Object[] args = invocation.getArguments();
-                     ((Exception) args[0]).printStackTrace();
-                     fail(((Exception) args[0]).getMessage());
-                     return null;
-                 }).when(plogger).logException(any(Exception.class), any(String.class));
-        doAnswer(invocation ->
-                 {
-                     Object[] args = invocation.getArguments();
-                     ((Error) args[0]).printStackTrace();
-                     System.out.println(args[1]);
-                     fail(((Error) args[0]).getMessage());
-                     return null;
-                 }).when(plogger).logError(any(Error.class), any(String.class));
+        try
+        {
+            door1 = DoorType.BIGDOOR.getNewDoor(plogger, 1);
+            {
+                Location min = new Location(world, 144, 75, 153);
+                Location max = new Location(world, 144, 131, 167);
+                Location engine = new Location(world, 144, 75, 153);
+                Location powerBlock = new Location(world, 101, 101, 101);
+                RotateDirection openDir = RotateDirection.valueOf(0);
+                boolean isOpen = false;
+                door1.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
+            }
 
-        doAnswer(invocation ->
-                 {
-                     Object[] args = invocation.getArguments();
-                     ((Error) args[0]).printStackTrace();
-                     fail(((Error) args[0]).getMessage());
-                     return null;
-                 }).when(plogger).logError(any(Error.class), any(String.class));
+            door1.setEngineSide(PBlockFace.NORTH);
+            door1.setName("massive1");
+            door1.setLock(false);
+            door1.setAutoClose(0);
+            door1.setBlocksToMove(0);
+            door1.setDoorOwner(new DoorOwner(door1.getDoorUID(), player1UUID, player1Name, 0));
 
-//        plogger = new PLogger(new File(testDir + "/test.log"), null, "BigDoors");
 
-        storage = new SQLiteJDBCDriverConnection(dbFile, plogger, config, worldRetriever,
-                                                 playerRetriever);
+            door2 = DoorType.DRAWBRIDGE.getNewDoor(plogger, 2);
+            {
+                Location min = new Location(world, 144, 75, 168);
+                Location max = new Location(world, 144, 131, 182);
+                Location engine = new Location(world, 144, 75, 153);
+                Location powerBlock = new Location(world, 102, 102, 102);
+                RotateDirection openDir = RotateDirection.valueOf(0);
+                boolean isOpen = false;
+                door2.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
+            }
+            door2.setEngineSide(PBlockFace.NORTH);
+            door2.setName("massive2");
+            door2.setLock(false);
+            door2.setAutoClose(0);
+            door2.setBlocksToMove(0);
+            door2.setDoorOwner(new DoorOwner(door2.getDoorUID(), player1UUID, player1Name, 0));
+
+
+            door3 = DoorType.BIGDOOR.getNewDoor(plogger, 3);
+            {
+                Location min = new Location(world, 144, 70, 168);
+                Location max = new Location(world, 144, 151, 112);
+                Location engine = new Location(world, 144, 75, 153);
+                Location powerBlock = new Location(world, 103, 103, 103);
+                RotateDirection openDir = RotateDirection.NORTH;
+                boolean isOpen = false;
+                door3.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
+            }
+            door3.setEngineSide(PBlockFace.EAST);
+            door3.setName("massive2");
+            door3.setLock(false);
+            door3.setAutoClose(0);
+            door3.setBlocksToMove(0);
+            door3.setDoorOwner(new DoorOwner(door3.getDoorUID(), player2UUID, player2Name, 0));
+        }
+        catch (Exception e)
+        {
+            plogger.logException(e);
+        }
+    }
+
+    /**
+     * Initializes the storage object.
+     */
+    private void initStorage()
+    {
+        storage = new SQLiteJDBCDriverConnection(dbFile, plogger, config, worldRetriever, playerRetriever);
     }
 
     /**
@@ -163,7 +199,6 @@ public class SQLiteJDBCDriverConnectionTest
     @BeforeClass
     public static void prepare()
     {
-        initFiles();
         if (dbFile.exists())
         {
             System.out.println("WARNING! FILE \"dbFile\" STILL EXISTS! Attempting deletion now!");
@@ -188,7 +223,6 @@ public class SQLiteJDBCDriverConnectionTest
     @AfterClass
     public static void cleanup()
     {
-        initFiles();
         // Remove any old database files and append ".FINISHED" to the name of the current one, so it
         // won't interfere with the next run, but can still be used for manual inspection.
         File oldDB = new File(dbFile.toString() + ".FINISHED");
@@ -202,73 +236,45 @@ public class SQLiteJDBCDriverConnectionTest
         try
         {
             Files.move(dbFile.toPath(), oldDB.toPath());
+        }
+        catch (IOException e)
+        {
+//            e.printStackTrace();
+            plogger.logException(e);
+        }
+        try
+        {
             Files.move(dbFileV0.toPath(), oldV0DB.toPath());
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+//            e.printStackTrace();
+            plogger.logException(e);
         }
     }
 
     /**
-     * Initializes all door objects.
+     * Runs all tests.
      */
-    private void initDoors()
+    @Test
+    public void runTests()
+        throws TooManyDoorsException, InvocationTargetException, NoSuchMethodException, IllegalAccessException,
+               NoSuchFieldException, IOException
     {
-        door1 = DoorType.BIGDOOR.getNewDoor(plogger, 1);
-        door1.setWorld(world);
-        door1.setMinimum(new Location(world, 144, 75, 153));
-        door1.setMaximum(new Location(world, 144, 131, 167));
-        door1.setEngineLocation(new Location(world, 144, 75, 153));
-        door1.setEngineSide(PBlockFace.NORTH);
-        door1.setPowerBlockLocation(new Location(world, 101, 101, 101));
-        door1.setName("massive1");
-        door1.setOpenStatus(false);
-        door1.setLock(false);
-        door1.setOpenDir(RotateDirection.valueOf(0));
-        door1.setAutoClose(0);
-        door1.setBlocksToMove(0);
-        door1.setDoorOwner(new DoorOwner(door1.getDoorUID(), player1UUID, player1Name, 0));
-
-        door2 = DoorType.DRAWBRIDGE.getNewDoor(plogger, 2);
-        door2.setWorld(world);
-        door2.setMinimum(new Location(world, 144, 75, 168));
-        door2.setMaximum(new Location(world, 144, 131, 182));
-        door2.setEngineLocation(new Location(world, 144, 75, 153));
-        door2.setEngineSide(PBlockFace.NORTH);
-        door2.setPowerBlockLocation(new Location(world, 102, 102, 102));
-        door2.setName("massive2");
-        door2.setOpenStatus(false);
-        door2.setLock(false);
-        door2.setOpenDir(RotateDirection.valueOf(0));
-        door2.setAutoClose(0);
-        door2.setBlocksToMove(0);
-        door2.setDoorOwner(new DoorOwner(door2.getDoorUID(), player1UUID, player1Name, 0));
-
-        door3 = DoorType.BIGDOOR.getNewDoor(plogger, 3);
-        door3.setWorld(world);
-        door3.setMinimum(new Location(world, 144, 70, 168));
-        door3.setMaximum(new Location(world, 144, 151, 112));
-        door3.setEngineLocation(new Location(world, 144, 75, 153));
-        door3.setEngineSide(PBlockFace.EAST);
-        door3.setPowerBlockLocation(new Location(world, 103, 103, 103));
-        door3.setName("massive2");
-        door3.setOpenStatus(false);
-        door3.setLock(false);
-        door3.setOpenDir(RotateDirection.NORTH);
-        door3.setAutoClose(0);
-        door3.setBlocksToMove(0);
-        door3.setDoorOwner(new DoorOwner(door3.getDoorUID(), player2UUID, player2Name, 0));
+        initStorage();
+        insertDoors();
+        verifyDoors();
+        auxiliaryMethods();
+        modifyDoors();
+        testFailures();
+        testUpgrade();
     }
 
     /**
      * Tests inserting doors in the database.
      */
-    @Test
     public void insertDoors()
     {
-        init();
-        initDoors();
         storage.insert(door1);
         storage.insert(door2);
         storage.insert(door3);
@@ -297,11 +303,8 @@ public class SQLiteJDBCDriverConnectionTest
     /**
      * Verifies that the data of all doors that have been added to the database so far is correct.
      */
-    @Test
     public void verifyDoors() throws TooManyDoorsException
     {
-        init();
-        initDoors();
         testRetrieval(door1);
         testRetrieval(door2);
         testRetrieval(door3);
@@ -310,11 +313,8 @@ public class SQLiteJDBCDriverConnectionTest
     /**
      * Tests the basic SQL methods.
      */
-    @Test
     public void auxiliaryMethods()
     {
-        init();
-        initDoors();
         // Check simple methods.
         assertEquals(0, storage.getPermission(player1UUID.toString(), 1));
         assertEquals(1, storage.getDoorCountForPlayer(player1UUID, "massive1"));
@@ -490,12 +490,8 @@ public class SQLiteJDBCDriverConnectionTest
     /**
      * Runs tests of the methods that modify doors in the database.
      */
-    @Test
     public void modifyDoors()
     {
-        init();
-        initDoors();
-
         // Test changing autoCloseTime value.
         {
             final int testAutoCloseTime = 20;
@@ -667,16 +663,12 @@ public class SQLiteJDBCDriverConnectionTest
     /**
      * Runs tests to verify that exceptions are caught when the should be and properly handled.
      */
-    @Test
     public void testFailures()
         throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException
     {
-        init();
-        // Disable printing errors:
-        doAnswer(invocation -> null).when(plogger).logException(any(Exception.class), any(String.class));
-        doAnswer(invocation -> null).when(plogger).logException(any(Exception.class), any(String.class));
-        doAnswer(invocation -> null).when(plogger).logError(any(Error.class), any(String.class));
-        doAnswer(invocation -> null).when(plogger).logError(any(Error.class), any(String.class));
+        // Disable console logging of errors as it's the point of this test. This way I won't get scared by errors in the console.
+        plogger.setConsoleLogging(false);
+
 
         // Verify database disabling works as intended.
         {
@@ -710,18 +702,15 @@ public class SQLiteJDBCDriverConnectionTest
             databaseLock.invoke(storage, false);
             assertTrue(storage.getDoor(player1UUID, 1L).isPresent());
         }
+        plogger.setConsoleLogging(true); // Enable console logging again after the test.
     }
 
     /**
      * Runs tests to verify that upgrading the database from version 0 works as intended.
      */
-    @Test
     public void testUpgrade()
         throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException
     {
-        init();
-        initDoors();
-
         final Method stripToV0 = SQLiteJDBCDriverConnection.class.getDeclaredMethod("stripToV0");
         stripToV0.setAccessible(true);
         final Method upgrade = SQLiteJDBCDriverConnection.class.getDeclaredMethod("upgrade");

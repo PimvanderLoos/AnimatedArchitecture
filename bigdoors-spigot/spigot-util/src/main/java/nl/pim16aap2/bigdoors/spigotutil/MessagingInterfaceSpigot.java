@@ -51,11 +51,12 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
      * {@inheritDoc}
      */
     @Override
-    public void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level, final @NotNull String str)
+    public void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level,
+                                    final @NotNull String message)
     {
         if (target instanceof Player)
-            SpigotUtil.messagePlayer((Player) target, str);
+            SpigotUtil.messagePlayer((Player) target, message);
         else
-            writeToConsole(level, ChatColor.stripColor(str));
+            writeToConsole(level, ChatColor.stripColor(message));
     }
 }

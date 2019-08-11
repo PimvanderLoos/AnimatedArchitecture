@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 
 /**
@@ -18,33 +18,34 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-public class PLogger
+public final class PLogger
 {
     /**
      * The format of the date to be used when writing to the log file.
      */
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
-    /**
-     * The ID of the thread that's processing the queue of messages to write to the log.
-     */
-    private static AtomicLong queueProcessor = null;
+
     /**
      * The file to write to.
      */
     private final File logFile;
+
     /**
      * The queue of {@link LogMessage}s that will be written to the log.
      */
     private final BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
+
     /**
      * The {@link IMessagingInterface} use for platform-specific messaging. For example writing to console, sending a
      * message to a player.
      */
     private final IMessagingInterface messagingInterface;
+
     /**
      * Check if the log file could be initialized properly.
      */
     private boolean success = false;
+
     /**
      * Determine if errors and exceptions should be written to the console or not. They'll always be written to the log
      * file.
@@ -52,20 +53,47 @@ public class PLogger
     private boolean consoleLogging = false;
 
     /**
-     * Constructs a PLogger
+     * The instance of this {@link PLogger}.
+     */
+    private static PLogger instance;
+
+    /**
+     * Constructs a PLogger.
      *
      * @param logFile            The file to write to.
      * @param messagingInterface The implementation of {@link IMessagingInterface} for writing to the console etc.
-     * @param name               The name that will be used for logging. For example "BigDoors".
      */
-    public PLogger(final @NotNull File logFile, final @NotNull IMessagingInterface messagingInterface,
-                   final @NotNull String name)
+    private PLogger(final @NotNull File logFile, final @NotNull IMessagingInterface messagingInterface)
     {
         this.logFile = logFile;
         this.messagingInterface = messagingInterface;
         prepareLog();
         if (success)
-            new Thread(() -> processQueue()).start();
+            new Thread(this::processQueue).start();
+    }
+
+    /**
+     * Initializes the PLogger. If it has already been initialized, it'll return that instance instead.
+     *
+     * @param logFile            The file to write to.
+     * @param messagingInterface The implementation of {@link IMessagingInterface} for writing to the console etc.
+     * @return The PLogger instance.
+     */
+    @NotNull
+    public static PLogger init(final @NotNull File logFile, final @NotNull IMessagingInterface messagingInterface)
+    {
+        return (instance == null) ? instance = new PLogger(logFile, messagingInterface) : instance;
+    }
+
+    /**
+     * Gets the instance of this PLogger if it has been initiated.
+     *
+     * @return The instance of this PLogger.
+     */
+    @Nullable
+    public static PLogger get()
+    {
+        return instance;
     }
 
     /**
@@ -91,18 +119,10 @@ public class PLogger
     }
 
     /**
-     * Processes the queue of messages that will be logged to the log file. It cannot run on the main thread and only a
-     * single instance is possible. The thread is blocked while it waits for new messages.
+     * Processes the queue of messages that will be logged to the log file.
      */
     private void processQueue()
     {
-        // It is not allowed to run this method on the main thread.
-        // Also, only a single instance is allowed
-        if (Thread.currentThread().getId() == 1 || queueProcessor != null)
-            throw new IllegalStateException("Trying to instantiate processQueue on thread "
-                                                + Thread.currentThread().getId());
-        queueProcessor = new AtomicLong(Thread.currentThread().getId());
-
         try
         {
             // Keep getting new LogMessages. It's a blocked queue, so the thread

@@ -51,9 +51,12 @@ import java.util.stream.Stream;
  */
 public final class DatabaseManager extends Restartable
 {
+    private static DatabaseManager instance;
+
     private final IStorage db;
     private final BigDoors plugin;
     private final Map<Long, Optional<BlockMover>> busyDoors;
+
     /**
      * Timed cache of all power blocks. The key is the {@link UUID} of the {@link org.bukkit.World}, the value is a
      * nested map.
@@ -69,7 +72,13 @@ public final class DatabaseManager extends Restartable
     private boolean goOn = true;
     private boolean paused = false;
 
-    public DatabaseManager(final @NotNull BigDoors plugin, final @NotNull String dbFile)
+    /**
+     * Constructs a new {@link DatabaseManager}.
+     *
+     * @param plugin The spigot core.
+     * @param dbFile The name of the database file.
+     */
+    private DatabaseManager(final @NotNull BigDoors plugin, final @NotNull String dbFile)
     {
         super(plugin);
         db = new SQLiteJDBCDriverConnection(new File(plugin.getDataFolder(), dbFile), plugin.getPLogger(),
@@ -78,6 +87,30 @@ public final class DatabaseManager extends Restartable
         this.plugin = plugin;
         pbCache = new HashMap<>();
         busyDoors = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * Initializes the {@link DatabaseManager}. If it has already been initialized, it'll return that instance instead.
+     *
+     * @param plugin The spigot core.
+     * @param dbFile The name of the database file.
+     * @return The instance of this {@link DatabaseManager}.
+     */
+    @NotNull
+    public static DatabaseManager init(final @NotNull BigDoors plugin, final @NotNull String dbFile)
+    {
+        return (instance == null) ? instance = new DatabaseManager(plugin, dbFile) : instance;
+    }
+
+    /**
+     * Gets the instance of the {@link DatabaseManager} if it exists.
+     *
+     * @return The instance of the {@link DatabaseManager}.
+     */
+    @Nullable
+    public static DatabaseManager get()
+    {
+        return instance;
     }
 
     /**
