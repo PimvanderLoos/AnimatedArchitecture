@@ -146,6 +146,16 @@ public final class ConfigEntry<V>
      */
     interface TestValue<T>
     {
-        T test(T a);
+        /**
+         * Checks if a given value is valid. If it is, it returns that value. If it isn't, it is changed so that it is
+         * valid.
+         * <p>
+         * For example to check if a value doesn't exceed a certain threshold.
+         *
+         * @param value The value to check.
+         * @return The value if it was valid, otherwise the value made valid.
+         */
+        @NotNull
+        T test(@NotNull T value);
     }
 }

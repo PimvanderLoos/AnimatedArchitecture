@@ -47,38 +47,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     // TODO: Set this to 10. This cannot be done currently because the tests will fail for the upgrades, which
     //       are still useful when writing the code to upgrade the v1 database to v2.
     private static final int MIN_DATABASE_VERSION = 0;
-    //    private static final int MIN_DATABASE_VERSION = 10;
-    private static final int DOOR_ID = 1;
-    private static final int DOOR_NAME = 2;
-    private static final int DOOR_WORLD = 3;
-    private static final int DOOR_OPEN = 4;
-    private static final int DOOR_MIN_X = 5;
-    private static final int DOOR_MIN_Y = 6;
-    private static final int DOOR_MIN_Z = 7;
-    private static final int DOOR_MAX_X = 8;
-    private static final int DOOR_MAX_Y = 9;
-    private static final int DOOR_MAX_Z = 10;
-    private static final int DOOR_ENG_X = 11;
-    private static final int DOOR_ENG_Y = 12;
-    private static final int DOOR_ENG_Z = 13;
-    private static final int DOOR_LOCKED = 14;
-    private static final int DOOR_TYPE = 15;
-    private static final int DOOR_ENG_SIDE = 16;
-    private static final int DOOR_POWER_X = 17;
-    private static final int DOOR_POWER_Y = 18;
-    private static final int DOOR_POWER_Z = 19;
-    private static final int DOOR_OPEN_DIR = 20;
-    private static final int DOOR_AUTO_CLOSE = 21;
-    private static final int DOOR_CHUNK_HASH = 22;
-    private static final int DOOR_BLOCKS_TO_MOVE = 23;
-
-//    private static final String PLAYERS_ID = "";
-//    private static final String PLAYERS_UUID = "";
-//    private static final String PLAYERS_NAME = "";
-//    private static final String UNION_ID = "";
-//    private static final String UNION_PERM = "";
-//    private static final String UNION_PLAYER_ID = "";
-//    private static final String UNION_DOOR_ID = "";
 
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
@@ -263,6 +231,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                     " engineY       INTEGER    NOT NULL,\n" +
                     " engineZ       INTEGER    NOT NULL,\n" +
                     " isLocked      INTEGER    NOT NULL,\n" +
+//                    " bitflag       INTEGER    NOT NULL DEFAULT 0,\n" +
                     " type          INTEGER    NOT NULL DEFAULT  0,\n" +
                     " engineSide    INTEGER    NOT NULL DEFAULT -1,\n" +
                     " powerBlockX   INTEGER    NOT NULL DEFAULT -1,\n" +
@@ -671,7 +640,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             ResultSet rs1 = ps1.executeQuery();
 
             while (rs1.next())
-                getOwnerOfDoor(conn, rs1.getLong(DOOR_ID)).flatMap(O -> newDoorFromRS(rs1, O)).ifPresent(doors::add);
+                getOwnerOfDoor(conn, rs1.getLong("id")).flatMap(O -> newDoorFromRS(rs1, O)).ifPresent(doors::add);
             ps1.close();
             rs1.close();
         }
@@ -956,12 +925,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             ResultSet rs = ps.executeQuery();
             while (rs.next())
             {
-                long locationHash = Util.simpleLocationhash(rs.getInt(DOOR_POWER_X),
-                                                            rs.getInt(DOOR_POWER_Y),
-                                                            rs.getInt(DOOR_POWER_Z));
+                long locationHash = Util.simpleLocationhash(rs.getInt("powerBlockX"),
+                                                            rs.getInt("powerBlockY"),
+                                                            rs.getInt("powerBlockZ"));
                 if (!doors.containsKey(locationHash))
                     doors.put(locationHash, new ArrayList<>());
-                doors.get(locationHash).add(rs.getLong(DOOR_ID));
+                doors.get(locationHash).add(rs.getLong("id"));
             }
             ps.close();
             rs.close();
@@ -1179,31 +1148,32 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 "                  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
             PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 
-            doorstatement.setString(1, null);
-            doorstatement.setString(DOOR_NAME, door.getName());
-            doorstatement.setString(DOOR_WORLD, door.getWorld().getUID().toString());
-            doorstatement.setInt(DOOR_OPEN, door.isOpen() ? 1 : 0);
-            doorstatement.setInt(DOOR_MIN_X, door.getMinimum().getBlockX());
-            doorstatement.setInt(DOOR_MIN_Y, door.getMinimum().getBlockY());
-            doorstatement.setInt(DOOR_MIN_Z, door.getMinimum().getBlockZ());
-            doorstatement.setInt(DOOR_MAX_X, door.getMaximum().getBlockX());
-            doorstatement.setInt(DOOR_MAX_Y, door.getMaximum().getBlockY());
-            doorstatement.setInt(DOOR_MAX_Z, door.getMaximum().getBlockZ());
-            doorstatement.setInt(DOOR_ENG_X, door.getEngine().getBlockX());
-            doorstatement.setInt(DOOR_ENG_Y, door.getEngine().getBlockY());
-            doorstatement.setInt(DOOR_ENG_Z, door.getEngine().getBlockZ());
-            doorstatement.setInt(DOOR_LOCKED, door.isLocked() ? 1 : 0);
-            doorstatement.setInt(DOOR_TYPE, DoorType.getValue(door.getType()));
+            int idx = 1;
+            doorstatement.setString(idx++, null); // It's auto-incremented.
+            doorstatement.setString(idx++, door.getName());
+            doorstatement.setString(idx++, door.getWorld().getUID().toString());
+            doorstatement.setInt(idx++, door.isOpen() ? 1 : 0);
+            doorstatement.setInt(idx++, door.getMinimum().getBlockX());
+            doorstatement.setInt(idx++, door.getMinimum().getBlockY());
+            doorstatement.setInt(idx++, door.getMinimum().getBlockZ());
+            doorstatement.setInt(idx++, door.getMaximum().getBlockX());
+            doorstatement.setInt(idx++, door.getMaximum().getBlockY());
+            doorstatement.setInt(idx++, door.getMaximum().getBlockZ());
+            doorstatement.setInt(idx++, door.getEngine().getBlockX());
+            doorstatement.setInt(idx++, door.getEngine().getBlockY());
+            doorstatement.setInt(idx++, door.getEngine().getBlockZ());
+            doorstatement.setInt(idx++, door.isLocked() ? 1 : 0);
+            doorstatement.setInt(idx++, DoorType.getValue(door.getType()));
             // Set -1 if the door has no engineSide (normal doors don't use it)
-            doorstatement.setInt(DOOR_ENG_SIDE,
+            doorstatement.setInt(idx++,
                                  door.getEngineSide() == null ? -1 : PBlockFace.getValue(door.getEngineSide()));
-            doorstatement.setInt(DOOR_POWER_X, door.getPowerBlockLoc().getBlockX());
-            doorstatement.setInt(DOOR_POWER_Y, door.getPowerBlockLoc().getBlockY());
-            doorstatement.setInt(DOOR_POWER_Z, door.getPowerBlockLoc().getBlockZ());
-            doorstatement.setInt(DOOR_OPEN_DIR, RotateDirection.getValue(door.getOpenDir()));
-            doorstatement.setInt(DOOR_AUTO_CLOSE, door.getAutoClose());
-            doorstatement.setString(DOOR_CHUNK_HASH, Long.toString(door.getSimplePowerBlockChunkHash()));
-            doorstatement.setString(DOOR_BLOCKS_TO_MOVE, Long.toString(door.getBlocksToMove()));
+            doorstatement.setInt(idx++, door.getPowerBlockLoc().getBlockX());
+            doorstatement.setInt(idx++, door.getPowerBlockLoc().getBlockY());
+            doorstatement.setInt(idx++, door.getPowerBlockLoc().getBlockZ());
+            doorstatement.setInt(idx++, RotateDirection.getValue(door.getOpenDir()));
+            doorstatement.setInt(idx++, door.getAutoClose());
+            doorstatement.setString(idx++, Long.toString(door.getSimplePowerBlockChunkHash()));
+            doorstatement.setString(idx++, Long.toString(door.getBlocksToMove()));
 
             doorstatement.execute();
             doorstatement.close();
@@ -1419,6 +1389,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             if (dbVersion < 6)
                 upgradeToV11(conn);
 
+            if (dbVersion < 6)
+            {
+                conn.close();
+                upgradeToV6();
+                conn = getConnection();
+            }
+
             // Do this at the very end, so the db version isn't altered if anything fails.
             setDBVersion(conn, DATABASE_VERSION);
         }
@@ -1513,7 +1490,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Upgrade the database from V0 to V1.
+     * Upgrades the database from V0 to V1.
      *
      * @param conn An active connection to the database.
      */
@@ -1566,10 +1543,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
                 while (rs1.next())
                 {
-                    long UID = rs1.getLong(DOOR_ID);
-                    int x = rs1.getInt(DOOR_ENG_X);
-                    int y = rs1.getInt(DOOR_ENG_Y) - 1;
-                    int z = rs1.getInt(DOOR_ENG_Z);
+                    long UID = rs1.getLong("id");
+                    int x = rs1.getInt("engineX");
+                    int y = rs1.getInt("engineY") - 1;
+                    int z = rs1.getInt("engineZ");
 
                     update = "UPDATE doors SET powerBlockX=?, powerBlockY=?, powerBlockZ=? WHERE id=?;";
                     PreparedStatement ps2 = conn.prepareStatement(update);
@@ -1641,9 +1618,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
                 while (rs1.next())
                 {
-                    long UID = rs1.getLong(DOOR_ID);
-                    int x = rs1.getInt(DOOR_POWER_X);
-                    int z = rs1.getInt(DOOR_POWER_Z);
+                    long UID = rs1.getLong("id");
+                    int x = rs1.getInt("powerBlockX");
+                    int z = rs1.getInt("powerBlockZ");
 
                     update = "UPDATE doors SET chunkHash=? WHERE id=?;";
                     PreparedStatement ps2 = conn.prepareStatement(update);
@@ -1665,7 +1642,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Upgrade the database from V1 to V2.
+     * Upgrades the database from V1 to V2.
      *
      * @param conn An active connection to the database.
      */
@@ -1689,7 +1666,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Upgrade the database from V2 to V3.
+     * Upgrades the database from V2 to V3.
      *
      * @param conn An active connection to the database.
      */
@@ -1752,7 +1729,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Upgrade the database from V3 to V4.
+     * Upgrades the database from V3 to V4.
      *
      * @param conn An active connection to the database.
      */
@@ -1776,7 +1753,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Upgrade the database from V4 to V5.
+     * Upgrades the database from V4 to V5.
      */
     /*
      * Changes in V5:
@@ -1900,7 +1877,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Upgrade the database from V5 to V11.
+     * Upgrades the database from V5 to V11.
      *
      * @param conn Opened database connection.
      */
@@ -1912,16 +1889,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         try
         {
-            pLogger.warn("Upgrading database to V6!");
+            pLogger.warn("Upgrading database to V11!");
             PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
             ResultSet rs1 = ps1.executeQuery();
             String update;
 
             while (rs1.next())
             {
-                long UID = rs1.getLong(DOOR_ID);
-                int x = rs1.getInt(DOOR_POWER_X);
-                int z = rs1.getInt(DOOR_POWER_Z);
+                long UID = rs1.getLong("id");
+                int x = rs1.getInt("powerBlockX");
+                int z = rs1.getInt("powerBlockZ");
 
                 update = "UPDATE doors SET chunkHash=? WHERE id=?;";
                 PreparedStatement ps2 = conn.prepareStatement(update);
@@ -1937,6 +1914,129 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             logMessage("1420", e);
         }
+    }
+
+    /**
+     * Upgrades the database from V5 to V6.
+     */
+    /*
+     * Changes in V7:
+     * - Merged isOpen and isLocked into a single bit flag.
+     */
+    private void upgradeToV6()
+    {
+//        try (Connection conn = getConnection())
+//        {
+//            pLogger.warn("Upgrading database to V6!");
+//
+//            String addColumn = "ALTER TABLE doors ADD COLUMN bitflag INTEGER NOT NULL DEFAULT 0";
+//            conn.createStatement().execute(addColumn);
+//
+//
+//            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
+//            ResultSet rs1 = ps1.executeQuery();
+//            String update;
+//
+//            while (rs1.next())
+//            {
+//                long UID = rs1.getLong("id");
+//                boolean isOpen = rs1.getBoolean(DOOR_OPEN);
+//                boolean isLocked = rs1.getBoolean(DOOR_LOCKED);
+//
+//                int flag = 0;
+//                flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), isOpen, flag);
+//                flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), isLocked, flag);
+//
+//                update = "UPDATE doors SET bitflag=? WHERE id=?;";
+//                PreparedStatement ps2 = conn.prepareStatement(update);
+//                ps2.setString(1, Integer.toString(flag));
+//                ps2.setString(2, Long.toString(UID));
+//                ps2.executeUpdate();
+//                ps2.close();
+//            }
+//            ps1.close();
+//            rs1.close();
+//        }
+//        catch (SQLException | NullPointerException e)
+//        {
+//            logMessage("1420", e);
+//        }
+//
+//        Connection conn = null;
+//        try
+//        {
+//            Class.forName(DRIVER);
+//            conn = DriverManager.getConnection(url);
+//            conn.createStatement().execute("PRAGMA foreign_keys=OFF");
+//            conn.setAutoCommit(false);
+//            // Rename sqlUnion.
+//            conn.createStatement().execute("ALTER TABLE doors RENAME TO doors_old;");
+//
+//            // Create updated version of sqlUnion.
+//            String newDoors = "CREATE TABLE IF NOT EXISTS doors\n" +
+//                "(id            INTEGER    PRIMARY KEY autoincrement,\n" +
+//                " name          TEXT       NOT NULL,\n" +
+//                " world         TEXT       NOT NULL,\n" +
+//                " xMin          INTEGER    NOT NULL,\n" +
+//                " yMin          INTEGER    NOT NULL,\n" +
+//                " zMin          INTEGER    NOT NULL,\n" +
+//                " xMax          INTEGER    NOT NULL,\n" +
+//                " yMax          INTEGER    NOT NULL,\n" +
+//                " zMax          INTEGER    NOT NULL,\n" +
+//                " engineX       INTEGER    NOT NULL,\n" +
+//                " engineY       INTEGER    NOT NULL,\n" +
+//                " engineZ       INTEGER    NOT NULL,\n" +
+//                " bitflag       INTEGER    NOT NULL DEFAULT 0,\n" +
+//                " type          INTEGER    NOT NULL DEFAULT  0,\n" +
+//                " engineSide    INTEGER    NOT NULL DEFAULT -1,\n" +
+//                " powerBlockX   INTEGER    NOT NULL DEFAULT -1,\n" +
+//                " powerBlockY   INTEGER    NOT NULL DEFAULT -1,\n" +
+//                " powerBlockZ   INTEGER    NOT NULL DEFAULT -1,\n" +
+//                " openDirection INTEGER    NOT NULL DEFAULT  0,\n" +
+//                " autoClose     INTEGER    NOT NULL DEFAULT -1,\n" +
+//                " chunkHash     INTEGER    NOT NULL DEFAULT -1,\n" +
+//                " blocksToMove  INTEGER    NOT NULL DEFAULT -1);";
+//            conn.createStatement().execute(newDoors);
+//
+//            // Copy data from old sqlUnion to new sqlUnion.
+//            String restoreData = "INSERT INTO doors\n" +
+//                "SELECT id, name, world, xMin, yMin, zMin, xMax, yMax, " +
+//                "zMax, engineX, engineY, engineZ, bitflag, engineSide, \n" +
+//                "powerBlockX, powerBlockY, powerBlockZ, openDirection, autoClose, chunkHash, blocksToMove\n" +
+//                "FROM doors_old;";
+//            conn.createStatement().execute(restoreData);
+//
+//            // Get rid of old sqlUnion.
+//            conn.createStatement().execute("DROP TABLE IF EXISTS 'doors_old';");
+//            conn.commit();
+//            conn.setAutoCommit(true);
+//        }
+//        catch (SQLException | NullPointerException | ClassNotFoundException e)
+//        {
+//            if (conn != null)
+//                try
+//                {
+//                    conn.rollback();
+//                }
+//                catch (SQLException e1)
+//                {
+//                    logMessage("1770", e1);
+//                }
+//            logMessage("1772", e);
+//        }
+//        finally
+//        {
+//            if (conn != null)
+//                try
+//                {
+//                    conn.close();
+//                }
+//                catch (SQLException | NullPointerException e)
+//                {
+//                    logMessage("1781", e);
+//                }
+//        }
+
     }
 
     /**
