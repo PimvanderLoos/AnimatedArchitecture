@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.util.BitFlag;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
@@ -234,23 +233,6 @@ public interface IStorage
      * @param blocksToMove The new number of blocks this door will try to move.
      */
     void updateDoorBlocksToMove(final long doorUID, final int blocksToMove);
-
-    /**
-     * Updates the coordinates of a door.
-     *
-     * @param doorUID The UID of the door to update.
-     * @param isOpen  The new open-status of the door.
-     * @param xMin    The new minimum x coordinate.
-     * @param yMin    The new minimum y coordinate.
-     * @param zMin    The new minimum z coordinate.
-     * @param xMax    The new maximum x coordinate.
-     * @param yMax    The new maximum y coordinate.
-     * @param zMax    The new maximum z coordinate.
-     * @param engSide The new engine side of the door, if applicable.
-     */
-    void updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin,
-                          final int zMin, final int xMax, final int yMax, final int zMax,
-                          final @NotNull PBlockFace engSide);
 
     /**
      * Updates the coordinates of a door.

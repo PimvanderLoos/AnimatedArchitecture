@@ -175,6 +175,8 @@ import java.util.UUID;
 // TODO: Cache value of DoorBase#getSimplePowerBlockChunkHash().
 // TODO: Use the IGetNewLocation code to check new pos etc.
 // TODO: Statically store GNL's in each door type.
+// TODO: Add getCloseDirection() method. This is NOT!!! the opposite of the openDirection once the original coordinates
+//       are stored in the database. It should be the direction back to the original position.
 
 /*
 Tests done:
@@ -258,14 +260,13 @@ Tests not done:
  * SQL
  */
 // TODO: Get rid of the private methods. Use nested statements instead.
-// TODO: Merge isOpen and isLocked into single FLAG value.
-// TODO: Switch RotateDirection values to line up with PBlockFace.
 // TODO: Remove all NONE RotateDirection values from the database. This also means that the engineSide column can be
 //       removed from the database.
 //       For most doors, just retrieve the default openDirection if it's currently set to NONE.
 //       For drawbridges, however, this will need to depend on the engine side variable and thus handled in the database
 //       class.
 //       Also make sure to check if the current values of all not-NONE doors are valid: DoorBase#isValidOpenDirection.
+// TODO: Store original coordinates in the database. These can be used to find the actual close direction.
 // TODO: When retrieving all doors for info, put them in a sorted map (treemap).
 // TODO: Consider doing all upgrades on a separate thread. Then the server won't have to wait for the upgrade to finish.
 //       Added bonus: startReplaceTempPlayerNames() can be simplified.

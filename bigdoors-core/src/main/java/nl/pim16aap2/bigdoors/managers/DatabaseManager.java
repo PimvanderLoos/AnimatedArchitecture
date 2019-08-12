@@ -18,7 +18,6 @@ import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
@@ -500,30 +499,6 @@ public final class DatabaseManager extends Restartable
     {
         db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax,
                             blockYMax, blockZMax);
-    }
-
-    /**
-     * Updates the coordinates of a {@link DoorBase} in the database.
-     *
-     * @param doorUID    The UID of the {@link DoorBase}.
-     * @param isOpen     Whether the {@link DoorBase} is now open or not.
-     * @param blockXMin  The lower bound x coordinates.
-     * @param blockYMin  The lower bound y coordinates.
-     * @param blockZMin  The lower bound z coordinates.
-     * @param blockXMax  The upper bound x coordinates.
-     * @param blockYMax  The upper bound y coordinates.
-     * @param blockZMax  The upper bound z coordinates.
-     * @param newEngSide The new engine side of the {@link DoorBase}.
-     */
-    public void updateDoorCoords(final long doorUID, final boolean isOpen, final int blockXMin, final int blockYMin,
-                                 final int blockZMin, final int blockXMax, final int blockYMax, final int blockZMax,
-                                 final @Nullable PBlockFace newEngSide)
-    {
-        if (newEngSide == null)
-            updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax);
-        else
-            db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax,
-                                blockZMax, newEngSide);
     }
 
     /**

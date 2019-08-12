@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.IRestartable;
-import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
@@ -341,10 +340,9 @@ public abstract class BlockMover implements IRestartable
     {
         Location newMin = new Location(world, 0, 0, 0);
         Location newMax = new Location(world, 0, 0, 0);
-        Mutable<PBlockFace> newEngineSide = new Mutable<>(null);
 
         if (finalMin == null || finalMax == null)
-            door.getNewLocations(openDirection, rotateDirection, newMin, newMax, moved, newEngineSide);
+            door.getNewLocations(openDirection, rotateDirection, newMin, newMax, moved);
         else
         {
             newMin = finalMin;
@@ -357,13 +355,10 @@ public abstract class BlockMover implements IRestartable
         door.setMaximum(newMax);
         door.setMinimum(newMin);
 
-        if (!newEngineSide.isEmpty())
-            door.setEngineSide(newEngineSide.getVal());
-
         toggleOpen(door);
         plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), door.isOpen(), newMin.getBlockX(),
                                                      newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
-                                                     newMax.getBlockY(), newMax.getBlockZ(), newEngineSide.getVal());
+                                                     newMax.getBlockY(), newMax.getBlockZ());
     }
 
     /**

@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeMover;
-import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -81,15 +80,8 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     @Override
     public PBlockFace calculateCurrentDirection()
     {
-        Bukkit.broadcastMessage("calculateCurrentDirection: isOpen: " + isOpen + ", openDir: " +
-                                    getOpenDir() + ", engSide: " + getEngineSide());
         if (!isOpen)
             return PBlockFace.UP;
-
-        // TODO: REMOVE THIS. NONE should not be a valid open direction anymore. Needs to be changed in the database
-        //  first, though.
-        if (getOpenDir().equals(RotateDirection.NONE))
-            return PBlockFace.getOpposite(getEngineSide());
 
         Bukkit.broadcastMessage("OpenDirection: " + getOpenDir().name());
         return PBlockFace.valueOf(getOpenDir().toString());
@@ -113,8 +105,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     @Override
     public void getNewLocations(final @Nullable PBlockFace openDirection,
                                 final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
-                                final @NotNull Location newMax, final int blocksMoved,
-                                final @Nullable Mutable<PBlockFace> newEngineSide)
+                                final @NotNull Location newMax, final int blocksMoved)
     {
         throw new IllegalStateException("THIS SHOULD NOT HAVE BEEN REACHED");
     }

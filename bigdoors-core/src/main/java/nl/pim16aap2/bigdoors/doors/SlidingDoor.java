@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -129,8 +128,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     @Override
     public void getNewLocations(final @Nullable PBlockFace openDirection,
                                 final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
-                                final @NotNull Location newMax, final int blocksMoved,
-                                final @Nullable Mutable<PBlockFace> newEngineSide)
+                                final @NotNull Location newMax, final int blocksMoved)
     {
         int addX = 0, addZ = 0;
 

@@ -121,8 +121,6 @@ public abstract class Creator extends ToolUser
             door.setDoorOwner(owner);
             door.setMinimum(min);
             door.setMaximum(max);
-            if (engineSide != null)
-                door.setEngineSide(engineSide);
             door.setEngineLocation(new Location(world, engine.getBlockX(), engine.getBlockY() - 1, engine.getBlockZ()));
             door.setPowerBlockLocation(getPowerBlockLoc(world));
             door.setAutoClose(-1);

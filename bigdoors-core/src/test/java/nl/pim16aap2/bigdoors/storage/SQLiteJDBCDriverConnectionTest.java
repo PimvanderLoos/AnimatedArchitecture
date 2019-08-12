@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.spigotutil.WorldRetriever;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.MessagingInterfaceStdout;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -136,7 +135,6 @@ public class SQLiteJDBCDriverConnectionTest
                 door1.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
             }
 
-            door1.setEngineSide(PBlockFace.NORTH);
             door1.setName("massive1");
             door1.setLock(false);
             door1.setAutoClose(0);
@@ -154,7 +152,6 @@ public class SQLiteJDBCDriverConnectionTest
                 boolean isOpen = false;
                 door2.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
             }
-            door2.setEngineSide(PBlockFace.NORTH);
             door2.setName("massive2");
             door2.setLock(false);
             door2.setAutoClose(0);
@@ -172,7 +169,6 @@ public class SQLiteJDBCDriverConnectionTest
                 boolean isOpen = false;
                 door3.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
             }
-            door3.setEngineSide(PBlockFace.EAST);
             door3.setName("massive2");
             door3.setLock(false);
             door3.setAutoClose(0);
@@ -630,35 +626,6 @@ public class SQLiteJDBCDriverConnectionTest
             door3.setMinimum(oldMin);
             door3.setMaximum(oldMax);
             assertDoor3Parity();
-
-
-            // Also check the method that sets the engSide
-            PBlockFace oldFace = door3.getEngineSide();
-            PBlockFace newFace = PBlockFace.getOpposite(oldFace);
-            // Again, verify everything is correct before making changes.
-            assertTrue(storage.getDoor(3L).isPresent());
-            assertEquals(oldFace, storage.getDoor(3L).get().getEngineSide());
-
-            // Change ONLY the engineSide of the door in the database.
-            storage.updateDoorCoords(3L, false, oldMin.getBlockX(), oldMin.getBlockY(), oldMin.getBlockZ(),
-                                     oldMax.getBlockX(), oldMax.getBlockY(), oldMax.getBlockZ(), newFace);
-            // Verify that the object of door 3 and the database entry of door 3 are still the same.
-            // This should be the case, because the engineSide isn't taken into account when checking if they're equal.
-            assertDoor3Parity();
-            assertNotSame(door3.getEngineSide(), storage.getDoor(3L).get().getEngineSide());
-
-            // Update the engine side of the object of door 3 to match the engine side of the database entry of door 3
-            // and verify they match.
-            door3.setEngineSide(newFace);
-            assertDoor3Parity();
-            assertEquals(door3.getEngineSide(), storage.getDoor(3L).get().getEngineSide());
-
-            // Reset engine sides.
-            storage.updateDoorCoords(3L, false, oldMin.getBlockX(), oldMin.getBlockY(), oldMin.getBlockZ(),
-                                     oldMax.getBlockX(), oldMax.getBlockY(), oldMax.getBlockZ(), oldFace);
-            door3.setEngineSide(oldFace);
-            assertDoor3Parity();
-            assertEquals(door3.getEngineSide(), storage.getDoor(3L).get().getEngineSide());
         }
     }
 

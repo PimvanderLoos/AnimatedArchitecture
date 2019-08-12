@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
-import nl.pim16aap2.bigdoors.util.Mutable;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -46,9 +45,6 @@ public abstract class DoorBase
     private int autoClose = -1;
     private Location powerBlock;
     private DoorOwner doorOwner;
-
-    @Deprecated
-    private PBlockFace engineSide;
 
     // "cached" values.
     private Chunk engineChunk = null;
@@ -291,9 +287,6 @@ public abstract class DoorBase
      * @param newMax          The new maximum location (mutable) of the door. x,y,z values are set in the method.
      * @param blocksMoved     The number of blocks the {@link DoorBase} actually moved. Note that this differs from the
      *                        suggested number of blocks to move!
-     * @param newEngineSide   The new {@link PBlockFace} describing the side the engine would be on if opened according
-     *                        to the provided variables. Using {@link nl.pim16aap2.bigdoors.util.Mutable} to make it
-     *                        mutable.
      * @deprecated To be removed once everything has been moved to the new system (without dedicated Openers).
      */
     // TODO: REMOVE
@@ -301,7 +294,7 @@ public abstract class DoorBase
     public abstract void getNewLocations(final @Nullable PBlockFace openDirection,
                                          final @Nullable RotateDirection rotateDirection,
                                          final @NotNull Location newMin, final @NotNull Location newMax,
-                                         final int blocksMoved, final @Nullable Mutable<PBlockFace> newEngineSide);
+                                         final int blocksMoved);
 
     /**
      * Check if a provided chunk is in range of the door. Range in this case refers to all chunks this {@link DoorBase}
@@ -481,33 +474,6 @@ public abstract class DoorBase
         if (doorOwner == null)
             return -1;
         return doorOwner.getPermission();
-    }
-
-    /**
-     * Get the side the engine is on relative to the rest of the door. When taking a {@link
-     * nl.pim16aap2.bigdoors.doors.BigDoor} as example, this would return North if the {@link DoorBase} was place along
-     * the z axis (North/South) and the engine was at the north-most point.
-     *
-     * @return The side of the {@link DoorBase} the engine is on relative to the rest of the door.
-     *
-     * @deprecated engineSide will be removed.
-     */
-    @NotNull
-    @Deprecated
-    public PBlockFace getEngineSide()
-    {
-        return engineSide;
-    }
-
-    /**
-     * Change the engineSide of this door.
-     *
-     * @param newEngineSide The new {@link PBlockFace} engine side of this door
-     * @deprecated engineSide will be removed.
-     */
-    public final void setEngineSide(final @NotNull PBlockFace newEngineSide)
-    {
-        engineSide = newEngineSide;
     }
 
     /**
