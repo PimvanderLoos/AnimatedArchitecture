@@ -226,12 +226,186 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
+    private DoorDirection getOpposite(DoorDirection curDir)
+    {
+        switch (curDir)
+        {
+        case EAST:
+            return DoorDirection.WEST;
+        case NORTH:
+            return DoorDirection.SOUTH;
+        case SOUTH:
+            return DoorDirection.NORTH;
+        case WEST:
+            return DoorDirection.EAST;
+        default:
+            return null;
+        }
+    }
+
     // Preparese the database for V2 of this plugin.
     // This means replacing all occurrences of OpenDirection == RotateDirection.NONE for now.
     // This may change to include more changes in the future.
     public void prepareForV2()
     {
-        // TODO: IMPLEMENT THIS.
+        int dbVersion = getDatabaseVersion();
+        if (dbVersion == Integer.MAX_VALUE || dbVersion < DATABASE_VERSION)
+        {
+            plugin.getMyLogger().logMessage("Failed to upgrade database. Reason: Invalid version; try updating the plugin?", true, false);
+            return;
+        }
+
+        plugin.getMyLogger().logMessage("Upgrading database to v2 of BigDoors! Creating backup first! (ignores settings)", true, true);
+        if (!makeBackup("BACKUPOFV1"))
+        {
+            plugin.getMyLogger().logMessage("Failed to make a backup! Aborting upgrade process!! Please contact pim16aap2.", true, true);
+            return;
+        }
+        locked.set(true);
+
+        try (Connection conn = getConnection())
+        {
+            // select all drawbridges. This is the only type that actually uses the engineSide variable.
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE type = 1;");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+            {
+                // Disregard current open direction. It should be somewhat stored in the engineSide.
+                // When it is opened in the northern direction, the engineSide will be South, even when closed (= upright).
+                DoorDirection newOpenDir = getOpposite(DoorDirection.valueOf(rs.getInt("engineSide")));
+                PreparedStatement ps2 = conn.prepareStatement("UPDATE doors SET openDirection=? WHERE id=?;");
+                ps2.setInt(1, DoorDirection.getValue(newOpenDir));
+                ps2.setString(2, Long.toString(rs.getLong("id")));
+                ps2.executeUpdate();
+                ps2.close();
+            }
+            rs.close();
+            ps.close();
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("1772", e);
+        }
+
+
+        try (Connection conn = getConnection())
+        {
+            plugin.getMyLogger().warn("Upgrading database to V6!");
+
+            String addColumn = "ALTER TABLE doors ADD COLUMN bitflag INTEGER NOT NULL DEFAULT 0";
+            conn.createStatement().execute(addColumn);
+
+
+            PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
+            ResultSet rs1 = ps1.executeQuery();
+            String update;
+
+            while (rs1.next())
+            {
+                long UID = rs1.getLong("id");
+                boolean isOpen = rs1.getBoolean("isOpen");
+                boolean isLocked = rs1.getBoolean("isLocked");
+
+                // Hardcoded values because v1 doesn't have bitflags and the correct enums.
+                int flag = 0;
+                if (isOpen)
+                    flag |= 1;
+                if (isLocked)
+                    flag |= 2;
+
+                update = "UPDATE doors SET bitflag=? WHERE id=?;";
+                PreparedStatement ps2 = conn.prepareStatement(update);
+                ps2.setString(1, Integer.toString(flag));
+                ps2.setString(2, Long.toString(UID));
+                ps2.executeUpdate();
+                ps2.close();
+            }
+            ps1.close();
+            rs1.close();
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("1420", e);
+        }
+
+        // Remove isOpen, isLocked, and engineSide from the doors table.
+        Connection conn = null;
+        try
+        {
+            Class.forName(DRIVER);
+            conn = DriverManager.getConnection(url);
+            conn.createStatement().execute("PRAGMA foreign_keys=OFF");
+            conn.setAutoCommit(false);
+            // Rename sqlUnion.
+            conn.createStatement().execute("ALTER TABLE doors RENAME TO doors_old;");
+
+            // Create updated version of sqlUnion.
+            String newDoors = "CREATE TABLE IF NOT EXISTS doors\n" +
+                "(id            INTEGER    PRIMARY KEY autoincrement,\n" +
+                " name          TEXT       NOT NULL,\n" +
+                " world         TEXT       NOT NULL,\n" +
+                " xMin          INTEGER    NOT NULL,\n" +
+                " yMin          INTEGER    NOT NULL,\n" +
+                " zMin          INTEGER    NOT NULL,\n" +
+                " xMax          INTEGER    NOT NULL,\n" +
+                " yMax          INTEGER    NOT NULL,\n" +
+                " zMax          INTEGER    NOT NULL,\n" +
+                " engineX       INTEGER    NOT NULL,\n" +
+                " engineY       INTEGER    NOT NULL,\n" +
+                " engineZ       INTEGER    NOT NULL,\n" +
+                " bitflag       INTEGER    NOT NULL DEFAULT 0,\n" +
+                " type          INTEGER    NOT NULL DEFAULT 0,\n" +
+                " powerBlockX   INTEGER    NOT NULL DEFAULT -1,\n" +
+                " powerBlockY   INTEGER    NOT NULL DEFAULT -1,\n" +
+                " powerBlockZ   INTEGER    NOT NULL DEFAULT -1,\n" +
+                " openDirection INTEGER    NOT NULL DEFAULT  0,\n" +
+                " autoClose     INTEGER    NOT NULL DEFAULT -1,\n" +
+                " chunkHash     INTEGER    NOT NULL DEFAULT -1,\n" +
+                " blocksToMove  INTEGER    NOT NULL DEFAULT -1);";
+            conn.createStatement().execute(newDoors);
+
+            // Copy data from old sqlUnion to new sqlUnion.
+            String restoreData = "INSERT INTO doors\n" +
+                "SELECT id, name, world, xMin, yMin, zMin, xMax, yMax, " +
+                "zMax, engineX, engineY, engineZ, bitflag, type, \n" +
+                "powerBlockX, powerBlockY, powerBlockZ, openDirection, autoClose, chunkHash, blocksToMove\n" +
+                "FROM doors_old;";
+            conn.createStatement().execute(restoreData);
+
+            // Get rid of old sqlUnion.
+            conn.createStatement().execute("DROP TABLE IF EXISTS 'doors_old';");
+            conn.commit();
+            conn.setAutoCommit(true);
+
+            setDBVersion(conn, MAX_DATABASE_VERSION);
+        }
+        catch (SQLException | NullPointerException | ClassNotFoundException e)
+        {
+            if (conn != null)
+                try
+                {
+                    conn.rollback();
+                }
+                catch (SQLException e1)
+                {
+                    logMessage("1770", e1);
+                }
+            logMessage("1772", e);
+        }
+        finally
+        {
+            if (conn != null)
+                try
+                {
+                    conn.close();
+                }
+                catch (SQLException | NullPointerException e)
+                {
+                    logMessage("1781", e);
+                }
+        }
+
+        locked.set(false);
     }
 
     private long getPlayerID(final Connection conn, final String playerUUID) throws SQLException
@@ -1318,6 +1492,39 @@ public class SQLiteJDBCDriverConnection
         return count;
     }
 
+    private int getDatabaseVersion(final Connection conn)
+    {
+        try
+        {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("PRAGMA user_version;");
+            int dbVersion = rs.getInt(1);
+            stmt.close();
+            rs.close();
+            return dbVersion;
+        }
+        catch (SQLException e)
+        {
+            logMessage("1503", e);
+        }
+        return Integer.MAX_VALUE;
+    }
+
+
+    private int getDatabaseVersion()
+    {
+        try (Connection conn = getConnection())
+        {
+            return getDatabaseVersion(conn);
+        }
+        catch(SQLException e)
+        {
+            logMessage("1498", e);
+        }
+        return Integer.MAX_VALUE;
+    }
+
+
     // Add columns and such when needed (e.g. upgrades from older versions).
     private void upgrade()
     {
@@ -1417,7 +1624,12 @@ public class SQLiteJDBCDriverConnection
 
     private boolean makeBackup()
     {
-        File dbFileBackup = new File(plugin.getDataFolder(), dbName + ".BACKUP");
+        return makeBackup(".BACKUP");
+    }
+
+    private boolean makeBackup(final String extension)
+    {
+        File dbFileBackup = new File(plugin.getDataFolder(), dbName + extension);
         // Only the most recent backup is kept, so delete the old one if a new one needs to be created.
         if (dbFileBackup.exists())
             dbFileBackup.delete();
