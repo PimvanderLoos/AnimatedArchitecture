@@ -38,7 +38,11 @@ public class SQLiteJDBCDriverConnection
     private final File   dbFile;
     private final String url;
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION    =  5;
+
+    // The highest database version. If the found db version matches or exceeds
+    // this version, the database cannot be enabled.
+    private static final int MAX_DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION     =  5;
 
     private static final int DOOR_ID             =  1;
     private static final int DOOR_NAME           =  2;
@@ -76,6 +80,7 @@ public class SQLiteJDBCDriverConnection
 
     private final String dbName;
     private boolean enabled = true;
+    private boolean validVersion = true;
     private AtomicBoolean locked = new AtomicBoolean(false);
     private static final String FAKEUUID = "0000";
 
@@ -92,16 +97,24 @@ public class SQLiteJDBCDriverConnection
     // Establish a connection.
     private Connection getConnection()
     {
-        if (!enabled)
-        {
-            plugin.getMyLogger().logMessage("Database disabled! This probably means an upgrade failed! Please contact pim16aap2.", true, false);
-            return null;
-        }
         if (locked.get())
         {
             plugin.getMyLogger().logMessage("Database locked! Please try again later! Please contact pim16aap2 if the issue persists.", true, false);
             return null;
         }
+        if (!validVersion)
+        {
+            plugin.getMyLogger().logMessage("Database disabled! Reason: Version too high! This is not a bug!", true, false);
+            plugin.getMyLogger().logMessage("Once upgraded, you can no longer use it on this version. Instead, you'll have to upgrade to v2!", true, false);
+            plugin.getMyLogger().logMessage("Please contact pim16aap2 if this was done unintentionally.", true, false);
+            return null;
+        }
+        if (!enabled)
+        {
+            plugin.getMyLogger().logMessage("Database disabled! This probably means an upgrade failed! Please contact pim16aap2.", true, false);
+            return null;
+        }
+
         Connection conn = null;
         try
         {
@@ -211,6 +224,14 @@ public class SQLiteJDBCDriverConnection
                 logMessage("217", e);
             }
         }
+    }
+
+    // Preparese the database for V2 of this plugin.
+    // This means replacing all occurrences of OpenDirection == RotateDirection.NONE for now.
+    // This may change to include more changes in the future.
+    public void prepareForV2()
+    {
+        // TODO: IMPLEMENT THIS.
     }
 
     private long getPlayerID(final Connection conn, final String playerUUID) throws SQLException
@@ -1314,6 +1335,13 @@ public class SQLiteJDBCDriverConnection
             if (dbVersion == DATABASE_VERSION)
             {
                 conn.close();
+                return;
+            }
+
+            if (dbVersion >= MAX_DATABASE_VERSION)
+            {
+                conn.close();
+                validVersion = false;
                 return;
             }
 

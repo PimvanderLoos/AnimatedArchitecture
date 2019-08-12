@@ -17,7 +17,7 @@ Alpha 0.1.8.11
 - OPs and players with the "bigdoors.admin.ignoreownership" permission node can now access all doors via commands, even if they don't own them.
 - Cleaned up the formatting of the default translation file a bit.
 - Fixed minor memory leak when players disconnect with their BigDoors menu still open.
-- Using new update chcker. Future dev builds will now have auto updating enabled again. Also, update-downloading is more reliable now.
+- Using new update checker. Dev builds now force enable update checking + updating, so people don't linger on them after they've been released.
 
 Alpha 0.1.8.10
 - Fixed being able to modify properties of doors you have no access to via direct commands when using doorUIDs.

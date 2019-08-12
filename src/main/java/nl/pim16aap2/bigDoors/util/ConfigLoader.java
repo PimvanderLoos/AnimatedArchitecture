@@ -36,7 +36,7 @@ public class ConfigLoader
     private int maxDoorCount;
     private int cacheTimeout;
     private boolean autoDLUpdate;
-    private int downloadDelay;
+    private long downloadDelay;
     private boolean enableRedstone;
     private int commandWaiterTimeout;
 
@@ -82,7 +82,7 @@ public class ConfigLoader
         String[] downloadDelayComment = { "Time (in minutes) to delay auto downloading updates after their release.",
                                           "Setting it to 1440 means that updates will be downloaded 24h after their release.",
                                           "This is useful, as it will mean that the update won't get downloaded if I decide to pull it for some reason",
-                                          "(within the specified timeframe, of course)." };
+                                          "(within the specified timeframe, of course). Note that updates cannot be deferred for more than 1 week (10080 minutes)." };
         String[] autoDLUpdateComment = { "Allow this plugin to automatically download new updates. They will be applied on restart." };
         String[] allowStatsComment = { "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
                                        "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!" };
@@ -143,8 +143,9 @@ public class ConfigLoader
         autoDLUpdate = config.getBoolean("auto-update", true);
         configOptionsList.add(new ConfigOption("auto-update", autoDLUpdate, autoDLUpdateComment));
 
-        downloadDelay = config.getInt("downloadDelay", 1440);
+        downloadDelay = Math.min(10080, config.getLong("downloadDelay", 1440));
         configOptionsList.add(new ConfigOption("downloadDelay", downloadDelay, downloadDelayComment));
+        downloadDelay *= 60; // Convert to seconds after adding the option to the config.
 
         allowStats = config.getBoolean("allowStats", true);
         configOptionsList.add(new ConfigOption("allowStats", allowStats, allowStatsComment));
@@ -427,8 +428,17 @@ public class ConfigLoader
         return autoDLUpdate;
     }
 
-    public int downloadDelay()
+    /**
+     * Gets the amount time (in seconds) to wait before downloading an update. If set to 24 hours (86400 seconds), and
+     * an update was released on Monday June 1 at 12PM, it will not download this update before Tuesday June 2 at 12PM.
+     * When running a dev-build, however, this value is overridden to 0.
+     *
+     * @return The amount time (in seconds) to wait before downloading an update.
+     */
+    public long downloadDelay()
     {
+        if (BigDoors.DEVBUILD)
+            return 0L;
         return downloadDelay;
     }
 

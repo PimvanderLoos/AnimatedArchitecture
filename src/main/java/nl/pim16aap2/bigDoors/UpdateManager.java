@@ -73,7 +73,7 @@ public final class UpdateManager
                if (updateAvailable)
                    plugin.getMyLogger().info("A new update is available: " + plugin.getUpdateManager().getNewestVersion());
 
-               if (downloadUpdates && updateAvailable)
+               if (downloadUpdates && updateAvailable && result.getAge() >= plugin.getConfigLoader().downloadDelay())
                {
                    updateDownloaded = updater.downloadUpdate();
                    if (updateDownloaded)

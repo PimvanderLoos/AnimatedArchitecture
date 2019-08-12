@@ -1,6 +1,3 @@
-/**
- *
- */
 package nl.pim16aap2.bigDoors;
 
 import java.io.BufferedInputStream;
@@ -11,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,6 +17,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.avaje.ebean.validation.NotNull;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -30,21 +29,20 @@ import nl.pim16aap2.bigDoors.util.Util;
 /**
  * A utility class to assist in checking for updates for plugins uploaded to
  * <a href="https://spigotmc.org/resources/">SpigotMC</a>. Before any members of
- * this class are accessed, {@link #init(JavaPlugin, int)} must be invoked by
- * the plugin, preferrably in its {@link JavaPlugin#onEnable()} method, though
- * that is not a requirement.
+ * this class are accessed, {@link #init(JavaPlugin, int, PLogger)} must be invoked by the plugin, preferrably in its
+ * {@link JavaPlugin#onEnable()} method, though that is not a requirement.
  * <p>
  * This class performs asynchronous queries to
  * <a href="https://spiget.org">SpiGet</a>, an REST server which is updated
- * periodically. If the results of {@link #requestUpdateCheck()} are
- * inconsistent with what is published on SpigotMC, it may be due to SpiGet's
- * cache. Results will be updated in due time.
+ * periodically. If the results of {@link #requestUpdateCheck()} are inconsistent with what is published on SpigotMC, it
+ * may be due to SpiGet's cache. Results will be updated in due time.
+ * <p>
+ * Some modifications were made to support downloading of updates and storing the age of an update.
  *
  * @author Parker Hawke - 2008Choco
  */
 public final class UpdateChecker
 {
-
     public static final VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
     {
         String[] firstSplit = splitVersionInfo(first), secondSplit = splitVersionInfo(second);
@@ -64,7 +62,7 @@ public final class UpdateChecker
         return (secondSplit.length > firstSplit.length) ? second : first;
     };
 
-    private static final String USER_AGENT = "CHOCO-update-checker";
+    private static final String USER_AGENT = "BigDoors-update-checker";
     private static final String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
     private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
     private final String downloadURL;
@@ -77,7 +75,8 @@ public final class UpdateChecker
     private final int pluginID;
     private final VersionScheme versionScheme;
 
-    private UpdateChecker(BigDoors plugin, int pluginID, VersionScheme versionScheme)
+    private UpdateChecker(final BigDoors plugin, final int pluginID,
+                          final VersionScheme versionScheme)
     {
         this.plugin = plugin;
         this.pluginID = pluginID;
@@ -86,61 +85,87 @@ public final class UpdateChecker
     }
 
     /**
-     * Request an update check to SpiGet. This request is asynchronous and may not
-     * complete immediately as an HTTP GET request is published to the SpiGet API.
+     * Requests an update check to SpiGet. This request is asynchronous and may not complete immediately as an HTTP GET
+     * request is published to the SpiGet API.
      *
      * @return a future update result
      */
     public CompletableFuture<UpdateResult> requestUpdateCheck()
     {
         return CompletableFuture.supplyAsync(
-     () ->
-        {
-            int responseCode = -1;
-            try
+            () ->
             {
-                URL url = new URL(String.format(UPDATE_URL, pluginID));
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.addRequestProperty("User-Agent", USER_AGENT);
+                int responseCode = -1;
+                try
+                {
+                    URL url = new URL(String.format(UPDATE_URL, pluginID));
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.addRequestProperty("User-Agent", USER_AGENT);
 
-                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-                responseCode = connection.getResponseCode();
+                    InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+                    responseCode = connection.getResponseCode();
 
-                JsonElement element = new JsonParser().parse(reader);
-                if (!element.isJsonArray())
+                    JsonElement element = new JsonParser().parse(reader);
+                    if (!element.isJsonArray())
+                        return new UpdateResult(UpdateReason.INVALID_JSON);
+
+                    reader.close();
+
+                    JsonObject versionObject = element.getAsJsonArray().get(0).getAsJsonObject();
+
+                    long age = -1;
+                    String ageString = versionObject.get("releaseDate").getAsString();
+                    try
+                    {
+                        age = getAge(Long.parseLong(ageString));
+                    }
+                    catch (NumberFormatException e)
+                    {
+                        plugin.getMyLogger().logMessageToLogFile("Failed to obtain age of update from ageString: \"" + ageString + "\"");
+                    }
+
+
+                    String current = plugin.getDescription().getVersion(), newest = versionObject.get("name")
+                                                                                                 .getAsString();
+                    String latest = versionScheme.compareVersions(current, newest);
+
+                    if (latest == null)
+                        return new UpdateResult(UpdateReason.UNSUPPORTED_VERSION_SCHEME);
+                    else if (latest.equals(current))
+                        return new UpdateResult(current.equals(newest) ? UpdateReason.UP_TO_DATE :
+                                                UpdateReason.UNRELEASED_VERSION, current, age);
+                    else if (latest.equals(newest))
+                        return new UpdateResult(UpdateReason.NEW_UPDATE, latest, age);
+                }
+                catch (IOException e)
+                {
+                    return new UpdateResult(UpdateReason.COULD_NOT_CONNECT);
+                }
+                catch (JsonSyntaxException e)
+                {
                     return new UpdateResult(UpdateReason.INVALID_JSON);
+                }
 
-                reader.close();
-
-                JsonObject versionObject = element.getAsJsonArray().get(0).getAsJsonObject();
-                String current = plugin.getDescription().getVersion(), newest = versionObject.get("name").getAsString();
-                String latest = versionScheme.compareVersions(current, newest);
-
-                if (latest == null)
-                    return new UpdateResult(UpdateReason.UNSUPPORTED_VERSION_SCHEME);
-                else if (latest.equals(current))
-                    return new UpdateResult(current.equals(newest) ? UpdateReason.UP_TO_DATE :
-                        UpdateReason.UNRELEASED_VERSION);
-                else if (latest.equals(newest))
-                    return new UpdateResult(UpdateReason.NEW_UPDATE, latest);
-            }
-            catch (IOException e)
-            {
-                return new UpdateResult(UpdateReason.COULD_NOT_CONNECT);
-            }
-            catch (JsonSyntaxException e)
-            {
-                return new UpdateResult(UpdateReason.INVALID_JSON);
-            }
-
-            return new UpdateResult(responseCode == 401 ? UpdateReason.UNAUTHORIZED_QUERY : UpdateReason.UNKNOWN_ERROR);
-        });
+                return new UpdateResult(
+                    responseCode == 401 ? UpdateReason.UNAUTHORIZED_QUERY : UpdateReason.UNKNOWN_ERROR);
+            });
     }
 
     /**
-     * Get the last update result that was queried by {@link #requestUpdateCheck()}.
-     * If no update check was performed since this class' initialization, this
-     * method will return null.
+     * Gets the difference in seconds between a given time and the current time.
+     *
+     * @param updateTime A moment in time to compare the current time to.
+     * @return The difference in seconds between a given time and the current time.
+     */
+    private long getAge(final long updateTime)
+    {
+        long currentTime = Instant.now().getEpochSecond();
+        return currentTime - updateTime;
+    }
+
+    /**
+     * Gets the last update result that was queried by {@link #requestUpdateCheck()}. If no update check was performed
+     * since this class' initialization, this method will return null.
      *
      * @return the last update check result. null if none.
      */
@@ -165,7 +190,7 @@ public final class UpdateChecker
      */
     public String getDownloadUrl()
     {
-        return downloadURL.toString();
+        return downloadURL;
     }
 
     /**
@@ -175,9 +200,6 @@ public final class UpdateChecker
      */
     public boolean downloadUpdate()
     {
-        if (downloadURL == null)
-            return false;
-
         boolean downloadSuccessfull = false;
         try
         {
@@ -192,7 +214,7 @@ public final class UpdateChecker
             // Follow any and all redirects until we've finally found the actual file.
             String location = downloadURL;
             HttpURLConnection httpConnection = null;
-            for (;;)
+            for (; ; )
             {
                 URL url = new URL(location);
                 httpConnection = (HttpURLConnection) url.openConnection();
@@ -220,8 +242,8 @@ public final class UpdateChecker
             }
 
             int grabSize = 4096;
-            BufferedInputStream  in   = new BufferedInputStream(httpConnection.getInputStream());
-            FileOutputStream     fos  = new FileOutputStream(updateFile);
+            BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
+            FileOutputStream fos = new FileOutputStream(updateFile);
             BufferedOutputStream bout = new BufferedOutputStream(fos, grabSize);
 
             byte[] data = new byte[grabSize];
@@ -236,63 +258,54 @@ public final class UpdateChecker
             fos.close();
             downloadSuccessfull = true;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
-            e.printStackTrace();
         }
         return downloadSuccessfull;
     }
 
     /**
-     * Initialize this update checker with the specified values and return its
-     * instance. If an instance of UpdateChecker has already been initialized, this
-     * method will act similarly to {@link #get()} (which is recommended after
-     * initialization).
+     * Initializes this update checker with the specified values and return its instance. If an instance of
+     * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
+     * recommended after initialization).
      *
      * @param plugin        the plugin for which to check updates. Cannot be null
-     * @param pluginID      the ID of the plugin as identified in the SpigotMC
-     *                      resource link. For example,
-     *                      "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/"
-     *                      would expect "12038" as a value. The value must be
-     *                      greater than 0
+     * @param pluginID      the ID of the plugin as identified in the SpigotMC resource link. For example,
+     *                      "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a
+     *                      value. The value must be greater than 0
      * @param versionScheme a custom version scheme parser. Cannot be null
-     *
+     * @param logger        The {@link PLogger} to use for logging.
      * @return the UpdateChecker instance
      */
-    public static UpdateChecker init(BigDoors plugin, int pluginID, VersionScheme versionScheme)
+    public static UpdateChecker init(final BigDoors plugin, final int pluginID,
+                                     final VersionScheme versionScheme)
     {
-        Preconditions.checkArgument(plugin != null, "Plugin cannot be null");
         Preconditions.checkArgument(pluginID > 0, "Plugin ID must be greater than 0");
-        Preconditions.checkArgument(versionScheme != null, "null version schemes are unsupported");
 
         return (instance == null) ? instance = new UpdateChecker(plugin, pluginID, versionScheme) : instance;
     }
 
     /**
-     * Initialize this update checker with the specified values and return its
-     * instance. If an instance of UpdateChecker has already been initialized, this
-     * method will act similarly to {@link #get()} (which is recommended after
-     * initialization).
+     * Initializes this update checker with the specified values and return its instance. If an instance of
+     * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
+     * recommended after initialization).
      *
      * @param plugin   the plugin for which to check updates. Cannot be null
-     * @param pluginID the ID of the plugin as identified in the SpigotMC resource
-     *                 link. For example,
-     *                 "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/"
-     *                 would expect "12038" as a value. The value must be greater
-     *                 than 0
-     *
+     * @param pluginID the ID of the plugin as identified in the SpigotMC resource link. For example,
+     *                 "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a value. The
+     *                 value must be greater than 0
+     * @param logger   The {@link PLogger} to use for logging.
      * @return the UpdateChecker instance
      */
-    public static UpdateChecker init(BigDoors plugin, int pluginID)
+    public static UpdateChecker init(final BigDoors plugin, final int pluginID)
     {
         return init(plugin, pluginID, VERSION_SCHEME_DECIMAL);
     }
 
     /**
-     * Get the initialized instance of UpdateChecker. If
-     * {@link #init(JavaPlugin, int)} has not yet been invoked, this method will
-     * throw an exception.
+     * Gets the initialized instance of UpdateChecker. If {@link #init(JavaPlugin, int, PLogger)} has not yet been
+     * invoked, this method will throw an exception.
      *
      * @return the UpdateChecker instance
      */
@@ -304,9 +317,8 @@ public final class UpdateChecker
     }
 
     /**
-     * Check whether the UpdateChecker has been initialized or not (if
-     * {@link #init(JavaPlugin, int)} has been invoked) and {@link #get()} is safe
-     * to use.
+     * Checks whether the UpdateChecker has been initialized or not (if {@link #init(JavaPlugin, int, PLogger)} has been
+     * invoked) and {@link #get()} is safe to use.
      *
      * @return true if initialized, false otherwise
      */
@@ -316,21 +328,18 @@ public final class UpdateChecker
     }
 
     /**
-     * A functional interface to compare two version Strings with similar version
-     * schemes.
+     * A functional interface to compare two version Strings with similar version schemes.
      */
     @FunctionalInterface
     public static interface VersionScheme
     {
 
         /**
-         * Compare two versions and return the higher of the two. If null is returned,
-         * it is assumed that at least one of the two versions are unsupported by this
-         * version scheme parser.
+         * Compare two versions and return the higher of the two. If null is returned, it is assumed that at least one
+         * of the two versions are unsupported by this version scheme parser.
          *
          * @param first  the first version to check
          * @param second the second version to check
-         *
          * @return the greater of the two versions. null if unsupported version schemes
          */
         public String compareVersions(String first, String second);
@@ -364,8 +373,8 @@ public final class UpdateChecker
         UNAUTHORIZED_QUERY,
 
         /**
-         * The version of the plugin installed on the server is greater than the one
-         * uploaded to SpigotMC's resources section.
+         * The version of the plugin installed on the server is greater than the one uploaded to SpigotMC's resources
+         * section.
          */
         UNRELEASED_VERSION,
 
@@ -375,59 +384,60 @@ public final class UpdateChecker
         UNKNOWN_ERROR,
 
         /**
-         * The plugin uses an unsupported version scheme, therefore a proper comparison
-         * between versions could not be made.
+         * The plugin uses an unsupported version scheme, therefore a proper comparison between versions could not be
+         * made.
          */
         UNSUPPORTED_VERSION_SCHEME,
 
         /**
-         * The plugin is up to date with the version released on SpigotMC's resources
-         * section.
+         * The plugin is up to date with the version released on SpigotMC's resources section.
          */
-        UP_TO_DATE;
+        UP_TO_DATE
 
     }
 
     /**
-     * Represents a result for an update query performed by
-     * {@link UpdateChecker#requestUpdateCheck()}.
+     * Represents a result for an update query performed by {@link UpdateChecker#requestUpdateCheck()}.
      */
     public final class UpdateResult
     {
-
         private final UpdateReason reason;
         private final String newestVersion;
+        private final long age;
 
         { // An actual use for initializer blocks. This is madness!
             lastResult = this;
         }
 
-        private UpdateResult(UpdateReason reason, String newestVersion)
+        private UpdateResult(final UpdateReason reason, final String newestVersion, final long age)
         {
             this.reason = reason;
             this.newestVersion = newestVersion;
+            this.age = age;
         }
 
-        private UpdateResult(UpdateReason reason)
+        private UpdateResult(final UpdateReason reason)
         {
-            Preconditions.checkArgument(reason != UpdateReason.NEW_UPDATE,
-                                        "Reasons that require updates must also provide the latest version String");
+            Preconditions.checkArgument(reason != UpdateReason.NEW_UPDATE && reason != UpdateReason.UP_TO_DATE,
+                                        "Reasons that might require updates must also provide the latest version String");
             this.reason = reason;
             newestVersion = plugin.getDescription().getVersion();
+            age = -1;
         }
 
         /**
-         * Get the constant reason of this result.
+         * Gets the constant reason of this result.
          *
          * @return the reason
          */
+        @NotNull
         public UpdateReason getReason()
         {
             return reason;
         }
 
         /**
-         * Check whether or not this result requires the user to update.
+         * Checks whether or not this result requires the user to update.
          *
          * @return true if requires update, false otherwise
          */
@@ -437,16 +447,25 @@ public final class UpdateChecker
         }
 
         /**
-         * Get the latest version of the plugin. This may be the currently installed
-         * version, it may not be. This depends entirely on the result of the update.
+         * Gets the latest version of the plugin. This may be the currently installed version, it may not be. This
+         * depends entirely on the result of the update.
          *
          * @return the newest version of the plugin
          */
+        @NotNull
         public String getNewestVersion()
         {
             return newestVersion;
         }
 
+        /**
+         * Gets the number of seconds since the last update was released.
+         *
+         * @return The number of seconds since the last update was released or -1 if unavailable.
+         */
+        public long getAge()
+        {
+            return age;
+        }
     }
-
 }
