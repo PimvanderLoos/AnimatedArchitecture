@@ -44,6 +44,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 {
     private static final String DRIVER = "org.sqlite.JDBC";
     private static final int DATABASE_VERSION = 11;
+    // TODO: Set this to 10. This cannot be done currently because the tests will fail for the upgrades, which
+    //       are still useful when writing the code to upgrade the v1 database to v2.
+    private static final int MIN_DATABASE_VERSION = 0;
+    //    private static final int MIN_DATABASE_VERSION = 10;
     private static final int DOOR_ID = 1;
     private static final int DOOR_NAME = 2;
     private static final int DOOR_WORLD = 3;
@@ -80,13 +84,52 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
      */
     private static final String FAKEUUID = "0000";
+
+    /**
+     * Whether or not the database version is compatible with this version of BigDoors.
+     */
+    private boolean validVersion = true;
+
+    /**
+     * The database file.
+     */
     private final File dbFile;
+
+    /**
+     * The URL of the database.
+     */
     private final String url;
+
+    /**
+     * The logger used for error logging.
+     */
     private final PLogger pLogger;
+
+    /**
+     * Whether or not the database is enabled. It gets disabled when it could not initialize the database properly or if
+     * it failed to create a backup before updating.
+     */
     private boolean enabled = false;
+
+    /**
+     * Whether the database is locked. It is locked during certain upgrade processes to prevent issues with concurrent
+     * access and invalid data.
+     */
     private AtomicBoolean locked = new AtomicBoolean(false);
+
+    /**
+     * The BigDoors configuration.
+     */
     private final ConfigLoader config;
+
+    /**
+     * Object that can retrieve a {@link World} from a String.
+     */
     private final WorldRetriever worldRetriever;
+
+    /**
+     * Object that can retrieve a {@link org.bukkit.entity.Player} from a String.
+     */
     private final PlayerRetriever playerRetriever;
 
     /**
@@ -120,14 +163,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @NotNull
     private Connection getConnection()
     {
-        if (!enabled)
-        {
-            IllegalStateException e = new IllegalStateException(
-                "Database disabled! This probably means an upgrade failed! " +
-                    "Please contact pim16aap2.");
-            pLogger.logException(e);
-            throw e;
-        }
         if (locked.get())
         {
             IllegalStateException e = new IllegalStateException(
@@ -136,6 +171,26 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             pLogger.logException(e);
             throw e;
         }
+
+        if (!validVersion)
+        {
+            IllegalStateException e = new IllegalStateException(
+                "Database disabled! Reason: Version too high! This is not a bug!\n" +
+                    "Once upgraded, you can no longer use it on this version. Instead, you'll have to upgrade to v2!\n" +
+                    "Please contact pim16aap2 if this was done unintentionally.\n");
+            pLogger.logException(e);
+            throw e;
+        }
+
+        if (!enabled)
+        {
+            IllegalStateException e = new IllegalStateException(
+                "Database disabled! This probably means an upgrade failed! " +
+                    "Please contact pim16aap2.");
+            pLogger.logException(e);
+            throw e;
+        }
+
         Connection conn = null;
         try
         {
@@ -1321,6 +1376,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             if (dbVersion == DATABASE_VERSION)
             {
                 conn.close();
+                return;
+            }
+
+            if (dbVersion < MIN_DATABASE_VERSION)
+            {
+                conn.close();
+                validVersion = false;
                 return;
             }
 
