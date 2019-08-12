@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +35,7 @@ public final class ConfigLoader
     private final BigDoors plugin;
     private final PLogger logger;
 
-    private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Arrays.asList("GOLD_BLOCK"));
+    private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Collections.singletonList("GOLD_BLOCK"));
     private final String header;
     private final List<ConfigEntry<?>> configEntries;
     private final Map<DoorType, String> doorPrices;
@@ -49,7 +50,7 @@ public final class ConfigLoader
     private int maxDoorCount;
     private int cacheTimeout;
     private boolean autoDLUpdate;
-    private int downloadDelay;
+    private long downloadDelay;
     private boolean enableRedstone;
     private Set<Material> powerBlockTypesMap;
     private boolean worldGuardHook;
@@ -96,6 +97,7 @@ public final class ConfigLoader
      * @return The instance of the {@link ConfigLoader}.
      */
     @Nullable
+    @Contract(pure = true)
     public static ConfigLoader get()
     {
         return instance;
@@ -141,11 +143,11 @@ public final class ConfigLoader
             "Time (in minutes) to delay auto downloading updates after their release.",
             "Setting it to 1440 means that updates will be downloaded 24h after their release.",
             "This is useful, as it will mean that the update won't get downloaded if I decide to pull it for some reason",
-            "(within the specified timeframe, of course)."};
+            "(within the specified timeframe, of course). Note that updates cannot be deferred for more than 1 week (10080 minutes)."};
         String[] autoDLUpdateComment = {
             "Allow this plugin to automatically download new updates. They will be applied on restart."};
         String[] allowStatsComment = {
-            "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
+            "Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.",
             "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"};
         String[] maxDoorSizeComment = {
             "Max. number of blocks allowed in a door.",
@@ -192,14 +194,20 @@ public final class ConfigLoader
         FileConfiguration config = plugin.getConfig();
 
         enableRedstone = addNewConfigEntry(config, "allowRedstone", true, enableRedstoneComment);
-        readPowerBlockConfig(config, powerBlockTypeComment);
+
+        // No need to store the result here. It would be a list of Strings anyway, while we want blocks.
+        // Because all entries need to be verified as valid blocks anyway, the list of power block types is
+        // populated in the verification method.
+        addNewConfigEntry(config, "powerBlockTypes", DEFAULTPOWERBLOCK, powerBlockTypeComment, this::verifyBlocks);
         maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
         maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
         languageFile = addNewConfigEntry(config, "languageFile", "en_US", languageFileComment);
         dbFile = addNewConfigEntry(config, "dbFile", "doorDB.db", dbFileComment);
         checkForUpdates = addNewConfigEntry(config, "checkForUpdates", true, checkForUpdatesComment);
         autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
-        downloadDelay = addNewConfigEntry(config, "downloadDelay", 1440, downloadDelayComment);
+        // Multiply by 60 to get the time in seconds. Also, it's capped to 10080 minutes, better known as 1 week.
+        downloadDelay = addNewConfigEntry(config, "downloadDelay", 1440, downloadDelayComment,
+                                          (Integer x) -> Math.min(10080, x)) * 60;
         allowStats = addNewConfigEntry(config, "allowStats", true, allowStatsComment);
         worldGuardHook = addNewConfigEntry(config, "worldGuard", false, compatibilityHooks);
         plotSquaredHook = addNewConfigEntry(config, "plotSquared", false, null);
@@ -233,37 +241,35 @@ public final class ConfigLoader
     }
 
     /**
-     * Read the allowed powerBlockTypes from the config. Only valid materials are allowed on this list. Invalid
-     * materials are removed from the list and from the config.
+     * Verifies that all Strings in a list are valid (solid) materials. All invalid and duplicated entries are removed
+     * from the list. If there are exactly 0 valid materials, {@link #DEFAULTPOWERBLOCK} is used instead.
+     * <p>
+     * All valid materials are added to {@link #powerBlockTypesMap}.
      *
-     * @param config                The config
-     * @param powerBlockTypeComment The comment of the powerBlockType option.
+     * @param input The list of Strings of potential materials.
+     * @return The list of names of all valid materials in the list without duplication or {@link #DEFAULTPOWERBLOCK} if
+     * none were found.
      */
-    private void readPowerBlockConfig(FileConfiguration config, String[] powerBlockTypeComment)
+    @NotNull
+    @Contract(value = "_ -> param1")
+    private List<String> verifyBlocks(final @NotNull List<String> input)
     {
-        List<String> materials;
-
-        {
-            List<?> materialsTmp = config.getList("powerBlockTypes", DEFAULTPOWERBLOCK);
-            // If the user is illiterate and failed to read the part saying it should be an
-            // enum string and used
-            // non-String values, put those in a new String list.
-            materials = new ArrayList<>();
-            materialsTmp.forEach(K -> materials.add(K.toString()));
-        }
-
-        // Try to put all the found materials into a String map.
-        // Only valid and solid material Strings are allowed.
-        // Everything else is thrown out.
-        Iterator<String> it = materials.iterator();
+        Iterator<String> it = input.iterator();
         while (it.hasNext())
         {
             String str = it.next();
             try
             {
                 Material mat = Material.valueOf(str);
-                if (mat.isSolid())
+                if (powerBlockTypesMap.contains(mat))
+                {
+                    logger.warn("Failed to add material: \"" + str + "\". It was already on the list!");
+                    it.remove();
+                }
+                else if (mat.isSolid())
+                {
                     powerBlockTypesMap.add(mat);
+                }
                 else
                 {
                     logger.warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
@@ -277,23 +283,9 @@ public final class ConfigLoader
             }
         }
 
-        // If the user didn't supply even a single valid block, use the default.
-        if (powerBlockTypesMap.size() == 0)
-        {
-            StringBuilder sb = new StringBuilder();
-            DEFAULTPOWERBLOCK.forEach(K -> sb.append(K + " "));
-            logger.warn("No materials found for powerBlockType! Defaulting to:" + sb.toString());
-            DEFAULTPOWERBLOCK.forEach(
-                K ->
-                {
-                    powerBlockTypesMap.add(Material.valueOf(K));
-                    materials.add(K);
-                });
-        }
-
-        addNewConfigEntry(config, "powerBlockTypes", materials, powerBlockTypeComment);
         logger.info("Power Block Types:");
         powerBlockTypesMap.forEach(K -> logger.info(" - " + K.toString()));
+        return input;
     }
 
     /**
@@ -306,9 +298,33 @@ public final class ConfigLoader
      * @param comment      The comment to accompany the option in the config.
      * @return The value as read from the config file if it exists or the default value.
      */
-    private <T> T addNewConfigEntry(FileConfiguration config, String optionName, T defaultValue, String[] comment)
+    @NotNull
+    private <T> T addNewConfigEntry(final @NotNull FileConfiguration config, final @NotNull String optionName,
+                                    final @NotNull T defaultValue, final @Nullable String[] comment)
     {
-        ConfigEntry<T> option = new ConfigEntry<>(plugin, config, optionName, defaultValue, comment);
+        ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment);
+        configEntries.add(option);
+        return option.getValue();
+    }
+
+    /**
+     * Read a new config option from the config if it exists. Otherwise, use the default value.
+     *
+     * @param <T>          The type of the option.
+     * @param config       The config.
+     * @param optionName   The name of the option in the config file.
+     * @param defaultValue The default value of the option. To be used if no/invalid option is in the config already.
+     * @param comment      The comment to accompany the option in the config.
+     * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
+     * @return The value as read from the config file if it exists or the default value.
+     */
+    @NotNull
+    private <T> T addNewConfigEntry(final @NotNull FileConfiguration config, final @NotNull String optionName,
+                                    final @NotNull T defaultValue, final @NotNull String[] comment,
+                                    final @NotNull ConfigEntry.TestValue<T> verifyValue)
+    {
+        ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment,
+                                                  verifyValue);
         configEntries.add(option);
         return option.getValue();
     }
@@ -427,8 +443,17 @@ public final class ConfigLoader
         return autoDLUpdate;
     }
 
-    public int downloadDelay()
+    /**
+     * Gets the amount time (in seconds) to wait before downloading an update. If set to 24 hours (86400 seconds), and
+     * an update was released on Monday June 1 at 12PM, it will not download this update before Tuesday June 2 at 12PM.
+     * When running a dev-build, however, this value is overridden to 0.
+     *
+     * @return The amount time (in seconds) to wait before downloading an update.
+     */
+    public long downloadDelay()
     {
+        if (BigDoors.DEVBUILD)
+            return 0L;
         return downloadDelay;
     }
 

@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.config;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -12,37 +14,59 @@ import java.util.List;
  */
 public final class ConfigEntry<V>
 {
-    private final BigDoors plugin;
+    private final PLogger logger;
     private final FileConfiguration config;
     private final String optionName;
     private final V defaultValue;
+    @Nullable
     private final String[] comment;
+    @Nullable
+    private final ConfigEntry.TestValue<V> verifyValue;
     private V value;
 
     /**
      * ConfigEntry Constructor.
      *
-     * @param plugin       The instance of {@link BigDoors}.
+     * @param logger       The logger to use for exception reporting.
+     * @param config       The config file to read from.
+     * @param optionName   The name of this option as used in the config file.
+     * @param defaultValue The default value of this option.
+     * @param comment      The comment that will preceed this option.
+     * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
+     */
+    ConfigEntry(final @NotNull PLogger logger, final @NotNull FileConfiguration config,
+                final @NotNull String optionName, final @NotNull V defaultValue, final @Nullable String[] comment,
+                final @Nullable ConfigEntry.TestValue<V> verifyValue)
+    {
+        this.logger = logger;
+        this.config = config;
+        this.optionName = optionName;
+        this.defaultValue = defaultValue;
+        this.comment = comment;
+        this.verifyValue = verifyValue;
+        setValue();
+    }
+
+    /**
+     * ConfigEntry Constructor.
+     *
+     * @param logger       The logger to use for exception reporting.
      * @param config       The config file to read from.
      * @param optionName   The name of this option as used in the config file.
      * @param defaultValue The default value of this option.
      * @param comment      The comment that will preceed this option.
      */
-    ConfigEntry(BigDoors plugin, FileConfiguration config, String optionName, V defaultValue, String[] comment)
+    ConfigEntry(final @NotNull PLogger logger, final @NotNull FileConfiguration config,
+                final @NotNull String optionName, final @NotNull V defaultValue, final @Nullable String[] comment)
     {
-        this.plugin = plugin;
-        this.config = config;
-        this.optionName = optionName;
-        this.defaultValue = defaultValue;
-        this.comment = comment;
-        setValue();
+        this(logger, config, optionName, defaultValue, comment, null);
     }
 
-    @SuppressWarnings("unchecked")
     /**
-     * Read the value of this config option from the config. If it fails, the
-     * default value is used instead.
+     * Read the value of this config option from the config. If it fails, the  default value is used instead. If it is
+     * available, the {@link #verifyValue} method is used to modify the value if it is invalid.
      */
+    @SuppressWarnings("unchecked")
     private void setValue()
     {
         try
@@ -51,11 +75,12 @@ public final class ConfigEntry<V>
         }
         catch (Exception e)
         {
-            plugin.getPLogger()
-                  .logException(e,
+            logger.logException(e,
                                 "Failed to read config value of: \"" + optionName + "\"! Using default value instead!");
             value = defaultValue;
         }
+        if (verifyValue != null)
+            value = verifyValue.test(value);
     }
 
     /**
@@ -111,5 +136,16 @@ public final class ConfigEntry<V>
         else
             string += value.toString();
         return string;
+    }
+
+    /**
+     * Interface that can be used to verify config values.
+     *
+     * @param <T> The type of the value.
+     * @author Pim
+     */
+    interface TestValue<T>
+    {
+        T test(T a);
     }
 }

@@ -19,6 +19,8 @@ import java.util.HashMap;
 
 /**
  * Manages all interactions with Vault.
+ *
+ * @author Pim
  */
 public class VaultManager extends Restartable
 {

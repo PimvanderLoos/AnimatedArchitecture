@@ -15,6 +15,8 @@ import java.util.UUID;
 
 /**
  * Represents a scheduler that automatically closes doors after a certain amount of time.
+ *
+ * @author Pim
  */
 public class AutoCloseScheduler extends Restartable
 {

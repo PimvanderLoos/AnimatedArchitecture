@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +34,8 @@ import java.util.regex.Pattern;
  * <a href="https://spiget.org">SpiGet</a>, an REST server which is updated
  * periodically. If the results of {@link #requestUpdateCheck()} are inconsistent with what is published on SpigotMC, it
  * may be due to SpiGet's cache. Results will be updated in due time.
+ * <p>
+ * Some modifications were made to support downloading of updates and storing the age of an update.
  *
  * @author Parker Hawke - 2008Choco
  */
@@ -57,7 +60,7 @@ public final class UpdateChecker
         return (secondSplit.length > firstSplit.length) ? second : first;
     };
 
-    private static final String USER_AGENT = "CHOCO-update-checker";
+    private static final String USER_AGENT = "BigDoors-update-checker";
     private static final String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
     private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
     private final String downloadURL;
@@ -82,7 +85,7 @@ public final class UpdateChecker
     }
 
     /**
-     * Request an update check to SpiGet. This request is asynchronous and may not complete immediately as an HTTP GET
+     * Requests an update check to SpiGet. This request is asynchronous and may not complete immediately as an HTTP GET
      * request is published to the SpiGet API.
      *
      * @return a future update result
@@ -109,6 +112,20 @@ public final class UpdateChecker
                     reader.close();
 
                     JsonObject versionObject = element.getAsJsonArray().get(0).getAsJsonObject();
+
+                    long age = -1;
+                    String ageString = versionObject.get("releaseDate").getAsString();
+                    try
+                    {
+                        age = getAge(Long.parseLong(ageString));
+                    }
+                    catch (NumberFormatException e)
+                    {
+                        PLogger.get()
+                               .logException(e, "Failed to obtain age of update from ageString: \"" + ageString + "\"");
+                    }
+
+
                     String current = plugin.getDescription().getVersion(), newest = versionObject.get("name")
                                                                                                  .getAsString();
                     String latest = versionScheme.compareVersions(current, newest);
@@ -117,9 +134,9 @@ public final class UpdateChecker
                         return new UpdateResult(UpdateReason.UNSUPPORTED_VERSION_SCHEME);
                     else if (latest.equals(current))
                         return new UpdateResult(current.equals(newest) ? UpdateReason.UP_TO_DATE :
-                                                UpdateReason.UNRELEASED_VERSION);
+                                                UpdateReason.UNRELEASED_VERSION, current, age);
                     else if (latest.equals(newest))
-                        return new UpdateResult(UpdateReason.NEW_UPDATE, latest);
+                        return new UpdateResult(UpdateReason.NEW_UPDATE, latest, age);
                 }
                 catch (IOException e)
                 {
@@ -136,7 +153,19 @@ public final class UpdateChecker
     }
 
     /**
-     * Get the last update result that was queried by {@link #requestUpdateCheck()}. If no update check was performed
+     * Gets the difference in seconds between a given time and the current time.
+     *
+     * @param updateTime A moment in time to compare the current time to.
+     * @return The difference in seconds between a given time and the current time.
+     */
+    private long getAge(final long updateTime)
+    {
+        long currentTime = Instant.now().getEpochSecond();
+        return currentTime - updateTime;
+    }
+
+    /**
+     * Gets the last update result that was queried by {@link #requestUpdateCheck()}. If no update check was performed
      * since this class' initialization, this method will return null.
      *
      * @return the last update check result. null if none.
@@ -238,9 +267,9 @@ public final class UpdateChecker
     }
 
     /**
-     * Initialize this update checker with the specified values and return its instance. If an instance of UpdateChecker
-     * has already been initialized, this method will act similarly to {@link #get()} (which is recommended after
-     * initialization).
+     * Initializes this update checker with the specified values and return its instance. If an instance of
+     * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
+     * recommended after initialization).
      *
      * @param plugin        the plugin for which to check updates. Cannot be null
      * @param pluginID      the ID of the plugin as identified in the SpigotMC resource link. For example,
@@ -259,9 +288,9 @@ public final class UpdateChecker
     }
 
     /**
-     * Initialize this update checker with the specified values and return its instance. If an instance of UpdateChecker
-     * has already been initialized, this method will act similarly to {@link #get()} (which is recommended after
-     * initialization).
+     * Initializes this update checker with the specified values and return its instance. If an instance of
+     * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
+     * recommended after initialization).
      *
      * @param plugin   the plugin for which to check updates. Cannot be null
      * @param pluginID the ID of the plugin as identified in the SpigotMC resource link. For example,
@@ -277,7 +306,7 @@ public final class UpdateChecker
     }
 
     /**
-     * Get the initialized instance of UpdateChecker. If {@link #init(JavaPlugin, int, PLogger)} has not yet been
+     * Gets the initialized instance of UpdateChecker. If {@link #init(JavaPlugin, int, PLogger)} has not yet been
      * invoked, this method will throw an exception.
      *
      * @return the UpdateChecker instance
@@ -290,7 +319,7 @@ public final class UpdateChecker
     }
 
     /**
-     * Check whether the UpdateChecker has been initialized or not (if {@link #init(JavaPlugin, int, PLogger)} has been
+     * Checks whether the UpdateChecker has been initialized or not (if {@link #init(JavaPlugin, int, PLogger)} has been
      * invoked) and {@link #get()} is safe to use.
      *
      * @return true if initialized, false otherwise
@@ -374,40 +403,43 @@ public final class UpdateChecker
      */
     public final class UpdateResult
     {
-
         private final UpdateReason reason;
         private final String newestVersion;
+        private final long age;
 
         { // An actual use for initializer blocks. This is madness!
             lastResult = this;
         }
 
-        private UpdateResult(UpdateReason reason, String newestVersion)
+        private UpdateResult(final @NotNull UpdateReason reason, final @NotNull String newestVersion, final long age)
         {
             this.reason = reason;
             this.newestVersion = newestVersion;
+            this.age = age;
         }
 
-        private UpdateResult(UpdateReason reason)
+        private UpdateResult(final @NotNull UpdateReason reason)
         {
-            Preconditions.checkArgument(reason != UpdateReason.NEW_UPDATE,
-                                        "Reasons that require updates must also provide the latest version String");
+            Preconditions.checkArgument(reason != UpdateReason.NEW_UPDATE && reason != UpdateReason.UP_TO_DATE,
+                                        "Reasons that might require updates must also provide the latest version String");
             this.reason = reason;
             newestVersion = plugin.getDescription().getVersion();
+            age = -1;
         }
 
         /**
-         * Get the constant reason of this result.
+         * Gets the constant reason of this result.
          *
          * @return the reason
          */
+        @NotNull
         public UpdateReason getReason()
         {
             return reason;
         }
 
         /**
-         * Check whether or not this result requires the user to update.
+         * Checks whether or not this result requires the user to update.
          *
          * @return true if requires update, false otherwise
          */
@@ -417,16 +449,25 @@ public final class UpdateChecker
         }
 
         /**
-         * Get the latest version of the plugin. This may be the currently installed version, it may not be. This
+         * Gets the latest version of the plugin. This may be the currently installed version, it may not be. This
          * depends entirely on the result of the update.
          *
          * @return the newest version of the plugin
          */
+        @NotNull
         public String getNewestVersion()
         {
             return newestVersion;
         }
 
+        /**
+         * Gets the number of seconds since the last update was released.
+         *
+         * @return The number of seconds since the last update was released or -1 if unavailable.
+         */
+        public long getAge()
+        {
+            return age;
+        }
     }
-
 }

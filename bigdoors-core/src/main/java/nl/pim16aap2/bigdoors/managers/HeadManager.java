@@ -19,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a manager of player heads with the texture of a certain player.
+ *
+ * @author Pim
  */
 public final class HeadManager extends Restartable
 {
@@ -85,7 +87,6 @@ public final class HeadManager extends Restartable
         return CompletableFuture.supplyAsync(
             () ->
             {
-
                 if (headMap.containsKey(playerUUID))
                     return Optional.of(headMap.get(playerUUID));
 

@@ -235,7 +235,7 @@ Tests not done:
 // TODO: When creating doors, make sure to use DoorBase#initBasicData.
 // TODO: Configurable timeouts for commands + creators. Also, put variable in messages.
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
-// TODO: Respect downloadDelay for automatic update downloading again. Or remove it.
+// TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
 
 /*
  * GUI
@@ -516,6 +516,22 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             logger.logException(exception);
         }
     }
+
+    private interface TestInterface<T>
+    {
+        T test(T a);
+    }
+
+    private <T> void test2(final @NotNull TestInterface<T> fun)
+    {
+
+    }
+
+    private void test1()
+    {
+        test2((Long x) -> Math.min(10080L, x));
+    }
+
 
     private void init()
     {

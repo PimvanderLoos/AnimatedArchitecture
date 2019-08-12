@@ -87,7 +87,7 @@ public final class UpdateManager
     }
 
     /**
-     * Check if any updates are available.
+     * Checks if any updates are available.
      */
     private void checkForUpdates()
     {
@@ -98,7 +98,7 @@ public final class UpdateManager
                 if (updateAvailable)
                     logger.info("A new update is available: " + getNewestVersion());
 
-                if (downloadUpdates && updateAvailable)
+                if (downloadUpdates && updateAvailable && result.getAge() >= plugin.getConfigLoader().downloadDelay())
                 {
                     updateDownloaded = updater.downloadUpdate();
                     if (updateDownloaded)

@@ -45,6 +45,8 @@ import java.util.UUID;
 
 /**
  * Manages all database interactions.
+ *
+ * @author Pim
  */
 public final class DatabaseManager extends Restartable
 {
