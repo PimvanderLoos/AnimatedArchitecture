@@ -42,6 +42,11 @@ public class Commander
         players     = new HashMap<>();
     }
 
+    public void prepareDatabaseForV2()
+    {
+        db.prepareForV2();
+    }
+
     // Check if a door is busy
     public boolean isDoorBusy(long doorUID)
     {
@@ -335,7 +340,9 @@ public class Commander
 
     public void updateDoorOpenDirection(long doorUID, RotateDirection openDir)
     {
-        db.updateDoorOpenDirection(doorUID, openDir == null ? RotateDirection.NONE : openDir);
+        if (openDir == null)
+            return;
+        db.updateDoorOpenDirection(doorUID, openDir);
     }
 
     public void updateDoorAutoClose(long doorUID, int autoClose)

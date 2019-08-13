@@ -18,6 +18,12 @@ Alpha 0.1.8.11
 - Cleaned up the formatting of the default translation file a bit.
 - Fixed minor memory leak when players disconnect with their BigDoors menu still open.
 - Using new update checker. Dev builds now force enable update checking + updating, so people don't linger on them after they've been released.
+- Added "/BigDoors upgradedatabaseforv2" command that will prepare the database for v2 of BigDoors. Note that there is no way back, so DO NOT USE THIS COMMAND!!
+- In further preparation of v2 of BigDoors, the naive opening system has been deprecated. 
+  What this means, is that whenever a door that does not have an explicitly defined openDirection (default), they will set the open direction they find when they are first toggled.
+  The old system where you could determine the direction a door would go by blocking the other directions will therefore ONLY work the first time you open a door. 
+  After that it will ALWAYS go in that direction unless you change it via the GUI / Commands.
+- Removed NONE open direction option from the GUI + commands.
 
 Alpha 0.1.8.10
 - Fixed being able to modify properties of doors you have no access to via direct commands when using doorUIDs.

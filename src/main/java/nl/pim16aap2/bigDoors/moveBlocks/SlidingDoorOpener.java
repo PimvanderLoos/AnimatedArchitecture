@@ -13,12 +13,36 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class SlidingDoorOpener implements Opener
 {
-    private BigDoors        plugin;
-    private RotateDirection moveDirection;
+    private BigDoors plugin;
 
     public SlidingDoorOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    @Override
+    public boolean isRotateDirectionValid(Door door)
+    {
+        return door.getOpenDir().equals(RotateDirection.NORTH) ||
+               door.getOpenDir().equals(RotateDirection.EAST ) ||
+               door.getOpenDir().equals(RotateDirection.SOUTH) ||
+               door.getOpenDir().equals(RotateDirection.WEST );
+    }
+
+    @Override
+    public RotateDirection getRotateDirection(Door door)
+    {
+        if (isRotateDirectionValid(door))
+            return door.getOpenDir();
+
+        if (!chunksLoaded(door))
+            return RotateDirection.NONE;
+
+        // First try to use the existing methods to figure out where to go. If that doens't work go NORTH if
+        RotateDirection openDir = getBlocksToMove(door).getRotateDirection();
+        if (openDir.equals(RotateDirection.NONE))
+            return door.getMinimum().getBlockX() == door.getMaximum().getBlockX() ? RotateDirection.NORTH : RotateDirection.EAST;
+        return openDir;
     }
 
     // Check if the chunks at the minimum and maximum locations of the door are loaded.
@@ -65,13 +89,20 @@ public class SlidingDoorOpener implements Opener
             if(door.getBlockCount() > maxDoorSize)
                 instantOpen = true;
 
-        int blocksToMove = getBlocksToMove(door);
+        MovementSpecification blocksToMove = getBlocksToMove(door);
 
-        if (blocksToMove != 0)
+        if (blocksToMove.getBlocks() != 0)
         {
+            if (!isRotateDirectionValid(door))
+            {
+                plugin.getMyLogger().logMessage("Updating openDirection of sliding door " + door.getName() + " to " + blocksToMove.getRotateDirection() +
+                                                ". If this is undesired, change it via the GUI.", true, false);
+                plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), blocksToMove.getRotateDirection());
+            }
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());
-            plugin.getCommander().addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove, moveDirection, plugin.getConfigLoader().sdMultiplier()));
+            plugin.getCommander().addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove.getBlocks(),
+                                                                 blocksToMove.getRotateDirection(), plugin.getConfigLoader().sdMultiplier()));
         }
         return DoorOpenResult.SUCCESS;
     }
@@ -150,7 +181,7 @@ public class SlidingDoorOpener implements Opener
         return moveBlocks;
     }
 
-    private int getBlocksToMove(Door door)
+    private MovementSpecification getBlocksToMove(Door door)
     {
         int blocksNorth = 0, blocksEast = 0, blocksSouth = 0, blocksWest = 0;
 
@@ -174,31 +205,53 @@ public class SlidingDoorOpener implements Opener
                  door.getOpenDir().equals(RotateDirection.WEST ) && !door.isOpen())
             blocksWest  = getBlocksInDir(door, RotateDirection.WEST);
         else
-            return 0;
+            return new MovementSpecification(0, RotateDirection.NONE);
 
 
         int maxVal = Math.max(Math.abs(blocksNorth), Math.max(blocksEast, Math.max(blocksSouth, Math.abs(blocksWest))));
 
         if (Math.abs(blocksNorth) == maxVal)
         {
-            moveDirection = RotateDirection.NORTH;
-            return blocksNorth;
+            return new MovementSpecification(blocksNorth, RotateDirection.NORTH);
         }
         if (blocksEast == maxVal)
         {
-            moveDirection = RotateDirection.EAST;
-            return blocksEast;
+            return new MovementSpecification(blocksEast, RotateDirection.EAST);
         }
         if (blocksSouth == maxVal)
         {
-            moveDirection = RotateDirection.SOUTH;
-            return blocksSouth;
+            return new MovementSpecification(blocksSouth, RotateDirection.SOUTH);
         }
         if (Math.abs(blocksWest) == maxVal)
         {
-            moveDirection = RotateDirection.WEST;
-            return blocksWest;
+            return new MovementSpecification(blocksWest, RotateDirection.WEST);
         }
-        return -1;
+        return new MovementSpecification(0, RotateDirection.NONE);
+    }
+
+    private static final class MovementSpecification
+    {
+        private final int blocks;
+        private final RotateDirection rotateDirection;
+
+        MovementSpecification(int blocks, RotateDirection rotateDirection)
+        {
+            this.blocks = blocks;
+            this.rotateDirection = rotateDirection;
+        }
+
+        public int getBlocks()
+        {
+            return blocks;
+        }
+
+        public RotateDirection getRotateDirection()
+        {
+            return rotateDirection;
+        }
     }
 }
+
+
+
+

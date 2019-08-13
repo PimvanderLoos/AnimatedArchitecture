@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -335,6 +336,33 @@ public class CommandHandler implements CommandExecutor
                     entity.remove();
     }
 
+    private static final String upgradeWarning = "\n" +
+        "===================================================================================\n" +
+        "===================================== WARNING =====================================\n" +
+        "===================================================================================\n" +
+        "||  Are you absolutely sure you want to upgrade the database to v2 of BigDoors?  ||\n" +
+        "||  You will NOT BE ABLE to use this database on the current version anymore!    ||\n" +
+        "||  If you are aware of the consequences, execute the following command:         ||\n" +
+        "||  \"bigdoors upgradedatabaseforv2 confirm\"                                      ||\n" +
+        "===================================================================================\n" +
+        "===================================== WARNING =====================================\n" +
+        "===================================================================================";
+    private void prepareDatabaseForV2(CommandSender sender, Command cmd, String label, String[] args)
+    {
+        if (sender instanceof Player)
+        {
+            ((Player) sender).sendMessage(ChatColor.RED + "Players cannot execute this command!");
+            return;
+        }
+        if (sender instanceof Entity || sender instanceof BlockCommandSender)
+            return;
+
+        if (args.length == 2 && args[1].equals("confirm"))
+            plugin.getCommander().prepareDatabaseForV2();
+        else
+            plugin.getMyLogger().logMessageToConsoleOnly(upgradeWarning);
+    }
+
     // Handle commands.
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
@@ -353,6 +381,9 @@ public class CommandHandler implements CommandExecutor
 
             switch(firstCommand)
             {
+            case "upgradedatabaseforv2":
+                prepareDatabaseForV2(sender, cmd, label, args);
+                break;
             case "version":
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " +
                     plugin.getDescription().getVersion() + (BigDoors.DEVBUILD ? " (build " + plugin.getBuildNumber() + ")" : "") + " of this plugin!");
@@ -584,13 +615,33 @@ public class CommandHandler implements CommandExecutor
                 return true;
 
             RotateDirection openDir = null;
-            if (args[1].equalsIgnoreCase("CLOCK") || args[1].equalsIgnoreCase("CLOCKWISE"))
-                openDir = RotateDirection.CLOCKWISE;
-            else if (args[1].equalsIgnoreCase("COUNTER") || args[1].equalsIgnoreCase("COUNTERCLOCKWISE"))
-                openDir = RotateDirection.COUNTERCLOCKWISE;
-            else if (args[1].equalsIgnoreCase("NONE") || args[1].equalsIgnoreCase("ANY"))
-                openDir = RotateDirection.NONE;
+            if (door.getType() == DoorType.SLIDINGDOOR)
+            {
+                if (args[1].equalsIgnoreCase("NORTH"))
+                    openDir = RotateDirection.NORTH;
+                else if (args[1].equalsIgnoreCase("EAST"))
+                    openDir = RotateDirection.NORTH;
+                else if (args[1].equalsIgnoreCase("SOUTH"))
+                    openDir = RotateDirection.NORTH;
+                else if (args[1].equalsIgnoreCase("WEST"))
+                    openDir = RotateDirection.NORTH;
+            }
+            else if (door.getType() == DoorType.ELEVATOR)
+            {
+                if (args[1].equalsIgnoreCase("UP"))
+                    openDir = RotateDirection.UP;
+                else if (args[1].equalsIgnoreCase("DOWN"))
+                    openDir = RotateDirection.DOWN;
+            }
             else
+            {
+                if (args[1].equalsIgnoreCase("CLOCK") || args[1].equalsIgnoreCase("CLOCKWISE"))
+                    openDir = RotateDirection.CLOCKWISE;
+                else if (args[1].equalsIgnoreCase("COUNTER") || args[1].equalsIgnoreCase("COUNTERCLOCKWISE"))
+                    openDir = RotateDirection.COUNTERCLOCKWISE;
+            }
+
+            if (openDir == null)
                 return false;
 
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), openDir);
@@ -932,17 +983,24 @@ public class CommandHandler implements CommandExecutor
     {
         Player player = sender instanceof Player ? (Player) sender : null;
         String help = "";
+        String commandPrefix = player == null ? "" : "/";
         help += ChatColor.GREEN + "====[ BigDoors Help ]====\n";
-        help += helpFormat("/BigDoors menu", "Opens BigDoors' GUI.");
-        help += helpFormat("/BigDoors version", "Get the version of this plugin.");
-        help += helpFormat("/BigDoors removeowner <door> <player>", "Add another owner for a door.");
-        help += helpFormat("/BigDoors addowner <door> <player> [permission]", "Add another owner for a door.");
+        help += helpFormat(commandPrefix + "BigDoors menu", "Opens BigDoors' GUI.");
+        help += helpFormat(commandPrefix + "BigDoors version", "Get the version of this plugin.");
+        help += helpFormat(commandPrefix + "BigDoors removeowner <door> <player>", "Add another owner for a door.");
+        help += helpFormat(commandPrefix + "BigDoors addowner <door> <player> [permission]", "Add another owner for a door.");
         if (player == null || player.hasPermission("bigdoors.admin.restart"))
-            help += helpFormat("/BigDoors restart", "Restart the plugin. Reinitializes almost everything.");
+            help += helpFormat("BigDoors restart", "Restart the plugin. Reinitializes almost everything.");
         if (player == null || player.hasPermission("bigdoors.admin.stopdoors"))
-            help += helpFormat("/BigDoors stop", "Forces all doors to finish instantly.");
+            help += helpFormat("BigDoors stop", "Forces all doors to finish instantly.");
         if (player == null || player.hasPermission("bigdoors.admin.pausedoors"))
-            help += helpFormat("/BigDoors pause", "Pauses all door movement until the command is run again.");
+            help += helpFormat("BigDoors pause", "Pauses all door movement until the command is run again.");
+        if (player == null)
+            help += helpFormat("BigDoors upgradedatabaseforv2", "Prepares the database for v2 of BigDoors.");
+
+        // Remove color codes for console.
+        if (player == null)
+            help = ChatColor.stripColor(help);
         plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, help);
     }
 }

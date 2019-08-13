@@ -21,6 +21,21 @@ public class PortcullisOpener implements Opener
         this.plugin = plugin;
     }
 
+    @Override
+    public boolean isRotateDirectionValid(Door door)
+    {
+        return door.getOpenDir().equals(RotateDirection.UP) ||
+               door.getOpenDir().equals(RotateDirection.DOWN);
+    }
+
+    @Override
+    public RotateDirection getRotateDirection(Door door)
+    {
+        if (isRotateDirectionValid(door))
+            return door.getOpenDir();
+        return RotateDirection.UP;
+    }
+
     // Check if the chunks at the minimum and maximum locations of the door are loaded.
     private boolean chunksLoaded(Door door)
     {
@@ -73,6 +88,14 @@ public class PortcullisOpener implements Opener
 
         if (blocksToMove != 0)
         {
+            if (!isRotateDirectionValid(door))
+            {
+                RotateDirection openDirection = door.isOpen() ? (blocksToMove > 0 ? RotateDirection.DOWN : RotateDirection.UP) :
+                                                                (blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN);
+                plugin.getMyLogger().logMessage("Updating openDirection of portcullis " + door.getName() + " to " + openDirection.name() +
+                                                ". If this is undesired, change it via the GUI.", true, false);
+                plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), openDirection);
+            }
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());
 

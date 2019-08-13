@@ -6,6 +6,7 @@ import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 
 public class FlagOpener implements Opener
 {
@@ -14,6 +15,23 @@ public class FlagOpener implements Opener
     public FlagOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    @Override
+    public boolean isRotateDirectionValid(Door door)
+    {
+        return door.getOpenDir().equals(RotateDirection.NORTH) ||
+               door.getOpenDir().equals(RotateDirection.EAST ) ||
+               door.getOpenDir().equals(RotateDirection.SOUTH) ||
+               door.getOpenDir().equals(RotateDirection.WEST );
+    }
+
+    @Override
+    public RotateDirection getRotateDirection(Door door)
+    {
+        if (isRotateDirectionValid(door))
+            return door.getOpenDir();
+        return door.getMinimum().getBlockX() == door.getMaximum().getBlockX() ? RotateDirection.NORTH : RotateDirection.EAST;
     }
 
     // Check if the chunks at the minimum and maximum locations of the door are loaded.
@@ -63,10 +81,20 @@ public class FlagOpener implements Opener
                 return DoorOpenResult.ERROR;
             }
 
-        // Change door availability so it cannot be opened again (just temporarily, don't worry!).
-        plugin.getCommander().setDoorBusy(door.getDoorUID());
+        if (!isRotateDirectionValid(door))
+        {
+            RotateDirection rotDir = getRotateDirection(door);
+            plugin.getMyLogger().logMessage("Updating openDirection of flag " + door.getName() + " to " + rotDir.name() +
+                                            ". If this is undesired, change it via the GUI.", true, false);
+            plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), rotDir);
+        }
 
-        plugin.getCommander().addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door));
+
+//        // THIS TYPE IS NOT ENABLED!
+//        // Change door availability so it cannot be opened again (just temporarily, don't worry!).
+//        plugin.getCommander().setDoorBusy(door.getDoorUID());
+//
+//        plugin.getCommander().addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door));
 
         return DoorOpenResult.SUCCESS;
     }

@@ -22,6 +22,56 @@ public class BridgeOpener implements Opener
         this.plugin = plugin;
     }
 
+    private RotateDirection getOppositeAsRotate(final DoorDirection curDir)
+    {
+        switch (curDir)
+        {
+        case EAST:
+            return RotateDirection.WEST;
+        case NORTH:
+            return RotateDirection.SOUTH;
+        case SOUTH:
+            return RotateDirection.NORTH;
+        case WEST:
+            return RotateDirection.EAST;
+        default:
+            return RotateDirection.NONE;
+        }
+    }
+
+    @Override
+    public boolean isRotateDirectionValid(Door door)
+    {
+        if (door.getOpenDir().equals(RotateDirection.NONE) ||
+            door.getOpenDir().equals(RotateDirection.CLOCKWISE) ||
+            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) ||
+            door.getOpenDir().equals(RotateDirection.UP) ||
+            door.getOpenDir().equals(RotateDirection.DOWN))
+            return false;
+
+        // When the rotation point is positioned on the NORTH/SOUTH axis,
+        // the engine must be either on the EAST or the WEST side.
+        boolean NS = door.getEngSide().equals(DoorDirection.EAST) ||
+                     door.getEngSide().equals(DoorDirection.WEST);
+        boolean north = door.getOpenDir().equals(RotateDirection.NORTH);
+        boolean east  = door.getOpenDir().equals(RotateDirection.EAST );
+        boolean south = door.getOpenDir().equals(RotateDirection.SOUTH);
+        boolean west  = door.getOpenDir().equals(RotateDirection.WEST );
+
+        // When rotation point is positioned along the NORTH/SOUTH axis, it can only rotate
+        // EAST or WEST. Or the other way round.
+        return (( NS && east ) || ( NS && west )) ||
+               ((!NS && north) || (!NS && south));
+    }
+
+    @Override
+    public RotateDirection getRotateDirection(Door door)
+    {
+        if (isRotateDirectionValid(door))
+            return door.getOpenDir();
+        return getOppositeAsRotate(door.getEngSide());
+    }
+
     // Check if the new position is free.
     private boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
     {
@@ -238,6 +288,12 @@ public class BridgeOpener implements Opener
         {
             plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
             return DoorOpenResult.NODIRECTION;
+        }
+        if (!isRotateDirectionValid(door))
+        {
+            plugin.getMyLogger().logMessage("Updating openDirection of bridge " + door.getName() + " to " + openDirection.name() +
+                                            ". If this is undesired, change it via the GUI.", true, false);
+            plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), RotateDirection.valueOf(openDirection.name()));
         }
 
         // Make sure the doorSize does not exceed the total doorSize.

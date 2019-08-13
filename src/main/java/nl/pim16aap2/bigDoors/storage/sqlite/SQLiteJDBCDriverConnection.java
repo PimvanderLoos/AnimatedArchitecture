@@ -24,6 +24,7 @@ import com.google.common.io.Files;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.DoorType;
@@ -122,13 +123,33 @@ public class SQLiteJDBCDriverConnection
             conn = DriverManager.getConnection(url);
             conn.createStatement().execute("PRAGMA foreign_keys=ON");
         }
-        catch (SQLException ex)
+        catch (SQLException | NullPointerException ex)
         {
             plugin.getMyLogger().logMessage("53: Failed to open connection!", true, false);
         }
         catch (ClassNotFoundException e)
         {
             plugin.getMyLogger().logMessage("57: Failed to open connection: CLass not found!!", true, false);
+        }
+        return conn;
+    }
+
+    private Connection getConnectionUnsafe()
+    {
+        Connection conn = null;
+        try
+        {
+            Class.forName(DRIVER);
+            conn = DriverManager.getConnection(url);
+            conn.createStatement().execute("PRAGMA foreign_keys=ON");
+        }
+        catch (SQLException | NullPointerException ex)
+        {
+            plugin.getMyLogger().logMessage("148: Failed to open connection!", true, false);
+        }
+        catch (ClassNotFoundException e)
+        {
+            plugin.getMyLogger().logMessage("152: Failed to open connection: CLass not found!!", true, false);
         }
         return conn;
     }
@@ -205,7 +226,7 @@ public class SQLiteJDBCDriverConnection
                 setDBVersion(conn, DATABASE_VERSION);
             }
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("203", e);
         }
@@ -215,7 +236,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("213", e);
             }
@@ -226,71 +247,95 @@ public class SQLiteJDBCDriverConnection
         }
     }
 
-    private DoorDirection getOpposite(DoorDirection curDir)
-    {
-        switch (curDir)
-        {
-        case EAST:
-            return DoorDirection.WEST;
-        case NORTH:
-            return DoorDirection.SOUTH;
-        case SOUTH:
-            return DoorDirection.NORTH;
-        case WEST:
-            return DoorDirection.EAST;
-        default:
-            return null;
-        }
-    }
-
-    // Preparese the database for V2 of this plugin.
+    // Prepares the database for V2 of this plugin.
     // This means replacing all occurrences of OpenDirection == RotateDirection.NONE for now.
     // This may change to include more changes in the future.
     public void prepareForV2()
     {
-        int dbVersion = getDatabaseVersion();
-        if (dbVersion == Integer.MAX_VALUE || dbVersion < DATABASE_VERSION)
+        if (getDatabaseVersion() != DATABASE_VERSION)
         {
-            plugin.getMyLogger().logMessage("Failed to upgrade database. Reason: Invalid version; try updating the plugin?", true, false);
+            plugin.getMyLogger().logMessage("Failed to upgrade database. Reason: Invalid version. Is the plugin up to date?", true, true);
             return;
         }
 
         plugin.getMyLogger().logMessage("Upgrading database to v2 of BigDoors! Creating backup first! (ignores settings)", true, true);
-        if (!makeBackup("BACKUPOFV1"))
+        if (!makeBackup(".BACKUPOFV1"))
         {
             plugin.getMyLogger().logMessage("Failed to make a backup! Aborting upgrade process!! Please contact pim16aap2.", true, true);
             return;
         }
+        long startTime = System.nanoTime();
         locked.set(true);
 
-        try (Connection conn = getConnection())
+        // Update the database version, to make sure it cannot be loaded again once the upgrade has been started, even if it failed.
+        try(Connection conn = getConnectionUnsafe())
         {
-            // select all drawbridges. This is the only type that actually uses the engineSide variable.
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE type = 1;");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next())
-            {
-                // Disregard current open direction. It should be somewhat stored in the engineSide.
-                // When it is opened in the northern direction, the engineSide will be South, even when closed (= upright).
-                DoorDirection newOpenDir = getOpposite(DoorDirection.valueOf(rs.getInt("engineSide")));
-                PreparedStatement ps2 = conn.prepareStatement("UPDATE doors SET openDirection=? WHERE id=?;");
-                ps2.setInt(1, DoorDirection.getValue(newOpenDir));
-                ps2.setString(2, Long.toString(rs.getLong("id")));
-                ps2.executeUpdate();
-                ps2.close();
-            }
-            rs.close();
-            ps.close();
+            setDBVersion(conn, MAX_DATABASE_VERSION);
         }
         catch (SQLException | NullPointerException e)
         {
-            logMessage("1772", e);
+            logMessage("486", e);
+        }
+
+        // Make sure there aren't any NONE or invalid open directions and upgrade ALL drawbridge open directions.
+        // v1 drawbridges use Clockwise/CounterClockwise while v2 drawbridges use north/south/east/west.
+        try (Connection conn = getConnectionUnsafe())
+        {
+            plugin.getMyLogger().warn("Upgrading database: Replacing now-invalid open directions!");
+            // select all drawbridges. This is the only type that actually uses the engineSide variable.
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors;");
+            ResultSet rs = ps.executeQuery();
+
+            int totalCount = conn.prepareStatement("SELECT COUNT(*) AS count FROM doors").executeQuery().getInt("count");
+            plugin.getMyLogger().info("Going to process " + totalCount + " doors.");
+            int processed = 0;
+            int tenPercent = totalCount / 10; // Cast to an integer. Won't be exact, but close enough. It's just cosmetic anyway.
+
+            while (rs.next())
+            {
+                if ((++processed) % tenPercent == 0)
+                    plugin.getMyLogger().info(String.format("Processing doors: %3d%%", (10 * processed / tenPercent)));
+
+                if (rs.getInt("type") > 5) // This shouldn't do anything for regular users, but it's useful for me, as I have future types enabled.
+                    continue;
+
+                // Disregard current open direction. It should be somewhat stored in the engineSide.
+                // When it is opened in the northern direction, the engineSide will be South, even when closed (= upright).
+                Door door = newDoorFromRS(rs, rs.getLong("id"), 0, null);
+                RotateDirection currentOpenDir = door.getOpenDir();
+
+                Opener opener = plugin.getDoorOpener(door.getType());
+                if (door.getType().equals(DoorType.DRAWBRIDGE) ||
+                    currentOpenDir.equals(RotateDirection.NONE) ||
+                    !opener.isRotateDirectionValid(door))
+                {
+                    RotateDirection newOpenDir = opener.getRotateDirection(door);
+                    door.setOpenDir(newOpenDir);
+
+                    PreparedStatement ps2 = conn.prepareStatement("UPDATE doors SET openDirection=? WHERE id=?;");
+                    ps2.setInt(1, RotateDirection.getValue(newOpenDir));
+                    ps2.setString(2, Long.toString(rs.getLong("id")));
+                    ps2.executeUpdate();
+                    ps2.close();
+                }
+
+                if (door.getOpenDir().equals(RotateDirection.NONE))
+                    plugin.getMyLogger().logMessage("Door " + rs.getLong("id") + " is in an invalid state! Please contact pim16aap2 or delete this door!", true, false);
+            }
+            rs.close();
+            ps.close();
+            plugin.getMyLogger().info("All doors have been processed! Onto the next step!");
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("314", e);
         }
 
 
-        try (Connection conn = getConnection())
+
+        try (Connection conn = getConnectionUnsafe())
         {
-            plugin.getMyLogger().warn("Upgrading database to V6!");
+            plugin.getMyLogger().warn("Upgrading database: Adding BitFlag!");
 
             String addColumn = "ALTER TABLE doors ADD COLUMN bitflag INTEGER NOT NULL DEFAULT 0";
             conn.createStatement().execute(addColumn);
@@ -325,21 +370,20 @@ public class SQLiteJDBCDriverConnection
         }
         catch (SQLException | NullPointerException e)
         {
-            logMessage("1420", e);
+            logMessage("410", e);
         }
 
         // Remove isOpen, isLocked, and engineSide from the doors table.
         Connection conn = null;
         try
         {
+            plugin.getMyLogger().warn("Upgrading database: Removing isOpen, isLocked, engineSide!");
             Class.forName(DRIVER);
             conn = DriverManager.getConnection(url);
             conn.createStatement().execute("PRAGMA foreign_keys=OFF");
             conn.setAutoCommit(false);
-            // Rename sqlUnion.
             conn.createStatement().execute("ALTER TABLE doors RENAME TO doors_old;");
 
-            // Create updated version of sqlUnion.
             String newDoors = "CREATE TABLE IF NOT EXISTS doors\n" +
                 "(id            INTEGER    PRIMARY KEY autoincrement,\n" +
                 " name          TEXT       NOT NULL,\n" +
@@ -364,15 +408,12 @@ public class SQLiteJDBCDriverConnection
                 " blocksToMove  INTEGER    NOT NULL DEFAULT -1);";
             conn.createStatement().execute(newDoors);
 
-            // Copy data from old sqlUnion to new sqlUnion.
             String restoreData = "INSERT INTO doors\n" +
                 "SELECT id, name, world, xMin, yMin, zMin, xMax, yMax, " +
                 "zMax, engineX, engineY, engineZ, bitflag, type, \n" +
                 "powerBlockX, powerBlockY, powerBlockZ, openDirection, autoClose, chunkHash, blocksToMove\n" +
                 "FROM doors_old;";
             conn.createStatement().execute(restoreData);
-
-            // Get rid of old sqlUnion.
             conn.createStatement().execute("DROP TABLE IF EXISTS 'doors_old';");
             conn.commit();
             conn.setAutoCommit(true);
@@ -386,11 +427,11 @@ public class SQLiteJDBCDriverConnection
                 {
                     conn.rollback();
                 }
-                catch (SQLException e1)
+                catch (SQLException | NullPointerException e1)
                 {
-                    logMessage("1770", e1);
+                    logMessage("391", e1);
                 }
-            logMessage("1772", e);
+            logMessage("421", e);
         }
         finally
         {
@@ -401,11 +442,15 @@ public class SQLiteJDBCDriverConnection
                 }
                 catch (SQLException | NullPointerException e)
                 {
-                    logMessage("1781", e);
+                    logMessage("432", e);
                 }
         }
-
         locked.set(false);
+        validVersion = false;
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;
+        plugin.getMyLogger().warn("Database upgrade completed in " + duration + "ms! Please update BigDoors to v2 now!");
     }
 
     private long getPlayerID(final Connection conn, final String playerUUID) throws SQLException
@@ -440,7 +485,7 @@ public class SQLiteJDBCDriverConnection
             ps2.close();
             rs2.close();
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("244", e);
         }
@@ -450,7 +495,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("254", e);
             }
@@ -478,7 +523,7 @@ public class SQLiteJDBCDriverConnection
             door.setBlocksToMove(rs.getInt(DOOR_BLOCKS_TO_MOVE));
             return door;
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("282", e);
             return null;
@@ -497,7 +542,7 @@ public class SQLiteJDBCDriverConnection
             ps.executeUpdate();
             ps.close();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             plugin.getMyLogger().logMessageToLogFile("271: " + Util.exceptionToString(e));
         }
@@ -507,7 +552,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("311", e);
             }
@@ -539,7 +584,7 @@ public class SQLiteJDBCDriverConnection
             ps2.close();
             rs2.close();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("343", e);
         }
@@ -549,7 +594,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("353", e);
             }
@@ -602,7 +647,7 @@ public class SQLiteJDBCDriverConnection
             ps3.close();
             rs3.close();
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("521", e);
         }
@@ -612,7 +657,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("531", e);
             }
@@ -663,7 +708,7 @@ public class SQLiteJDBCDriverConnection
             ps1.close();
             rs1.close();
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("582", e);
         }
@@ -673,7 +718,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("592", e);
             }
@@ -712,7 +757,7 @@ public class SQLiteJDBCDriverConnection
             ps2.close();
             rs2.close();
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("631", e);
         }
@@ -722,7 +767,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("641", e);
             }
@@ -752,7 +797,7 @@ public class SQLiteJDBCDriverConnection
             ps.close();
             rs.close();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("671", e);
         }
@@ -762,7 +807,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("681", e);
             }
@@ -784,7 +829,7 @@ public class SQLiteJDBCDriverConnection
             ps.close();
             rs.close();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("703", e);
         }
@@ -794,7 +839,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("713", e);
             }
@@ -817,7 +862,7 @@ public class SQLiteJDBCDriverConnection
             ps.close();
             rs.close();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("736", e);
         }
@@ -827,7 +872,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("746", e);
             }
@@ -868,7 +913,7 @@ public class SQLiteJDBCDriverConnection
             conn = getConnection();
             doorOwner = getOwnerOfDoor(conn, doorUID);
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("788", e);
         }
@@ -878,7 +923,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("798", e);
             }
@@ -908,7 +953,7 @@ public class SQLiteJDBCDriverConnection
             ps.close();
             rs.close();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("828", e);
         }
@@ -918,7 +963,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("838", e);
             }
@@ -951,7 +996,7 @@ public class SQLiteJDBCDriverConnection
             ps1.close();
             rs1.close();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("893", e);
         }
@@ -961,7 +1006,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("903", e);
             }
@@ -981,7 +1026,7 @@ public class SQLiteJDBCDriverConnection
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("859", e);
         }
@@ -991,7 +1036,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("869", e);
             }
@@ -1019,7 +1064,7 @@ public class SQLiteJDBCDriverConnection
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("897", e);
         }
@@ -1029,7 +1074,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("907", e);
             }
@@ -1050,7 +1095,7 @@ public class SQLiteJDBCDriverConnection
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("928", e);
         }
@@ -1060,7 +1105,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("938", e);
             }
@@ -1080,7 +1125,7 @@ public class SQLiteJDBCDriverConnection
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("958", e);
         }
@@ -1090,7 +1135,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("966", e);
             }
@@ -1114,7 +1159,7 @@ public class SQLiteJDBCDriverConnection
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("992", e);
         }
@@ -1124,7 +1169,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("1002", e);
             }
@@ -1155,7 +1200,7 @@ public class SQLiteJDBCDriverConnection
             rs.close();
             return isAvailable;
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("1033", e);
         }
@@ -1165,7 +1210,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("1043", e);
             }
@@ -1188,7 +1233,7 @@ public class SQLiteJDBCDriverConnection
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("1066", e);
         }
@@ -1198,7 +1243,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("1076", e);
             }
@@ -1275,7 +1320,7 @@ public class SQLiteJDBCDriverConnection
             stmt3.executeUpdate(sql3);
             stmt3.close();
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1153", e);
         }
@@ -1285,7 +1330,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("1163", e);
             }
@@ -1315,7 +1360,7 @@ public class SQLiteJDBCDriverConnection
             }
 
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1193", e);
             return false;
@@ -1326,7 +1371,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("1204", e);
                 return false;
@@ -1356,7 +1401,7 @@ public class SQLiteJDBCDriverConnection
             ps1.close();
             rs1.close();
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1234", e);
         }
@@ -1366,7 +1411,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("1244", e);
             }
@@ -1428,7 +1473,7 @@ public class SQLiteJDBCDriverConnection
             ps3.close();
             rs3.close();
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1306", e);
         }
@@ -1438,7 +1483,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("1316", e);
             }
@@ -1474,7 +1519,7 @@ public class SQLiteJDBCDriverConnection
             ps2.close();
             rs2.close();
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("1352", e);
         }
@@ -1484,7 +1529,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch (SQLException e)
+            catch (SQLException | NullPointerException e)
             {
                 logMessage("1362", e);
             }
@@ -1503,7 +1548,7 @@ public class SQLiteJDBCDriverConnection
             rs.close();
             return dbVersion;
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1503", e);
         }
@@ -1517,7 +1562,7 @@ public class SQLiteJDBCDriverConnection
         {
             return getDatabaseVersion(conn);
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("1498", e);
         }
@@ -1590,7 +1635,7 @@ public class SQLiteJDBCDriverConnection
             if (dbVersion != DATABASE_VERSION)
                 setDBVersion(conn, DATABASE_VERSION);
         }
-        catch(SQLException e)
+        catch(SQLException | NullPointerException e)
         {
             logMessage("1414", e);
         }
@@ -1600,7 +1645,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch(SQLException e)
+            catch(SQLException | NullPointerException e)
             {
                 logMessage("1424", e);
             }
@@ -1615,7 +1660,7 @@ public class SQLiteJDBCDriverConnection
         {
             return (conn.createStatement().executeQuery("SELECT * FROM players WHERE playerUUID='" + FAKEUUID + "';").next());
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1461", e);
         }
@@ -1654,7 +1699,7 @@ public class SQLiteJDBCDriverConnection
         {
             conn.createStatement().execute("PRAGMA user_version = " + version + ";");
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1458", e);
         }
@@ -1789,7 +1834,7 @@ public class SQLiteJDBCDriverConnection
             rs.close();
             plugin.getMyLogger().logMessage("Database has been upgraded to V1!", true, true);
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1593", e);
         }
@@ -1805,7 +1850,7 @@ public class SQLiteJDBCDriverConnection
                       + "ADD COLUMN blocksToMove int NOT NULL DEFAULT 0";
             conn.createStatement().execute(addColumn);
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1238", e);
         }
@@ -1849,13 +1894,13 @@ public class SQLiteJDBCDriverConnection
             conn.commit();
             conn.setAutoCommit(true);
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             try
             {
                 conn.rollback();
             }
-            catch (SQLException e1)
+            catch (SQLException | NullPointerException e1)
             {
                 logMessage("1285", e1);
             }
@@ -1873,7 +1918,7 @@ public class SQLiteJDBCDriverConnection
                       + "ADD COLUMN playerName TEXT DEFAULT NULL";
             conn.createStatement().execute(addColumn);
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1420", e);
         }
@@ -1927,7 +1972,7 @@ public class SQLiteJDBCDriverConnection
                 conn.prepareStatement(update).executeUpdate();
             }
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             logMessage("1745", e);
         }
@@ -1937,7 +1982,7 @@ public class SQLiteJDBCDriverConnection
             {
                 conn.close();
             }
-            catch(SQLException e)
+            catch(SQLException | NullPointerException e)
             {
                 logMessage("1755", e);
             }
@@ -1950,28 +1995,22 @@ public class SQLiteJDBCDriverConnection
             con.setAutoCommit(false);
             // Rename sqlUnion.
             con.createStatement().execute("ALTER TABLE players RENAME TO players_old;");
-
-            // Create updated version of sqlUnion.
             con.createStatement().execute("CREATE TABLE IF NOT EXISTS players "
                                         + "(id          INTEGER PRIMARY KEY AUTOINCREMENT, "
                                         + " playerUUID  TEXT    NOT NULL,"
                                         + " playerName  TEXT    NOT NULL)");
-
-            // Copy data from old sqlUnion to new sqlUnion.
             con.createStatement().execute("INSERT INTO players SELECT * FROM players_old;");
-
-            // Get rid of old sqlUnion.
             con.createStatement().execute("DROP TABLE IF EXISTS 'players_old';");
             con.commit();
             con.setAutoCommit(true);
         }
-        catch (SQLException e)
+        catch (SQLException | NullPointerException e)
         {
             try
             {
                 con.rollback();
             }
-            catch (SQLException e1)
+            catch (SQLException | NullPointerException e1)
             {
                 logMessage("1770", e1);
             }
@@ -1983,7 +2022,7 @@ public class SQLiteJDBCDriverConnection
             {
                 con.close();
             }
-            catch(SQLException e)
+            catch(SQLException | NullPointerException e)
             {
                 logMessage("1781", e);
             }
@@ -2042,7 +2081,7 @@ public class SQLiteJDBCDriverConnection
                 {
                     conn.close();
                 }
-                catch (SQLException e)
+                catch (SQLException | NullPointerException e)
                 {
                     logMessage("1739", e);
                 }
@@ -2057,7 +2096,11 @@ public class SQLiteJDBCDriverConnection
     {
         if (!locked.get())
             plugin.getMyLogger().logMessageToLogFile(str + " " + Util.exceptionToString(e));
+        else if (!validVersion)
+            plugin.getMyLogger().logMessageToLogFile("This version of the database is not supported by this version of the plugin!");
         else
             plugin.getMyLogger().logMessageToLogFile("Database locked! Failed at: " + str + ". Message: " + e.getMessage());
+
     }
 }
+

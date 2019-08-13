@@ -21,6 +21,26 @@ public class DoorOpener implements Opener
         this.plugin = plugin;
     }
 
+    @Override
+    public boolean isRotateDirectionValid(Door door)
+    {
+        return door.getOpenDir().equals(RotateDirection.CLOCKWISE) ||
+               door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE);
+    }
+
+    @Override
+    public RotateDirection getRotateDirection(Door door)
+    {
+        if (isRotateDirectionValid(door))
+            return door.getOpenDir();
+
+        if (!chunksLoaded(door))
+            return RotateDirection.NONE;
+
+        RotateDirection rotateDir = getRotationDirection(door, getCurrentDirection(door));
+        return rotateDir != null ? rotateDir : RotateDirection.CLOCKWISE;
+    }
+
     // Check if the block on the north/east/south/west side of the location is free.
     private boolean isPosFree(Door door, DoorDirection direction)
     {
@@ -178,6 +198,12 @@ public class DoorOpener implements Opener
         {
             plugin.getMyLogger().logMessage("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!", true, false);
             return DoorOpenResult.NODIRECTION;
+        }
+        if (!isRotateDirectionValid(door))
+        {
+            plugin.getMyLogger().logMessage("Updating openDirection of door " + door.getName() + " to " + rotDirection.name() +
+                                            ". If this is undesired, change it via the GUI.", true, false);
+            plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), rotDirection);
         }
 
         int xOpposite, yOpposite, zOpposite;

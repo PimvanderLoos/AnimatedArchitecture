@@ -3,12 +3,12 @@
 <project name="BigDoors" default="all">
 
     <xmlproperty file="pom.xml" prefix="pom" />
-
-    <echo>The version is ${pom.project.version}</echo>
+	
+    <buildnumber/>
+    <echo>The version is ${pom.project.version}. The build is ${build.number}.</echo>
     
     <property name="resources" location="${basedir}/src/main/resources"/>
 
-	<buildnumber/>
     <!-- Force refresh these files, so Ant won't ignore them -->
     <target name="init">
         <mkdir dir="${basedir}/classes"/>

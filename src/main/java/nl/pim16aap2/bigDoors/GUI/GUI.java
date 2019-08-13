@@ -252,7 +252,7 @@ public class GUI
             DoorType doorType = doors.get(realIdx).getType();
             if (doorType == null)
             {
-                plugin.getMyLogger().logMessage("Failed to determine doorType of door: " + door.getDoorUID(), true, false);
+                plugin.getMyLogger().logMessage("Failed to determine doorType of door: " + doors.get(realIdx).getDoorUID(), true, false);
                 continue;
             }
             lore.add(messages.getString("GUI.DoorHasID") + doors.get(realIdx).getDoorUID());
@@ -639,19 +639,18 @@ public class GUI
         RotateDirection curOpenDir = door.getOpenDir();
         RotateDirection newOpenDir;
 
-        // TODO: Use DoorAttribute here.
         if (door.getType() == DoorType.SLIDINGDOOR)
             newOpenDir = curOpenDir == RotateDirection.NONE  ? RotateDirection.NORTH :
                          curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST  :
                          curOpenDir == RotateDirection.EAST  ? RotateDirection.SOUTH :
                          curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST  :
-                                                               RotateDirection.NONE;
+                                                               RotateDirection.NORTH;
         else if (door.getType() == DoorType.ELEVATOR)
             newOpenDir = curOpenDir == RotateDirection.UP ? RotateDirection.DOWN : RotateDirection.UP;
         else
             newOpenDir = curOpenDir == RotateDirection.NONE      ? RotateDirection.CLOCKWISE :
                          curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
-                                                                   RotateDirection.NONE;
+                                                                   RotateDirection.CLOCKWISE;
 
         plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
         int idx = doors.indexOf(door);

@@ -86,7 +86,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private RedstoneHandler redstoneHandler;
     private ElevatorOpener elevatorOpener;
     private boolean validVersion;
-    @SuppressWarnings("unused")
     private FlagOpener flagOpener;
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
@@ -374,6 +373,7 @@ public class BigDoors extends JavaPlugin implements Listener
         case ELEVATOR:
             return elevatorOpener;
         case FLAG:
+            return flagOpener;
         default:
             return null;
         }
