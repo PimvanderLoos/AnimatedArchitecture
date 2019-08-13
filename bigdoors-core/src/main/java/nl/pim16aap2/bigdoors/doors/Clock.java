@@ -69,19 +69,7 @@ public class Clock extends HorizontalAxisAlignedBase
     @NotNull
     public PBlockFace calculateCurrentDirection()
     {
-        switch (openDir)
-        {
-            case NORTH:
-                return PBlockFace.NORTH;
-            case EAST:
-                return PBlockFace.EAST;
-            case SOUTH:
-                return PBlockFace.SOUTH;
-            case WEST:
-                return PBlockFace.WEST;
-            default:
-                return PBlockFace.NONE;
-        }
+        return PBlockFace.NONE;
     }
 
     /**

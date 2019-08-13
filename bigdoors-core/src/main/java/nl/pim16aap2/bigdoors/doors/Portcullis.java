@@ -130,8 +130,7 @@ public class Portcullis extends DoorBase
      */
     private int getBlocksInDir(final @NotNull RotateDirection upDown)
     {
-        if ((!(upDown.equals(RotateDirection.UP) || upDown.equals(RotateDirection.DOWN))) ||
-            upDown.equals(RotateDirection.NONE))
+        if ((!(upDown.equals(RotateDirection.UP) || upDown.equals(RotateDirection.DOWN))))
         {
             pLogger.logException(new IllegalArgumentException(
                 "RotateDirection \"" + upDown.name() + "\" is not a valid direction for a door of type \"" +

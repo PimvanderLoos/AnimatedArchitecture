@@ -100,6 +100,8 @@ import java.util.UUID;
 //       Also part of this should be a DoorManager. NO setters should be available to any class other than the doorManager.
 //       Creators/Database might have to go back to the awful insanely long constructor.
 //       When a door is modified, post a doorModificationEvent. Instead of firing events, perhaps look into observers?
+// TODO: Write a wrapper or something for Tasks etc to allow for something like .executeAsync(0, 20000L).whenComplete(doSomething).
+//       This would be useful for the BlockMovers.
 
 /*
  * Modules
@@ -149,9 +151,6 @@ import java.util.UUID;
 // TODO: Move all database interaction off of the main thread.
 // TODO: Consider storing original locations in the database. Then use the OpenDirection as the direction to go when in
 //       the original position. Then you cannot make regular doors go in a full circle anymore.
-// TODO: Make sure the old branch can update doors to whatever value is needed. Then disable the plugin when an older
-//       version of the plugin. So if you want to keep your database, you'll need to upgrade it using 0.1.X.X first.
-//       Then use that version to make sure that open directions etc are properly set.
 
 /*
  * Messages
@@ -169,7 +168,6 @@ import java.util.UUID;
 // TODO: Get rid of the engineSide and currentDirection. It's basically the same thing. I don't think the database
 //       should be troubled with storing this data either, so remove it there.
 // TODO: Having both openDirection and rotateDirection is stupid. Check DoorBase#getNewLocations for example.
-// TODO: Fix Drawbridge creation.
 // TODO: Take a basic data POD object in the constructor to prevent issues with incorrect initialization.
 // TODO: Don't use Locations for the locations. Use vectors instead.
 // TODO: Cache value of DoorBase#getSimplePowerBlockChunkHash().
@@ -177,7 +175,7 @@ import java.util.UUID;
 // TODO: Statically store GNL's in each door type.
 // TODO: Add getCloseDirection() method. This is NOT!!! the opposite of the openDirection once the original coordinates
 //       are stored in the database. It should be the direction back to the original position.
-
+// TODO: Add DoorBase#isValidOpenDirection. Can be useful for creation and validation.
 /*
 Tests done:
 - Portcullis
@@ -255,26 +253,20 @@ Tests not done:
 // TODO: Get rid of the retarded isRefreshing bullshit. Instead of reopening an inventory, just replace the items. Simpler, faster, less demented.
 // TODO: Use a less stupid way to check for interaction: https://www.spigotmc.org/threads/quick-tip-how-to-check-if-a-player-is-interacting-with-your-custom-gui.225871/
 // TODO: Documentation.
+// TODO: Look into refresh being called too often. Noticed this in GUIPageRemoveOwner (it tries to get a head twice).
 
 /*
  * SQL
  */
 // TODO: Get rid of the private methods. Use nested statements instead.
-// TODO: Remove all NONE RotateDirection values from the database. This also means that the engineSide column can be
-//       removed from the database.
-//       For most doors, just retrieve the default openDirection if it's currently set to NONE.
-//       For drawbridges, however, this will need to depend on the engine side variable and thus handled in the database
-//       class.
-//       Also make sure to check if the current values of all not-NONE doors are valid: DoorBase#isValidOpenDirection.
 // TODO: Store original coordinates in the database. These can be used to find the actual close direction.
 // TODO: When retrieving all doors for info, put them in a sorted map (treemap).
 // TODO: Consider doing all upgrades on a separate thread. Then the server won't have to wait for the upgrade to finish.
 //       Added bonus: startReplaceTempPlayerNames() can be simplified.
 // TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME}, with UNIQUE(PLUGIN, TYPENAME).
 //       Then use FK from doors to doortypes. Useful for allowing custom door types.
-// TODO: Somehow, some rotation directions may be incorrect. When updating the database to v2,
-//       ALL RotateDirections will have to be checked!
-// TODO: Implement method to check if there are 1 or more doors in a world.
+// TODO: Implement method to check if there are 1 or more doors in a world. If there are 0 doors in a world, just
+//       disable redstone in that world.
 
 /*
  * Commands
@@ -310,7 +302,7 @@ Tests not done:
 //       Gets rid of some code duplication.
 // TODO: CHeck if minArgCount is used properly.
 // TODO: Make "/BigDoors new" require the type as flag input. No more defaulting to regular doors.
-// TODO: Fix "/BigDoors toggle db4". "/BigDoors toggle db4 10.0" works fine, though. Same goes for FillDoor and probably others too.
+// TODO: Fix "/BigDoors filldoor db4" not working.
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
 
 /*
@@ -377,6 +369,8 @@ Tests not done:
 // TODO: Pass new min and new max to the movers. Then they can just update it.
 // TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
 // TODO: Reduce code duplication in the blockmovers (specifically animateEntities).
+// TODO: Fix redstone toggling.
+// TODO: Make RevolvingDoorMover and CylindricalMover more closely related.
 
 /*
 

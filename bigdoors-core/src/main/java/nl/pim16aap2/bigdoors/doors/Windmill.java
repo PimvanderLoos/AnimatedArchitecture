@@ -121,8 +121,6 @@ public class Windmill extends HorizontalAxisAlignedBase
     @Override
     public RotateDirection getCurrentToggleDir()
     {
-        if (getOpenDir().equals(RotateDirection.NONE))
-            setDefaultOpenDirection();
         return getOpenDir();
     }
 

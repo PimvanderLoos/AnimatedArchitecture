@@ -168,6 +168,7 @@ public class BridgeMover extends BlockMover
             @Override
             public void run()
             {
+                ++counter;
                 if (counter == 0 || (counter < endCount - (45 / tickRate) && counter % (6 * tickRate / 4) == 0))
                     SpigotUtil.playSound(door.getEngine(), "bd.drawbridge-rattling", 0.8f, 0.7f);
 

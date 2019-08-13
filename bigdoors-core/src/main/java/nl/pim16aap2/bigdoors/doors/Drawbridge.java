@@ -82,9 +82,8 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     {
         if (!isOpen)
             return PBlockFace.UP;
-
-        Bukkit.broadcastMessage("OpenDirection: " + getOpenDir().name());
-        return PBlockFace.valueOf(getOpenDir().toString());
+        // TODO: Ewww
+        return PBlockFace.valueOf(RotateDirection.getOpposite(getCurrentToggleDir()).name());
     }
 
     /**
@@ -113,52 +112,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     @NotNull
     private RotateDirection calculateCurrentToggleDir()
     {
-        RotateDirection ret;
-        if (isOpen)
-        {
-            switch (getCurrentDirection())
-            {
-                case NORTH:
-                    ret = RotateDirection.SOUTH;
-                    break;
-                case EAST:
-                    ret = RotateDirection.WEST;
-                    break;
-                case SOUTH:
-                    ret = RotateDirection.NORTH;
-                    break;
-                case WEST:
-                    ret = RotateDirection.EAST;
-                    break;
-                default:
-                    ret = RotateDirection.NONE;
-            }
-        }
-        else
-        {
-            ret = getOpenDir();
-            // TODO: This should be fixed in the database when upgrading.
-            //       Additionally, considering checking input in the DatabaseCommander.
-            if (onNorthSouthAxis())
-                return ret.equals(RotateDirection.EAST) || ret.equals(RotateDirection.WEST) ? ret :
-                       RotateDirection.EAST;
-            return ret.equals(RotateDirection.NORTH) || ret.equals(RotateDirection.SOUTH) ? ret :
-                   RotateDirection.NORTH;
-        }
-        return ret;
-
-
-//        if (isOpen)
-//            return RotateDirection.valueOf(PBlockFace.getOpposite(getCurrentDirection()).name());
-//        RotateDirection rotDir = getOpenDir();
-//
-//        // TODO: This should be fixed in the database when upgrading.
-//        //       Additionally, considering checking input in the DatabaseCommander.
-//        if (onNorthSouthAxis())
-//            return rotDir.equals(RotateDirection.EAST) || rotDir.equals(RotateDirection.WEST) ? rotDir :
-//                   RotateDirection.EAST;
-//        return rotDir.equals(RotateDirection.NORTH) || rotDir.equals(RotateDirection.SOUTH) ? rotDir :
-//               RotateDirection.NORTH;
+        return isOpen ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
     }
 
     /**

@@ -95,6 +95,7 @@ public class SlidingMover extends BlockMover
             @Override
             public void run()
             {
+                ++counter;
                 if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
                     SpigotUtil.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
 

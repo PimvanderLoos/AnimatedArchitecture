@@ -58,7 +58,7 @@ public class Flag extends DoorBase
         return engine.getBlockZ() != min.getBlockZ() ? PBlockFace.NORTH :
                engine.getBlockX() != max.getBlockX() ? PBlockFace.EAST :
                engine.getBlockZ() != max.getBlockZ() ? PBlockFace.SOUTH :
-               engine.getBlockX() != min.getBlockX() ? PBlockFace.WEST : null;
+               engine.getBlockX() != min.getBlockX() ? PBlockFace.WEST : PBlockFace.NONE;
     }
 
     /**

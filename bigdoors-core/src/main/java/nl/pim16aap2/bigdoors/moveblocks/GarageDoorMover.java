@@ -255,6 +255,7 @@ public class GarageDoorMover extends BlockMover
             @Override
             public void run()
             {
+                ++counter;
                 lastTime = currentTime;
                 currentTime = System.nanoTime();
                 startTime += currentTime - lastTime;

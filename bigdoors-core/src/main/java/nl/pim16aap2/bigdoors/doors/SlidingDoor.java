@@ -167,9 +167,8 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
      */
     private int getBlocksInDir(final @NotNull RotateDirection slideDir)
     {
-        if ((!(slideDir.equals(RotateDirection.NORTH) || slideDir.equals(RotateDirection.EAST) ||
-            slideDir.equals(RotateDirection.SOUTH) || slideDir.equals(RotateDirection.WEST))) ||
-            slideDir.equals(RotateDirection.NONE))
+        if (!(slideDir.equals(RotateDirection.NORTH) || slideDir.equals(RotateDirection.EAST) ||
+            slideDir.equals(RotateDirection.SOUTH) || slideDir.equals(RotateDirection.WEST)))
         {
             pLogger.logException(new IllegalArgumentException(
                 "RotateDirection \"" + slideDir.name() + "\" is not a valid direction for a door of type \"" +

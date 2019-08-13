@@ -66,7 +66,7 @@ public final class DoorManager extends Restartable
     }
 
     /**
-     * Register a {@link DoorBase} as busy.
+     * Registers a {@link DoorBase} as busy.
      *
      * @param doorUID The UID of the {@link DoorBase}.
      */
@@ -117,7 +117,7 @@ public final class DoorManager extends Restartable
     }
 
     /**
-     * Clear all busy doors.
+     * Clears all busy doors.
      */
     private void emptyBusyDoors()
     {
@@ -125,11 +125,12 @@ public final class DoorManager extends Restartable
     }
 
     /**
-     * Stop all doors that are currently active.
+     * Stops all doors that are currently active.
      */
     public void stopDoors()
     {
         busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::abort));
+        emptyBusyDoors();
     }
 
     /**

@@ -125,6 +125,9 @@ public class GUIPageRemoveOwner implements IGUIPage
         int idx = 9;
         for (DoorOwner owner : owners)
         {
+            if (owner.getPlayerUUID().equals(gui.getPlayer().getUniqueId()))
+                continue;
+
             final int currentIDX = idx;
             // First add a regular player head without a special texture.
             gui.addItem(idx++, new GUIItem(owner));

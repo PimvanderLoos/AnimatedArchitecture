@@ -84,12 +84,13 @@ public class SubCommandToggle extends SubCommand
         throws IllegalArgumentException
     {
         String lastStr = args[args.length - 1];
-        // Last argument sets speed if it's a double.
-        double parsedTime = Util.longFromString(lastStr, -1L);
-        double time = parsedTime == -1L ? parsedTime : 0.0D;
+        // First try to get a long from the last string. If it's successful, it must be a door UID.
+        // If it isn't successful (-1), try to get parse it as a double. If that is successful, it
+        // must be the speed. If that isn't successful either (0.0), it must be a door name.
+        long lastUID = Util.longFromString(lastStr, -1L);
+        double time = lastUID == -1L ? Util.doubleFromString(lastStr, 0.0D) : 0.0D;
         int index = args.length;
-        // If the time variable was specified, decrement endIDX by 1, as the last
-        // argument is not a door!
+        // If the time variable was specified, decrement endIDX by 1, as the last argument is not a door!
         if (time != 0.0D)
             --index;
 

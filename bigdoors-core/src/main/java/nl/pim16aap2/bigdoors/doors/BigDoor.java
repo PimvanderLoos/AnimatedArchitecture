@@ -103,7 +103,7 @@ public class BigDoor extends DoorBase
                                 final @Nullable RotateDirection rotateDirection,
                                 final @NotNull Location newMin, final @NotNull Location newMax, final int blocksMoved)
     {
-        PBlockFace newDir = null;
+        PBlockFace newDir;
         switch (getCurrentDirection())
         {
             case NORTH:

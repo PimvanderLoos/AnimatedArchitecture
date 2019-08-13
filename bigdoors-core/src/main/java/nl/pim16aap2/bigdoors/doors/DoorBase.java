@@ -51,6 +51,7 @@ public abstract class DoorBase
     private Integer blockCount = null;
     private PBlockFace currentDirection = null;
 
+    @NotNull
     protected final DoorOpener doorOpener;
 
     /**
@@ -70,6 +71,12 @@ public abstract class DoorBase
         this.pLogger = pLogger;
         this.doorUID = doorUID;
         this.doorType = doorType;
+        if (DoorOpener.get() == null)
+        {
+            IllegalStateException e = new IllegalStateException("Could not obtain DoorOpener!");
+            pLogger.logException(e);
+            throw e;
+        }
         doorOpener = DoorOpener.get();
     }
 

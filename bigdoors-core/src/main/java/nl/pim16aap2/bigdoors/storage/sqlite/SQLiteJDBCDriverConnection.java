@@ -1334,9 +1334,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 return;
             }
 
-            if (dbVersion < MIN_DATABASE_VERSION)
+            if (dbVersion < MIN_DATABASE_VERSION || dbVersion > DATABASE_VERSION)
             {
-                System.out.println("Current version: " + dbVersion + ", min version: " + MIN_DATABASE_VERSION);
+                pLogger.logMessage("Trying to load a database that is incompatible with this version of the plugin! " +
+                                       "Database version = " + dbVersion + ". Please update the plugin.");
                 conn.close();
                 validVersion = false;
                 return;
@@ -1373,14 +1374,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
 
             if (dbVersion < 6)
-                upgradeToV11(conn);
-
-            if (dbVersion < 6)
             {
                 conn.close();
                 upgradeToV6();
                 conn = getConnection();
             }
+
+            if (dbVersion == 10)
+                upgradeToV11(conn);
+
 
             // Do this at the very end, so the db version isn't altered if anything fails.
             setDBVersion(conn, DATABASE_VERSION);

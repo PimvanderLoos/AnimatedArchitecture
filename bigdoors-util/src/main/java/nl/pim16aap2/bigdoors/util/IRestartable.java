@@ -8,12 +8,12 @@ package nl.pim16aap2.bigdoors.util;
 public interface IRestartable
 {
     /**
-     * Handle a restart.
+     * Handles a restart.
      */
     void restart();
 
     /**
-     * Handle a shutdown..
+     * Handles a shutdown..
      */
     void shutdown();
 }

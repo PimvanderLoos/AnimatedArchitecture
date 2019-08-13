@@ -108,6 +108,7 @@ public class CylindricalMover extends BlockMover
             {
                 if (startTime == null)
                     startTime = System.nanoTime();
+                ++counter;
 
                 if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
                     SpigotUtil.playSound(door.getEngine(), "bd.dragging2", 0.5f, 0.6f);
@@ -120,6 +121,7 @@ public class CylindricalMover extends BlockMover
                     stepSum = startStepSum + step * counter;
                 else
                     stepSum = endStepSum;
+//                Bukkit.broadcastMessage(String.format("stepSum: %.2f, step: %.2f, counter: %d, "));
 
                 replace = (counter == replaceCount);
 

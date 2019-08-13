@@ -56,7 +56,7 @@ public abstract class HorizontalAxisAlignedBase extends DoorBase
      */
     protected boolean calculateNorthSouthAxis()
     {
-        // When the door is laying flat and is 1 block deep in the X-axis (East/West), it means the door extends along
+        // When the door is upright and is 1 block deep in the X-axis (East/West), it means the door extends along
         // the z axis, which means it is also positioned along the North/South axis.
         if (dimensions.getY() != 0)
             return (dimensions.getX()) == 0;
