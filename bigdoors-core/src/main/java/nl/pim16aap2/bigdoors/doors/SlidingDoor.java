@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Sliding Door doorType.
@@ -120,30 +119,6 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
                openDir.equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
                openDir.equals(RotateDirection.SOUTH) ? RotateDirection.WEST :
                openDir.equals(RotateDirection.WEST) ? RotateDirection.NORTH : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getNewLocations(final @Nullable PBlockFace openDirection,
-                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
-                                final @NotNull Location newMax, final int blocksMoved)
-    {
-        int addX = 0, addZ = 0;
-
-        if (rotateDirection.equals(RotateDirection.NORTH) || rotateDirection.equals(RotateDirection.SOUTH))
-            addZ = blocksMoved;
-        else
-            addX = blocksMoved;
-
-        newMin.setX(min.getBlockX() + addX);
-        newMin.setY(min.getBlockY());
-        newMin.setZ(min.getBlockZ() + addZ);
-
-        newMax.setX(max.getBlockX() + addX);
-        newMax.setY(max.getBlockY());
-        newMax.setZ(max.getBlockZ() + addZ);
     }
 
     /**
@@ -305,6 +280,6 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
         doorOpener.registerBlockMover(
             new SlidingMover(plugin, getWorld(), time, this, instantOpen, blocksToMove, currentToggleDir,
                              plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR),
-                             cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
+                             cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

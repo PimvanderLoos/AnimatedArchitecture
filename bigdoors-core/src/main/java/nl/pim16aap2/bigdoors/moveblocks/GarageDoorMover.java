@@ -32,9 +32,11 @@ public class GarageDoorMover extends BlockMover
     public GarageDoorMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
                            final double time, final double multiplier, final boolean instantOpen,
                            final @NotNull PBlockFace currentDirection, final @NotNull RotateDirection rotateDirection,
-                           @Nullable final UUID playerUUID)
+                           @Nullable final UUID playerUUID, final @NotNull Location finalMin,
+                           final @NotNull Location finalMax)
     {
-        super(plugin, world, door, 30, instantOpen, currentDirection, rotateDirection, -1, playerUUID);
+        super(plugin, world, door, 30, instantOpen, currentDirection, rotateDirection, -1, playerUUID, finalMin,
+              finalMax);
         this.time = time;
 
         double speed = 1 * multiplier;

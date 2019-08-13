@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a DrawBrige doorType.
@@ -96,17 +95,6 @@ public class Drawbridge extends HorizontalAxisAlignedBase
             openDir = RotateDirection.EAST;
         else
             openDir = RotateDirection.NORTH;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getNewLocations(final @Nullable PBlockFace openDirection,
-                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
-                                final @NotNull Location newMax, final int blocksMoved)
-    {
-        throw new IllegalStateException("THIS SHOULD NOT HAVE BEEN REACHED");
     }
 
     @NotNull

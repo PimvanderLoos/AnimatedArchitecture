@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 
 /**
@@ -88,23 +87,6 @@ public class Clock extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    public void getNewLocations(final @Nullable PBlockFace openDirection,
-                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
-                                final @NotNull Location newMax, final int blocksMoved)
-    {
-        newMin.setX(min.getBlockX());
-        newMin.setY(min.getBlockY());
-        newMin.setZ(min.getBlockZ());
-
-        newMax.setX(max.getBlockX());
-        newMax.setY(max.getBlockY());
-        newMax.setZ(max.getBlockZ());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax, final @NotNull BigDoors plugin)
@@ -125,8 +107,15 @@ public class Clock extends HorizontalAxisAlignedBase
      * {@inheritDoc}
      */
     @Override
-    protected boolean getPotentialNewCoordinates(@NotNull Location min, @NotNull Location max)
+    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
     {
-        return false;
+        min.setX(min.getBlockX());
+        min.setY(min.getBlockY());
+        min.setZ(min.getBlockZ());
+
+        max.setX(max.getBlockX());
+        max.setY(max.getBlockY());
+        max.setZ(max.getBlockZ());
+        return true;
     }
 }

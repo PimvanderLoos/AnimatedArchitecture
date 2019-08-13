@@ -23,9 +23,11 @@ public class VerticalMover extends BlockMover
 
     public VerticalMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
                          final @NotNull DoorBase door, final boolean instantOpen, final int blocksToMove,
-                         final double multiplier, @Nullable final UUID playerUUID)
+                         final double multiplier, @Nullable final UUID playerUUID, final @NotNull Location finalMin,
+                         final @NotNull Location finalMax)
     {
-        super(plugin, world, door, time, instantOpen, PBlockFace.UP, RotateDirection.NONE, blocksToMove, playerUUID);
+        super(plugin, world, door, time, instantOpen, PBlockFace.UP, RotateDirection.NONE, blocksToMove, playerUUID,
+              finalMin, finalMax);
 
         double speed = 1;
         double pcMult = multiplier;

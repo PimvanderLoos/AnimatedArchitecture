@@ -177,18 +177,9 @@ import java.util.UUID;
 //       are stored in the database. It should be the direction back to the original position.
 // TODO: Add DoorBase#isValidOpenDirection. Can be useful for creation and validation.
 /*
-Tests done:
-- Portcullis
-- Elevator
-- BigDoor
-- Garage door
-- Revolving Door
-- Windmill
 
-Tests not done:
-- Drawbridge (semi working, needs database update).
+
  */
-
 /*
  * General
  */
@@ -348,7 +339,6 @@ Tests not done:
 // TODO: Instead of creating and running the runnables in the animateEntities method, create the runnable earlier and store it. Then call animateEntities()
 //       from BlockMover. Then let BlockMover extend Restartable and/or abortable, so that the it can cancel all movers etc on restart, so this code doesn't have to be part
 //       of the runnable anymore. Much cleaner.
-// TODO: Drawbridge: Do not use Clockwise / CounterClockwise. Use cardinal directions instead (as seen from up-position).
 // TODO: Make setDefaultOpenDirection() smarter by checking which side is actually available.
 // TODO: Movers: updateCoords should be final and use the DoorBase::getNewLocations method to get the new min/max.
 // TODO: GarageDoor: The pivot point offset (where it starts pivoting), should depend on the radius. The higher the radius of the block compared
@@ -369,8 +359,8 @@ Tests not done:
 // TODO: Pass new min and new max to the movers. Then they can just update it.
 // TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
 // TODO: Reduce code duplication in the blockmovers (specifically animateEntities).
-// TODO: Fix redstone toggling.
 // TODO: Make RevolvingDoorMover and CylindricalMover more closely related.
+// TODO: Make sure all types respect their multiplier.
 
 /*
 

@@ -27,10 +27,10 @@ public class RevolvingDoorMover extends BlockMover
 
     public RevolvingDoorMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
                               final double time, final double multiplier,
-                              final @NotNull RotateDirection rotateDirection,
-                              @Nullable final UUID playerUUID)
+                              final @NotNull RotateDirection rotateDirection, @Nullable final UUID playerUUID)
     {
-        super(plugin, world, door, 30, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID);
+        super(plugin, world, door, 30, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID, door.getMinimum(),
+              door.getMaximum());
         this.time = time;
 
         double speed = 1 * multiplier;

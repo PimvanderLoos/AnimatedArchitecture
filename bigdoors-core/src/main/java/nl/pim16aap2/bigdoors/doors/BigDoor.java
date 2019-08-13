@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Big Door doorType.
@@ -98,50 +97,6 @@ public class BigDoor extends DoorBase
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void getNewLocations(final @Nullable PBlockFace openDirection,
-                                final @Nullable RotateDirection rotateDirection,
-                                final @NotNull Location newMin, final @NotNull Location newMax, final int blocksMoved)
-    {
-        PBlockFace newDir;
-        switch (getCurrentDirection())
-        {
-            case NORTH:
-                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.EAST : PBlockFace.WEST;
-                break;
-            case EAST:
-                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.SOUTH : PBlockFace.NORTH;
-                break;
-            case SOUTH:
-                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.WEST : PBlockFace.EAST;
-                break;
-            case WEST:
-                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.NORTH : PBlockFace.SOUTH;
-                break;
-            default:
-                pLogger.warn("Invalid currentDirection for BigDoor! \"" + getCurrentDirection().toString() + "\"");
-                return;
-        }
-
-        Vector3D newVec = PBlockFace.getDirection(newDir);
-        int xMin = Math.min(engine.getBlockX(), engine.getBlockX() + dimensions.getZ() * newVec.getX());
-        int xMax = Math.max(engine.getBlockX(), engine.getBlockX() + dimensions.getZ() * newVec.getX());
-
-        int zMin = Math.min(engine.getBlockZ(), engine.getBlockZ() + dimensions.getX() * newVec.getZ());
-        int zMax = Math.max(engine.getBlockZ(), engine.getBlockZ() + dimensions.getX() * newVec.getZ());
-
-        newMin.setX(xMin);
-        newMin.setY(min.getBlockY());
-        newMin.setZ(zMin);
-
-        newMax.setX(xMax);
-        newMax.setY(max.getBlockY());
-        newMax.setZ(zMax);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
@@ -204,6 +159,6 @@ public class BigDoor extends DoorBase
         doorOpener.registerBlockMover(
             new CylindricalMover(plugin, getWorld(), getCurrentToggleDir(), time, getCurrentDirection(), this,
                                  instantOpen, doorOpener.getMultiplier(this),
-                                 cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
+                                 cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

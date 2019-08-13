@@ -16,7 +16,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -282,26 +281,6 @@ public abstract class DoorBase
      * that isn't blocked, but that is not guaranteed.
      */
     public abstract void setDefaultOpenDirection();
-
-    /**
-     * Get the new min and max values of the {@link DoorBase} and the new engine side when opened according to the
-     * specified variables.
-     *
-     * @param openDirection   The {@link PBlockFace} the {@link DoorBase} will open in.
-     * @param rotateDirection The {@link nl.pim16aap2.bigdoors.util.RotateDirection} the {@link DoorBase} will rotate
-     *                        in.
-     * @param newMin          The new minimum location (mutable) of the door. x,y,z values are set in the method.
-     * @param newMax          The new maximum location (mutable) of the door. x,y,z values are set in the method.
-     * @param blocksMoved     The number of blocks the {@link DoorBase} actually moved. Note that this differs from the
-     *                        suggested number of blocks to move!
-     * @deprecated To be removed once everything has been moved to the new system (without dedicated Openers).
-     */
-    // TODO: REMOVE
-    @Deprecated
-    public abstract void getNewLocations(final @Nullable PBlockFace openDirection,
-                                         final @Nullable RotateDirection rotateDirection,
-                                         final @NotNull Location newMin, final @NotNull Location newMax,
-                                         final int blocksMoved);
 
     /**
      * Check if a provided chunk is in range of the door. Range in this case refers to all chunks this {@link DoorBase}

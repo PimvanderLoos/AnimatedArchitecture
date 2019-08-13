@@ -68,8 +68,8 @@ public abstract class BlockMover implements IRestartable
     protected BlockMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
                          final double time, final boolean instantOpen, final @NotNull PBlockFace currentDirection,
                          final @NotNull RotateDirection openDirection, final int blocksMoved,
-                         @Nullable final UUID playerUUID, final @Nullable Location finalMin,
-                         final @Nullable Location finalMax)
+                         @Nullable final UUID playerUUID, final @NotNull Location finalMin,
+                         final @NotNull Location finalMax)
     {
         plugin.getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
         this.plugin = plugin;
@@ -92,33 +92,6 @@ public abstract class BlockMover implements IRestartable
         xMax = door.getMaximum().getBlockX();
         yMax = door.getMaximum().getBlockY();
         zMax = door.getMaximum().getBlockZ();
-    }
-
-
-    /**
-     * Constructs a {@link BlockMover}.
-     *
-     * @param plugin           The {@link BigDoors}.
-     * @param world            The {@link World} in which the blocks will be moved.
-     * @param door             The {@link DoorBase}.
-     * @param time             The amount of time (in seconds) the door will try to toggle itself in.
-     * @param instantOpen      If the door should be opened instantly (i.e. skip animation) or not.
-     * @param currentDirection The current direction of the door.
-     * @param openDirection    The direction the {@link DoorBase} will move.
-     * @param blocksMoved      The number of blocks the {@link DoorBase} will move.
-     * @param playerUUID       The {@link UUID} of the player who opened this door.
-     * @deprecated All BlockMovers should use {@link #BlockMover(BigDoors, World, DoorBase, double, boolean, PBlockFace,
-     * RotateDirection, int, UUID, Location, Location)} instead. That constructor accepts the final locations so they
-     * don't have to be calculated more than once.
-     */
-    @Deprecated
-    protected BlockMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
-                         final double time, final boolean instantOpen, final @NotNull PBlockFace currentDirection,
-                         final @NotNull RotateDirection openDirection, final int blocksMoved,
-                         @Nullable final UUID playerUUID)
-    {
-        this(plugin, world, door, time, instantOpen, currentDirection, openDirection, blocksMoved, playerUUID, null,
-             null);
     }
 
     /**
@@ -261,7 +234,7 @@ public abstract class BlockMover implements IRestartable
         }
 
         // Tell the door object it has been opened and what its new coordinates are.
-        updateCoords(door, currentDirection, openDirection, blocksMoved);
+        updateCoords(door);
 
         savedBlocks.clear();
 
@@ -330,35 +303,20 @@ public abstract class BlockMover implements IRestartable
     /**
      * Updates the coordinates of a {@link DoorBase} and toggles its open status.
      *
-     * @param door            The {@link DoorBase}.
-     * @param openDirection   The direction this {@link DoorBase} was opened in.
-     * @param rotateDirection The direction this {@link DoorBase} rotated.
-     * @param moved           How many blocks this {@link DoorBase} moved.
+     * @param door The {@link DoorBase}.
      */
-    private void updateCoords(final @NotNull DoorBase door, final @NotNull PBlockFace openDirection,
-                              final @NotNull RotateDirection rotateDirection, final int moved)
+    private void updateCoords(final @NotNull DoorBase door)
     {
-        Location newMin = new Location(world, 0, 0, 0);
-        Location newMax = new Location(world, 0, 0, 0);
-
-        if (finalMin == null || finalMax == null)
-            door.getNewLocations(openDirection, rotateDirection, newMin, newMax, moved);
-        else
-        {
-            newMin = finalMin;
-            newMax = finalMax;
-        }
-
-        if (newMin.equals(door.getMinimum()) && newMax.equals(door.getMaximum()))
+        if (finalMin.equals(door.getMinimum()) && finalMax.equals(door.getMaximum()))
             return;
 
-        door.setMaximum(newMax);
-        door.setMinimum(newMin);
+        door.setMinimum(finalMin);
+        door.setMaximum(finalMax);
 
         toggleOpen(door);
-        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), door.isOpen(), newMin.getBlockX(),
-                                                     newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
-                                                     newMax.getBlockY(), newMax.getBlockZ());
+        plugin.getDatabaseManager().updateDoorCoords(door.getDoorUID(), door.isOpen(), finalMin.getBlockX(),
+                                                     finalMin.getBlockY(), finalMin.getBlockZ(), finalMax.getBlockX(),
+                                                     finalMax.getBlockY(), finalMax.getBlockZ());
     }
 
     /**

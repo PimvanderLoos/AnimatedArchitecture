@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Flag doorType.
@@ -103,25 +102,6 @@ public class Flag extends DoorBase
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Because flags do not move when toggled, newMin and newMax are simply equal to the current min and max.
-     */
-    @Override
-    public void getNewLocations(final @Nullable PBlockFace openDirection,
-                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
-                                final @NotNull Location newMax, final int blocksMoved)
-    {
-        newMin.setX(min.getBlockX());
-        newMin.setY(min.getBlockY());
-        newMin.setZ(min.getBlockZ());
-
-        newMax.setX(max.getBlockX());
-        newMax.setY(max.getBlockY());
-        newMax.setZ(max.getBlockZ());
-    }
-
-    /**
-     * {@inheritDoc}
      */
     @NotNull
     @Override
@@ -136,11 +116,13 @@ public class Flag extends DoorBase
     @Override
     protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
     {
-        // get some invalid coordinates, to make sure there aren't any blocks in the way.
-        max.setX(min.getBlockX());
-        max.setY(1000);
-        min.setY(1000);
-        max.setY(min.getBlockZ());
+        min.setX(min.getBlockX());
+        min.setY(min.getBlockY());
+        min.setZ(min.getBlockZ());
+
+        max.setX(max.getBlockX());
+        max.setY(max.getBlockY());
+        max.setZ(max.getBlockZ());
         return true;
     }
 

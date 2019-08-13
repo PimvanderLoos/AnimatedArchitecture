@@ -12,7 +12,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Portcullis doorType.
@@ -96,23 +95,6 @@ public class Portcullis extends DoorBase
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void getNewLocations(final @Nullable PBlockFace openDirection,
-                                final @Nullable RotateDirection rotateDirection, final @NotNull Location newMin,
-                                final @NotNull Location newMax, final int blocksMoved)
-    {
-        newMin.setX(min.getBlockX());
-        newMin.setY(min.getBlockY() + blocksMoved);
-        newMin.setZ(min.getBlockZ());
-
-        newMax.setX(max.getBlockX());
-        newMax.setY(max.getBlockY() + blocksMoved);
-        newMax.setZ(max.getBlockZ());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
@@ -189,6 +171,6 @@ public class Portcullis extends DoorBase
         int blocksToMove = newMin.getBlockY() - min.getBlockY();
         doorOpener.registerBlockMover(
             new VerticalMover(plugin, getWorld(), time, this, instantOpen, blocksToMove, doorOpener.getMultiplier(this),
-                              cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
+                              cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

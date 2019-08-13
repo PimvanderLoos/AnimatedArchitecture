@@ -36,9 +36,11 @@ public class CylindricalMover extends BlockMover
     public CylindricalMover(final @NotNull BigDoors plugin, final @NotNull World world,
                             final @NotNull RotateDirection rotDirection, final double time,
                             final @NotNull PBlockFace currentDirection, final @NotNull DoorBase door,
-                            final boolean instantOpen, final double multiplier, @Nullable final UUID playerUUID)
+                            final boolean instantOpen, final double multiplier, @Nullable final UUID playerUUID,
+                            final @NotNull Location finalMin, final @NotNull Location finalMax)
     {
-        super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1, playerUUID);
+        super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1, playerUUID, finalMin,
+              finalMax);
 
         turningPoint = door.getEngine();
         stepMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;

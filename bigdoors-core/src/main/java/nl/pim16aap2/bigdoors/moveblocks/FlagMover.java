@@ -28,7 +28,8 @@ public class FlagMover extends BlockMover
     public FlagMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
                      final @NotNull DoorBase door, final double multiplier, @Nullable UUID playerUUID)
     {
-        super(plugin, world, door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID);
+        super(plugin, world, door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID, door.getMinimum(),
+              door.getMaximum());
 
         int xLen = Math.abs(xMax - xMin) + 1;
         int zLen = Math.abs(zMax - zMin) + 1;

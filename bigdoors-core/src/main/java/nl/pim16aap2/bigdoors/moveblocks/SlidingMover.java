@@ -25,9 +25,11 @@ public class SlidingMover extends BlockMover
     public SlidingMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
                         final @NotNull DoorBase door, final boolean instantOpen, final int blocksToMove,
                         final @NotNull RotateDirection openDirection, final double multiplier,
-                        @Nullable final UUID playerUUID)
+                        @Nullable final UUID playerUUID, final @NotNull Location finalMin,
+                        final @NotNull Location finalMax)
     {
-        super(plugin, world, door, time, instantOpen, PBlockFace.UP, openDirection, blocksToMove, playerUUID);
+        super(plugin, world, door, time, instantOpen, PBlockFace.UP, openDirection, blocksToMove, playerUUID, finalMin,
+              finalMax);
 
         NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 
