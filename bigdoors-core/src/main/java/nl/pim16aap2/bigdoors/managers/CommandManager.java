@@ -21,6 +21,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class CommandManager implements CommandExecutor
     {
         this.plugin = plugin;
         commands = new HashMap<>();
-        commandsShortcut = new HashMap<>();
+        commandsShortcut = new EnumMap<>(CommandData.class);
     }
 
     /**

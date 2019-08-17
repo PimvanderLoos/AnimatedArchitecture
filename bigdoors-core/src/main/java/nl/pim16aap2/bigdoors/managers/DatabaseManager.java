@@ -612,9 +612,11 @@ public final class DatabaseManager extends Restartable
         List<DoorBase> ret = new ArrayList<>();
         long chunkHash = Util.simpleChunkHashFromLocation(loc.getBlockX(), loc.getBlockZ());
 
+        // Check if this world is in the cache yet. If it isn't, instantiate the cache for this world.
         if (!pbCache.containsKey(worldUUID))
             pbCache.put(worldUUID, new TimedMapCache<>(plugin, HashMap::new, plugin.getConfigLoader().cacheTimeout()));
 
+        // Get all the
         TimedMapCache<Long, Map<Long, List<Long>>> worldMap = pbCache.get(worldUUID);
 
         Map<Long, List<Long>> powerBlockData = worldMap.get(chunkHash);

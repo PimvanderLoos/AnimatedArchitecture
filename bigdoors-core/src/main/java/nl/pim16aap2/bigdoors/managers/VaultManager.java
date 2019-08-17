@@ -15,7 +15,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages all interactions with Vault.
@@ -25,8 +27,8 @@ import java.util.HashMap;
 public class VaultManager extends Restartable
 {
     protected final BigDoors plugin;
-    private final HashMap<Long, Double> menu;
-    private final HashMap<DoorType, Double> flatPrices;
+    private final Map<Long, Double> menu;
+    private final Map<DoorType, Double> flatPrices;
     private final boolean vaultEnabled;
     private Economy economy = null;
     private Permission perms = null;
@@ -36,7 +38,7 @@ public class VaultManager extends Restartable
         super(plugin);
         this.plugin = plugin;
         menu = new HashMap<>();
-        flatPrices = new HashMap<>();
+        flatPrices = new EnumMap<>(DoorType.class);
         init();
         vaultEnabled = setupEconomy();
         if (vaultEnabled)
@@ -95,7 +97,7 @@ public class VaultManager extends Restartable
      */
     private void init()
     {
-        for (DoorType type : DoorType.values())
+        for (DoorType type : DoorType.cachedValues())
             getFlatPrice(type);
     }
 

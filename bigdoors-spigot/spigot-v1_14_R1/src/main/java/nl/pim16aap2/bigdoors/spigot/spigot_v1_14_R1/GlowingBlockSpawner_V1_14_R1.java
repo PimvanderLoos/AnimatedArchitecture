@@ -19,7 +19,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -46,7 +46,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
     {
         super(holder);
         this.plogger = plogger;
-        teams = new HashMap<>();
+        teams = new EnumMap<>(ChatColor.class);
         scoreboard = org.bukkit.Bukkit.getServer().getScoreboardManager().getMainScoreboard();
         init();
     }

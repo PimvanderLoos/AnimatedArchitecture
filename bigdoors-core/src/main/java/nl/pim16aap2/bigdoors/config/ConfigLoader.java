@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -73,8 +73,9 @@ public final class ConfigLoader
         this.logger = logger;
         configEntries = new ArrayList<>();
         powerBlockTypesMap = new HashSet<>();
-        doorPrices = new HashMap<>();
-        doorMultipliers = new HashMap<>();
+        doorPrices = new EnumMap<>(DoorType.class);
+        doorMultipliers = new EnumMap<>(DoorType.class);
+
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
     }
 
@@ -218,7 +219,7 @@ public final class ConfigLoader
         makeBackup = addNewConfigEntry(config, "makeBackup", true, backupComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
 
-        DoorType[] doorTypes = DoorType.values();
+        DoorType[] doorTypes = DoorType.cachedValues();
         for (int idx = 0; idx != doorTypes.length; ++idx)
             if (DoorType.isEnabled(doorTypes[idx]))
                 doorMultipliers.put(doorTypes[idx],

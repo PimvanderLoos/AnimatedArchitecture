@@ -76,7 +76,7 @@ public class GUIPageDoorCreation implements IGUIPage
     private void fillPage()
     {
         int position = 9;
-        for (DoorType type : DoorType.values())
+        for (DoorType type : DoorType.cachedValues())
             if (DoorType.isEnabled(type) && SubCommandNew.hasCreationPermission(gui.getPlayer(), type))
             {
                 String initMessage = plugin.getMessages().getString(Message.GUI_DESCRIPTION_INITIATION,

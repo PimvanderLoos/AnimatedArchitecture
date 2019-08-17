@@ -17,7 +17,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,8 +29,8 @@ import java.util.UUID;
  */
 public final class SpigotUtil
 {
-    private static final Map<PBlockFace, BlockFace> toBlockFace = new HashMap<>();
-    private static final Map<BlockFace, PBlockFace> toPBlockFace = new HashMap<>();
+    private static final Map<PBlockFace, BlockFace> toBlockFace = new EnumMap<>(PBlockFace.class);
+    private static final Map<BlockFace, PBlockFace> toPBlockFace = new EnumMap<>(BlockFace.class);
     public static boolean printDebugMessages = false;
 
     static

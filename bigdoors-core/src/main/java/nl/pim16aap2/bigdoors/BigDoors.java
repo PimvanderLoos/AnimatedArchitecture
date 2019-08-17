@@ -227,6 +227,8 @@ import java.util.UUID;
 // TODO: Configurable timeouts for commands + creators. Also, put variable in messages.
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
+// TODO: GlowingBlockSpawner_V1_14_R1: "org.bukkit.Bukkit.getServer().getScoreboardManager()" is Nullable. Create a
+//       class to obtain the scoreboardmanager in the SpigotUtils, which can instantiate if it doesn't exist.
 
 /*
  * GUI

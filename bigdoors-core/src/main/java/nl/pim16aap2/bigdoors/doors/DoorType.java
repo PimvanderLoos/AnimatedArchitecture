@@ -133,16 +133,22 @@ public enum DoorType
         },
     ;
 
+    private final static DoorType[] values = DoorType.values();
     private final static Map<Integer, DoorType> valMap = new HashMap<>();
     private final static Map<String, DoorType> commandFlagMap = new HashMap<>();
 
     static
     {
-        for (DoorType type : DoorType.values())
+        for (DoorType type : DoorType.cachedValues())
         {
             valMap.put(type.val, type);
             commandFlagMap.put(type.commandFlag, type);
         }
+    }
+
+    public static DoorType[] cachedValues()
+    {
+        return values;
     }
 
     /**
