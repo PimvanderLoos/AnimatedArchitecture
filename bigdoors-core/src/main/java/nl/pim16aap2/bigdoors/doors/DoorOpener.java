@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -158,7 +159,10 @@ public final class DoorOpener
      *
      * @param newMin     The lower bound location of the area.
      * @param newMax     The upper bound location of the area.
+     * @param curMin     The current lower bound location of the door (blocks in this area are skipped).
+     * @param curMax     The upper lower bound location of the door (blocks in this area are skipped).
      * @param playerUUID The {@link UUID} of the {@link org.bukkit.entity.Player} to notify of violations. May be null.
+     * @param world      The world to check the blocks in.
      * @return True if the location is not empty.
      */
     public boolean isLocationEmpty(final @NotNull Location newMin, final @NotNull Location newMax,
@@ -192,6 +196,71 @@ public final class DoorOpener
             }
         }
         return isEmpty;
+    }
+
+    /**
+     * Gets the number of blocks this door can move in the given direction. If set, it won't go further than {@link
+     * DoorBase#getBlocksToMove()}
+     *
+     * @param vec          Which direction to count the number of available blocks in.
+     * @param playerUUID   The player for whom to check. May be null.
+     * @param world        The world to check the blocks in.
+     * @param curMin       The current lower bound location of the door (blocks in this area are skipped).
+     * @param curMax       The upper lower bound location of the door (blocks in this area are skipped).
+     * @param blocksToMove The number of blocks to try move.
+     * @return Gets the number of blocks this door can move in the given direction.
+     */
+    public int getBlocksInDir(final @NotNull Vector3D vec, final @Nullable UUID playerUUID, final @NotNull World world,
+                              final @NotNull Location curMin, final @NotNull Location curMax, final int blocksToMove)
+    {
+        int startX, startY, startZ, endX, endY, endZ;
+
+        startX =
+            vec.getX() == 0 ? curMin.getBlockX() : vec.getX() == 1 ? curMax.getBlockX() + 1 : curMin.getBlockX() - 1;
+        startY =
+            vec.getY() == 0 ? curMin.getBlockY() : vec.getY() == 1 ? curMax.getBlockY() + 1 : curMin.getBlockY() - 1;
+        startZ =
+            vec.getZ() == 0 ? curMin.getBlockZ() : vec.getZ() == 1 ? curMax.getBlockZ() + 1 : curMin.getBlockZ() - 1;
+
+        endX = vec.getX() == 0 ? curMax.getBlockX() : startX;
+        endY = vec.getY() == 0 ? curMax.getBlockY() : startY;
+        endZ = vec.getZ() == 0 ? curMax.getBlockZ() : startZ;
+
+        Location locA = new Location(world, startX, startY, startZ);
+        Location locB = new Location(world, endX, endY, endZ);
+
+        // xLen and zLen describe the length of the door in the x and the z direction respectively.
+        // If the rotation direction and the blocksToMove variable are defined, use the blocksToMove variable instead.
+        int xLen = blocksToMove < 1 ? (curMax.getBlockX() - curMin.getBlockX()) + 1 : blocksToMove;
+        int yLen = blocksToMove < 1 ? (curMax.getBlockY() - curMin.getBlockY()) + 1 : blocksToMove;
+        int zLen = blocksToMove < 1 ? (curMax.getBlockZ() - curMin.getBlockZ()) + 1 : blocksToMove;
+
+        // The maxDist is the number of blocks to check in a direction. This is either getBlocksToMove if it that has
+        // been specified. If it hasn't, it's the length of the door in the provided direction.
+        int maxDist = blocksToMove > 0 ? blocksToMove :
+                      Math.abs(vec.getX() * xLen + vec.getY() * yLen + vec.getZ() * zLen);
+
+        int ret = 0;
+        int steps = 0;
+        boolean obstructed = false;
+        while (steps < maxDist)
+        {
+            boolean isEmpty = isLocationEmpty(locA, locB, curMin, curMax, playerUUID, world);
+            if (!isEmpty)
+            {
+                obstructed = true;
+                if (playerUUID == null)
+                    break;
+            }
+            if (!obstructed) // There is no point in checking how many blocks are available behind an obstruction.
+                ++ret;
+            locA.add(vec.getX(), vec.getY(), vec.getZ());
+            locB.add(vec.getX(), vec.getY(), vec.getZ());
+            ++steps;
+        }
+
+        // If the direction was in a negative direction, make sure the output is negative as well.
+        return (vec.getX() == -1 || vec.getY() == -1 || vec.getZ() == -1) ? -1 * ret : ret;
     }
 
     /**

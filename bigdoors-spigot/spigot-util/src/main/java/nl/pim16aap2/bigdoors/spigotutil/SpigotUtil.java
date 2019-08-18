@@ -2,11 +2,13 @@ package nl.pim16aap2.bigdoors.spigotutil;
 
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -45,6 +47,74 @@ public final class SpigotUtil
             toBlockFace.put(pbf, mappedBlockFace);
             toPBlockFace.put(mappedBlockFace, pbf);
         }
+    }
+
+    /**
+     * Gets the number are available (i.e. either air or liquid blocks) in a given direction for a certain area. Note
+     * that the result may be negative depending on the direction.
+     * <p>
+     * For example, when checking how many blocks are available in downwards direction, it will return -5 if 5 blocks
+     * under the area are available.
+     *
+     * @param min       The minimum coordinates of the area.
+     * @param max       The maximum coordinates of the area.
+     * @param maxDist   The maximum number of blocks to check.
+     * @param direction The direction to check.
+     * @param world     The world in which to check.
+     * @return The number are available in a given direction. Can be negative depending on the direction.
+     */
+    public static int getBlocksInDir(final @NotNull Location min, final @NotNull Location max, int maxDist,
+                                     final @NotNull PBlockFace direction, final @NotNull World world)
+    {
+        int startX, startY, startZ, endX, endY, endZ, countX = 0, countY = 0, countZ = 0;
+        Vector3D vec = PBlockFace.getDirection(direction);
+        maxDist = Math.abs(maxDist);
+
+        startX = vec.getX() == 0 ? min.getBlockX() : vec.getX() == 1 ? max.getBlockX() + 1 : min.getBlockX() - 1;
+        startY = vec.getY() == 0 ? min.getBlockY() : vec.getY() == 1 ? max.getBlockY() + 1 : min.getBlockY() - 1;
+        startZ = vec.getZ() == 0 ? min.getBlockZ() : vec.getZ() == 1 ? max.getBlockZ() + 1 : min.getBlockZ() - 1;
+
+        endX = vec.getX() == 0 ? max.getBlockX() : startX + vec.getX() * maxDist;
+        endY = vec.getY() == 0 ? max.getBlockY() : startY + vec.getY() * maxDist;
+        endZ = vec.getZ() == 0 ? max.getBlockZ() : startZ + vec.getZ() * maxDist;
+
+        int stepX = vec.getX() == 0 ? 1 : vec.getX();
+        int stepY = vec.getY() == 0 ? 1 : vec.getY();
+        int stepZ = vec.getZ() == 0 ? 1 : vec.getZ();
+
+        int ret = 0;
+        if (vec.getX() != 0)
+            for (int xAxis = startX; xAxis != endX + 1; ++xAxis)
+            {
+                for (int zAxis = startZ; zAxis != endZ; zAxis += stepZ)
+                    for (int yAxis = startY; yAxis != endY + 1; ++yAxis)
+                        if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
+                            return ret;
+                ret += stepX;
+            }
+        else if (vec.getY() != 0)
+            for (int yAxis = startY; yAxis != endY + 1; ++yAxis)
+            {
+                for (int zAxis = startZ; zAxis != endZ; zAxis += stepZ)
+                    for (int xAxis = startX; xAxis != endX + 1; ++xAxis)
+                        if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
+                            return ret;
+                ret += stepY;
+            }
+        else if (vec.getZ() != 0)
+        {
+            for (int zAxis = startZ; zAxis != endZ; zAxis += stepZ)
+            {
+                for (int xAxis = startX; xAxis != endX + 1; ++xAxis)
+                    for (int yAxis = startY; yAxis != endY + 1; ++yAxis)
+                        if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
+                            return ret;
+                ret += stepZ;
+            }
+        }
+        else
+            ret = 0;
+        return ret;
     }
 
     /**
@@ -136,7 +206,8 @@ public final class SpigotUtil
     public static Optional<String> nameFromUUID(final @NotNull UUID playerUUID)
     {
         Player player = Bukkit.getPlayer(playerUUID);
-        return Optional.ofNullable(player != null ? player.getName() : Bukkit.getOfflinePlayer(playerUUID).getName());
+        return Optional
+            .ofNullable(player != null ? player.getName() : Bukkit.getOfflinePlayer(playerUUID).getName());
     }
 
     /**
@@ -232,7 +303,8 @@ public final class SpigotUtil
      * @param permissionNode The base permission node.
      * @return The highest value of the variable suffix of the permission node or -1 if none was found.
      */
-    private static int getHighestPermissionSuffix(final @NotNull Player player, final @NotNull String permissionNode)
+    private static int getHighestPermissionSuffix(final @NotNull Player player,
+                                                  final @NotNull String permissionNode)
     {
         int ret = -1;
         for (PermissionAttachmentInfo perms : player.getEffectivePermissions())
@@ -441,7 +513,8 @@ public final class SpigotUtil
 
     // Return {time, tickRate, distanceMultiplier} for a given door size.
     @Deprecated
-    public static double[] calculateTimeAndTickRate(final int doorSize, double time, final double speedMultiplier,
+    public static double[] calculateTimeAndTickRate(final int doorSize, double time,
+                                                    final double speedMultiplier,
                                                     final double baseSpeed)
     {
         double ret[] = new double[3];
@@ -463,11 +536,12 @@ public final class SpigotUtil
         double distanceMultiplier = speed > 4 ? 1.01 : speed > 3.918 ? 1.08 : speed > 3.916 ? 1.10 :
                                                                               speed > 2.812 ? 1.12 :
                                                                               speed > 2.537 ? 1.19 :
-                                                                              speed > 2.2 ? 1.22 : speed > 2.0 ? 1.23 :
-                                                                                                   speed > 1.770 ?
-                                                                                                   1.25 :
-                                                                                                   speed > 1.570 ?
-                                                                                                   1.28 : 1.30;
+                                                                              speed > 2.2 ? 1.22 :
+                                                                              speed > 2.0 ? 1.23 :
+                                                                              speed > 1.770 ?
+                                                                              1.25 :
+                                                                              speed > 1.570 ?
+                                                                              1.28 : 1.30;
         ret[0] = time;
         ret[1] = tickRateFromSpeed(speed);
         ret[2] = distanceMultiplier;

@@ -2,14 +2,13 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingMover;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.Vector2D;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -114,126 +113,23 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     }
 
     /**
-     * Gets the number of blocks this door can move in the given direction. If set, it won't go further than {@link
-     * #getBlocksToMove()}
-     *
-     * @param slideDir Which direction to count the number of available blocks in. Must be one of the following: {@link
-     *                 RotateDirection#NORTH}, {@link RotateDirection#EAST}, {@link RotateDirection#SOUTH}, or {@link
-     *                 RotateDirection#WEST}.
-     * @return Gets the number of blocks this door can move in the given direction.
-     */
-    private int getBlocksInDir(final @NotNull RotateDirection slideDir)
-    {
-        if (!(slideDir.equals(RotateDirection.NORTH) || slideDir.equals(RotateDirection.EAST) ||
-            slideDir.equals(RotateDirection.SOUTH) || slideDir.equals(RotateDirection.WEST)))
-        {
-            pLogger.logException(new IllegalArgumentException(
-                "RotateDirection \"" + slideDir.name() + "\" is not a valid direction for a door of type \"" +
-                    getType().name() + "\""));
-            return 0;
-        }
-
-        int xMin, xMax, zMin, zMax, yMin, yMax, xLen, zLen, moveBlocks = 0, step;
-        xMin = min.getBlockX();
-        yMin = min.getBlockY();
-        zMin = min.getBlockZ();
-        xMax = max.getBlockX();
-        yMax = max.getBlockY();
-        zMax = max.getBlockZ();
-
-        // xLen and zLen describe the length of the door in the x and the z direction respectively.
-        // If the rotation direction and the blocksToMove variable are defined, use the blocksToMove variable instead.
-        xLen = getBlocksToMove() < 1 ? Math.abs(xMax - xMin) + 1 : getBlocksToMove();
-        zLen = getBlocksToMove() < 1 ? Math.abs(zMax - zMin) + 1 : getBlocksToMove();
-
-        int xAxis, yAxis, zAxis;
-        step = slideDir == RotateDirection.NORTH || slideDir == RotateDirection.WEST ? -1 : 1;
-
-        int startX, startY, startZ, endX, endY, endZ;
-        startY = yMin;
-        endY = yMax;
-        if (slideDir == RotateDirection.NORTH)
-        {
-            startZ = zMin - 1;
-            endZ = zMin - zLen - 1;
-            startX = xMin;
-            endX = xMax;
-        }
-        else if (slideDir == RotateDirection.SOUTH)
-        {
-            startZ = zMax + 1;
-            endZ = zMax + zLen + 1;
-            startX = xMin;
-            endX = xMax;
-        }
-        else if (slideDir == RotateDirection.WEST)
-        {
-            startZ = zMin;
-            endZ = zMax;
-            startX = xMin - 1;
-            endX = xMin - xLen - 1;
-        }
-        else if (slideDir == RotateDirection.EAST)
-        {
-            startZ = zMin;
-            endZ = zMax;
-            startX = xMax + 1;
-            endX = xMax + xLen + 1;
-        }
-        else
-            return 0;
-
-        World world = getWorld();
-        if (slideDir == RotateDirection.NORTH || slideDir == RotateDirection.SOUTH)
-            for (zAxis = startZ; zAxis != endZ; zAxis += step)
-            {
-                for (xAxis = startX; xAxis != endX + 1; ++xAxis)
-                    for (yAxis = startY; yAxis != endY + 1; ++yAxis)
-                        if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
-                            return moveBlocks;
-                moveBlocks += step;
-            }
-        else
-            for (xAxis = startX; xAxis != endX; xAxis += step)
-            {
-                for (zAxis = startZ; zAxis != endZ + 1; ++zAxis)
-                    for (yAxis = startY; yAxis != endY + 1; ++yAxis)
-                        if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
-                            return moveBlocks;
-                moveBlocks += step;
-            }
-        return moveBlocks;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
-        RotateDirection currentToggleDir = getCurrentToggleDir();
-        int blocksToMove = getBlocksInDir(currentToggleDir);
-        if (blocksToMove == 0)
-            return false;
+        Vector3D vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
 
-        int addX = 0, addZ = 0;
-        switch (currentToggleDir)
-        {
-            case NORTH:
-                addZ = -blocksToMove;
-                break;
-            case EAST:
-                addX = blocksToMove;
-                break;
-            case SOUTH:
-                addZ = blocksToMove;
-                break;
-            case WEST:
-                addX = -blocksToMove;
-                break;
-        }
-        newMin.add(addX, 0, addZ);
-        newMax.add(addX, 0, addZ);
+        int blocksToMove = getBlocksToMove() > 0 ? getBlocksToMove() :
+                           1 + Math.abs(vec.getX() * dimensions.getX() + vec.getZ() * dimensions.getZ());
+
+        newMin.setX(min.getBlockX() + blocksToMove * vec.getX());
+        newMin.setY(min.getBlockY());
+        newMin.setZ(min.getBlockZ() + blocksToMove * vec.getZ());
+
+        newMax.setX(max.getBlockX() + blocksToMove * vec.getX());
+        newMax.setY(max.getBlockY());
+        newMax.setZ(max.getBlockZ() + blocksToMove * vec.getZ());
         return true;
     }
 

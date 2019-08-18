@@ -2,14 +2,14 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.VerticalMover;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.Vector2D;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -103,61 +103,39 @@ public class Portcullis extends DoorBase
     }
 
     /**
-     * Gets the number of blocks this door can move in the given direction. If set, it won't go further than {@link
-     * #getBlocksToMove()}
-     *
-     * @param upDown Whether to count the available number of blocks above or under the door. Only {@link
-     *               RotateDirection#UP} and {@link RotateDirection#DOWN} are supported.
-     * @return Gets the number of blocks this door can move in the given direction.
-     */
-    private int getBlocksInDir(final @NotNull RotateDirection upDown)
-    {
-        if ((!(upDown.equals(RotateDirection.UP) || upDown.equals(RotateDirection.DOWN))))
-        {
-            pLogger.logException(new IllegalArgumentException(
-                "RotateDirection \"" + upDown.name() + "\" is not a valid direction for a door of type \"" +
-                    getType().name() + "\""));
-            return 0;
-        }
-        int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksMoved = 0, delta;
-        xMin = min.getBlockX();
-        yMin = min.getBlockY();
-        zMin = min.getBlockZ();
-        xMax = max.getBlockX();
-        yMax = max.getBlockY();
-        zMax = max.getBlockZ();
-        yLen = yMax - yMin + 1;
-
-        int distanceToCheck = getBlocksToMove() < 1 ? yLen : getBlocksToMove();
-
-        int xAxis, yAxis, zAxis, yGoal;
-        World world = getWorld();
-        delta = upDown == RotateDirection.DOWN ? -1 : 1;
-        yAxis = upDown == RotateDirection.DOWN ? yMin - 1 : yMax + 1;
-        yGoal = upDown == RotateDirection.DOWN ? yMin - distanceToCheck - 1 : yMax + distanceToCheck + 1;
-
-        while (yAxis != yGoal)
-        {
-            for (xAxis = xMin; xAxis <= xMax; ++xAxis)
-                for (zAxis = zMin; zAxis <= zMax; ++zAxis)
-                    if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
-                        return blocksMoved;
-            yAxis += delta;
-            blocksMoved += delta;
-        }
-        return blocksMoved;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
-        int blocksToMove = getBlocksInDir(getCurrentToggleDir());
-        newMin.add(0, blocksToMove, 0);
-        newMax.add(0, blocksToMove, 0);
-        return blocksToMove != 0;
+        Vector3D vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+
+        int blocksToMove = getBlocksToMove() > 0 ? getBlocksToMove() :
+                           1 + Math.abs(vec.getY() * dimensions.getY());
+
+        newMin.setX(min.getBlockX());
+        newMin.setY(min.getBlockY() + blocksToMove * vec.getY());
+        newMin.setZ(min.getBlockZ());
+
+        newMax.setX(max.getBlockX());
+        newMax.setY(max.getBlockY() + blocksToMove * vec.getY());
+        newMax.setZ(max.getBlockZ());
+        return true;
+
+//        Vector3D vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+//
+//        int blocksToMove = getBlocksToMove() > 0 ? getBlocksToMove() :
+//                           1 + Math.abs(vec.getX() * dimensions.getX() + vec.getY() * dimensions.getY() +
+//                                            vec.getZ() * dimensions.getZ());
+//
+//        newMin.setX(min.getBlockX() + blocksToMove * vec.getX());
+//        newMin.setY(min.getBlockY() + blocksToMove * vec.getY());
+//        newMin.setZ(min.getBlockZ() + blocksToMove * vec.getZ());
+//
+//        newMax.setX(max.getBlockX() + blocksToMove * vec.getX());
+//        newMax.setY(max.getBlockY() + blocksToMove * vec.getY());
+//        newMax.setZ(max.getBlockZ() + blocksToMove * vec.getZ());
+//        return true;
     }
 
     /**

@@ -177,8 +177,8 @@ public abstract class DoorBase
         if (doorOpener.isTooBig(this))
             instantOpen = true;
 
-        Location newMin = min;
-        Location newMax = max;
+        Location newMin = getMinimum();
+        Location newMax = getMaximum();
 
         if (!getPotentialNewCoordinates(newMin, newMax))
             return doorOpener.abort(this, DoorToggleResult.ERROR, cause);

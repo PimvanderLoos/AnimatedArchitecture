@@ -222,6 +222,7 @@ import java.util.UUID;
 // TODO: Configurable timeouts for commands + creators. Also, put variable in messages.
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
+// TODO: Use an EnumMap to store messages. This means getting the Enum value from the string.
 
 /*
  * GUI
