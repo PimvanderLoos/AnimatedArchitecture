@@ -53,8 +53,6 @@ public abstract class BlockMover implements IRestartable
     /**
      * Constructs a {@link BlockMover}.
      *
-     * @param plugin           The {@link BigDoors}.
-     * @param world            The {@link World} in which the blocks will be moved.
      * @param door             The {@link DoorBase}.
      * @param time             The amount of time (in seconds) the door will try to toggle itself in.
      * @param instantOpen      If the door should be opened instantly (i.e. skip animation) or not.
@@ -65,15 +63,14 @@ public abstract class BlockMover implements IRestartable
      * @param finalMin         The resulting minimum coordinates.
      * @param finalMax         The resulting maximum coordinates.
      */
-    protected BlockMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
-                         final double time, final boolean instantOpen, final @NotNull PBlockFace currentDirection,
-                         final @NotNull RotateDirection openDirection, final int blocksMoved,
-                         @Nullable final UUID playerUUID, final @NotNull Location finalMin,
+    protected BlockMover(final @NotNull DoorBase door, final double time, final boolean instantOpen,
+                         final @NotNull PBlockFace currentDirection, final @NotNull RotateDirection openDirection,
+                         final int blocksMoved, @Nullable final UUID playerUUID, final @NotNull Location finalMin,
                          final @NotNull Location finalMax)
     {
+        plugin = BigDoors.get();
         plugin.getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
-        this.plugin = plugin;
-        this.world = world;
+        world = door.getWorld();
         this.door = door;
         this.time = time;
         this.instantOpen = instantOpen;

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -15,7 +14,6 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -33,14 +31,12 @@ public class CylindricalMover extends BlockMover
     private double multiplier;
     private double startStepSum;
 
-    public CylindricalMover(final @NotNull BigDoors plugin, final @NotNull World world,
-                            final @NotNull RotateDirection rotDirection, final double time,
+    public CylindricalMover(final @NotNull RotateDirection rotDirection, final double time,
                             final @NotNull PBlockFace currentDirection, final @NotNull DoorBase door,
                             final boolean instantOpen, final double multiplier, @Nullable final UUID playerUUID,
                             final @NotNull Location finalMin, final @NotNull Location finalMax)
     {
-        super(plugin, world, door, time, instantOpen, currentDirection, rotDirection, -1, playerUUID, finalMin,
-              finalMax);
+        super(door, time, instantOpen, currentDirection, rotDirection, -1, playerUUID, finalMin, finalMax);
 
         turningPoint = door.getEngine();
         stepMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;

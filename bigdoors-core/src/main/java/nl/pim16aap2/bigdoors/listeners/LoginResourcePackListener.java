@@ -11,12 +11,12 @@ import org.bukkit.event.player.PlayerJoinEvent;
  *
  * @author Pim
  */
-public class LoginResourcePackHandler implements Listener
+public class LoginResourcePackListener implements Listener
 {
     private final BigDoors plugin;
     private final String url;
 
-    public LoginResourcePackHandler(BigDoors plugin, String url)
+    public LoginResourcePackListener(BigDoors plugin, String url)
     {
         this.plugin = plugin;
         this.url = url;

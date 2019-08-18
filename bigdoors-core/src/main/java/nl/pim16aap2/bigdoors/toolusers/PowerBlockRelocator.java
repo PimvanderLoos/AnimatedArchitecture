@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.ChatColor;
@@ -9,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a user relocating the power block of a {@link nl.pim16aap2.bigdoors.doors.DoorBase}.
+ * Represents a user relocating the power block of a {@link DoorBase}.
  *
  * @author Pim
  **/

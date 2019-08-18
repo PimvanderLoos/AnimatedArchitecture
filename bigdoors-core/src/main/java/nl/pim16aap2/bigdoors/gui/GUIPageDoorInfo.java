@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -259,14 +259,16 @@ public class GUIPageDoorInfo implements IGUIPage
             case DIRECTION_ROTATE_VERTICAL:
                 desc = messages.getString(Message.GUI_BUTTON_DIRECTION);
                 lore.add(messages.getString(Message.GUI_DESCRIPTION_OPENDIRECTION,
-                                            messages.getString(RotateDirection.getMessage(door.getOpenDir()))));
+                                            messages.getString(RotateDirection.getMessage(
+                                                door.getOpenDir()))));
                 ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
                 break;
 
             case DIRECTION_ROTATE_HORIZONTAL:
                 desc = messages.getString(Message.GUI_BUTTON_DIRECTION);
                 lore.add(messages.getString(Message.GUI_DESCRIPTION_OPENDIRECTION_RELATIVE,
-                                            messages.getString(RotateDirection.getMessage(door.getOpenDir())),
+                                            messages.getString(
+                                                RotateDirection.getMessage(door.getOpenDir())),
                                             messages.getString(RotateDirection.getMessage(RotateDirection.DOWN))));
                 ret = new GUIItem(GUI.SETOPENDIRMAT, desc, lore, 1);
                 break;

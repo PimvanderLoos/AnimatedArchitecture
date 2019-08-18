@@ -13,11 +13,11 @@ import org.bukkit.scheduler.BukkitRunnable;
  *
  * @author Pim
  */
-public class LoginMessageHandler implements Listener
+public class LoginMessageListener implements Listener
 {
     BigDoors plugin;
 
-    public LoginMessageHandler(BigDoors plugin)
+    public LoginMessageListener(BigDoors plugin)
     {
         this.plugin = plugin;
     }

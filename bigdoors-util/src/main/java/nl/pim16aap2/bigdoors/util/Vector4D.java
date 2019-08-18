@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Represents an Integer vector or vertex in 4D space.
  *
@@ -84,6 +86,20 @@ public final class Vector4D implements Cloneable
     }
 
     @Override
+    @NotNull
+    public Vector4D clone()
+    {
+        try
+        {
+            return (Vector4D) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new Error(e);
+        }
+    }
+
+    @Override
     public String toString()
     {
         return "(" + x + ":" + y + ":" + z + ":" + w + ")";
@@ -107,7 +123,7 @@ public final class Vector4D implements Cloneable
             return true;
         if (o == null)
             return false;
-        if (this.getClass() != o.getClass())
+        if (getClass() != o.getClass())
             return false;
         Vector4D other = (Vector4D) o;
         return x == other.x && y == other.y && z == other.z && w == other.w;

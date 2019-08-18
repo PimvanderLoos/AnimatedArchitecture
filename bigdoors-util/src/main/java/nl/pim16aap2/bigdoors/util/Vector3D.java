@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Represents an Integer vector or vertex in 3D space.
  *
@@ -71,6 +73,20 @@ public final class Vector3D implements Cloneable
     }
 
     @Override
+    @NotNull
+    public Vector3D clone()
+    {
+        try
+        {
+            return (Vector3D) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new Error(e);
+        }
+    }
+
+    @Override
     public String toString()
     {
         return "(" + x + ":" + y + ":" + z + ")";
@@ -93,7 +109,7 @@ public final class Vector3D implements Cloneable
             return true;
         if (o == null)
             return false;
-        if (this.getClass() != o.getClass())
+        if (getClass() != o.getClass())
             return false;
         Vector3D other = (Vector3D) o;
         return x == other.x && y == other.y && z == other.z;

@@ -105,6 +105,12 @@ public abstract class Creator extends ToolUser
         if (isReadyToConstructDoor() && !aborting)
         {
             World world = one.getWorld();
+            if (world == null)
+            {
+                IllegalStateException e = new IllegalStateException("World of location one cannot be null!");
+                plugin.getPLogger().logException(e);
+                throw e;
+            }
             Location min = new Location(world, one.getBlockX(), one.getBlockY(), one.getBlockZ());
             Location max = new Location(world, two.getBlockX(), two.getBlockY(), two.getBlockZ());
 
@@ -114,19 +120,16 @@ public abstract class Creator extends ToolUser
                 return;
             }
 
-            DoorBase door = type.getNewDoor(plugin.getPLogger(), doorUID);
             DoorOwner owner = new DoorOwner(doorUID, player.getUniqueId(), player.getName(), 0);
+
+            DoorBase.DoorData doorData = new DoorBase.DoorData(min, max, engine, getPowerBlockLoc(world), world,
+                                                               isOpen);
+            DoorBase door = type.getNewDoor(plugin.getPLogger(), doorUID, doorData);
+            door.setDefaultOpenDirection();
             door.setName(doorName);
-            door.setWorld(world);
             door.setDoorOwner(owner);
-            door.setMinimum(min);
-            door.setMaximum(max);
-            door.setEngineLocation(new Location(world, engine.getBlockX(), engine.getBlockY() - 1, engine.getBlockZ()));
             door.setPowerBlockLocation(getPowerBlockLoc(world));
             door.setAutoClose(-1);
-            door.setOpenStatus(isOpen);
-
-            door.setDefaultOpenDirection();
 
             int doorSize = door.getBlockCount();
             int sizeLimit = SpigotUtil.getMaxDoorSizeForPlayer(player);

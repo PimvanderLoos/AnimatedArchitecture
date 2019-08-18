@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.GarageDoorMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
@@ -19,14 +19,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public class GarageDoor extends HorizontalAxisAlignedBase
 {
-    GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
+    protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                         final @NotNull DoorType type)
     {
-        super(pLogger, doorUID, type);
+        super(pLogger, doorUID, doorData, type);
     }
 
-    GarageDoor(final @NotNull PLogger pLogger, final long doorUID)
+    protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, DoorType.GARAGEDOOR);
+        this(pLogger, doorUID, doorData, DoorType.GARAGEDOOR);
     }
 
     /**
@@ -38,10 +39,11 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     {
         int radius = 0;
 
-        if (!isOpen)
+        if (!isOpen())
             radius = dimensions.getY() / 16 + 1;
         else
-            radius = Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
+            radius =
+                Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
 
         return new Vector2D[]{new Vector2D(getChunk().getX() - radius, getChunk().getZ() - radius),
                               new Vector2D(getChunk().getX() + radius, getChunk().getZ() + radius)};
@@ -53,7 +55,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     @Override
     public boolean isOpenable()
     {
-        return !isOpen;
+        return !isOpen();
     }
 
     /**
@@ -62,7 +64,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     @Override
     public boolean isCloseable()
     {
-        return isOpen;
+        return isOpen();
     }
 
     /**
@@ -72,7 +74,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     @Override
     public PBlockFace calculateCurrentDirection()
     {
-        if (!isOpen)
+        if (!isOpen())
             return PBlockFace.UP;
 
         int dX = engine.getBlockX() - min.getBlockX();
@@ -88,9 +90,9 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     public void setDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            openDir = RotateDirection.EAST;
+            setOpenDir(RotateDirection.EAST);
         else
-            openDir = RotateDirection.NORTH;
+            setOpenDir(RotateDirection.NORTH);
     }
 
     /**
@@ -103,23 +105,22 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         RotateDirection rotDir = getOpenDir();
         if (getCurrentDirection().equals(PBlockFace.UP))
             return rotDir;
-        // TODO: Make this less dumb.
-        return RotateDirection.valueOf(PBlockFace.getOpposite(getCurrentDirection()).toString());
+        return RotateDirection.getOpposite(Util.getRotateDirection(getCurrentDirection()));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
         RotateDirection rotateDirection = getCurrentToggleDir();
-        int minX = getMinimum().getBlockX();
-        int minY = getMinimum().getBlockY();
-        int minZ = getMinimum().getBlockZ();
-        int maxX = getMaximum().getBlockX();
-        int maxY = getMaximum().getBlockY();
-        int maxZ = getMaximum().getBlockZ();
+        int minX = min.getBlockX();
+        int minY = min.getBlockY();
+        int minZ = min.getBlockZ();
+        int maxX = max.getBlockX();
+        int maxY = max.getBlockY();
+        int maxZ = max.getBlockZ();
         int xLen = dimensions.getX();
         int yLen = dimensions.getY();
         int zLen = dimensions.getZ();
@@ -127,7 +128,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         Vector3D rotateVec;
         try
         {
-            rotateVec = PBlockFace.getDirection(PBlockFace.valueOf(rotateDirection.toString()));
+            rotateVec = PBlockFace.getDirection(Util.getPBlockFace(rotateDirection));
         }
         catch (Exception e)
         {
@@ -139,7 +140,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase
 
         if (getCurrentDirection().equals(PBlockFace.UP))
         {
-            minY = maxY = getMaximum().getBlockY() + 1;
+            minY = maxY = max.getBlockY() + 1;
 
             minX += rotateVec.getX();
             maxX += (1 + yLen) * rotateVec.getX();
@@ -188,13 +189,13 @@ public class GarageDoor extends HorizontalAxisAlignedBase
             maxZ = tmp;
         }
 
-        min.setX(minX);
-        min.setY(minY);
-        min.setZ(minZ);
+        newMin.setX(minX);
+        newMin.setY(minY);
+        newMin.setZ(minZ);
 
-        max.setX(maxX);
-        max.setY(maxY);
-        max.setZ(maxZ);
+        newMax.setX(maxX);
+        newMax.setY(maxY);
+        newMax.setZ(maxZ);
 
         return true;
     }
@@ -205,15 +206,14 @@ public class GarageDoor extends HorizontalAxisAlignedBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean instantOpen, final @NotNull Location newMin,
-                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+                                      final @NotNull Location newMax)
     {
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
         doorOpener.registerBlockMover(
-            new GarageDoorMover(plugin, getWorld(), this, fixedTime,
-                                plugin.getConfigLoader().getMultiplier(DoorType.BIGDOOR), instantOpen,
-                                getCurrentDirection(), getCurrentToggleDir(),
-                                cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
+            new GarageDoorMover(this, fixedTime, doorOpener.getMultiplier(this), instantOpen, getCurrentDirection(),
+                                getCurrentToggleDir(), cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin,
+                                newMax));
     }
 }

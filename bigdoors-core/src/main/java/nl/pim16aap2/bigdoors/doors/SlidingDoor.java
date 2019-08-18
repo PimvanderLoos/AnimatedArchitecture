@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -20,14 +20,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public class SlidingDoor extends HorizontalAxisAlignedBase
 {
-    SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
+    protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                          final @NotNull DoorType type)
     {
-        super(pLogger, doorUID, type);
+        super(pLogger, doorUID, doorData, type);
     }
 
-    SlidingDoor(final @NotNull PLogger pLogger, final long doorUID)
+    protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, DoorType.SLIDINGDOOR);
+        this(pLogger, doorUID, doorData, DoorType.SLIDINGDOOR);
     }
 
     /**
@@ -36,7 +37,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     @Override
     public boolean isOpenable()
     {
-        return !isOpen;
+        return !isOpen();
     }
 
     /**
@@ -45,7 +46,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     @Override
     public boolean isCloseable()
     {
-        return isOpen;
+        return isOpen();
     }
 
     /**
@@ -58,11 +59,11 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
         int distanceX = 0;
         int distanceZ = 0;
         if (getOpenDir().equals(RotateDirection.NORTH) || getOpenDir().equals(RotateDirection.SOUTH))
-            distanceZ = (blocksToMove > 0 ? Math.max(dimensions.getZ(), blocksToMove) :
-                         Math.min(-dimensions.getZ(), blocksToMove)) / 16 + 1;
+            distanceZ = (getBlocksToMove() > 0 ? Math.max(dimensions.getZ(), getBlocksToMove()) :
+                         Math.min(-dimensions.getZ(), getBlocksToMove())) / 16 + 1;
         else
-            distanceX = (blocksToMove > 0 ? Math.max(dimensions.getX(), blocksToMove) :
-                         Math.min(-dimensions.getX(), blocksToMove)) / 16 + 1;
+            distanceX = (getBlocksToMove() > 0 ? Math.max(dimensions.getX(), getBlocksToMove()) :
+                         Math.min(-dimensions.getX(), getBlocksToMove())) / 16 + 1;
 
         return new Vector2D[]{new Vector2D(getChunk().getX() - distanceX, getChunk().getZ() - distanceZ),
                               new Vector2D(getChunk().getX() + distanceX, getChunk().getZ() + distanceZ)};
@@ -71,29 +72,11 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
-    @Override
     @NotNull
+    @Override
     public PBlockFace calculateCurrentDirection()
     {
-        PBlockFace looking;
-        switch (openDir)
-        {
-            case NORTH:
-                looking = PBlockFace.NORTH;
-                break;
-            case EAST:
-                looking = PBlockFace.EAST;
-                break;
-            case SOUTH:
-                looking = PBlockFace.SOUTH;
-                break;
-            case WEST:
-                looking = PBlockFace.WEST;
-                break;
-            default:
-                return PBlockFace.NONE;
-        }
-        return isOpen ? PBlockFace.getOpposite(looking) : looking;
+        return Util.getPBlockFace(isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir());
     }
 
     /**
@@ -103,9 +86,9 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     public void setDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            openDir = RotateDirection.NORTH;
+            setOpenDir(RotateDirection.NORTH);
         else
-            openDir = RotateDirection.EAST;
+            setOpenDir(RotateDirection.EAST);
     }
 
     /**
@@ -115,10 +98,9 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     @Override
     public RotateDirection cycleOpenDirection()
     {
-        return openDir.equals(RotateDirection.NORTH) ? RotateDirection.EAST :
-               openDir.equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
-               openDir.equals(RotateDirection.SOUTH) ? RotateDirection.WEST :
-               openDir.equals(RotateDirection.WEST) ? RotateDirection.NORTH : null;
+        return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
+               getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
+               getOpenDir().equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
     }
 
     /**
@@ -133,7 +115,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
 
     /**
      * Gets the number of blocks this door can move in the given direction. If set, it won't go further than {@link
-     * #blocksToMove}
+     * #getBlocksToMove()}
      *
      * @param slideDir Which direction to count the number of available blocks in. Must be one of the following: {@link
      *                 RotateDirection#NORTH}, {@link RotateDirection#EAST}, {@link RotateDirection#SOUTH}, or {@link
@@ -152,12 +134,12 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
         }
 
         int xMin, xMax, zMin, zMax, yMin, yMax, xLen, zLen, moveBlocks = 0, step;
-        xMin = getMinimum().getBlockX();
-        yMin = getMinimum().getBlockY();
-        zMin = getMinimum().getBlockZ();
-        xMax = getMaximum().getBlockX();
-        yMax = getMaximum().getBlockY();
-        zMax = getMaximum().getBlockZ();
+        xMin = min.getBlockX();
+        yMin = min.getBlockY();
+        zMin = min.getBlockZ();
+        xMax = max.getBlockX();
+        yMax = max.getBlockY();
+        zMax = max.getBlockZ();
 
         // xLen and zLen describe the length of the door in the x and the z direction respectively.
         // If the rotation direction and the blocksToMove variable are defined, use the blocksToMove variable instead.
@@ -226,41 +208,32 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
-    // TODO: Clean this shit up. Too much duplication.
     @Override
-    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
         RotateDirection currentToggleDir = getCurrentToggleDir();
         int blocksToMove = getBlocksInDir(currentToggleDir);
         if (blocksToMove == 0)
             return false;
 
-        int addX, addZ;
+        int addX = 0, addZ = 0;
         switch (currentToggleDir)
         {
             case NORTH:
-                addX = 0;
                 addZ = -blocksToMove;
                 break;
             case EAST:
                 addX = blocksToMove;
-                addZ = 0;
                 break;
             case SOUTH:
-                addX = 0;
                 addZ = blocksToMove;
                 break;
             case WEST:
                 addX = -blocksToMove;
-                addZ = 0;
-                break;
-            default:
-                addX = 0;
-                addZ = 0;
                 break;
         }
-        min.add(addX, 0, addZ);
-        max.add(addX, 0, addZ);
+        newMin.add(addX, 0, addZ);
+        newMax.add(addX, 0, addZ);
         return true;
     }
 
@@ -270,7 +243,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean instantOpen, final @NotNull Location newMin,
-                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+                                      final @NotNull Location newMax)
     {
         RotateDirection currentToggleDir = getCurrentToggleDir();
         int blocksToMove =
@@ -278,8 +251,7 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
             newMin.getBlockZ() - min.getBlockZ() : newMin.getBlockX() - min.getBlockX();
 
         doorOpener.registerBlockMover(
-            new SlidingMover(plugin, getWorld(), time, this, instantOpen, blocksToMove, currentToggleDir,
-                             plugin.getConfigLoader().getMultiplier(DoorType.SLIDINGDOOR),
+            new SlidingMover(time, this, instantOpen, blocksToMove, currentToggleDir, doorOpener.getMultiplier(this),
                              cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

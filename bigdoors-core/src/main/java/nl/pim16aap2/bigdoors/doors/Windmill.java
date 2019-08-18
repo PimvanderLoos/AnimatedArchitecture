@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.WindmillMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -19,18 +18,21 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Windmill extends HorizontalAxisAlignedBase
 {
-    Windmill(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
+    protected Windmill(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                       final @NotNull DoorType type)
     {
-        super(pLogger, doorUID, type);
+        super(pLogger, doorUID, doorData, type);
     }
 
-    Windmill(final @NotNull PLogger pLogger, final long doorUID)
+    protected Windmill(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, DoorType.WINDMILL);
+        this(pLogger, doorUID, doorData, DoorType.WINDMILL);
     }
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always true for this type.
      */
     @Override
     public boolean isOpenable()
@@ -40,6 +42,8 @@ public class Windmill extends HorizontalAxisAlignedBase
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always true for this type.
      */
     @Override
     public boolean isCloseable()
@@ -76,6 +80,8 @@ public class Windmill extends HorizontalAxisAlignedBase
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always {@link PBlockFace#NONE} for this type.
      */
     @Override
     @NotNull
@@ -91,13 +97,15 @@ public class Windmill extends HorizontalAxisAlignedBase
     public void setDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            openDir = RotateDirection.NORTH;
+            setOpenDir(RotateDirection.NORTH);
         else
-            openDir = RotateDirection.EAST;
+            setOpenDir(RotateDirection.EAST);
     }
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always the same as {@link #getOpenDir()}, as this type makes no distinction between opening and closing.
      */
     @NotNull
     @Override
@@ -108,17 +116,19 @@ public class Windmill extends HorizontalAxisAlignedBase
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always returns the current min and max coordinates of this door, as this type doesn't change the locations.
      */
     @Override
-    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
-        min.setX(min.getBlockX());
-        min.setY(min.getBlockY());
-        min.setZ(min.getBlockZ());
+        newMin.setX(newMin.getBlockX());
+        newMin.setY(newMin.getBlockY());
+        newMin.setZ(newMin.getBlockZ());
 
-        max.setX(max.getBlockX());
-        max.setY(max.getBlockY());
-        max.setZ(max.getBlockZ());
+        newMax.setX(newMax.getBlockX());
+        newMax.setY(newMax.getBlockY());
+        newMax.setZ(newMax.getBlockZ());
         return true;
     }
 
@@ -128,14 +138,13 @@ public class Windmill extends HorizontalAxisAlignedBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean instantOpen, final @NotNull Location newMin,
-                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+                                      final @NotNull Location newMax)
     {
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
         doorOpener.registerBlockMover(
-            new WindmillMover(plugin, getWorld(), this, fixedTime,
-                              plugin.getConfigLoader().getMultiplier(DoorType.WINDMILL), getCurrentToggleDir(),
+            new WindmillMover(this, fixedTime, doorOpener.getMultiplier(this), getCurrentToggleDir(),
                               cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
     }
 }

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -8,7 +7,6 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -25,10 +23,10 @@ public class FlagMover extends BlockMover
     private final boolean NS;
     private int tickRate;
 
-    public FlagMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
-                     final @NotNull DoorBase door, final double multiplier, @Nullable UUID playerUUID)
+    public FlagMover(final double time, final @NotNull DoorBase door, final double multiplier,
+                     @Nullable UUID playerUUID)
     {
-        super(plugin, world, door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID, door.getMinimum(),
+        super(door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, playerUUID, door.getMinimum(),
               door.getMaximum());
 
         int xLen = Math.abs(xMax - xMin) + 1;

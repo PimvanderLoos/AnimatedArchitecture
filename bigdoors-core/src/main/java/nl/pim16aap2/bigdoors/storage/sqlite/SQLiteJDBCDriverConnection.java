@@ -336,23 +336,28 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         DoorBase ret = null;
         try
         {
-            DoorBase door = DoorType.valueOf(rs.getInt("type")).getNewDoor(pLogger, doorOwner.getDoorUID());
+//            DoorBase door = DoorType.valueOf(rs.getInt("type")).getNewDoor(pLogger, doorOwner.getDoorUID());
 
+
+            DoorBase.DoorData doorData;
             {
                 World world = Objects
                     .requireNonNull(worldRetriever.worldFromString(UUID.fromString(rs.getString("world"))),
-                                    "Failed to obtain the world of door \"" + door.getDoorUID() + "\".");
+                                    "Failed to obtain the world of door \"" + doorOwner.getDoorUID() + "\".");
                 Location min = new Location(world, rs.getInt("xMin"), rs.getInt("yMin"), rs.getInt("zMin"));
                 Location max = new Location(world, rs.getInt("xMax"), rs.getInt("yMax"), rs.getInt("zMax"));
                 Location engine = new Location(world, rs.getInt("engineX"), rs.getInt("engineY"), rs.getInt("engineZ"));
                 Location powerBlock = new Location(world, rs.getInt("powerBlockX"), rs.getInt("powerBlockY"),
                                                    rs.getInt("powerBlockZ"));
-                RotateDirection openDir = Objects.requireNonNull(RotateDirection.valueOf(rs.getInt("openDirection")),
-                                                                 "Failed to obtain the open direction of door \"" +
-                                                                     door.getDoorUID() + "\".");
                 boolean isOpen = BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), rs.getInt("bitflag"));
-                door.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
+                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen);
             }
+            DoorBase door = DoorType.valueOf(rs.getInt("type")).getNewDoor(pLogger, doorOwner.getDoorUID(), doorData);
+
+            RotateDirection openDir = Objects.requireNonNull(RotateDirection.valueOf(rs.getInt("openDirection")),
+                                                             "Failed to obtain the open direction of door \"" +
+                                                                 doorOwner.getDoorUID() + "\".");
+            door.setOpenDir(openDir);
 
             door.setName(rs.getString("name"));
             door.setLock(BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), rs.getInt("bitflag")));
@@ -2005,7 +2010,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 {
                     logMessage("1770", e1);
                 }
-            logMessage("1772", e);
+            logMessage("2013", e);
         }
         finally
         {

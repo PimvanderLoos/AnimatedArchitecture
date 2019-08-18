@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,16 +19,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Drawbridge extends HorizontalAxisAlignedBase
 {
-    private RotateDirection currentToggleDir = null;
-
-    Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
+    protected Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                         final @NotNull DoorType type)
     {
-        super(pLogger, doorUID, type);
+        super(pLogger, doorUID, doorData, type);
     }
 
-    Drawbridge(final @NotNull PLogger pLogger, final long doorUID)
+    protected Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, DoorType.DRAWBRIDGE);
+        this(pLogger, doorUID, doorData, DoorType.DRAWBRIDGE);
     }
 
     /**
@@ -43,8 +41,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
         int yLen = dimensions.getY();
         int zLen = dimensions.getZ();
 
-        int radius = 0;
-
+        int radius;
         if (dimensions.getY() != 1)
             radius = yLen / 16 + 1;
         else
@@ -60,7 +57,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     @Override
     public boolean isOpenable()
     {
-        return !isOpen;
+        return !isOpen();
     }
 
     /**
@@ -69,7 +66,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     @Override
     public boolean isCloseable()
     {
-        return isOpen;
+        return isOpen();
     }
 
     /**
@@ -79,10 +76,9 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     @Override
     public PBlockFace calculateCurrentDirection()
     {
-        if (!isOpen)
+        if (!isOpen())
             return PBlockFace.UP;
-        // TODO: Ewww
-        return PBlockFace.valueOf(RotateDirection.getOpposite(getCurrentToggleDir()).name());
+        return PBlockFace.getOpposite(Util.getPBlockFace(getCurrentToggleDir()));
     }
 
     /**
@@ -92,15 +88,9 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     public void setDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            openDir = RotateDirection.EAST;
+            setOpenDir(RotateDirection.EAST);
         else
-            openDir = RotateDirection.NORTH;
-    }
-
-    @NotNull
-    private RotateDirection calculateCurrentToggleDir()
-    {
-        return isOpen ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
+            setOpenDir(RotateDirection.NORTH);
     }
 
     /**
@@ -110,52 +100,47 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     @Override
     public RotateDirection getCurrentToggleDir()
     {
-        if (currentToggleDir == null)
-            currentToggleDir = calculateCurrentToggleDir();
-        return currentToggleDir;
+        return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
         Vector3D vec = PBlockFace.getDirection(getCurrentDirection());
-        Bukkit.broadcastMessage(
-            "DOORBASE: on NS axis: " + onNorthSouthAxis() + ", vector: " + vec.toString() + ", currentDirection: " +
-                getCurrentDirection().name());
         RotateDirection currentToggleDir = getCurrentToggleDir();
-        if (isOpen)
+        if (isOpen())
         {
             if (onNorthSouthAxis())
             {
-                max.setY(min.getBlockY() + dimensions.getX());
-                int newX = vec.getX() > 0 ? min.getBlockX() : max.getBlockX();
-                min.setX(newX);
-                max.setX(newX);
+                newMax.setY(newMin.getBlockY() + dimensions.getX());
+                int newX = vec.getX() > 0 ? newMin.getBlockX() : newMax.getBlockX();
+                newMin.setX(newX);
+                newMax.setX(newX);
             }
             else
             {
-                max.setY(min.getBlockY() + dimensions.getZ());
-                int newZ = vec.getZ() > 0 ? min.getBlockZ() : max.getBlockZ();
-                min.setZ(newZ);
-                max.setZ(newZ);
+                newMax.setY(newMin.getBlockY() + dimensions.getZ());
+                int newZ = vec.getZ() > 0 ? newMin.getBlockZ() : newMax.getBlockZ();
+                newMin.setZ(newZ);
+                newMax.setZ(newZ);
             }
         }
         else
         {
             if (onNorthSouthAxis()) // On Z-axis, i.e. Z doesn't change
             {
-                max.setY(min.getBlockY());
-                min.add(currentToggleDir.equals(RotateDirection.WEST) ? -dimensions.getY() : 0, 0, 0);
-                max.add(currentToggleDir.equals(RotateDirection.EAST) ? dimensions.getY() : 0, 0, 0);
+                newMax.setY(newMin.getBlockY());
+                newMin.add(currentToggleDir.equals(RotateDirection.WEST) ? -dimensions.getY() : 0, 0, 0);
+                newMax.add(currentToggleDir.equals(RotateDirection.EAST) ? dimensions.getY() : 0, 0, 0);
             }
             else
             {
-                max.setY(min.getBlockY());
-                min.add(0, 0, currentToggleDir.equals(RotateDirection.NORTH) ? -dimensions.getY() : 0);
-                max.add(0, 0, currentToggleDir.equals(RotateDirection.SOUTH) ? dimensions.getY() : 0);
+                newMax.setY(newMin.getBlockY());
+                newMin.add(0, 0, currentToggleDir.equals(RotateDirection.NORTH) ? -dimensions.getY() : 0);
+                newMax.add(0, 0, currentToggleDir.equals(RotateDirection.SOUTH) ? dimensions.getY() : 0);
             }
         }
         return true;
@@ -167,19 +152,13 @@ public class Drawbridge extends HorizontalAxisAlignedBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean instantOpen, final @NotNull Location newMin,
-                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+                                      final @NotNull Location newMax)
     {
         PBlockFace upDown =
-            Math.abs(getMinimum().getBlockY() - getMaximum().getBlockY()) > 0 ? PBlockFace.DOWN : PBlockFace.UP;
-
-        Bukkit.broadcastMessage(
-            "DRAWBRIDGE: IsOpen: " + isOpen + ", upDown: " + upDown.name() + ", currentToggleDir: " +
-                getCurrentToggleDir().name() +
-                ", currentDirection = " + getCurrentDirection());
+            Math.abs(min.getBlockY() - max.getBlockY()) > 0 ? PBlockFace.DOWN : PBlockFace.UP;
 
         doorOpener.registerBlockMover(
-            new BridgeMover(plugin, getWorld(), time, this, upDown, getCurrentToggleDir(), instantOpen,
-                            plugin.getConfigLoader().getMultiplier(DoorType.DRAWBRIDGE),
+            new BridgeMover(time, this, upDown, getCurrentToggleDir(), instantOpen, doorOpener.getMultiplier(this),
                             cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

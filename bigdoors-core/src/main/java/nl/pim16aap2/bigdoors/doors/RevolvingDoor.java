@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.RevolvingDoorMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -19,18 +18,21 @@ import org.jetbrains.annotations.NotNull;
  */
 public class RevolvingDoor extends DoorBase
 {
-    RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
+    protected RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                            final @NotNull DoorType type)
     {
-        super(pLogger, doorUID, type);
+        super(pLogger, doorUID, doorData, type);
     }
 
-    RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID)
+    protected RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, DoorType.REVOLVINGDOOR);
+        this(pLogger, doorUID, doorData, DoorType.REVOLVINGDOOR);
     }
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always true for this type.
      */
     @Override
     public boolean isOpenable()
@@ -40,6 +42,8 @@ public class RevolvingDoor extends DoorBase
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always true for this type.
      */
     @Override
     public boolean isCloseable()
@@ -67,13 +71,13 @@ public class RevolvingDoor extends DoorBase
     @Override
     public void setDefaultOpenDirection()
     {
-        openDir = RotateDirection.CLOCKWISE;
+        setOpenDir(RotateDirection.CLOCKWISE);
     }
-
-    // This type never faces any direction.
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always {@link PBlockFace#NONE} for this type.
      */
     @Override
     @NotNull
@@ -94,17 +98,19 @@ public class RevolvingDoor extends DoorBase
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always returns the current min and max coordinates of this door, as this type doesn't change the locations.
      */
     @Override
-    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
-        min.setX(min.getBlockX());
-        min.setY(min.getBlockY());
-        min.setZ(min.getBlockZ());
+        newMin.setX(newMin.getBlockX());
+        newMin.setY(newMin.getBlockY());
+        newMin.setZ(newMin.getBlockZ());
 
-        max.setX(max.getBlockX());
-        max.setY(max.getBlockY());
-        max.setZ(max.getBlockZ());
+        newMax.setX(newMax.getBlockX());
+        newMax.setY(newMax.getBlockY());
+        newMax.setZ(newMax.getBlockZ());
         return true;
     }
 
@@ -115,8 +121,8 @@ public class RevolvingDoor extends DoorBase
     @Override
     public RotateDirection cycleOpenDirection()
     {
-        return getOpenDir().equals(RotateDirection.CLOCKWISE) ? RotateDirection.COUNTERCLOCKWISE :
-               RotateDirection.CLOCKWISE;
+        return getOpenDir().equals(RotateDirection.CLOCKWISE) ?
+               RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
     }
 
     /**
@@ -125,14 +131,13 @@ public class RevolvingDoor extends DoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean instantOpen, final @NotNull Location newMin,
-                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+                                      final @NotNull Location newMax)
     {
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
         doorOpener.registerBlockMover(
-            new RevolvingDoorMover(plugin, getWorld(), this, fixedTime,
-                                   plugin.getConfigLoader().getMultiplier(DoorType.REVOLVINGDOOR),
-                                   getCurrentToggleDir(), cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
+            new RevolvingDoorMover(this, fixedTime, doorOpener.getMultiplier(this), getCurrentToggleDir(),
+                                   cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
     }
 }

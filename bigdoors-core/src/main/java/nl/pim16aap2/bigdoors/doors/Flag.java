@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.FlagMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -19,18 +19,21 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Flag extends DoorBase
 {
-    Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
+    protected Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                   final @NotNull DoorType type)
     {
-        super(pLogger, doorUID, type);
+        super(pLogger, doorUID, doorData, type);
     }
 
-    Flag(final @NotNull PLogger pLogger, final long doorUID)
+    protected Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, DoorType.FLAG);
+        this(pLogger, doorUID, doorData, DoorType.FLAG);
     }
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always true for this type.
      */
     @Override
     public boolean isOpenable()
@@ -40,6 +43,8 @@ public class Flag extends DoorBase
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always true for this type.
      */
     @Override
     public boolean isCloseable()
@@ -83,13 +88,13 @@ public class Flag extends DoorBase
     @Override
     public void setDefaultOpenDirection()
     {
-        setOpenDir(RotateDirection.valueOf(getCurrentDirection().toString()));
+        setOpenDir(Util.getRotateDirection(getCurrentDirection()));
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Because flags do not actually open in any direction, cycling the openDirection is not possible.
+     * Because flags do not actually open in any direction, cycling the openDirection does not do anything.
      *
      * @return The current open direction.
      */
@@ -97,11 +102,13 @@ public class Flag extends DoorBase
     @Override
     public RotateDirection cycleOpenDirection()
     {
-        return openDir;
+        return getOpenDir();
     }
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always the same as {@link #getOpenDir()}, as this type makes no distinction between opening and closing.
      */
     @NotNull
     @Override
@@ -112,17 +119,19 @@ public class Flag extends DoorBase
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Always returns the current min and max coordinates of this door, as this type doesn't change the locations.
      */
     @Override
-    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
-        min.setX(min.getBlockX());
-        min.setY(min.getBlockY());
-        min.setZ(min.getBlockZ());
+        newMin.setX(newMin.getBlockX());
+        newMin.setY(newMin.getBlockY());
+        newMin.setZ(newMin.getBlockZ());
 
-        max.setX(max.getBlockX());
-        max.setY(max.getBlockY());
-        max.setZ(max.getBlockZ());
+        newMax.setX(newMax.getBlockX());
+        newMax.setY(newMax.getBlockY());
+        newMax.setZ(newMax.getBlockZ());
         return true;
     }
 
@@ -132,10 +141,10 @@ public class Flag extends DoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean instantOpen, final @NotNull Location newMin,
-                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+                                      final @NotNull Location newMax)
     {
         doorOpener.registerBlockMover(
-            new FlagMover(plugin, getWorld(), 60, this, plugin.getConfigLoader().getMultiplier(DoorType.FLAG),
+            new FlagMover(60, this, doorOpener.getMultiplier(this),
                           cause.equals(DoorActionCause.PLAYER) ? getPlayerUUID() : null));
     }
 }

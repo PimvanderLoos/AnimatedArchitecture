@@ -39,19 +39,19 @@ public class GUI
     static final Material REMOVEOWNERMAT = Material.SKELETON_SKULL;
     static final int CHESTSIZE = 45;
     static final Material[] DOORTYPES =
-            {
-                    Material.OAK_DOOR,     // Door
-                    Material.OAK_TRAPDOOR, // DrawBridge
-                    Material.OAK_FENCE,    // Portcullis
-                    Material.OAK_BOAT,     // Elevator
-                    Material.PISTON,       // Sliding Door
-                    Material.BLUE_BANNER,  // Flag
-                    Material.MINECART,     // Garage door
-                    Material.ELYTRA,       // Windmill
-                    Material.END_CRYSTAL,  // Revolving door
-                    Material.BARRIER,      // UNUSED
-                    Material.BARRIER,      // UNUSED
-            };
+        {
+            Material.OAK_DOOR,     // Door
+            Material.OAK_TRAPDOOR, // DrawBridge
+            Material.OAK_FENCE,    // Portcullis
+            Material.OAK_BOAT,     // Elevator
+            Material.PISTON,       // Sliding Door
+            Material.BLUE_BANNER,  // Flag
+            Material.MINECART,     // Garage door
+            Material.ELYTRA,       // Windmill
+            Material.END_CRYSTAL,  // Revolving door
+            Material.BARRIER,      // UNUSED
+            Material.BARRIER,      // UNUSED
+        };
     private final BigDoors plugin;
     private final Player player;
     private final List<DoorBase> doorBases;
@@ -102,7 +102,7 @@ public class GUI
         guiPage.refresh();
 
         inventory = Bukkit
-                .createInventory(player, CHESTSIZE, messages.getString(PageType.getMessage(guiPage.getPageType())));
+            .createInventory(player, CHESTSIZE, messages.getString(PageType.getMessage(guiPage.getPageType())));
         player.openInventory(inventory);
         items.forEach((k, v) -> inventory.setItem(k, v.getItemStack()));
 
@@ -112,7 +112,7 @@ public class GUI
     boolean isStillOwner()
     {
         if (door != null &&
-                plugin.getDatabaseManager().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
+            plugin.getDatabaseManager().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
         {
             doorBases.remove(door);
             door = null;
@@ -258,13 +258,13 @@ public class GUI
         ID(Message.GUI_SORTING_NUMERICAL, Comparator.comparing(DoorBase::getDoorUID)),
         NAME(Message.GUI_SORTING_ALPHABETICAL, Comparator.comparing(DoorBase::getName)),
         TYPE(Message.GUI_SORTING_TYPICAL, Comparator.comparing(DoorBase::getType))
+            {
+                @Override
+                SortType next()
                 {
-                    @Override
-                    SortType next()
-                    {
-                        return values()[0];
-                    }
-                };
+                    return values()[0];
+                }
+            };
 
         private Message message;
         private Comparator<DoorBase> comparator;

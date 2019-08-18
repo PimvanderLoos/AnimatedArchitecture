@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Represents an Integer vector or vertex in 2D space.
  *
@@ -55,6 +57,20 @@ public final class Vector2D implements Cloneable
     {
         this.x += x;
         this.y += y;
+    }
+
+    @Override
+    @NotNull
+    public Vector2D clone()
+    {
+        try
+        {
+            return (Vector2D) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new Error(e);
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.PlayerRetriever;
@@ -107,6 +108,7 @@ public class SQLiteJDBCDriverConnectionTest
     @Before
     public void setupMocking()
     {
+        DoorOpener.init(null, null, null, null, null);
         when(world.getUID()).thenReturn(worldUUID);
         when(worldRetriever.worldFromString(worldUUID)).thenReturn(world);
         when(player1.getName()).thenReturn(player1Name);
@@ -124,16 +126,17 @@ public class SQLiteJDBCDriverConnectionTest
 
         try
         {
-            door1 = DoorType.BIGDOOR.getNewDoor(plogger, 1);
+            DoorBase.DoorData doorData;
             {
                 Location min = new Location(world, 144, 75, 153);
                 Location max = new Location(world, 144, 131, 167);
                 Location engine = new Location(world, 144, 75, 153);
                 Location powerBlock = new Location(world, 101, 101, 101);
-                RotateDirection openDir = RotateDirection.valueOf(0);
                 boolean isOpen = false;
-                door1.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
+                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen);
             }
+            door1 = DoorType.BIGDOOR.getNewDoor(plogger, 1, doorData);
+            door1.setOpenDir(RotateDirection.valueOf(0));
 
             door1.setName("massive1");
             door1.setLock(false);
@@ -142,16 +145,16 @@ public class SQLiteJDBCDriverConnectionTest
             door1.setDoorOwner(new DoorOwner(door1.getDoorUID(), player1UUID, player1Name, 0));
 
 
-            door2 = DoorType.DRAWBRIDGE.getNewDoor(plogger, 2);
             {
                 Location min = new Location(world, 144, 75, 168);
                 Location max = new Location(world, 144, 131, 182);
                 Location engine = new Location(world, 144, 75, 153);
                 Location powerBlock = new Location(world, 102, 102, 102);
-                RotateDirection openDir = RotateDirection.valueOf(0);
                 boolean isOpen = false;
-                door2.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
+                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen);
             }
+            door2 = DoorType.DRAWBRIDGE.getNewDoor(plogger, 2, doorData);
+            door2.setOpenDir(RotateDirection.valueOf(0));
             door2.setName("massive2");
             door2.setLock(false);
             door2.setAutoClose(0);
@@ -159,16 +162,16 @@ public class SQLiteJDBCDriverConnectionTest
             door2.setDoorOwner(new DoorOwner(door2.getDoorUID(), player1UUID, player1Name, 0));
 
 
-            door3 = DoorType.BIGDOOR.getNewDoor(plogger, 3);
             {
                 Location min = new Location(world, 144, 70, 168);
                 Location max = new Location(world, 144, 151, 112);
                 Location engine = new Location(world, 144, 75, 153);
                 Location powerBlock = new Location(world, 103, 103, 103);
-                RotateDirection openDir = RotateDirection.NORTH;
                 boolean isOpen = false;
-                door3.initBasicData(min, max, engine, powerBlock, world, openDir, isOpen);
+                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen);
             }
+            door3 = DoorType.BIGDOOR.getNewDoor(plogger, 3, doorData);
+            door3.setOpenDir(RotateDirection.NORTH);
             door3.setName("massive2");
             door3.setLock(false);
             door3.setAutoClose(0);

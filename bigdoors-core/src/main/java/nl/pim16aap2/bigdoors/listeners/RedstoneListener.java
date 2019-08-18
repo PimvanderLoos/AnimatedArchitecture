@@ -7,25 +7,26 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a listener that keeps track redstone changes.
  *
  * @author Pim
  */
-public class RedstoneHandler implements Listener
+public class RedstoneListener implements Listener
 {
     private final BigDoors plugin;
 
-    public RedstoneHandler(BigDoors plugin)
+    public RedstoneListener(final @NotNull BigDoors plugin)
     {
         this.plugin = plugin;
     }
 
-    private void checkDoors(Location loc)
+    private void checkDoors(final @NotNull Location loc)
     {
         plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID())
-              .forEach(door -> door.toggle(DoorActionCause.REDSTONE, 0.0, false));
+              .forEach(door -> door.toggle(DoorActionCause.REDSTONE, door.getPlayerUUID(), 0.0, false));
     }
 
     /**
@@ -35,7 +36,7 @@ public class RedstoneHandler implements Listener
      * @param event The {@link BlockRedstoneEvent}.
      */
     @EventHandler
-    public void onBlockRedstoneChange(BlockRedstoneEvent event)
+    public void onBlockRedstoneChange(final @NotNull BlockRedstoneEvent event)
     {
         // Only boolean status is allowed, so a varying degree of "on" has no effect.
         if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
@@ -63,12 +64,12 @@ public class RedstoneHandler implements Listener
                       .contains(location.getWorld().getBlockAt(x - 1, y, z).getType())) // West
                 checkDoors(new Location(location.getWorld(), x - 1, y, z));
 
-            if (plugin.getConfigLoader().powerBlockTypes()
-                      .contains(location.getWorld().getBlockAt(x, y + 1, z).getType())) // Above
+            if (y < 254 && plugin.getConfigLoader().powerBlockTypes()
+                                 .contains(location.getWorld().getBlockAt(x, y + 1, z).getType())) // Above
                 checkDoors(new Location(location.getWorld(), x, y + 1, z));
 
-            if (plugin.getConfigLoader().powerBlockTypes()
-                      .contains(location.getWorld().getBlockAt(x, y - 1, z).getType())) // Under
+            if (y > 0 && plugin.getConfigLoader().powerBlockTypes()
+                               .contains(location.getWorld().getBlockAt(x, y - 1, z).getType())) // Under
                 checkDoors(new Location(location.getWorld(), x, y - 1, z));
         }
         catch (Exception e)

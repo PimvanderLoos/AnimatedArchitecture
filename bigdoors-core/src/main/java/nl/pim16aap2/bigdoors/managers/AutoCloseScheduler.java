@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.util.Restartable;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,12 +63,14 @@ public class AutoCloseScheduler extends Restartable
     /**
      * Schedule closing a door.
      *
+     * @param cause       What caused the door to be opened.
      * @param playerUUID  The {@link UUID} of the player who requested the door toggle. May be null.
      * @param door        The door to close.
      * @param speed       The speed at which the door should move.
      * @param instantOpen Whether the door should be animated or not.
      */
-    public void scheduleAutoClose(@Nullable UUID playerUUID, @NotNull DoorBase door, double speed, boolean instantOpen)
+    public void scheduleAutoClose(final @NotNull DoorActionCause cause, final @NotNull UUID playerUUID,
+                                  final @NotNull DoorBase door, double speed, boolean instantOpen)
     {
         int autoCloseTimer = door.getAutoClose();
         if (autoCloseTimer < 0 || !door.isOpen())
@@ -90,11 +91,25 @@ public class AutoCloseScheduler extends Restartable
                 {
                     plugin.getDoorManager().setDoorAvailable(door.getDoorUID());
                     plugin.getDatabaseManager().getDoor(door.getDoorUID()).ifPresent(
-                        door -> door.open(DoorActionCause.REDSTONE, speed, instantOpen));
+                        door -> door.open(cause, playerUUID, speed, instantOpen));
                 }
                 deleteTimer(door.getDoorUID());
             }
         }.runTaskLater(plugin, delay));
+    }
+
+    /**
+     * Schedule closing a door.
+     *
+     * @param playerUUID  The {@link UUID} of the player who requested the door toggle. May be null.
+     * @param door        The door to close.
+     * @param speed       The speed at which the door should move.
+     * @param instantOpen Whether the door should be animated or not.
+     */
+    public void scheduleAutoClose(final @NotNull UUID playerUUID, final @NotNull DoorBase door, double speed,
+                                  boolean instantOpen)
+    {
+        scheduleAutoClose(DoorActionCause.REDSTONE, playerUUID, door, speed, instantOpen);
     }
 
     /**

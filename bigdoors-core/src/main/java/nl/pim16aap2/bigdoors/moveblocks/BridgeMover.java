@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -15,7 +14,6 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -34,8 +32,6 @@ public class BridgeMover extends BlockMover
     /**
      * Constructs a {@link BlockMover}.
      *
-     * @param plugin          The {@link BigDoors}.
-     * @param world           The {@link World} in which the blocks will be moved.
      * @param door            The {@link DoorBase}.
      * @param time            The amount of time (in seconds) the door will try to toggle itself in.
      * @param instantOpen     If the door should be opened instantly (i.e. skip animation) or not.
@@ -44,13 +40,12 @@ public class BridgeMover extends BlockMover
      * @param multiplier      The speed multiplier.
      * @param playerUUID      The {@link UUID} of the player who opened this door.
      */
-    public BridgeMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
-                       final @NotNull HorizontalAxisAlignedBase door, final @NotNull PBlockFace upDown,
-                       final @NotNull RotateDirection rotateDirection, final boolean instantOpen,
-                       final double multiplier, final @Nullable UUID playerUUID, final @NotNull Location finalMin,
-                       final @NotNull Location finalMax)
+    public BridgeMover(final double time, final @NotNull HorizontalAxisAlignedBase door,
+                       final @NotNull PBlockFace upDown, final @NotNull RotateDirection rotateDirection,
+                       final boolean instantOpen, final double multiplier, final @Nullable UUID playerUUID,
+                       final @NotNull Location finalMin, final @NotNull Location finalMax)
     {
-        super(plugin, world, door, time, instantOpen, upDown, rotateDirection, -1, playerUUID, finalMin, finalMax);
+        super(door, time, instantOpen, upDown, rotateDirection, -1, playerUUID, finalMin, finalMax);
 
         NS = door.onNorthSouthAxis();
 

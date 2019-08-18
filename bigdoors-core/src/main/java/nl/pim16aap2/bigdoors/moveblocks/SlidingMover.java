@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -8,7 +7,6 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -22,14 +20,12 @@ public class SlidingMover extends BlockMover
     private int tickRate;
     private int moveX, moveZ;
 
-    public SlidingMover(final @NotNull BigDoors plugin, final @NotNull World world, final double time,
-                        final @NotNull DoorBase door, final boolean instantOpen, final int blocksToMove,
-                        final @NotNull RotateDirection openDirection, final double multiplier,
+    public SlidingMover(final double time, final @NotNull DoorBase door, final boolean instantOpen,
+                        final int blocksToMove, final @NotNull RotateDirection openDirection, final double multiplier,
                         @Nullable final UUID playerUUID, final @NotNull Location finalMin,
                         final @NotNull Location finalMax)
     {
-        super(plugin, world, door, time, instantOpen, PBlockFace.UP, openDirection, blocksToMove, playerUUID, finalMin,
-              finalMax);
+        super(door, time, instantOpen, PBlockFace.UP, openDirection, blocksToMove, playerUUID, finalMin, finalMax);
 
         NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 

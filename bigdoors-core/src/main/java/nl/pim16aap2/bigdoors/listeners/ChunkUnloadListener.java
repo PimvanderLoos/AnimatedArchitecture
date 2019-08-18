@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -65,7 +66,7 @@ public class ChunkUnloadListener implements Listener
 
     /**
      * Listens to chunks being unloaded and checks if it intersects with the region of any of the active {@link
-     * nl.pim16aap2.bigdoors.doors.DoorBase}s.
+     * DoorBase}s.
      *
      * @param event The {@link ChunkUnloadEvent}.
      */

@@ -11,6 +11,8 @@ import java.util.Optional;
 
 /**
  * Represents a type of door.
+ *
+ * @author Pim
  */
 public enum DoorType
 {
@@ -20,9 +22,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new BigDoor(pLogger, doorUID);
+                return new BigDoor(pLogger, doorUID, doorData);
             }
         },
 
@@ -32,9 +35,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new Drawbridge(pLogger, doorUID);
+                return new Drawbridge(pLogger, doorUID, doorData);
             }
         },
 
@@ -45,9 +49,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new Portcullis(pLogger, doorUID);
+                return new Portcullis(pLogger, doorUID, doorData);
             }
         },
 
@@ -55,9 +60,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new Elevator(pLogger, doorUID);
+                return new Elevator(pLogger, doorUID, doorData);
             }
         },
 
@@ -68,9 +74,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new SlidingDoor(pLogger, doorUID);
+                return new SlidingDoor(pLogger, doorUID, doorData);
             }
         },
 
@@ -80,9 +87,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new Flag(pLogger, doorUID);
+                return new Flag(pLogger, doorUID, doorData);
             }
         },
 
@@ -92,9 +100,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new GarageDoor(pLogger, doorUID);
+                return new GarageDoor(pLogger, doorUID, doorData);
             }
         },
 
@@ -104,9 +113,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new Windmill(pLogger, doorUID);
+                return new Windmill(pLogger, doorUID, doorData);
             }
         },
 
@@ -114,9 +124,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new RevolvingDoor(pLogger, doorUID);
+                return new RevolvingDoor(pLogger, doorUID, doorData);
             }
         },
 
@@ -126,9 +137,10 @@ public enum DoorType
         {
             @NotNull
             @Override
-            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID)
+            public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                       final @NotNull DoorBase.DoorData doorData)
             {
-                return new Windmill(pLogger, doorUID);
+                return new Windmill(pLogger, doorUID, doorData);
             }
         },
     ;
@@ -146,6 +158,11 @@ public enum DoorType
         }
     }
 
+    /**
+     * Gets the cached result of {@link #values()}.
+     *
+     * @return The cached array of values.
+     */
     public static DoorType[] cachedValues()
     {
         return values;
@@ -258,25 +275,28 @@ public enum DoorType
     /**
      * Constructs a new {@link DoorBase} of this type.
      *
-     * @param pLogger The {@link PLogger} to be used for exception handling.
-     * @param doorUID The UID of the {@link DoorBase} to instantiate.
+     * @param pLogger  The {@link PLogger} to be used for exception handling.
+     * @param doorUID  The UID of the {@link DoorBase} to instantiate.
+     * @param doorData The data required for basic door initialization.
      * @return A new {@link DoorBase} of this type.
      */
     @NotNull
-    public abstract DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID);
+    public abstract DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
+                                        final @NotNull DoorBase.DoorData doorData);
 
     /**
      * Constructs a new {@link DoorBase} of a {@link DoorType}.
      *
-     * @param type    The {@link DoorType} of the {@link DoorBase} to instantiate.
-     * @param pLogger The {@link PLogger} to be used for exception handling.
-     * @param doorUID The UID of the {@link DoorBase} to instantiate.
+     * @param type     The {@link DoorType} of the {@link DoorBase} to instantiate.
+     * @param pLogger  The {@link PLogger} to be used for exception handling.
+     * @param doorUID  The UID of the {@link DoorBase} to instantiate.
+     * @param doorData The data required for basic door initialization.
      * @return A new {@link DoorBase} of a {@link DoorType}.
      */
     @NotNull
     public static DoorBase getNewDoor(final @NotNull DoorType type, final @NotNull PLogger pLogger,
-                                      final long doorUID)
+                                      final @NotNull DoorBase.DoorData doorData, final long doorUID)
     {
-        return type.getNewDoor(pLogger, doorUID);
+        return type.getNewDoor(pLogger, doorUID, doorData);
     }
 }

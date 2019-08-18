@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.VerticalMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -21,14 +20,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Portcullis extends DoorBase
 {
-    Portcullis(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
+    protected Portcullis(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                         final @NotNull DoorType type)
     {
-        super(pLogger, doorUID, type);
+        super(pLogger, doorUID, doorData, type);
     }
 
-    Portcullis(final @NotNull PLogger pLogger, final long doorUID)
+    protected Portcullis(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, DoorType.PORTCULLIS);
+        this(pLogger, doorUID, doorData, DoorType.PORTCULLIS);
     }
 
     /**
@@ -47,7 +47,7 @@ public class Portcullis extends DoorBase
     @Override
     public boolean isOpenable()
     {
-        return !isOpen;
+        return !isOpen();
     }
 
     /**
@@ -56,7 +56,7 @@ public class Portcullis extends DoorBase
     @Override
     public boolean isCloseable()
     {
-        return isOpen;
+        return isOpen();
     }
 
     /**
@@ -66,7 +66,7 @@ public class Portcullis extends DoorBase
     @Override
     public PBlockFace calculateCurrentDirection()
     {
-        return isOpen ? PBlockFace.DOWN : PBlockFace.UP;
+        return isOpen() ? PBlockFace.DOWN : PBlockFace.UP;
     }
 
     /**
@@ -89,7 +89,7 @@ public class Portcullis extends DoorBase
     @Override
     public void setDefaultOpenDirection()
     {
-        openDir = RotateDirection.UP;
+        setOpenDir(RotateDirection.UP);
     }
 
     /**
@@ -104,7 +104,7 @@ public class Portcullis extends DoorBase
 
     /**
      * Gets the number of blocks this door can move in the given direction. If set, it won't go further than {@link
-     * #blocksToMove}
+     * #getBlocksToMove()}
      *
      * @param upDown Whether to count the available number of blocks above or under the door. Only {@link
      *               RotateDirection#UP} and {@link RotateDirection#DOWN} are supported.
@@ -120,12 +120,12 @@ public class Portcullis extends DoorBase
             return 0;
         }
         int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksMoved = 0, delta;
-        xMin = getMinimum().getBlockX();
-        yMin = getMinimum().getBlockY();
-        zMin = getMinimum().getBlockZ();
-        xMax = getMaximum().getBlockX();
-        yMax = getMaximum().getBlockY();
-        zMax = getMaximum().getBlockZ();
+        xMin = min.getBlockX();
+        yMin = min.getBlockY();
+        zMin = min.getBlockZ();
+        xMax = max.getBlockX();
+        yMax = max.getBlockY();
+        zMax = max.getBlockZ();
         yLen = yMax - yMin + 1;
 
         int distanceToCheck = getBlocksToMove() < 1 ? yLen : getBlocksToMove();
@@ -152,11 +152,11 @@ public class Portcullis extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
         int blocksToMove = getBlocksInDir(getCurrentToggleDir());
-        min.add(0, blocksToMove, 0);
-        max.add(0, blocksToMove, 0);
+        newMin.add(0, blocksToMove, 0);
+        newMax.add(0, blocksToMove, 0);
         return blocksToMove != 0;
     }
 
@@ -166,11 +166,11 @@ public class Portcullis extends DoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean instantOpen, final @NotNull Location newMin,
-                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+                                      final @NotNull Location newMax)
     {
         int blocksToMove = newMin.getBlockY() - min.getBlockY();
         doorOpener.registerBlockMover(
-            new VerticalMover(plugin, getWorld(), time, this, instantOpen, blocksToMove, doorOpener.getMultiplier(this),
+            new VerticalMover(time, this, instantOpen, blocksToMove, doorOpener.getMultiplier(this),
                               cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

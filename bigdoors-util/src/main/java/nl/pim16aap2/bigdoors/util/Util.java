@@ -1,7 +1,11 @@
 package nl.pim16aap2.bigdoors.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -25,6 +29,54 @@ public final class Util
      * Used to generate simple random strings. It's faster than {@link Util#srnd}, but not secure.
      */
     static Random rnd = new Random();
+
+    private static final Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
+    private static final Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
+    public static boolean printDebugMessages = false;
+
+    static
+    {
+        for (PBlockFace pbf : PBlockFace.values())
+        {
+            RotateDirection mappedRotDir;
+            try
+            {
+                mappedRotDir = RotateDirection.valueOf(pbf.toString());
+            }
+            catch (IllegalArgumentException e)
+            {
+                mappedRotDir = RotateDirection.NONE;
+            }
+            toRotateDirection.put(pbf, mappedRotDir);
+            toPBlockFace.put(mappedRotDir, pbf);
+        }
+    }
+
+    /**
+     * Gets the {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists.
+     *
+     * @param pBlockFace The {@link PBlockFace}.
+     * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise {@link
+     * RotateDirection#NONE}.
+     */
+    @NotNull
+    public static RotateDirection getRotateDirection(final @NotNull PBlockFace pBlockFace)
+    {
+        return toRotateDirection.get(pBlockFace);
+    }
+
+    /**
+     * Gets the {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists.
+     *
+     * @param rotateDirection The {@link RotateDirection}.
+     * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise {@link
+     * PBlockFace#NONE}.
+     */
+    @NotNull
+    public static PBlockFace getPBlockFace(final @NotNull RotateDirection rotateDirection)
+    {
+        return toPBlockFace.get(rotateDirection);
+    }
 
     /**
      * Clamp an angle to [-2PI ; 2PI].

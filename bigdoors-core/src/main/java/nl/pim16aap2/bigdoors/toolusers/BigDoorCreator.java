@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.toolusers;
 
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -72,7 +73,7 @@ public class BigDoorCreator extends Creator
 
     /**
      * Updates the {@link Location} of the engine. For a {@link DoorType#BIGDOOR}, for example, this sets the Y-value of
-     * the engine coordinates to the 1 block under lowest Y-value of the {@link nl.pim16aap2.bigdoors.doors.DoorBase}.
+     * the engine coordinates to the 1 block under lowest Y-value of the {@link DoorBase}.
      */
     protected void updateEngineLoc()
     {

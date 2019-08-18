@@ -39,9 +39,9 @@ import nl.pim16aap2.bigdoors.gui.GUI;
 import nl.pim16aap2.bigdoors.listeners.ChunkUnloadListener;
 import nl.pim16aap2.bigdoors.listeners.EventListeners;
 import nl.pim16aap2.bigdoors.listeners.GUIListener;
-import nl.pim16aap2.bigdoors.listeners.LoginMessageHandler;
-import nl.pim16aap2.bigdoors.listeners.LoginResourcePackHandler;
-import nl.pim16aap2.bigdoors.listeners.RedstoneHandler;
+import nl.pim16aap2.bigdoors.listeners.LoginMessageListener;
+import nl.pim16aap2.bigdoors.listeners.LoginResourcePackListener;
+import nl.pim16aap2.bigdoors.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -168,7 +168,6 @@ import java.util.UUID;
 // TODO: Get rid of the engineSide and currentDirection. It's basically the same thing. I don't think the database
 //       should be troubled with storing this data either, so remove it there.
 // TODO: Having both openDirection and rotateDirection is stupid. Check DoorBase#getNewLocations for example.
-// TODO: Take a basic data POD object in the constructor to prevent issues with incorrect initialization.
 // TODO: Don't use Locations for the locations. Use vectors instead.
 // TODO: Cache value of DoorBase#getSimplePowerBlockChunkHash().
 // TODO: Use the IGetNewLocation code to check new pos etc.
@@ -176,10 +175,9 @@ import java.util.UUID;
 // TODO: Add getCloseDirection() method. This is NOT!!! the opposite of the openDirection once the original coordinates
 //       are stored in the database. It should be the direction back to the original position.
 // TODO: Add DoorBase#isValidOpenDirection. Can be useful for creation and validation.
-/*
+// TODO: Store calculated stuff such as blocksInDirection in object-scope variables, so they don't have to be
+//       calculated more than once.
 
-
- */
 /*
  * General
  */
@@ -196,39 +194,34 @@ import java.util.UUID;
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
 // TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
 // TODO: ConfigLoader: Use dynamic protection compat listing. Just like how door prices etc are handled.
-// TODO: Make sure redstone block checking is within bounds.
 // TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
 // TODO: Allow wand material selection in config.
 // TODO: Get rid of code duplication in ProtectionCompatManager.
 // TODO: Make sure permission checking for offline users isn't done on the main thread.
 // TODO: Make timeout for CommandWaiters and Creators configurable and put variable in messages.
-// TODO: Rename listener classes to ___Listener instead of ___Handler.
 // TODO: In addition to doors/chunk caching, also keep a set of worlds that do or do not contain doors. This could
 //       cancel the entire event after a single cache lookup, thus potentially skipping at best 6 cache lookups, and at
-//       worst 3 database lookups + 3 cache lookups.
+//       worst 3 database lookups + 3 cache lookups. Or just store an optional per world. Then it can be stored in the
+//       same map.
 // TODO: Somehow replace the %HOOK% variable in the message of DoorOpenResult.NOPERMISSION.
 // TODO: Instead of routing everything through this class (e.g. getPLogger(), getConfigLoader()), make sure that these
 //       Objects do NOT get reinitialized on restart and then pass references to class that need them. Should reduce the
 //       clutter in this class a bit and reduce dependency on this class.
 // TODO: Rename bigdoors-api. Maybe bigdoors-abstraction? Just to make it clear that it's not the actual API.
-// TODO: Fix up TimedCache class. Some actions that SHOULD BE supported aren't (such as keySet()).
-// TODO: Keep VaultManager#setupPermissions result.
-// TODO: Keep track of the DoorActionCause when opening doors. Don't use a dumb boolean anymore for isSilent.
-// TODO: Remove blockMovers from BigDoors.
-// TODO: Make sure to keep the config file's maxDoorCount in mind. Or just remove it.
 // TODO: Give TimedMapCache some TLC. Make sure all methods are implemented properly and find a solution for timely removal of entries.
 //       Also: Use lastAccessTime instead of addTime for timeout values.
 //       Alternatively, consider deleting it and using this instead: https://github.com/jhalterman/expiringmap
+// TODO: Keep VaultManager#setupPermissions result. Perhaps this class should be split up.
+// TODO: Keep track of the DoorActionCause when opening doors. Don't use a dumb boolean anymore for isSilent.
+// TODO: Remove blockMovers from BigDoors-core.
+// TODO: Make sure to keep the config file's maxDoorCount in mind. Or just remove it.
 // TODO: Use "Message" as key instead of String as key in Messages#messageMap.
 // TODO: Fix (big) mushroom blocks changing color.
 // TODO: Get rid of the stupid .101 multiplier for vectors. Use proper normalization and shit instead.
 //       Look at this: https://github.com/InventivetalentDev/AdvancedSlabs/blob/ad2932d5293fa913b9a0670a0bc8ea52f1e27e0d/Plugin/src/main/java/org.inventivetalent.advancedslabs/movement/path/types/CircularSwitchController.java#L85
-// TODO: When creating doors, make sure to use DoorBase#initBasicData.
 // TODO: Configurable timeouts for commands + creators. Also, put variable in messages.
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
-// TODO: GlowingBlockSpawner_V1_14_R1: "org.bukkit.Bukkit.getServer().getScoreboardManager()" is Nullable. Create a
-//       class to obtain the scoreboardmanager in the SpigotUtils, which can instantiate if it doesn't exist.
 
 /*
  * GUI
@@ -384,7 +377,6 @@ import java.util.UUID;
 /*
  * Unit tests
  */
-// TODO: Make sure the auto updater ALWAYS works.
 // TODO: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
 // TODO: https://www.spigotmc.org/threads/using-junit-to-test-plugins.71420/#post-789671
 // TODO: https://github.com/seeseemelk/MockBukkit
@@ -392,7 +384,7 @@ import java.util.UUID;
 public final class BigDoors extends JavaPlugin implements Listener, IRestartableHolder
 {
     public static final boolean DEVBUILD = true;
-    public static BigDoors INSTANCE;
+    private static BigDoors INSTANCE;
 
     /**
      * Minimum number of ticks a door needs to cool down before it can be toggled again. This should help with some rare
@@ -408,7 +400,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private Messages messages;
     private DatabaseManager databaseManager = null;
 
-    private RedstoneHandler redstoneHandler;
+    private RedstoneListener redstoneListener;
     private boolean validVersion;
     private CommandManager commandManager;
     private Map<UUID, WaitForCommand> cmdWaiters;
@@ -416,12 +408,11 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private Map<UUID, GUI> playerGUIs;
     private List<IRestartable> restartables = new ArrayList<>();
     private ProtectionCompatManager protCompatMan;
-    private LoginResourcePackHandler rPackHandler;
+    private LoginResourcePackListener rPackHandler;
     private VaultManager vaultManager;
     private AutoCloseScheduler autoCloseScheduler;
     private HeadManager headManager;
     private IGlowingBlockSpawner glowingBlockSpawner;
-    private DoorOpener doorOpener;
     private UpdateManager updateManager;
     private DoorManager doorManager;
 
@@ -429,13 +420,13 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     public void onEnable()
     {
         INSTANCE = this;
-
         logger = PLogger.init(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this));
-        updateManager = new UpdateManager(this, 58669);
 
         try
         {
-            Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
+            updateManager = new UpdateManager(this, 58669);
+
+            Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
 
             validVersion = compatibleMCVer();
             // Load the files for the correct version of Minecraft.
@@ -463,9 +454,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = DatabaseManager.init(this, config.dbFile());
-            doorOpener = DoorOpener
-                .init(getPLogger(), getDoorManager(), getGlowingBlockSpawner(), getConfigLoader(),
-                      protCompatMan);
+            DoorOpener.init(getPLogger(), getDoorManager(), getGlowingBlockSpawner(), getConfigLoader(), protCompatMan);
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
             {
@@ -504,21 +493,10 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         }
     }
 
-    private interface TestInterface<T>
+    public static BigDoors get()
     {
-        T test(T a);
+        return INSTANCE;
     }
-
-    private <T> void test2(final @NotNull TestInterface<T> fun)
-    {
-
-    }
-
-    private void test1()
-    {
-        test2((Long x) -> Math.min(10080L, x));
-    }
-
 
     private void init()
     {
@@ -535,15 +513,15 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
 
         if (config.enableRedstone())
         {
-            redstoneHandler = new RedstoneHandler(this);
-            Bukkit.getPluginManager().registerEvents(redstoneHandler, this);
+            redstoneListener = new RedstoneListener(this);
+            Bukkit.getPluginManager().registerEvents(redstoneListener, this);
         }
         // If the resourcepack is set to "NONE", don't load it.
         if (!config.resourcePack().equals("NONE"))
         {
             // If a resource pack was set for the current version of Minecraft, send that
             // pack to the client on login.
-            rPackHandler = new LoginResourcePackHandler(this, config.resourcePack());
+            rPackHandler = new LoginResourcePackListener(this, config.resourcePack());
             Bukkit.getPluginManager().registerEvents(rPackHandler, this);
         }
 
@@ -615,8 +593,8 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         playerGUIs.forEach((key, value) -> value.close());
         playerGUIs.clear();
 
-        HandlerList.unregisterAll(redstoneHandler);
-        redstoneHandler = null;
+        HandlerList.unregisterAll(redstoneListener);
+        redstoneListener = null;
         HandlerList.unregisterAll(rPackHandler);
         rPackHandler = null;
 
@@ -839,7 +817,10 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private DoorToggleResult toggleDoor(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
                                         final double time, final boolean instantOpen)
     {
-        return door.toggle(playerUUID == null ? DoorActionCause.REDSTONE : DoorActionCause.PLAYER, time, instantOpen);
+        if (playerUUID == null)
+            return door.toggle(DoorActionCause.REDSTONE, door.getPlayerUUID(), time, instantOpen);
+        else
+            return door.toggle(DoorActionCause.PLAYER, playerUUID, time, instantOpen);
     }
 
     // Toggle a door from a doorUID and instantly or not.

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -26,32 +25,35 @@ import java.util.UUID;
  */
 public abstract class DoorBase
 {
-    protected final PLogger pLogger;
     protected final long doorUID;
+    @NotNull
+    protected final PLogger pLogger;
+    @NotNull
     protected final DoorType doorType;
+    @NotNull
+    protected final DoorOpener doorOpener;
+    @NotNull
+    protected final World world;
 
     protected Location min;
     protected Location max;
-    protected String name;
-    protected World world;
-    protected boolean isOpen;
     protected Location engine;
-    protected RotateDirection openDir;
-    protected int blocksToMove;
+    protected Location powerBlock;
     protected Vector3D dimensions;
+
+    private String name;
+    private boolean isOpen;
+    private RotateDirection openDir = RotateDirection.NONE;
+    private int blocksToMove;
 
     private boolean isLocked;
     private int autoClose = -1;
-    private Location powerBlock;
     private DoorOwner doorOwner;
 
-    // "cached" values.
+    // "cached" values that only get calculated when first retrieved.
     private Chunk engineChunk = null;
     private Integer blockCount = null;
     private PBlockFace currentDirection = null;
-
-    @NotNull
-    protected final DoorOpener doorOpener;
 
     /**
      * Min and Max chunk coordinates of the range of chunks that this {@link DoorBase} might interact with.
@@ -65,11 +67,20 @@ public abstract class DoorBase
      * @param doorUID  The UID of this door.
      * @param doorType The type of this door.
      */
-    protected DoorBase(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType doorType)
+    protected DoorBase(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                       final @NotNull DoorType doorType)
     {
         this.pLogger = pLogger;
         this.doorUID = doorUID;
         this.doorType = doorType;
+
+        min = doorData.getMin();
+        max = doorData.getMax();
+        engine = doorData.getEngine();
+        powerBlock = doorData.getPowerBlock();
+        world = doorData.getWorld();
+        isOpen = doorData.getIsOpen();
+
         if (DoorOpener.get() == null)
         {
             IllegalStateException e = new IllegalStateException("Could not obtain DoorOpener!");
@@ -77,32 +88,6 @@ public abstract class DoorBase
             throw e;
         }
         doorOpener = DoorOpener.get();
-    }
-
-    /**
-     * Initializes all basic data of this door. This refers to all data required to put this door in a basic valid
-     * state. It can then infer further details from this data (such as NorthSouthAxis and dimensions).
-     *
-     * @param min        The location with the coordinates closest to the origin.
-     * @param max        The location with the coordinates furthest away from the origin.
-     * @param engine     The location of the engine.
-     * @param powerBlock The location of the powerblock.
-     * @param world      The world this door is in.
-     * @param openDir    The open direction of this door.
-     * @param isOpen     Whether or not this door is currently open.
-     */
-    public final void initBasicData(final @NotNull Location min, final @NotNull Location max,
-                                    final @NotNull Location engine, final @NotNull Location powerBlock,
-                                    final @NotNull World world, final @NotNull RotateDirection openDir,
-                                    final boolean isOpen)
-    {
-        this.min = min;
-        this.max = max;
-        this.engine = engine;
-        this.powerBlock = powerBlock;
-        this.world = world;
-        this.isOpen = isOpen;
-        this.openDir = openDir;
         onCoordsUpdate();
     }
 
@@ -130,51 +115,61 @@ public abstract class DoorBase
      * Attempts to open a door.
      *
      * @param cause       What caused this action.
+     * @param initiator   The player that initiated the DoorAction.
      * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
      *                    limited, so at a certain point lower values will not increase door speed.
      * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
      * @return The result of the attempt.
      */
     @NotNull
-    public final DoorToggleResult open(final @NotNull DoorActionCause cause,
+    public final DoorToggleResult open(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
                                        final double time, final boolean instantOpen)
     {
         if (!isOpenable())
             return DoorToggleResult.ALREADYCLOSED;
-        return toggle(cause, time, instantOpen);
+        return toggle(cause, initiator, time, instantOpen);
     }
 
     /**
      * Attempts to close a door.
      *
      * @param cause       What caused this action.
+     * @param initiator   The player that initiated the DoorAction.
      * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
      *                    limited, so at a certain point lower values will not increase door speed.
      * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
      * @return The result of the attempt.
      */
     @NotNull
-    public final DoorToggleResult close(final @NotNull DoorActionCause cause,
+    public final DoorToggleResult close(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
                                         final double time, final boolean instantOpen)
     {
         if (!isCloseable())
             return DoorToggleResult.ALREADYOPEN;
-        return toggle(cause, time, instantOpen);
+        return toggle(cause, initiator, time, instantOpen);
     }
 
     /**
      * Attempts to toggle a door.
      *
      * @param cause       What caused this action.
+     * @param initiator   The player that initiated the DoorAction.
      * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
      *                    limited, so at a certain point lower values will not increase door speed.
      * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
      * @return The result of the attempt.
      */
     @NotNull
-    public final DoorToggleResult toggle(final @NotNull DoorActionCause cause,
+    public final DoorToggleResult toggle(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
                                          final double time, boolean instantOpen)
     {
+        if (openDir.equals(RotateDirection.NONE))
+        {
+            IllegalStateException e = new IllegalStateException("OpenDir cannot be NONE!");
+            pLogger.logException(e);
+            throw e;
+        }
+
         DoorToggleResult isOpenable = doorOpener.canBeToggled(this, cause);
         if (isOpenable != DoorToggleResult.SUCCESS)
             return doorOpener.abort(this, isOpenable, cause);
@@ -182,20 +177,20 @@ public abstract class DoorBase
         if (doorOpener.isTooBig(this))
             instantOpen = true;
 
-        Location newMin = getMinimum();
-        Location newMax = getMaximum();
+        Location newMin = min;
+        Location newMax = max;
 
         if (!getPotentialNewCoordinates(newMin, newMax))
             return doorOpener.abort(this, DoorToggleResult.ERROR, cause);
 
-        if (!doorOpener.isLocationEmpty(newMin, newMax, getMinimum(), getMaximum(),
-                                        cause.equals(DoorActionCause.PLAYER) ? getPlayerUUID() : null, getWorld()))
+        if (!doorOpener.isLocationEmpty(newMin, newMax, min, max,
+                                        cause.equals(DoorActionCause.PLAYER) ? initiator : null, getWorld()))
             return doorOpener.abort(this, DoorToggleResult.OBSTRUCTED, cause);
 
         if (!doorOpener.canBreakBlocksBetweenLocs(this, newMin, newMax))
             return doorOpener.abort(this, DoorToggleResult.NOPERMISSION, cause);
 
-        registerBlockMover(cause, time, instantOpen, newMin, newMax, BigDoors.INSTANCE);
+        registerBlockMover(cause, time, instantOpen, newMin, newMax);
         return DoorToggleResult.SUCCESS;
     }
 
@@ -206,7 +201,10 @@ public abstract class DoorBase
      */
     public final void onRedstoneChange(final int newCurrent)
     {
-
+        if (newCurrent == 0 && isCloseable())
+            close(DoorActionCause.REDSTONE, getPlayerUUID(), 0.0D, false);
+        else if (newCurrent > 0 && isOpenable())
+            close(DoorActionCause.REDSTONE, getPlayerUUID(), 0.0D, false);
     }
 
     /**
@@ -221,8 +219,7 @@ public abstract class DoorBase
      */
     protected abstract void registerBlockMover(final @NotNull DoorActionCause cause,
                                                final double time, final boolean instantOpen,
-                                               final @NotNull Location newMin, final @NotNull Location newMax,
-                                               final @NotNull BigDoors plugin);
+                                               final @NotNull Location newMin, final @NotNull Location newMax);
 
     /**
      * Gets the direction the door would go given its {@link #getCurrentDirection()} and its {@link #isOpen()} status.
@@ -235,11 +232,12 @@ public abstract class DoorBase
     /**
      * Finds the new minimum and maximum coordinates of this door that would be the result of toggling it.
      *
-     * @param min Used to store the new minimum coordinates.
-     * @param max Used to store the new maximum coordinates.
+     * @param newMin Used to store the new minimum coordinates.
+     * @param newMax Used to store the new maximum coordinates.
      * @return True if the new locations are available.
      */
-    protected abstract boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max);
+    protected abstract boolean getPotentialNewCoordinates(final @NotNull Location newMin,
+                                                          final @NotNull Location newMax);
 
     /**
      * Cycle the {@link nl.pim16aap2.bigdoors.util.RotateDirection} direction this {@link DoorBase} will open in. By
@@ -380,23 +378,6 @@ public abstract class DoorBase
     public final World getWorld()
     {
         return world;
-    }
-
-    /**
-     * Set the world this {@link DoorBase} exists in.
-     *
-     * @param world The world the {@link DoorBase} exists in.
-     * @throws IllegalStateException when trying to change the world when it's already been set.
-     */
-    public final void setWorld(final @NotNull World world)
-    {
-        if (this.world != null && !this.world.equals(world))
-        {
-            IllegalStateException e = new IllegalStateException("World may not be changed!");
-            pLogger.logException(e);
-            throw e;
-        }
-        this.world = world;
     }
 
     /**
@@ -647,7 +628,8 @@ public abstract class DoorBase
      */
     protected void updateCoordsDependents()
     {
-        dimensions = new Vector3D(max.getBlockX() - min.getBlockX(), max.getBlockY() - min.getBlockY(),
+        dimensions = new Vector3D(max.getBlockX() - min.getBlockX(),
+                                  max.getBlockY() - min.getBlockY(),
                                   max.getBlockZ() - min.getBlockZ());
     }
 
@@ -760,6 +742,20 @@ public abstract class DoorBase
     }
 
     /**
+     * Gets the dimensions of this door.
+     * <p>
+     * If a door has a min and max X value of 120, for example, it would have a X-dimension of 0. If the min X value is
+     * 119 instead, it would have an X-dimension of 1.
+     *
+     * @return The dimensions of this door.
+     */
+    @NotNull
+    public final Vector3D getDimensions()
+    {
+        return dimensions.clone();
+    }
+
+    /**
      * Get the side the {@link DoorBase} is on relative to the engine. If invalidated or not calculated yet, {@link
      * #calculateCurrentDirection()} is called to (re)calculate it.
      *
@@ -815,15 +811,14 @@ public abstract class DoorBase
         builder.append("Type: ").append(doorType.toString()).append(". Permission: ").append(getPermission())
                .append("\n");
         builder.append("Min: ").append(SpigotUtil.locIntToString(min)).append(", Max: ")
-               .append(SpigotUtil.locIntToString(max)
-               ).append(", Engine: ").append(SpigotUtil.locIntToString(engine)).append("\n");
-        builder.append("PowerBlock location: ").append(SpigotUtil.locIntToString(powerBlock)).append(". Hash: "
-        ).append(getSimplePowerBlockChunkHash()).append("\n");
+               .append(SpigotUtil.locIntToString(max)).append(", Engine: ").append(SpigotUtil.locIntToString(engine))
+               .append("\n");
+        builder.append("PowerBlock location: ").append(SpigotUtil.locIntToString(powerBlock)).append(". Hash: ")
+               .append(getSimplePowerBlockChunkHash()).append("\n");
         builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((isOpen ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("; Current Dir: ").append(getCurrentDirection())
                .append("\n");
-
         builder.append("AutoClose: ").append(autoClose);
         builder.append("; BlocksToMove: ").append(blocksToMove).append("\n");
 
@@ -842,10 +837,87 @@ public abstract class DoorBase
             return false;
 
         DoorBase other = (DoorBase) o;
-        return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) &&
-            max.equals(other.max) && powerBlock.equals(other.powerBlock) &&
-            doorType.equals(other.doorType) && isOpen == other.isOpen && doorOwner.equals(other.doorOwner) &&
-            blocksToMove == other.blocksToMove && isLocked == other.isLocked && autoClose == other.autoClose &&
-            world.getUID().equals(other.world.getUID());
+        return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
+            powerBlock.equals(other.powerBlock) && doorType.equals(other.doorType) && isOpen == other.isOpen &&
+            doorOwner.equals(other.doorOwner) && blocksToMove == other.blocksToMove && isLocked == other.isLocked &&
+            autoClose == other.autoClose && world.getUID().equals(other.world.getUID());
+    }
+
+
+    /**
+     * POD class that stores all the data needed for basic door intialization.
+     *
+     * @author Pim
+     */
+    public static final class DoorData
+    {
+        @NotNull
+        private final Location min;
+        @NotNull
+        private final Location max;
+        @NotNull
+        private final Location engine;
+        @NotNull
+        private final Location powerBlock;
+        @NotNull
+        private final World world;
+        private final boolean isOpen;
+
+        /**
+         * Initializes all basic data of this door. This refers to all data required to put this door in a basic valid
+         * state. It can then infer further details from this data (such as NorthSouthAxis and dimensions).
+         *
+         * @param min        The location with the coordinates closest to the origin.
+         * @param max        The location with the coordinates furthest away from the origin.
+         * @param engine     The location of the engine.
+         * @param powerBlock The location of the powerblock.
+         * @param world      The world this door is in.
+         * @param isOpen     Whether or not this door is currently open.
+         */
+        public DoorData(final @NotNull Location min, final @NotNull Location max, final @NotNull Location engine,
+                        final @NotNull Location powerBlock, final @NotNull World world, final boolean isOpen)
+        {
+            this.min = min;
+            this.max = max;
+            this.engine = engine;
+            this.powerBlock = powerBlock;
+            this.world = world;
+            this.isOpen = isOpen;
+        }
+
+        @NotNull
+        private Location getMin()
+        {
+            return min;
+        }
+
+        @NotNull
+        Location getMax()
+        {
+            return max;
+        }
+
+        @NotNull
+        Location getEngine()
+        {
+            return engine;
+        }
+
+        @NotNull
+        Location getPowerBlock()
+        {
+            return powerBlock;
+        }
+
+        @NotNull
+        World getWorld()
+        {
+            return world;
+        }
+
+        boolean getIsOpen()
+        {
+            return isOpen;
+        }
     }
 }

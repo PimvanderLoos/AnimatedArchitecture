@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -9,7 +8,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -29,14 +27,12 @@ public class GarageDoorMover extends BlockMover
     private BiFunction<PBlockData, Double, Vector> getVector;
     private int xLen, yLen, zLen;
 
-    public GarageDoorMover(final @NotNull BigDoors plugin, final @NotNull World world, final @NotNull DoorBase door,
-                           final double time, final double multiplier, final boolean instantOpen,
-                           final @NotNull PBlockFace currentDirection, final @NotNull RotateDirection rotateDirection,
-                           @Nullable final UUID playerUUID, final @NotNull Location finalMin,
-                           final @NotNull Location finalMax)
+    public GarageDoorMover(final @NotNull DoorBase door, final double time, final double multiplier,
+                           final boolean instantOpen, final @NotNull PBlockFace currentDirection,
+                           final @NotNull RotateDirection rotateDirection, @Nullable final UUID playerUUID,
+                           final @NotNull Location finalMin, final @NotNull Location finalMax)
     {
-        super(plugin, world, door, 30, instantOpen, currentDirection, rotateDirection, -1, playerUUID, finalMin,
-              finalMax);
+        super(door, 30, instantOpen, currentDirection, rotateDirection, -1, playerUUID, finalMin, finalMax);
         this.time = time;
 
         double speed = 1 * multiplier;

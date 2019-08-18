@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.CylindricalMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -19,14 +18,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BigDoor extends DoorBase
 {
-    BigDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorType type)
+    protected BigDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                      final @NotNull DoorType type)
     {
-        super(pLogger, doorUID, type);
+        super(pLogger, doorUID, doorData, type);
     }
 
-    BigDoor(final @NotNull PLogger pLogger, final long doorUID)
+    protected BigDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, DoorType.BIGDOOR);
+        this(pLogger, doorUID, doorData, DoorType.BIGDOOR);
     }
 
     /**
@@ -35,7 +35,7 @@ public class BigDoor extends DoorBase
     @Override
     public boolean isOpenable()
     {
-        return !isOpen;
+        return !isOpen();
     }
 
     /**
@@ -44,7 +44,7 @@ public class BigDoor extends DoorBase
     @Override
     public boolean isCloseable()
     {
-        return isOpen;
+        return isOpen();
     }
 
     /**
@@ -80,7 +80,7 @@ public class BigDoor extends DoorBase
     @Override
     public void setDefaultOpenDirection()
     {
-        openDir = RotateDirection.CLOCKWISE;
+        setOpenDir(RotateDirection.CLOCKWISE);
     }
 
     /**
@@ -90,8 +90,8 @@ public class BigDoor extends DoorBase
     @Override
     public RotateDirection cycleOpenDirection()
     {
-        return getOpenDir().equals(RotateDirection.CLOCKWISE) ? RotateDirection.COUNTERCLOCKWISE :
-               RotateDirection.CLOCKWISE;
+        return getOpenDir().equals(RotateDirection.CLOCKWISE) ?
+               RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
     }
 
     /**
@@ -108,7 +108,7 @@ public class BigDoor extends DoorBase
      * {@inheritDoc}
      */
     @Override
-    protected boolean getPotentialNewCoordinates(final @NotNull Location min, final @NotNull Location max)
+    protected boolean getPotentialNewCoordinates(final @NotNull Location newMin, final @NotNull Location newMax)
     {
         PBlockFace newDir;
         RotateDirection rotateDirection = getCurrentToggleDir();
@@ -138,13 +138,13 @@ public class BigDoor extends DoorBase
         int zMin = Math.min(engine.getBlockZ(), engine.getBlockZ() + dimensions.getX() * newVec.getZ());
         int zMax = Math.max(engine.getBlockZ(), engine.getBlockZ() + dimensions.getX() * newVec.getZ());
 
-        min.setX(xMin);
-        min.setY(min.getBlockY());
-        min.setZ(zMin);
+        newMin.setX(xMin);
+        newMin.setY(newMin.getBlockY());
+        newMin.setZ(zMin);
 
-        max.setX(xMax);
-        max.setY(max.getBlockY());
-        max.setZ(zMax);
+        newMax.setX(xMax);
+        newMax.setY(newMax.getBlockY());
+        newMax.setZ(zMax);
         return true;
     }
 
@@ -154,11 +154,11 @@ public class BigDoor extends DoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean instantOpen, final @NotNull Location newMin,
-                                      final @NotNull Location newMax, final @NotNull BigDoors plugin)
+                                      final @NotNull Location newMax)
     {
         doorOpener.registerBlockMover(
-            new CylindricalMover(plugin, getWorld(), getCurrentToggleDir(), time, getCurrentDirection(), this,
-                                 instantOpen, doorOpener.getMultiplier(this),
+            new CylindricalMover(getCurrentToggleDir(), time, getCurrentDirection(), this, instantOpen,
+                                 doorOpener.getMultiplier(this),
                                  cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

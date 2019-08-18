@@ -1,13 +1,11 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -17,11 +15,10 @@ import java.util.UUID;
 
 public class WindmillMover extends BridgeMover
 {
-    public WindmillMover(final @NotNull BigDoors plugin, final @NotNull World world,
-                         final @NotNull HorizontalAxisAlignedBase door, final double time, final double multiplier,
+    public WindmillMover(final @NotNull HorizontalAxisAlignedBase door, final double time, final double multiplier,
                          final @NotNull RotateDirection rotateDirection, final @Nullable UUID playerUUID)
     {
-        super(plugin, world, time, door, PBlockFace.NONE, rotateDirection, false, -1, playerUUID, door.getMinimum(),
+        super(time, door, PBlockFace.NONE, rotateDirection, false, multiplier, playerUUID, door.getMinimum(),
               door.getMaximum());
     }
 

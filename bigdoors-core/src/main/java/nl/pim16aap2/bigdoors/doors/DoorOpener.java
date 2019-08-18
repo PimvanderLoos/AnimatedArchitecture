@@ -99,8 +99,8 @@ public final class DoorOpener
      * @return The result.
      */
     @NotNull
-    DoorToggleResult abort(final @NotNull DoorBase door, final @NotNull DoorToggleResult result,
-                           final @NotNull DoorActionCause cause)
+    public DoorToggleResult abort(final @NotNull DoorBase door, final @NotNull DoorToggleResult result,
+                                  final @NotNull DoorActionCause cause)
     {
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this door. However, in every other case it should, because the door is
@@ -120,7 +120,7 @@ public final class DoorOpener
      * @param door The {@link DoorBase}.
      * @return True if the size of a {@link DoorBase} exceeds the global limit.
      */
-    boolean isTooBig(final @NotNull DoorBase door)
+    public boolean isTooBig(final @NotNull DoorBase door)
     {
         // Make sure the doorSize does not exceed the total doorSize.
         // If it does, open the door instantly.
@@ -139,8 +139,8 @@ public final class DoorOpener
      * @param loc2 The second location of the area to check.
      * @return True if the player is allowed to break the block(s).
      */
-    boolean canBreakBlocksBetweenLocs(final @NotNull DoorBase door, final @NotNull Location loc1,
-                                      final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final @NotNull DoorBase door, final @NotNull Location loc1,
+                                             final @NotNull Location loc2)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
         return protectionManager.canBreakBlocksBetweenLocs(door.getPlayerUUID(), loc1, loc2).map(
@@ -161,9 +161,9 @@ public final class DoorOpener
      * @param playerUUID The {@link UUID} of the {@link org.bukkit.entity.Player} to notify of violations. May be null.
      * @return True if the location is not empty.
      */
-    boolean isLocationEmpty(final @NotNull Location newMin, final @NotNull Location newMax,
-                            final @NotNull Location curMin, final @NotNull Location curMax,
-                            final @Nullable UUID playerUUID, final @NotNull World world)
+    public boolean isLocationEmpty(final @NotNull Location newMin, final @NotNull Location newMax,
+                                   final @NotNull Location curMin, final @NotNull Location curMax,
+                                   final @Nullable UUID playerUUID, final @NotNull World world)
     {
         boolean isEmpty = true;
         for (int xAxis = newMin.getBlockX(); xAxis <= newMax.getBlockX(); ++xAxis)
@@ -226,7 +226,7 @@ public final class DoorOpener
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
     @NotNull
-    DoorToggleResult canBeToggled(final @NotNull DoorBase door, final @NotNull DoorActionCause cause)
+    public DoorToggleResult canBeToggled(final @NotNull DoorBase door, final @NotNull DoorActionCause cause)
     {
         if (isBusySetIfNot(door.getDoorUID()))
         {
@@ -260,8 +260,8 @@ public final class DoorOpener
     private boolean chunksLoaded(final @NotNull DoorBase door)
     {
         // Try to load doors and return if successful.
-        return door.getWorld().getChunkAt(door.getMaximum()).load() &&
-            door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
+        return door.getWorld().getChunkAt(door.max).load() &&
+            door.getWorld().getChunkAt(door.min).isLoaded();
     }
 
     /**
@@ -269,7 +269,7 @@ public final class DoorOpener
      *
      * @param blockMover The {@link BlockMover}.
      */
-    void registerBlockMover(final @NotNull BlockMover blockMover)
+    public void registerBlockMover(final @NotNull BlockMover blockMover)
     {
         doorManager.addBlockMover(blockMover);
     }
@@ -281,7 +281,7 @@ public final class DoorOpener
      * @return True if a {@link BlockMover} has been registered with the {@link DatabaseManager} for the {@link
      * DoorBase}.
      */
-    boolean isBlockMoverRegistered(final long doorUID)
+    public boolean isBlockMoverRegistered(final long doorUID)
     {
         return getBlockMover(doorUID).isPresent();
     }
@@ -293,7 +293,7 @@ public final class DoorOpener
      * @return The {@link BlockMover} of a {@link DoorBase} if it has been registered with the {@link DatabaseManager}.
      */
     @NotNull
-    Optional<BlockMover> getBlockMover(final long doorUID)
+    public Optional<BlockMover> getBlockMover(final long doorUID)
     {
         return doorManager.getBlockMover(doorUID);
     }
