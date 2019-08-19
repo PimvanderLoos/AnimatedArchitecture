@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -39,18 +38,15 @@ public final class PowerBlockManager extends Restartable
      */
     @NotNull
     private static final List<Long> EMPTYLIST = Collections.unmodifiableList(new ArrayList<>());
-    @NotNull
-    private final PLogger pLogger;
     @Nullable
     private static PowerBlockManager instance;
 
     private PowerBlockManager(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoader config,
-                              final @NotNull DatabaseManager databaseManager, final @NotNull PLogger pLogger)
+                              final @NotNull DatabaseManager databaseManager)
     {
         super(holder);
         this.config = config;
         this.databaseManager = databaseManager;
-        this.pLogger = pLogger;
     }
 
     /**
@@ -60,14 +56,13 @@ public final class PowerBlockManager extends Restartable
      * @param holder          The {@link IRestartableHolder} that manages this object.
      * @param config          The configuration of this plugin.
      * @param databaseManager The database manager to use for power block retrieval.
-     * @param pLogger         The logger to use for exceptions etc.
      * @return The instance of this {@link PowerBlockManager}.
      */
     @NotNull
     public static PowerBlockManager init(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoader config,
-                                         final @NotNull DatabaseManager databaseManager, final @NotNull PLogger pLogger)
+                                         final @NotNull DatabaseManager databaseManager)
     {
-        return (instance == null) ? instance = new PowerBlockManager(holder, config, databaseManager, pLogger) :
+        return (instance == null) ? instance = new PowerBlockManager(holder, config, databaseManager) :
                instance;
     }
 

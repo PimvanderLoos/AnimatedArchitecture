@@ -268,7 +268,7 @@ import java.util.UUID;
 // TODO: Make sure there are no commands that use hard coded argument positions.
 // TODO: NPE thrown when trying to use direct command after initiating a commandWaiter a while ago (should've been cancelled already!).
 //       Might be related to the issue listed above (regarding setBlocksToMove commandWaiter).
-// TODO: Explain why there are 2 hashMaps storing seemingly the same data in the CommandManager.
+// TODO: Document why there are 2 hashMaps storing seemingly the same data in the CommandManager.
 // TODO: Make sure super command can be chained.
 // TODO: Fix bigdoors doorinfo in console.
 // TODO: Cancelling command can result in NPE. Possibly after timeout.
@@ -454,7 +454,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = DatabaseManager.init(this, config.dbFile());
-            powerBlockManager = PowerBlockManager.init(this, config, databaseManager, getPLogger());
+            powerBlockManager = PowerBlockManager.init(this, config, databaseManager);
             DoorOpener.init(getPLogger(), getDoorManager(), getGlowingBlockSpawner(), getConfigLoader(), protCompatMan);
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);

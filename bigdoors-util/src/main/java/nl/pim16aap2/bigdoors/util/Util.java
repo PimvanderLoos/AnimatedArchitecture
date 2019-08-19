@@ -284,8 +284,8 @@ public final class Util
      */
     public static int simpleChunkSpaceLocationhash(final int x, final int y, final int z)
     {
-        int chunkSpaceX = x - (x >> 4);
-        int chunkSpaceZ = z - (z >> 4);
+        int chunkSpaceX = x % 16;
+        int chunkSpaceZ = z % 16;
         return (y << 8) + (chunkSpaceX << 4) + chunkSpaceZ;
     }
 
