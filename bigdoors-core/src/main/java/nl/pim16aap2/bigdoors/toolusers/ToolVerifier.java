@@ -1,5 +1,9 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
+import nl.pim16aap2.bigdoors.util.IRestartableHolder;
+import nl.pim16aap2.bigdoors.util.Restartable;
+import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -11,13 +15,18 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
-public class ToolVerifier
+public class ToolVerifier extends Restartable
 {
-    private String toolName;
+    @NotNull
+    private final Messages messages;
+    @NotNull
+    private String stickName = "";
 
-    public ToolVerifier(final @NotNull String str)
+    public ToolVerifier(final @NotNull Messages messages, final @NotNull IRestartableHolder holder)
     {
-        toolName = str;
+        super(holder);
+        this.messages = messages;
+        restart();
     }
 
     /**
@@ -29,9 +38,26 @@ public class ToolVerifier
     public boolean isTool(final @Nullable ItemStack is)
     {
         return is != null &&
-            is.getType() == Material.STICK &&
+            is.getType().equals(Material.STICK) &&
             is.getEnchantmentLevel(Enchantment.LUCK) == 1 &&
-            is.getItemMeta().getDisplayName() != null &&
-            is.getItemMeta().getDisplayName().equals(toolName);
+            is.getItemMeta() != null &&
+            is.getItemMeta().getDisplayName().equals(stickName);
+    }
+
+    /**
+     * Handles a restart.
+     */
+    @Override
+    public void restart()
+    {
+        stickName = messages.getString(Message.CREATOR_GENERAL_STICKNAME);
+    }
+
+    /**
+     * Handles a shutdown..
+     */
+    @Override
+    public void shutdown()
+    {
     }
 }

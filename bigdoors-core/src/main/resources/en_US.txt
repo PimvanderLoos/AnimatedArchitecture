@@ -77,7 +77,7 @@ GUI.PAGE.REMOVEOWNER=Owner Removal Menu
 
 GUI.SORTING.ALPHABETICAL=Alphabetically sorted.
 GUI.SORTING.NUMERICAL=Numerically sorted.
-GUI.SORTING.TYPICALLY=Sorted by type
+GUI.SORTING.TYPICAL=Sorted by type
 
 
 GUI.BUTTON.PREVIOUSPAGE=Go to the previous page.

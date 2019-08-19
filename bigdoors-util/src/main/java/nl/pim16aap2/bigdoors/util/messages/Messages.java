@@ -14,8 +14,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Class that loads key/value pairs used for translations.
@@ -28,7 +29,11 @@ public final class Messages extends Restartable
      * The name of the default language file.
      */
     private static final String DEFAULTFILENAME = "en_US.txt";
-    private final PLogger logger;
+    private final PLogger plogger;
+
+    private static final Pattern matchDots = Pattern.compile("\\.");
+    private static final Pattern matchNewLines = Pattern.compile("\\\\n");
+    private static final Pattern matchColorCodes = Pattern.compile("&((?i)[0-9a-fk-or])");
 
     /**
      * The directory of the language file.
@@ -38,11 +43,11 @@ public final class Messages extends Restartable
     /**
      * The map of all messages.
      * <p>
-     * Key: Translation key.
+     * Key: The {@link Message} enum entry.
      * <p>
      * Value: The translated message.
      */
-    private Map<String, String> messageMap = new HashMap<>();
+    private Map<Message, String> messageMap = new EnumMap<>(Message.class);
 
     /**
      * The selected language file.
@@ -55,27 +60,27 @@ public final class Messages extends Restartable
      * @param holder   The {@link IRestartableHolder} that manages this object.
      * @param fileDir  The directory the messages file(s) will be in.
      * @param fileName The name of the file that will be loaded, if it exists. Extension excluded.
-     * @param logger   The {@link PLogger} object that will be used for logging.
+     * @param plogger  The {@link PLogger} object that will be used for logging.
      */
     public Messages(final @NotNull IRestartableHolder holder, final @NotNull File fileDir,
-                    final @NotNull String fileName, final @NotNull PLogger logger)
+                    final @NotNull String fileName, final @NotNull PLogger plogger)
     {
         super(holder);
-        this.logger = logger;
+        this.plogger = plogger;
         this.fileDir = fileDir;
 
         if (!fileDir.exists())
             if (!fileDir.mkdirs())
             {
-                logger.logException(new IOException("Failed to create folder: \"" + fileDir.toString() + "\""));
+                plogger.logException(new IOException("Failed to create folder: \"" + fileDir.toString() + "\""));
                 return;
             }
 
         textFile = new File(fileDir, fileName + ".txt");
         if (!textFile.exists())
         {
-            logger.warn("Failed to load language file: \"" + textFile
-                            + "\": File not found! Using default file instead!");
+            plogger.warn("Failed to load language file: \"" + textFile
+                             + "\": File not found! Using default file instead!");
             textFile = new File(fileDir, DEFAULTFILENAME);
         }
         writeDefaultFile();
@@ -109,7 +114,7 @@ public final class Messages extends Restartable
     {
         File defaultFile = new File(fileDir, DEFAULTFILENAME);
         if (defaultFile.exists() && !defaultFile.setWritable(true))
-            logger.severe("Failed to make file \"" + defaultFile + "\" writable!");
+            plogger.severe("Failed to make file \"" + defaultFile + "\" writable!");
 
         // Load the DEFAULTFILENAME from the resources folder.
         InputStream in = null;
@@ -117,9 +122,9 @@ public final class Messages extends Restartable
         {
             URL url = getClass().getClassLoader().getResource(DEFAULTFILENAME);
             if (url == null)
-                logger.logMessage("Failed to read resources file from the jar! "
-                                      +
-                                      "The default translation file cannot be generated! Please contact pim16aap2");
+                plogger.logMessage("Failed to read resources file from the jar! "
+                                       +
+                                       "The default translation file cannot be generated! Please contact pim16aap2");
             else
             {
                 URLConnection connection = url.openConnection();
@@ -130,7 +135,7 @@ public final class Messages extends Restartable
         }
         catch (Exception e)
         {
-            logger.logException(e, "Failed to write default file to \"" + textFile + "\".");
+            plogger.logException(e, "Failed to write default file to \"" + textFile + "\".");
         }
         finally
         {
@@ -141,14 +146,14 @@ public final class Messages extends Restartable
             }
             catch (IOException e)
             {
-                logger.logException(e);
+                plogger.logException(e);
             }
         }
         if (!defaultFile.setWritable(false))
         {
-            logger.logException(new IOException("Failed to make default translation file writable! " +
-                                                    "This is not a big problem as long as you remember not to " +
-                                                    "edit it manually!"));
+            plogger.logException(new IOException("Failed to make default translation file writable! " +
+                                                     "This is not a big problem as long as you remember not to " +
+                                                     "edit it manually!"));
         }
     }
 
@@ -166,26 +171,37 @@ public final class Messages extends Restartable
                 // Ignore comments.
                 if (sCurrentLine.startsWith("#") || sCurrentLine.isEmpty())
                     continue;
-                String key, value;
-                String[] parts = sCurrentLine.split("=", 2);
-                key = parts[0];
-                value = parts[1].replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-                String[] newLineSplitter = value.split("\\\\n"); // Wut? Can I haz more backslash?
 
-                StringBuilder values = new StringBuilder(newLineSplitter[0]);
-                for (int idx = 1; idx < newLineSplitter.length; ++idx)
-                    values.append("\n").append(newLineSplitter[idx]);
-                messageMap.put(key, values.toString());
+                String[] parts = sCurrentLine.split("=", 2);
+                try
+                {
+                    Message msg = Message.valueOf(matchDots.matcher(parts[0]).replaceAll("_"));
+                    String value = matchNewLines.matcher(matchColorCodes.matcher(parts[1]).replaceAll("\u00A7$1"))
+                                                .replaceAll("\n");
+                    messageMap.put(msg, value);
+                }
+                catch (IllegalArgumentException e)
+                {
+                    plogger.logMessage("Failed to identify Message corresponding to key: \"" + parts[0] +
+                                           "\". Its value will be ignored!");
+                }
             }
         }
         catch (FileNotFoundException e)
         {
-            logger.logException(e, "Locale file \"" + textFile + "\" does not exist!");
+            plogger.logException(e, "Locale file \"" + textFile + "\" does not exist!");
         }
         catch (IOException e)
         {
-            logger.logException(e, "Could not read locale file! \"" + textFile + "\"");
+            plogger.logException(e, "Could not read locale file! \"" + textFile + "\"");
         }
+
+        for (Message msg : Message.values())
+            if (!msg.equals(Message.EMPTY) && !messageMap.containsKey(msg))
+            {
+                plogger.warn("Could not find translation of key: " + msg.name());
+                messageMap.put(msg, getFailureString(msg.name()));
+            }
     }
 
     /**
@@ -215,17 +231,16 @@ public final class Messages extends Restartable
         if (msg.equals(Message.EMPTY))
             return "";
 
-        String key = Message.getKey(msg);
         if (values.length != Message.getVariableCount(msg))
         {
-            logger.logException(new IllegalArgumentException("Expected " + Message.getVariableCount(msg)
-                                                                 + " variables for key " + key + " but only got " +
-                                                                 values.length
-                                                                 + ". This is a bug. Please contact pim16aap2!"));
-            return getFailureString(key);
+            plogger.logException(new IllegalArgumentException("Expected " + Message.getVariableCount(msg)
+                                                                  + " variables for key " + msg.name() +
+                                                                  " but only got " + values.length
+                                                                  + ". This is a bug. Please contact pim16aap2!"));
+            return getFailureString(msg.name());
         }
 
-        String value = messageMap.get(key);
+        String value = messageMap.get(msg);
         if (value != null)
         {
             for (int idx = 0; idx != values.length; ++idx)
@@ -233,7 +248,7 @@ public final class Messages extends Restartable
             return value;
         }
 
-        logger.warn("Failed to get the translation for key " + key);
-        return getFailureString(key);
+        plogger.warn("Failed to get the translation for key " + msg.name());
+        return getFailureString(msg.name());
     }
 }

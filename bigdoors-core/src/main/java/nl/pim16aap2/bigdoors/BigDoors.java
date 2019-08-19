@@ -58,7 +58,6 @@ import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bstats.bukkit.Metrics;
@@ -430,6 +429,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
 
             validVersion = compatibleMCVer();
+
             // Load the files for the correct version of Minecraft.
             if (!validVersion)
             {
@@ -444,6 +444,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             doorManager = DoorManager.init(this);
 
             init();
+            tf = new ToolVerifier(messages, this);
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
 
@@ -510,7 +511,6 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
         cmdWaiters = new HashMap<>();
-        tf = new ToolVerifier(messages.getString(Message.CREATOR_GENERAL_STICKNAME));
 
         if (config.enableRedstone())
         {
