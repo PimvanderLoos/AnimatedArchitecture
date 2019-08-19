@@ -75,8 +75,6 @@ public abstract class HorizontalAxisAlignedBase extends DoorBase
      */
     public final boolean onNorthSouthAxis()
     {
-        if (northSouthAxis == null)
-            northSouthAxis = calculateNorthSouthAxis();
-        return northSouthAxis;
+        return northSouthAxis == null ? northSouthAxis = calculateNorthSouthAxis() : northSouthAxis;
     }
 }

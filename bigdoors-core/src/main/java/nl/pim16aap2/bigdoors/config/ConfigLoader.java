@@ -178,7 +178,7 @@ public final class ConfigLoader
             "When Vault is present, you can set the price of doorBase creation here for every type of door.",
             "You can use the word \"blockCount\" (without quotationmarks, case sensitive) as a variable that will be replaced by the actual blockCount.",
             "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), and parentheses.",
-            "For example: \"doorPrice='max(10, sqrt(16)^4/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
+            "For example: \"price='max(10, sqrt(16)^4/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
             "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!"};
         String[] headCacheTimeoutComment = {
             "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
@@ -219,18 +219,15 @@ public final class ConfigLoader
         makeBackup = addNewConfigEntry(config, "makeBackup", true, backupComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
 
-        DoorType[] doorTypes = DoorType.cachedValues();
-        for (int idx = 0; idx != doorTypes.length; ++idx)
-            if (DoorType.isEnabled(doorTypes[idx]))
-                doorMultipliers.put(doorTypes[idx],
-                                    addNewConfigEntry(config, "multiplierOf" + doorTypes[idx].name(),
-                                                      0.0D, idx == 0 ? multiplierComment : null));
+        for (DoorType type : DoorType.cachedValues())
+            if (DoorType.isEnabled(type))
+                doorMultipliers.put(type, addNewConfigEntry(config, "multiplierOf" + type, 0.0D,
+                                                            DoorType.getValue(type) == 0 ? multiplierComment : null));
 
-        for (int idx = 0; idx != doorTypes.length; ++idx)
-            if (DoorType.isEnabled(doorTypes[idx]))
-                doorPrices.put(doorTypes[idx],
-                               addNewConfigEntry(config, "priceOf" + doorTypes[idx].name(), "0",
-                                                 idx == 0 ? pricesComment : null));
+        for (DoorType type : DoorType.cachedValues())
+            if (DoorType.isEnabled(type))
+                doorPrices.put(type, addNewConfigEntry(config, "priceOf" + type.name(), "0",
+                                                       DoorType.getValue(type) == 0 ? pricesComment : null));
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         // This is a bit special, as it's public static (for SpigotUtil debug messages).

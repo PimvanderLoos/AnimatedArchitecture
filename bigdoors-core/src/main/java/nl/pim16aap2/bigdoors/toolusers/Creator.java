@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Represents a user creating a {@link DoorBase}.
@@ -83,14 +84,14 @@ public abstract class Creator extends ToolUser
      */
     private boolean hasPermission(final @NotNull Optional<String> canBreakBlock)
     {
-        return !canBreakBlock.filter(P ->
-                                     {
-                                         SpigotUtil.messagePlayer(player,
-                                                                  messages.getString(
-                                                                      Message.ERROR_NOPERMISSIONFORLOCATION,
-                                                                      P));
-                                         return true;
-                                     }).isPresent();
+        return !canBreakBlock.filter(
+            P ->
+            {
+                SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, P));
+                plugin.getPLogger().sendMessageToTarget(player, Level.INFO,
+                                                        messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION));
+                return true;
+            }).isPresent();
     }
 
     /**

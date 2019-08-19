@@ -5,7 +5,10 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -145,7 +148,7 @@ public enum DoorType
         },
     ;
 
-    private final static DoorType[] values = DoorType.values();
+    private final static List<DoorType> cachedValues = Collections.unmodifiableList(Arrays.asList(DoorType.values()));
     private final static Map<Integer, DoorType> valMap = new HashMap<>();
     private final static Map<String, DoorType> commandFlagMap = new HashMap<>();
 
@@ -163,9 +166,9 @@ public enum DoorType
      *
      * @return The cached array of values.
      */
-    public static DoorType[] cachedValues()
+    public static List<DoorType> cachedValues()
     {
-        return values;
+        return cachedValues;
     }
 
     /**

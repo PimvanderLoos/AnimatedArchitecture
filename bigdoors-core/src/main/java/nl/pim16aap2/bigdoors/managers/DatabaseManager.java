@@ -20,13 +20,11 @@ import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.TimedMapCache;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForRemoveOwner;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetBlocksToMove;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForSetTime;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -35,8 +33,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,18 +51,6 @@ public final class DatabaseManager extends Restartable
     private final BigDoors plugin;
 
     /**
-     * Timed cache of all power blocks. The key is the {@link UUID} of the {@link org.bukkit.World}, the value is a
-     * nested map.
-     * <p>
-     * The key of the first nested map if the hash of a chunk and yet another nested map.
-     * <p>
-     * The key of the second nested map is the hash of a location (in world space) and the value of the nested map is
-     * the UID of the {@link DoorBase} whose power block is stored in that location.
-     */
-//    private final TimedMapCache<UUID /* World */, Map<Long /* Chunk */, Map<Long /* Loc */, List<Long> /* doorUIDs */>>> pbCache;
-    private final Map<UUID /* World */, TimedMapCache<Long /* Chunk */, Map<Long /* Loc */, List<Long> /* doorUIDs */>>> pbCache;
-
-    /**
      * Constructs a new {@link DatabaseManager}.
      *
      * @param plugin The spigot core.
@@ -79,7 +63,6 @@ public final class DatabaseManager extends Restartable
                                             plugin.getConfigLoader(), new WorldRetriever(),
                                             new PlayerRetriever());
         this.plugin = plugin;
-        pbCache = new HashMap<>();
     }
 
     /**
@@ -112,7 +95,6 @@ public final class DatabaseManager extends Restartable
     @Override
     public void restart()
     {
-        pbCache.forEach((K, V) -> V.reInit(plugin.getConfigLoader().cacheTimeout()));
     }
 
     /**
@@ -121,7 +103,6 @@ public final class DatabaseManager extends Restartable
     @Override
     public void shutdown()
     {
-        pbCache.forEach((K, V) -> V.shutdown());
     }
 
     /**
@@ -176,7 +157,8 @@ public final class DatabaseManager extends Restartable
      */
     public void startPowerBlockRelocator(final @NotNull Player player, final @NotNull DoorBase door)
     {
-        startTimerForAbortableTask(new PowerBlockRelocator(plugin, player, door.getDoorUID()), 20 * 20);
+        startTimerForAbortableTask(new PowerBlockRelocator(plugin, player, door.getDoorUID(), door.getPowerBlockLoc()),
+                                   20 * 20);
     }
 
     /**
@@ -249,16 +231,24 @@ public final class DatabaseManager extends Restartable
     public void addDoorBase(final @NotNull DoorBase newDoor)
     {
         db.insert(newDoor);
+        plugin.getPowerBlockManager().onDoorAddOrRemove(newDoor.getWorld().getUID(),
+                                                        new Vector3D(newDoor.getPowerBlockLoc().getBlockX(),
+                                                                     newDoor.getPowerBlockLoc().getBlockY(),
+                                                                     newDoor.getPowerBlockLoc().getBlockZ()));
     }
 
     /**
      * Removes a {@link DoorBase} from the database.
      *
-     * @param doorUID The UID of the door.
+     * @param door The door.
      */
-    public void removeDoor(final long doorUID)
+    public void removeDoor(final @NotNull DoorBase door)
     {
-        db.removeDoor(doorUID);
+        db.removeDoor(door.getDoorUID());
+        plugin.getPowerBlockManager().onDoorAddOrRemove(door.getWorld().getUID(),
+                                                        new Vector3D(door.getPowerBlockLoc().getBlockX(),
+                                                                     door.getPowerBlockLoc().getBlockY(),
+                                                                     door.getPowerBlockLoc().getBlockZ()));
     }
 
     /**
@@ -599,56 +589,19 @@ public final class DatabaseManager extends Restartable
         db.setLock(doorUID, newLockStatus);
     }
 
-    /**
-     * Gets all {@link DoorBase}s that have a powerblock at a location in a world.
-     *
-     * @param loc       The location.
-     * @param worldUUID The {@link UUID} of the world.
-     * @return All {@link DoorBase}s that have a powerblock at a location in a world.
-     */
-    @NotNull
-    public List<DoorBase> doorsFromPowerBlockLoc(final @NotNull Location loc, final @NotNull UUID worldUUID)
+    void updatePowerBlockLoc(final long doorUID, final @NotNull Vector3D newLoc, final @NotNull UUID worldUUID)
     {
-        List<DoorBase> ret = new ArrayList<>();
-        long chunkHash = Util.simpleChunkHashFromLocation(loc.getBlockX(), loc.getBlockZ());
-
-        // Check if this world is in the cache yet. If it isn't, instantiate the cache for this world.
-        if (!pbCache.containsKey(worldUUID))
-            pbCache.put(worldUUID, new TimedMapCache<>(plugin, HashMap::new, plugin.getConfigLoader().cacheTimeout()));
-
-        // Get all the
-        TimedMapCache<Long, Map<Long, List<Long>>> worldMap = pbCache.get(worldUUID);
-
-        Map<Long, List<Long>> powerBlockData = worldMap.get(chunkHash);
-        if (powerBlockData == null)
-        {
-            powerBlockData = db.getPowerBlockData(chunkHash);
-            worldMap.put(chunkHash, powerBlockData);
-        }
-        List<Long> doorUIDs = powerBlockData
-            .getOrDefault(Util.simpleLocationhash(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()),
-                          new ArrayList<>());
-        doorUIDs.forEach(K -> db.getDoor(K).ifPresent(ret::add));
-        return ret;
+        db.updateDoorPowerBlockLoc(doorUID, newLoc.getX(), newLoc.getY(), newLoc.getZ(), worldUUID);
     }
 
-    /**
-     * Updates the Location of the powerblock of a {@link DoorBase} in the database.
-     *
-     * @param doorUID The UID of the {@link DoorBase}.
-     * @param loc     The new Location.
-     */
-    public void updatePowerBlockLoc(final long doorUID, final @NotNull Location loc)
+    boolean isBigDoorsWorld(final @NotNull UUID world)
     {
-        Map<Long, Map<Long, List<Long>>> worldMap = pbCache.getOrDefault(loc.getWorld().getUID(), null);
+        return db.isBigDoorsWorld(world);
+    }
 
-        if (worldMap != null)
-            // First, remove the chunk with the current power block location of this door from cache.
-            db.getDoor(doorUID).ifPresent(door -> worldMap.remove(door.getSimplePowerBlockChunkHash()));
-        db.updateDoorPowerBlockLoc(doorUID, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getUID());
-        // Also make sure to remove the chunk of the new location of the power block from cache, so it gets
-        // updated whenever its needed again.
-        if (worldMap != null)
-            worldMap.remove(Util.simpleChunkHashFromLocation(loc.getBlockX(), loc.getBlockZ()));
+    @NotNull
+    Map<Integer, List<Long>> getPowerBlockData(final long chunkHash)
+    {
+        return db.getPowerBlockData(chunkHash);
     }
 }

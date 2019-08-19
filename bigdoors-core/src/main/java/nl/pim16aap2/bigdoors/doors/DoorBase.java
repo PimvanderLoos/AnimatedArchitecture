@@ -423,7 +423,8 @@ public abstract class DoorBase
     {
         if (doorOwner == null)
         {
-            NullPointerException npe = new NullPointerException("The door did not have an owner!");
+            NullPointerException npe = new NullPointerException(
+                "Door " + getDoorUID() + " did not have an owner! Please contact pim16aap2.");
             pLogger.logException(npe);
             throw npe;
         }
@@ -438,9 +439,7 @@ public abstract class DoorBase
      */
     public final int getPermission()
     {
-        if (doorOwner == null)
-            return -1;
-        return doorOwner.getPermission();
+        return doorOwner == null ? -1 : doorOwner.getPermission();
     }
 
     /**
@@ -711,9 +710,7 @@ public abstract class DoorBase
      */
     public final @NotNull Chunk getChunk()
     {
-        if (engineChunk == null)
-            engineChunk = calculateEngineChunk();
-        return engineChunk;
+        return engineChunk == null ? engineChunk = calculateEngineChunk() : engineChunk;
     }
 
     /**
@@ -736,9 +733,7 @@ public abstract class DoorBase
      */
     public final int getBlockCount()
     {
-        if (blockCount == null)
-            blockCount = calculateBlockCount();
-        return blockCount;
+        return blockCount == null ? blockCount = calculateBlockCount() : blockCount;
     }
 
     /**
@@ -764,9 +759,7 @@ public abstract class DoorBase
     @NotNull
     public final PBlockFace getCurrentDirection()
     {
-        if (currentDirection == null)
-            currentDirection = calculateCurrentDirection();
-        return currentDirection;
+        return currentDirection == null ? currentDirection = calculateCurrentDirection() : currentDirection;
     }
 
     /**
@@ -777,12 +770,6 @@ public abstract class DoorBase
         if (powerBlock == null)
         {
             NullPointerException e = new NullPointerException("Powerblock unexpectedly null!");
-            pLogger.logException(e);
-            throw e;
-        }
-        if (world == null)
-        {
-            NullPointerException e = new NullPointerException("world unexpectedly null!");
             pLogger.logException(e);
             throw e;
         }

@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -59,7 +60,8 @@ public class PowerBlockInspector extends ToolUser
     public void selector(final @NotNull Location loc)
     {
         done = true;
-        List<DoorBase> doors = plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID());
+        List<DoorBase> doors = plugin.getPowerBlockManager().doorsFromPowerBlockLoc(
+            new Vector3D(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getUID());
         if (doors.size() == 0)
             return;
 

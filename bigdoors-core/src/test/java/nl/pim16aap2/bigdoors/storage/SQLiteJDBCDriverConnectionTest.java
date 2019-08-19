@@ -328,6 +328,8 @@ public class SQLiteJDBCDriverConnectionTest
         assertFalse(storage.getDoor(9999999).isPresent());
         assertTrue(storage.getOwnerOfDoor(1L).isPresent());
         assertEquals(door1.getDoorOwner(), storage.getOwnerOfDoor(1L).get());
+        assertTrue(storage.isBigDoorsWorld(worldUUID));
+        assertFalse(storage.isBigDoorsWorld(UUID.randomUUID()));
 
         assertEquals(1, storage.getOwnerCountOfDoor(1L));
 

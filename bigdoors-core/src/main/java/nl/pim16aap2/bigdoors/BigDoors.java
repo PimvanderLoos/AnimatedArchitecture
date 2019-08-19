@@ -47,6 +47,7 @@ import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorManager;
 import nl.pim16aap2.bigdoors.managers.HeadManager;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
@@ -191,17 +192,12 @@ import java.util.UUID;
 //       Alternatively, merge PBlockFace and RotateDirection into Direction.
 // TODO: When returning null after unexpected input, just fucking thrown an IllegalArgumentException. Will make debugging a lot easier.
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
-// TODO: Make sure adding a new door properly invalidates the chunk cache. Same for moving a power block.
 // TODO: ConfigLoader: Use dynamic protection compat listing. Just like how door prices etc are handled.
 // TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
 // TODO: Allow wand material selection in config.
 // TODO: Get rid of code duplication in ProtectionCompatManager.
 // TODO: Make sure permission checking for offline users isn't done on the main thread.
 // TODO: Make timeout for CommandWaiters and Creators configurable and put variable in messages.
-// TODO: In addition to doors/chunk caching, also keep a set of worlds that do or do not contain doors. This could
-//       cancel the entire event after a single cache lookup, thus potentially skipping at best 6 cache lookups, and at
-//       worst 3 database lookups + 3 cache lookups. Or just store an optional per world. Then it can be stored in the
-//       same map.
 // TODO: Somehow replace the %HOOK% variable in the message of DoorOpenResult.NOPERMISSION.
 // TODO: Instead of routing everything through this class (e.g. getPLogger(), getConfigLoader()), make sure that these
 //       Objects do NOT get reinitialized on restart and then pass references to class that need them. Should reduce the
@@ -221,7 +217,8 @@ import java.util.UUID;
 // TODO: Configurable timeouts for commands + creators. Also, put variable in messages.
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
-// TODO: Use an EnumMap to store messages. This means getting the Enum value from the string.
+// TODO: Get rid of all calls to SpigotUtil for messaging players. They should all go via the proper interface for that.
+// TODO: Save some unnecessary map calls by making sure ALL loaded worlds are always stored in the map.
 
 /*
  * GUI
@@ -369,7 +366,7 @@ import java.util.UUID;
 // TODO: ALL the new Openers (which are now part of the doors themselves).
 // TODO: Test new creators: Windmill, RevolvingDoor, GarageDoor. Make sure it cannot be fucked up.
 // TODO: Test new chunkInRange methods. Especially sliding door.
-// TODO: Make sure that new lines in the messages work (check SpigotUtil::stringFromArray).
+// TODO: Make sure that new lines in the messages work (check Util::stringFromArray).
 // TODO: Fix no permission to set AutoCloseTime from GUI.
 // TODO: Check if TimedCache#containsValue() works properly.
 // TODO: What happens when a player is given a creator stick while their inventory is full?
@@ -415,6 +412,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private IGlowingBlockSpawner glowingBlockSpawner;
     private UpdateManager updateManager;
     private DoorManager doorManager;
+    private PowerBlockManager powerBlockManager;
 
     @Override
     public void onEnable()
@@ -456,6 +454,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = DatabaseManager.init(this, config.dbFile());
+            powerBlockManager = PowerBlockManager.init(this, config, databaseManager, getPLogger());
             DoorOpener.init(getPLogger(), getDoorManager(), getGlowingBlockSpawner(), getConfigLoader(), protCompatMan);
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
@@ -718,6 +717,12 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     public DatabaseManager getDatabaseManager()
     {
         return databaseManager;
+    }
+
+    @NotNull
+    public PowerBlockManager getPowerBlockManager()
+    {
+        return powerBlockManager;
     }
 
     // Get the DoorManager.

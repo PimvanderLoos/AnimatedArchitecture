@@ -427,6 +427,27 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
+    public boolean isBigDoorsWorld(@NotNull UUID worldUUID)
+    {
+        boolean result = false;
+        try (Connection conn = getConnection())
+        {
+            String sql = "SELECT world FROM doors WHERE world=? LIMIT 1;";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, worldUUID.toString());
+            result = ps.executeQuery().next();
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("438", e);
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int getDoorCountForPlayer(final @NotNull UUID playerUUID)
     {
         try (Connection conn = getConnection())
@@ -912,9 +933,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Override
     @NotNull
-    public Map<Long, List<Long>> getPowerBlockData(final long chunkHash)
+    public Map<Integer, List<Long>> getPowerBlockData(final long chunkHash)
     {
-        Map<Long, List<Long>> doors = new HashMap<>();
+        Map<Integer, List<Long>> doors = new HashMap<>();
 
         try (Connection conn = getConnection())
         {
@@ -924,9 +945,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             ResultSet rs = ps.executeQuery();
             while (rs.next())
             {
-                long locationHash = Util.simpleLocationhash(rs.getInt("powerBlockX"),
-                                                            rs.getInt("powerBlockY"),
-                                                            rs.getInt("powerBlockZ"));
+                int locationHash = Util.simpleChunkSpaceLocationhash(rs.getInt("powerBlockX"),
+                                                                     rs.getInt("powerBlockY"),
+                                                                     rs.getInt("powerBlockZ"));
                 if (!doors.containsKey(locationHash))
                     doors.put(locationHash, new ArrayList<>());
                 doors.get(locationHash).add(rs.getLong("id"));

@@ -274,6 +274,22 @@ public final class Util
     }
 
     /**
+     * Gets the 'simple' hash of a location in chunk-space. 'simple' here refers to the fact that the world of this
+     * location will not be taken into account.
+     *
+     * @param x The x-coordinate of the location.
+     * @param y The z-coordinate of the location.
+     * @param z The z-coordinate of the location.
+     * @return The simple hash of the location in chunk-space.
+     */
+    public static int simpleChunkSpaceLocationhash(final int x, final int y, final int z)
+    {
+        int chunkSpaceX = x - (x >> 4);
+        int chunkSpaceZ = z - (z >> 4);
+        return (y << 8) + (chunkSpaceX << 4) + chunkSpaceZ;
+    }
+
+    /**
      * Convert an array of strings to a single string.
      *
      * @param strings Input array of string

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -25,7 +26,10 @@ public class RedstoneListener implements Listener
 
     private void checkDoors(final @NotNull Location loc)
     {
-        plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID())
+//        plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID())
+
+        plugin.getPowerBlockManager().doorsFromPowerBlockLoc(
+            new Vector3D(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getUID())
               .forEach(door -> door.toggle(DoorActionCause.REDSTONE, door.getPlayerUUID(), 0.0, false));
     }
 
@@ -40,6 +44,9 @@ public class RedstoneListener implements Listener
     {
         // Only boolean status is allowed, so a varying degree of "on" has no effect.
         if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
+            return;
+
+        if (!plugin.getPowerBlockManager().isBigDoorsWorld(event.getBlock().getWorld().getUID()))
             return;
 
         try

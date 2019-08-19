@@ -33,7 +33,7 @@ public class SubCommandDelete extends SubCommand
     {
         String name = door.getName();
         long doorUID = door.getDoorUID();
-        plugin.getDatabaseManager().removeDoor(door.getDoorUID());
+        plugin.getDatabaseManager().removeDoor(door);
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
                                                 messages.getString(Message.COMMAND_DOOR_DELETE_SUCCESS, name,
                                                                    Long.toString(doorUID)));

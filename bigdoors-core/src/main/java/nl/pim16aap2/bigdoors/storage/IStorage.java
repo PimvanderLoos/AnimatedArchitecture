@@ -46,6 +46,14 @@ public interface IStorage
     boolean removeDoors(final @NotNull String playerUUID, final @NotNull String doorName);
 
     /**
+     * Checks whether or not there are any doors in a given world.
+     *
+     * @param worldUUID The world.
+     * @return True if there are more than 0 doors in a given world.
+     */
+    boolean isBigDoorsWorld(final @NotNull UUID worldUUID);
+
+    /**
      * Gets the total number of doors own by the given player.
      *
      * @param playerUUID The uuid of the player whose doors to count.
@@ -217,14 +225,14 @@ public interface IStorage
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
      * <p>
-     * The key is the hashed location in world space, the value is the list of UIDs of the doors whose powerblocks
+     * The key is the hashed location in chunk space, the value is the list of UIDs of the doors whose powerblocks
      * occupies that location.
      *
      * @param chunkHash The hash of the chunk the doors are in.
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
     @NotNull
-    Map<Long, List<Long>> getPowerBlockData(final long chunkHash);
+    Map<Integer, List<Long>> getPowerBlockData(final long chunkHash);
 
     /**
      * Changes the blocksToMove value of a door.
