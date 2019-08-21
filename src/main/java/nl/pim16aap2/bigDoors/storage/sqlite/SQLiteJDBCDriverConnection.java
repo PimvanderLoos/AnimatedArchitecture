@@ -105,9 +105,7 @@ public class SQLiteJDBCDriverConnection
         }
         if (!validVersion)
         {
-            plugin.getMyLogger().logMessage("Database disabled! Reason: Version too high! This is not a bug!", true, false);
-            plugin.getMyLogger().logMessage("Once upgraded, you can no longer use it on this version. Instead, you'll have to upgrade to v2!", true, false);
-            plugin.getMyLogger().logMessage("Please contact pim16aap2 if this was done unintentionally.", true, false);
+            plugin.getMyLogger().logMessage("Database disabled! Reason: Version too high! Please update the plugin!", true, false);
             return null;
         }
         if (!enabled)
@@ -380,7 +378,8 @@ public class SQLiteJDBCDriverConnection
             plugin.getMyLogger().warn("Upgrading database: Removing isOpen, isLocked, engineSide!");
             Class.forName(DRIVER);
             conn = DriverManager.getConnection(url);
-            conn.createStatement().execute("PRAGMA foreign_keys=OFF");
+//            conn.createStatement().execute("PRAGMA foreign_keys=OFF");
+            disableForeignKeys(conn);
             conn.setAutoCommit(false);
             conn.createStatement().execute("ALTER TABLE doors RENAME TO doors_old;");
 
@@ -414,11 +413,10 @@ public class SQLiteJDBCDriverConnection
                 "powerBlockX, powerBlockY, powerBlockZ, openDirection, autoClose, chunkHash, blocksToMove\n" +
                 "FROM doors_old;";
             conn.createStatement().execute(restoreData);
+
             conn.createStatement().execute("DROP TABLE IF EXISTS 'doors_old';");
             conn.commit();
             conn.setAutoCommit(true);
-
-            setDBVersion(conn, MAX_DATABASE_VERSION);
         }
         catch (SQLException | NullPointerException | ClassNotFoundException e)
         {
@@ -445,12 +443,192 @@ public class SQLiteJDBCDriverConnection
                     logMessage("432", e);
                 }
         }
+        recreateTables();
         locked.set(false);
         validVersion = false;
 
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000;
         plugin.getMyLogger().warn("Database upgrade completed in " + duration + "ms! Please update BigDoors to v2 now!");
+    }
+
+    /**
+     * Because SQLite is a PoS and decided to remove the admittedly odd behavior that just disabling foreign keys
+     * suddenly ignored all the triggers etc attached to it without actually providing a proper alternative (perhaps
+     * implement ALTER TABLE properly??), this method needs to be called now in order to safely modify stuff without
+     * having the foreign keys get fucked up.
+     *
+     * @param conn The connection.
+     */
+    private void disableForeignKeys(final Connection conn) throws SQLException
+    {
+        conn.createStatement().execute("PRAGMA foreign_keys=OFF");
+        conn.createStatement().execute("PRAGMA legacy_alter_table=ON");
+    }
+
+    /**
+     * The anti method of {@link #disableForeignKeys(Connection)}. Only needs to be called if that was called first.
+     *
+     * @param conn The connection.
+     * @throws SQLException
+     */
+    @SuppressWarnings("unused")
+    private void reEnableForeignKeys(final Connection conn) throws SQLException
+    {
+        conn.createStatement().execute("PRAGMA foreign_keys=ON");
+        conn.createStatement().execute("PRAGMA legacy_alter_table=OFF");
+    }
+
+    // To make sure there aren't any string values hidden as integers and what-not,
+    // recreate all tables before moving on to v2.
+    public void recreateTables()
+    {
+        // Recreate the doors table.
+        try (Connection conn = getConnectionUnsafe())
+        {
+            plugin.getMyLogger().warn("Upgrading database: Recreating doors table now!");
+            disableForeignKeys(conn);
+
+            conn.createStatement().execute("ALTER TABLE doors RENAME TO doors_old;");
+            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS doors\n" +
+                                               "(id            INTEGER    PRIMARY KEY autoincrement,\n" +
+                                               " name          TEXT       NOT NULL,\n" +
+                                               " world         TEXT       NOT NULL,\n" +
+                                               " xMin          INTEGER    NOT NULL,\n" +
+                                               " yMin          INTEGER    NOT NULL,\n" +
+                                               " zMin          INTEGER    NOT NULL,\n" +
+                                               " xMax          INTEGER    NOT NULL,\n" +
+                                               " yMax          INTEGER    NOT NULL,\n" +
+                                               " zMax          INTEGER    NOT NULL,\n" +
+                                               " engineX       INTEGER    NOT NULL,\n" +
+                                               " engineY       INTEGER    NOT NULL,\n" +
+                                               " engineZ       INTEGER    NOT NULL,\n" +
+                                               " bitflag       INTEGER    NOT NULL DEFAULT 0,\n" +
+                                               " type          INTEGER    NOT NULL DEFAULT  0,\n" +
+                                               " powerBlockX   INTEGER    NOT NULL DEFAULT -1,\n" +
+                                               " powerBlockY   INTEGER    NOT NULL DEFAULT -1,\n" +
+                                               " powerBlockZ   INTEGER    NOT NULL DEFAULT -1,\n" +
+                                               " openDirection INTEGER    NOT NULL DEFAULT  0,\n" +
+                                               " autoClose     INTEGER    NOT NULL DEFAULT -1,\n" +
+                                               " chunkHash     INTEGER    NOT NULL DEFAULT -1,\n" +
+                                               " blocksToMove  INTEGER    NOT NULL DEFAULT -1);");
+
+            ResultSet rs1 = conn.prepareStatement("SELECT * FROM doors_old;").executeQuery();
+            while (rs1.next())
+            {
+                String insert = "INSERT INTO doors(id, name,world,xMin,yMin,zMin,xMax,yMax,zMax,\n" +
+                    "                  engineX,engineY,engineZ,bitflag,type,\n" +
+                    "                  powerBlockX,powerBlockY,powerBlockZ,openDirection,\n" +
+                    "                  autoClose,chunkHash,blocksToMove) \n" +
+                    "                  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                PreparedStatement insertStatement = conn.prepareStatement(insert);
+                insertStatement.setLong(1, rs1.getLong("id"));
+                insertStatement.setString(2, rs1.getString("name"));
+                insertStatement.setString(3, rs1.getString("world"));
+                insertStatement.setLong(4, rs1.getLong("xMin"));
+                insertStatement.setLong(5, rs1.getLong("yMin"));
+                insertStatement.setLong(6, rs1.getLong("zMin"));
+                insertStatement.setLong(7, rs1.getLong("xMax"));
+                insertStatement.setLong(8, rs1.getLong("yMax"));
+                insertStatement.setLong(9, rs1.getLong("zMax"));
+                insertStatement.setLong(10, rs1.getLong("engineX"));
+                insertStatement.setLong(11, rs1.getLong("engineY"));
+                insertStatement.setLong(12, rs1.getLong("engineZ"));
+                insertStatement.setLong(13, rs1.getLong("bitflag"));
+                insertStatement.setLong(14, rs1.getLong("type"));
+                insertStatement.setLong(15, rs1.getLong("powerBlockX"));
+                insertStatement.setLong(16, rs1.getLong("powerBlockY"));
+                insertStatement.setLong(17, rs1.getLong("powerBlockZ"));
+                insertStatement.setLong(18, rs1.getLong("openDirection"));
+                insertStatement.setLong(19, rs1.getLong("autoClose"));
+                insertStatement.setLong(20, rs1.getLong("chunkHash"));
+                insertStatement.setLong(21, rs1.getLong("blocksToMove"));
+                insertStatement.executeUpdate();
+                insertStatement.close();
+            }
+            rs1.close();
+            conn.createStatement().execute("DROP TABLE IF EXISTS 'doors_old';");
+
+            plugin.getMyLogger().info("Doors table has been recreated! On the the next step!");
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("314", e);
+        }
+
+
+        // Recreate the players table.
+        try (Connection conn = getConnectionUnsafe())
+        {
+            plugin.getMyLogger().warn("Upgrading database: Recreating players table now!");
+            disableForeignKeys(conn);
+
+            conn.createStatement().execute("ALTER TABLE players RENAME TO players_old;");
+            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS players\n" +
+                                               "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
+                                               " playerUUID  TEXT       NOT NULL,\n" +
+                                               " playerName  TEXT       NOT NULL);");
+
+            ResultSet rs1 = conn.prepareStatement("SELECT * FROM players_old;").executeQuery();
+            while (rs1.next())
+            {
+                String insert = "INSERT INTO players(id, playerUUID, playerName) VALUES(?,?,?);";
+                PreparedStatement insertStatement = conn.prepareStatement(insert);
+                insertStatement.setLong(1, rs1.getLong("id"));
+                insertStatement.setString(2, rs1.getString("playerUUID"));
+                insertStatement.setString(3, rs1.getString("playerName"));
+                insertStatement.executeUpdate();
+                insertStatement.close();
+            }
+            rs1.close();
+            conn.createStatement().execute("DROP TABLE IF EXISTS 'players_old';");
+
+            plugin.getMyLogger().info("Players table has been recreated! On the the next step!");
+        }
+
+
+        // Recreate sqlUnion table. This is done last, because of the FK's.
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("314", e);
+        }
+        try (Connection conn = getConnectionUnsafe())
+        {
+            plugin.getMyLogger().warn("Upgrading database: Recreating slqUnion table now!");
+            disableForeignKeys(conn);
+
+            conn.createStatement().execute("ALTER TABLE sqlUnion RENAME TO sqlUnion_old;");
+
+
+            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS sqlUnion\n" +
+                                               "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
+                                               " permission  INTEGER    NOT NULL,\n" +
+                                               " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE,\n" +
+                                               " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE, \n" +
+                                               " unique (playerID, doorUID));");
+
+            ResultSet rs1 = conn.prepareStatement("SELECT * FROM sqlUnion_old;").executeQuery();
+            while (rs1.next())
+            {
+                String insert = "INSERT INTO sqlUnion(id, permission, playerID, doorUID) VALUES(?,?,?,?);";
+                PreparedStatement insertStatement = conn.prepareStatement(insert);
+                insertStatement.setLong(1, rs1.getLong("id"));
+                insertStatement.setLong(2, rs1.getLong("permission"));
+                insertStatement.setLong(3, rs1.getLong("playerID"));
+                insertStatement.setLong(4, rs1.getLong("doorUID"));
+                insertStatement.executeUpdate();
+                insertStatement.close();
+            }
+            rs1.close();
+
+            conn.createStatement().execute("DROP TABLE IF EXISTS 'sqlUnion_old';");
+
+            plugin.getMyLogger().info("slqUnion table has been recreated! On the the next step!");
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("314", e);
+        }
     }
 
     private long getPlayerID(final Connection conn, final String playerUUID) throws SQLException
@@ -1111,6 +1289,7 @@ public class SQLiteJDBCDriverConnection
             }
         }
     }
+
     // Update the door with UID doorUID's Power Block Location with the provided coordinates and open status.
     public void updateDoorOpenDirection(final long doorID, final RotateDirection openDir)
     {
@@ -1555,7 +1734,6 @@ public class SQLiteJDBCDriverConnection
         return Integer.MAX_VALUE;
     }
 
-
     private int getDatabaseVersion()
     {
         try (Connection conn = getConnection())
@@ -1568,7 +1746,6 @@ public class SQLiteJDBCDriverConnection
         }
         return Integer.MAX_VALUE;
     }
-
 
     // Add columns and such when needed (e.g. upgrades from older versions).
     private void upgrade()
@@ -1590,8 +1767,10 @@ public class SQLiteJDBCDriverConnection
                 return;
             }
 
-            if (dbVersion >= MAX_DATABASE_VERSION)
+            if (dbVersion > DATABASE_VERSION)
             {
+                plugin.getMyLogger().logMessage("Trying to load a database that is incompatible with this version of the plugin! " +
+                                                "Database version = " + dbVersion + ". Please update the plugin.", true, false);
                 conn.close();
                 validVersion = false;
                 return;
@@ -1875,6 +2054,8 @@ public class SQLiteJDBCDriverConnection
         {
             plugin.getMyLogger().logMessage("Upgrading database to V3! Recreating sqlUnion!", true, true);
             conn.setAutoCommit(false);
+            disableForeignKeys(conn);
+
             // Rename sqlUnion.
             conn.createStatement().execute("ALTER TABLE sqlUnion RENAME TO sqlUnion_old;");
 
@@ -1898,6 +2079,7 @@ public class SQLiteJDBCDriverConnection
         {
             try
             {
+                reEnableForeignKeys(conn);
                 conn.rollback();
             }
             catch (SQLException | NullPointerException e1)
@@ -1992,6 +2174,7 @@ public class SQLiteJDBCDriverConnection
         try
         {
             con = DriverManager.getConnection(url);
+            disableForeignKeys(con);
             con.setAutoCommit(false);
             // Rename sqlUnion.
             con.createStatement().execute("ALTER TABLE players RENAME TO players_old;");

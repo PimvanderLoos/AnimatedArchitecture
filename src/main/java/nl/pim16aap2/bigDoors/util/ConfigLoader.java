@@ -437,8 +437,9 @@ public class ConfigLoader
      */
     public long downloadDelay()
     {
-        if (BigDoors.DEVBUILD)
+        if (BigDoors.DEVBUILD) // Setting override.
             return 0L;
+
         return downloadDelay;
     }
 

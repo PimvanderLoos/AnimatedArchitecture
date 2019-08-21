@@ -17,11 +17,13 @@
         <delete file="./target/classes/plugin.yml"/>
         <delete file="./target/classes/en_US.txt"/>
     	<delete file="./target/classes/build.number"/>
+    	<delete file="./target/classes/changelog.txt"/>
     	
         <copy file="${resources}/plugin.yml" tofile="./target/classes/plugin.yml"/>
         <copy file="${resources}/config.yml" tofile="./target/classes/config.yml"/>
         <copy file="${resources}/en_US.txt"  tofile="./target/classes/en_US.txt"/>
         <copy file="./build.number"          tofile="./target/classes/build.number"/>
+        <copy file="./changelog.txt"         tofile="./target/classes/changelog.txt"/>
 
         <delete file="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
         <delete file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar"/>
