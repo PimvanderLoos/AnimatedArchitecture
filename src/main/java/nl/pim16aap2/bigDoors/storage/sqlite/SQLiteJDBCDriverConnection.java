@@ -43,7 +43,7 @@ public class SQLiteJDBCDriverConnection
     // The highest database version. If the found db version matches or exceeds
     // this version, the database cannot be enabled.
     private static final int MAX_DATABASE_VERSION = 10;
-    private static final int DATABASE_VERSION     =  5;
+    private static final int DATABASE_VERSION     =  6;
 
     private static final int DOOR_ID             =  1;
     private static final int DOOR_NAME           =  2;
@@ -205,10 +205,11 @@ public class SQLiteJDBCDriverConnection
                 stmt1.close();
 
                 Statement stmt2 = conn.createStatement();
-                String sql2     = "CREATE TABLE IF NOT EXISTS players "
-                                + "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, "
-                                + " playerUUID  TEXT       NOT NULL,"
-                                + " playerName  TEXT       NOT NULL)";
+                String sql2     = "CREATE TABLE IF NOT EXISTS players \n" +
+                                  "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n" +
+                                  " playerUUID  TEXT       NOT NULL, \n" +
+                                  " playerName  TEXT       NOT NULL, \n" +
+                                  " unique(playerUUID));";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
@@ -564,10 +565,11 @@ public class SQLiteJDBCDriverConnection
             disableForeignKeys(conn);
 
             conn.createStatement().execute("ALTER TABLE players RENAME TO players_old;");
-            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS players\n" +
-                                               "(id          INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
-                                               " playerUUID  TEXT       NOT NULL,\n" +
-                                               " playerName  TEXT       NOT NULL);");
+            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS players \n" +
+                                           "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n" +
+                                           " playerUUID  TEXT       NOT NULL, \n" +
+                                           " playerName  TEXT       NOT NULL, \n" +
+                                           " unique(playerUUID));");
 
             ResultSet rs1 = conn.prepareStatement("SELECT * FROM players_old;").executeQuery();
             while (rs1.next())
@@ -1782,7 +1784,7 @@ public class SQLiteJDBCDriverConnection
                 conn.close();
                 if (!makeBackup())
                     return;
-                conn = DriverManager.getConnection(url);
+                conn = getConnectionUnsafe();
             }
 
             if (dbVersion < 1)
@@ -1802,8 +1804,11 @@ public class SQLiteJDBCDriverConnection
                 conn.close();
                 upgradeToV5();
                 replaceTempPlayerNames = true;
-                conn = DriverManager.getConnection(url);
+                conn = getConnectionUnsafe();
             }
+
+            if (dbVersion < 6)
+                upgradeToV6(conn);
 
             // If the database upgrade to V5 got interrupted in a previous attempt, the fakeUUID
             // will still be in the database. If so, simply continue filling in player names in the db.
@@ -2209,6 +2214,57 @@ public class SQLiteJDBCDriverConnection
             {
                 logMessage("1781", e);
             }
+        }
+    }
+
+    /*
+     * Make playerUUID column unique
+     */
+    private void upgradeToV6(final Connection conn)
+    {
+        try
+        {
+            plugin.getMyLogger().logMessage("Upgrading database to V6! Recreating table \"players\"!", true, true);
+            conn.setAutoCommit(false);
+            disableForeignKeys(conn);
+
+            conn.createStatement().execute("ALTER TABLE players RENAME TO players_old;");
+            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS players \n" +
+                                           "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n" +
+                                           " playerUUID  TEXT       NOT NULL, \n" +
+                                           " playerName  TEXT       NOT NULL, \n" +
+                                           " unique(playerUUID));");
+
+            ResultSet rs1 = conn.prepareStatement("SELECT * FROM players_old;").executeQuery();
+            while (rs1.next())
+            {
+                String insert = "INSERT INTO players(id, playerUUID, playerName) VALUES(?,?,?);";
+                PreparedStatement insertStatement = conn.prepareStatement(insert);
+                insertStatement.setLong(1, rs1.getLong("id"));
+                insertStatement.setString(2, rs1.getString("playerUUID"));
+                insertStatement.setString(3, rs1.getString("playerName"));
+                insertStatement.executeUpdate();
+                insertStatement.close();
+            }
+            rs1.close();
+            conn.createStatement().execute("DROP TABLE IF EXISTS 'players_old';");
+
+
+            conn.commit();
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            try
+            {
+                conn.setAutoCommit(true);
+                reEnableForeignKeys(conn);
+                conn.rollback();
+            }
+            catch (SQLException | NullPointerException e1)
+            {
+                logMessage("2257", e1);
+            }
+            logMessage("2259", e);
         }
     }
 
