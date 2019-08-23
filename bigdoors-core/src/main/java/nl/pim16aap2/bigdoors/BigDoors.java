@@ -245,7 +245,6 @@ import java.util.UUID;
 /*
  * SQL
  */
-// TODO: Get rid of the private methods. Use nested statements instead.
 // TODO: Store original coordinates in the database. These can be used to find the actual close direction.
 // TODO: When retrieving all doors for info, put them in a sorted map (treemap).
 // TODO: Consider doing all upgrades on a separate thread. Then the server won't have to wait for the upgrade to finish.

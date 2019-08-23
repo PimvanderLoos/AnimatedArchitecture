@@ -51,6 +51,18 @@ public final class SpigotUtil
     }
 
     /**
+     * Gets an offline player from a playerUUID.
+     *
+     * @param playerUUID
+     */
+    @NotNull
+    public static OfflinePlayer getOfflinePlayer(final @NotNull UUID playerUUID)
+    {
+        @Nullable final Player onlinePlayer = Bukkit.getPlayer(playerUUID);
+        return onlinePlayer != null ? onlinePlayer : Bukkit.getOfflinePlayer(playerUUID);
+    }
+
+    /**
      * Gets the number are available (i.e. either air or liquid blocks) in a given direction for a certain area. Note
      * that the result may be negative depending on the direction.
      * <p>

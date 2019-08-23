@@ -124,7 +124,7 @@ public class SQLiteJDBCDriverConnectionTest
         when(playerRetriever.getOfflinePlayer(player3UUID)).thenReturn(player3);
 //        when(playerRetriever.nameFromUUID(player1UUID)).thenReturn(Optional.of(player1Name));
 //        when(playerRetriever.nameFromUUID(player2UUID)).thenReturn(Optional.of(player2Name));
-        when(playerRetriever.nameFromUUID(player3UUID)).thenReturn(Optional.of(player3Name));
+//        when(playerRetriever.nameFromUUID(player3UUID)).thenReturn(Optional.of(player3Name));
         when(config.dbBackup()).thenReturn(true);
 
         try
@@ -285,6 +285,7 @@ public class SQLiteJDBCDriverConnectionTest
         testUpgrade();
         insertDoors(); // Insert the doors again to make sure the upgrade went smoothly.
         // Make sure no errors were logged.
+        waitForLogger();
         assertEquals(logFile.length(), 0);
 
         plogger.setOnlyLogExceptions(false);
@@ -365,13 +366,6 @@ public class SQLiteJDBCDriverConnectionTest
         storage.addOwner(2L, player1UUID, 0);
         // Try adding player 2 as owner of door 2, while player 1 is already the creator! This is not allowed.
         storage.addOwner(2L, player2UUID, 0);
-
-        // Try adding a player whose name cannot be found. Perhaps because of an invalid UUID or something.
-        // What should happen: Nothing; Only players whose names can be retrieved can be made owner.
-        UUID testUUID = UUID.randomUUID();
-        while (testUUID.equals(player1UUID) || testUUID.equals(player2UUID) || testUUID.equals(player3UUID))
-            testUUID = UUID.randomUUID();
-        storage.addOwner(2L, testUUID, 1);
 
         // Try adding a player that is not in the database yet as owner.
         assertEquals(1, storage.getOwnersOfDoor(1L).size());
@@ -659,6 +653,33 @@ public class SQLiteJDBCDriverConnectionTest
     }
 
     /**
+     * Makes this thread wait for the logger to finish writing everything to the log file.
+     */
+    private void waitForLogger()
+    {
+        while (!plogger.isEmpty())
+        {
+            try
+            {
+                Thread.sleep(10L);
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        // Wait a bit longer to make sure it's finished writing the file as well.
+        try
+        {
+            Thread.sleep(20L);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Runs tests to verify that exceptions are caught when the should be and properly handled.
      */
     public void testFailures()
@@ -666,6 +687,21 @@ public class SQLiteJDBCDriverConnectionTest
     {
         // Disable console logging of errors as it's the point of this test. This way I won't get scared by errors in the console.
         plogger.setConsoleLogging(false);
+
+        waitForLogger();
+        long logSize = logFile.length();
+        // Try adding a player whose name cannot be found. Perhaps because of an invalid UUID or something.
+        // What should happen: Error saying no player name could be retrieved.
+        UUID testUUID = UUID.randomUUID();
+        while (testUUID.equals(player1UUID) || testUUID.equals(player2UUID) || testUUID.equals(player3UUID))
+            testUUID = UUID.randomUUID();
+        storage.addOwner(2L, testUUID, 1);
+
+        // Make sure new errors were added to the log file.
+        waitForLogger();
+        long newLogSize = logFile.length();
+        assertTrue(newLogSize > logSize);
+        logSize = newLogSize;
 
 
         // Verify database disabling works as intended.
@@ -684,6 +720,12 @@ public class SQLiteJDBCDriverConnectionTest
             assertTrue(storage.getDoor(player1UUID, 1L).isPresent());
         }
 
+        // Make sure new errors were added to the log file.
+        waitForLogger();
+        newLogSize = logFile.length();
+        assertTrue(newLogSize > logSize);
+        logSize = newLogSize;
+
         // Verify database locking works as intended.
         {
             // Set the enabled status of the database to false.
@@ -700,6 +742,13 @@ public class SQLiteJDBCDriverConnectionTest
             databaseLock.invoke(storage, false);
             assertTrue(storage.getDoor(player1UUID, 1L).isPresent());
         }
+
+        // Make sure new errors were added to the log file.
+        waitForLogger();
+        newLogSize = logFile.length();
+        assertTrue(newLogSize > logSize);
+        logSize = newLogSize;
+
         plogger.setConsoleLogging(true); // Enable console logging again after the test.
     }
 

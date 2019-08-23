@@ -15,27 +15,10 @@
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-api</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-util</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
             <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.14.3-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-            <type>jar</type>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

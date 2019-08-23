@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -301,7 +302,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 String sql2 = "CREATE TABLE IF NOT EXISTS players \n" +
                     "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n" +
                     " playerUUID  TEXT       NOT NULL, \n" +
-                    " playerName  TEXT       NOT NULL);";
+                    " playerName  TEXT       NOT NULL, \n" +
+                    " unique(playerUUID));";
                 stmt2.executeUpdate(sql2);
                 stmt2.close();
 
@@ -322,29 +324,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             pLogger.logException(e);
             enabled = false;
         }
-    }
-
-    /**
-     * Gets the ID of a player in the database.
-     *
-     * @param conn       A database connection.
-     * @param playerUUID The UUID of the player to check.
-     * @return The ID of a player in the database.
-     *
-     * @throws SQLException
-     */
-    // TODO: Delete this. Methods should just do this themselves. This only adds unnecessary overhead.
-    private long getPlayerID(final @NotNull Connection conn, final @NotNull String playerUUID) throws SQLException
-    {
-        long playerID = -1;
-        PreparedStatement ps1 = conn.prepareStatement("SELECT id FROM players WHERE playerUUID = ?;");
-        ps1.setString(1, playerUUID);
-        ResultSet rs1 = ps1.executeQuery();
-        if (rs1.next())
-            playerID = rs1.getLong("id");
-        ps1.close();
-        rs1.close();
-        return playerID;
     }
 
     /**
@@ -943,6 +922,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return Optional.ofNullable(playerName);
     }
 
+    /**
+     * Gets the original creator of a door using an established database connection.
+     *
+     * @param doorUID The door whose owner to get.
+     * @return The original creator of a door.
+     */
     @NotNull
     private Optional<DoorOwner> getOwnerOfDoor(final @NotNull Connection conn, final long doorUID)
         throws SQLException
@@ -1190,23 +1175,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         try (Connection conn = getConnection())
         {
-            long playerID = getPlayerID(conn, door.getPlayerUUID().toString());
-
+            long playerID = getPlayerID(conn, door.getDoorOwner());
             if (playerID == -1)
             {
-                String sql1 = "INSERT INTO players (playerUUID, playerName) VALUES (?,?);";
-                PreparedStatement ps = conn.prepareStatement(sql1);
-                ps.setString(1, door.getPlayerUUID().toString());
-                ps.setString(2, door.getDoorOwner().getPlayerName());
-                ps.executeUpdate();
-                ps.close();
-
-                String query = "SELECT last_insert_rowid() AS lastId";
-                PreparedStatement ps2 = conn.prepareStatement(query);
-                ResultSet rs2 = ps2.executeQuery();
-                playerID = rs2.getLong("lastId");
-                ps2.close();
-                rs2.close();
+                pLogger.logException(new IllegalStateException(
+                    "Failed to add player \"" + door.getDoorOwner().getPlayerUUID().toString() +
+                        "\" to the database! Aborting door insertion!"));
+                conn.close();
+                return;
             }
 
             String doorInsertsql = "INSERT INTO doors(name,world,xMin,yMin,zMin,xMax,yMax,zMax, \n" +
@@ -1321,6 +1297,35 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
+     * Gets the ID player in the "players" table. If the player isn't in the database yet, they are added first.
+     *
+     * @param conn      The connection to the database.
+     * @param doorOwner The doorOwner with the player to retrieve.
+     * @return The database ID of the player.
+     *
+     * @throws SQLException
+     */
+    private long getPlayerID(final @NotNull Connection conn, final @NotNull DoorOwner doorOwner) throws SQLException
+    {
+        String insertPlayerSql = "INSERT OR IGNORE INTO players(playerUUID, playerName) VALUES(?, ?)";
+        PreparedStatement insertPlayer = conn.prepareStatement(insertPlayerSql);
+        insertPlayer.setString(1, doorOwner.getPlayerUUID().toString());
+        insertPlayer.setString(2, doorOwner.getPlayerName());
+        insertPlayer.executeUpdate();
+        insertPlayer.close();
+
+        String getPlayerSQL = "SELECT id FROM players WHERE playerUUID = ?;";
+        PreparedStatement getPlayer = conn.prepareStatement(getPlayerSQL);
+        getPlayer.setString(1, doorOwner.getPlayerUUID().toString());
+        ResultSet playerIDRS = getPlayer.executeQuery();
+
+        long playerID = playerIDRS.next() ? playerIDRS.getLong("id") : -1;
+        getPlayer.close();
+        playerIDRS.close();
+        return playerID;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -1332,25 +1337,23 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         try (Connection conn = getConnection())
         {
-            long playerID = getPlayerID(conn, playerUUID.toString());
-
+            @Nullable final String playerName = playerRetriever.getOfflinePlayer(playerUUID).getName();
+            if (playerName == null)
+            {
+                pLogger.logException(new NullPointerException(
+                    "Trying to add player \"" + playerUUID.toString() + "\" as owner of door " + doorUID +
+                        ", but that player's name could not be retrieved! Aborting..."));
+                conn.close();
+                return;
+            }
+            long playerID = getPlayerID(conn, new DoorOwner(doorUID, playerUUID, playerName, permission));
             if (playerID == -1)
             {
-                Optional<String> playerName = playerRetriever.nameFromUUID(playerUUID);
-                if (!playerName.isPresent())
-                    return;
-                String sql = "INSERT INTO players (playerUUID, playerName) VALUES (?,?);";
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ps.setString(1, playerUUID.toString());
-                ps.setString(2, playerName.get());
-                ps.executeUpdate();
-                ps.close();
-
-                PreparedStatement ps2 = conn.prepareStatement("SELECT last_insert_rowid() AS lastId");
-                ResultSet rs2 = ps2.executeQuery();
-                playerID = rs2.getLong("lastId");
-                ps2.close();
-                rs2.close();
+                pLogger.logException(new IllegalArgumentException(
+                    "Trying to add player \"" + playerUUID.toString() + "\" as owner of door " + doorUID +
+                        ", but that player is not registered in the database! Aborting..."));
+                conn.close();
+                return;
             }
 
             String sql2 = "SELECT * FROM sqlUnion WHERE playerID=? AND doorUID=?;";
