@@ -412,7 +412,7 @@ public final class PLogger
             sb.append("    at ").append(stackTrace[idx]).append("\n");
         // If any lines were omitted, make sure to log that too.
         if (linesToWrite < stackTrace.length)
-            sb.append((stackTrace.length - linesToWrite)).append(" lines omitted.");
+            sb.append((stackTrace.length - linesToWrite)).append(" more lines omitted...\n\n");
         return sb.toString();
     }
 

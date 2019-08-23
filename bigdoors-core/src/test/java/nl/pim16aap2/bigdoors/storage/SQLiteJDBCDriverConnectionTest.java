@@ -136,10 +136,10 @@ public class SQLiteJDBCDriverConnectionTest
                 Location engine = new Location(world, 144, 75, 153);
                 Location powerBlock = new Location(world, 101, 101, 101);
                 boolean isOpen = false;
-                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen);
+                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen,
+                                                 RotateDirection.valueOf(0));
             }
             door1 = DoorType.BIGDOOR.getNewDoor(plogger, 1, doorData);
-            door1.setOpenDir(RotateDirection.valueOf(0));
 
             door1.setName("massive1");
             door1.setLock(false);
@@ -154,10 +154,10 @@ public class SQLiteJDBCDriverConnectionTest
                 Location engine = new Location(world, 144, 75, 153);
                 Location powerBlock = new Location(world, 102, 102, 102);
                 boolean isOpen = false;
-                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen);
+                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen,
+                                                 RotateDirection.valueOf(0));
             }
             door2 = DoorType.DRAWBRIDGE.getNewDoor(plogger, 2, doorData);
-            door2.setOpenDir(RotateDirection.valueOf(0));
             door2.setName("massive2");
             door2.setLock(false);
             door2.setAutoClose(0);
@@ -171,10 +171,9 @@ public class SQLiteJDBCDriverConnectionTest
                 Location engine = new Location(world, 144, 75, 153);
                 Location powerBlock = new Location(world, 103, 103, 103);
                 boolean isOpen = false;
-                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen);
+                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen, RotateDirection.NORTH);
             }
             door3 = DoorType.BIGDOOR.getNewDoor(plogger, 3, doorData);
-            door3.setOpenDir(RotateDirection.NORTH);
             door3.setName("massive2");
             door3.setLock(false);
             door3.setAutoClose(0);

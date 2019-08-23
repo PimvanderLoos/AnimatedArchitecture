@@ -43,15 +43,21 @@ public class DrawbridgeCreator extends Creator
         if (loc.getBlockY() != one.getBlockY())
             return false;
 
+        if (loc.equals(engine))
+            return false;
+
         boolean onEdge = loc.getBlockX() == one.getBlockX() ||
             loc.getBlockX() == two.getBlockX() ||
             loc.getBlockZ() == one.getBlockZ() ||
             loc.getBlockZ() == two.getBlockZ();
 
+        if (!onEdge)
+            return false;
+
         boolean inArea = Util.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
             Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
 
-        if (!onEdge || !inArea || loc.equals(engine))
+        if (!inArea)
             return false;
 
         int xDepth = Math.abs(one.getBlockX() - two.getBlockX());
@@ -193,9 +199,15 @@ public class DrawbridgeCreator extends Creator
 
         // Make sure the power point is in the middle.
         if (engineSide == PBlockFace.NORTH || engineSide == PBlockFace.SOUTH)
+        {
+            openDirection = Util.getRotateDirection(engineSide);
             engine.setX(one.getX() + (two.getX() - one.getX()) / 2);
+        }
         else
+        {
+            openDirection = Util.getRotateDirection(engineSide);
             engine.setZ(one.getZ() + (two.getZ() - one.getZ()) / 2);
+        }
     }
 
     /**

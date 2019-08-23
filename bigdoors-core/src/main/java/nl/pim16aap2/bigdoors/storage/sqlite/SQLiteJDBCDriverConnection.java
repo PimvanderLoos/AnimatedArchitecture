@@ -385,14 +385,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 Location powerBlock = new Location(world, rs.getInt("powerBlockX"), rs.getInt("powerBlockY"),
                                                    rs.getInt("powerBlockZ"));
                 boolean isOpen = BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), rs.getInt("bitflag"));
-                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen);
+                RotateDirection openDir = Objects.requireNonNull(RotateDirection.valueOf(rs.getInt("openDirection")),
+                                                                 "Failed to obtain the open direction of door \"" +
+                                                                     doorOwner.getDoorUID() + "\".");
+                doorData = new DoorBase.DoorData(min, max, engine, powerBlock, world, isOpen, openDir);
             }
             DoorBase door = DoorType.valueOf(rs.getInt("type")).getNewDoor(pLogger, doorOwner.getDoorUID(), doorData);
-
-            RotateDirection openDir = Objects.requireNonNull(RotateDirection.valueOf(rs.getInt("openDirection")),
-                                                             "Failed to obtain the open direction of door \"" +
-                                                                 doorOwner.getDoorUID() + "\".");
-            door.setOpenDir(openDir);
 
             door.setName(rs.getString("name"));
             door.setLock(BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), rs.getInt("bitflag")));

@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -30,6 +31,12 @@ public abstract class Creator extends ToolUser
     protected PBlockFace engineSide = null;
     protected boolean isOpen = false;
     protected Location one, two, engine;
+    /**
+     * The openDirection of the door. When set to {@link RotateDirection#NONE}, {@link
+     * DoorBase#setDefaultOpenDirection()} is used instead.
+     */
+    @Nullable
+    protected RotateDirection openDirection = RotateDirection.NONE;
 
     protected Creator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String doorName,
                       final @NotNull DoorType type)
@@ -125,9 +132,11 @@ public abstract class Creator extends ToolUser
             DoorOwner owner = new DoorOwner(doorUID, player.getUniqueId(), player.getName(), 0);
 
             DoorBase.DoorData doorData = new DoorBase.DoorData(min, max, engine, getPowerBlockLoc(world), world,
-                                                               isOpen);
+                                                               isOpen, openDirection);
             DoorBase door = type.getNewDoor(plugin.getPLogger(), doorUID, doorData);
-            door.setDefaultOpenDirection();
+            if (openDirection.equals(RotateDirection.NONE))
+                door.setDefaultOpenDirection();
+
             door.setName(doorName);
             door.setDoorOwner(owner);
             door.setPowerBlockLocation(getPowerBlockLoc(world));

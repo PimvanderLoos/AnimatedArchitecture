@@ -80,6 +80,7 @@ public abstract class DoorBase
         powerBlock = doorData.getPowerBlock();
         world = doorData.getWorld();
         isOpen = doorData.getIsOpen();
+        openDir = doorData.getOpenDirection();
 
         if (DoorOpener.get() == null)
         {
@@ -849,6 +850,8 @@ public abstract class DoorBase
         @NotNull
         private final World world;
         private final boolean isOpen;
+        @NotNull
+        private final RotateDirection openDirection;
 
         /**
          * Initializes all basic data of this door. This refers to all data required to put this door in a basic valid
@@ -862,7 +865,8 @@ public abstract class DoorBase
          * @param isOpen     Whether or not this door is currently open.
          */
         public DoorData(final @NotNull Location min, final @NotNull Location max, final @NotNull Location engine,
-                        final @NotNull Location powerBlock, final @NotNull World world, final boolean isOpen)
+                        final @NotNull Location powerBlock, final @NotNull World world, final boolean isOpen,
+                        final @NotNull RotateDirection openDirection)
         {
             this.min = min;
             this.max = max;
@@ -870,6 +874,7 @@ public abstract class DoorBase
             this.powerBlock = powerBlock;
             this.world = world;
             this.isOpen = isOpen;
+            this.openDirection = openDirection;
         }
 
         @NotNull
@@ -879,32 +884,38 @@ public abstract class DoorBase
         }
 
         @NotNull
-        Location getMax()
+        private Location getMax()
         {
             return max;
         }
 
         @NotNull
-        Location getEngine()
+        private Location getEngine()
         {
             return engine;
         }
 
         @NotNull
-        Location getPowerBlock()
+        private Location getPowerBlock()
         {
             return powerBlock;
         }
 
         @NotNull
-        World getWorld()
+        private World getWorld()
         {
             return world;
         }
 
-        boolean getIsOpen()
+        private boolean getIsOpen()
         {
             return isOpen;
+        }
+
+        @NotNull
+        private RotateDirection getOpenDirection()
+        {
+            return openDirection;
         }
     }
 }
