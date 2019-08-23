@@ -18,9 +18,15 @@ import org.jetbrains.annotations.Nullable;
  **/
 public class BigDoorCreator extends Creator
 {
+    public BigDoorCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name,
+                          final @NotNull DoorType type)
+    {
+        super(plugin, player, name, type);
+    }
+
     public BigDoorCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
-        super(plugin, player, name, DoorType.BIGDOOR);
+        this(plugin, player, name, DoorType.BIGDOOR);
     }
 
     /**
@@ -92,12 +98,13 @@ public class BigDoorCreator extends Creator
         if (one == null)
         {
             one = loc;
+
             String[] message = getStep2().split("\n");
             SpigotUtil.messagePlayer(player, message);
         }
         else if (two == null)
         {
-            if (isPosTwoValid(loc) && one != loc)
+            if (isPosTwoValid(loc) && !one.equals(loc))
             {
                 two = loc;
                 // extending classes might want to have this be optional. This way they can just set engine

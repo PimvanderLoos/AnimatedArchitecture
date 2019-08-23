@@ -102,6 +102,10 @@ import java.util.UUID;
 //       When a door is modified, post a doorModificationEvent. Instead of firing events, perhaps look into observers?
 // TODO: Write a wrapper or something for Tasks etc to allow for something like .executeAsync(0, 20000L).whenComplete(doSomething).
 //       This would be useful for the BlockMovers.
+// TODO: Look into https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Chunk.html#getChunkSnapshot to verify if a door
+//       can be opened and while I'm at it, also to construct the FBlocks. This way, that stuff can all be done
+//       async.
+
 
 /*
  * Modules
@@ -151,6 +155,8 @@ import java.util.UUID;
 // TODO: Move all database interaction off of the main thread.
 // TODO: Consider storing original locations in the database. Then use the OpenDirection as the direction to go when in
 //       the original position. Then you cannot make regular doors go in a full circle anymore.
+// TODO: Instead of placing all blocks one by one and sending packets to the players about it, use this method instead:
+//       https://www.spigotmc.org/threads/efficiently-change-large-area-of-blocks.262341/#post-2585360
 
 /*
  * Messages
@@ -210,15 +216,13 @@ import java.util.UUID;
 // TODO: Keep track of the DoorActionCause when opening doors. Don't use a dumb boolean anymore for isSilent.
 // TODO: Remove blockMovers from BigDoors-core.
 // TODO: Make sure to keep the config file's maxDoorCount in mind. Or just remove it.
-// TODO: Use "Message" as key instead of String as key in Messages#messageMap.
 // TODO: Fix (big) mushroom blocks changing color.
-// TODO: Get rid of the stupid .101 multiplier for vectors. Use proper normalization and shit instead.
-//       Look at this: https://github.com/InventivetalentDev/AdvancedSlabs/blob/ad2932d5293fa913b9a0670a0bc8ea52f1e27e0d/Plugin/src/main/java/org.inventivetalent.advancedslabs/movement/path/types/CircularSwitchController.java#L85
 // TODO: Configurable timeouts for commands + creators. Also, put variable in messages.
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
 // TODO: Get rid of all calls to SpigotUtil for messaging players. They should all go via the proper interface for that.
 // TODO: Save some unnecessary map calls by making sure ALL loaded worlds are always stored in the map.
+// TODO: Logging, instead of "onlyLogExceptions", properly use logging levels.
 
 /*
  * GUI
@@ -248,8 +252,6 @@ import java.util.UUID;
 //       Added bonus: startReplaceTempPlayerNames() can be simplified.
 // TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME}, with UNIQUE(PLUGIN, TYPENAME).
 //       Then use FK from doors to doortypes. Useful for allowing custom door types.
-// TODO: Implement method to check if there are 1 or more doors in a world. If there are 0 doors in a world, just
-//       disable redstone in that world.
 
 /*
  * Commands
@@ -296,10 +298,9 @@ import java.util.UUID;
 /*
  * Openers / Movers
  */
+// TODO: Figure out why the animated blocks despawn after a certain amount of time.
 // TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick.
 //       Then set the direction in the creator.
-// TODO: Remove NONE openDirection. Update all doors that currently have this property in the database using DoorBase#setDefaultOpenDirection()
-//       Do this on a separate thread and use ChunkSnapshot to have thread-safe read-only access to the blocks.
 // TODO: Rotate Sea Pickle and turtle egg.
 // TODO: Replace current time/speed/tickRate system. It's a mess.
 // TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
@@ -353,6 +354,11 @@ import java.util.UUID;
 // TODO: Reduce code duplication in the blockmovers (specifically animateEntities).
 // TODO: Make RevolvingDoorMover and CylindricalMover more closely related.
 // TODO: Make sure all types respect their multiplier.
+// TODO: Get rid of the stupid .101 multiplier for vectors. Use proper normalization and shit instead.
+//       Look at this: https://github.com/InventivetalentDev/AdvancedSlabs/blob/ad2932d5293fa913b9a0670a0bc8ea52f1e27e0d/Plugin/src/main/java/org.inventivetalent.advancedslabs/movement/path/types/CircularSwitchController.java#L85
+// TODO: Properly keep track of who opened a door, instead of just passing along the owner's UUID.
+// TODO: Add PerpetualMover BlockMover. Then use an interface for the functions, which the individual movers can set.
+//       Also have a rotation method.
 
 /*
 

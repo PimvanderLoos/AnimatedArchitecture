@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.IGetNewLocation;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -187,7 +188,7 @@ public class BridgeMover extends BlockMover
                 }
                 else
                 {
-                    // It is not pssible to edit falling block blockdata (client won't update it),
+                    // It is not possible to edit falling block blockdata (client won't update it),
                     // so delete the current fBlock and replace it by one that's been rotated.
                     // Also, this stuff needs to be done on the main thread.
                     if (replace)
@@ -259,6 +260,6 @@ public class BridgeMover extends BlockMover
         // When the engine is positioned along the NS axis, the Z values does not change.
         float deltaA = NS ? door.getEngine().getBlockX() - xAxis : door.getEngine().getBlockZ() - zAxis;
         float deltaB = door.getEngine().getBlockY() - yAxis;
-        return (float) Math.atan2(deltaA, deltaB);
+        return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }
 }

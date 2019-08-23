@@ -87,6 +87,8 @@ public final class Util
     public static double clampAngleRad(double angle)
     {
         return angle % (2 * Math.PI);
+//        double twoPi = 2 * Math.PI;
+//        return (angle + twoPi) % twoPi;
     }
 
     /**

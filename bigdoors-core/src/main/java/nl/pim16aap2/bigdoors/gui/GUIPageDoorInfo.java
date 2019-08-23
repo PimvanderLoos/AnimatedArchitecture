@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -130,7 +130,7 @@ public class GUIPageDoorInfo implements IGUIPage
 
     protected void fillPage()
     {
-        final AtomicInteger position = new AtomicInteger(9);
+        final AtomicInteger position = new AtomicInteger(8);
         for (DoorAttribute attr : DoorType.getAttributes(gui.getDoor().getType()))
             createGUIItemOfAttribute(gui.getDoor(), attr).ifPresent(I -> gui.addItem(position.addAndGet(1), I));
     }

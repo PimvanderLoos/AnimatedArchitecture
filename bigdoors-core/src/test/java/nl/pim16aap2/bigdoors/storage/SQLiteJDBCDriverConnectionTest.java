@@ -41,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+//@RunWith(MockitoJUnitRunner.Silent.class)
 public class SQLiteJDBCDriverConnectionTest
 {
     @Mock
@@ -96,12 +97,13 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
-    private static final PLogger plogger = PLogger
-        .init(new File(testDir, "log.txt"), new MessagingInterfaceStdout("BigDoorsTest"));
+    private static final File logFile = new File(testDir, "log.txt");
+    private static final PLogger plogger = PLogger.init(logFile, new MessagingInterfaceStdout("BigDoorsTest"));
 
     static
     {
         plogger.setConsoleLogging(true);
+        plogger.setOnlyLogExceptions(true); // Only log errors etc.
     }
 
     // Initialize mocking.
@@ -123,6 +125,7 @@ public class SQLiteJDBCDriverConnectionTest
 //        when(playerRetriever.nameFromUUID(player1UUID)).thenReturn(Optional.of(player1Name));
 //        when(playerRetriever.nameFromUUID(player2UUID)).thenReturn(Optional.of(player2Name));
         when(playerRetriever.nameFromUUID(player3UUID)).thenReturn(Optional.of(player3Name));
+        when(config.dbBackup()).thenReturn(true);
 
         try
         {
@@ -225,30 +228,44 @@ public class SQLiteJDBCDriverConnectionTest
         // Remove any old database files and append ".FINISHED" to the name of the current one, so it
         // won't interfere with the next run, but can still be used for manual inspection.
         File oldDB = new File(dbFile.toString() + ".FINISHED");
-        File oldV0DB = new File(dbFileV0.toString() + ".FINISHED");
+        File oldLog = new File(logFile.toString() + ".FINISHED");
+        File oldV0db = new File(dbFileV0.toString() + ".FINISHED");
+
+        plogger.setConsoleLogging(true);
         if (oldDB.exists())
             oldDB.delete();
+        if (oldV0db.exists())
+            oldV0db.delete();
         if (dbFileBackup.exists())
             dbFileBackup.delete();
-        if (oldV0DB.exists())
-            oldV0DB.delete();
+
         try
         {
             Files.move(dbFile.toPath(), oldDB.toPath());
         }
         catch (IOException e)
         {
-//            e.printStackTrace();
             plogger.logException(e);
         }
         try
         {
-            Files.move(dbFileV0.toPath(), oldV0DB.toPath());
+            Files.move(dbFileV0.toPath(), oldV0db.toPath());
         }
         catch (IOException e)
         {
-//            e.printStackTrace();
             plogger.logException(e);
+        }
+        try
+        {
+            if (oldLog.exists())
+                oldLog.delete();
+            while (!plogger.isEmpty())
+                Thread.sleep(100L);
+            Files.move(logFile.toPath(), oldLog.toPath());
+        }
+        catch (IOException | InterruptedException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -265,8 +282,15 @@ public class SQLiteJDBCDriverConnectionTest
         verifyDoors();
         auxiliaryMethods();
         modifyDoors();
-        testFailures();
         testUpgrade();
+        insertDoors(); // Insert the doors again to make sure the upgrade went smoothly.
+        // Make sure no errors were logged.
+        assertEquals(logFile.length(), 0);
+
+        plogger.setOnlyLogExceptions(false);
+
+        plogger.logMessage("================================\nStarting failure testing now:");
+        testFailures();
     }
 
     /**

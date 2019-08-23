@@ -22,7 +22,6 @@ public class DrawbridgeCreator extends Creator
     public DrawbridgeCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name, DoorType.DRAWBRIDGE);
-        super.init();
     }
 
     /**

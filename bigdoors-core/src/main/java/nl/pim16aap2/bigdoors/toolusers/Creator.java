@@ -42,6 +42,7 @@ public abstract class Creator extends ToolUser
         engine = null;
         engineSide = null;
         this.type = type;
+        init();
     }
 
     /**
@@ -168,12 +169,18 @@ public abstract class Creator extends ToolUser
      */
     protected final void minMaxFix()
     {
-        one.setX(Math.min(one.getBlockX(), two.getBlockX()));
-        one.setY(Math.min(one.getBlockY(), two.getBlockY()));
-        one.setZ(Math.min(one.getBlockZ(), two.getBlockZ()));
-        two.setX(Math.max(one.getBlockX(), two.getBlockX()));
-        two.setY(Math.max(one.getBlockY(), two.getBlockY()));
-        two.setZ(Math.max(one.getBlockZ(), two.getBlockZ()));
+        int minX = Math.min(one.getBlockX(), two.getBlockX());
+        int minY = Math.min(one.getBlockY(), two.getBlockY());
+        int minZ = Math.min(one.getBlockZ(), two.getBlockZ());
+        int maxX = Math.max(one.getBlockX(), two.getBlockX());
+        int maxY = Math.max(one.getBlockY(), two.getBlockY());
+        int maxZ = Math.max(one.getBlockZ(), two.getBlockZ());
+        one.setX(minX);
+        one.setY(minY);
+        one.setZ(minZ);
+        two.setX(maxX);
+        two.setY(maxY);
+        two.setZ(maxZ);
     }
 
     /**

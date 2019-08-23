@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.toolusers.BigDoorCreator;
+import nl.pim16aap2.bigdoors.toolusers.ClockCreator;
 import nl.pim16aap2.bigdoors.toolusers.Creator;
 import nl.pim16aap2.bigdoors.toolusers.DrawbridgeCreator;
 import nl.pim16aap2.bigdoors.toolusers.ElevatorCreator;
@@ -118,6 +119,8 @@ public class SubCommandNew extends SubCommand
             case GARAGEDOOR:
                 creator = new GarageDoorCreator(plugin, player, name);
                 break;
+            case CLOCK:
+                creator = new ClockCreator(plugin, player, name);
             default:
                 break;
         }

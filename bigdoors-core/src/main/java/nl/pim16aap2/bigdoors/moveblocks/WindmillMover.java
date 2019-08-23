@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -50,6 +51,7 @@ public class WindmillMover extends BridgeMover
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
+            final double eps = 2 * Double.MIN_VALUE;
 
             @Override
             public void run()
@@ -76,7 +78,7 @@ public class WindmillMover extends BridgeMover
                 {
                     for (PBlockData block : savedBlocks)
                     {
-                        if (Math.abs(block.getRadius()) > 2 * Double.MIN_VALUE)
+                        if (Math.abs(block.getRadius()) > eps)
                         {
                             Vector vec = getVector.apply(block, stepSum)
                                                   .subtract(block.getFBlock().getLocation().toVector());
@@ -112,6 +114,12 @@ public class WindmillMover extends BridgeMover
         // When the engine is positioned along the NS axis, the X values does not change for this type.
         float deltaA = !NS ? door.getEngine().getBlockX() - xAxis : door.getEngine().getBlockZ() - zAxis;
         float deltaB = door.getEngine().getBlockY() - yAxis;
-        return (float) Math.atan2(deltaA, deltaB);
+
+//        float startAngle = (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
+//        Bukkit.broadcastMessage(
+//            door.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType().name() + ": start angle: " + startAngle);
+//        return startAngle;
+
+        return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }
 }

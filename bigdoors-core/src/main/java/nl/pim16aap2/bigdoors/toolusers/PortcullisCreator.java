@@ -19,7 +19,6 @@ public class PortcullisCreator extends Creator
     public PortcullisCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name, DoorType.PORTCULLIS);
-        super.init();
     }
 
     /**

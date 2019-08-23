@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 /**
@@ -56,6 +57,11 @@ public final class PLogger
      * The instance of this {@link PLogger}.
      */
     private static PLogger instance;
+
+    /**
+     * Controls what is written to the log file. When enabled, only exceptions and errors are written to the log file.
+     */
+    private AtomicBoolean onlyLogExceptions = new AtomicBoolean(false);
 
     /**
      * Constructs a PLogger.
@@ -119,6 +125,26 @@ public final class PLogger
     }
 
     /**
+     * Changes whether non-errors and non-exceptions are written to the log file.
+     *
+     * @param onlyLogExceptions True will only log errors and exception to the log file.
+     */
+    public void setOnlyLogExceptions(final boolean onlyLogExceptions)
+    {
+        this.onlyLogExceptions.set(onlyLogExceptions);
+    }
+
+    /**
+     * Checks if the {@link #messageQueue} is empty.
+     *
+     * @return True if the {@link #messageQueue} is empty.
+     */
+    public boolean isEmpty()
+    {
+        return messageQueue.isEmpty();
+    }
+
+    /**
      * Processes the queue of messages that will be logged to the log file.
      */
     private void processQueue()
@@ -128,7 +154,12 @@ public final class PLogger
             // Keep getting new LogMessages. It's a blocked queue, so the thread
             // will just sleep until there's a new entry if it's currently empty.
             while (true)
-                writeToLog(messageQueue.take().toString());
+            {
+                LogMessage msg = messageQueue.take();
+                if (onlyLogExceptions.get() && !(msg instanceof LogMessageError || msg instanceof LogMessageException))
+                    continue;
+                writeToLog(msg.toString());
+            }
         }
         catch (InterruptedException e)
         {

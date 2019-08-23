@@ -20,7 +20,6 @@ public class ElevatorCreator extends Creator
     public ElevatorCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name, DoorType.ELEVATOR);
-        super.init();
     }
 
     /**

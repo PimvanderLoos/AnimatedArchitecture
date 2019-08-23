@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.moveblocks.ClockMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -27,6 +28,26 @@ public class Clock extends HorizontalAxisAlignedBase
     protected Clock(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
         this(pLogger, doorUID, doorData, DoorType.CLOCK);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean calculateNorthSouthAxis()
+    {
+        // A clock can be 2 blocks deep in only the X or the Z direction.
+        return dimensions.getX() == 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public RotateDirection cycleOpenDirection()
+    {
+        return getOpenDir();
     }
 
     /**
@@ -84,9 +105,9 @@ public class Clock extends HorizontalAxisAlignedBase
     public void setDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            setOpenDir(RotateDirection.NORTH);
+            setOpenDir(engine.getBlockX() == min.getBlockX() ? RotateDirection.SOUTH : RotateDirection.NORTH);
         else
-            setOpenDir(RotateDirection.EAST);
+            setOpenDir(engine.getBlockZ() == min.getBlockZ() ? RotateDirection.EAST : RotateDirection.WEST);
     }
 
     /**
@@ -97,7 +118,7 @@ public class Clock extends HorizontalAxisAlignedBase
                                       final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax)
     {
-
+        doorOpener.registerBlockMover(new ClockMover(this, getCurrentToggleDir(), null));
     }
 
     /**

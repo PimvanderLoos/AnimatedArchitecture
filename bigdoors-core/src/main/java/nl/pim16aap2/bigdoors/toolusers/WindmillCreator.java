@@ -18,7 +18,7 @@ public class WindmillCreator extends BigDoorCreator
 {
     public WindmillCreator(final @NotNull BigDoors plugin, final @NotNull Player player, final @Nullable String name)
     {
-        super(plugin, player, name);
+        super(plugin, player, name, DoorType.WINDMILL);
         type = DoorType.WINDMILL;
     }
 

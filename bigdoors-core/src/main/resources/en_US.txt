@@ -268,5 +268,5 @@ CREATOR.CLOCK.STICKLORE=This tool is used to create a clock.
 CREATOR.CLOCK.INIT=&aYou have been given a clock Creator Stick!
 CREATOR.CLOCK.SUCCESS=&aclock creation successful!
 CREATOR.CLOCK.STEP1=&aStep 1/3: Please select the first corner of the clock.
-CREATOR.CLOCK.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the clock. Note that the clock must be 2 blocks deep!
-CREATOR.CLOCK.STEP3=&aStep 3/3: Second point selected! Please select a rotation point!\nIn a conventional clock this would be in the center.
+CREATOR.CLOCK.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the clock. Note that the clocks have a few requirements: It must be 2 blocks deep, square, and an uneven number of blocks tall.
+CREATOR.CLOCK.STEP3=&aStep 3/3: Second point selected! Please select one of the two center blocks. This will be the front side of the clock.

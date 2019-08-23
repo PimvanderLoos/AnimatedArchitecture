@@ -190,7 +190,7 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Gets the starting angle of a block at the given coordinates.
+     * Gets the starting angle of a block (in rads) at the given coordinates.
      *
      * @param xAxis The x coordinate.
      * @param yAxis The y coordinate.

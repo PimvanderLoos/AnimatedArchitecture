@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigotutil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.Vector3D;
+import nl.pim16aap2.bigdoors.util.WorldTime;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -115,6 +116,17 @@ public final class SpigotUtil
         else
             ret = 0;
         return ret;
+    }
+
+    /**
+     * Gets the time in a world.
+     *
+     * @param world The world.
+     * @return The time in the world.
+     */
+    public static WorldTime getTime(final @NotNull World world)
+    {
+        return new WorldTime(world.getTime());
     }
 
     /**

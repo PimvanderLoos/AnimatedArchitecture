@@ -49,7 +49,7 @@ public class GUI
             Material.MINECART,     // Garage door
             Material.ELYTRA,       // Windmill
             Material.END_CRYSTAL,  // Revolving door
-            Material.BARRIER,      // UNUSED
+            Material.CLOCK,        // Clock
             Material.BARRIER,      // UNUSED
         };
     private final BigDoors plugin;

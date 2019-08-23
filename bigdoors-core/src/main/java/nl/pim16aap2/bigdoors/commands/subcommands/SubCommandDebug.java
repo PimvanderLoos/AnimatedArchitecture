@@ -5,8 +5,11 @@ import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.util.WorldTime;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /*
@@ -39,7 +42,9 @@ public class SubCommandDebug extends SubCommand
 //            plugin.getGlowingBlockSpawner()
 //                  .spawnGlowinBlock(((Player) sender).getUniqueId(), ((Player) sender).getWorld().getName(), 60,
 //                                    128, 76, 140);
-        
+        long worldTime = ((Player) sender).getWorld().getTime();
+        Bukkit.broadcastMessage("WorldTime: " + worldTime +
+                                    ", WorldTimeObject: " + new WorldTime(worldTime).toString());
         return true;
     }
 

@@ -134,16 +134,15 @@ public enum DoorType
             }
         },
 
-    CLOCK(9, false, "-CL", Message.DOORTYPE_CLOCK, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
-          DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER,
-          DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
+    CLOCK(9, true, "-CL", Message.DOORTYPE_CLOCK, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
+          DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER)
         {
             @NotNull
             @Override
             public DoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
                                        final @NotNull DoorBase.DoorData doorData)
             {
-                return new Windmill(pLogger, doorUID, doorData);
+                return new Clock(pLogger, doorUID, doorData);
             }
         },
     ;
