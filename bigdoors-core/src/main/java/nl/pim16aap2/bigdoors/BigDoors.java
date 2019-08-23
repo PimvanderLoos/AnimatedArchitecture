@@ -42,6 +42,7 @@ import nl.pim16aap2.bigdoors.listeners.GUIListener;
 import nl.pim16aap2.bigdoors.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.listeners.RedstoneListener;
+import nl.pim16aap2.bigdoors.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -221,7 +222,6 @@ import java.util.UUID;
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
 // TODO: Get rid of all calls to SpigotUtil for messaging players. They should all go via the proper interface for that.
-// TODO: Save some unnecessary map calls by making sure ALL loaded worlds are always stored in the map.
 // TODO: Logging, instead of "onlyLogExceptions", properly use logging levels.
 
 /*
@@ -459,7 +459,8 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = DatabaseManager.init(this, config.dbFile());
-            powerBlockManager = PowerBlockManager.init(this, config, databaseManager);
+            powerBlockManager = PowerBlockManager.init(this, config, databaseManager, getPLogger());
+            Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
             DoorOpener.init(getPLogger(), getDoorManager(), getGlowingBlockSpawner(), getConfigLoader(), protCompatMan);
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);

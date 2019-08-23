@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -32,21 +33,29 @@ public final class PowerBlockManager extends Restartable
     private final ConfigLoader config;
     @NotNull
     private final DatabaseManager databaseManager;
+    @NotNull
+    private final PLogger pLogger;
 
     /**
      * Empty, unmodifiable list that is returned when no power blocks are found in a given location.
      */
     @NotNull
-    private static final List<Long> EMPTYLIST = Collections.unmodifiableList(new ArrayList<>());
+    private static final List<Long> EMPTYUIDLIST = Collections.unmodifiableList(new ArrayList<>());
+    /**
+     * Empty, unmodifiable list that is returned when no power blocks are found in a given location.
+     */
+    @NotNull
+    private static final List<DoorBase> EMPTYDOORLIST = Collections.unmodifiableList(new ArrayList<>());
     @Nullable
     private static PowerBlockManager instance;
 
     private PowerBlockManager(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoader config,
-                              final @NotNull DatabaseManager databaseManager)
+                              final @NotNull DatabaseManager databaseManager, final @NotNull PLogger pLogger)
     {
         super(holder);
         this.config = config;
         this.databaseManager = databaseManager;
+        this.pLogger = pLogger;
     }
 
     /**
@@ -56,13 +65,14 @@ public final class PowerBlockManager extends Restartable
      * @param holder          The {@link IRestartableHolder} that manages this object.
      * @param config          The configuration of this plugin.
      * @param databaseManager The database manager to use for power block retrieval.
+     * @param pLogger         The logger used for error logging.
      * @return The instance of this {@link PowerBlockManager}.
      */
     @NotNull
     public static PowerBlockManager init(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoader config,
-                                         final @NotNull DatabaseManager databaseManager)
+                                         final @NotNull DatabaseManager databaseManager, final @NotNull PLogger pLogger)
     {
-        return (instance == null) ? instance = new PowerBlockManager(holder, config, databaseManager) :
+        return (instance == null) ? instance = new PowerBlockManager(holder, config, databaseManager, pLogger) :
                instance;
     }
 
@@ -78,17 +88,23 @@ public final class PowerBlockManager extends Restartable
     }
 
     /**
-     * Gets the {@link PowerBlockWorld} from its {@link UUID}. If it isn't in the cache yet, a new instance is created.
+     * Unloads a world from the cache.
      *
-     * @param worldUUID The UUID of the world.
-     * @return The {@link PowerBlockWorld} with this {@link UUID}.
+     * @param worldUUID The world the unload.
      */
-    @NotNull
-    private PowerBlockWorld getPowerBlockWorld(final @NotNull UUID worldUUID)
+    public void unloadWorld(final @NotNull UUID worldUUID)
     {
-        if (!powerBlockWorlds.containsKey(worldUUID))
-            powerBlockWorlds.put(worldUUID, new PowerBlockWorld(worldUUID));
-        return powerBlockWorlds.get(worldUUID);
+        powerBlockWorlds.remove(worldUUID);
+    }
+
+    /**
+     * Loads a world.
+     *
+     * @param worldUUID The world the unload.
+     */
+    public void loadWorld(final @NotNull UUID worldUUID)
+    {
+        powerBlockWorlds.put(worldUUID, new PowerBlockWorld(worldUUID));
     }
 
     /**
@@ -101,7 +117,13 @@ public final class PowerBlockManager extends Restartable
     @NotNull
     public List<DoorBase> doorsFromPowerBlockLoc(final @NotNull Vector3D loc, final @NotNull UUID worldUUID)
     {
-        List<Long> doorUIDs = getPowerBlockWorld(worldUUID).getPowerBlocks(loc);
+        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        if (powerBlockWorld == null)
+        {
+            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            return EMPTYDOORLIST;
+        }
+        List<Long> doorUIDs = powerBlockWorld.getPowerBlocks(loc);
         List<DoorBase> doorBases = new ArrayList<>();
         doorUIDs.forEach(U -> databaseManager.getDoor(U).ifPresent(doorBases::add));
         return doorBases;
@@ -115,7 +137,13 @@ public final class PowerBlockManager extends Restartable
      */
     public boolean isBigDoorsWorld(final @NotNull UUID worldUUID)
     {
-        return getPowerBlockWorld(worldUUID).isBigDoorsWorld();
+        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        if (powerBlockWorld == null)
+        {
+            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            return false;
+        }
+        return powerBlockWorld.isBigDoorsWorld();
     }
 
     /**
@@ -130,7 +158,12 @@ public final class PowerBlockManager extends Restartable
                                     final @NotNull Vector3D oldPos, final @NotNull Vector3D newPos)
     {
         databaseManager.updatePowerBlockLoc(doorUID, newPos, worldUUID);
-        PowerBlockWorld powerBlockWorld = getPowerBlockWorld(worldUUID);
+        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        if (powerBlockWorld == null)
+        {
+            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            return;
+        }
 
         // Invalidate both the old and the new positions.
         powerBlockWorld.invalidatePosition(oldPos);
@@ -145,7 +178,12 @@ public final class PowerBlockManager extends Restartable
      */
     public void onDoorAddOrRemove(final @NotNull UUID worldUUID, final @NotNull Vector3D pos)
     {
-        PowerBlockWorld powerBlockWorld = getPowerBlockWorld(worldUUID);
+        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        if (powerBlockWorld == null)
+        {
+            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            return;
+        }
         powerBlockWorld.invalidatePosition(pos);
         powerBlockWorld.checkBigDoorsWorldStatus();
     }
@@ -221,7 +259,7 @@ public final class PowerBlockManager extends Restartable
         private List<Long> getPowerBlocks(final @NotNull Vector3D loc)
         {
             if (!isBigDoorsWorld())
-                return EMPTYLIST;
+                return EMPTYUIDLIST;
 
             final long chunkHash = Util.simpleChunkHashFromLocation(loc.getX(), loc.getZ());
             if (!powerBlockChunks.containsKey(chunkHash))
@@ -305,10 +343,10 @@ public final class PowerBlockManager extends Restartable
         private List<Long> getPowerBlocks(final @NotNull Vector3D loc)
         {
             if (!isPowerBlockChunk())
-                return EMPTYLIST;
+                return EMPTYUIDLIST;
 
             return powerBlocks.getOrDefault(Util.simpleChunkSpaceLocationhash(loc.getX(), loc.getY(), loc.getZ()),
-                                            EMPTYLIST);
+                                            EMPTYUIDLIST);
         }
 
         /**
