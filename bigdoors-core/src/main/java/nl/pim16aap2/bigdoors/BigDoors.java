@@ -160,12 +160,6 @@ import java.util.UUID;
 //       https://www.spigotmc.org/threads/efficiently-change-large-area-of-blocks.262341/#post-2585360
 
 /*
- * Messages
- */
-// TODO: Store Message in GUI pages. Then use that instead of reverse string search of messages to check if an
-//       inventory if a BigDoors inventory.
-
-/*
  * Doors
  */
 // TODO: getBlocksToMove() should return the number of blocks it'll move, regardless of if this value was set.
@@ -241,12 +235,12 @@ import java.util.UUID;
 // TODO: Use a less stupid way to check for interaction: https://www.spigotmc.org/threads/quick-tip-how-to-check-if-a-player-is-interacting-with-your-custom-gui.225871/
 // TODO: Documentation.
 // TODO: Look into refresh being called too often. Noticed this in GUIPageRemoveOwner (it tries to get a head twice).
+// TODO: Store Message in GUI pages. Then use that to check if the player is in a custom GUI page.
 
 /*
  * SQL
  */
 // TODO: Store original coordinates in the database. These can be used to find the actual close direction.
-// TODO: When retrieving all doors for info, put them in a sorted map (treemap).
 // TODO: Consider doing all upgrades on a separate thread. Then the server won't have to wait for the upgrade to finish.
 //       Added bonus: startReplaceTempPlayerNames() can be simplified.
 // TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME}, with UNIQUE(PLUGIN, TYPENAME).
@@ -288,6 +282,7 @@ import java.util.UUID;
 // TODO: Make "/BigDoors new" require the type as flag input. No more defaulting to regular doors.
 // TODO: Fix "/BigDoors filldoor db4" not working.
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
+// TODO: For all commands that support either players or door names etc, just use flags instead of the current mess.
 
 /*
  * Creators

@@ -40,9 +40,10 @@ public class GUIListener implements Listener
     {
         try
         {
+            // Looks dumb, but InventoryCloseEvent#getPlayer() actually returns a HumanEntity, not a Player.
+            // A HumanEntity could also be an NPC.
             if (!(event.getPlayer() instanceof Player))
                 return;
-
             Player player = (Player) event.getPlayer();
 
             Optional<GUI> gui = plugin.getGUIUser(player);
