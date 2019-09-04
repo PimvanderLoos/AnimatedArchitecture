@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
 import org.bukkit.ChatColor;
@@ -23,9 +24,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 /**
@@ -58,7 +62,8 @@ public class CommandManager implements CommandExecutor
      * @throws CommandPlayerNotFoundException If no player was found.
      */
     @NotNull
-    public static UUID getPlayerFromArg(@NotNull String playerArg) throws CommandPlayerNotFoundException
+    public static UUID getPlayerFromArg(final @NotNull String playerArg)
+        throws CommandPlayerNotFoundException
     {
         Optional<UUID> playerUUID = SpigotUtil.playerUUIDFromString(playerArg);
         if (!playerUUID.isPresent())
@@ -87,7 +92,8 @@ public class CommandManager implements CommandExecutor
      *
      * @throws IllegalArgumentException If the input argument was not a long.
      */
-    public static long getLongFromArg(@NotNull String testLong) throws IllegalArgumentException
+    public static long getLongFromArg(@NotNull String testLong)
+        throws IllegalArgumentException
     {
         try
         {
@@ -107,7 +113,8 @@ public class CommandManager implements CommandExecutor
      *
      * @throws IllegalArgumentException If the input argument was not an integer.
      */
-    public static int getIntegerFromArg(@NotNull String testInt) throws IllegalArgumentException
+    public static int getIntegerFromArg(@NotNull String testInt)
+        throws IllegalArgumentException
     {
         try
         {
@@ -127,7 +134,8 @@ public class CommandManager implements CommandExecutor
      *
      * @throws IllegalArgumentException If the input argument was not a float.
      */
-    public static float getFloatFromArg(@NotNull String testFloat) throws IllegalArgumentException
+    public static float getFloatFromArg(@NotNull String testFloat)
+        throws IllegalArgumentException
     {
         try
         {
@@ -185,6 +193,60 @@ public class CommandManager implements CommandExecutor
     }
 
     /**
+     * Handles an exception that occurred while a command was used.
+     *
+     * @param exception The exception to handle.
+     * @param sender    The {@link CommandSender} that executed the command.
+     * @param cmd       The command.
+     * @param args      The arguments of the command.
+     */
+    // TODO: Don't violate NotNull, or change to Nullable.
+    public void handleException(final @NotNull Exception exception, final @NotNull CommandSender sender,
+                                final @NotNull Command cmd, final @NotNull String[] args)
+    {
+        if (exception instanceof CommandSenderNotPlayerException)
+        {
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO, plugin.getMessages().getString(
+                      Message.ERROR_COMMAND_NOTAPLAYER));
+        }
+        else if (exception instanceof CommandPermissionException)
+        {
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       plugin.getMessages().getString(Message.ERROR_COMMAND_NOPERMISSION));
+        }
+        else if (exception instanceof IllegalArgumentException)
+        {
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + exception.getMessage());
+        }
+        else if (exception instanceof CommandPlayerNotFoundException)
+        {
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                    plugin.getMessages().getString(Message.ERROR_PLAYERNOTFOUND,
+                                                                                   ((CommandPlayerNotFoundException) exception)
+                                                                                       .getPlayerArg()));
+        }
+        else if (exception instanceof CommandActionNotAllowedException)
+        {
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       plugin.getMessages().getString(Message.ERROR_NOPERMISSIONFORACTION));
+        }
+        else
+        {
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO, plugin.getMessages().getString(Message.ERROR_GENERALERROR));
+            StringBuilder sb = new StringBuilder();
+            for (String str : args)
+                sb.append(str).append(str.equals(args[args.length - 1]) ? "" : ", ");
+            plugin.getPLogger()
+                  .logException(exception, "An exception occurred while processing command \"" + cmd.getName()
+                      + "\" with args: \"" + sb.toString() + "\"!");
+        }
+    }
+
+    /**
      * Executes a command.
      *
      * @param sender The {@link CommandSender} that executed the command.
@@ -204,43 +266,9 @@ public class CommandManager implements CommandExecutor
                 throw new CommandPermissionException();
             return command.onCommand(sender, cmd, label, args);
         }
-        catch (CommandSenderNotPlayerException e)
-        {
-            plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO, plugin.getMessages().getString(
-                      Message.ERROR_COMMAND_NOTAPLAYER));
-        }
-        catch (CommandPermissionException e)
-        {
-            plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       plugin.getMessages().getString(Message.ERROR_COMMAND_NOPERMISSION));
-        }
-        catch (IllegalArgumentException e)
-        {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, ChatColor.RED + e.getMessage());
-        }
-        catch (CommandPlayerNotFoundException e)
-        {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, plugin.getMessages()
-                                                                              .getString(Message.ERROR_PLAYERNOTFOUND,
-                                                                                         e.getPlayerArg()));
-        }
-        catch (CommandActionNotAllowedException e)
-        {
-            plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       plugin.getMessages().getString(Message.ERROR_NOPERMISSIONFORACTION));
-        }
         catch (Exception e)
         {
-            plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO, plugin.getMessages().getString(Message.ERROR_GENERALERROR));
-            StringBuilder sb = new StringBuilder();
-            for (String str : args)
-                sb.append(str).append(str.equals(args[args.length - 1]) ? "" : ", ");
-            plugin.getPLogger().logException(e, "An exception occurred while processing command \"" + cmd.getName()
-                + "\" with args: \"" + sb.toString() + "\"!");
+            handleException(e, sender, cmd, args);
         }
         return true;
     }
@@ -283,6 +311,29 @@ public class CommandManager implements CommandExecutor
     }
 
     /**
+     * Checks if a player has access to use an attribute of a door ON THE CURRENT THREAD.
+     *
+     * @param player    The player.
+     * @param doorUID   The UID of the door.
+     * @param attribute The attribute.
+     * @return True if the player has permission for this attribute for this door.
+     */
+    public boolean hasPermissionForActionSynced(final @NotNull Player player, final long doorUID,
+                                                final @NotNull DoorAttribute attribute)
+    {
+        try
+        {
+            return plugin.getDatabaseManager()
+                         .hasPermissionForAction(player, doorUID, attribute).get();
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            plugin.getPLogger().logException(e);
+            return false;
+        }
+    }
+
+    /**
      * Gets the {@link DoorBase} from a String. If the {@link CommandSender} is a {@link Player}, only {@link DoorBase}s
      * owned by them are considered, otherwise all doors are considered and the owner of any of the resulting ones will
      * be the original creator.
@@ -290,33 +341,47 @@ public class CommandManager implements CommandExecutor
      * @param sender  The {@link CommandSender}.
      * @param doorArg The name or UID of the  {@link DoorBase}.
      * @return The {@link DoorBase} if exactly 1 door was found.
-     *
-     * @throws IllegalArgumentException if more then 1 or exactly 0 doors were found.
      */
     @NotNull
-    public DoorBase getDoorFromArg(final @NotNull CommandSender sender, final @NotNull String doorArg)
-        throws IllegalArgumentException
+    public CompletableFuture<Optional<DoorBase>> getDoorFromArg(final @NotNull CommandSender sender,
+                                                                final @NotNull String doorArg,
+                                                                final @NotNull Command cmd,
+                                                                final @NotNull String[] args)
     {
-        DoorBase door = null;
+        CompletableFuture<Optional<DoorBase>> door = null;
 
         if (sender instanceof Player)
-            try
-            {
-                door = plugin.getDatabaseManager().getDoor(((Player) sender).getUniqueId(), doorArg).orElse(null);
-            }
-            catch (TooManyDoorsException e)
-            {
-                SpigotUtil.messagePlayer((Player) sender,
-                                         plugin.getMessages().getString(Message.ERROR_TOOMANYDOORSFOUND, doorArg));
-            }
-            catch (NotEnoughDoorsException e)
-            {
-                SpigotUtil.messagePlayer((Player) sender, plugin.getMessages().getString(Message.ERROR_NODOORSFOUND));
-            }
+        {
+            door = CompletableFuture.supplyAsync(
+                () ->
+                {
+                    Optional<List<DoorBase>> doors;
+                    try
+                    {
+                        doors = plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), doorArg).get();
+                    }
+                    catch (InterruptedException | ExecutionException e)
+                    {
+                        plugin.getPLogger().logException(e);
+                        doors = Optional.empty();
+                    }
+                    if (!doors.isPresent() || doors.get().size() == 0)
+                    {
+                        handleException(new NotEnoughDoorsException(), sender, cmd, args);
+                        return Optional.empty();
+                    }
+                    else if (doors.get().size() > 1)
+                    {
+                        handleException(new TooManyDoorsException(), sender, cmd, args);
+                        return Optional.empty();
+                    }
+                    return Optional.of(doors.get().get(0));
+                });
+        }
         else
             try
             {
-                door = plugin.getDatabaseManager().getDoor(Long.parseLong(doorArg)).orElse(null);
+                door = plugin.getDatabaseManager().getDoor(Long.parseLong(doorArg));
             }
             catch (NumberFormatException e)
             {
@@ -325,7 +390,11 @@ public class CommandManager implements CommandExecutor
                                 plugin.getMessages().getString(Message.ERROR_INVALIDDOORID, doorArg));
             }
         if (door == null)
-            throw new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!");
+        {
+            handleException(
+                new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!"), sender, cmd, args);
+            door = CompletableFuture.completedFuture(Optional.empty());
+        }
         return door;
     }
 }

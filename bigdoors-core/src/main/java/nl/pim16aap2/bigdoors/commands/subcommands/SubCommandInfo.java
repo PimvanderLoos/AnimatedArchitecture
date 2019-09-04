@@ -3,8 +3,6 @@ package nl.pim16aap2.bigdoors.commands.subcommands;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
-import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import org.bukkit.ChatColor;
@@ -18,6 +16,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
+/**
+ * Represents the information command.
+ *
+ * @author Pim
+ */
 public class SubCommandInfo extends SubCommand
 {
     protected static final String help = "Display info of a door.";
@@ -25,7 +28,7 @@ public class SubCommandInfo extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.INFO;
 
-    public SubCommandInfo(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandInfo(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
@@ -38,7 +41,7 @@ public class SubCommandInfo extends SubCommand
                                                          loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), color);
     }
 
-    public boolean execute(CommandSender sender, DoorBase door)
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull DoorBase door)
     {
         if (sender instanceof Player && door.getPermission() >= 0 &&
             door.getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
@@ -76,7 +79,7 @@ public class SubCommandInfo extends SubCommand
         return true;
     }
 
-    public boolean execute(CommandSender sender, List<DoorBase> doors)
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull List<DoorBase> doors)
     {
         doors.forEach(door -> execute(sender, door));
         return true;
@@ -86,10 +89,11 @@ public class SubCommandInfo extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
     {
-        return execute(sender, commandManager.getDoorFromArg(sender, args[minArgCount - 1]));
+        commandManager.getDoorFromArg(sender, args[minArgCount - 1], cmd, args).whenComplete(
+            (optionalDoor, throwable) -> optionalDoor.ifPresent(door -> execute(sender, door)));
+        return true;
     }
 }

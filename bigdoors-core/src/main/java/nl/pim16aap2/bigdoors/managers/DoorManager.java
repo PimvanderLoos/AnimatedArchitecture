@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
@@ -19,6 +20,7 @@ import java.util.stream.Stream;
  */
 public final class DoorManager extends Restartable
 {
+    @Nullable
     private static DoorManager instance;
     private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
 
@@ -48,9 +50,11 @@ public final class DoorManager extends Restartable
      *
      * @return The instance of the {@link DoorManager}.
      */
-    @Nullable
+    @NotNull
     public static DoorManager get()
     {
+        Preconditions.checkState(instance != null,
+                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
         return instance;
     }
 

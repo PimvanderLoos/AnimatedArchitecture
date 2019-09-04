@@ -16,7 +16,7 @@ public class SubCommandVersion extends SubCommand
     protected static final int minArgCount = 1;
     protected static final CommandData command = CommandData.VERSION;
 
-    public SubCommandVersion(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandVersion(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
@@ -26,8 +26,8 @@ public class SubCommandVersion extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
     {
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, "This server uses version "
             + plugin.getDescription().getVersion() + " of this plugin!");

@@ -23,7 +23,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents various small and Spigot-specific utility functions.
@@ -298,11 +300,12 @@ public final class SpigotUtil
      * @param player The player for whom to retrieve the limit.
      * @return The limit if one was found, or -1 if unlimited.
      */
-    public static int getMaxDoorsForPlayer(final @NotNull Player player)
+    public static CompletableFuture<Integer> getMaxDoorsForPlayer(final @NotNull Player player)
     {
         if (player.isOp())
-            return -1;
-        return getHighestPermissionSuffix(player, "bigdoors.own.");
+            return CompletableFuture.completedFuture(-1);
+
+        return getHighestPermissionSuffix(player.getEffectivePermissions(), "bigdoors.own.");
     }
 
     /**
@@ -311,11 +314,11 @@ public final class SpigotUtil
      * @param player The player for whom to retrieve the limit.
      * @return The limit if one was found, or -1 if unlimited.
      */
-    public static int getMaxDoorSizeForPlayer(final @NotNull Player player)
+    public static CompletableFuture<Integer> getMaxDoorSizeForPlayer(final @NotNull Player player)
     {
         if (player.isOp())
-            return -1;
-        return getHighestPermissionSuffix(player, "bigdoors.maxsize.");
+            return CompletableFuture.completedFuture(-1);
+        return getHighestPermissionSuffix(player.getEffectivePermissions(), "bigdoors.maxsize.");
     }
 
     /**
@@ -323,25 +326,33 @@ public final class SpigotUtil
      * <p>
      * For example, retrieve '8' from 'permission.node.8'.
      *
-     * @param player         The player whose permissions to check.
+     * @param permissions    The list of permissions of this player to check as obtained from {@link
+     *                       Player#getEffectivePermissions()}.
      * @param permissionNode The base permission node.
      * @return The highest value of the variable suffix of the permission node or -1 if none was found.
      */
-    private static int getHighestPermissionSuffix(final @NotNull Player player,
-                                                  final @NotNull String permissionNode)
+    private static CompletableFuture<Integer> getHighestPermissionSuffix(
+        final @NotNull Set<PermissionAttachmentInfo> permissions,
+        final @NotNull String permissionNode)
     {
-        int ret = -1;
-        for (PermissionAttachmentInfo perms : player.getEffectivePermissions())
-            if (perms.getPermission().startsWith(permissionNode))
-                try
-                {
-                    ret = Math.max(ret, Integer.parseInt(perms.getPermission().split(permissionNode)[1]));
-                }
-                catch (Exception e)
-                {
-                }
-        return ret;
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
+                int ret = -1;
+                for (PermissionAttachmentInfo perms : permissions)
+                    if (perms.getPermission().startsWith(permissionNode))
+                        try
+                        {
+                            ret = Math.max(ret, Integer.parseInt(perms.getPermission().split(permissionNode)[1]));
+                        }
+                        catch (Exception unimportant)
+                        {
+                            // Ignore
+                        }
+                return ret;
+            });
     }
+
 
     /**
      * Send a white message to a player.

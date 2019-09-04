@@ -165,6 +165,8 @@ COMMAND.SETTIME.SUCCESS=&aThe door will now close after %AUTOCLOSE% seconds.
 # Supported: %BLOCKSTOMOVE%
 COMMAND.BLOCKSTOMOVE.SUCCESS=&aThe door will now try to move %BLOCKSTOMOVE% blocks.
 
+# Supported: %OPENDIRECTION%
+COMMAND.SETROTATION.SUCCESS=&aThis door will now open in %OPENDIRECTION% direction.
 
 
 CREATOR.GENERAL.GIVENAME=&aPlease start by giving the door/drawbridge/portcullis a message using the command: "/BigDoors SetName <message>"

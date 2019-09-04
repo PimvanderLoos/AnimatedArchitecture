@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -9,6 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a listener that keeps track redstone changes.
@@ -26,29 +29,20 @@ public class RedstoneListener implements Listener
 
     private void checkDoors(final @NotNull Location loc)
     {
-//        plugin.getDatabaseManager().doorsFromPowerBlockLoc(loc, loc.getWorld().getUID())
-
         plugin.getPowerBlockManager().doorsFromPowerBlockLoc(
-            new Vector3D(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getUID())
-              .forEach(door -> door.toggle(DoorActionCause.REDSTONE, door.getPlayerUUID(), 0.0, false));
+            new Vector3D(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getUID()).whenComplete(
+            (doorList, throwable) -> doorList.forEach(
+                door -> plugin.getDoorOpener()
+                              .animateDoor(door, DoorActionCause.REDSTONE, null, 0.0D, false, DoorActionType.TOGGLE)));
     }
 
     /**
-     * Listens to redstone changes and checks if there are any doors attached to it. Any doors that are found are then
-     * toggled, if possible.
+     * Processes a redstone event. This means that it looks for any power blocks around the block that was changed.
      *
-     * @param event The {@link BlockRedstoneEvent}.
+     * @param event The event.
      */
-    @EventHandler
-    public void onBlockRedstoneChange(final @NotNull BlockRedstoneEvent event)
+    private void processRedstoneEvent(final @NotNull BlockRedstoneEvent event)
     {
-        // Only boolean status is allowed, so a varying degree of "on" has no effect.
-        if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
-            return;
-
-        if (!plugin.getPowerBlockManager().isBigDoorsWorld(event.getBlock().getWorld().getUID()))
-            return;
-
         try
         {
             Block block = event.getBlock();
@@ -83,5 +77,24 @@ public class RedstoneListener implements Listener
         {
             plugin.getPLogger().logException(e, "Exception thrown while handling redstone event!");
         }
+    }
+
+    /**
+     * Listens to redstone changes and checks if there are any doors attached to it. Any doors that are found are then
+     * toggled, if possible.
+     *
+     * @param event The {@link BlockRedstoneEvent}.
+     */
+    @EventHandler
+    public void onBlockRedstoneChange(final @NotNull BlockRedstoneEvent event)
+    {
+        // Only boolean status is allowed, so a varying degree of "on" has no effect.
+        if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
+            return;
+
+        if (!plugin.getPowerBlockManager().isBigDoorsWorld(event.getBlock().getWorld().getUID()))
+            return;
+
+        CompletableFuture.runAsync(() -> processRedstoneEvent(event));
     }
 }

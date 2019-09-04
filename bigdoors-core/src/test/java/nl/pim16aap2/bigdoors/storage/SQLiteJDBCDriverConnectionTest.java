@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
+import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.PlayerRetriever;
@@ -33,6 +33,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -110,7 +111,7 @@ public class SQLiteJDBCDriverConnectionTest
     @Before
     public void setupMocking()
     {
-        DoorOpener.init(null, null, null, null, null);
+        DoorOpeningUtility.init(null, null, null, null, null);
         when(world.getUID()).thenReturn(worldUUID);
         when(worldRetriever.worldFromString(worldUUID)).thenReturn(world);
         when(player1.getName()).thenReturn(player1Name);
@@ -315,11 +316,14 @@ public class SQLiteJDBCDriverConnectionTest
         assertNotNull(door.getPlayerUUID().toString());
         assertNotNull(door.getName());
 
-        Optional<DoorBase> test = storage.getDoor(door.getPlayerUUID().toString(), door.getName());
+        Optional<List<DoorBase>> test = storage.getDoors(door.getPlayerUUID(), door.getName());
         if (!test.isPresent())
             fail("COULD NOT RETRIEVE DOOR WITH ID \"" + door.getDoorUID() + "\"!");
 
-        if (!door.equals(test.get()))
+        if (test.get().size() != 1)
+            fail("TOO MANY DOORS FOUND FOR DOOR WITH ID \"" + door.getDoorUID() + "\"!");
+
+        if (!door.equals(test.get().get(0)))
             fail("Data of retrieved door is not the same!");
     }
 

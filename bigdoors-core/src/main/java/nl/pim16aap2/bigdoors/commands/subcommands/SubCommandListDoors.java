@@ -14,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class SubCommandListDoors extends SubCommand
@@ -23,7 +25,7 @@ public class SubCommandListDoors extends SubCommand
     protected static final int minArgCount = 1;
     protected static final CommandData command = CommandData.LISTDOORS;
 
-    public SubCommandListDoors(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandListDoors(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
@@ -47,29 +49,44 @@ public class SubCommandListDoors extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
-        List<DoorBase> doors = new ArrayList<>();
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
-        // If a player requested the door, just get the doors they own.
+
         if (sender instanceof Player)
-            doors.addAll(plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name)
-                               .orElse(new ArrayList<>()));
+            plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name).whenComplete(
+                (optionalDoorList, throwable) -> execute(sender, optionalDoorList.orElse(new ArrayList<>())));
+
         else if (name != null)
-        {
-            // TODO: Shouldn't this use UIDs instead?
             // If the console requested the door(s), first try to get all doors with the provided name.
-            doors.addAll(plugin.getDatabaseManager().getDoors(name).orElse(new ArrayList<>()));
-            // If no door with the provided name could be found, list all doors owned by the
-            // player with that name instead.
-            if (doors.size() == 0)
-                plugin.getDatabaseManager().getPlayerUUIDFromString(name).ifPresent(
-                    P -> doors.addAll(plugin.getDatabaseManager().getDoors(P).orElse(new ArrayList<>())));
-        }
+            plugin.getDatabaseManager().getDoors(name).whenComplete(
+                (optionalDoorList, throwable) ->
+                {
+                    List<DoorBase> doorList = optionalDoorList.orElse(new ArrayList<>());
+
+                    // If no door with the provided name could be found, list all doors owned by the
+                    // player with that name instead.
+                    if (doorList.size() == 0)
+                    {
+                        try
+                        {
+                            UUID playerUUID = plugin.getDatabaseManager().getPlayerUUIDFromString(name).get()
+                                                    .orElse(null);
+                            if (playerUUID != null)
+                                doorList = plugin.getDatabaseManager().getDoors(playerUUID).get()
+                                                 .orElse(new ArrayList<>());
+                        }
+                        catch (InterruptedException | ExecutionException e)
+                        {
+                            plugin.getPLogger().logException(e);
+                        }
+                    }
+                    execute(sender, doorList);
+                });
         else
             return false;
-        return execute(sender, doors);
+        return true;
     }
 }

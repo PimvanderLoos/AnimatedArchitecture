@@ -10,6 +10,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -65,6 +66,7 @@ public final class UpdateChecker
     private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
     private final String downloadURL;
 
+    @Nullable
     private static UpdateChecker instance;
 
     private UpdateResult lastResult = null;
@@ -271,13 +273,13 @@ public final class UpdateChecker
      * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
      * recommended after initialization).
      *
-     * @param plugin        the plugin for which to check updates. Cannot be null
+     * @param plugin        the plugin for which to check updates. Cannot be null.
      * @param pluginID      the ID of the plugin as identified in the SpigotMC resource link. For example,
      *                      "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a
      *                      value. The value must be greater than 0
      * @param versionScheme a custom version scheme parser. Cannot be null
      * @param logger        The {@link PLogger} to use for logging.
-     * @return the UpdateChecker instance
+     * @return The {@link UpdateChecker} instance.
      */
     public static UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
                                      final @NotNull VersionScheme versionScheme, final @NotNull PLogger logger)
@@ -297,7 +299,7 @@ public final class UpdateChecker
      *                 "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a value. The
      *                 value must be greater than 0
      * @param logger   The {@link PLogger} to use for logging.
-     * @return the UpdateChecker instance
+     * @return The {@link UpdateChecker} instance.
      */
     public static UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
                                      final @NotNull PLogger logger)
@@ -309,7 +311,7 @@ public final class UpdateChecker
      * Gets the initialized instance of UpdateChecker. If {@link #init(JavaPlugin, int, PLogger)} has not yet been
      * invoked, this method will throw an exception.
      *
-     * @return the UpdateChecker instance
+     * @return The {@link UpdateChecker} instance.
      */
     public static UpdateChecker get()
     {

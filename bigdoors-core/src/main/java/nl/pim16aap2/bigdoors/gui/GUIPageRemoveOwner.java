@@ -6,22 +6,37 @@ import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class GUIPageRemoveOwner implements IGUIPage
 {
     protected final BigDoors plugin;
     protected final GUI gui;
     protected final Messages messages;
-    protected final int doorOwnerCount;
     private int doorOwnerPage = 0;
     private int maxDoorOwnerPageCount = 0;
+
+    /**
+     * Used to store future player heads before they are retrieved. It is stored in an intermediate step so it can be
+     * aborted on an update or something.
+     */
+    @NotNull
+    private List<CompletableFuture<Optional<ItemStack>>> futurePlayerHeads = new ArrayList<>();
+
+    /**
+     * Used to store a list of future owners of the door before they are retrieved. It is stored in an intermediate step
+     * so it can be aborted on an update or something.
+     */
+    @Nullable
+    private CompletableFuture<List<DoorOwner>> futureDoorOwners = null;
 
     private List<DoorOwner> owners;
 
@@ -29,9 +44,23 @@ public class GUIPageRemoveOwner implements IGUIPage
     {
         this.plugin = plugin;
         this.gui = gui;
-        doorOwnerCount = plugin.getDatabaseManager().countOwnersOfDoor(gui.getDoor().getDoorUID());
         messages = plugin.getMessages();
         refresh();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void kill()
+    {
+        for (CompletableFuture<Optional<ItemStack>> futurePlayerHead : futurePlayerHeads)
+        {
+            if (!futurePlayerHead.isDone())
+                futurePlayerHead.cancel(true);
+        }
+        if (futureDoorOwners != null && !futureDoorOwners.isDone())
+            futureDoorOwners.cancel(true);
     }
 
     /**
@@ -82,10 +111,10 @@ public class GUIPageRemoveOwner implements IGUIPage
     {
         List<String> lore = new ArrayList<>();
         lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
+                                                Integer.toString(gui.getPage() + 2),
                                                 Integer.toString(gui.getPage() + 1),
-                                                Integer.toString(gui.getPage()),
                                                 Integer.toString(gui.getMaxPageCount())));
-        gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT,
+        gui.setItem(0, new GUIItem(GUI.PAGESWITCHMAT,
                                    plugin.getMessages().getString(Message.GUI_BUTTON_PREVIOUSPAGE), lore,
                                    Math.max(1, gui.getPage())));
         lore.clear();
@@ -96,7 +125,7 @@ public class GUIPageRemoveOwner implements IGUIPage
                                                     Integer.toString(doorOwnerPage + 2),
                                                     Integer.toString(doorOwnerPage),
                                                     Integer.toString(maxDoorOwnerPageCount)));
-            gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT,
+            gui.setItem(0, new GUIItem(GUI.PAGESWITCHMAT,
                                        plugin.getMessages().getString(Message.GUI_BUTTON_PREVIOUSPAGE), lore,
                                        doorOwnerPage));
             lore.clear();
@@ -108,7 +137,7 @@ public class GUIPageRemoveOwner implements IGUIPage
                                                     Integer.toString(doorOwnerPage + 2),
                                                     Integer.toString(doorOwnerPage),
                                                     Integer.toString(maxDoorOwnerPageCount)));
-            gui.addItem(8, new GUIItem(GUI.PAGESWITCHMAT, messages.getString(Message.GUI_BUTTON_NEXTPAGE), lore,
+            gui.setItem(8, new GUIItem(GUI.PAGESWITCHMAT, messages.getString(Message.GUI_BUTTON_NEXTPAGE), lore,
                                        doorOwnerPage + 2));
             lore.clear();
         }
@@ -116,8 +145,8 @@ public class GUIPageRemoveOwner implements IGUIPage
         lore.add(messages.getString(Message.GUI_DESCRIPTION_INFO, gui.getDoor().getName()));
         lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(gui.getDoor().getDoorUID())));
         lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
-        gui.addItem(4,
-                    new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));
+        gui.setItem(4, new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(),
+                                   lore, 1));
     }
 
     protected void fillPage()
@@ -125,22 +154,25 @@ public class GUIPageRemoveOwner implements IGUIPage
         int idx = 9;
         for (DoorOwner owner : owners)
         {
-            if (owner.getPlayerUUID().equals(gui.getPlayer().getUniqueId()))
+            if (owner.getPlayerUUID().equals(gui.getGuiHolder().getUniqueId()))
                 continue;
 
             final int currentIDX = idx;
             // First add a regular player head without a special texture.
-            gui.addItem(idx++, new GUIItem(owner));
+            gui.setItem(idx++, new GUIItem(owner));
             // Then request a player head with that player's head texture. This is a CompletableFuture, so just update
             // the player head whenever it becomes available.
-            plugin.getHeadManager().getPlayerHead(owner.getPlayerUUID(), owner.getPlayerName()).whenComplete(
+            CompletableFuture<Optional<ItemStack>> futurePlayerHead = plugin.getHeadManager()
+                                                                            .getPlayerHead(owner.getPlayerUUID(),
+                                                                                           owner.getPlayerName());
+            futurePlayerHeads.add(futurePlayerHead);
+            futurePlayerHead.whenComplete(
                 (result, throwable) ->
-                {
                     result.ifPresent(
-                        HEAD -> gui.updateItem(currentIDX,
-                                               Optional.of(new GUIItem(HEAD, owner.getPlayerName(), null,
-                                                                       owner.getPermission()))));
-                }
+                        HEAD -> BigDoors.newMainThreadExecutor().runOnMainThread(
+                            () -> gui.updateItem(currentIDX,
+                                                 Optional.of(new GUIItem(HEAD, owner.getPlayerName(), null,
+                                                                         owner.getPermission())))))
             );
         }
     }
@@ -151,13 +183,22 @@ public class GUIPageRemoveOwner implements IGUIPage
     @Override
     public void refresh()
     {
-        owners = plugin.getDatabaseManager().getDoorOwners(gui.getDoor().getDoorUID());
-        Collections.sort(owners, Comparator.comparing(DoorOwner::getPlayerName));
-        maxDoorOwnerPageCount =
-            owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
+        futureDoorOwners = plugin.getDatabaseManager().getDoorOwners(gui.getDoor().getDoorUID());
+        futureDoorOwners.whenComplete(
+            (ownerList, throwable) ->
+            {
+                owners = ownerList;
+                owners.sort(Comparator.comparing(DoorOwner::getPlayerName));
+                maxDoorOwnerPageCount =
+                    owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
 
-        fillHeader();
-        fillPage();
+                BigDoors.newMainThreadExecutor().runOnMainThread(
+                    () ->
+                    {
+                        fillHeader();
+                        fillPage();
+                    });
+            });
     }
 
     private void removeOwner(DoorOwner owner)

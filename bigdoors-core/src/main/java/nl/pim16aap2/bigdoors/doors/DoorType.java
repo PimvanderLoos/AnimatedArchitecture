@@ -17,6 +17,7 @@ import java.util.Optional;
  *
  * @author Pim
  */
+// Regex to quickly get a list of all types: \([\d\s\w\@\.\n\,\"\)\(\{\-\;]*\}[\s]*\}\,\n
 public enum DoorType
 {
     BIGDOOR(0, true, "-BD", Message.DOORTYPE_BIGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
@@ -145,6 +146,7 @@ public enum DoorType
                 return new Clock(pLogger, doorUID, doorData);
             }
         },
+
     ;
 
     private final static List<DoorType> cachedValues = Collections.unmodifiableList(Arrays.asList(DoorType.values()));
@@ -302,3 +304,5 @@ public enum DoorType
         return type.getNewDoor(pLogger, doorUID, doorData);
     }
 }
+
+

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -96,7 +95,7 @@ public final class PLogger
      *
      * @return The instance of this PLogger.
      */
-    @Nullable
+    @NotNull
     public static PLogger get()
     {
         return instance;

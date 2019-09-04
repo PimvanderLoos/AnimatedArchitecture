@@ -14,10 +14,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 public class GUI
 {
@@ -53,8 +54,8 @@ public class GUI
             Material.BARRIER,      // UNUSED
         };
     private final BigDoors plugin;
-    private final Player player;
-    private final List<DoorBase> doorBases;
+    private final Player guiHolder;
+    private List<DoorBase> doorBases;
     private final Map<Integer, GUIItem> items;
     private IGUIPage guiPage;
     private boolean isRefreshing;
@@ -67,20 +68,24 @@ public class GUI
     private int maxPageCount;
     private DoorBase door = null;
 
-    public GUI(final BigDoors plugin, final Player player)
+    public GUI(final @NotNull BigDoors plugin, final @NotNull Player guiHolder)
     {
         isRefreshing = false;
         isOpen = true;
         this.plugin = plugin;
-        this.player = player;
+        this.guiHolder = guiHolder;
         messages = plugin.getMessages();
 
         page = 0;
-        items = new HashMap<>();
-        doorBases = plugin.getDatabaseManager().getDoors(player.getUniqueId()).orElse(new ArrayList<>());
-        sort();
-        guiPage = new GUIPageDoorList(plugin, this);
-        update();
+        items = new ConcurrentHashMap<>();
+        plugin.getDatabaseManager().getDoors(guiHolder.getUniqueId()).whenComplete(
+            (optionalDoorList, throwable) ->
+            {
+                doorBases = optionalDoorList.orElse(new ArrayList<>());
+                sort();
+                guiPage = new GUIPageDoorList(plugin, this);
+                BigDoors.newMainThreadExecutor().runOnMainThread(this::update);
+            });
     }
 
     void updateItem(int index, @NotNull Optional<GUIItem> guiItem)
@@ -88,7 +93,7 @@ public class GUI
         guiItem.ifPresent(I -> setItem(index, I));
     }
 
-    private void setItem(int index, @NotNull GUIItem guiItem)
+    void setItem(int index, @NotNull GUIItem guiItem)
     {
         items.put(index, guiItem);
         getInventory().setItem(index, guiItem.getItemStack());
@@ -96,34 +101,47 @@ public class GUI
 
     void update()
     {
+        if (!BigDoors.onMainThread(Thread.currentThread().getId()))
+            plugin.getPLogger().logException(new IllegalStateException("NOT ON THE MAIN THREAD!"));
         isRefreshing = true;
         items.clear();
         maxPageCount = doorBases.size() / (CHESTSIZE - 9) + ((doorBases.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
         guiPage.refresh();
 
         inventory = Bukkit
-            .createInventory(player, CHESTSIZE, messages.getString(PageType.getMessage(guiPage.getPageType())));
-        player.openInventory(inventory);
+            .createInventory(guiHolder, CHESTSIZE, messages.getString(PageType.getMessage(guiPage.getPageType())));
+        guiHolder.openInventory(inventory);
         items.forEach((k, v) -> inventory.setItem(k, v.getItemStack()));
 
         isRefreshing = false;
     }
 
+    // TODO: ASYNC
     boolean isStillOwner()
     {
-        if (door != null &&
-            plugin.getDatabaseManager().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
+        try
         {
-            doorBases.remove(door);
-            door = null;
-            setGUIPage(new GUIPageDoorList(plugin, this));
+            if (door != null &&
+                plugin.getDatabaseManager().getPermission(guiHolder.getUniqueId().toString(), door.getDoorUID())
+                      .get() == -1)
+            {
+                doorBases.remove(door);
+                door = null;
+                setGUIPage(new GUIPageDoorList(plugin, this));
+                return false;
+            }
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            plugin.getPLogger().logException(e);
             return false;
         }
         return true;
     }
 
-    void setGUIPage(IGUIPage guiPage)
+    void setGUIPage(final @NotNull IGUIPage guiPage)
     {
+        guiPage.kill();
         this.guiPage = guiPage;
         update();
     }
@@ -142,7 +160,7 @@ public class GUI
     public void close()
     {
         isOpen = false;
-        player.closeInventory();
+        guiHolder.closeInventory();
         plugin.removeGUIUser(this);
     }
 
@@ -166,9 +184,9 @@ public class GUI
         return isOpen;
     }
 
-    public Player getPlayer()
+    public Player getGuiHolder()
     {
-        return player;
+        return guiHolder;
     }
 
     DoorBase getDoor()
@@ -176,7 +194,7 @@ public class GUI
         return door;
     }
 
-    void setDoor(DoorBase door)
+    void setDoor(final @NotNull DoorBase door)
     {
         this.door = door;
     }
@@ -201,7 +219,8 @@ public class GUI
         return maxPageCount;
     }
 
-    DoorBase getDoor(int index)
+    // TODO: OPTIONAL!
+    DoorBase getDoor(final int index)
     {
         return doorBases.get(index);
     }
@@ -212,7 +231,7 @@ public class GUI
         door = null;
     }
 
-    int indexOfDoor(DoorBase door)
+    int indexOfDoor(final @NotNull DoorBase door)
     {
         return doorBases.indexOf(door);
     }
@@ -222,7 +241,7 @@ public class GUI
         return doorBases.size();
     }
 
-    void addItem(int index, GUIItem guiItem)
+    void addItem(final int index, final @NotNull GUIItem guiItem)
     {
         items.put(index, guiItem);
     }
@@ -247,7 +266,7 @@ public class GUI
         return sortType;
     }
 
-    void setSortType(SortType sortType)
+    void setSortType(final @NotNull SortType sortType)
     {
         this.sortType = sortType;
         sort();

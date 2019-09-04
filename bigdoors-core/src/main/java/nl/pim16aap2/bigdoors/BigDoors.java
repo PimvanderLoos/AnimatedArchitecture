@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors;
 
 import nl.pim16aap2.bigdoors.api.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.IMainThreadExecutor;
 import nl.pim16aap2.bigdoors.commands.CommandBigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.CommandMenu;
@@ -34,6 +35,7 @@ import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
+import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.gui.GUI;
 import nl.pim16aap2.bigdoors.listeners.ChunkUnloadListener;
@@ -53,6 +55,7 @@ import nl.pim16aap2.bigdoors.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.GlowingBlockSpawner_V1_14_R1;
+import nl.pim16aap2.bigdoors.spigotutil.MainThreadExecutorSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
@@ -81,6 +84,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /*
  * Moonshoots
@@ -158,6 +163,10 @@ import java.util.UUID;
 //       the original position. Then you cannot make regular doors go in a full circle anymore.
 // TODO: Instead of placing all blocks one by one and sending packets to the players about it, use this method instead:
 //       https://www.spigotmc.org/threads/efficiently-change-large-area-of-blocks.262341/#post-2585360
+// TODO: Write script (python? might be fun to switch it up) to build plugin.yml on compilation.
+// TODO: Create a system that allows a set of default messages for creators (with placeholders for the types), but also
+//       allows overriding for custom types. Then people who really want to, can write fully custom messages for every
+//       type, but the messages system will be much cleaner by default.
 
 /*
  * Doors
@@ -217,6 +226,17 @@ import java.util.UUID;
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
 // TODO: Get rid of all calls to SpigotUtil for messaging players. They should all go via the proper interface for that.
 // TODO: Logging, instead of "onlyLogExceptions", properly use logging levels.
+// TODO: Remove all abortable stuff from the DatabaseManager; it's not database related after all.
+// TODO: Every Manager must be a singleton.
+// TODO: Use the following snippet for all singletons, not just the ones in bigdoors-core. This will require the use of
+//       "com.google.common.base.Preconditions" (so import that via Maven).
+/*
+Preconditions.checkState(instance != null, "Instance has not yet been initialized. Be sure #init() has been invoked");
+ */
+// TODO: Get rid of all occurrences of ".orElse(new ArrayList<>())". Use a default, unmodifiable list instead. See
+//       PowerBlockManager#EMPTYDOORSLIST for example.
+// TODO: Do permissions checking for bypasses etc (compats) fully async (so not with an ugly .get()).
+// TODO: On chunkUnload, make sure to clear that chunk from cache.
 
 /*
  * GUI
@@ -232,10 +252,15 @@ import java.util.UUID;
 // TODO: Move rotation cycling away from GUI and into the Door class.
 // TODO: Put all GUI buttons and whatnot in try/catch blocks.
 // TODO: Get rid of the retarded isRefreshing bullshit. Instead of reopening an inventory, just replace the items. Simpler, faster, less demented.
+// TODO: Use some NMS stuff to change the name of a GUI without reopening it:
+//       https://www.spigotmc.org/threads/how-to-set-the-title-of-an-open-inventory-itemgui.95572/#post-1049250
 // TODO: Use a less stupid way to check for interaction: https://www.spigotmc.org/threads/quick-tip-how-to-check-if-a-player-is-interacting-with-your-custom-gui.225871/
 // TODO: Documentation.
 // TODO: Look into refresh being called too often. Noticed this in GUIPageRemoveOwner (it tries to get a head twice).
 // TODO: Store Message in GUI pages. Then use that to check if the player is in a custom GUI page.
+// TODO: Make sure some data is always available, like a list of door owners of a door. The individual page shouldn't
+//       contain logic like obtaining a list of owners.
+// TODO: Create dedicated GUI button classes. This is too messy.
 
 /*
  * SQL
@@ -283,6 +308,7 @@ import java.util.UUID;
 // TODO: Fix "/BigDoors filldoor db4" not working.
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
 // TODO: For all commands that support either players or door names etc, just use flags instead of the current mess.
+// TODO: Door deletion confirmation message.
 
 /*
  * Creators
@@ -370,6 +396,9 @@ import java.util.UUID;
 // TODO: Fix no permission to set AutoCloseTime from GUI.
 // TODO: Check if TimedCache#containsValue() works properly.
 // TODO: What happens when a player is given a creator stick while their inventory is full?
+// TODO: Check that the GUI's implementation of using CompletableFutures works properly (i.e. getting them, storing them
+//       and aborting them whenever a change takes place).
+// TODO: Test ALL methods in the database manager stuff.
 
 /*
  * Unit tests
@@ -392,10 +421,11 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private ToolVerifier tf;
     private IFallingBlockFactory fabf;
     private ConfigLoader config;
-    private PLogger logger;
+    private PLogger pLogger;
     private Metrics metrics;
     private Messages messages;
     private DatabaseManager databaseManager = null;
+    private DoorOpener doorOpener;
 
     private RedstoneListener redstoneListener;
     private boolean validVersion;
@@ -413,15 +443,35 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     private UpdateManager updateManager;
     private DoorManager doorManager;
     private PowerBlockManager powerBlockManager;
+    private boolean successfulInit = true;
+    private static long mainThreadID = -1;
+
+    public static void compareThreads(final long compareThread)
+    {
+        System.out.println(String.format("Currently on Thread: %d. Main thread is: %d", mainThreadID, compareThread));
+    }
+
+    /**
+     * Checks if a thread is the main thread.
+     *
+     * @param compareThread The thread to check.
+     * @return True if the thread is the main thread.
+     */
+    public static boolean onMainThread(final long compareThread)
+    {
+        return compareThread == mainThreadID;
+    }
 
     @Override
     public void onEnable()
     {
         INSTANCE = this;
-        logger = PLogger.init(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this));
+        pLogger = PLogger.init(new File(getDataFolder(), "log.txt"), new MessagingInterfaceSpigot(this));
+        mainThreadID = Thread.currentThread().getId();
 
         try
         {
+            // Register this here so it can check for updates even when loaded on an incorrect version.
             updateManager = new UpdateManager(this, 58669);
 
             Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
@@ -431,10 +481,10 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             // Load the files for the correct version of Minecraft.
             if (!validVersion)
             {
-                logger.severe("Trying to load the plugin on an incompatible version of Minecraft! (\""
-                                  + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
-                                           .split(",")[3])
-                                  + "\"). This plugin will NOT be enabled!");
+                pLogger.severe("Trying to load the plugin on an incompatible version of Minecraft! (\""
+                                   + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
+                                            .split(",")[3])
+                                   + "\"). This plugin will NOT be enabled!");
                 return;
             }
 
@@ -444,7 +494,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             init();
             tf = new ToolVerifier(messages, this);
             vaultManager = new VaultManager(this);
-            autoCloseScheduler = new AutoCloseScheduler(this);
+            autoCloseScheduler = AutoCloseScheduler.init(this);
 
             headManager = HeadManager.init(this, getConfigLoader());
 
@@ -454,9 +504,11 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             protCompatMan = new ProtectionCompatManager(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = DatabaseManager.init(this, config.dbFile());
+            doorOpener = DoorOpener.init(pLogger);
             powerBlockManager = PowerBlockManager.init(this, config, databaseManager, getPLogger());
             Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
-            DoorOpener.init(getPLogger(), getDoorManager(), getGlowingBlockSpawner(), getConfigLoader(), protCompatMan);
+            DoorOpeningUtility
+                .init(getPLogger(), getDoorManager(), getGlowingBlockSpawner(), getConfigLoader(), protCompatMan);
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
             {
@@ -487,11 +539,12 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             commandManager.registerCommand(commandBigDoors);
             commandManager.registerCommand(new CommandMenu(this, commandManager));
 
-            logger.info("Successfully enabled BigDoors " + getDescription().getVersion());
+            pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
         }
         catch (Exception exception)
         {
-            logger.logException(exception);
+            successfulInit = false;
+            pLogger.logException(exception);
         }
     }
 
@@ -530,7 +583,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         // don't load it in the first place.
         if (config.allowStats())
         {
-            logger.info("Enabling stats! Thanks, it really helps!");
+            pLogger.info("Enabling stats! Thanks, it really helps!");
             if (metrics == null)
                 try
                 {
@@ -538,18 +591,28 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
                 }
                 catch (Exception e)
                 {
-                    logger.logException(e, "Failed to intialize stats! Please contact pim16aap2!");
+                    pLogger.logException(e, "Failed to intialize stats! Please contact pim16aap2!");
                 }
         }
         else
         {
             // Y u do dis? :(
             metrics = null;
-            logger.info("Stats disabled; not loading stats :(... Please consider enabling it! "
-                            + "It helps me stay motivated to keep working on this plugin!");
+            pLogger.info("Stats disabled; not loading stats :(... Please consider enabling it! "
+                             + "It helps me stay motivated to keep working on this plugin!");
         }
 
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
+    }
+
+    /**
+     * Constructs a new {@link IMainThreadExecutor}.
+     *
+     * @return A new {@link IMainThreadExecutor}.
+     */
+    public static <T> IMainThreadExecutor<T> newMainThreadExecutor()
+    {
+        return new MainThreadExecutorSpigot<>(INSTANCE, INSTANCE.getPLogger());
     }
 
     @NotNull
@@ -678,12 +741,12 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
 
     public void addGUIUser(final @NotNull GUI gui)
     {
-        playerGUIs.put(gui.getPlayer().getUniqueId(), gui);
+        playerGUIs.put(gui.getGuiHolder().getUniqueId(), gui);
     }
 
     public void removeGUIUser(final @NotNull GUI gui)
     {
-        playerGUIs.remove(gui.getPlayer().getUniqueId());
+        playerGUIs.remove(gui.getGuiHolder().getUniqueId());
     }
 
     @NotNull
@@ -713,6 +776,12 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         toolUsers.remove(player.getUniqueId());
     }
 
+    @NotNull
+    public DoorOpener getDoorOpener()
+    {
+        return doorOpener;
+    }
+
     // Get the DatabaseManager
     @NotNull
     public DatabaseManager getDatabaseManager()
@@ -737,7 +806,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
     @NotNull
     public PLogger getPLogger()
     {
-        return logger;
+        return pLogger;
     }
 
     // Get the messages.
@@ -799,6 +868,11 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         String ret = "";
         if (DEVBUILD)
             ret += "[BigDoors] Warning: You are running a devbuild!\n";
+        if (!validVersion)
+            ret += "[BigDoors] Error: Trying to load the game on an invalid version! Plugin disabled!";
+        if (!successfulInit)
+            ret += "[BigDoors] Error: Failed to initialize the plugin! Some functions may not work as expected. " +
+                "Please contact pim16aap2!";
         if (updateManager.updateAvailable())
         {
             if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
@@ -821,51 +895,60 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
      */
 
     // (Instantly?) Toggle a door with a given time.
-    private DoorToggleResult toggleDoor(final @Nullable UUID playerUUID, final @NotNull DoorBase door,
-                                        final double time, final boolean instantOpen)
+    private CompletableFuture<DoorToggleResult> toggleDoor(
+        final @NotNull CompletableFuture<Optional<DoorBase>> futureDoor, final @Nullable UUID playerUUID,
+        final double time, final boolean instantOpen)
     {
+        UUID initiator;
+        DoorActionCause cause;
         if (playerUUID == null)
-            return door.toggle(DoorActionCause.REDSTONE, door.getPlayerUUID(), time, instantOpen);
+        {
+            initiator = null;
+            cause = DoorActionCause.REDSTONE;
+        }
         else
-            return door.toggle(DoorActionCause.PLAYER, playerUUID, time, instantOpen);
+        {
+            initiator = playerUUID;
+            cause = DoorActionCause.PLAYER;
+        }
+        return getDoorOpener().toggleDoor(futureDoor, cause, initiator, time, instantOpen);
     }
 
     // Toggle a door from a doorUID and instantly or not.
-    public boolean toggleDoor(final long doorUID, final boolean instantOpen)
+    public CompletableFuture<DoorToggleResult> toggleDoor(final long doorUID, final boolean instantOpen)
     {
-        return getDatabaseManager().getDoor(doorUID)
-                                   .filter(door -> toggleDoor(null, door, 0.0, instantOpen) ==
-                                       DoorToggleResult.SUCCESS)
-                                   .isPresent();
+        return toggleDoor(getDatabaseManager().getDoor(doorUID), null, 0.0, instantOpen);
     }
 
     // Toggle a door from a doorUID and a given time.
-    public boolean toggleDoor(final long doorUID, final double time)
+    public CompletableFuture<DoorToggleResult> toggleDoor(final long doorUID, final double time)
     {
-        return getDatabaseManager().getDoor(doorUID)
-                                   .filter(door -> toggleDoor(null, door, time, false) == DoorToggleResult.SUCCESS)
-                                   .isPresent();
+        return toggleDoor(getDatabaseManager().getDoor(doorUID), null, time, false);
     }
 
     // Toggle a door from a doorUID using default values.
-    public boolean toggleDoor(final long doorUID)
+    public CompletableFuture<DoorToggleResult> toggleDoor(final long doorUID)
     {
-        return getDatabaseManager().getDoor(doorUID)
-                                   .filter(door -> toggleDoor(null, door, 0.0, false) == DoorToggleResult.SUCCESS)
-                                   .isPresent();
-    }
-
-    // Check the open-status of a door.
-    private boolean isOpen(final @NotNull DoorBase door)
-    {
-        return door.isOpen();
+        return toggleDoor(getDatabaseManager().getDoor(doorUID), null, 0.0, false);
     }
 
     // Check the open-status of a door from a doorUID.
-    public boolean isOpen(final long doorUID)
+    public CompletableFuture<Boolean> isOpen(final long doorUID)
     {
-        return getDatabaseManager().getDoor(doorUID)
-                                   .filter(door -> isOpen(door.getDoorUID()))
-                                   .isPresent();
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
+                Optional<DoorBase> optionalDoor;
+                try
+                {
+                    optionalDoor = getDatabaseManager().getDoor(doorUID).get();
+                }
+                catch (InterruptedException | ExecutionException e)
+                {
+                    pLogger.logException(e);
+                    optionalDoor = Optional.empty();
+                }
+                return optionalDoor.map(DoorBase::isOpen).orElse(false);
+            });
     }
 }

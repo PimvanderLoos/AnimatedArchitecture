@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.Restartable;
@@ -24,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class HeadManager extends Restartable
 {
+    @Nullable
     private static HeadManager instance;
 
     /**
@@ -67,9 +69,11 @@ public final class HeadManager extends Restartable
      *
      * @return The instance of the {@link HeadManager}.
      */
-    @Nullable
+    @NotNull
     public static HeadManager get()
     {
+        Preconditions.checkState(instance != null,
+                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
         return instance;
     }
 

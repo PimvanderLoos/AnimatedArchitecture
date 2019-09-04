@@ -136,8 +136,8 @@ public class RevolvingDoor extends DoorBase
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
-        doorOpener.registerBlockMover(
-            new RevolvingDoorMover(this, fixedTime, doorOpener.getMultiplier(this), getCurrentToggleDir(),
+        doorOpeningUtility.registerBlockMover(
+            new RevolvingDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
                                    cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
     }
 }

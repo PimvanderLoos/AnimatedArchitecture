@@ -26,30 +26,47 @@ public class SubCommandSetBlocksToMove extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.SETBLOCKSTOMOVE;
 
-    public SubCommandSetBlocksToMove(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandSetBlocksToMove(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, DoorBase door, String blocksToMoveArg)
-        throws CommandActionNotAllowedException, IllegalArgumentException
+    private void sendResultMessage(final @NotNull CommandSender sender, final int blocksToMove)
     {
-        if (sender instanceof Player && !plugin.getDatabaseManager()
-                                               .hasPermissionForAction((Player) sender, door.getDoorUID(),
-                                                                       DoorAttribute.BLOCKSTOMOVE))
-            throw new CommandActionNotAllowedException();
+        plugin.getPLogger()
+              .sendMessageToTarget(sender, Level.INFO,
+                                   blocksToMove > 0 ?
+                                   messages.getString(Message.COMMAND_BLOCKSTOMOVE_SUCCESS,
+                                                      Integer.toString(blocksToMove)) :
+                                   messages.getString(Message.COMMAND_BLOCKSTOMOVE_DISABLED));
+    }
 
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull DoorBase door,
+                           final @NotNull String blocksToMoveArg)
+        throws IllegalArgumentException
+    {
         int blocksToMove = CommandManager.getIntegerFromArg(blocksToMoveArg);
+        if (!(sender instanceof Player))
+        {
+            plugin.getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
+            sendResultMessage(sender, blocksToMove);
+            return true;
+        }
 
-        plugin.getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
-
-        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, blocksToMove > 0 ?
-                                                                    messages.getString(
-                                                                        Message.COMMAND_BLOCKSTOMOVE_SUCCESS,
-                                                                        Integer.toString(blocksToMove)) :
-                                                                    messages.getString(
-                                                                        Message.COMMAND_BLOCKSTOMOVE_DISABLED));
+        final Player player = (Player) sender;
+        plugin.getDatabaseManager()
+              .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE).whenComplete(
+            (isAllowed, throwable) ->
+            {
+                if (!isAllowed)
+                {
+                    commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+                    return;
+                }
+                plugin.getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
+                sendResultMessage(sender, blocksToMove);
+            });
         return true;
     }
 
@@ -57,8 +74,8 @@ public class SubCommandSetBlocksToMove extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
                CommandActionNotAllowedException, IllegalArgumentException
     {
@@ -68,6 +85,9 @@ public class SubCommandSetBlocksToMove extends SubCommand
         Optional<WaitForCommand> commandWaiter = commandManager.isCommandWaiter(sender, getName());
         if (commandWaiter.isPresent())
             return commandManager.commandWaiterExecute(commandWaiter.get(), args, minArgCount);
-        return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2]);
+
+        commandManager.getDoorFromArg(sender, args[1], cmd, args).whenComplete(
+            (optionalDoorBase, throwable) -> optionalDoorBase.ifPresent(door -> execute(sender, door, args[2])));
+        return true;
     }
 }

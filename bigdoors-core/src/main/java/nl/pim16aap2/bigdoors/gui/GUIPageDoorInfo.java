@@ -13,10 +13,12 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GUIPageDoorInfo implements IGUIPage
@@ -24,6 +26,13 @@ public class GUIPageDoorInfo implements IGUIPage
     protected final BigDoors plugin;
     protected final GUI gui;
     protected final Messages messages;
+
+    /**
+     * Used to store whether or not a player has access to door removal for this door. It is stored in an intermediate
+     * step so it can be aborted on an update or something.
+     */
+    @Nullable
+    private CompletableFuture<Boolean> futurePermissionCheck = null;
 
     protected GUIPageDoorInfo(final BigDoors plugin, final GUI gui)
     {
@@ -33,38 +42,37 @@ public class GUIPageDoorInfo implements IGUIPage
         refresh();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void kill()
+    {
+        if (futurePermissionCheck != null && !futurePermissionCheck.isDone())
+            futurePermissionCheck.cancel(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PageType getPageType()
     {
         return PageType.DOORINFO;
     }
 
-    @Override
-    public void handleInput(int interactionIDX)
+    /**
+     * Handles user input for an action that they have the required level of ownership for for this door, as tested by
+     * {@link nl.pim16aap2.bigdoors.managers.DatabaseManager#hasPermissionForAction(Player, long, DoorAttribute)}.
+     *
+     * @param door           The door.
+     * @param player         The player.
+     * @param guiItem        The GUIItem pressed.
+     * @param interactionIDX The index of the GUIItem the player interacted with.
+     */
+    private void handleAllowedInput(final @NotNull DoorBase door, final @NotNull Player player,
+                                    final @NotNull GUIItem guiItem, final int interactionIDX)
     {
-        if (interactionIDX == 0)
-        {
-            gui.setGUIPage(new GUIPageDoorList(plugin, gui));
-            return;
-        }
-        // Only button in the header is the back button.
-        if (interactionIDX < 9)
-            return;
-
-        GUIItem guiItem = gui.getItem(interactionIDX);
-        if (!guiItem.getDoorAttribute().isPresent())
-            return;
-
-        if (!plugin.getDatabaseManager().hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(),
-                                                                guiItem.getDoorAttribute().get()))
-        {
-            gui.update();
-            return;
-        }
-
-        DoorBase door = gui.getDoor();
-        Player player = gui.getPlayer();
-
         switch (guiItem.getDoorAttribute().get())
         {
             case LOCK:
@@ -109,12 +117,47 @@ public class GUIPageDoorInfo implements IGUIPage
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void handleInput(int interactionIDX)
+    {
+        if (interactionIDX == 0)
+        {
+            gui.setGUIPage(new GUIPageDoorList(plugin, gui));
+            return;
+        }
+        // Only button in the header is the back button.
+        if (interactionIDX < 9)
+            return;
+
+        GUIItem guiItem = gui.getItem(interactionIDX);
+        if (!guiItem.getDoorAttribute().isPresent())
+            return;
+
+        futurePermissionCheck = plugin.getDatabaseManager()
+                                      .hasPermissionForAction(gui.getGuiHolder(), gui.getDoor().getDoorUID(),
+                                                              guiItem.getDoorAttribute().get());
+        futurePermissionCheck.whenComplete(
+            (isAllowed, throwable) ->
+            {
+                if (!isAllowed)
+                {
+                    gui.update();
+                    return;
+                }
+                BigDoors.newMainThreadExecutor().runOnMainThread(
+                    () -> handleAllowedInput(gui.getDoor(), gui.getGuiHolder(), guiItem, interactionIDX));
+            });
+    }
+
     protected void fillHeader()
     {
         List<String> lore = new ArrayList<>();
         lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
+                                                Integer.toString(gui.getPage() + 2),
                                                 Integer.toString(gui.getPage() + 1),
-                                                Integer.toString(gui.getPage()),
                                                 Integer.toString(gui.getMaxPageCount())));
         gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT,
                                    plugin.getMessages().getString(Message.GUI_BUTTON_PREVIOUSPAGE), lore,
@@ -124,8 +167,8 @@ public class GUIPageDoorInfo implements IGUIPage
         lore.add(messages.getString(Message.GUI_DESCRIPTION_INFO, gui.getDoor().getName()));
         lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(gui.getDoor().getDoorUID())));
         lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
-        gui.addItem(4,
-                    new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));
+        gui.addItem(4, new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(),
+                                   lore, 1));
     }
 
     protected void fillPage()
@@ -135,6 +178,9 @@ public class GUIPageDoorInfo implements IGUIPage
             createGUIItemOfAttribute(gui.getDoor(), attr).ifPresent(I -> gui.addItem(position.addAndGet(1), I));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void refresh()
     {
@@ -153,11 +199,8 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     // Changes the opening direction for a door.
-    private void changeOpenDir(DoorBase door, int index)
+    private void changeOpenDir(final @NotNull DoorBase door, final int index)
     {
-        RotateDirection curOpenDir = door.getOpenDir();
-        RotateDirection newOpenDir = RotateDirection.NONE;
-
         DoorAttribute[] attributes = DoorType.getAttributes(door.getType());
         DoorAttribute openTypeAttribute = null;
 
@@ -171,9 +214,6 @@ public class GUIPageDoorInfo implements IGUIPage
                     break outerLoop;
                 case DIRECTION_ROTATE_VERTICAL:
                     openTypeAttribute = DoorAttribute.DIRECTION_ROTATE_VERTICAL;
-//                    newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.CLOCKWISE :
-//                                 curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
-//                                 RotateDirection.CLOCKWISE;
                     break outerLoop;
 
                 case DIRECTION_ROTATE_VERTICAL2:
@@ -181,37 +221,33 @@ public class GUIPageDoorInfo implements IGUIPage
                     break outerLoop;
                 case DIRECTION_STRAIGHT_HORIZONTAL:
                     openTypeAttribute = DoorAttribute.DIRECTION_STRAIGHT_HORIZONTAL;
-//                    newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.NORTH :
-//                                 curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST :
-//                                 curOpenDir == RotateDirection.EAST ? RotateDirection.SOUTH :
-//                                 curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST : RotateDirection.NORTH;
                     break outerLoop;
                 case DIRECTION_STRAIGHT_VERTICAL:
                     openTypeAttribute = DoorAttribute.DIRECTION_STRAIGHT_VERTICAL;
-//                    newOpenDir = curOpenDir == RotateDirection.UP ? RotateDirection.DOWN : RotateDirection.UP;
                     break outerLoop;
                 default:
                     break;
             }
         }
-        newOpenDir = door.cycleOpenDirection();
+        RotateDirection newOpenDir = door.cycleOpenDirection();
 
         plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
         int idx = gui.indexOfDoor(door);
         gui.getDoor(idx).setOpenDir(newOpenDir);
         gui.setDoor(gui.getDoor(idx));
+        // TODO: Check this.
         gui.updateItem(index, createGUIItemOfAttribute(door, openTypeAttribute));
     }
 
     @NotNull
-    private Optional<GUIItem> createGUIItemOfAttribute(DoorBase door, DoorAttribute atr)
+    private Optional<GUIItem> createGUIItemOfAttribute(final @NotNull DoorBase door, final @NotNull DoorAttribute atr)
     {
         // If the permission level is higher than the max permission of this action.
         if (door.getPermission() > DoorAttribute.getPermissionLevel(atr))
             return Optional.empty();
 
         List<String> lore = new ArrayList<>();
-        String desc, loreStr;
+        String desc;
         GUIItem ret = null;
 
         switch (atr)
@@ -249,7 +285,7 @@ public class GUIPageDoorInfo implements IGUIPage
                 lore.add(door.getAutoClose() > -1 ?
                          messages.getString(Message.GUI_DESCRIPTION_TIMER_SET, Integer.toString(door.getAutoClose())) :
                          messages.getString(Message.GUI_DESCRIPTION_TIMER_NOTSET));
-                int count = door.getAutoClose() < 1 ? 1 : door.getAutoClose();
+                int count = Math.max(1, door.getAutoClose());
                 ret = new GUIItem(GUI.CHANGETIMEMAT, desc, lore, count);
                 break;
 

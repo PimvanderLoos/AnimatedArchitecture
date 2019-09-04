@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -31,7 +32,7 @@ public abstract class DoorBase
     @NotNull
     protected final DoorType doorType;
     @NotNull
-    protected final DoorOpener doorOpener;
+    protected final DoorOpeningUtility doorOpeningUtility;
     @NotNull
     protected final World world;
 
@@ -82,13 +83,7 @@ public abstract class DoorBase
         isOpen = doorData.getIsOpen();
         openDir = doorData.getOpenDirection();
 
-        if (DoorOpener.get() == null)
-        {
-            IllegalStateException e = new IllegalStateException("Could not obtain DoorOpener!");
-            pLogger.logException(e);
-            throw e;
-        }
-        doorOpener = DoorOpener.get();
+        doorOpeningUtility = DoorOpeningUtility.get();
         onCoordsUpdate();
     }
 
@@ -123,8 +118,8 @@ public abstract class DoorBase
      * @return The result of the attempt.
      */
     @NotNull
-    public final DoorToggleResult open(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
-                                       final double time, final boolean instantOpen)
+    final DoorToggleResult open(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
+                                final double time, final boolean instantOpen)
     {
         if (!isOpenable())
             return DoorToggleResult.ALREADYCLOSED;
@@ -142,8 +137,8 @@ public abstract class DoorBase
      * @return The result of the attempt.
      */
     @NotNull
-    public final DoorToggleResult close(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
-                                        final double time, final boolean instantOpen)
+    final DoorToggleResult close(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
+                                 final double time, final boolean instantOpen)
     {
         if (!isCloseable())
             return DoorToggleResult.ALREADYOPEN;
@@ -161,9 +156,11 @@ public abstract class DoorBase
      * @return The result of the attempt.
      */
     @NotNull
-    public final DoorToggleResult toggle(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
-                                         final double time, boolean instantOpen)
+    final DoorToggleResult toggle(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
+                                  final double time, boolean instantOpen)
     {
+        BigDoors.compareThreads(Thread.currentThread().getId());
+
         if (openDir.equals(RotateDirection.NONE))
         {
             IllegalStateException e = new IllegalStateException("OpenDir cannot be NONE!");
@@ -171,25 +168,25 @@ public abstract class DoorBase
             throw e;
         }
 
-        DoorToggleResult isOpenable = doorOpener.canBeToggled(this, cause);
+        DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause);
         if (isOpenable != DoorToggleResult.SUCCESS)
-            return doorOpener.abort(this, isOpenable, cause);
+            return doorOpeningUtility.abort(this, isOpenable, cause);
 
-        if (doorOpener.isTooBig(this))
+        if (doorOpeningUtility.isTooBig(this))
             instantOpen = true;
 
         Location newMin = getMinimum();
         Location newMax = getMaximum();
 
         if (!getPotentialNewCoordinates(newMin, newMax))
-            return doorOpener.abort(this, DoorToggleResult.ERROR, cause);
+            return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause);
 
-        if (!doorOpener.isLocationEmpty(newMin, newMax, min, max,
-                                        cause.equals(DoorActionCause.PLAYER) ? initiator : null, getWorld()))
-            return doorOpener.abort(this, DoorToggleResult.OBSTRUCTED, cause);
+        if (!doorOpeningUtility.isLocationEmpty(newMin, newMax, min, max,
+                                                cause.equals(DoorActionCause.PLAYER) ? initiator : null, getWorld()))
+            return doorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause);
 
-        if (!doorOpener.canBreakBlocksBetweenLocs(this, newMin, newMax))
-            return doorOpener.abort(this, DoorToggleResult.NOPERMISSION, cause);
+        if (!doorOpeningUtility.canBreakBlocksBetweenLocs(this, newMin, newMax))
+            return doorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause);
 
         registerBlockMover(cause, time, instantOpen, newMin, newMax);
         return DoorToggleResult.SUCCESS;

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.util.BitFlag;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -35,6 +34,13 @@ public interface IStorage
      * @return True if at least 1 door was successfully removed.
      */
     boolean removeDoor(final long doorUID);
+
+    /**
+     * Checks if this storage type only allows single threaded access or not.
+     *
+     * @return True if only single threaded access is allowed.
+     */
+    boolean isSingleThreaded();
 
     /**
      * Delete all doors owned by the given player with the given name.
@@ -130,7 +136,7 @@ public interface IStorage
      * Gets all the doors with the given name, regardless of who owns them.
      *
      * @param name The name of the doors to search for.
-     * @return All doors with the given name.
+     * @return All doors with the given name or an empty Optional if none exist.
      */
     @NotNull
     Optional<List<DoorBase>> getDoors(final @NotNull String name);
@@ -156,33 +162,6 @@ public interface IStorage
      */
     @NotNull
     Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID, final int maxPermission);
-
-    /**
-     * Gets the {@link DoorBase} with the given name owned by the given player. If the player owns 0 or more than 1
-     * doors with the given name, no doors are returned at all!
-     *
-     * @param playerUUID The UUID of the player whose {@link DoorBase} will be obtained.
-     * @param doorName   The name of the {@link DoorBase} to look for.
-     * @return The {@link DoorBase} with the given name owned by this player if exactly 1 such DoorBase exists.
-     */
-    @NotNull
-    Optional<DoorBase> getDoor(final @NotNull String playerUUID, final @NotNull String doorName)
-        throws TooManyDoorsException;
-
-    /**
-     * Gets the {@link DoorBase} with the given name owned by the given player. If the player owns 0 or more than 1
-     * doors with the given name, no doors are returned at all!
-     *
-     * @param playerUUID    The UUID of the player whose {@link DoorBase} will be obtained.
-     * @param doorName      The name of the {@link DoorBase} to look for.
-     * @param maxPermission The highest level of ownership this player can have over the door being looked for. If set
-     *                      to 0, for example, only door doors where the given player has ownership level 0 (= creator)
-     *                      are included in the search.
-     * @return The {@link DoorBase} with the given name owned by this player if exactly 1 such DoorBase exists.
-     */
-    @NotNull
-    Optional<DoorBase> getDoor(final @NotNull String playerUUID, final @NotNull String doorName, int maxPermission)
-        throws TooManyDoorsException;
 
     /**
      * Updates the name of the player.

@@ -26,6 +26,15 @@ class GUIPageDoorList implements IGUIPage
         refresh();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void kill()
+    {
+
+    }
+
     @Override
     public PageType getPageType()
     {
@@ -57,7 +66,7 @@ class GUIPageDoorList implements IGUIPage
             gui.setDoor(gui.getItem(interactionIDX).getDoor());
             if (gui.getDoor() == null)
             {
-                SpigotUtil.messagePlayer(gui.getPlayer(), messages.getString(Message.ERROR_GENERALERROR));
+                SpigotUtil.messagePlayer(gui.getGuiHolder(), messages.getString(Message.ERROR_GENERALERROR));
                 gui.close();
                 return;
             }

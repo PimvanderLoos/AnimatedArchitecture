@@ -211,8 +211,9 @@ public class GarageDoor extends HorizontalAxisAlignedBase
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
-        doorOpener.registerBlockMover(
-            new GarageDoorMover(this, fixedTime, doorOpener.getMultiplier(this), instantOpen, getCurrentDirection(),
+        doorOpeningUtility.registerBlockMover(
+            new GarageDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), instantOpen,
+                                getCurrentDirection(),
                                 getCurrentToggleDir(), cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin,
                                 newMax));
     }

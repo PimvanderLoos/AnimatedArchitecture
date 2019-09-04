@@ -14,6 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class SubCommandDelete extends SubCommand
@@ -23,7 +24,7 @@ public class SubCommandDelete extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.DELETE;
 
-    public SubCommandDelete(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandDelete(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
@@ -44,17 +45,30 @@ public class SubCommandDelete extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
                CommandActionNotAllowedException
     {
-        DoorBase door = commandManager.getDoorFromArg(sender, args[getMinArgCount() - 1]);
-
-        if (sender instanceof Player && !plugin.getDatabaseManager()
-                                               .hasPermissionForAction((Player) sender, door.getDoorUID(),
-                                                                       DoorAttribute.DELETE))
-            throw new CommandActionNotAllowedException();
-        return execute(sender, door);
+        commandManager.getDoorFromArg(sender, args[getMinArgCount() - 1], cmd, args).whenComplete(
+            (optionalDoor, throwable) -> optionalDoor.ifPresent(
+                door ->
+                {
+                    try
+                    {
+                        if (sender instanceof Player && !plugin.getDatabaseManager()
+                                                               .hasPermissionForAction((Player) sender,
+                                                                                       door.getDoorUID(),
+                                                                                       DoorAttribute.DELETE).get())
+                            throw new CommandActionNotAllowedException();
+                        else
+                            execute(sender, door);
+                    }
+                    catch (InterruptedException | ExecutionException | CommandActionNotAllowedException e)
+                    {
+                        commandManager.handleException(e, sender, cmd, args);
+                    }
+                }));
+        return true;
     }
 }

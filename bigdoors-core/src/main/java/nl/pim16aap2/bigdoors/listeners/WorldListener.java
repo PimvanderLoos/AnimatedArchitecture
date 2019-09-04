@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Process world (un)load events.
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class WorldListener implements Listener
 {
+    @Nullable
     private static WorldListener instance;
 
     @NotNull

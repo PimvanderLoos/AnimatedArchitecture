@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -17,15 +18,23 @@ public class SubCommandFill extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.FILLDOOR;
 
-    public SubCommandFill(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandFill(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
+    /**
+     * Replaces all blocks between the minimum and maximum coordinates of a {@link DoorBase} with stone.
+     *
+     * @param door The {@link DoorBase}.
+     */
     public boolean execute(@NotNull DoorBase door)
     {
-        plugin.getDatabaseManager().fillDoor(door);
+        for (int i = door.getMinimum().getBlockX(); i <= door.getMaximum().getBlockX(); ++i)
+            for (int j = door.getMinimum().getBlockY(); j <= door.getMaximum().getBlockY(); ++j)
+                for (int k = door.getMinimum().getBlockZ(); k <= door.getMaximum().getBlockZ(); ++k)
+                    door.getWorld().getBlockAt(i, j, k).setType(Material.STONE);
         return true;
     }
 
@@ -33,11 +42,12 @@ public class SubCommandFill extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
-        return plugin.getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1])).filter(this::execute)
-                     .isPresent();
+        plugin.getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1]))
+              .whenComplete((optionalDoor, throwable) -> optionalDoor.ifPresent(this::execute));
+        return true;
     }
 }

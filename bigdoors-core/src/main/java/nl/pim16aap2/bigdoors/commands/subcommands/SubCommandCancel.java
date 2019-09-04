@@ -20,7 +20,7 @@ public class SubCommandCancel extends SubCommand
     protected static final int minArgCount = 1;
     protected static final CommandData command = CommandData.CANCEL;
 
-    public SubCommandCancel(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandCancel(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
@@ -30,8 +30,8 @@ public class SubCommandCancel extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))

@@ -3,14 +3,16 @@ package nl.pim16aap2.bigdoors.commands.subcommands;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,8 +20,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class SubCommandToggle extends SubCommand
@@ -28,64 +31,66 @@ public class SubCommandToggle extends SubCommand
     protected final String argsHelp = "<doorUID/Name1> <doorUID/Name2> ... [time (decimal!)]";
     protected final int minArgCount = 2;
     protected final CommandData command = CommandData.TOGGLE;
+    private static final DoorOpener doorOpener = DoorOpener.get();
+    protected DoorActionType actionType = DoorActionType.TOGGLE;
 
-    public SubCommandToggle(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandToggle(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public void execute(CommandSender sender, DoorBase door)
+    public void execute(final @NotNull CommandSender sender, final @NotNull DoorBase door)
     {
         execute(sender, door, 0.0D);
     }
 
-    public void execute(CommandSender sender, DoorBase door, double time)
+    private void toggleDoor(final @NotNull CommandSender sender, final @NotNull DoorBase door, final double time)
     {
-        if (sender instanceof Player && !plugin.getDatabaseManager()
-                                               .hasPermissionForAction((Player) sender, door.getDoorUID(),
-                                                                       DoorAttribute.TOGGLE))
-            return;
-
         UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
-        // Get a new instance of the door to make sure the locked / unlocked status is
-        // recent.
-        Optional<DoorBase> newDoor = plugin.getDatabaseManager().getDoor(playerUUID, door.getDoorUID());
 
-        if (!newDoor.isPresent())
+        DoorToggleResult result = playerUUID == null ?
+                                  doorOpener.animateDoor(door, DoorActionCause.SERVER, door.getPlayerUUID(), time,
+                                                         false, actionType) :
+                                  doorOpener.animateDoor(door, DoorActionCause.PLAYER, playerUUID, time, false,
+                                                         actionType);
+
+        // If it's a success, there's no need to inform the user. If they didn't have permission for the location,
+        // they'll already have received a message.
+        if (!result.equals(DoorToggleResult.SUCCESS) && !result.equals(DoorToggleResult.NOPERMISSION))
         {
             plugin.getPLogger()
                   .sendMessageToTarget(sender, Level.INFO,
-                                       messages.getString(Message.ERROR_TOGGLEFAILURE, door.getName()));
-            return;
-        }
-        if (newDoor.get().isLocked())
-            plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO,
-                                       messages.getString(Message.ERROR_DOORISLOCKED, door.getName()));
-
-        else
-        {
-            DoorToggleResult result = playerUUID == null ?
-                                      door.toggle(DoorActionCause.SERVER, door.getPlayerUUID(), time, false) :
-                                      door.toggle(DoorActionCause.PLAYER, playerUUID, time, false);
-
-            // If it's a success, there's no need to inform the user. If they didn't have permission for the location,
-            // they'll already have received a message.
-            if (!result.equals(DoorToggleResult.SUCCESS) && !result.equals(DoorToggleResult.NOPERMISSION))
-            {
-                plugin.getPLogger()
-                      .sendMessageToTarget(sender, Level.INFO,
-                                           messages.getString(DoorToggleResult.getMessage(result),
-                                                              Long.toString(door.getDoorUID())));
-            }
+                                       messages.getString(DoorToggleResult.getMessage(result),
+                                                          Long.toString(door.getDoorUID())));
         }
     }
 
-    double parseDoorsAndTime(CommandSender sender, String[] args, List<DoorBase> doors)
+    public void execute(final @NotNull CommandSender sender, final @NotNull DoorBase door, final double time)
+    {
+        if (!(sender instanceof Player))
+        {
+            toggleDoor(sender, door, time);
+            return;
+        }
+        plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE)
+              .whenComplete(
+                  (isAllowed, throwable) ->
+                  {
+                      if (!isAllowed)
+                          commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+                      else
+                          toggleDoor(sender, door, time);
+                      // No need to print result message here, that'll be done by the opening process of the door itself.
+                  });
+    }
+
+    @NotNull
+    CompletableFuture<Double> parseDoorsAndTime(final @NotNull CommandSender sender, final @NotNull String[] args,
+                                                final @NotNull List<DoorBase> doors)
         throws IllegalArgumentException
     {
-        String lastStr = args[args.length - 1];
+        final String lastStr = args[args.length - 1];
         // First try to get a long from the last string. If it's successful, it must be a door UID.
         // If it isn't successful (-1), try to get parse it as a double. If that is successful, it
         // must be the speed. If that isn't successful either (0.0), it must be a door name.
@@ -95,25 +100,42 @@ public class SubCommandToggle extends SubCommand
         // If the time variable was specified, decrement endIDX by 1, as the last argument is not a door!
         if (time != 0.0D)
             --index;
+        final int doorCount = index;
 
-        while (index-- > 1)
-            doors.add(commandManager.getDoorFromArg(sender, args[index]));
-        return time;
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
+                int currentPos = doorCount;
+                while (currentPos-- > 1)
+                {
+                    try
+                    {
+                        commandManager.getDoorFromArg(sender, args[currentPos], null, null).get().ifPresent(doors::add);
+                    }
+                    catch (InterruptedException | ExecutionException e)
+                    {
+                        plugin.getPLogger().logException(e, "Failed to obtain door \"" + args[currentPos] + "\"");
+                    }
+                }
+                return time;
+            });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
-        List<DoorBase> doors = new ArrayList<>();
-        double time = parseDoorsAndTime(sender, args, doors);
-
-        for (DoorBase door : doors)
-            execute(sender, door, time);
-        return doors.size() > 0;
+        final List<DoorBase> doors = new ArrayList<>();
+        parseDoorsAndTime(sender, args, doors).whenComplete(
+            (time, throwable) ->
+            {
+                for (DoorBase door : doors)
+                    execute(sender, door, time);
+            });
+        return true;
     }
 }

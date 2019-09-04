@@ -16,6 +16,11 @@ public enum DoorToggleResult
     SUCCESS(Message.EMPTY),
 
     /**
+     * No doors were found, so none were toggled.
+     */
+    NODOORSFOUND(Message.ERROR_NODOORSFOUND),
+
+    /**
      * The door could not be toggled because it is already 'busy': i.e. it is currently moving.
      */
     BUSY(Message.ERROR_DOORISBUSY),

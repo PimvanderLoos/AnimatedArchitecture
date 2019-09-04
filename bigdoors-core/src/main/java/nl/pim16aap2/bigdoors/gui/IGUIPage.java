@@ -10,4 +10,9 @@ interface IGUIPage
     void refresh();
 
     @NotNull PageType getPageType();
+
+    /**
+     * Kills a GUI page. Any running processes must be killed.
+     */
+    void kill();
 }

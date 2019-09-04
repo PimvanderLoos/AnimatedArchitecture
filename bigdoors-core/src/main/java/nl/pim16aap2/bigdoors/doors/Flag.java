@@ -143,8 +143,8 @@ public class Flag extends DoorBase
                                       final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax)
     {
-        doorOpener.registerBlockMover(
-            new FlagMover(60, this, doorOpener.getMultiplier(this),
+        doorOpeningUtility.registerBlockMover(
+            new FlagMover(60, this, doorOpeningUtility.getMultiplier(this),
                           cause.equals(DoorActionCause.PLAYER) ? getPlayerUUID() : null));
     }
 }

@@ -156,9 +156,9 @@ public class BigDoor extends DoorBase
                                       final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax)
     {
-        doorOpener.registerBlockMover(
+        doorOpeningUtility.registerBlockMover(
             new CylindricalMover(getCurrentToggleDir(), time, getCurrentDirection(), this, instantOpen,
-                                 doorOpener.getMultiplier(this),
+                                 doorOpeningUtility.getMultiplier(this),
                                  cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

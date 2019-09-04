@@ -26,6 +26,15 @@ public class GUIPageDoorCreation implements IGUIPage
         refresh();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void kill()
+    {
+
+    }
+
     @Override
     @NotNull
     public PageType getPageType()
@@ -51,7 +60,7 @@ public class GUIPageDoorCreation implements IGUIPage
                                          + ":\n" + item.toString());
             return;
         }
-        startCreationProcess(gui.getPlayer(), (DoorType) item.getSpecialValue());
+        startCreationProcess(gui.getGuiHolder(), (DoorType) item.getSpecialValue());
     }
 
     @Override
@@ -65,8 +74,8 @@ public class GUIPageDoorCreation implements IGUIPage
     {
         List<String> lore = new ArrayList<>();
         lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
+                                                Integer.toString(gui.getPage() + 2),
                                                 Integer.toString(gui.getPage() + 1),
-                                                Integer.toString(gui.getPage()),
                                                 Integer.toString(gui.getMaxPageCount())));
         gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT,
                                    plugin.getMessages().getString(Message.GUI_BUTTON_PREVIOUSPAGE), lore,
@@ -77,7 +86,7 @@ public class GUIPageDoorCreation implements IGUIPage
     {
         int position = 9;
         for (DoorType type : DoorType.cachedValues())
-            if (DoorType.isEnabled(type) && SubCommandNew.hasCreationPermission(gui.getPlayer(), type))
+            if (DoorType.isEnabled(type) && SubCommandNew.hasCreationPermission(gui.getGuiHolder(), type))
             {
                 String initMessage = plugin.getMessages().getString(Message.GUI_DESCRIPTION_INITIATION,
                                                                     plugin.getMessages()

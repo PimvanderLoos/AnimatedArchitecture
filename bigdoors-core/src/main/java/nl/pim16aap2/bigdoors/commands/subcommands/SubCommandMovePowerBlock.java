@@ -20,18 +20,23 @@ public class SubCommandMovePowerBlock extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.MOVEPOWERBLOCK;
 
-    public SubCommandMovePowerBlock(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandMovePowerBlock(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(Player player, DoorBase door) throws CommandActionNotAllowedException
+    public boolean execute(final @NotNull Player player, final @NotNull DoorBase door)
     {
-        if (!plugin.getDatabaseManager().hasPermissionForAction(player, door.getDoorUID(),
-                                                                DoorAttribute.RELOCATEPOWERBLOCK))
-            throw new CommandActionNotAllowedException();
-        plugin.getDatabaseManager().startPowerBlockRelocator(player, door);
+        plugin.getDatabaseManager().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.RELOCATEPOWERBLOCK)
+              .whenComplete(
+                  (isAllowed, throwable) ->
+                  {
+                      if (!isAllowed)
+                          commandManager.handleException(new CommandActionNotAllowedException(), player, null, null);
+                      else
+                          plugin.getDatabaseManager().startPowerBlockRelocator(player, door);
+                  });
         return true;
     }
 
@@ -39,13 +44,17 @@ public class SubCommandMovePowerBlock extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandActionNotAllowedException,
                IllegalArgumentException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
-        return execute((Player) sender, commandManager.getDoorFromArg(sender, args[getMinArgCount() - 1]));
+
+        commandManager.getDoorFromArg(sender, args[getMinArgCount() - 1], cmd, args).whenComplete(
+            (optionalDoorBase, throwable) -> optionalDoorBase.ifPresent(door -> execute((Player) sender, door)));
+
+        return true;
     }
 }

@@ -3,9 +3,7 @@ package nl.pim16aap2.bigdoors.commands.subcommands;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
-import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
@@ -24,13 +22,13 @@ public class SubCommandListPlayerDoors extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.LISTPLAYERDOORS;
 
-    public SubCommandListPlayerDoors(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandListPlayerDoors(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, List<DoorBase> doors)
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull List<DoorBase> doors)
     {
         if (doors.size() == 0)
         {
@@ -48,14 +46,14 @@ public class SubCommandListPlayerDoors extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
+        throws CommandPlayerNotFoundException
     {
-        UUID playerUUID = CommandManager.getPlayerFromArg(args[0]);
-        String name = args.length > 1 ? args[1] : null;
-        List<DoorBase> doors = new ArrayList<>(
-            plugin.getDatabaseManager().getDoors(playerUUID, name).orElse(new ArrayList<>()));
-        return execute(sender, doors);
+        UUID playerUUID = CommandManager.getPlayerFromArg(args[1]);
+        String name = args.length > 2 ? args[2] : null;
+        plugin.getDatabaseManager().getDoors(playerUUID, name).whenComplete(
+            (doorList, throwable) -> execute(sender, doorList.orElse(new ArrayList<>())));
+        return true;
     }
 }

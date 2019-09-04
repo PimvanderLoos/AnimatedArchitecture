@@ -147,8 +147,8 @@ public class Portcullis extends DoorBase
                                       final @NotNull Location newMax)
     {
         int blocksToMove = newMin.getBlockY() - min.getBlockY();
-        doorOpener.registerBlockMover(
-            new VerticalMover(time, this, instantOpen, blocksToMove, doorOpener.getMultiplier(this),
+        doorOpeningUtility.registerBlockMover(
+            new VerticalMover(time, this, instantOpen, blocksToMove, doorOpeningUtility.getMultiplier(this),
                               cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

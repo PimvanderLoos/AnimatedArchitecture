@@ -8,15 +8,24 @@ import nl.pim16aap2.bigdoors.spigotutil.PageType;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class GUIPageDeleteConfirmation implements IGUIPage
 {
     protected final BigDoors plugin;
     protected final GUI gui;
     protected final Messages messages;
+
+    /**
+     * Used to store whether or not a player has access to door removal for this door. It is stored in an intermediate
+     * step so it can be aborted on an update or something.
+     */
+    @Nullable
+    private CompletableFuture<Boolean> futurePermissionCheck = null;
 
     protected GUIPageDeleteConfirmation(final BigDoors plugin, final GUI gui)
     {
@@ -26,12 +35,28 @@ public class GUIPageDeleteConfirmation implements IGUIPage
         refresh();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void kill()
+    {
+        if (futurePermissionCheck != null && !futurePermissionCheck.isDone())
+            futurePermissionCheck.cancel(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PageType getPageType()
     {
         return PageType.CONFIRMATION;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void handleInput(int interactionIDX)
     {
@@ -51,19 +76,31 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
     private void deleteDoor()
     {
-        if (!plugin.getDatabaseManager()
-                   .hasPermissionForAction(gui.getPlayer(), gui.getDoor().getDoorUID(), DoorAttribute.DELETE))
-            return;
-        ((SubCommandDelete) plugin.getCommand(CommandData.DELETE)).execute(gui.getPlayer(), gui.getDoor());
-        gui.removeSelectedDoor();
+        futurePermissionCheck = plugin.getDatabaseManager()
+                                      .hasPermissionForAction(gui.getGuiHolder(), gui.getDoor().getDoorUID(),
+                                                              DoorAttribute.DELETE);
+        futurePermissionCheck.whenComplete(
+            (isAllowed, throwable) ->
+            {
+                if (!isAllowed)
+                    return;
+                BigDoors.newMainThreadExecutor().runOnMainThread(
+                    () ->
+                    {
+                        ((SubCommandDelete) plugin.getCommand(CommandData.DELETE))
+                            .execute(gui.getGuiHolder(), gui.getDoor());
+                        gui.removeSelectedDoor();
+                    });
+            });
+
     }
 
     protected void fillHeader()
     {
         List<String> lore = new ArrayList<>();
         lore.add(plugin.getMessages().getString(Message.GUI_DESCRIPTION_PREVIOUSPAGE,
+                                                Integer.toString(gui.getPage() + 2),
                                                 Integer.toString(gui.getPage() + 1),
-                                                Integer.toString(gui.getPage()),
                                                 Integer.toString(gui.getMaxPageCount())));
         gui.addItem(0, new GUIItem(GUI.PAGESWITCHMAT,
                                    plugin.getMessages().getString(Message.GUI_BUTTON_PREVIOUSPAGE), lore,
@@ -99,6 +136,9 @@ public class GUIPageDeleteConfirmation implements IGUIPage
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void refresh()
     {

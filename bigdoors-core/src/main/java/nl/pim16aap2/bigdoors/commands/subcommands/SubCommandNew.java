@@ -26,6 +26,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class SubCommandNew extends SubCommand
@@ -35,6 +37,14 @@ public class SubCommandNew extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.NEW;
 
+    private static final Map<DoorType, String> typePermissions = new EnumMap<>(DoorType.class);
+
+    static
+    {
+        for (DoorType type : DoorType.cachedValues())
+            typePermissions.put(type, CommandData.getPermission(CommandData.NEW) + type.toString().toLowerCase());
+    }
+
     public SubCommandNew(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
@@ -43,7 +53,7 @@ public class SubCommandNew extends SubCommand
 
     public static boolean hasCreationPermission(final @NotNull Player player, final @NotNull DoorType type)
     {
-        return player.hasPermission(CommandData.getPermission(CommandData.NEW) + type.toString().toLowerCase());
+        return player.hasPermission(typePermissions.get(type));
     }
 
     private boolean isPlayerBusy(final @NotNull Player player)
@@ -54,40 +64,22 @@ public class SubCommandNew extends SubCommand
         return isBusy;
     }
 
-    // Create a new door.
-    public void execute(final @NotNull Player player, final @Nullable String name, final @NotNull DoorType type)
+    /**
+     * Initiates door creation. It is assumed that all checks regarding permissions (allowed to create this type,
+     * allowed to create additional doors) are already verified at this point.
+     *
+     * @param player The player initiating the door creation.
+     * @param name   The name of the door, may be null.
+     * @param type   The type of the door to be created.
+     */
+    private void initiateDoorCreation(final @NotNull Player player, final @Nullable String name,
+                                      final @NotNull DoorType type)
     {
-        if (!DoorType.isEnabled(type))
-        {
-            plugin.getPLogger()
-                  .severe("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!");
-            return;
-        }
-
-        if (!hasCreationPermission(player, type))
-        {
-            SpigotUtil
-                .messagePlayer(player, messages.getString(Message.ERROR_NOPERMISSIONFORDOORTYPE));
-            return;
-        }
-
-        long doorCount = plugin.getDatabaseManager().countDoorsOwnedByPlayer(player.getUniqueId());
-        int maxCount = SpigotUtil.getMaxDoorsForPlayer(player);
-        if (maxCount >= 0 && doorCount >= maxCount)
-        {
-            SpigotUtil.messagePlayer(player,
-                                     messages.getString(Message.ERROR_TOOMANYDOORSOWNED, Integer.toString(maxCount)));
-            return;
-        }
-
         if (name != null && !Util.isValidDoorName(name))
         {
             SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_INVALIDDOORNAME, name));
             return;
         }
-
-        if (isPlayerBusy(player))
-            return;
 
         Creator creator = null;
         switch (type)
@@ -125,14 +117,62 @@ public class SubCommandNew extends SubCommand
                 break;
         }
 
+        //noinspection ConstantConditions This check is just here in case new doors are added that do not have creators.
         if (creator == null)
         {
             plugin.getPLogger()
                   .warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
             return;
         }
-
         plugin.getDatabaseManager().startTimerForAbortableTask(creator, 60 * 20);
+    }
+
+    /**
+     * Initiates door creation.
+     *
+     * @param player       The player initiating the door creation.
+     * @param name         The name of the door, may be null.
+     * @param type         The type of the door to be created.
+     * @param maxDoorCount The maximum number of doors this player is allowed to create.
+     */
+    private void initiateDoorCreation(final @NotNull Player player, final @Nullable String name,
+                                      final @NotNull DoorType type, final int maxDoorCount)
+    {
+        if (maxDoorCount < 0)
+            initiateDoorCreation(player, name, type);
+        else
+            plugin.getDatabaseManager().countDoorsOwnedByPlayer(player.getUniqueId()).whenComplete(
+                (doorCount, throwable) ->
+                {
+                    if (doorCount >= maxDoorCount)
+                        SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_TOOMANYDOORSOWNED,
+                                                                            Integer.toString(maxDoorCount)));
+                    else
+                        initiateDoorCreation(player, name, type);
+                });
+    }
+
+    // Create a new door.
+    public void execute(final @NotNull Player player, final @Nullable String name, final @NotNull DoorType type)
+    {
+        if (!DoorType.isEnabled(type))
+        {
+            plugin.getPLogger()
+                  .severe("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!");
+            return;
+        }
+
+        if (!hasCreationPermission(player, type))
+        {
+            SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_NOPERMISSIONFORDOORTYPE));
+            return;
+        }
+
+        if (isPlayerBusy(player))
+            return;
+
+        SpigotUtil.getMaxDoorsForPlayer(player)
+                  .whenComplete((maxDoors, throwable) -> initiateDoorCreation(player, name, type, maxDoors));
     }
 
     /**
@@ -160,6 +200,9 @@ public class SubCommandNew extends SubCommand
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @NotNull
     public String getHelp(final @NotNull CommandSender sender)
@@ -167,6 +210,9 @@ public class SubCommandNew extends SubCommand
         return help;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @NotNull
     public String getHelpArguments()
@@ -174,12 +220,18 @@ public class SubCommandNew extends SubCommand
         return argsHelp;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getMinArgCount()
     {
         return minArgCount;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
     public CommandData getCommandData()
@@ -187,6 +239,9 @@ public class SubCommandNew extends SubCommand
         return command;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @NotNull
     public String getPermission()
@@ -194,6 +249,9 @@ public class SubCommandNew extends SubCommand
         return CommandData.getPermission(command);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @NotNull
     public String getName()

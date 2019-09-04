@@ -10,8 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
  * Represents a user finding which {@link DoorBase}s have their power block in a location.
  *
@@ -60,12 +58,15 @@ public class PowerBlockInspector extends ToolUser
     public void selector(final @NotNull Location loc)
     {
         done = true;
-        List<DoorBase> doors = plugin.getPowerBlockManager().doorsFromPowerBlockLoc(
-            new Vector3D(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getUID());
-        if (doors.size() == 0)
-            return;
 
-        ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, doors);
-        setIsDone(true);
+        plugin.getPowerBlockManager().doorsFromPowerBlockLoc(
+            new Vector3D(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getUID()).whenComplete(
+            (doorList, throwable) ->
+            {
+                if (doorList.size() == 0)
+                    return;
+                ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, doorList);
+                setIsDone(true);
+            });
     }
 }

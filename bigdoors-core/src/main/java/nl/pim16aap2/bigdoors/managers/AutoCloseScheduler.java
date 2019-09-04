@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -19,6 +20,8 @@ import java.util.UUID;
  */
 public class AutoCloseScheduler extends Restartable
 {
+    private static AutoCloseScheduler instance;
+
     protected final BigDoors plugin;
     /**
      * A map of {@link BukkitTask}s.
@@ -29,11 +32,37 @@ public class AutoCloseScheduler extends Restartable
      */
     private final Map<Long, BukkitTask> timers;
 
-    public AutoCloseScheduler(final BigDoors plugin)
+    private AutoCloseScheduler(final @NotNull BigDoors plugin)
     {
         super(plugin);
         this.plugin = plugin;
         timers = new HashMap<>();
+    }
+
+    /**
+     * Initializes the {@link AutoCloseScheduler}. If it has already been initialized, it'll return that instance
+     * instead.
+     *
+     * @param plugin The Spigot plugin.
+     * @return The instance of this {@link AutoCloseScheduler}.
+     */
+    @NotNull
+    public static AutoCloseScheduler init(final @NotNull BigDoors plugin)
+    {
+        return (instance == null) ? instance = new AutoCloseScheduler(plugin) : instance;
+    }
+
+    /**
+     * Gets the instance of the {@link AutoCloseScheduler} if it exists.
+     *
+     * @return The instance of the {@link AutoCloseScheduler}.
+     */
+    @NotNull
+    public static AutoCloseScheduler get()
+    {
+        Preconditions.checkState(instance != null,
+                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
+        return instance;
     }
 
     /**
@@ -90,8 +119,9 @@ public class AutoCloseScheduler extends Restartable
                 if (door.isOpen())
                 {
                     plugin.getDoorManager().setDoorAvailable(door.getDoorUID());
-                    plugin.getDatabaseManager().getDoor(door.getDoorUID()).ifPresent(
-                        door -> door.open(cause, playerUUID, speed, instantOpen));
+                    plugin.getDoorOpener()
+                          .closeDoor(plugin.getDatabaseManager().getDoor(door.getDoorUID()), cause, playerUUID, speed,
+                                     instantOpen);
                 }
                 deleteTimer(door.getDoorUID());
             }

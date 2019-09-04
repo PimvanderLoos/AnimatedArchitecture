@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.config;
 
+import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -30,6 +31,7 @@ import java.util.Set;
  */
 public final class ConfigLoader
 {
+    @Nullable
     private static ConfigLoader instance;
 
     private final BigDoors plugin;
@@ -97,10 +99,11 @@ public final class ConfigLoader
      *
      * @return The instance of the {@link ConfigLoader}.
      */
-    @Nullable
-    @Contract(pure = true)
+    @NotNull
     public static ConfigLoader get()
     {
+        Preconditions.checkState(instance != null,
+                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
         return instance;
     }
 

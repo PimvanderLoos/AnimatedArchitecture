@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.storage.sqlite;
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.spigotutil.PlayerRetriever;
 import nl.pim16aap2.bigdoors.spigotutil.WorldRetriever;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -122,6 +121,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         url = "jdbc:sqlite:" + dbFile;
         init();
         upgrade();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isSingleThreaded()
+    {
+        return true;
     }
 
     /**
@@ -371,9 +379,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         DoorBase ret = null;
         try
         {
-//            DoorBase door = DoorType.valueOf(rs.getInt("type")).getNewDoor(pLogger, doorOwner.getDoorUID());
-
-
             DoorBase.DoorData doorData;
             {
                 World world = Objects
@@ -402,7 +407,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException | IllegalArgumentException e)
         {
-            logMessage("282", e);
+            logMessage("282 " + e.getMessage(), e);
         }
         return Optional.ofNullable(ret);
     }
@@ -709,8 +714,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Override
     @NotNull
-    public Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID,
-                                             final @NotNull String doorName,
+    public Optional<List<DoorBase>> getDoors(final @NotNull String playerUUID, final @NotNull String doorName,
                                              int maxPermission)
     {
         List<DoorBase> doors = new ArrayList<>();
@@ -772,63 +776,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             logMessage("613", e);
         }
         return Optional.of(ret);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public Optional<DoorBase> getDoor(final @NotNull String playerUUID, final @NotNull String doorName)
-        throws TooManyDoorsException
-    {
-        return getDoor(playerUUID, doorName, Integer.MAX_VALUE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public Optional<DoorBase> getDoor(final @NotNull String playerUUID, final @NotNull String doorName,
-                                      int maxPermission)
-        throws TooManyDoorsException
-    {
-        Optional<DoorBase> door = Optional.empty();
-        int count = 0;
-
-        try (Connection conn = getConnection())
-        {
-            String sql = "SELECT D.*, P.playerUUID, P.playerName, U.permission \n" +
-                "FROM doors as D INNER JOIN sqlUnion AS U ON U.doorUID = D.id INNER JOIN players AS P ON P.id = U.playerID \n" +
-                "WHERE P.playerUUID = ? AND permission <= ? AND D.name = ?;";
-
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, playerUUID);
-            ps.setInt(2, maxPermission);
-            ps.setString(3, doorName);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next())
-            {
-                ++count;
-                if (count > 1)
-                    break;
-                DoorOwner doorOwner = new DoorOwner(rs.getLong("id"), UUID.fromString(rs.getString("playerUUID")),
-                                                    rs.getString("playerName"), rs.getInt("permission"));
-                door = newDoorFromRS(rs, doorOwner);
-            }
-
-            ps.close();
-            rs.close();
-        }
-        catch (SQLException | NullPointerException e)
-        {
-            logMessage("621", e);
-        }
-        if (count > 1)
-            throw new TooManyDoorsException();
-        return door;
     }
 
     /**
@@ -1300,8 +1247,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @param conn      The connection to the database.
      * @param doorOwner The doorOwner with the player to retrieve.
      * @return The database ID of the player.
-     *
-     * @throws SQLException
      */
     private long getPlayerID(final @NotNull Connection conn, final @NotNull DoorOwner doorOwner) throws SQLException
     {

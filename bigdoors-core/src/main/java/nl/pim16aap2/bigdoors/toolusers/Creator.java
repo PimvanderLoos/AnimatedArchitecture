@@ -103,6 +103,18 @@ public abstract class Creator extends ToolUser
     }
 
     /**
+     * Send the {@link Message#CREATOR_GENERAL_AREATOOBIG} error message to a player.
+     *
+     * @param player    The player.
+     * @param sizeLimit The size limit that was exceeded.
+     */
+    private void sendAreaTooBigMessage(final @NotNull Player player, final int sizeLimit)
+    {
+        SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_AREATOOBIG,
+                                                            Integer.toString(sizeLimit)));
+    }
+
+    /**
      * Constructs a new {@link DoorBase} from the provided data and removes the creator tool from the {@link Player}'s
      * inventory.
      *
@@ -142,21 +154,28 @@ public abstract class Creator extends ToolUser
             door.setPowerBlockLocation(getPowerBlockLoc(world));
             door.setAutoClose(-1);
 
-            int doorSize = door.getBlockCount();
-            int sizeLimit = SpigotUtil.getMaxDoorSizeForPlayer(player);
-
-            if (sizeLimit >= 0 && sizeLimit <= doorSize)
-                SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_AREATOOBIG,
-                                                                    Integer.toString(sizeLimit)));
-            else if (plugin.getVaultManager().buyDoor(player, type, doorSize))
+            final int doorSize = door.getBlockCount();
+            if (plugin.getConfigLoader().maxDoorSize() <= doorSize)
             {
-                plugin.getDatabaseManager().addDoorBase(door);
-                if (message != null)
-                    SpigotUtil.messagePlayer(player, message);
-                plugin.getGlowingBlockSpawner()
-                      .spawnGlowinBlock(player.getUniqueId(), world.getName(), 30, engine.getBlockX(),
-                                        engine.getBlockY(), engine.getBlockZ());
+                sendAreaTooBigMessage(player, plugin.getConfigLoader().maxDoorSize());
+                super.finishUp();
+                return;
             }
+            SpigotUtil.getMaxDoorSizeForPlayer(player).whenComplete(
+                (sizeLimit, throwable) ->
+                {
+                    if (sizeLimit >= 0 && sizeLimit <= doorSize)
+                        sendAreaTooBigMessage(player, sizeLimit);
+                    else if (plugin.getVaultManager().buyDoor(player, type, doorSize))
+                    {
+                        plugin.getDatabaseManager().addDoorBase(door);
+                        if (message != null)
+                            SpigotUtil.messagePlayer(player, message);
+                        plugin.getGlowingBlockSpawner()
+                              .spawnGlowinBlock(player.getUniqueId(), world.getName(), 30, engine.getBlockX(),
+                                                engine.getBlockY(), engine.getBlockZ());
+                    }
+                });
         }
         super.finishUp();
     }

@@ -146,8 +146,9 @@ public class SlidingDoor extends HorizontalAxisAlignedBase
             (currentToggleDir.equals(RotateDirection.NORTH) || currentToggleDir.equals(RotateDirection.SOUTH)) ?
             newMin.getBlockZ() - min.getBlockZ() : newMin.getBlockX() - min.getBlockX();
 
-        doorOpener.registerBlockMover(
-            new SlidingMover(time, this, instantOpen, blocksToMove, currentToggleDir, doorOpener.getMultiplier(this),
+        doorOpeningUtility.registerBlockMover(
+            new SlidingMover(time, this, instantOpen, blocksToMove, currentToggleDir, doorOpeningUtility
+                .getMultiplier(this),
                              cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

@@ -143,8 +143,8 @@ public class Windmill extends HorizontalAxisAlignedBase
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
-        doorOpener.registerBlockMover(
-            new WindmillMover(this, fixedTime, doorOpener.getMultiplier(this), getCurrentToggleDir(),
+        doorOpeningUtility.registerBlockMover(
+            new WindmillMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
                               cause == DoorActionCause.PLAYER ? getPlayerUUID() : null));
     }
 }

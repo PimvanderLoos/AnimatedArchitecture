@@ -27,35 +27,48 @@ public class SubCommandAddOwner extends SubCommand
     protected final int minArgCount = 3;
     protected CommandData command = CommandData.ADDOWNER;
 
-    public SubCommandAddOwner(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandAddOwner(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, DoorBase door, String playerArg, int permission)
-        throws CommandPlayerNotFoundException, CommandActionNotAllowedException
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull DoorBase door,
+                           final @NotNull String playerArg, final int permission)
+        throws CommandPlayerNotFoundException
     {
-        UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
+        final UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
 
-        if (sender instanceof Player && !plugin.getDatabaseManager()
-                                               .hasPermissionForAction((Player) sender, door.getDoorUID(),
-                                                                       DoorAttribute.ADDOWNER))
-            throw new CommandActionNotAllowedException();
-
-        if (plugin.getDatabaseManager().addOwner(door, playerUUID, permission))
+        // No need to check for permissions if the sender wasn't a player.
+        if (!(sender instanceof Player))
         {
-            plugin.getPLogger()
-                  .sendMessageToTarget(sender, Level.INFO, messages.getString(Message.COMMAND_ADDOWNER_SUCCESS));
+            boolean success = plugin.getDatabaseManager().addOwner(door, playerUUID, permission);
+            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                    success ?
+                                                    messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
+                                                    messages.getString(Message.COMMAND_ADDOWNER_FAIL));
             return true;
         }
-        plugin.getPLogger()
-              .sendMessageToTarget(sender, Level.INFO, messages.getString(Message.COMMAND_ADDOWNER_FAIL));
-        return false;
 
+        plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.ADDOWNER)
+              .whenComplete(
+                  (isAllowed, throwable) ->
+                  {
+                      if (!isAllowed)
+                      {
+                          commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+                          return;
+                      }
+                      boolean success = plugin.getDatabaseManager().addOwner(door, playerUUID, permission);
+                      plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                              success ?
+                                                              messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
+                                                              messages.getString(Message.COMMAND_ADDOWNER_FAIL));
+                  });
+        return true;
     }
 
-    public int getPermissionFromArgs(CommandSender sender, String[] args, int pos)
+    public int getPermissionFromArgs(final @NotNull CommandSender sender, final @NotNull String[] args, final int pos)
     {
         int permission = Integer.MAX_VALUE;
         try
@@ -75,15 +88,29 @@ public class SubCommandAddOwner extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
                CommandActionNotAllowedException, IllegalArgumentException
     {
         Optional<WaitForCommand> commandWaiter = commandManager.isCommandWaiter(sender, getName());
         if (commandWaiter.isPresent())
             return commandManager.commandWaiterExecute(commandWaiter.get(), args, minArgCount);
-        return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2],
-                       getPermissionFromArgs(sender, args, 3));
+
+        commandManager.getDoorFromArg(sender, args[1], cmd, args).whenComplete(
+            (optionalDoor, throwable) ->
+                optionalDoor.ifPresent(
+                    door ->
+                    {
+                        try
+                        {
+                            execute(sender, door, args[2], getPermissionFromArgs(sender, args, 3));
+                        }
+                        catch (Exception e)
+                        {
+                            commandManager.handleException(e, sender, cmd, args);
+                        }
+                    }));
+        return true;
     }
 }

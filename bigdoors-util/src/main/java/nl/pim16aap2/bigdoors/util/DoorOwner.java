@@ -63,6 +63,7 @@ public class DoorOwner
      *
      * @return The UUID of the player.
      */
+    @NotNull
     public UUID getPlayerUUID()
     {
         return playerUUID;
@@ -83,6 +84,7 @@ public class DoorOwner
      *
      * @return The name of the player.
      */
+    @NotNull
     public String getPlayerName()
     {
         return playerName;
@@ -91,14 +93,14 @@ public class DoorOwner
     /**
      * Get a basic overview of this door owner. Useful for debugging.
      */
+    @NotNull
     @Override
     public String toString()
     {
-        String sb = "doorUID: " + doorUID +
+        return "doorUID: " + doorUID +
             ". playerUUID: " + playerUUID.toString() +
             ". Permission: " + permission +
             ". PlayerName: " + playerName;
-        return sb;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class SubCommandRestart extends SubCommand
     protected static final int minArgCount = 0;
     protected static final CommandData command = CommandData.RESTART;
 
-    public SubCommandRestart(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandRestart(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
@@ -28,8 +28,8 @@ public class SubCommandRestart extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         plugin.restart();

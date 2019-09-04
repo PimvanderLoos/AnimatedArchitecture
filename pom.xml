@@ -23,25 +23,35 @@
 
     <repositories>
         <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
+        <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+
         <repository>
             <id>jetbrain-annotations</id>
             <url>https://mvnrepository.com/artifact/org.jetbrains/annotations</url>
         </repository>
+
         <repository>
             <id>junit-api</id>
             <url>https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api</url>
         </repository>
+
         <repository>
             <id>junit-engine</id>
             <url>https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine</url>
         </repository>
+
         <repository>
             <id>maven-surefire-plugin</id>
             <url>https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin</url>
         </repository>
+
         <repository>
             <id>mockito-core</id>
             <url>https://mvnrepository.com/artifact/org.mockito/mockito-core</url>

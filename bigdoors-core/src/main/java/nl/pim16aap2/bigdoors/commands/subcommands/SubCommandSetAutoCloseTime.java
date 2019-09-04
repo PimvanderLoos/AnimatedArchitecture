@@ -15,10 +15,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class SubCommandSetAutoCloseTime extends SubCommand
@@ -28,32 +26,48 @@ public class SubCommandSetAutoCloseTime extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.SETAUTOCLOSETIME;
 
-    public SubCommandSetAutoCloseTime(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandSetAutoCloseTime(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, DoorBase door, String timeArg)
-        throws CommandActionNotAllowedException, IllegalArgumentException
+    private void sendResultMessage(final @NotNull CommandSender sender, final int time)
     {
-        if (sender instanceof Player && !plugin.getDatabaseManager()
-                                               .hasPermissionForAction((Player) sender, door.getDoorUID(),
-                                                                       DoorAttribute.CHANGETIMER))
-            throw new CommandActionNotAllowedException();
+        plugin.getPLogger()
+              .sendMessageToTarget(sender, Level.INFO,
+                                   time < 0 ?
+                                   messages.getString(Message.COMMAND_SETTIME_SUCCESS, Integer.toString(time)) :
+                                   messages.getString(Message.COMMAND_SETTIME_DISABLED));
+    }
 
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull DoorBase door,
+                           final @NotNull String timeArg)
+        throws IllegalArgumentException
+    {
         int time = CommandManager.getIntegerFromArg(timeArg);
+        if (!(sender instanceof Player))
+        {
+            plugin.getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
+            plugin.getAutoCloseScheduler().scheduleAutoClose(door.getPlayerUUID(), door, time, false);
+            sendResultMessage(sender, time);
+            return true;
+        }
 
-        plugin.getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
-
-        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, time < 0 ?
-                                                                    messages.getString(Message.COMMAND_SETTIME_SUCCESS,
-                                                                                       Integer.toString(time)) :
-                                                                    messages.getString(
-                                                                        Message.COMMAND_SETTIME_DISABLED));
-
-        @Nullable UUID player = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
-        plugin.getAutoCloseScheduler().scheduleAutoClose(player, door, time, false);
+        final Player player = (Player) sender;
+        plugin.getDatabaseManager()
+              .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.CHANGETIMER).whenComplete(
+            (isAllowed, throwable) ->
+            {
+                if (!isAllowed)
+                {
+                    commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+                    return;
+                }
+                plugin.getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
+                plugin.getAutoCloseScheduler().scheduleAutoClose(player.getUniqueId(), door, time, false);
+                sendResultMessage(sender, time);
+            });
         return true;
     }
 
@@ -61,14 +75,17 @@ public class SubCommandSetAutoCloseTime extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
                CommandActionNotAllowedException, IllegalArgumentException
     {
         Optional<WaitForCommand> commandWaiter = commandManager.isCommandWaiter(sender, getName());
         if (commandWaiter.isPresent())
             return commandManager.commandWaiterExecute(commandWaiter.get(), args, minArgCount);
-        return execute(sender, commandManager.getDoorFromArg(sender, args[1]), args[2]);
+
+        commandManager.getDoorFromArg(sender, args[1], cmd, args).whenComplete(
+            (optionalDoorBase, throwable) -> optionalDoorBase.ifPresent(door -> execute(sender, door, args[2])));
+        return true;
     }
 }

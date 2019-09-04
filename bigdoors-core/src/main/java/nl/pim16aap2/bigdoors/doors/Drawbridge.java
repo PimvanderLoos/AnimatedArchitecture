@@ -157,8 +157,9 @@ public class Drawbridge extends HorizontalAxisAlignedBase
         PBlockFace upDown =
             Math.abs(min.getBlockY() - max.getBlockY()) > 0 ? PBlockFace.DOWN : PBlockFace.UP;
 
-        doorOpener.registerBlockMover(
-            new BridgeMover(time, this, upDown, getCurrentToggleDir(), instantOpen, doorOpener.getMultiplier(this),
+        doorOpeningUtility.registerBlockMover(
+            new BridgeMover(time, this, upDown, getCurrentToggleDir(), instantOpen, doorOpeningUtility
+                .getMultiplier(this),
                             cause == DoorActionCause.PLAYER ? getPlayerUUID() : null, newMin, newMax));
     }
 }

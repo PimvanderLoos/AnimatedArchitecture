@@ -118,7 +118,7 @@ public class Clock extends HorizontalAxisAlignedBase
                                       final boolean instantOpen, final @NotNull Location newMin,
                                       final @NotNull Location newMax)
     {
-        doorOpener.registerBlockMover(new ClockMover(this, getCurrentToggleDir(), null));
+        doorOpeningUtility.registerBlockMover(new ClockMover(this, getCurrentToggleDir(), null));
     }
 
     /**

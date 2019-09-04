@@ -18,7 +18,7 @@ public class SubCommandMenu extends SubCommand
     protected static final int minArgCount = 0;
     protected static final CommandData command = CommandData.MENU;
 
-    public SubCommandMenu(final BigDoors plugin, final CommandManager commandManager)
+    public SubCommandMenu(final @NotNull BigDoors plugin, final @NotNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
@@ -28,8 +28,8 @@ public class SubCommandMenu extends SubCommand
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
-                             @NotNull String[] args)
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
+                             final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))
