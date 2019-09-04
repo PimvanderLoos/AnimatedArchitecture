@@ -214,7 +214,6 @@ public final class DoorOpener
     {
         if (!BigDoors.onMainThread(Thread.currentThread().getId()))
         {
-            BigDoors.compareThreads(Thread.currentThread().getId());
             pLogger.logException(new IllegalThreadStateException("Doors can only be animated on the main thread!"));
             return DoorToggleResult.ERROR;
         }

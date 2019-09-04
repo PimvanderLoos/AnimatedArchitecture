@@ -27,12 +27,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -196,7 +195,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *
      * @param conn The connection.
      */
-    private void disableForeignKeys(final @NotNull Connection conn) throws SQLException
+    private void disableForeignKeys(final @NotNull Connection conn)
+        throws SQLException
     {
         conn.createStatement().execute("PRAGMA foreign_keys=OFF");
         conn.createStatement().execute("PRAGMA legacy_alter_table=ON");
@@ -208,7 +208,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @param conn The connection.
      * @throws SQLException
      */
-    private void reEnableForeignKeys(final @NotNull Connection conn) throws SQLException
+    private void reEnableForeignKeys(final @NotNull Connection conn)
+        throws SQLException
     {
         conn.createStatement().execute("PRAGMA foreign_keys=ON");
         conn.createStatement().execute("PRAGMA legacy_alter_table=OFF");
@@ -919,9 +920,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Override
     @NotNull
-    public Map<Integer, List<Long>> getPowerBlockData(final long chunkHash)
+    public ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(final long chunkHash)
     {
-        Map<Integer, List<Long>> doors = new HashMap<>();
+        ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
 
         try (Connection conn = getConnection())
         {
@@ -1248,7 +1249,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @param doorOwner The doorOwner with the player to retrieve.
      * @return The database ID of the player.
      */
-    private long getPlayerID(final @NotNull Connection conn, final @NotNull DoorOwner doorOwner) throws SQLException
+    private long getPlayerID(final @NotNull Connection conn, final @NotNull DoorOwner doorOwner)
+        throws SQLException
     {
         String insertPlayerSql = "INSERT OR IGNORE INTO players(playerUUID, playerName) VALUES(?, ?)";
         PreparedStatement insertPlayer = conn.prepareStatement(insertPlayerSql);

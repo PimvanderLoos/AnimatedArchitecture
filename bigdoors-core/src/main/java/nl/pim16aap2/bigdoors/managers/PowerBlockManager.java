@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -258,7 +257,7 @@ public final class PowerBlockManager extends Restartable
          */
         @NotNull
         private final TimedMapCache<Long, PowerBlockChunk> powerBlockChunks =
-            new TimedMapCache<>(BigDoors.get(), HashMap::new, getConfig().cacheTimeout());
+            new TimedMapCache<>(BigDoors.get(), ConcurrentHashMap::new, getConfig().cacheTimeout());
 
         private PowerBlockWorld(final @NotNull UUID world)
         {
@@ -410,7 +409,7 @@ public final class PowerBlockManager extends Restartable
             catch (InterruptedException | ExecutionException e)
             {
                 pLogger.logException(e);
-                powerBlocks = new HashMap<>();
+                powerBlocks = new ConcurrentHashMap<>();
             }
             return powerBlocks.size() > 0;
         }

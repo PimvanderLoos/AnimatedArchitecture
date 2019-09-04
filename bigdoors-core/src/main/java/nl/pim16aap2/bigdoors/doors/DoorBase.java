@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -159,8 +158,6 @@ public abstract class DoorBase
     final DoorToggleResult toggle(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
                                   final double time, boolean instantOpen)
     {
-        BigDoors.compareThreads(Thread.currentThread().getId());
-
         if (openDir.equals(RotateDirection.NONE))
         {
             IllegalStateException e = new IllegalStateException("OpenDir cannot be NONE!");

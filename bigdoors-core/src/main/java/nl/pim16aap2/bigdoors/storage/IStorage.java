@@ -7,9 +7,9 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents storage of all door related stuff.
@@ -211,7 +211,7 @@ public interface IStorage
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
     @NotNull
-    Map<Integer, List<Long>> getPowerBlockData(final long chunkHash);
+    ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(final long chunkHash);
 
     /**
      * Changes the blocksToMove value of a door.

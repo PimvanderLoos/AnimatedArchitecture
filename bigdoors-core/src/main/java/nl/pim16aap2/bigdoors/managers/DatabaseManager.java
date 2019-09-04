@@ -32,10 +32,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -539,7 +539,7 @@ public final class DatabaseManager extends Restartable
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
     @NotNull
-    CompletableFuture<Map<Integer, List<Long>>> getPowerBlockData(final long chunkHash)
+    CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(final long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool);
     }
