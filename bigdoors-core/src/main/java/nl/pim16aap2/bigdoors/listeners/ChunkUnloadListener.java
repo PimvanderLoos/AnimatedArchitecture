@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.listeners;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.Vector2D;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -73,6 +74,8 @@ public class ChunkUnloadListener implements Listener
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkUnload(final @NotNull ChunkUnloadEvent event)
     {
+        plugin.getPowerBlockManager().invalidateChunk(event.getWorld().getUID(), new Vector2D(event.getChunk().getX(),
+                                                                                              event.getChunk().getZ()));
         try
         {
             // If this class couldn't figure out reflection properly, give up.

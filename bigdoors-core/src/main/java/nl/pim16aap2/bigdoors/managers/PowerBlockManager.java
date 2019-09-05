@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.Vector2D;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -211,6 +212,24 @@ public final class PowerBlockManager extends Restartable
             return;
         }
         powerBlockWorld.invalidatePosition(pos);
+        powerBlockWorld.checkBigDoorsWorldStatus();
+    }
+
+    /**
+     * Invalidates the cache of a chunk in a world.
+     *
+     * @param worldUUID The UUID of the world.
+     * @param chunk     The location (x,z) of the chunk in chunk-space.
+     */
+    public void invalidateChunk(final @NotNull UUID worldUUID, final @NotNull Vector2D chunk)
+    {
+        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        if (powerBlockWorld == null)
+        {
+            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            return;
+        }
+        powerBlockWorld.invalidatePosition(new Vector3D(chunk.getX(), 64, chunk.getY()));
         powerBlockWorld.checkBigDoorsWorldStatus();
     }
 

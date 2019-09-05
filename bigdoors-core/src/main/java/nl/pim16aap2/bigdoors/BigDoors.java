@@ -220,7 +220,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Get rid of all occurrences of ".orElse(new ArrayList<>())". Use a default, unmodifiable list instead. See
 //       PowerBlockManager#EMPTYDOORSLIST for example.
 // TODO: Do permissions checking for bypasses etc (compats) fully async (so not with an ugly .get()).
-// TODO: On chunkUnload, make sure to clear that chunk from cache.
 
 /*
  * GUI
