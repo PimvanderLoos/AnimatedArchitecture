@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.events.dooraction;
+package nl.pim16aap2.bigdoors.api.events.dooraction;
 
 /**
  * Represents the different kinds of actions that are applicable to a door.

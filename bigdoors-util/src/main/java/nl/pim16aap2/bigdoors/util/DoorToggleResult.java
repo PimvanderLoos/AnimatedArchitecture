@@ -36,6 +36,11 @@ public enum DoorToggleResult
     ERROR(Message.ERROR_TOGGLEFAILURE),
 
     /**
+     * The door exceeded the size limit.
+     */
+    TOOBIG(Message.ERROR_DOORTOOBIG),
+
+    /**
      * The player who tried to toggle it or, if not present (e.g. when toggled via redstone), the original creator does
      * not have permission to open to toggle the door because they are not allowed to break blocks in the new location.
      * This happens when a compatibility hook interferes (e.g. WorldGuard).

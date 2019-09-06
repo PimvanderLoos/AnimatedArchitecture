@@ -31,6 +31,7 @@ public enum Message implements MessageVariable
     ERROR_NOOPENDIRECTION(MessageVariable.DOOR),
     ERROR_DOORISBUSY(MessageVariable.DOOR),
     ERROR_DOORISLOCKED(MessageVariable.DOOR),
+    ERROR_DOORTOOBIG(MessageVariable.DOOR),
     ERROR_NOTOGGLEPERMISSION(MessageVariable.DOOR),
     ERROR_TOOMANYDOORSFOUND(MessageVariable.DOOR),
     ERROR_DOORISOBSTRUCTED(MessageVariable.DOOR),

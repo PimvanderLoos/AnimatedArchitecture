@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionEventSpigot;
 import nl.pim16aap2.bigdoors.util.Vector3D;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -11,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -32,8 +35,14 @@ public class RedstoneListener implements Listener
         plugin.getPowerBlockManager().doorsFromPowerBlockLoc(
             new Vector3D(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getUID()).whenComplete(
             (doorList, throwable) -> doorList.forEach(
-                door -> plugin.getDoorOpener()
-                              .animateDoor(door, DoorActionCause.REDSTONE, null, 0.0D, false, DoorActionType.TOGGLE)));
+                door ->
+                {
+                    // TODO: Less stupid system.
+                    CompletableFuture<Optional<DoorBase>> futureDoor = CompletableFuture
+                        .completedFuture(Optional.of(door));
+                    plugin.callDoorActionEvent(new DoorActionEventSpigot(futureDoor, DoorActionCause.REDSTONE,
+                                                                         DoorActionType.TOGGLE, null));
+                }));
     }
 
     /**

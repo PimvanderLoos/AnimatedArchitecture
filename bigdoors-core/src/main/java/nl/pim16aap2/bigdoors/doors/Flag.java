@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.FlagMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -28,6 +28,15 @@ public class Flag extends DoorBase
     protected Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
         this(pLogger, doorUID, doorData, DoorType.FLAG);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canOpenInstantly()
+    {
+        return false;
     }
 
     /**

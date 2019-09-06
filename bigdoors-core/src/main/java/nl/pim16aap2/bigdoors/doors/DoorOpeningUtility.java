@@ -1,10 +1,12 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import com.google.common.base.Preconditions;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -13,14 +15,17 @@ import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.Vector3D;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Represents a utility singleton that is used to open {@link DoorBase}s.
@@ -115,6 +120,13 @@ public final class DoorOpeningUtility
         if (!result.equals(DoorToggleResult.NOPERMISSION))
             if (!cause.equals(DoorActionCause.PLAYER))
                 pLogger.warn("Failed to toggle door: " + result.name());
+            else
+            {
+                Player player = Bukkit.getPlayer(door.getPlayerUUID());
+                if (player != null)
+                    pLogger.sendMessageToTarget(player, Level.INFO, BigDoors.get().getMessages().getString(
+                        DoorToggleResult.getMessage(result), door.getName()));
+            }
         return result;
     }
 
@@ -293,15 +305,22 @@ public final class DoorOpeningUtility
      * <p>
      * - All chunks this {@link DoorBase} might interact with are loaded.
      *
-     * @param door  The {@link DoorBase}.
-     * @param cause Who or what initiated this action.
+     * @param door       The {@link DoorBase}.
+     * @param cause      Who or what initiated this action.
+     * @param actionType The type of action.
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
     @NotNull
-    public DoorToggleResult canBeToggled(final @NotNull DoorBase door, final @NotNull DoorActionCause cause)
+    public DoorToggleResult canBeToggled(final @NotNull DoorBase door, final @NotNull DoorActionCause cause,
+                                         final @NotNull DoorActionType actionType)
     {
         if (isBusySetIfNot(door.getDoorUID()))
             return DoorToggleResult.BUSY;
+
+        if (actionType == DoorActionType.OPEN && !door.isOpenable())
+            return DoorToggleResult.ALREADYOPEN;
+        else if (actionType == DoorActionType.CLOSE && !door.isCloseable())
+            return DoorToggleResult.ALREADYCLOSED;
 
         if (door.isLocked())
             return DoorToggleResult.LOCKED;

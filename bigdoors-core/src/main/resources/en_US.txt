@@ -36,6 +36,7 @@ ERROR.NOPERMISSIONFORDOORTYPE=&4You do not have permission to create a %DOORTYPE
 # Supported: %DOOR%
 ERROR.DOORISBUSY=&4"%DOOR%" is busy! Try again later.
 ERROR.DOORISLOCKED=&4"%DOOR%" is locked!
+ERROR.DOORTOOBIG=&4"%DOOR%" is too big!
 ERROR.TOGGLEFAILURE=&4"%DOOR%" could not be toggled!
 ERROR.DOORALREADYCLOSED=&4"%DOOR%" is already closed!
 ERROR.DOORALREADYOPEN=&4"%DOOR%" is already open!

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.RevolvingDoorMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -27,6 +27,15 @@ public class RevolvingDoor extends DoorBase
     protected RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
         this(pLogger, doorUID, doorData, DoorType.REVOLVINGDOOR);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canOpenInstantly()
+    {
+        return false;
     }
 
     /**

@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.events.dooraction;
+package nl.pim16aap2.bigdoors.api.events.dooraction;
 
 /**
  * Represents the different kind of causes that can be the reason of a {@link DoorBase} action.
@@ -21,6 +21,11 @@ public enum DoorActionCause
      * The {@link DoorBase} was toggled from the console or by a command block.
      */
     SERVER,
+
+    /**
+     * The action was intiated by the auto close system. See {@link nl.pim16aap2.bigdoors.managers.AutoCloseScheduler}.
+     */
+    AUTOCLOSE,
 
     ;
 }

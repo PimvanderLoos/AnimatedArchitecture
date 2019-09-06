@@ -39,3 +39,5 @@ hs_err_pid*
 move.xml
 random
 tests
+dependency-reduced-pom.xml
+ignoredFiles

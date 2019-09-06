@@ -2,8 +2,10 @@ package nl.pim16aap2.bigdoors.managers;
 
 import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionEventSpigot;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -119,9 +121,9 @@ public class AutoCloseScheduler extends Restartable
                 if (door.isOpen())
                 {
                     plugin.getDoorManager().setDoorAvailable(door.getDoorUID());
-                    plugin.getDoorOpener()
-                          .closeDoor(plugin.getDatabaseManager().getDoor(door.getDoorUID()), cause, playerUUID, speed,
-                                     instantOpen);
+                    plugin.callDoorActionEvent(
+                        new DoorActionEventSpigot(plugin.getDatabaseManager().getDoor(door.getDoorUID()), cause,
+                                                  DoorActionType.CLOSE, playerUUID, speed, instantOpen));
                 }
                 deleteTimer(door.getDoorUID());
             }

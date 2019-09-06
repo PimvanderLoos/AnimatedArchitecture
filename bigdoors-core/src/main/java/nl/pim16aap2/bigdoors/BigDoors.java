@@ -33,10 +33,9 @@ import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigdoors.config.ConfigLoader;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionEventSpigot;
 import nl.pim16aap2.bigdoors.gui.GUI;
 import nl.pim16aap2.bigdoors.listeners.ChunkUnloadListener;
 import nl.pim16aap2.bigdoors.listeners.EventListeners;
@@ -59,7 +58,6 @@ import nl.pim16aap2.bigdoors.spigotutil.MainThreadExecutorSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
-import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.IRestartable;
 import nl.pim16aap2.bigdoors.util.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -73,7 +71,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -84,8 +81,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /*
  * Moonshoots
@@ -220,6 +215,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Get rid of all occurrences of ".orElse(new ArrayList<>())". Use a default, unmodifiable list instead. See
 //       PowerBlockManager#EMPTYDOORSLIST for example.
 // TODO: Do permissions checking for bypasses etc (compats) fully async (so not with an ugly .get()).
+// TODO: Create proper (abstract) factory for the event system.
+// TODO: Use the messaging interface to send messages to players.
 
 /*
  * GUI
@@ -456,6 +453,7 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = DatabaseManager.init(this, config.dbFile());
             doorOpener = DoorOpener.init(pLogger);
+            Bukkit.getPluginManager().registerEvents(DoorOpener.get(), this);
             powerBlockManager = PowerBlockManager.init(this, config, databaseManager, getPLogger());
             Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
             DoorOpeningUtility
@@ -852,65 +850,13 @@ public final class BigDoors extends JavaPlugin implements Listener, IRestartable
         return headManager;
     }
 
-    /*
-     * API Starts here.
+    /**
+     * Calls a {@link DoorActionEventSpigot}.
+     *
+     * @param doorActionEvent The {@link DoorActionEventSpigot} to call.
      */
-
-    // (Instantly?) Toggle a door with a given time.
-    private CompletableFuture<DoorToggleResult> toggleDoor(
-        final @NotNull CompletableFuture<Optional<DoorBase>> futureDoor, final @Nullable UUID playerUUID,
-        final double time, final boolean instantOpen)
+    public void callDoorActionEvent(final @NotNull DoorActionEventSpigot doorActionEvent)
     {
-        UUID initiator;
-        DoorActionCause cause;
-        if (playerUUID == null)
-        {
-            initiator = null;
-            cause = DoorActionCause.REDSTONE;
-        }
-        else
-        {
-            initiator = playerUUID;
-            cause = DoorActionCause.PLAYER;
-        }
-        return getDoorOpener().toggleDoor(futureDoor, cause, initiator, time, instantOpen);
-    }
-
-    // Toggle a door from a doorUID and instantly or not.
-    public CompletableFuture<DoorToggleResult> toggleDoor(final long doorUID, final boolean instantOpen)
-    {
-        return toggleDoor(getDatabaseManager().getDoor(doorUID), null, 0.0, instantOpen);
-    }
-
-    // Toggle a door from a doorUID and a given time.
-    public CompletableFuture<DoorToggleResult> toggleDoor(final long doorUID, final double time)
-    {
-        return toggleDoor(getDatabaseManager().getDoor(doorUID), null, time, false);
-    }
-
-    // Toggle a door from a doorUID using default values.
-    public CompletableFuture<DoorToggleResult> toggleDoor(final long doorUID)
-    {
-        return toggleDoor(getDatabaseManager().getDoor(doorUID), null, 0.0, false);
-    }
-
-    // Check the open-status of a door from a doorUID.
-    public CompletableFuture<Boolean> isOpen(final long doorUID)
-    {
-        return CompletableFuture.supplyAsync(
-            () ->
-            {
-                Optional<DoorBase> optionalDoor;
-                try
-                {
-                    optionalDoor = getDatabaseManager().getDoor(doorUID).get();
-                }
-                catch (InterruptedException | ExecutionException e)
-                {
-                    pLogger.logException(e);
-                    optionalDoor = Optional.empty();
-                }
-                return optionalDoor.map(DoorBase::isOpen).orElse(false);
-            });
+        Bukkit.getPluginManager().callEvent(doorActionEvent);
     }
 }

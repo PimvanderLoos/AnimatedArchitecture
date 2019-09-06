@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import org.jetbrains.annotations.NotNull;
 

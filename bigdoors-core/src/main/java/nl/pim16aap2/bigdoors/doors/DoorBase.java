@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.api.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -87,6 +88,16 @@ public abstract class DoorBase
     }
 
     /**
+     * Checks if this door can be opened instantly (i.e. skip the animation).
+     *
+     * @return True, if the door can skip its animation.
+     */
+    public boolean canOpenInstantly()
+    {
+        return true;
+    }
+
+    /**
      * Checks if this door can be opened right now.
      *
      * @return True if this door can be opened right now.
@@ -107,44 +118,6 @@ public abstract class DoorBase
     }
 
     /**
-     * Attempts to open a door.
-     *
-     * @param cause       What caused this action.
-     * @param initiator   The player that initiated the DoorAction.
-     * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
-     *                    limited, so at a certain point lower values will not increase door speed.
-     * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @return The result of the attempt.
-     */
-    @NotNull
-    final DoorToggleResult open(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
-                                final double time, final boolean instantOpen)
-    {
-        if (!isOpenable())
-            return DoorToggleResult.ALREADYCLOSED;
-        return toggle(cause, initiator, time, instantOpen);
-    }
-
-    /**
-     * Attempts to close a door.
-     *
-     * @param cause       What caused this action.
-     * @param initiator   The player that initiated the DoorAction.
-     * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
-     *                    limited, so at a certain point lower values will not increase door speed.
-     * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @return The result of the attempt.
-     */
-    @NotNull
-    final DoorToggleResult close(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
-                                 final double time, final boolean instantOpen)
-    {
-        if (!isCloseable())
-            return DoorToggleResult.ALREADYOPEN;
-        return toggle(cause, initiator, time, instantOpen);
-    }
-
-    /**
      * Attempts to toggle a door.
      *
      * @param cause       What caused this action.
@@ -152,11 +125,12 @@ public abstract class DoorBase
      * @param time        The amount of time this {@link DoorBase} will try to use to move. The maximum speed is
      *                    limited, so at a certain point lower values will not increase door speed.
      * @param instantOpen If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param actionType  The type of action.
      * @return The result of the attempt.
      */
     @NotNull
     final DoorToggleResult toggle(final @NotNull DoorActionCause cause, final @NotNull UUID initiator,
-                                  final double time, boolean instantOpen)
+                                  final double time, boolean instantOpen, final @NotNull DoorActionType actionType)
     {
         if (openDir.equals(RotateDirection.NONE))
         {
@@ -165,12 +139,15 @@ public abstract class DoorBase
             throw e;
         }
 
-        DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause);
+        if (instantOpen && !canOpenInstantly())
+            doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause);
+
+        DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
             return doorOpeningUtility.abort(this, isOpenable, cause);
 
         if (doorOpeningUtility.isTooBig(this))
-            instantOpen = true;
+            return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause);
 
         Location newMin = getMinimum();
         Location newMax = getMaximum();
@@ -197,9 +174,9 @@ public abstract class DoorBase
     public final void onRedstoneChange(final int newCurrent)
     {
         if (newCurrent == 0 && isCloseable())
-            close(DoorActionCause.REDSTONE, getPlayerUUID(), 0.0D, false);
+            toggle(DoorActionCause.REDSTONE, getPlayerUUID(), 0.0D, false, DoorActionType.CLOSE);
         else if (newCurrent > 0 && isOpenable())
-            close(DoorActionCause.REDSTONE, getPlayerUUID(), 0.0D, false);
+            toggle(DoorActionCause.REDSTONE, getPlayerUUID(), 0.0D, false, DoorActionType.OPEN);
     }
 
     /**

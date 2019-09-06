@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.events;
+package nl.pim16aap2.bigdoors.api.events;
 
 /**
  * Represents a cancellable BigDoors event.
