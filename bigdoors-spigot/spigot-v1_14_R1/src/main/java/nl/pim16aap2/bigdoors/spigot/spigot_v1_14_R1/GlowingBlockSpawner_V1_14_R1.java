@@ -107,7 +107,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(final @NotNull UUID playerUUID, final @NotNull String world, final long time,
+    public void spawnGlowinBlock(final @NotNull UUID playerUUID, final @NotNull UUID world, final long time,
                                  final double x, final double y, final double z)
     {
         spawnGlowinBlock(playerUUID, world, time, x, y, z, ChatColor.WHITE);
@@ -117,7 +117,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(final @NotNull UUID playerUUID, final @NotNull String world, final long time,
+    public void spawnGlowinBlock(final @NotNull UUID playerUUID, final @NotNull UUID world, final long time,
                                  final double x, final double y, final double z, final @NotNull Object colorObject)
     {
         org.bukkit.ChatColor color;

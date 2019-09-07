@@ -2,13 +2,19 @@ package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
 
 import net.minecraft.server.v1_14_R1.BlockPosition;
 import net.minecraft.server.v1_14_R1.IBlockData;
+import net.minecraft.server.v1_14_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
+import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.spigotutil.IPWorldSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
@@ -31,32 +37,36 @@ import java.util.Set;
 public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block implements INMSBlock
 {
     private IBlockData blockData;
-    private BlockData bukkitBlockData;
-    private Material mat;
-    private Location loc;
+    private final BlockData bukkitBlockData;
+    private final Material mat;
+    private final Location loc;
+    private final CraftWorld craftWorld;
 
     /**
      * Constructs a {@link NMSBlock_V1_14_R1}. Wraps the NMS block found in the given world at the provided
      * coordinates.
      *
-     * @param world The world the NMS block is in.
-     * @param x     The x coordinate of the NMS block.
-     * @param y     The y coordinate of the NMS block.
-     * @param z     The z coordinate of the NMS block.
+     * @param pWorld The world the NMS block is in.
+     * @param x      The x coordinate of the NMS block.
+     * @param y      The y coordinate of the NMS block.
+     * @param z      The z coordinate of the NMS block.
      */
-    NMSBlock_V1_14_R1(final @NotNull org.bukkit.World world, final int x, final int y, final int z)
+    NMSBlock_V1_14_R1(final @NotNull IPWorldSpigot pWorld, final int x, final int y, final int z)
     {
         super(net.minecraft.server.v1_14_R1.Block.Info
-                  .a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
+                  .a(((CraftWorld) pWorld.getBukkitWorld()).getHandle().getType(new BlockPosition(x, y, z))
+                                                           .getBlock()));
 
-        loc = new Location(world, x, y, z);
+        World bukkitWorld = pWorld.getBukkitWorld();
+        craftWorld = (CraftWorld) bukkitWorld;
+        loc = new Location(bukkitWorld, x, y, z);
 
-        bukkitBlockData = world.getBlockAt(x, y, z).getBlockData();
+        bukkitBlockData = bukkitWorld.getBlockAt(x, y, z).getBlockData();
         if (bukkitBlockData instanceof Waterlogged)
             ((Waterlogged) bukkitBlockData).setWaterlogged(false);
 
         constructBlockDataFromBukkit();
-        mat = world.getBlockAt(x, y, z).getType();
+        mat = bukkitWorld.getBlockAt(x, y, z).getType();
 
         // Update iBlockData in NMS Block.
         super.o(blockData);
@@ -113,6 +123,37 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
         else
             return;
         constructBlockDataFromBukkit();
+    }
+
+    /**
+     * Places the block at a given location.
+     *
+     * @param loc The location where the block will be placed.
+     */
+    @Override
+    public void putBlock(@NotNull IPLocation loc)
+    {
+        IPWorld world = loc.getWorld();
+        if (!(world instanceof IPWorldSpigot))
+        {
+            PLogger.get().logException(new IllegalArgumentException());
+            return;
+        }
+        World bukkitWorld = ((IPWorldSpigot) world).getBukkitWorld();
+        if (bukkitWorld == null)
+        {
+            PLogger.get().logException(new NullPointerException());
+            return;
+        }
+
+        BlockPosition blockPosition = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+
+        WorldServer worldNMS = craftWorld.getHandle();
+        IBlockData old = worldNMS.getType(blockPosition);
+
+        // Place the block, and don't apply physics.
+        if (worldNMS.setTypeAndData(blockPosition, blockData, 1042))
+            worldNMS.getMinecraftWorld().notify(blockPosition, old, blockData, 3);
     }
 
     /**
@@ -233,23 +274,6 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
         // example, would be invisible otherwise.
         if (allowedFaces.contains(BlockFace.UP))
             bd.setFace(BlockFace.UP, true);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putBlock(final @NotNull Location loc)
-    {
-        ((CraftWorld) loc.getWorld()).getHandle()
-                                     .setTypeAndData(
-                                         new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()),
-                                         blockData, 1);
-        if (SpigotUtil.needsRefresh(mat))
-        {
-            loc.getWorld().getBlockAt(loc).setType(Material.AIR);
-            loc.getWorld().getBlockAt(loc).setType(mat);
-        }
     }
 
     @Override

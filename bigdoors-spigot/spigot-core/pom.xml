@@ -1,0 +1,289 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>spigot-core</artifactId>
+    <packaging>jar</packaging>
+    <version>${project.parent.version}</version>
+
+    <parent>
+        <groupId>nl.pim16aap2.bigdoors</groupId>
+        <artifactId>bigdoors-parent</artifactId>
+        <version>200</version>
+    </parent>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+
+        <!-- bStats -->
+        <repository>
+            <id>CodeMC</id>
+            <url>https://repo.codemc.org/repository/maven-public</url>
+        </repository>
+
+        <!-- WorldGuard -->
+        <repository>
+            <id>sk89q-repo</id>
+            <url>http://maven.sk89q.com/repo/</url>
+        </repository>
+
+        <!-- Vault -->
+        <repository>
+            <id>vault-repo</id>
+            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+        </repository>
+
+        <repository>
+            <id>sqlite-jdbc</id>
+            <url>https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc</url>
+        </repository>
+
+        <!--        &lt;!&ndash; PlotSquared Breaking &ndash;&gt;-->
+        <!--        <repository>-->
+        <!--            <id>PlotSquared-Breaking</id>-->
+        <!--            <url>http://ci.athion.net/job/PlotSquared-Breaking/ws/mvn/</url>-->
+        <!--        </repository>-->
+
+        <!--        &lt;!&ndash; Old PlotSquared &ndash;&gt;-->
+        <!--        <repository>-->
+        <!--            <id>PlotSquared-Legacy</id>-->
+        <!--            <url>http://ci.athion.net/job/PlotSquared-Legacy/ws/mvn/</url>-->
+        <!--        </repository>-->
+    </repositories>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-core</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-v1_14_R1</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-util</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-spigot</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <!-- Spigot API (docs) -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Spigot API + (Craft)Bukkit API + NMS -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- GriefPrevention -->
+        <dependency>
+            <groupId>com.github.TechFortress</groupId>
+            <artifactId>GriefPrevention</artifactId>
+            <version>16.7.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JCalculator -->
+        <dependency>
+            <groupId>com.github.PimvanderLoos</groupId>
+            <artifactId>JCalculator</artifactId>
+            <version>1.4</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- bStats -->
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>1.5</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-legacy</artifactId>
+            <version>6.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-legacy</artifactId>
+            <version>7.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sk89q.worldedit</groupId>
+            <artifactId>worldedit-bukkit</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Vault -->
+        <dependency>
+            <groupId>net.milkbowl.vault</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.plotsquared</groupId>
+            <artifactId>PlotSquared-Legacy</artifactId>
+            <scope>system</scope>
+            <version>latest</version>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-19.09.07-f27e556-781.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.intellectualsites.plotsquared</groupId>
+            <artifactId>PlotSquared-Breaking</artifactId>
+            <scope>system</scope>
+            <version>4.347</version>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-4.347.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.21</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.28.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.4.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.4.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <directory>../../target/</directory>
+        <finalName>BigDoors-Spigot</finalName>
+        <resources>
+            <resource>
+                <targetPath>.</targetPath>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>plugin.yml</include>
+                    <include>config.yml</include>
+                    <include>en_US.txt</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <configuration>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>nl.pim16aap2.bigdoors</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- attached to Maven test phase -->
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

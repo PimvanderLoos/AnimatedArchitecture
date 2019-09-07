@@ -1,10 +1,14 @@
 package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
 
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
-import nl.pim16aap2.bigdoors.api.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
+import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
+import nl.pim16aap2.bigdoors.spigotutil.IPWorldSpigot;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,13 +23,19 @@ public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public ICustomCraftFallingBlock fallingBlockFactory(final @NotNull Location loc, final @NotNull INMSBlock block)
+    public ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocation loc, final @NotNull INMSBlock block)
     {
-        CustomEntityFallingBlock_V1_14_R1 fBlockNMS = new CustomEntityFallingBlock_V1_14_R1(loc.getWorld(), loc
-            .getX(), loc.getY(), loc.getZ(), ((NMSBlock_V1_14_R1) block).getMyBlockData());
+        World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
+
+        // TODO: Don't violate @NotNull.
+        CustomEntityFallingBlock_V1_14_R1 fBlockNMS =
+            new CustomEntityFallingBlock_V1_14_R1(bukkitWorld, loc.getX(), loc.getY(), loc.getZ(),
+                                                  ((NMSBlock_V1_14_R1) block).getMyBlockData());
+
         CustomCraftFallingBlock_V1_14_R1 ret = new CustomCraftFallingBlock_V1_14_R1(Bukkit.getServer(), fBlockNMS);
-        ret.setCustomName("BigDoorsEntity");
+        ret.setCustomName(Constants.BIGDOORSENTITYNAME);
         ret.setCustomNameVisible(false);
         return ret;
     }
@@ -35,8 +45,13 @@ public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
      */
     @NotNull
     @Override
-    public INMSBlock nmsBlockFactory(final @NotNull World world, final int x, final int y, final int z)
+    public INMSBlock nmsBlockFactory(final @NotNull IPLocation loc)
     {
-        return new NMSBlock_V1_14_R1(world, x, y, z);
+        if (!(loc.getWorld() instanceof IPWorldSpigot))
+        {
+            PLogger.get().logException(new IllegalArgumentException());
+            return null; // TODO: Don't violate @NotNull.
+        }
+        return new NMSBlock_V1_14_R1((IPWorldSpigot) loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 }

@@ -4,7 +4,7 @@
     <artifactId>bigdoors-spigot</artifactId>
     <packaging>pom</packaging>
     <description>Implementation for the Spigot platform</description>
-    <version>200</version>
+    <version>${project.parent.version}</version>
 
     <parent>
         <groupId>nl.pim16aap2.bigdoors</groupId>
@@ -14,6 +14,7 @@
 
     <modules>
         <module>spigot-v1_14_R1</module>
+        <module>spigot-core</module>
         <module>spigot-util</module>
     </modules>
 
@@ -72,7 +73,7 @@
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-api</artifactId>
+            <artifactId>bigdoors-core</artifactId>
             <version>200</version>
             <type>jar</type>
             <scope>compile</scope>
@@ -80,7 +81,7 @@
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-util</artifactId>
+            <artifactId>bigdoors-core</artifactId>
             <version>200</version>
             <type>jar</type>
             <scope>compile</scope>

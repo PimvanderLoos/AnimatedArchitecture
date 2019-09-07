@@ -1,6 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
 
+import net.minecraft.server.v1_14_R1.Vec3D;
+import net.minecraft.server.v1_14_R1.WorldServer;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
+import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.data.BlockData;
@@ -9,7 +16,6 @@ import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_14_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +34,75 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         setVelocity(new Vector(0, 0, 0));
         setDropItem(false);
         entity.noclip = true;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method creates an intermediate {@link Location}. To avoid this, use {@link #teleport(Vector3Dd)}
+     */
+    @Override
+    public boolean teleport(final @NotNull IPLocation newLocation)
+    {
+        return super.teleport(SpigotAdapter.getBukkitLocation(newLocation));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method does not construct a new intermediate {@link Location}, unlike {@link #teleport(IPLocation)}.
+     */
+    @Override
+    public boolean teleport(final @NotNull Vector3Dd newPosition)
+    {
+        super.entity.setLocation(newPosition.getX(), newPosition.getY(), newPosition.getZ(), entity.yaw, entity.pitch);
+        ((WorldServer) entity.world).chunkCheck(entity);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setVelocity(final @NotNull Vector3Dd vector)
+    {
+        entity.setMot(new Vec3D(vector.getX(), vector.getY(), vector.getZ()));
+        entity.velocityChanged = true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NotNull IPLocation getPLocation()
+    {
+        Location bukkitLocation = super.getLocation();
+        return BigDoors.get().getPlatform().getPLocationFactory().create(bukkitLocation.getWorld().getUID(),
+                                                                         bukkitLocation.getX(),
+                                                                         bukkitLocation.getY(),
+                                                                         bukkitLocation.getZ());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public Vector3Dd getPosition()
+    {
+        Location bukkitLocation = super.getLocation();
+        return new Vector3Dd(bukkitLocation.getX(), bukkitLocation.getY(), bukkitLocation.getZ());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public Vector3Dd getPVelocity()
+    {
+        Vector bukkitVelocity = super.getVelocity();
+        return new Vector3Dd(bukkitVelocity.getX(), bukkitVelocity.getY(), bukkitVelocity.getZ());
     }
 
     /**
@@ -144,7 +219,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
      */
     @Deprecated
     @Override
-    public void setHeadPose(final @NotNull EulerAngle pose)
+    public void setHeadPose(final @NotNull Vector3Dd pose)
     {
     }
 
@@ -155,7 +230,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
      */
     @Deprecated
     @Override
-    public void setBodyPose(final @NotNull EulerAngle eulerAngle)
+    public void setBodyPose(final @NotNull Vector3Dd eulerAngle)
     {
     }
 }

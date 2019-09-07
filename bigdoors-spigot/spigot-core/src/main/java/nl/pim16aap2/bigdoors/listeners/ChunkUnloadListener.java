@@ -1,0 +1,125 @@
+package nl.pim16aap2.bigdoors.listeners;
+
+import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+/**
+ * Represents a listener that keeps track of chunks being unloaded.
+ *
+ * @author Pim
+ */
+public class ChunkUnloadListener implements Listener
+{
+    private final BigDoorsSpigot plugin;
+    /**
+     * Checks if the ChunkUnloadEvent can be cancelled or not. In version 1.14 of Minecraft and later, that's no longer
+     * the case.
+     */
+    private final boolean isCancellable;
+    private boolean success = false;
+    // <1.14 method.
+    private Method isCancelled;
+    // 1.14 => method.
+    private Method isForceLoaded;
+
+    public ChunkUnloadListener(final @NotNull BigDoorsSpigot plugin)
+    {
+        this.plugin = plugin;
+        isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
+        init();
+    }
+
+    /**
+     * Initializes the listener.
+     */
+    private void init()
+    {
+        try
+        {
+            if (isCancellable)
+            {
+                isCancelled = org.bukkit.event.world.ChunkUnloadEvent.class.getMethod("isCancelled");
+                success = true;
+            }
+            else
+            {
+                isForceLoaded = org.bukkit.Chunk.class.getMethod("isForceLoaded");
+                success = true;
+            }
+        }
+        catch (NoSuchMethodException | SecurityException e)
+        {
+            success = false;
+            plugin.getPLogger()
+                  .logException(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+        }
+    }
+
+    /**
+     * Listens to chunks being unloaded and checks if it intersects with the region of any of the active {@link
+     * DoorBase}s.
+     *
+     * @param event The {@link ChunkUnloadEvent}.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onChunkUnload(final @NotNull ChunkUnloadEvent event)
+    {
+        plugin.getPowerBlockManager().invalidateChunk(event.getWorld().getUID(), new Vector2Di(event.getChunk().getX(),
+                                                                                               event.getChunk()
+                                                                                                    .getZ()));
+        try
+        {
+            // If this class couldn't figure out reflection properly, give up.
+            if (!success)
+            {
+                plugin.getPLogger().warn("ChunkUnloadHandler was not initialized properly! Please contact pim16aap2.");
+                return;
+            }
+
+            // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14), there's no need to interfere.
+            if (isChunkUnloadCancelled(event))
+                return;
+
+            // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
+            plugin.getDoorManager().getBlockMovers()
+                  .filter(BM -> BM.getDoor().chunkInRange(event.getChunk()))
+                  .forEach(BlockMover::abort);
+        }
+        catch (Exception e)
+        {
+            plugin.getPLogger().logException(e);
+        }
+    }
+
+    /**
+     * Checks if a {@link ChunkUnloadEvent} is cancelled or not.
+     *
+     * @param event The {@link ChunkUnloadEvent}.
+     * @return The if the {@link ChunkUnloadEvent} is cancelled.
+     */
+    private boolean isChunkUnloadCancelled(final @NotNull ChunkUnloadEvent event)
+    {
+        try
+        {
+            if (isCancellable)
+                return (boolean) isCancelled.invoke(event);
+            return (boolean) isForceLoaded.invoke(event.getChunk());
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        {
+            plugin.getPLogger()
+                  .logException(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+            return false;
+        }
+    }
+}

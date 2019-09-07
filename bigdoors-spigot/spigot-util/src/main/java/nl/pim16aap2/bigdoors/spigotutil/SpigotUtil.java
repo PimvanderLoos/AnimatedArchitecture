@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.spigotutil;
 
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.Vector3D;
 import nl.pim16aap2.bigdoors.util.WorldTime;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,8 +12,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -82,7 +80,7 @@ public final class SpigotUtil
                                      final @NotNull PBlockFace direction, final @NotNull World world)
     {
         int startX, startY, startZ, endX, endY, endZ, countX = 0, countY = 0, countZ = 0;
-        Vector3D vec = PBlockFace.getDirection(direction);
+        Vector3Di vec = PBlockFace.getDirection(direction);
         maxDist = Math.abs(maxDist);
 
         startX = vec.getX() == 0 ? min.getBlockX() : vec.getX() == 1 ? max.getBlockX() + 1 : min.getBlockX() - 1;
@@ -448,87 +446,6 @@ public final class SpigotUtil
             default:
                 return false;
         }
-    }
-
-    /**
-     * Check if a block is on the blacklist of types/materials that is not allowed for animations.
-     *
-     * @param block The block to be checked
-     * @return True if the block can be used for animations.
-     */
-    public static boolean isAllowedBlock(final @Nullable Block block)
-    {
-        if (block == null || isAirOrLiquid(block))
-            return false;
-
-        BlockData blockData = block.getBlockData();
-        BlockState blockState = block.getState();
-
-        if (blockData instanceof org.bukkit.block.data.type.Stairs ||
-            blockData instanceof org.bukkit.block.data.type.Gate)
-            return true;
-
-        if (blockState instanceof org.bukkit.inventory.InventoryHolder
-            // Door, Stairs, TrapDoor, sunflower, tall grass, tall seagrass, large fern,
-            // peony, rose bush, lilac,
-            || blockData instanceof org.bukkit.block.data.Bisected ||
-            blockData instanceof org.bukkit.block.data.Rail
-            // Cauldron, Composter, Water, Lava
-            || blockData instanceof org.bukkit.block.data.Levelled
-
-            || blockData instanceof org.bukkit.block.data.type.Bed ||
-            blockData instanceof org.bukkit.block.data.type.BrewingStand ||
-            blockData instanceof org.bukkit.block.data.type.Cake ||
-            blockData instanceof org.bukkit.block.data.type.CommandBlock ||
-            blockData instanceof org.bukkit.block.data.type.EnderChest ||
-            blockData instanceof org.bukkit.block.data.type.Ladder ||
-            blockData instanceof org.bukkit.block.data.type.Sapling ||
-            blockData instanceof org.bukkit.block.data.type.Sign ||
-            blockData instanceof org.bukkit.block.data.type.TechnicalPiston ||
-            blockData instanceof org.bukkit.block.data.type.WallSign ||
-            blockData instanceof org.bukkit.block.data.type.RedstoneWire ||
-            blockData instanceof org.bukkit.block.data.type.RedstoneWallTorch ||
-            blockData instanceof org.bukkit.block.data.type.Tripwire ||
-            blockData instanceof org.bukkit.block.data.type.TripwireHook ||
-            blockData instanceof org.bukkit.block.data.type.Repeater ||
-            blockData instanceof org.bukkit.block.data.type.Switch ||
-            blockData instanceof org.bukkit.block.data.type.Comparator)
-            return false;
-
-        Material mat = block.getType();
-        switch (mat)
-        {
-            case WALL_TORCH:
-
-            case PAINTING:
-
-            case ATTACHED_MELON_STEM:
-            case ATTACHED_PUMPKIN_STEM:
-            case WHITE_TULIP:
-            case DANDELION:
-            case SUGAR_CANE:
-            case NETHER_WART:
-            case CHORUS_FLOWER:
-            case CHORUS_FRUIT:
-            case SEAGRASS:
-            case POPPY:
-            case OXEYE_DAISY:
-            case LILY_OF_THE_VALLEY:
-            case LILY_PAD:
-            case VINE:
-                return false;
-            default:
-                break;
-        }
-
-        String matName = mat.toString();
-        // Potted stuff will always work.
-        if (matName.startsWith("POTTED"))
-            return true;
-        if (matName.endsWith("TULIP") || matName.endsWith("BANNER") || matName.endsWith("CARPET") ||
-            matName.endsWith("HEAD"))
-            return false;
-        return true;
     }
 
     @Deprecated

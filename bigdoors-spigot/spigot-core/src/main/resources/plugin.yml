@@ -1,0 +1,107 @@
+name: BigDoors2
+main: nl.pim16aap2.bigdoors.BigDoorsSpigot
+version: ${project.version}
+author: pim16aap2
+api-version: 1.14
+loadbefore: [PlotSquared]
+softdepend: [WorldGuard, Vault, GriefPrevention]
+commands:
+  bigdoors:
+    description: Base command
+    usage: /BigDoors
+    permission: bigdoors.user
+  bdm:
+    description: Alias of /BigDoors, Opens the BigDoors GUI.
+    usage: /BDM
+    permission: bigdoors.user
+permissions:
+  bigdoors.*:
+    description: Gives access to all BigDoors commands.
+    children:
+      bigdoors.user.*: true
+      bigdoors.admin.*: true
+  bigdoors.user.*:
+    description: Gives the user access to all user-level commands of this plugin.
+    children:
+      bigdoors.user.addowner: true
+      bigdoors.user.movepowerblock: true
+      bigdoors.user.delete: true
+      bigdoors.user.info: true
+      bigdoors.user.inspectpowerblock: true
+      bigdoors.user.listdoors: true
+      bigdoors.user.removeowner: true
+      bigdoors.user.setautoclosetime: true
+      bigdoors.user.setblockstomove: true
+      bigdoors.user.toggle: true
+  bigdoors.admin.*:
+    description: Gives the user access to all admin-level commands of this plugin.
+    children:
+      bigdoors.admin.filldoor: true
+      bigdoors.admin.listplayerdoors: true
+      bigdoors.admin.restart: true
+      bigdoors.admin.stopdoors: true
+      bigdoors.admin.version: true
+  bigdoors.user.createdoor.*:
+    description: Allows a user to create all door types.
+    children:
+      bigdoors.user.createdoor.bigdoor: true
+      bigdoors.user.createdoor.drawbridge: true
+      bigdoors.user.createdoor.portcullis: true
+      bigdoors.user.createdoor.elevator: true
+      bigdoors.user.createdoor.slidingdoor: true
+      bigdoors.user.createdoor.flag: true
+      bigdoors.user.createdoor.garagedoor: true
+      bigdoors.user.createdoor.windmill: true
+      bigdoors.user.createdoor.revolvingdoor: true
+      bigdoors.user.createdoor.clock: true
+  bigdoors.user:
+    description: Gives access to BigDoor's GUI and other basic commands required for basic usage.
+    default: true
+  bigdoors.user.addowner:
+    description: Allows a player to add additional owners to a door.
+    default: true
+  bigdoors.user.movepowerblock:
+    description: Allows users to move the power block of a door to a different location.
+    default: true
+  bigdoors.user.delete:
+    description: Allows a user to delete a door they own.
+    default: true
+  bigdoors.user.info:
+    description: Allows a user to retrieve the information of a door.
+    default: true
+  bigdoors.user.inspectpowerblock:
+    description: Allows the player to find out which doors are attached to a given power block.
+    default: true
+  bigdoors.user.listdoors:
+    description: Allows a player to retrieve a list of all the doors they own.
+    default: true
+  bigdoors.user.removeowner:
+    description: Allows the user to remove another owner from a door if their permission lever is higher than theirs.
+    default: true
+  bigdoors.user.setautoclosetime:
+    description: Allows a user to change the auto close timer of a door.
+    default: true
+  bigdoors.user.setblockstomove:
+    description: Allows a user to specify the number of blocks a door will try to move.
+    default: true
+  bigdoors.user.toggle:
+    description: Allows a user to open, close, or toggle a door that they own.
+    default: true
+  bigdoors.admin.filldoor:
+    description: Allows a user to fill in a door with stone blocks, regardless of whether they are allowed to build there or if there is already something there.
+    default: op
+  bigdoors.admin.listplayerdoors:
+    description: Allows a user to list all doors owned by another player.
+    default: op
+  bigdoors.admin.restart:
+    description: Allows a user to restart this plugin.
+    default: op
+  bigdoors.admin.stopdoors:
+    description: Allows a user to abort the animation of all doors that are currently active.
+    default: op
+  bigdoors.admin.version:
+    description: Allows a user to retrieve the version of this plugin.
+    default: op
+  bigdoorsdebug.iknowishouldnotusethis:
+    description: Do not use this!
+    default: false

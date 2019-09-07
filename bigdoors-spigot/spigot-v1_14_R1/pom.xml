@@ -4,7 +4,7 @@
     <artifactId>spigot-v1_14_R1</artifactId>
     <packaging>jar</packaging>
     <description>BigDoors implementation for v1_14_R1</description>
-    <version>200</version>
+    <version>${project.parent.version}</version>
 
     <parent>
         <artifactId>bigdoors-spigot</artifactId>
