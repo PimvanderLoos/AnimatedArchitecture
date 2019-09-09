@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
-import nl.pim16aap2.bigdoors.util.IMessagingInterface;
+import nl.pim16aap2.bigdoors.api.IMessagingInterface;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -8,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -39,12 +39,13 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
      * {@inheritDoc}
      */
     @Override
-    public void messagePlayer(final @NotNull UUID playerUUID, final @NotNull String message)
+    public void messagePlayer(@NotNull IPPlayer player, @NotNull String message)
     {
-        Player player = Bukkit.getPlayer(playerUUID);
-        if (player == null)
+
+        Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
+        if (bukkitPlayer == null)
             return;
-        SpigotUtil.messagePlayer(player, message);
+        SpigotUtil.messagePlayer(bukkitPlayer, message);
     }
 
     /**

@@ -2,10 +2,11 @@ package nl.pim16aap2.bigdoors.toolusers;
 
 
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -46,18 +47,18 @@ public class BigDoorCreator extends Creator
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
-        if (loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY())
+        if (loc.getBlockY() < one.getY() || loc.getBlockY() > two.getY())
             return false;
 
         // For a regular door, the engine should be on one of the outer pillars of the
         // door.
-        int xDepth = Math.abs(one.getBlockX() - two.getBlockX());
-        int zDepth = Math.abs(one.getBlockZ() - two.getBlockZ());
+        int xDepth = Math.abs(one.getX() - two.getX());
+        int zDepth = Math.abs(one.getZ() - two.getZ());
 
-        if (xDepth == 0 && loc.getBlockX() == one.getBlockX())
-            return loc.getBlockZ() == one.getBlockZ() || loc.getBlockZ() == two.getBlockZ();
-        else if (zDepth == 0 && loc.getBlockZ() == one.getBlockZ())
-            return loc.getBlockX() == one.getBlockX() || loc.getBlockX() == two.getBlockX();
+        if (xDepth == 0 && loc.getBlockX() == one.getX())
+            return loc.getBlockZ() == one.getZ() || loc.getBlockZ() == two.getZ();
+        else if (zDepth == 0 && loc.getBlockZ() == one.getZ())
+            return loc.getBlockX() == one.getX() || loc.getBlockX() == two.getX();
         return false;
     }
 
@@ -67,9 +68,9 @@ public class BigDoorCreator extends Creator
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
-        int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
-        int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());
-        int zDepth = Math.abs(one.getBlockZ() - loc.getBlockZ());
+        int xDepth = Math.abs(one.getX() - loc.getBlockX());
+        int yDepth = Math.abs(one.getY() - loc.getBlockY());
+        int zDepth = Math.abs(one.getZ() - loc.getBlockZ());
 
         // If the door is only 1 block high, it's a drawbridge.
         if (yDepth == 0)
@@ -81,11 +82,11 @@ public class BigDoorCreator extends Creator
 
     /**
      * Updates the {@link Location} of the engine. For a {@link DoorType#BIGDOOR}, for example, this sets the Y-value of
-     * the engine coordinates to the 1 block under lowest Y-value of the {@link DoorBase}.
+     * the engine coordinates to the 1 block under lowest Y-value of the {@link AbstractDoorBase}.
      */
     protected void updateEngineLoc()
     {
-        engine.setY(one.getBlockY());
+        engine.setY(one.getY());
     }
 
     /**
@@ -99,7 +100,7 @@ public class BigDoorCreator extends Creator
 
         if (one == null)
         {
-            one = loc;
+            one = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
             String[] message = getStep2().split("\n");
             SpigotUtil.messagePlayer(player, message);
@@ -108,7 +109,7 @@ public class BigDoorCreator extends Creator
         {
             if (isPosTwoValid(loc) && !one.equals(loc))
             {
-                two = loc;
+                two = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
                 // extending classes might want to have this be optional. This way they can just set engine
                 // in isPosTwoValid() if possible, in which case the next print statement is skipped.
                 if (engine == null)
@@ -126,7 +127,7 @@ public class BigDoorCreator extends Creator
         {
             if (isEngineValid(loc))
             {
-                engine = loc;
+                engine = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
                 updateEngineLoc();
                 setIsDone(true);
             }

@@ -5,9 +5,9 @@ import net.minecraft.server.v1_14_R1.IBlockData;
 import net.minecraft.server.v1_14_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.spigotutil.IPWorldSpigot;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
+import nl.pim16aap2.bigdoors.spigotutil.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -51,13 +51,13 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
      * @param y      The y coordinate of the NMS block.
      * @param z      The z coordinate of the NMS block.
      */
-    NMSBlock_V1_14_R1(final @NotNull IPWorldSpigot pWorld, final int x, final int y, final int z)
+    NMSBlock_V1_14_R1(final @NotNull PWorldSpigot pWorld, final int x, final int y, final int z)
     {
         super(net.minecraft.server.v1_14_R1.Block.Info
                   .a(((CraftWorld) pWorld.getBukkitWorld()).getHandle().getType(new BlockPosition(x, y, z))
                                                            .getBlock()));
 
-        World bukkitWorld = pWorld.getBukkitWorld();
+        World bukkitWorld = SpigotAdapter.getBukkitWorld(pWorld);
         craftWorld = (CraftWorld) bukkitWorld;
         loc = new Location(bukkitWorld, x, y, z);
 
@@ -133,13 +133,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
     @Override
     public void putBlock(@NotNull IPLocation loc)
     {
-        IPWorld world = loc.getWorld();
-        if (!(world instanceof IPWorldSpigot))
-        {
-            PLogger.get().logException(new IllegalArgumentException());
-            return;
-        }
-        World bukkitWorld = ((IPWorldSpigot) world).getBukkitWorld();
+        World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
         if (bukkitWorld == null)
         {
             PLogger.get().logException(new NullPointerException());

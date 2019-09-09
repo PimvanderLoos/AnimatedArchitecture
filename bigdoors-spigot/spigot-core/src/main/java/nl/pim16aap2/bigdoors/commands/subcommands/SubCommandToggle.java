@@ -1,13 +1,16 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionEventSpigot;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.command.Command;
@@ -18,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -36,48 +38,51 @@ public class SubCommandToggle extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public void execute(final @NotNull CommandSender sender, final @NotNull DoorBase door)
+    public void execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door)
     {
         execute(sender, door, 0.0D);
     }
 
-    private void toggleDoor(final @NotNull CommandSender sender, final @NotNull DoorBase door, final double time)
+    private void toggleDoor(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
+                            final double time)
     {
-        UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
+        IPPlayer player = sender instanceof Player ? SpigotAdapter.wrapPlayer((Player) sender) : null;
 
         // TODO: Less stupid system.
-        CompletableFuture<Optional<DoorBase>> futureDoor = CompletableFuture.completedFuture(Optional.of(door));
+        CompletableFuture<Optional<AbstractDoorBase>> futureDoor = CompletableFuture.completedFuture(Optional.of(door));
 
-        plugin.callDoorActionEvent(playerUUID == null ?
+        plugin.callDoorActionEvent(player == null ?
                                    new DoorActionEventSpigot(futureDoor, DoorActionCause.SERVER, actionType,
-                                                             door.getPlayerUUID(), time) :
-                                   new DoorActionEventSpigot(futureDoor, DoorActionCause.PLAYER, actionType, playerUUID,
+                                                             door.getDoorOwner().getPlayer(), time) :
+                                   new DoorActionEventSpigot(futureDoor, DoorActionCause.PLAYER, actionType, player,
                                                              time));
     }
 
-    public void execute(final @NotNull CommandSender sender, final @NotNull DoorBase door, final double time)
+    public void execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door, final double time)
     {
         if (!(sender instanceof Player))
         {
             toggleDoor(sender, door, time);
             return;
         }
-        plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE)
-              .whenComplete(
-                  (isAllowed, throwable) ->
-                  {
-                      if (!isAllowed)
-                          commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
-                      else
-                          toggleDoor(sender, door, time);
-                      // No need to print result message here, that'll be done by the opening process of the door itself.
-                  });
+        BigDoors.get().getDatabaseManager()
+                .hasPermissionForAction(SpigotAdapter.wrapPlayer((Player) sender), door.getDoorUID(),
+                                        DoorAttribute.TOGGLE)
+                .whenComplete(
+                    (isAllowed, throwable) ->
+                    {
+                        if (!isAllowed)
+                            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+                        else
+                            toggleDoor(sender, door, time);
+                        // No need to print result message here, that'll be done by the opening process of the door itself.
+                    });
     }
 
     @NotNull
     private CompletableFuture<Double> parseDoorsAndTime(final @NotNull CommandSender sender,
                                                         final @NotNull String[] args,
-                                                        final @NotNull List<DoorBase> doors)
+                                                        final @NotNull List<AbstractDoorBase> doors)
         throws IllegalArgumentException
     {
         final String lastStr = args[args.length - 1];
@@ -119,11 +124,11 @@ public class SubCommandToggle extends SubCommand
                              final @NotNull String label, final @NotNull String[] args)
         throws IllegalArgumentException
     {
-        final List<DoorBase> doors = new ArrayList<>();
+        final List<AbstractDoorBase> doors = new ArrayList<>();
         parseDoorsAndTime(sender, args, doors).whenComplete(
             (time, throwable) ->
             {
-                for (DoorBase door : doors)
+                for (AbstractDoorBase door : doors)
                     execute(sender, door, time);
             });
         return true;

@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -12,16 +14,6 @@ import java.util.UUID;
 public class DoorOwner
 {
     /**
-     * The {@link UUID} of the player that owns this door.
-     */
-    private final UUID playerUUID;
-
-    /**
-     * The name of the player that owns this door.
-     */
-    private final String playerName;
-
-    /**
      * The UID of the door that is owned.
      */
     private final long doorUID;
@@ -30,6 +22,11 @@ public class DoorOwner
      * The permission level at which the player owns the door.
      */
     private final int permission;
+
+    /**
+     * The {@link IPPlayer} object represented by this {@link DoorOwner}.
+     */
+    private final IPPlayer player;
 
     /**
      * Constructor of {@link DoorOwner}.
@@ -43,9 +40,8 @@ public class DoorOwner
                      final int permission)
     {
         this.doorUID = doorUID;
-        this.playerUUID = playerUUID;
         this.permission = permission;
-        this.playerName = playerName;
+        player = BigDoors.get().getPlatform().getPPlayerFactory().create(playerUUID, playerName);
     }
 
     /**
@@ -59,6 +55,17 @@ public class DoorOwner
     }
 
     /**
+     * Gets the {@link IPPlayer}.
+     *
+     * @return The {@link IPPlayer}.
+     */
+    @NotNull
+    public IPPlayer getPlayer()
+    {
+        return player;
+    }
+
+    /**
      * Get the UUID of the player.
      *
      * @return The UUID of the player.
@@ -66,7 +73,7 @@ public class DoorOwner
     @NotNull
     public UUID getPlayerUUID()
     {
-        return playerUUID;
+        return player.getUUID();
     }
 
     /**
@@ -87,7 +94,7 @@ public class DoorOwner
     @NotNull
     public String getPlayerName()
     {
-        return playerName;
+        return player.getName();
     }
 
     /**
@@ -98,9 +105,9 @@ public class DoorOwner
     public String toString()
     {
         return "doorUID: " + doorUID +
-            ". playerUUID: " + playerUUID.toString() +
+            ". playerUUID: " + getPlayerUUID().toString() +
             ". Permission: " + permission +
-            ". PlayerName: " + playerName;
+            ". PlayerName: " + getPlayerName();
     }
 
     @Override
@@ -111,7 +118,7 @@ public class DoorOwner
         if (o == null || getClass() != o.getClass())
             return false;
         DoorOwner other = (DoorOwner) o;
-        return doorUID == other.doorUID && playerUUID.equals(other.playerUUID) &&
-            permission == other.permission && playerName.equals(other.playerName);
+        return doorUID == other.doorUID && getPlayerUUID().equals(other.getPlayerUUID()) &&
+            permission == other.permission && getPlayerName().equals(other.getPlayerName());
     }
 }

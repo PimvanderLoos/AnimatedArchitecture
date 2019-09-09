@@ -195,4 +195,16 @@ public final class Vector4Di implements Cloneable
         Vector4Di other = (Vector4Di) o;
         return x == other.x && y == other.y && z == other.z && w == other.w;
     }
+
+    public Vector4Di normalize()
+    {
+        double length = Math.sqrt(x * x + y * y + z * z + w * w);
+
+        x /= length;
+        y /= length;
+        z /= length;
+        w /= length;
+
+        return this;
+    }
 }

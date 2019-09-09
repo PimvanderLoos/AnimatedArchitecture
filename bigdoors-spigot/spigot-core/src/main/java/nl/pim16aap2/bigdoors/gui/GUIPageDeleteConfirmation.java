@@ -1,10 +1,12 @@
 package nl.pim16aap2.bigdoors.gui;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandDelete;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -76,19 +78,19 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
     private void deleteDoor()
     {
-        futurePermissionCheck = plugin.getDatabaseManager()
-                                      .hasPermissionForAction(gui.getGuiHolder(), gui.getDoor().getDoorUID(),
-                                                              DoorAttribute.DELETE);
+        futurePermissionCheck = BigDoors.get().getDatabaseManager()
+                                        .hasPermissionForAction(gui.getGuiHolder(), gui.getDoor().getDoorUID(),
+                                                                DoorAttribute.DELETE);
         futurePermissionCheck.whenComplete(
             (isAllowed, throwable) ->
             {
                 if (!isAllowed)
                     return;
-                BigDoorsSpigot.newMainThreadExecutor().runOnMainThread(
+                BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
                     () ->
                     {
                         ((SubCommandDelete) plugin.getCommand(CommandData.DELETE))
-                            .execute(gui.getGuiHolder(), gui.getDoor());
+                            .execute(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), gui.getDoor());
                         gui.removeSelectedDoor();
                     });
             });

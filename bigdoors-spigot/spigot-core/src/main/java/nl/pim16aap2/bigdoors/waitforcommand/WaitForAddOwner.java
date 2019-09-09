@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.waitforcommand;
 
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandAddOwner;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -11,17 +11,17 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a delayed command to add another owner to a {@link DoorBase}.
+ * Represents a delayed command to add another owner to a {@link AbstractDoorBase}.
  *
  * @author Pim
  */
 public class WaitForAddOwner extends WaitForCommand
 {
-    private final DoorBase door;
+    private final AbstractDoorBase door;
     private final SubCommandAddOwner subCommand;
 
     public WaitForAddOwner(final @NotNull BigDoorsSpigot plugin, final @NotNull SubCommandAddOwner subCommand,
-                           final @NotNull Player player, final @NotNull DoorBase door)
+                           final @NotNull Player player, final @NotNull AbstractDoorBase door)
     {
         super(plugin, subCommand);
         this.player = player;

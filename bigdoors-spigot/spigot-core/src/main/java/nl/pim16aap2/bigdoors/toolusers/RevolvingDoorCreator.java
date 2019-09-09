@@ -28,9 +28,9 @@ public class RevolvingDoorCreator extends BigDoorCreator
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
-        if (loc.getBlockX() < one.getBlockX() || loc.getBlockX() > two.getBlockX() ||
-            loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY() ||
-            loc.getBlockZ() < one.getBlockZ() || loc.getBlockZ() > two.getBlockZ())
+        if (loc.getBlockX() < one.getX() || loc.getBlockX() > two.getX() ||
+            loc.getBlockY() < one.getY() || loc.getBlockY() > two.getY() ||
+            loc.getBlockZ() < one.getZ() || loc.getBlockZ() > two.getZ())
             return false;
         return true;
     }
@@ -41,8 +41,8 @@ public class RevolvingDoorCreator extends BigDoorCreator
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
-        int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
-        int zDepth = Math.abs(one.getBlockZ() - loc.getBlockZ());
+        int xDepth = Math.abs(one.getX() - loc.getBlockX());
+        int zDepth = Math.abs(one.getZ() - loc.getBlockZ());
 
         // Check if it's not just one block deep in horizontal axis.
         return xDepth > 0 && zDepth > 0;

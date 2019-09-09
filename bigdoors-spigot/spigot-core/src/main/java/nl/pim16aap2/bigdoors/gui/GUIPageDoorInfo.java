@@ -1,12 +1,15 @@
 package nl.pim16aap2.bigdoors.gui;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandInfo;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandToggle;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -62,22 +65,22 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     /**
-     * Handles user input for an action that they have the required level of ownership for for this door, as tested by
-     * {@link nl.pim16aap2.bigdoors.managers.DatabaseManager#hasPermissionForAction(Player, long, DoorAttribute)}.
+     * Handles user input for an action that they have the required level of ownership for for this door in the database
+     * manager.
      *
      * @param door           The door.
      * @param player         The player.
      * @param guiItem        The GUIItem pressed.
      * @param interactionIDX The index of the GUIItem the player interacted with.
      */
-    private void handleAllowedInput(final @NotNull DoorBase door, final @NotNull Player player,
+    private void handleAllowedInput(final @NotNull AbstractDoorBase door, final @NotNull Player player,
                                     final @NotNull GUIItem guiItem, final int interactionIDX)
     {
         switch (guiItem.getDoorAttribute().get())
         {
             case LOCK:
                 door.setLock(!door.isLocked());
-                plugin.getDatabaseManager().setLock(door.getDoorUID(), door.isLocked());
+                BigDoors.get().getDatabaseManager().setLock(door.getDoorUID(), door.isLocked());
                 gui.updateItem(interactionIDX, createGUIItemOfAttribute(door, DoorAttribute.LOCK));
                 break;
             case TOGGLE:
@@ -90,7 +93,7 @@ public class GUIPageDoorInfo implements IGUIPage
                 gui.setGUIPage(new GUIPageDeleteConfirmation(plugin, gui));
                 break;
             case RELOCATEPOWERBLOCK:
-                plugin.getDatabaseManager().startPowerBlockRelocator(player, door);
+                plugin.getAbortableTaskManager().startPowerBlockRelocator(player, door);
                 gui.close();
                 break;
             case DIRECTION_ROTATE_VERTICAL2:
@@ -101,15 +104,15 @@ public class GUIPageDoorInfo implements IGUIPage
                 changeOpenDir(door, interactionIDX);
                 break;
             case CHANGETIMER:
-                plugin.getDatabaseManager().startTimerSetter(player, door);
+                plugin.getAbortableTaskManager().startTimerSetter(player, door);
                 gui.close();
                 break;
             case BLOCKSTOMOVE:
-                plugin.getDatabaseManager().startBlocksToMoveSetter(player, door);
+                plugin.getAbortableTaskManager().startBlocksToMoveSetter(player, door);
                 gui.close();
                 break;
             case ADDOWNER:
-                plugin.getDatabaseManager().startAddOwner(player, door);
+                plugin.getAbortableTaskManager().startAddOwner(player, door);
                 gui.close();
                 break;
             case REMOVEOWNER:
@@ -136,9 +139,10 @@ public class GUIPageDoorInfo implements IGUIPage
         if (!guiItem.getDoorAttribute().isPresent())
             return;
 
-        futurePermissionCheck = plugin.getDatabaseManager()
-                                      .hasPermissionForAction(gui.getGuiHolder(), gui.getDoor().getDoorUID(),
-                                                              guiItem.getDoorAttribute().get());
+        futurePermissionCheck = DatabaseManager.get()
+                                               .hasPermissionForAction(gui.getGuiHolder(),
+                                                                       gui.getDoor().getDoorUID(),
+                                                                       guiItem.getDoorAttribute().get());
         futurePermissionCheck.whenComplete(
             (isAllowed, throwable) ->
             {
@@ -147,8 +151,9 @@ public class GUIPageDoorInfo implements IGUIPage
                     gui.update();
                     return;
                 }
-                BigDoorsSpigot.newMainThreadExecutor().runOnMainThread(
-                    () -> handleAllowedInput(gui.getDoor(), gui.getGuiHolder(), guiItem, interactionIDX));
+                BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
+                    () -> handleAllowedInput(gui.getDoor(), SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), guiItem,
+                                             interactionIDX));
             });
     }
 
@@ -199,7 +204,7 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     // Changes the opening direction for a door.
-    private void changeOpenDir(final @NotNull DoorBase door, final int index)
+    private void changeOpenDir(final @NotNull AbstractDoorBase door, final int index)
     {
         DoorAttribute[] attributes = DoorType.getAttributes(door.getType());
         DoorAttribute openTypeAttribute = null;
@@ -231,7 +236,7 @@ public class GUIPageDoorInfo implements IGUIPage
         }
         RotateDirection newOpenDir = door.cycleOpenDirection();
 
-        plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
+        BigDoors.get().getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
         int idx = gui.indexOfDoor(door);
         gui.getDoor(idx).setOpenDir(newOpenDir);
         gui.setDoor(gui.getDoor(idx));
@@ -240,7 +245,8 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     @NotNull
-    private Optional<GUIItem> createGUIItemOfAttribute(final @NotNull DoorBase door, final @NotNull DoorAttribute atr)
+    private Optional<GUIItem> createGUIItemOfAttribute(final @NotNull AbstractDoorBase door,
+                                                       final @NotNull DoorAttribute atr)
     {
         // If the permission level is higher than the max permission of this action.
         if (door.getPermission() > DoorAttribute.getPermissionLevel(atr))

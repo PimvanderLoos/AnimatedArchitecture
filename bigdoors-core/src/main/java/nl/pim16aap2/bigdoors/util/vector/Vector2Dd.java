@@ -145,4 +145,14 @@ public final class Vector2Dd implements Cloneable
         Vector2Dd other = (Vector2Dd) o;
         return x == other.x && y == other.y;
     }
+
+    public Vector2Dd normalize()
+    {
+        double length = Math.sqrt(x * x + y * y);
+
+        x /= length;
+        y /= length;
+
+        return this;
+    }
 }

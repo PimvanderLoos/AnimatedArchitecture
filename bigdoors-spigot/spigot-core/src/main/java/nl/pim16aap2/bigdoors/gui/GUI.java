@@ -1,8 +1,12 @@
 package nl.pim16aap2.bigdoors.gui;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.Bukkit;
@@ -12,7 +16,6 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +57,8 @@ public class GUI
             Material.BARRIER,      // UNUSED
         };
     private final BigDoorsSpigot plugin;
-    private final Player guiHolder;
-    private List<DoorBase> doorBases;
+    private final IPPlayer guiHolder;
+    private List<AbstractDoorBase> doorBases;
     private final Map<Integer, GUIItem> items;
     private IGUIPage guiPage;
     private boolean isRefreshing;
@@ -66,9 +69,9 @@ public class GUI
     private SortType sortType = SortType.ID;
     private Inventory inventory = null;
     private int maxPageCount;
-    private DoorBase door = null;
+    private AbstractDoorBase door = null;
 
-    public GUI(final @NotNull BigDoorsSpigot plugin, final @NotNull Player guiHolder)
+    public GUI(final @NotNull BigDoorsSpigot plugin, final @NotNull IPPlayer guiHolder)
     {
         isRefreshing = false;
         isOpen = true;
@@ -78,13 +81,13 @@ public class GUI
 
         page = 0;
         items = new ConcurrentHashMap<>();
-        plugin.getDatabaseManager().getDoors(guiHolder.getUniqueId()).whenComplete(
+        BigDoors.get().getDatabaseManager().getDoors(guiHolder.getUUID()).whenComplete(
             (optionalDoorList, throwable) ->
             {
                 doorBases = optionalDoorList.orElse(new ArrayList<>());
                 sort();
                 guiPage = new GUIPageDoorList(plugin, this);
-                BigDoorsSpigot.newMainThreadExecutor().runOnMainThread(this::update);
+                BigDoors.get().getPlatform().newPExecutor().runOnMainThread(this::update);
             });
     }
 
@@ -101,16 +104,24 @@ public class GUI
 
     void update()
     {
-        if (!BigDoorsSpigot.onMainThread(Thread.currentThread().getId()))
+        if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
             plugin.getPLogger().logException(new IllegalStateException("NOT ON THE MAIN THREAD!"));
         isRefreshing = true;
         items.clear();
         maxPageCount = doorBases.size() / (CHESTSIZE - 9) + ((doorBases.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
         guiPage.refresh();
 
+        Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(guiHolder);
+        if (bukkitPlayer == null)
+        {
+            PLogger.get().logException(new NullPointerException("Player \"" + guiHolder.toString() + "\" is null!"));
+            return;
+        }
+
         inventory = Bukkit
-            .createInventory(guiHolder, CHESTSIZE, messages.getString(PageType.getMessage(guiPage.getPageType())));
-        guiHolder.openInventory(inventory);
+            .createInventory(bukkitPlayer, CHESTSIZE,
+                             messages.getString(PageType.getMessage(guiPage.getPageType())));
+        bukkitPlayer.openInventory(inventory);
         items.forEach((k, v) -> inventory.setItem(k, v.getItemStack()));
 
         isRefreshing = false;
@@ -122,8 +133,8 @@ public class GUI
         try
         {
             if (door != null &&
-                plugin.getDatabaseManager().getPermission(guiHolder.getUniqueId().toString(), door.getDoorUID())
-                      .get() == -1)
+                BigDoors.get().getDatabaseManager().getPermission(guiHolder, door.getDoorUID())
+                        .get() == -1)
             {
                 doorBases.remove(door);
                 door = null;
@@ -152,15 +163,15 @@ public class GUI
             guiPage.handleInput(interactionIDX);
     }
 
-    void sort()
+    private void sort()
     {
-        Collections.sort(doorBases, SortType.getComparator(sortType));
+        doorBases.sort(SortType.getComparator(sortType));
     }
 
     public void close()
     {
         isOpen = false;
-        guiHolder.closeInventory();
+        SpigotAdapter.getBukkitPlayer(guiHolder).closeInventory();
         plugin.removeGUIUser(this);
     }
 
@@ -184,17 +195,17 @@ public class GUI
         return isOpen;
     }
 
-    public Player getGuiHolder()
+    public IPPlayer getGuiHolder()
     {
         return guiHolder;
     }
 
-    DoorBase getDoor()
+    AbstractDoorBase getDoor()
     {
         return door;
     }
 
-    void setDoor(final @NotNull DoorBase door)
+    void setDoor(final @NotNull AbstractDoorBase door)
     {
         this.door = door;
     }
@@ -220,7 +231,7 @@ public class GUI
     }
 
     // TODO: OPTIONAL!
-    DoorBase getDoor(final int index)
+    AbstractDoorBase getDoor(final int index)
     {
         return doorBases.get(index);
     }
@@ -231,7 +242,7 @@ public class GUI
         door = null;
     }
 
-    int indexOfDoor(final @NotNull DoorBase door)
+    int indexOfDoor(final @NotNull AbstractDoorBase door)
     {
         return doorBases.indexOf(door);
     }
@@ -274,9 +285,9 @@ public class GUI
 
     protected static enum SortType
     {
-        ID(Message.GUI_SORTING_NUMERICAL, Comparator.comparing(DoorBase::getDoorUID)),
-        NAME(Message.GUI_SORTING_ALPHABETICAL, Comparator.comparing(DoorBase::getName)),
-        TYPE(Message.GUI_SORTING_TYPICAL, Comparator.comparing(DoorBase::getType))
+        ID(Message.GUI_SORTING_NUMERICAL, Comparator.comparing(AbstractDoorBase::getDoorUID)),
+        NAME(Message.GUI_SORTING_ALPHABETICAL, Comparator.comparing(AbstractDoorBase::getName)),
+        TYPE(Message.GUI_SORTING_TYPICAL, Comparator.comparing(AbstractDoorBase::getType))
             {
                 @Override
                 SortType next()
@@ -286,9 +297,9 @@ public class GUI
             };
 
         private Message message;
-        private Comparator<DoorBase> comparator;
+        private Comparator<AbstractDoorBase> comparator;
 
-        SortType(Message message, Comparator<DoorBase> comparator)
+        SortType(Message message, Comparator<AbstractDoorBase> comparator)
         {
             this.message = message;
             this.comparator = comparator;
@@ -299,7 +310,7 @@ public class GUI
             return sortType.message;
         }
 
-        static Comparator<DoorBase> getComparator(SortType sortType)
+        static Comparator<AbstractDoorBase> getComparator(SortType sortType)
         {
             return sortType.comparator;
         }

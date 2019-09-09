@@ -1,13 +1,16 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -42,19 +45,19 @@ public class SubCommandSetRotation extends SubCommand
                                                       messages.getString(RotateDirection.getMessage(openDir))));
     }
 
-    public void execute(final @NotNull CommandSender sender, final @NotNull DoorBase door,
+    public void execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
                         final @NotNull RotateDirection openDir)
     {
         if (!(sender instanceof Player))
         {
-            plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), openDir);
+            BigDoors.get().getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), openDir);
             sendResultMessage(sender, openDir);
             return;
         }
 
-        final Player player = (Player) sender;
-        plugin.getDatabaseManager()
-              .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE).whenComplete(
+        final IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
+        BigDoors.get().getDatabaseManager()
+                .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE).whenComplete(
             (isAllowed, throwable) ->
             {
                 if (!isAllowed)
@@ -62,7 +65,7 @@ public class SubCommandSetRotation extends SubCommand
                     commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
                     return;
                 }
-                plugin.getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), openDir);
+                BigDoors.get().getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), openDir);
                 sendResultMessage(sender, openDir);
             });
     }

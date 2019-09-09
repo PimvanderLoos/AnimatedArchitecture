@@ -1,8 +1,9 @@
 package nl.pim16aap2.bigdoors.waitforcommand;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandRemoveOwner;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
@@ -12,17 +13,17 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a delayed command to remove an owner of a {@link DoorBase}.
+ * Represents a delayed command to remove an owner of a {@link AbstractDoorBase}.
  *
  * @author Pim
  */
 public class WaitForRemoveOwner extends WaitForCommand
 {
-    private final DoorBase door;
+    private final AbstractDoorBase door;
     private final SubCommandRemoveOwner subCommand;
 
     public WaitForRemoveOwner(final @NotNull BigDoorsSpigot plugin, final @NotNull SubCommandRemoveOwner subCommand,
-                              final @NotNull Player player, final @NotNull DoorBase door)
+                              final @NotNull Player player, final @NotNull AbstractDoorBase door)
     {
         super(plugin, subCommand);
         this.subCommand = subCommand;
@@ -31,7 +32,7 @@ public class WaitForRemoveOwner extends WaitForCommand
         SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_REMOVEOWNER_INIT));
         SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_REMOVEOWNER_LIST));
 
-        plugin.getDatabaseManager().getDoorOwners(door.getDoorUID()).whenComplete(
+        BigDoors.get().getDatabaseManager().getDoorOwners(door.getDoorUID()).whenComplete(
             (ownerList, throwable) ->
             {
                 StringBuilder builder = new StringBuilder();

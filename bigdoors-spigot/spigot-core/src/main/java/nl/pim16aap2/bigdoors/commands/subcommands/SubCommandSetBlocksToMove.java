@@ -1,13 +1,16 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
@@ -42,21 +45,21 @@ public class SubCommandSetBlocksToMove extends SubCommand
                                    messages.getString(Message.COMMAND_BLOCKSTOMOVE_DISABLED));
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull DoorBase door,
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
                            final @NotNull String blocksToMoveArg)
         throws IllegalArgumentException
     {
         int blocksToMove = CommandManager.getIntegerFromArg(blocksToMoveArg);
         if (!(sender instanceof Player))
         {
-            plugin.getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
+            BigDoors.get().getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
             sendResultMessage(sender, blocksToMove);
             return true;
         }
 
-        final Player player = (Player) sender;
-        plugin.getDatabaseManager()
-              .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE).whenComplete(
+        final IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
+        BigDoors.get().getDatabaseManager()
+                .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE).whenComplete(
             (isAllowed, throwable) ->
             {
                 if (!isAllowed)
@@ -64,7 +67,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
                     commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
                     return;
                 }
-                plugin.getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
+                BigDoors.get().getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
                 sendResultMessage(sender, blocksToMove);
             });
         return true;

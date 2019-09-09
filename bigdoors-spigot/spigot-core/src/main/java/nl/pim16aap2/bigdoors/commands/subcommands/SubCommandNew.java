@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.doors.DoorType;
@@ -124,7 +125,7 @@ public class SubCommandNew extends SubCommand
                   .warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
             return;
         }
-        plugin.getDatabaseManager().startTimerForAbortableTask(creator, 60 * 20);
+        plugin.getAbortableTaskManager().startTimerForAbortableTask(creator, 60 * 20);
     }
 
     /**
@@ -141,7 +142,7 @@ public class SubCommandNew extends SubCommand
         if (maxDoorCount < 0)
             initiateDoorCreation(player, name, type);
         else
-            plugin.getDatabaseManager().countDoorsOwnedByPlayer(player.getUniqueId()).whenComplete(
+            BigDoors.get().getDatabaseManager().countDoorsOwnedByPlayer(player.getUniqueId()).whenComplete(
                 (doorCount, throwable) ->
                 {
                     if (doorCount >= maxDoorCount)

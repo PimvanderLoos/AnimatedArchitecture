@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.commands.subcommands;
 
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.toolusers.PowerBlockInspector;
@@ -26,9 +25,10 @@ public class SubCommandInspectPowerBlock extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(Player player)
+    public boolean execute(final @NotNull Player player)
     {
-        plugin.getDatabaseManager().startTimerForAbortableTask(new PowerBlockInspector(plugin, player, -1), 20 * 20);
+        plugin.getAbortableTaskManager()
+              .startTimerForAbortableTask(new PowerBlockInspector(plugin, player, -1), 20 * 20);
         return true;
     }
 
@@ -38,7 +38,7 @@ public class SubCommandInspectPowerBlock extends SubCommand
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)
-        throws CommandSenderNotPlayerException, CommandPermissionException
+        throws CommandSenderNotPlayerException
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();

@@ -40,17 +40,17 @@ public class ClockCreator extends BigDoorCreator
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
-        int centerX = one.getBlockX() + (xDepth) / 2;
-        int centerY = one.getBlockY() + (yDepth) / 2;
-        int centerZ = one.getBlockZ() + (zDepth) / 2;
+        int centerX = one.getX() + (xDepth) / 2;
+        int centerY = one.getY() + (yDepth) / 2;
+        int centerZ = one.getZ() + (zDepth) / 2;
 
         boolean validY = centerY == loc.getBlockY();
         // Remember, NS means it rotates along the z axis (north south),
         // so it must be 2 blocks deep in the x axis (east west).
         boolean validX =
-            NS ? Util.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) : centerX == loc.getBlockX();
+            NS ? Util.between(loc.getBlockX(), one.getX(), two.getX()) : centerX == loc.getBlockX();
         boolean validZ =
-            NS ? centerZ == loc.getBlockZ() : Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
+            NS ? centerZ == loc.getBlockZ() : Util.between(loc.getBlockZ(), one.getZ(), two.getZ());
 
         return validX && validY && validZ;
     }
@@ -74,9 +74,9 @@ public class ClockCreator extends BigDoorCreator
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
-        xDepth = Math.abs(one.getBlockX() - loc.getBlockX()) + 1;
-        yDepth = Math.abs(one.getBlockY() - loc.getBlockY()) + 1;
-        zDepth = Math.abs(one.getBlockZ() - loc.getBlockZ()) + 1;
+        xDepth = Math.abs(one.getX() - loc.getBlockX()) + 1;
+        yDepth = Math.abs(one.getY() - loc.getBlockY()) + 1;
+        zDepth = Math.abs(one.getZ() - loc.getBlockZ()) + 1;
 
         // When yDepth == zDepth, it means that the clock must rotate along the Z (north south) axis.
         NS = yDepth == zDepth;

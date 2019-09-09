@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.api.IRestartable;
+import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import org.jetbrains.annotations.NotNull;
 
 /**

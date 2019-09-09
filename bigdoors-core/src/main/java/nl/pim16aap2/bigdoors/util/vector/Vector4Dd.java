@@ -195,4 +195,16 @@ public final class Vector4Dd implements Cloneable
         Vector4Dd other = (Vector4Dd) o;
         return x == other.x && y == other.y && z == other.z && w == other.w;
     }
+
+    public Vector4Dd normalize()
+    {
+        double length = Math.sqrt(x * x + y * y + z * z + w * w);
+
+        x /= length;
+        y /= length;
+        z /= length;
+        w /= length;
+
+        return this;
+    }
 }

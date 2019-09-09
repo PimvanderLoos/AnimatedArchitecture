@@ -1,16 +1,20 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,16 +37,17 @@ public class SubCommandAddOwner extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull DoorBase door,
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
                            final @NotNull String playerArg, final int permission)
         throws CommandPlayerNotFoundException
     {
         final UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
+        final IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
 
         // No need to check for permissions if the sender wasn't a player.
         if (!(sender instanceof Player))
         {
-            boolean success = plugin.getDatabaseManager().addOwner(door, playerUUID, permission);
+            boolean success = BigDoors.get().getDatabaseManager().addOwner(door, player, permission);
             plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
                                                     success ?
                                                     messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
@@ -50,21 +55,21 @@ public class SubCommandAddOwner extends SubCommand
             return true;
         }
 
-        plugin.getDatabaseManager().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.ADDOWNER)
-              .whenComplete(
-                  (isAllowed, throwable) ->
-                  {
-                      if (!isAllowed)
-                      {
-                          commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
-                          return;
-                      }
-                      boolean success = plugin.getDatabaseManager().addOwner(door, playerUUID, permission);
-                      plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                              success ?
-                                                              messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
-                                                              messages.getString(Message.COMMAND_ADDOWNER_FAIL));
-                  });
+        BigDoors.get().getDatabaseManager().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.ADDOWNER)
+                .whenComplete(
+                    (isAllowed, throwable) ->
+                    {
+                        if (!isAllowed)
+                        {
+                            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+                            return;
+                        }
+                        boolean success = BigDoors.get().getDatabaseManager().addOwner(door, player, permission);
+                        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+                                                                success ?
+                                                                messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
+                                                                messages.getString(Message.COMMAND_ADDOWNER_FAIL));
+                    });
         return true;
     }
 

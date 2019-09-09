@@ -6,9 +6,9 @@ import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,29 +41,29 @@ public class DrawbridgeCreator extends Creator
     protected boolean isEngineValid(final @NotNull Location loc)
     {
         // One is always the bottom one, so this makes sure it's on the bottom row.
-        if (loc.getBlockY() != one.getBlockY())
+        if (loc.getBlockY() != one.getY())
             return false;
 
         if (loc.equals(engine))
             return false;
 
-        boolean onEdge = loc.getBlockX() == one.getBlockX() ||
-            loc.getBlockX() == two.getBlockX() ||
-            loc.getBlockZ() == one.getBlockZ() ||
-            loc.getBlockZ() == two.getBlockZ();
+        boolean onEdge = loc.getBlockX() == one.getX() ||
+            loc.getBlockX() == two.getX() ||
+            loc.getBlockZ() == one.getZ() ||
+            loc.getBlockZ() == two.getZ();
 
         if (!onEdge)
             return false;
 
-        boolean inArea = Util.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
-            Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
+        boolean inArea = Util.between(loc.getBlockX(), one.getX(), two.getX()) &&
+            Util.between(loc.getBlockZ(), one.getZ(), two.getZ());
 
         if (!inArea)
             return false;
 
-        int xDepth = Math.abs(one.getBlockX() - two.getBlockX());
-        int yDepth = Math.abs(one.getBlockY() - two.getBlockY());
-        int zDepth = Math.abs(one.getBlockZ() - two.getBlockZ());
+        int xDepth = Math.abs(one.getX() - two.getX());
+        int yDepth = Math.abs(one.getY() - two.getY());
+        int zDepth = Math.abs(one.getZ() - two.getZ());
 
         if (yDepth == 0)
         {
@@ -105,18 +105,18 @@ public class DrawbridgeCreator extends Creator
             int posZ = loc.getBlockZ();
 
             if (loc.equals(one) || loc.equals(two) || // "bottom left" or "top right" (on 2d grid)
-                (posX == one.getBlockX() && posZ == two.getBlockZ()) || // "top left"
-                (posX == two.getBlockX() && posZ == one.getBlockZ()))
-                engine = loc;
+                (posX == one.getX() && posZ == two.getZ()) || // "top left"
+                (posX == two.getX() && posZ == one.getZ()))
+                engine = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
             else
             {
-                if (posZ == one.getBlockZ())
+                if (posZ == one.getZ())
                     engineSide = PBlockFace.NORTH;
-                else if (posZ == two.getBlockZ())
+                else if (posZ == two.getZ())
                     engineSide = PBlockFace.SOUTH;
-                else if (posX == one.getBlockX())
+                else if (posX == one.getX())
                     engineSide = PBlockFace.WEST;
-                else if (posX == two.getBlockX())
+                else if (posX == two.getX())
                     engineSide = PBlockFace.EAST;
                 updateEngineLoc();
             }
@@ -127,11 +127,11 @@ public class DrawbridgeCreator extends Creator
         if (loc.equals(engine))
             return false;
 
-        int posXa = engine.getBlockX();
-        int posZa = engine.getBlockZ();
+        int posXa = engine.getX();
+        int posZa = engine.getZ();
 
         // Engine axis should be on 1 axis only.
-        Vector vector = loc.toVector().subtract(engine.toVector());
+        Vector3Di vector = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()).subtract(engine);
         vector.normalize();
 
         if (Math.abs(vector.getX() + vector.getY() + vector.getZ()) != 1)
@@ -140,30 +140,30 @@ public class DrawbridgeCreator extends Creator
         // First figure out which corner was selected.
         if (engine.equals(one)) // NORTH / WEST Possible
         {
-            if (vector.getBlockX() == 1)
+            if (vector.getX() == 1)
                 engineSide = PBlockFace.NORTH;
-            else if (vector.getBlockZ() == 1)
+            else if (vector.getZ() == 1)
                 engineSide = PBlockFace.WEST;
         }
         else if (engine.equals(two)) // EAST / SOUTH Possible
         {
-            if (vector.getBlockX() == -1)
+            if (vector.getX() == -1)
                 engineSide = PBlockFace.SOUTH;
-            else if (vector.getBlockZ() == -1)
+            else if (vector.getZ() == -1)
                 engineSide = PBlockFace.EAST;
         }
-        else if (posXa == one.getBlockX() && posZa == two.getBlockZ()) // SOUTH / WEST Possible
+        else if (posXa == one.getX() && posZa == two.getZ()) // SOUTH / WEST Possible
         {
-            if (vector.getBlockX() == 1)
+            if (vector.getX() == 1)
                 engineSide = PBlockFace.SOUTH;
-            else if (vector.getBlockZ() == -1)
+            else if (vector.getZ() == -1)
                 engineSide = PBlockFace.WEST;
         }
-        else if (posXa == two.getBlockX() && posZa == one.getBlockZ()) // NORTH / EAST Possible
+        else if (posXa == two.getX() && posZa == one.getZ()) // NORTH / EAST Possible
         {
-            if (vector.getBlockX() == -1)
+            if (vector.getX() == -1)
                 engineSide = PBlockFace.NORTH;
-            else if (vector.getBlockZ() == 1)
+            else if (vector.getZ() == 1)
                 engineSide = PBlockFace.EAST;
         }
         else
@@ -217,9 +217,9 @@ public class DrawbridgeCreator extends Creator
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
-        int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
-        int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());
-        int zDepth = Math.abs(one.getBlockZ() - loc.getBlockZ());
+        int xDepth = Math.abs(one.getX() - loc.getBlockX());
+        int yDepth = Math.abs(one.getY() - loc.getBlockY());
+        int zDepth = Math.abs(one.getZ() - loc.getBlockZ());
 
         if (yDepth == 0)
             return xDepth != 0 || zDepth != 0;
@@ -238,7 +238,7 @@ public class DrawbridgeCreator extends Creator
 
         if (one == null)
         {
-            one = loc;
+            one = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
             String[] message = getStep1().split("\n");
             SpigotUtil.messagePlayer(player, message);
         }
@@ -246,9 +246,9 @@ public class DrawbridgeCreator extends Creator
         {
             if (isPosTwoValid(loc))
             {
-                two = loc;
+                two = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
                 // If it's up, it's closed.
-                if (Math.abs(one.getBlockY() - two.getBlockY()) > 0)
+                if (Math.abs(one.getY() - two.getY()) > 0)
                     isOpen = false;
                 else
                     isOpen = true;
@@ -265,7 +265,7 @@ public class DrawbridgeCreator extends Creator
         {
             if (isEngineValid(loc))
             {
-                engine = loc;
+                engine = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
                 // If the engine side was found, print finish message.
                 if (engineSide != null)
                 {

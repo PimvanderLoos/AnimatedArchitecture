@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.gui;
 
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import org.bukkit.Material;
@@ -19,7 +19,7 @@ import java.util.Optional;
 class GUIItem
 {
     private ItemStack is;
-    private DoorBase door;
+    private AbstractDoorBase door;
     private List<String> lore;
     private int count;
     private String name;
@@ -164,22 +164,22 @@ class GUIItem
     }
 
     /**
-     * Gets the {@link DoorBase} associated with this {@link GUIItem}.
+     * Gets the {@link AbstractDoorBase} associated with this {@link GUIItem}.
      *
-     * @return The {@link DoorBase} associated with this {@link GUIItem}. Returns null if unavailable.
+     * @return The {@link AbstractDoorBase} associated with this {@link GUIItem}. Returns null if unavailable.
      */
     @Nullable
-    public DoorBase getDoor()
+    public AbstractDoorBase getDoor()
     {
         return door;
     }
 
     /**
-     * Sets the {@link DoorBase} associated with this {@link GUIItem}.
+     * Sets the {@link AbstractDoorBase} associated with this {@link GUIItem}.
      *
-     * @param door The {@link DoorBase} to be associated with this {@link GUIItem}.
+     * @param door The {@link AbstractDoorBase} to be associated with this {@link GUIItem}.
      */
-    public void setDoor(final @NotNull DoorBase door)
+    public void setDoor(final @NotNull AbstractDoorBase door)
     {
         this.door = door;
     }

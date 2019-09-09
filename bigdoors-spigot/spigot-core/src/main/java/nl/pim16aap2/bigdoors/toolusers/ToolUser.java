@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.toolusers;
 
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.spigotutil.AbortableTask;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -26,6 +28,7 @@ public abstract class ToolUser extends AbortableTask
     protected final Messages messages;
     protected long doorUID;
     protected Player player;
+    protected IPPlayer pPlayer;
     protected boolean done = false;
     protected boolean aborting = false;
 
@@ -34,6 +37,7 @@ public abstract class ToolUser extends AbortableTask
         this.plugin = plugin;
         messages = plugin.getMessages();
         this.player = player;
+        pPlayer = SpigotAdapter.wrapPlayer(player);
         plugin.addToolUser(this);
     }
 
@@ -110,11 +114,12 @@ public abstract class ToolUser extends AbortableTask
      */
     public final void takeToolFromPlayer()
     {
-        player.getInventory().forEach(K ->
-                                      {
-                                          if (plugin.getTF().isTool(K))
-                                              K.setAmount(0);
-                                      });
+        player.getInventory().forEach(
+            K ->
+            {
+                if (plugin.getTF().isTool(K))
+                    K.setAmount(0);
+            });
     }
 
     /**

@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
@@ -36,12 +38,6 @@ public final class PLogger
     private final BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
 
     /**
-     * The {@link IMessagingInterface} use for platform-specific messaging. For example writing to console, sending a
-     * message to a player.
-     */
-    private final IMessagingInterface messagingInterface;
-
-    /**
      * Check if the log file could be initialized properly.
      */
     private boolean success = false;
@@ -65,13 +61,11 @@ public final class PLogger
     /**
      * Constructs a PLogger.
      *
-     * @param logFile            The file to write to.
-     * @param messagingInterface The implementation of {@link IMessagingInterface} for writing to the console etc.
+     * @param logFile The file to write to.
      */
-    private PLogger(final @NotNull File logFile, final @NotNull IMessagingInterface messagingInterface)
+    private PLogger(final @NotNull File logFile)
     {
         this.logFile = logFile;
-        this.messagingInterface = messagingInterface;
         prepareLog();
         if (success)
             new Thread(this::processQueue).start();
@@ -80,14 +74,13 @@ public final class PLogger
     /**
      * Initializes the PLogger. If it has already been initialized, it'll return that instance instead.
      *
-     * @param logFile            The file to write to.
-     * @param messagingInterface The implementation of {@link IMessagingInterface} for writing to the console etc.
+     * @param logFile The file to write to.
      * @return The PLogger instance.
      */
     @NotNull
-    public static PLogger init(final @NotNull File logFile, final @NotNull IMessagingInterface messagingInterface)
+    public static PLogger init(final @NotNull File logFile)
     {
-        return (instance == null) ? instance = new PLogger(logFile, messagingInterface) : instance;
+        return (instance == null) ? instance = new PLogger(logFile) : instance;
     }
 
     /**
@@ -179,8 +172,7 @@ public final class PLogger
      */
     public void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level, final @NotNull String str)
     {
-        if (messagingInterface != null)
-            messagingInterface.sendMessageToTarget(target, level, str);
+        BigDoors.get().getMessagingInterface().sendMessageToTarget(target, level, str);
     }
 
     /**
@@ -255,8 +247,7 @@ public final class PLogger
      */
     public void writeToConsole(final @NotNull Level level, final @NotNull String message)
     {
-        if (messagingInterface != null)
-            messagingInterface.writeToConsole(level, message);
+        BigDoors.get().getMessagingInterface().writeToConsole(level, message);
     }
 
     /**

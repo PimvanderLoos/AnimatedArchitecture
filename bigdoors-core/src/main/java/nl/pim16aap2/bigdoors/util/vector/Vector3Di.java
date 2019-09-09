@@ -170,4 +170,15 @@ public final class Vector3Di implements Cloneable
         Vector3Di other = (Vector3Di) o;
         return x == other.x && y == other.y && z == other.z;
     }
+
+    public Vector3Di normalize()
+    {
+        double length = Math.sqrt(x * x + y * y + z * z);
+
+        x /= length;
+        y /= length;
+        z /= length;
+
+        return this;
+    }
 }

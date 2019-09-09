@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.gui;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.gui.GUI.SortType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 
@@ -66,7 +66,8 @@ class GUIPageDoorList implements IGUIPage
             gui.setDoor(gui.getItem(interactionIDX).getDoor());
             if (gui.getDoor() == null)
             {
-                SpigotUtil.messagePlayer(gui.getGuiHolder(), messages.getString(Message.ERROR_GENERALERROR));
+                BigDoors.get().getMessagingInterface()
+                        .messagePlayer(gui.getGuiHolder(), messages.getString(Message.ERROR_GENERALERROR));
                 gui.close();
                 return;
             }
@@ -116,7 +117,7 @@ class GUIPageDoorList implements IGUIPage
         List<String> lore = new ArrayList<>();
         for (int idx = 0; idx < endCount; ++idx)
         {
-            DoorBase currentDoor = gui.getDoor(offset + idx);
+            AbstractDoorBase currentDoor = gui.getDoor(offset + idx);
             DoorType doorType = currentDoor.getType();
             lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(currentDoor.getDoorUID())));
             lore.add(messages.getString(DoorType.getMessage(doorType)));

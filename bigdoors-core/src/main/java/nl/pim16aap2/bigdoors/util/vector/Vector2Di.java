@@ -145,4 +145,14 @@ public final class Vector2Di implements Cloneable
         Vector2Di other = (Vector2Di) o;
         return x == other.x && y == other.y;
     }
+
+    public Vector2Di normalize()
+    {
+        double length = Math.sqrt(x * x + y * y);
+
+        x /= length;
+        y /= length;
+
+        return this;
+    }
 }

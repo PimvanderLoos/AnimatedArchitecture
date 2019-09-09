@@ -1,8 +1,9 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.api.IMessagingInterface;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -33,9 +34,9 @@ public class MessagingInterfaceStdout implements IMessagingInterface
      * {@inheritDoc}
      */
     @Override
-    public void messagePlayer(final @NotNull UUID playerUUID, final @NotNull String message)
+    public void messagePlayer(final @NotNull IPPlayer player, final @NotNull String message)
     {
-        System.out.println(formattedName + " to player: \"" + playerUUID + "\": " + message);
+        System.out.println(formattedName + " to player: \"" + player.getName() + "\": " + message);
     }
 
     /**

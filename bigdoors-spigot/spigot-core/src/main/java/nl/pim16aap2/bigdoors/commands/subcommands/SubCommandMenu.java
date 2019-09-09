@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.gui.GUI;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,7 +35,7 @@ public class SubCommandMenu extends SubCommand
     {
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
-        plugin.addGUIUser(new GUI(plugin, (Player) sender));
+        plugin.addGUIUser(new GUI(plugin, SpigotAdapter.wrapPlayer((Player) sender)));
         return true;
     }
 }

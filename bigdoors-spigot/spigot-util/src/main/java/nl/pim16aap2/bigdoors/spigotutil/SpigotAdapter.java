@@ -1,12 +1,18 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.spigotutil.implementations.PLocationSpigot;
+import nl.pim16aap2.bigdoors.spigotutil.implementations.PPlayerSpigot;
+import nl.pim16aap2.bigdoors.spigotutil.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +28,8 @@ public final class SpigotAdapter
     @Nullable
     public static World getBukkitWorld(final @NotNull IPWorld pWorld)
     {
-        if (pWorld instanceof IPWorldSpigot)
-            return ((IPWorldSpigot) pWorld).getBukkitWorld();
+        if (pWorld instanceof PWorldSpigot)
+            return ((PWorldSpigot) pWorld).getBukkitWorld();
         return Bukkit.getWorld(pWorld.getUID());
     }
 
@@ -36,8 +42,8 @@ public final class SpigotAdapter
     @NotNull
     public static Location getBukkitLocation(final @NotNull IPLocation pLocation)
     {
-        if (pLocation instanceof IPLocationSpigot)
-            return ((IPLocationSpigot) pLocation).getBukkitLocation();
+        if (pLocation instanceof PLocationSpigot)
+            return ((PLocationSpigot) pLocation).getBukkitLocation();
         return new Location(getBukkitWorld(pLocation.getWorld()), pLocation.getX(), pLocation.getY(), pLocation.getZ());
     }
 
@@ -54,6 +60,30 @@ public final class SpigotAdapter
     }
 
     /**
+     * Tries to get an online Bukkit player represented by an {@link IPPlayer}.
+     *
+     * @param pPlayer The {@link IPPlayer}.
+     * @return The online bukkit player, if possible.
+     */
+    @Nullable
+    public static Player getBukkitPlayer(final @NotNull IPPlayer pPlayer)
+    {
+        return Bukkit.getPlayer(pPlayer.getUUID());
+    }
+
+    /**
+     * Tries to get an offline Bukkit player represented by an {@link IPPlayer}.
+     *
+     * @param pPlayer The {@link IPPlayer}.
+     * @return The offline bukkit player.
+     */
+    @NotNull
+    public static OfflinePlayer getOfflineBukkitPlayer(final @NotNull IPPlayer pPlayer)
+    {
+        return Bukkit.getOfflinePlayer(pPlayer.getUUID());
+    }
+
+    /**
      * Gets a Bukkit vector from a BigDoors vector.
      *
      * @param vector The BigDoors vector.
@@ -63,5 +93,53 @@ public final class SpigotAdapter
     public static Vector getBukkitVector(final @NotNull Vector3Dd vector)
     {
         return new Vector(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    /**
+     * Wraps a Bukkit player in an IPPlayer.
+     *
+     * @param player The Bukkit player.
+     * @return The IPPlayer.
+     */
+    @NotNull
+    public static IPPlayer wrapPlayer(final @NotNull Player player)
+    {
+        return new PPlayerSpigot(player);
+    }
+
+    /**
+     * Wraps an offline Bukkit player in an IPPlayer.
+     *
+     * @param player The Bukkit player.
+     * @return The IPPlayer.
+     */
+    @NotNull
+    public static IPPlayer wrapPlayer(final @NotNull OfflinePlayer player)
+    {
+        return new PPlayerSpigot(player);
+    }
+
+    /**
+     * Wraps a Bukkit location in an IPLocation.
+     *
+     * @param location The Bukkit location.
+     * @return The IPLocation.
+     */
+    @NotNull
+    public static IPLocation wrapLocation(final @NotNull Location location)
+    {
+        return new PLocationSpigot(location);
+    }
+
+    /**
+     * Wraps a Bukkit world in an IPWorld.
+     *
+     * @param world The Bukkit world.
+     * @return The IPWorld.
+     */
+    @NotNull
+    public static IPWorld wrapWorld(final @NotNull World world)
+    {
+        return new PWorldSpigot(world);
     }
 }

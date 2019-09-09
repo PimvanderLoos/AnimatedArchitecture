@@ -1,8 +1,11 @@
 package nl.pim16aap2.bigdoors.listeners;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -67,16 +70,16 @@ public class ChunkUnloadListener implements Listener
 
     /**
      * Listens to chunks being unloaded and checks if it intersects with the region of any of the active {@link
-     * DoorBase}s.
+     * AbstractDoorBase}s.
      *
      * @param event The {@link ChunkUnloadEvent}.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkUnload(final @NotNull ChunkUnloadEvent event)
     {
-        plugin.getPowerBlockManager().invalidateChunk(event.getWorld().getUID(), new Vector2Di(event.getChunk().getX(),
-                                                                                               event.getChunk()
-                                                                                                    .getZ()));
+        BigDoors.get().getPowerBlockManager()
+                .invalidateChunk(event.getWorld().getUID(), new Vector2Di(event.getChunk().getX(),
+                                                                          event.getChunk().getZ()));
         try
         {
             // If this class couldn't figure out reflection properly, give up.
@@ -90,10 +93,13 @@ public class ChunkUnloadListener implements Listener
             if (isChunkUnloadCancelled(event))
                 return;
 
+            IPWorld world = SpigotAdapter.wrapWorld(event.getWorld());
+            Vector2Di chunkCoords = new Vector2Di(event.getChunk().getX(), event.getChunk().getZ());
+
             // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
-            plugin.getDoorManager().getBlockMovers()
-                  .filter(BM -> BM.getDoor().chunkInRange(event.getChunk()))
-                  .forEach(BlockMover::abort);
+            BigDoors.get().getDoorManager().getBlockMovers()
+                    .filter(BM -> BM.getDoor().chunkInRange(world, chunkCoords))
+                    .forEach(BlockMover::abort);
         }
         catch (Exception e)
         {

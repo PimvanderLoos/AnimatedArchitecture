@@ -4,8 +4,8 @@ import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
-import nl.pim16aap2.bigdoors.spigotutil.IPWorldSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
+import nl.pim16aap2.bigdoors.spigotutil.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
@@ -47,11 +47,11 @@ public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
     @Override
     public INMSBlock nmsBlockFactory(final @NotNull IPLocation loc)
     {
-        if (!(loc.getWorld() instanceof IPWorldSpigot))
+        if (!(loc.getWorld() instanceof PWorldSpigot))
         {
             PLogger.get().logException(new IllegalArgumentException());
             return null; // TODO: Don't violate @NotNull.
         }
-        return new NMSBlock_V1_14_R1((IPWorldSpigot) loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        return new NMSBlock_V1_14_R1((PWorldSpigot) loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 }

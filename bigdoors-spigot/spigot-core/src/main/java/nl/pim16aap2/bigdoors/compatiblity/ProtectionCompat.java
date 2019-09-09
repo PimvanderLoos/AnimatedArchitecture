@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import nl.pim16aap2.bigdoors.config.ConfigLoader;
+import nl.pim16aap2.bigdoors.config.ConfigLoaderSpigot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +31,7 @@ public enum ProtectionCompat
              * {@inheritDoc}
              */
             @Override
-            public boolean isEnabled(@NotNull ConfigLoader config)
+            public boolean isEnabled(@NotNull ConfigLoaderSpigot config)
             {
                 return config.plotSquaredHook();
             }
@@ -57,7 +57,7 @@ public enum ProtectionCompat
              * {@inheritDoc}
              */
             @Override
-            public boolean isEnabled(@NotNull ConfigLoader config)
+            public boolean isEnabled(@NotNull ConfigLoaderSpigot config)
             {
                 return config.worldGuardHook();
             }
@@ -78,7 +78,7 @@ public enum ProtectionCompat
              * {@inheritDoc}
              */
             @Override
-            public boolean isEnabled(@NotNull ConfigLoader config)
+            public boolean isEnabled(@NotNull ConfigLoaderSpigot config)
             {
                 return config.griefPreventionHook();
             }
@@ -131,7 +131,7 @@ public enum ProtectionCompat
      * @param config The config loader to query for if this compat is enabled.
      * @return The function in the config that determines if the compat is enabled in the config.
      */
-    public abstract boolean isEnabled(final @NotNull ConfigLoader config);
+    public abstract boolean isEnabled(final @NotNull ConfigLoaderSpigot config);
 
     /**
      * Get the class of the given hook for a specific version of the plugin to load the compat for.

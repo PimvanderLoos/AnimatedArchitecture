@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -40,10 +41,10 @@ public class SlidingDoorCreator extends Creator
      */
     protected void updateEngineLoc()
     {
-        int xMid = one.getBlockX() + (two.getBlockX() - one.getBlockX()) / 2;
-        int zMid = one.getBlockZ() + (two.getBlockZ() - one.getBlockZ()) / 2;
-        int yMin = one.getBlockY();
-        engine = new Location(one.getWorld(), xMid, yMin, zMid);
+        int xMid = one.getX() + (two.getX() - one.getX()) / 2;
+        int zMid = one.getZ() + (two.getZ() - one.getZ()) / 2;
+        int yMin = one.getY();
+        engine = new Vector3Di(xMid, yMin, zMid);
     }
 
     /**
@@ -75,11 +76,11 @@ public class SlidingDoorCreator extends Creator
 
         if (one == null)
         {
-            one = loc;
+            one = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
             SpigotUtil.messagePlayer(player, getStep2());
         }
         else
-            two = loc;
+            two = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
         if (one != null && two != null)
         {

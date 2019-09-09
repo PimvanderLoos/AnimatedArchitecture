@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.toolusers;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +37,7 @@ public class WindmillCreator extends BigDoorCreator
      */
     @NotNull
     @Override
-    protected Location getPowerBlockLoc(final @NotNull World world)
+    protected Vector3Di getPowerBlockLoc()
     {
         return engine;
     }
@@ -50,9 +50,9 @@ public class WindmillCreator extends BigDoorCreator
     {
         // Check if the engine selection is valid. In the case of a windmill, all this
         // means is that the selected block should be within x/y/z bounds.
-        if (loc.getBlockX() < one.getBlockX() || loc.getBlockX() > two.getBlockX() ||
-            loc.getBlockY() < one.getBlockY() || loc.getBlockY() > two.getBlockY() ||
-            loc.getBlockZ() < one.getBlockZ() || loc.getBlockZ() > two.getBlockZ())
+        if (loc.getBlockX() < one.getX() || loc.getBlockX() > two.getX() ||
+            loc.getBlockY() < one.getY() || loc.getBlockY() > two.getY() ||
+            loc.getBlockZ() < one.getZ() || loc.getBlockZ() > two.getZ())
             return false;
         return true;
     }
@@ -64,9 +64,9 @@ public class WindmillCreator extends BigDoorCreator
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
         // Check if the second position is valid (door is 1 deep).
-        int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
-        int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());
-        int zDepth = Math.abs(one.getBlockZ() - loc.getBlockZ());
+        int xDepth = Math.abs(one.getX() - loc.getBlockX());
+        int yDepth = Math.abs(one.getY() - loc.getBlockY());
+        int zDepth = Math.abs(one.getZ() - loc.getBlockZ());
 
         // Check if it's only 1 deep in exactly 1 direction.
         return (xDepth == 0 ^ zDepth == 0 ^ yDepth == 0);

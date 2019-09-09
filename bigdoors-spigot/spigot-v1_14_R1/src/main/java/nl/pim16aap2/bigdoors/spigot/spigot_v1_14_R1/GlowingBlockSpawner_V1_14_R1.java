@@ -6,7 +6,10 @@ import net.minecraft.server.v1_14_R1.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_14_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_14_R1.PlayerConnection;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
-import nl.pim16aap2.bigdoors.util.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.PColor;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.bukkit.Bukkit;
@@ -107,34 +110,28 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(final @NotNull UUID playerUUID, final @NotNull UUID world, final long time,
+    public void spawnGlowinBlock(final @NotNull IPPlayer player, final @NotNull UUID world, final long time,
                                  final double x, final double y, final double z)
     {
-        spawnGlowinBlock(playerUUID, world, time, x, y, z, ChatColor.WHITE);
+        spawnGlowinBlock(player, world, time, x, y, z, PColor.WHITE);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(final @NotNull UUID playerUUID, final @NotNull UUID world, final long time,
-                                 final double x, final double y, final double z, final @NotNull Object colorObject)
+    public void spawnGlowinBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final long time,
+                                 final double x, final double y, final double z, final @NotNull PColor pColor)
     {
-        org.bukkit.ChatColor color;
-        if (!(colorObject instanceof ChatColor))
-        {
-            plogger.logException(new IllegalArgumentException("Color object not a ChatColor!"));
-            return;
-        }
 
-        color = (org.bukkit.ChatColor) colorObject;
+        ChatColor color = SpigotUtil.toBukkitColor(pColor);
         if (!teams.containsKey(color))
         {
             plogger.logException(new IllegalArgumentException("Unsupported color: " + color.name()));
             return;
         }
 
-        Player player = Bukkit.getPlayer(playerUUID);
+        Player player = Bukkit.getPlayer(pPlayer.getUUID());
         World bukkitWorld = Bukkit.getWorld(world);
         if (player == null || bukkitWorld == null)
         {

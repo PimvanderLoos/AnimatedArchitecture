@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
 
-import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
+import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -14,17 +16,10 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
-public final class BlockAnalyzer_V1_14_R1
+public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
 {
     /**
-     * Checks if placement of this block should be deferred to the second pass or not.
-     * <p>
-     * See {@link PBlockData#deferPlacement()}
-     * <p>
-     * This method assume
-     *
-     * @param block The block.
-     * @return True if this block should be placed on the second pass, false otherwise.
+     * See {@link #placeOnSecondPass(IPLocation)}.
      */
     public static boolean placeOnSecondPass(final @Nullable Block block)
     {
@@ -86,12 +81,8 @@ public final class BlockAnalyzer_V1_14_R1
         return false;
     }
 
-
     /**
-     * Check if a block if air or liquid (water, lava).
-     *
-     * @param block The block to be checked.
-     * @return True if it is air or liquid.
+     * See {@link #isAirOrLiquid(IPLocation)}.
      */
     public static boolean isAirOrLiquid(final @NotNull Block block)
     {
@@ -100,10 +91,7 @@ public final class BlockAnalyzer_V1_14_R1
     }
 
     /**
-     * Check if a block is on the blacklist of types/materials that is not allowed for animations.
-     *
-     * @param block The block to be checked
-     * @return True if the block can be used for animations.
+     * See {@link #isAllowedBlock(IPLocation)}.
      */
     public static boolean isAllowedBlock(final @Nullable Block block)
     {
@@ -188,4 +176,30 @@ public final class BlockAnalyzer_V1_14_R1
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean placeOnSecondPass(final @NotNull IPLocation location)
+    {
+        return placeOnSecondPass(SpigotAdapter.getBukkitLocation(location).getBlock());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isAirOrLiquid(final @NotNull IPLocation location)
+    {
+        return isAirOrLiquid(SpigotAdapter.getBukkitLocation(location).getBlock());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isAllowedBlock(final @NotNull IPLocation location)
+    {
+        return isAllowedBlock(SpigotAdapter.getBukkitLocation(location).getBlock());
+    }
 }

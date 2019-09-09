@@ -1,8 +1,9 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -28,7 +29,7 @@ public class SubCommandListPlayerDoors extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull List<DoorBase> doors)
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull List<AbstractDoorBase> doors)
     {
         if (doors.size() == 0)
         {
@@ -36,7 +37,7 @@ public class SubCommandListPlayerDoors extends SubCommand
             return true;
         }
         StringBuilder builder = new StringBuilder();
-        for (DoorBase door : doors)
+        for (AbstractDoorBase door : doors)
             builder.append(door.getBasicInfo());
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, builder.toString());
         return true;
@@ -52,7 +53,7 @@ public class SubCommandListPlayerDoors extends SubCommand
     {
         UUID playerUUID = CommandManager.getPlayerFromArg(args[1]);
         String name = args.length > 2 ? args[2] : null;
-        plugin.getDatabaseManager().getDoors(playerUUID, name).whenComplete(
+        BigDoors.get().getDatabaseManager().getDoors(playerUUID, name).whenComplete(
             (doorList, throwable) -> execute(sender, doorList.orElse(new ArrayList<>())));
         return true;
     }

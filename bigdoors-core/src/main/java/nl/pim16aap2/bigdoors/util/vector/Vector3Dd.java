@@ -170,4 +170,15 @@ public final class Vector3Dd implements Cloneable
         Vector3Dd other = (Vector3Dd) o;
         return x == other.x && y == other.y && z == other.z;
     }
+
+    public Vector3Dd normalize()
+    {
+        double length = Math.sqrt(x * x + y * y + z * z);
+
+        x /= length;
+        y /= length;
+        z /= length;
+
+        return this;
+    }
 }

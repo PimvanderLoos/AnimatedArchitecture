@@ -45,9 +45,9 @@ public class GarageDoorCreator extends BigDoorCreator
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
-        int xDepth = Math.abs(one.getBlockX() - loc.getBlockX());
-        int yDepth = Math.abs(one.getBlockY() - loc.getBlockY());
-        int zDepth = Math.abs(one.getBlockZ() - loc.getBlockZ());
+        int xDepth = Math.abs(one.getX() - loc.getBlockX());
+        int yDepth = Math.abs(one.getY() - loc.getBlockY());
+        int zDepth = Math.abs(one.getZ() - loc.getBlockZ());
 
         if (yDepth > 0)
             updateEngineLoc();

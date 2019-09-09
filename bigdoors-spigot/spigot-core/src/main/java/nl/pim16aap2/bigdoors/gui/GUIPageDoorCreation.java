@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommandNew;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +61,7 @@ public class GUIPageDoorCreation implements IGUIPage
                                          + ":\n" + item.toString());
             return;
         }
-        startCreationProcess(gui.getGuiHolder(), (DoorType) item.getSpecialValue());
+        startCreationProcess(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), (DoorType) item.getSpecialValue());
     }
 
     @Override
@@ -86,7 +87,8 @@ public class GUIPageDoorCreation implements IGUIPage
     {
         int position = 9;
         for (DoorType type : DoorType.cachedValues())
-            if (DoorType.isEnabled(type) && SubCommandNew.hasCreationPermission(gui.getGuiHolder(), type))
+            if (DoorType.isEnabled(type) &&
+                SubCommandNew.hasCreationPermission(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), type))
             {
                 String initMessage = plugin.getMessages().getString(Message.GUI_DESCRIPTION_INITIATION,
                                                                     plugin.getMessages()

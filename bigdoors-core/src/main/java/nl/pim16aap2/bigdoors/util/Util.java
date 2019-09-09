@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
@@ -229,6 +231,18 @@ public final class Util
     }
 
     /**
+     * Gets the chunk coordinates of a position.
+     *
+     * @param position The position.
+     * @return The chunk coordinates.
+     */
+    @NotNull
+    public static Vector2Di getChunkCoords(final @NotNull Vector3Di position)
+    {
+        return new Vector2Di(position.getX() << 4, position.getZ() << 4);
+    }
+
+    /**
      * Gets the 'simple' hash of the chunk given its coordinates. 'simple' here refers to the fact that the world of
      * this chunk will not be taken into account.
      *
@@ -316,5 +330,57 @@ public final class Util
     public static boolean between(int test, int low, int high)
     {
         return test <= high && test >= low;
+    }
+
+    @Deprecated
+    public static int tickRateFromSpeed(final double speed)
+    {
+        int tickRate;
+        if (speed > 9)
+            tickRate = 1;
+        else if (speed > 7)
+            tickRate = 2;
+        else if (speed > 6)
+            tickRate = 3;
+        else
+            tickRate = 4;
+        return tickRate;
+    }
+
+    // Return {time, tickRate, distanceMultiplier} for a given door size.
+    @Deprecated
+    public static double[] calculateTimeAndTickRate(final int doorSize, double time,
+                                                    final double speedMultiplier,
+                                                    final double baseSpeed)
+    {
+        double ret[] = new double[3];
+        double distance = Math.PI * doorSize / 2;
+        if (time == 0.0)
+            time = baseSpeed + doorSize / 3.5;
+        double speed = distance / time;
+        if (speedMultiplier != 1.0 && speedMultiplier != 0.0)
+        {
+            speed *= speedMultiplier;
+            time = distance / speed;
+        }
+
+        // Too fast or too slow!
+        double maxSpeed = 11;
+        if (speed > maxSpeed || speed <= 0)
+            time = distance / maxSpeed;
+
+        double distanceMultiplier = speed > 4 ? 1.01 : speed > 3.918 ? 1.08 : speed > 3.916 ? 1.10 :
+                                                                              speed > 2.812 ? 1.12 :
+                                                                              speed > 2.537 ? 1.19 :
+                                                                              speed > 2.2 ? 1.22 :
+                                                                              speed > 2.0 ? 1.23 :
+                                                                              speed > 1.770 ?
+                                                                              1.25 :
+                                                                              speed > 1.570 ?
+                                                                              1.28 : 1.30;
+        ret[0] = time;
+        ret[1] = tickRateFromSpeed(speed);
+        ret[2] = distanceMultiplier;
+        return ret;
     }
 }

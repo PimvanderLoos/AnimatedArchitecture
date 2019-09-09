@@ -1,12 +1,16 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -25,16 +29,23 @@ public class SubCommandFill extends SubCommand
     }
 
     /**
-     * Replaces all blocks between the minimum and maximum coordinates of a {@link DoorBase} with stone.
+     * Replaces all blocks between the minimum and maximum coordinates of a {@link AbstractDoorBase} with stone.
      *
-     * @param door The {@link DoorBase}.
+     * @param door The {@link AbstractDoorBase}.
      */
-    public boolean execute(@NotNull DoorBase door)
+    public boolean execute(final @NotNull AbstractDoorBase door)
     {
-        for (int i = door.getMinimum().getBlockX(); i <= door.getMaximum().getBlockX(); ++i)
-            for (int j = door.getMinimum().getBlockY(); j <= door.getMaximum().getBlockY(); ++j)
-                for (int k = door.getMinimum().getBlockZ(); k <= door.getMaximum().getBlockZ(); ++k)
-                    door.getWorld().getBlockAt(i, j, k).setType(Material.STONE);
+        World bukkitWorld = SpigotAdapter.getBukkitWorld(door.getWorld());
+        if (bukkitWorld == null)
+        {
+            PLogger.get().logException(new NullPointerException("World " + door.getWorld().toString() + " is null!"));
+            return true;
+        }
+
+        for (int i = door.getMinimum().getX(); i <= door.getMaximum().getX(); ++i)
+            for (int j = door.getMinimum().getY(); j <= door.getMaximum().getY(); ++j)
+                for (int k = door.getMinimum().getZ(); k <= door.getMaximum().getZ(); ++k)
+                    bukkitWorld.getBlockAt(i, j, k).setType(Material.STONE);
         return true;
     }
 
@@ -46,8 +57,8 @@ public class SubCommandFill extends SubCommand
                              final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
-        plugin.getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1]))
-              .whenComplete((optionalDoor, throwable) -> optionalDoor.ifPresent(this::execute));
+        BigDoors.get().getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1]))
+                .whenComplete((optionalDoor, throwable) -> optionalDoor.ifPresent(this::execute));
         return true;
     }
 }

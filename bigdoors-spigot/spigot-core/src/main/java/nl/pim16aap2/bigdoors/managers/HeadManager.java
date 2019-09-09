@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import com.google.common.base.Preconditions;
-import nl.pim16aap2.bigdoors.config.ConfigLoader;
-import nl.pim16aap2.bigdoors.util.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.IRestartableHolder;
+import nl.pim16aap2.bigdoors.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import org.bukkit.Bukkit;
@@ -36,7 +36,7 @@ public final class HeadManager extends Restartable
      * Value: The player's head as item.
      */
     private final TimedMapCache<UUID, ItemStack> headMap;
-    private final ConfigLoader config;
+    private final ConfigLoaderSpigot config;
 
     /**
      * Constructs a new {@link HeadManager}.
@@ -44,7 +44,7 @@ public final class HeadManager extends Restartable
      * @param holder The {@link IRestartableHolder} that manages this object.
      * @param config The BigDoors configuration.
      */
-    private HeadManager(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoader config)
+    private HeadManager(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoaderSpigot config)
     {
         super(holder);
         this.config = config;
@@ -59,7 +59,7 @@ public final class HeadManager extends Restartable
      * @return The instance of this {@link HeadManager}.
      */
     @NotNull
-    public static HeadManager init(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoader config)
+    public static HeadManager init(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoaderSpigot config)
     {
         return (instance == null) ? instance = new HeadManager(holder, config) : instance;
     }

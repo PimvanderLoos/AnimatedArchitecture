@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
@@ -27,7 +28,7 @@ public class SubCommandStopDoors extends SubCommand
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)
     {
-        plugin.getDoorManager().stopDoors();
+        BigDoors.get().getDoorManager().stopDoors();
         return true;
     }
 }

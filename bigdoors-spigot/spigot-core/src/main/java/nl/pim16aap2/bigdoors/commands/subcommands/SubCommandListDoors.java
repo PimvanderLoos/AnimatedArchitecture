@@ -1,11 +1,13 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -14,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -31,7 +34,7 @@ public class SubCommandListDoors extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, List<DoorBase> doors)
+    public boolean execute(CommandSender sender, List<AbstractDoorBase> doors)
     {
         if (doors.size() == 0)
         {
@@ -39,7 +42,7 @@ public class SubCommandListDoors extends SubCommand
             return true;
         }
         StringBuilder builder = new StringBuilder();
-        for (DoorBase door : doors)
+        for (AbstractDoorBase door : doors)
             builder.append(door.getBasicInfo()).append("\n");
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, builder.toString());
         return true;
@@ -56,15 +59,15 @@ public class SubCommandListDoors extends SubCommand
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;
 
         if (sender instanceof Player)
-            plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name).whenComplete(
+            BigDoors.get().getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name).whenComplete(
                 (optionalDoorList, throwable) -> execute(sender, optionalDoorList.orElse(new ArrayList<>())));
 
         else if (name != null)
             // If the console requested the door(s), first try to get all doors with the provided name.
-            plugin.getDatabaseManager().getDoors(name).whenComplete(
+            BigDoors.get().getDatabaseManager().getDoors(name).whenComplete(
                 (optionalDoorList, throwable) ->
                 {
-                    List<DoorBase> doorList = optionalDoorList.orElse(new ArrayList<>());
+                    List<AbstractDoorBase> doorList = optionalDoorList.orElse(new ArrayList<>());
 
                     // If no door with the provided name could be found, list all doors owned by the
                     // player with that name instead.
@@ -72,11 +75,10 @@ public class SubCommandListDoors extends SubCommand
                     {
                         try
                         {
-                            UUID playerUUID = plugin.getDatabaseManager().getPlayerUUIDFromString(name).get()
-                                                    .orElse(null);
-                            if (playerUUID != null)
-                                doorList = plugin.getDatabaseManager().getDoors(playerUUID).get()
-                                                 .orElse(new ArrayList<>());
+                            Optional<UUID> playerUUID = SpigotUtil.playerUUIDFromString(name);
+                            if (playerUUID.isPresent())
+                                doorList = BigDoors.get().getDatabaseManager().getDoors(playerUUID.get()).get()
+                                                   .orElse(new ArrayList<>());
                         }
                         catch (InterruptedException | ExecutionException e)
                         {

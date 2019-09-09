@@ -1,19 +1,21 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -34,14 +36,14 @@ public class SubCommandInfo extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    private void highlightBlock(final @NotNull Location loc, final @NotNull UUID playerUUID,
-                                final @NotNull ChatColor color)
+    private void highlightBlock(final @NotNull Vector3Di loc, final @NotNull IPWorld world,
+                                final @NotNull IPPlayer player, final @NotNull PColor color)
     {
-        plugin.getGlowingBlockSpawner().spawnGlowinBlock(playerUUID, loc.getWorld().getUID(), 15L,
-                                                         loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), color);
+        plugin.getGlowingBlockSpawner().spawnGlowinBlock(player, world.getUID(), 15L,
+                                                         loc.getX(), loc.getY(), loc.getZ(), color);
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull DoorBase door)
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door)
     {
         if (sender instanceof Player && door.getPermission() >= 0 &&
             door.getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
@@ -51,16 +53,16 @@ public class SubCommandInfo extends SubCommand
         {
             try
             {
-                UUID playerUUID = ((Player) sender).getUniqueId();
-                highlightBlock(door.getPowerBlockLoc(), playerUUID, ChatColor.GOLD);
-                highlightBlock(door.getEngine(), playerUUID, ChatColor.DARK_PURPLE);
-                highlightBlock(door.getMinimum(), playerUUID, ChatColor.BLUE);
-                highlightBlock(door.getMaximum(), playerUUID, ChatColor.RED);
+                final IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
+                highlightBlock(door.getPowerBlockLoc(), door.getWorld(), player, PColor.GOLD);
+                highlightBlock(door.getEngine(), door.getWorld(), player, PColor.DARK_PURPLE);
+                highlightBlock(door.getMinimum(), door.getWorld(), player, PColor.BLUE);
+                highlightBlock(door.getMaximum(), door.getWorld(), player, PColor.RED);
 
-                Location loc = new Location(door.getWorld(), 0, 0, 0);
-                for (int x = door.getMinimum().getBlockX(); x <= door.getMaximum().getBlockX(); ++x)
-                    for (int y = door.getMinimum().getBlockY(); y <= door.getMaximum().getBlockY(); ++y)
-                        for (int z = door.getMinimum().getBlockZ(); z <= door.getMaximum().getBlockZ(); ++z)
+                Vector3Di loc = new Vector3Di(0, 0, 0);
+                for (int x = door.getMinimum().getX(); x <= door.getMaximum().getX(); ++x)
+                    for (int y = door.getMinimum().getY(); y <= door.getMaximum().getY(); ++y)
+                        for (int z = door.getMinimum().getZ(); z <= door.getMaximum().getZ(); ++z)
                         {
                             loc.setX(x);
                             loc.setY(y);
@@ -68,7 +70,7 @@ public class SubCommandInfo extends SubCommand
                             if (loc.equals(door.getMinimum()) || loc.equals(door.getMaximum()) ||
                                 loc.equals(door.getEngine()))
                                 continue;
-                            highlightBlock(loc, playerUUID, ChatColor.GREEN);
+                            highlightBlock(loc, door.getWorld(), player, PColor.GREEN);
                         }
             }
             catch (Exception e)
@@ -79,7 +81,7 @@ public class SubCommandInfo extends SubCommand
         return true;
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull List<DoorBase> doors)
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull List<AbstractDoorBase> doors)
     {
         doors.forEach(door -> execute(sender, door));
         return true;

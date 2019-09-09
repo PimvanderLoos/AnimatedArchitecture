@@ -15,8 +15,9 @@ public interface IPWorldFactory
     /**
      * Creates a new IPWorld.
      *
-     * @param worldUUID The UUID of the world.
+     * @param worldUUID The UID of the world.
      * @return A new IPWorld object.
      */
+    @NotNull
     IPWorld create(final @NotNull UUID worldUUID);
 }

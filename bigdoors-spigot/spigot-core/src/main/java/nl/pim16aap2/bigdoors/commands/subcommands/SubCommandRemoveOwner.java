@@ -1,14 +1,18 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,17 +38,18 @@ public class SubCommandRemoveOwner extends SubCommand
         actualMinArgCount = getMinArgCount();
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull DoorBase door,
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
                            final @NotNull String playerArg)
         throws CommandPlayerNotFoundException
     {
         UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
-        return execute(sender, door.getDoorUID(), playerUUID);
+        IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
+        return execute(sender, door.getDoorUID(), player);
     }
 
-    private boolean execute(final @NotNull CommandSender sender, final long doorUID, final @NotNull UUID playerUUID)
+    private boolean execute(final @NotNull CommandSender sender, final long doorUID, final @NotNull IPPlayer target)
     {
-        plugin.getDatabaseManager().getDoor(playerUUID, doorUID).whenComplete(
+        BigDoors.get().getDatabaseManager().getDoor(target, doorUID).whenComplete(
             (optionalDoor, throwable) ->
                 optionalDoor.ifPresent(
                     door ->
@@ -52,11 +57,12 @@ public class SubCommandRemoveOwner extends SubCommand
                         boolean hasPermission = true;
                         if (sender instanceof Player)
                         {
+                            IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
                             try
                             {
-                                hasPermission = plugin.getDatabaseManager()
-                                                      .hasPermissionForAction((Player) sender, door.getDoorUID(),
-                                                                              DoorAttribute.REMOVEOWNER).get();
+                                hasPermission = BigDoors.get().getDatabaseManager()
+                                                        .hasPermissionForAction(player, door.getDoorUID(),
+                                                                                DoorAttribute.REMOVEOWNER).get();
                             }
                             catch (InterruptedException | ExecutionException e)
                             {
@@ -75,7 +81,8 @@ public class SubCommandRemoveOwner extends SubCommand
                         {
                             // TODO: Make sure this doesn't run on the main thread. I don't think it will, but
                             //       it's good to check.
-                            successfulRemoval = plugin.getDatabaseManager().removeOwner(door, playerUUID).get();
+                            successfulRemoval = BigDoors.get().getDatabaseManager().removeOwner(door, target.getUUID())
+                                                        .get();
                         }
                         catch (InterruptedException | ExecutionException e)
                         {
@@ -90,7 +97,7 @@ public class SubCommandRemoveOwner extends SubCommand
                             plugin.getPLogger()
                                   .sendMessageToTarget(sender, Level.INFO,
                                                        messages.getString(Message.COMMAND_REMOVEOWNER_FAIL,
-                                                                          playerUUID.toString()));
+                                                                          target.getUUID().toString()));
                     }
                 )
         );
@@ -110,9 +117,11 @@ public class SubCommandRemoveOwner extends SubCommand
             return commandManager.commandWaiterExecute(commandWaiter.get(), args, minArgCount);
 
         UUID playerUUID = CommandManager.getPlayerFromArg(args[getMinArgCount() - 1]);
+        IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
+
         commandManager.getDoorFromArg(sender, args[getMinArgCount() - 2], cmd, args).whenComplete(
             (optionalDoor, throwable) ->
-                optionalDoor.ifPresent(door -> execute(sender, door.getDoorUID(), playerUUID)));
+                optionalDoor.ifPresent(door -> execute(sender, door.getDoorUID(), player)));
         return true;
     }
 

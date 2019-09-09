@@ -1,13 +1,16 @@
 package nl.pim16aap2.bigdoors.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandData;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.waitforcommand.WaitForCommand;
@@ -42,22 +45,23 @@ public class SubCommandSetAutoCloseTime extends SubCommand
                                    messages.getString(Message.COMMAND_SETTIME_DISABLED));
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull DoorBase door,
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
                            final @NotNull String timeArg)
         throws IllegalArgumentException
     {
         int time = CommandManager.getIntegerFromArg(timeArg);
         if (!(sender instanceof Player))
         {
-            plugin.getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
-            plugin.getAutoCloseScheduler().scheduleAutoClose(door.getPlayerUUID(), door, time, false);
+            BigDoors.get().getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
+            BigDoors.get().getAutoCloseScheduler()
+                    .scheduleAutoClose(door.getDoorOwner().getPlayer(), door, time, false);
             sendResultMessage(sender, time);
             return true;
         }
 
-        final Player player = (Player) sender;
-        plugin.getDatabaseManager()
-              .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.CHANGETIMER).whenComplete(
+        final IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
+        BigDoors.get().getDatabaseManager()
+                .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.CHANGETIMER).whenComplete(
             (isAllowed, throwable) ->
             {
                 if (!isAllowed)
@@ -65,8 +69,8 @@ public class SubCommandSetAutoCloseTime extends SubCommand
                     commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
                     return;
                 }
-                plugin.getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
-                plugin.getAutoCloseScheduler().scheduleAutoClose(player.getUniqueId(), door, time, false);
+                BigDoors.get().getDatabaseManager().setDoorOpenTime(door.getDoorUID(), time);
+                plugin.getAutoCloseScheduler().scheduleAutoClose(player, door, time, false);
                 sendResultMessage(sender, time);
             });
         return true;

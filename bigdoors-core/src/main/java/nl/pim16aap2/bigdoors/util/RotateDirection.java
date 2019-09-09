@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,10 +61,17 @@ public enum RotateDirection
      * @param dir The {@link RotateDirection}.
      * @return The {@link RotateDirection} associated with this index value.
      */
-    @NotNull
+    @Nullable
     public static RotateDirection valueOf(final int dir)
     {
-        return map.get(dir);
+        try
+        {
+            return map.get(dir);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     /**

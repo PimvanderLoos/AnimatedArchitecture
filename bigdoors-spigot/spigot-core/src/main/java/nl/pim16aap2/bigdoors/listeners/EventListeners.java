@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.listeners;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -70,7 +72,7 @@ public class EventListeners implements Listener
     {
         try
         {
-            plugin.getDatabaseManager().updatePlayer(event.getPlayer());
+            BigDoors.get().getDatabaseManager().updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()));
         }
         catch (Exception e)
         {

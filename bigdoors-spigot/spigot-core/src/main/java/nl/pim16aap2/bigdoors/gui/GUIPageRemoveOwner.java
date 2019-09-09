@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.gui;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.PageType;
@@ -154,7 +155,7 @@ public class GUIPageRemoveOwner implements IGUIPage
         int idx = 9;
         for (DoorOwner owner : owners)
         {
-            if (owner.getPlayerUUID().equals(gui.getGuiHolder().getUniqueId()))
+            if (owner.getPlayerUUID().equals(gui.getGuiHolder().getUUID()))
                 continue;
 
             final int currentIDX = idx;
@@ -169,7 +170,7 @@ public class GUIPageRemoveOwner implements IGUIPage
             futurePlayerHead.whenComplete(
                 (result, throwable) ->
                     result.ifPresent(
-                        HEAD -> BigDoorsSpigot.newMainThreadExecutor().runOnMainThread(
+                        HEAD -> BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
                             () -> gui.updateItem(currentIDX,
                                                  Optional.of(new GUIItem(HEAD, owner.getPlayerName(), null,
                                                                          owner.getPermission())))))
@@ -183,7 +184,7 @@ public class GUIPageRemoveOwner implements IGUIPage
     @Override
     public void refresh()
     {
-        futureDoorOwners = plugin.getDatabaseManager().getDoorOwners(gui.getDoor().getDoorUID());
+        futureDoorOwners = BigDoors.get().getDatabaseManager().getDoorOwners(gui.getDoor().getDoorUID());
         futureDoorOwners.whenComplete(
             (ownerList, throwable) ->
             {
@@ -192,7 +193,7 @@ public class GUIPageRemoveOwner implements IGUIPage
                 maxDoorOwnerPageCount =
                     owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
 
-                BigDoorsSpigot.newMainThreadExecutor().runOnMainThread(
+                BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
                     () ->
                     {
                         fillHeader();
@@ -203,7 +204,7 @@ public class GUIPageRemoveOwner implements IGUIPage
 
     private void removeOwner(DoorOwner owner)
     {
-        plugin.getDatabaseManager().removeOwner(owner.getDoorUID(), owner.getPlayerUUID());
+        BigDoors.get().getDatabaseManager().removeOwner(owner.getDoorUID(), owner.getPlayerUUID());
         owners.remove(owner);
     }
 }

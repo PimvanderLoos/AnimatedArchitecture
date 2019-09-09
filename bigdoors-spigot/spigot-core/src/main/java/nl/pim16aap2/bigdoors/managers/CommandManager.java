@@ -1,16 +1,18 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.commands.CommandData;
 import nl.pim16aap2.bigdoors.commands.ICommand;
 import nl.pim16aap2.bigdoors.commands.subcommands.SubCommand;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -323,8 +325,8 @@ public class CommandManager implements CommandExecutor
     {
         try
         {
-            return plugin.getDatabaseManager()
-                         .hasPermissionForAction(player, doorUID, attribute).get();
+            return BigDoors.get().getDatabaseManager()
+                           .hasPermissionForAction(SpigotAdapter.wrapPlayer(player), doorUID, attribute).get();
         }
         catch (InterruptedException | ExecutionException e)
         {
@@ -334,31 +336,32 @@ public class CommandManager implements CommandExecutor
     }
 
     /**
-     * Gets the {@link DoorBase} from a String. If the {@link CommandSender} is a {@link Player}, only {@link DoorBase}s
-     * owned by them are considered, otherwise all doors are considered and the owner of any of the resulting ones will
-     * be the original creator.
+     * Gets the {@link AbstractDoorBase} from a String. If the {@link CommandSender} is a {@link Player}, only {@link
+     * AbstractDoorBase}s owned by them are considered, otherwise all doors are considered and the owner of any of the
+     * resulting ones will be the original creator.
      *
      * @param sender  The {@link CommandSender}.
-     * @param doorArg The name or UID of the  {@link DoorBase}.
-     * @return The {@link DoorBase} if exactly 1 door was found.
+     * @param doorArg The name or UID of the  {@link AbstractDoorBase}.
+     * @return The {@link AbstractDoorBase} if exactly 1 door was found.
      */
     @NotNull
-    public CompletableFuture<Optional<DoorBase>> getDoorFromArg(final @NotNull CommandSender sender,
-                                                                final @NotNull String doorArg,
-                                                                final @NotNull Command cmd,
-                                                                final @NotNull String[] args)
+    public CompletableFuture<Optional<AbstractDoorBase>> getDoorFromArg(final @NotNull CommandSender sender,
+                                                                        final @NotNull String doorArg,
+                                                                        final @NotNull Command cmd,
+                                                                        final @NotNull String[] args)
     {
-        CompletableFuture<Optional<DoorBase>> door = null;
+        CompletableFuture<Optional<AbstractDoorBase>> door = null;
 
         if (sender instanceof Player)
         {
             door = CompletableFuture.supplyAsync(
                 () ->
                 {
-                    Optional<List<DoorBase>> doors;
+                    Optional<List<AbstractDoorBase>> doors;
                     try
                     {
-                        doors = plugin.getDatabaseManager().getDoors(((Player) sender).getUniqueId(), doorArg).get();
+                        doors = BigDoors.get().getDatabaseManager().getDoors(((Player) sender).getUniqueId(), doorArg)
+                                        .get();
                     }
                     catch (InterruptedException | ExecutionException e)
                     {
@@ -381,7 +384,7 @@ public class CommandManager implements CommandExecutor
         else
             try
             {
-                door = plugin.getDatabaseManager().getDoor(Long.parseLong(doorArg));
+                door = BigDoors.get().getDatabaseManager().getDoor(Long.parseLong(doorArg));
             }
             catch (NumberFormatException e)
             {

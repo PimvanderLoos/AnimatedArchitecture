@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigotutil;
 
+import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.WorldTime;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -50,10 +50,30 @@ public final class SpigotUtil
         }
     }
 
+    private static final Map<PColor, ChatColor> toBukkitColor = new EnumMap<>(PColor.class);
+
+    static
+    {
+        for (PColor pColor : PColor.values())
+            toBukkitColor.put(pColor, ChatColor.valueOf(pColor.name()));
+    }
+
+    /**
+     * Gets the bukkit version of a {@link PColor}.
+     *
+     * @param pColor The {@link PColor}.
+     * @return The bukkit version of the {@link PColor}.
+     */
+    @NotNull
+    public static ChatColor toBukkitColor(final @NotNull PColor pColor)
+    {
+        return toBukkitColor.get(pColor);
+    }
+
     /**
      * Gets an offline player from a playerUUID.
      *
-     * @param playerUUID
+     * @param playerUUID The UUID of the player.
      */
     @NotNull
     public static OfflinePlayer getOfflinePlayer(final @NotNull UUID playerUUID)
@@ -131,17 +151,6 @@ public final class SpigotUtil
     }
 
     /**
-     * Gets the time in a world.
-     *
-     * @param world The world.
-     * @return The time in the world.
-     */
-    public static WorldTime getTime(final @NotNull World world)
-    {
-        return new WorldTime(world.getTime());
-    }
-
-    /**
      * Send a colored message to a specific player.
      *
      * @param player The player that will receive the message.
@@ -189,17 +198,6 @@ public final class SpigotUtil
     public static PBlockFace getPBlockFace(final @NotNull BlockFace bf)
     {
         return toPBlockFace.get(bf);
-    }
-
-    /**
-     * Broadcast a message if debugging is enabled in the config.
-     *
-     * @param message The message to broadcast.
-     */
-    public static void broadcastMessage(final @NotNull String message)
-    {
-        if (printDebugMessages)
-            Bukkit.broadcastMessage(message);
     }
 
     /**
@@ -255,6 +253,7 @@ public final class SpigotUtil
             }
             catch (Exception dontcare)
             {
+                // Ignored, because it doesn't matter.
             }
         if (player != null)
             /*
@@ -262,7 +261,7 @@ public final class SpigotUtil
              * because player retrieval from a name is not exact. "pim" would match
              * "pim16aap2", for example.
              */
-            return Optional.ofNullable(player.getName().equals(playerName) ? player.getUniqueId() : null);
+            return Optional.ofNullable(playerName.equals(player.getName()) ? player.getUniqueId() : null);
 
         OfflinePlayer offPlayer = null;
         try
@@ -271,9 +270,10 @@ public final class SpigotUtil
         }
         catch (Exception dontcare)
         {
+            // Ignored, because it doesn't matter.
         }
         return Optional.ofNullable(
-            offPlayer == null ? null : offPlayer.getName().equals(playerName) ? offPlayer.getUniqueId() : null);
+            offPlayer == null ? null : playerName.equals(offPlayer.getName()) ? offPlayer.getUniqueId() : null);
     }
 
     /**
@@ -287,6 +287,8 @@ public final class SpigotUtil
     public static void playSound(final @NotNull Location loc, final @NotNull String sound, final float volume,
                                  final float pitch)
     {
+        if (loc.getWorld() == null)
+            return;
         for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
             if (ent instanceof Player)
                 ((Player) ent).playSound(loc, sound, volume, pitch);
@@ -446,57 +448,5 @@ public final class SpigotUtil
             default:
                 return false;
         }
-    }
-
-    @Deprecated
-    public static int tickRateFromSpeed(final double speed)
-    {
-        int tickRate;
-        if (speed > 9)
-            tickRate = 1;
-        else if (speed > 7)
-            tickRate = 2;
-        else if (speed > 6)
-            tickRate = 3;
-        else
-            tickRate = 4;
-        return tickRate;
-    }
-
-    // Return {time, tickRate, distanceMultiplier} for a given door size.
-    @Deprecated
-    public static double[] calculateTimeAndTickRate(final int doorSize, double time,
-                                                    final double speedMultiplier,
-                                                    final double baseSpeed)
-    {
-        double ret[] = new double[3];
-        double distance = Math.PI * doorSize / 2;
-        if (time == 0.0)
-            time = baseSpeed + doorSize / 3.5;
-        double speed = distance / time;
-        if (speedMultiplier != 1.0 && speedMultiplier != 0.0)
-        {
-            speed *= speedMultiplier;
-            time = distance / speed;
-        }
-
-        // Too fast or too slow!
-        double maxSpeed = 11;
-        if (speed > maxSpeed || speed <= 0)
-            time = distance / maxSpeed;
-
-        double distanceMultiplier = speed > 4 ? 1.01 : speed > 3.918 ? 1.08 : speed > 3.916 ? 1.10 :
-                                                                              speed > 2.812 ? 1.12 :
-                                                                              speed > 2.537 ? 1.19 :
-                                                                              speed > 2.2 ? 1.22 :
-                                                                              speed > 2.0 ? 1.23 :
-                                                                              speed > 1.770 ?
-                                                                              1.25 :
-                                                                              speed > 1.570 ?
-                                                                              1.28 : 1.30;
-        ret[0] = time;
-        ret[1] = tickRateFromSpeed(speed);
-        ret[2] = distanceMultiplier;
-        return ret;
     }
 }
