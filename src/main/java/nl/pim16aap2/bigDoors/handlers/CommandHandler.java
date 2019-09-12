@@ -382,9 +382,13 @@ public class CommandHandler implements CommandExecutor
             switch(firstCommand)
             {
             case "upgradedatabaseforv2":
+                if (player != null) // Only the server may use this command.
+                    break;
                 prepareDatabaseForV2(sender, cmd, label, args);
                 break;
             case "version":
+                if (player != null  && !player.hasPermission("bigdoors.admin.version"))
+                    break;
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " +
                     plugin.getDescription().getVersion() + (BigDoors.DEVBUILD ? " (build " + plugin.getBuildNumber() + ")" : "") + " of this plugin!");
                 break;
@@ -395,6 +399,8 @@ public class CommandHandler implements CommandExecutor
                 break;
 
             case "restart":
+                if (player != null && !player.hasPermission("bigdoors.admin.restart"))
+                    break;
                 plugin.restart();
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "BigDoors has been restarted!");
                 break;
@@ -410,7 +416,7 @@ public class CommandHandler implements CommandExecutor
                 break;
 
             case "addowner":
-                if (player == null) // TODO: Surely, the server should be able to add any user to any door?
+                if (player == null || !player.hasPermission("bigdoors.user.addowner")) // TODO: Surely, the server should be able to add any user to any door?
                     break;
 
                 if (args.length > 1)
@@ -460,7 +466,7 @@ public class CommandHandler implements CommandExecutor
                 return true;
 
             case "removeowner":
-                if (player == null)
+                if (player == null || !player.hasPermission("bigdoors.user.removeowner"))
                     break;
 
                 if (args.length == 2)
@@ -982,7 +988,7 @@ public class CommandHandler implements CommandExecutor
     private void showHelpInfo(CommandSender sender)
     {
         Player player = sender instanceof Player ? (Player) sender : null;
-        String help = "";
+        String help = player == null ? "\n" : "";
         String commandPrefix = player == null ? "" : "/";
         help += ChatColor.GREEN + "====[ BigDoors Help ]====\n";
         help += helpFormat(commandPrefix + "BigDoors menu", "Opens BigDoors' GUI.");

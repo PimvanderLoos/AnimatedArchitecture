@@ -1,3 +1,6 @@
+Alpha 0.1.8.12
+- Fixed sounds being played asynchronously, which Spigot didn't like. Thanks, @DeathReminds for the bug report!
+
 Alpha 0.1.8.11
 - Fixed InsufficientFunds message appearing even if the price is just 0. Thanks, @0fficerMike for the bug report!
 - Added project URL to update available message received on login. Thanks, @Panda_Nesthesia for the suggestion.
@@ -24,7 +27,10 @@ Alpha 0.1.8.11
   The old system where you could determine the direction a door would go by blocking the other directions will therefore ONLY work the first time you open a door. 
   After that it will ALWAYS go in that direction unless you change it via the GUI / Commands.
 - Removed NONE open direction option from the GUI + commands.
-- Updated database to v6. 
+- Updated database to v6.
+- Removed "bigdoors.user.createdoor" permission node. It was redundant (you need "bigdoors.user.createdoor.<type>" anyway). Thanks to everyone who pointed this out!
+- Fixed players being able to use various without the required permission nodes.
+- Added permissions to plugin.yml.
 
 Alpha 0.1.8.10
 - Fixed being able to modify properties of doors you have no access to via direct commands when using doorUIDs.

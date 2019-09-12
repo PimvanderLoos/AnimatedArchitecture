@@ -63,6 +63,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
 public class BigDoors extends JavaPlugin implements Listener
 {
+    private static BigDoors instance;
     public static final boolean DEVBUILD = true;
     private int buildNumber = -1;
 
@@ -103,6 +104,8 @@ public class BigDoors extends JavaPlugin implements Listener
     @Override
     public void onEnable()
     {
+        instance = this;
+
         logFile = new File(getDataFolder(), "log.txt");
         logger  = new MyLogger(this, logFile);
         updateManager = new UpdateManager(this, 58669);
@@ -234,6 +237,11 @@ public class BigDoors extends JavaPlugin implements Listener
 
         if (commander != null)
             commander.setCanGo(true);
+    }
+
+    public static final BigDoors get()
+    {
+        return instance;
     }
 
     public void onPlayerLogout(final Player player)
