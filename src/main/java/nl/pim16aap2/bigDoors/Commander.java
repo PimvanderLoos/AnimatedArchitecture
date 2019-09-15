@@ -273,8 +273,15 @@ public class Commander
 
     public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr, boolean printMessage)
     {
-        if (player.isOp() || player.hasPermission("bigdoors.admin.ignoreownership"))
+        if (player.isOp())
             return true;
+
+        String permissionNode = "bigdoors.admin.bypass." +
+            ((atr == DoorAttribute.DIRECTION_ROTATE || atr == DoorAttribute.DIRECTION_STRAIGHT) ?
+            "direction" : atr.name().toLowerCase());
+        if (player.hasPermission(permissionNode))
+            return true;
+
         int playerPermission = getPermission(player.getUniqueId().toString(), doorUID);
         boolean hasPermission = playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);
         if (!hasPermission && printMessage)

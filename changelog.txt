@@ -4,6 +4,7 @@ Alpha 0.1.8.13
 - Fixed sliding doors not respecting protection plugins in some cases.
 - Before moving, doors will now check if the owner is allowed to break the blocks in the old location as well (not just the new location).
 - When a door exceeds either the personal door size limit of the owner or player that activated the door, or the global limit, it cannot be toggled anymore. (it used to only skip the animiation).
+- Removed the "bigdoors.admin.ignoreownership" permission node. This is replaced by the new node: "bigdoors.admin.bypass.<attribute>". The attributes are: "lock", "toggle", "info", "delete", "relocatepowerblock", "changetime", "blockstomove", "direction", "addowner", and "removeowner"
 
 Alpha 0.1.8.12
 - Fixed sounds being played asynchronously, which Spigot didn't like. Thanks, @DeathReminds for the bug report!

@@ -159,7 +159,7 @@ permissions:
       bigdoors.admin.bypass.direction: true
       bigdoors.admin.bypass.addowner: true
       bigdoors.admin.bypass.removeowner: true   
-      
+            
   bigdoors.user.createdoor.*:
     description: Allows a user to create all door types.
     children:
