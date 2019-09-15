@@ -61,6 +61,11 @@ import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
+
+// TODO: Implement DoorAttribute bypass permissions (so you can toggle doors you do not own).
+// TODO: Towny.
+// TODO: Fix BlockLimit.
+
 public class BigDoors extends JavaPlugin implements Listener
 {
     private static BigDoors instance;
@@ -125,7 +130,7 @@ public class BigDoors extends JavaPlugin implements Listener
             if (!validVersion)
             {
                 logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! (\""  +
-                    (Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3]) +
+                    (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3]) +
                                   "\"). This plugin will NOT be enabled!", true, true);
                 return;
             }

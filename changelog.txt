@@ -1,3 +1,10 @@
+Alpha 0.1.8.13
+- Added support for Towny. Thanks, @Onions for the suggestion!
+- Fixed incorrect handling of the doorSize limit in the config and the permissions. Thanks, @Onions for the bug report!
+- Fixed sliding doors not respecting protection plugins in some cases.
+- Before moving, doors will now check if the owner is allowed to break the blocks in the old location as well (not just the new location).
+- When a door exceeds either the personal door size limit of the owner or player that activated the door, or the global limit, it cannot be toggled anymore. (it used to only skip the animiation).
+
 Alpha 0.1.8.12
 - Fixed sounds being played asynchronously, which Spigot didn't like. Thanks, @DeathReminds for the bug report!
 

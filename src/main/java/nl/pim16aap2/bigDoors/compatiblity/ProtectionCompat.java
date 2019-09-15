@@ -1,10 +1,8 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-
-import nl.pim16aap2.bigDoors.util.ConfigLoader;
 
 /**
  * Enum of all ProtectionCompats that can be loaded and some methods to help
@@ -14,6 +12,29 @@ import nl.pim16aap2.bigDoors.util.ConfigLoader;
  */
 public enum ProtectionCompat
 {
+    TOWNY ("Towny")
+    {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Class<? extends IProtectionCompat> getClass(final String version)
+        {
+            boolean newVersion = false;
+            int[] lastOldVersion = {0, 94, 0, 1};
+
+            int[] currentVersion = Arrays.stream(version.split("\\.")).mapToInt(Integer::parseInt).toArray();
+            for (int idx = 0; idx < lastOldVersion.length; ++idx)
+            {
+                if (currentVersion[idx] > lastOldVersion[idx])
+                {
+                    newVersion = true;
+                    break;
+                }
+            }
+            return newVersion ? TownyNewProtectionCompat.class : TownyOldProtectionCompat.class;
+        }
+    },
     PLOTSQUARED ("PlotSquared")
     {
         /**
@@ -24,15 +45,6 @@ public enum ProtectionCompat
         {
             return version.startsWith("4.") ? PlotSquaredNewProtectionCompat.class :
                 PlotSquaredOldProtectionCompat.class;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Function<ConfigLoader, Boolean> isEnabled()
-        {
-            return ConfigLoader::plotSquaredHook;
         }
     },
     WORLDGUARD ("WorldGuard")
@@ -50,15 +62,6 @@ public enum ProtectionCompat
             else
                 return null;
         }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Function<ConfigLoader, Boolean> isEnabled()
-        {
-            return ConfigLoader::worldGuardHook;
-        }
     },
     GRIEFPREVENTION ("GriefPrevention")
     {
@@ -70,15 +73,6 @@ public enum ProtectionCompat
         {
             return GriefPreventionProtectionCompat.class;
         }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Function<ConfigLoader, Boolean> isEnabled()
-        {
-            return ConfigLoader::griefPreventionHook;
-        }
     },;
 
     private final String name;
@@ -88,15 +82,6 @@ public enum ProtectionCompat
     {
         this.name = name;
     }
-
-    /**
-     * Get the function in the config that determines if the compat is enabled in
-     * the config.
-     *
-     * @return The function in the config that determines if the compat is enabled
-     *         in the config.
-     */
-    public abstract Function<ConfigLoader, Boolean> isEnabled();
 
     /**
      * Get the class of the given hook for a specific version of the plugin to load
@@ -126,9 +111,6 @@ public enum ProtectionCompat
      */
     public static ProtectionCompat getFromName(final String name)
     {
-//        if (nameMap.containsKey(name))
-//            return nameMap.get(name);
-//        return null;
         return nameMap.get(name);
     }
 

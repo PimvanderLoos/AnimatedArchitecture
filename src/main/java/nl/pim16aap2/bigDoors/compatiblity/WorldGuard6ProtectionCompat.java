@@ -1,15 +1,16 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import nl.pim16aap2.bigDoors.BigDoors;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+
+import nl.pim16aap2.bigDoors.BigDoors;
 
 /**
  * Compatibility hook for version 6 of WorldGuard.
@@ -51,6 +52,9 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
@@ -65,6 +69,9 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
@@ -86,18 +93,18 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean success()
     {
         return success;
     }
 
-    @Override
-    public JavaPlugin getPlugin()
-    {
-        return worldGuard;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName()
     {

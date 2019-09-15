@@ -159,17 +159,8 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
      * {@inheritDoc}
      */
     @Override
-    public JavaPlugin getPlugin()
-    {
-        return plotSquaredPlugin;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getName()
     {
-        return getPlugin().getName();
+        return plotSquaredPlugin.getName();
     }
 }

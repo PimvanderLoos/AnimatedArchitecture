@@ -143,9 +143,9 @@ public class ProtectionCompatManager implements Listener
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().warn("Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:");
+                plugin.getMyLogger().warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
                 e.printStackTrace();
-                plugin.getMyLogger().logMessageToLogFile(compat.getPlugin().getName() + "\n" + Util.exceptionToString(e));
+                plugin.getMyLogger().logMessageToLogFile(compat.getName() + "\n" + Util.exceptionToString(e));
             }
         return null;
     }
@@ -176,7 +176,7 @@ public class ProtectionCompatManager implements Listener
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().warn("Failed to use \"" + compat.getPlugin().getName() + "\"! Please send this error to pim16aap2:");
+                plugin.getMyLogger().warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
                 e.printStackTrace();
                 plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
             }
@@ -208,10 +208,10 @@ public class ProtectionCompatManager implements Listener
         if (hook.success())
         {
             protectionCompats.add(hook);
-            plugin.getMyLogger().info("Successfully hooked into \"" + hook.getPlugin().getName() + "\"!");
+            plugin.getMyLogger().info("Successfully hooked into \"" + hook.getName() + "\"!");
         }
         else
-            plugin.getMyLogger().info("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
+            plugin.getMyLogger().info("Failed to hook into \"" + hook.getName() + "\"!");
     }
 
     /**
@@ -236,7 +236,7 @@ public class ProtectionCompatManager implements Listener
         if (compat == null)
             return;
 
-        if (!compat.isEnabled().apply(plugin.getConfigLoader()))
+        if (!plugin.getConfigLoader().isHookEnabled(compat))
             return;
 
         try

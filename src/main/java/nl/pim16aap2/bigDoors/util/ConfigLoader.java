@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -16,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
 
 public class ConfigLoader
 {
@@ -41,11 +44,9 @@ public class ConfigLoader
     private int commandWaiterTimeout;
 
     private HashSet<Material> powerBlockTypesMap;
+    private Map<ProtectionCompat, Boolean> hooksMap;
 
-    private boolean worldGuardHook;
-    private boolean griefPreventionHook;
     private boolean checkForUpdates;
-    private boolean plotSquaredHook;
     private int headCacheTimeout;
     private String doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice;
 
@@ -60,6 +61,7 @@ public class ConfigLoader
         this.plugin = plugin;
         configOptionsList = new ArrayList<>();
         powerBlockTypesMap = new HashSet<>();
+        hooksMap = new EnumMap<>(ProtectionCompat.class);
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
         makeConfig();
     }
@@ -86,8 +88,9 @@ public class ConfigLoader
         String[] autoDLUpdateComment = { "Allow this plugin to automatically download new updates. They will be applied on restart." };
         String[] allowStatsComment = { "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
                                        "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!" };
-        String[] maxDoorSizeComment = { "Max. number of blocks allowed in a door.",
-                                        "If this number is exceeded, doors will open instantly and skip the animation." };
+        String[] maxDoorSizeComment = { "Max. number of blocks allowed in a door (including air blocks). Doors exceeding this limit cannt be created or used.",
+                                        "This is a global limit that not even OPs can bypass. Use permissions for more fine-grained control.",
+                                        "Use -1 to disable this limit."};
         String[] resourcePackComment = { "This plugin uses a support resource pack for things suchs as sound.",
                                          "You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
                                          "Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
@@ -150,14 +153,14 @@ public class ConfigLoader
         allowStats = config.getBoolean("allowStats", true);
         configOptionsList.add(new ConfigOption("allowStats", allowStats, allowStatsComment));
 
-        worldGuardHook = config.getBoolean("worldGuard", true);
-        configOptionsList.add(new ConfigOption("worldGuard", worldGuardHook, compatibilityHooks));
-
-        plotSquaredHook = config.getBoolean("plotSquared", true);
-        configOptionsList.add(new ConfigOption("plotSquared", plotSquaredHook, null));
-
-        griefPreventionHook = config.getBoolean("griefPrevention", true);
-        configOptionsList.add(new ConfigOption("griefPrevention", griefPreventionHook, null));
+        int idx = 0;
+        for (ProtectionCompat compat : ProtectionCompat.values())
+        {
+            final String name = ProtectionCompat.getName(compat).toLowerCase();
+            final boolean isEnabled = config.getBoolean(name, false);
+            configOptionsList.add(new ConfigOption(name, isEnabled, ((idx++ == 0) ? compatibilityHooks : null)));
+            hooksMap.put(compat, isEnabled);
+        }
 
         maxDoorSize = config.getInt("maxDoorSize", -1);
         configOptionsList.add(new ConfigOption("maxDoorSize", maxDoorSize, maxDoorSizeComment));
@@ -213,9 +216,6 @@ public class ConfigLoader
         commandWaiterTimeout = config.getInt("commandWaiterTimeout", 40);
         configOptionsList
             .add(new ConfigOption("commandWaiterTimeout", commandWaiterTimeout, commandWaiterTimeoutComment));
-
-//        cacheTimeout = config.getInt("headCacheTimeout", 1440);
-//        configOptionsList.add(new ConfigOption("headCacheTimeout", headCacheTimeout, headCacheTimeoutComment));
 
         // This is a bit special, as it's public static (for util debug messages).
         ConfigLoader.DEBUG = config.getBoolean("DEBUG", false);
@@ -453,14 +453,9 @@ public class ConfigLoader
         return powerBlockTypesMap;
     }
 
-    public boolean worldGuardHook()
+    public boolean isHookEnabled(final ProtectionCompat hook)
     {
-        return worldGuardHook;
-    }
-
-    public boolean griefPreventionHook()
-    {
-        return griefPreventionHook;
+        return hooksMap.get(hook);
     }
 
     public boolean checkForUpdates()
@@ -469,11 +464,6 @@ public class ConfigLoader
             return true;
 
         return checkForUpdates;
-    }
-
-    public boolean plotSquaredHook()
-    {
-        return plotSquaredHook;
     }
 
     public int headCacheTimeout()

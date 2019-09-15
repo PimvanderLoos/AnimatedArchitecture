@@ -31,6 +31,7 @@ GENERAL.DOORTYPE.Flag=Flag
 GENERAL.InvalidInput.Integer=Invalid value input! Only rounded numbers are allowed!
 GENERAL.PlayerNotFound=Player not found!
 GENERAL.Error=An error occurred!
+GENERAL.TooManyBlocks=This door cannot be activated! It is too big!
 GENERAL.NoPermissionForAction=&cYou do not have the required permissions for this action!
 GUI.NAME.DoorList=Door Menu
 GUI.NAME.SubMenu=Door Sub-Menu

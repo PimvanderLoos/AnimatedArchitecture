@@ -7,6 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
+import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
@@ -23,9 +24,11 @@ public class VaultManager
 
     private final BigDoors plugin;
     private final HashMap<Long, Double> menu;
+    private final boolean vaultEnabled;
+
     private Economy economy = null;
     private Permission perms = null;
-    private final boolean vaultEnabled;
+    private Chat chat;
 
     public VaultManager(BigDoors plugin)
     {
@@ -34,7 +37,10 @@ public class VaultManager
         init();
         vaultEnabled = setupEconomy();
         if (vaultEnabled)
+        {
             setupPermissions();
+            setupChat();
+        }
     }
 
     public boolean buyDoor(Player player, DoorType type, int blockCount)
@@ -113,6 +119,26 @@ public class VaultManager
             flagPrice = null;
         }
     }
+
+//    public int getMaxDoorSizeForPlayer(World world, UUID player)
+//    {
+//        return getMaxDoorSizeForPlayer(world, Bukkit.getOfflinePlayer(player));
+//    }
+//
+//    public int getMaxDoorSizeForPlayer(World world, OfflinePlayer player)
+//    {
+//        if (player.isOp())
+//            return -1;
+//        return getHighestPermissionSuffix(world, player, "bigdoors.maxsize");
+//    }
+//
+//    public int getHighestPermissionSuffix(World world, OfflinePlayer player, String permissionNode)
+//    {
+//        int ret = -1;
+//        if (!vaultEnabled)
+//            return ret;
+//        return vaultEnabled ? chat.getPlayerInfoInteger(world.getName(), player, permissionNode, -1) : -1;
+//    }
 
     public boolean hasPermission(Player player, String permission)
     {
@@ -265,5 +291,12 @@ public class VaultManager
         RegisteredServiceProvider<Permission> rsp = plugin.getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();
         return perms != null;
+    }
+
+    private boolean setupChat()
+    {
+        RegisteredServiceProvider<Chat> rsp = plugin.getServer().getServicesManager().getRegistration(Chat.class);
+        chat = rsp.getProvider();
+        return chat != null;
     }
 }

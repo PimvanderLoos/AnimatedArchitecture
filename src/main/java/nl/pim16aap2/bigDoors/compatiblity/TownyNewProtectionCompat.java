@@ -1,61 +1,51 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.plugin.Plugin;
 
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
+import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+
 import nl.pim16aap2.bigDoors.BigDoors;
 
 /**
- * Compatibility hook for GriefPrevention.
+ * Compatibility hook for the new version of PlotSquared.
  *
  * @see IProtectionCompat
  * @author Pim
  */
-class GriefPreventionProtectionCompat implements IProtectionCompat
+public class TownyNewProtectionCompat implements IProtectionCompat
 {
+    @SuppressWarnings("unused")
     private final BigDoors plugin;
-    private final GriefPrevention griefPrevention;
-    private static final ProtectionCompat compat = ProtectionCompat.GRIEFPREVENTION;
-
     private boolean success = false;
+    private static final ProtectionCompat compat = ProtectionCompat.TOWNY;
+    private final TownyAPI townyAPI;
 
-    public GriefPreventionProtectionCompat(BigDoors plugin)
+    public TownyNewProtectionCompat(final BigDoors plugin)
     {
         this.plugin = plugin;
-
-        Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
-
-        // WorldGuard may not be loaded
-        if (!(griefPreventionPlugin instanceof GriefPrevention))
-        {
-            griefPrevention = null;
-            return;
-        }
-        griefPrevention = (GriefPrevention) griefPreventionPlugin;
-        success = true;
+        townyAPI = TownyAPI.getInstance();
+        success = townyAPI != null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public boolean canBreakBlock(final Player player, final Location loc)
     {
-        Block block = loc.getBlock();
-        BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, player);
-        return griefPrevention.allowBreak(player, block, loc, blockBreakEvent) == null;
+        return PlayerCacheUtil.getCachePermission(player, loc,
+                                                  loc.getBlock().getType(),
+                                                  ActionType.DESTROY);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1, final Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -90,6 +80,8 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     @Override
     public String getName()
     {
-        return griefPrevention.getName();
+        return ProtectionCompat.getName(compat);
     }
 }
+
+

@@ -77,10 +77,17 @@ public class ElevatorOpener implements Opener
 
         // Make sure the doorSize does not exceed the total doorSize.
         // If it does, open the door instantly.
-        int maxDoorSize = plugin.getConfigLoader().maxDoorSize();
-        if (maxDoorSize != -1)
-            if(door.getBlockCount() > maxDoorSize)
-                instantOpen = true;
+        int maxDoorSize = getSizeLimit(door);
+        if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
+        {
+            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize, true, false);
+            return DoorOpenResult.ERROR;
+        }
+
+        // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null ||
+            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getMinimum(), door.getMinimum()) != null)
+            return DoorOpenResult.NOPERMISSION;
 
         int blocksToMove = getBlocksToMove(door);
 

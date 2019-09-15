@@ -202,6 +202,21 @@ public final class Util
         return getHighestPermissionSuffix(player, "bigdoors.maxsize.");
     }
 
+    /**
+     * Gets the lowest positive integer out of 2.
+     * @param a The first int.
+     * @param b The second int.
+     * @return The lowest positive integer.
+     */
+    public static int getLowestPositiveNumber(final int a, final int b)
+    {
+        if (a < 0)
+            return b;
+        if (b < 0)
+            return a;
+        return Math.min(a, b);
+    }
+
     private static int getHighestPermissionSuffix(Player player, String permissionNode)
     {
         int ret = -1;

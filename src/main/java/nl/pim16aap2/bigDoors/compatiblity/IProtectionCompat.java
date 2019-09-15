@@ -41,13 +41,6 @@ interface IProtectionCompat
     public boolean success();
 
     /**
-     * Get the {@link JavaPlugin} that is being hooked into.
-     *
-     * @return The {@link JavaPlugin} that is being hooked into.
-     */
-    public JavaPlugin getPlugin();
-
-    /**
      * Get the name of the {@link JavaPlugin} that is being hooked into.
      *
      * @return The name of the {@link JavaPlugin} that is being hooked into.

@@ -35,6 +35,7 @@ public class Door
     private Location           newMin;
     private Location           newMax;
 
+    private Integer blockCount = null;
     private int      blocksToMove = 0;
 
     // Generate a new door.
@@ -298,7 +299,7 @@ public class Door
         newMax = loc;
     }
 
-    public int getBlockCount()
+    private int calculateBlockCount()
     {
         int xLen = Math.abs(getMaximum().getBlockX() - getMinimum().getBlockX()) + 1;
         int yLen = Math.abs(getMaximum().getBlockY() - getMinimum().getBlockY()) + 1;
@@ -308,6 +309,11 @@ public class Door
         zLen = zLen == 0 ? 1 : zLen;
 
         return xLen * yLen * zLen;
+    }
+
+    public int getBlockCount()
+    {
+        return blockCount == null ? blockCount = calculateBlockCount() : blockCount;
     }
 
     @Override

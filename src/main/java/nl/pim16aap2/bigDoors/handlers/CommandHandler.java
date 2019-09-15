@@ -72,17 +72,30 @@ public class CommandHandler implements CommandExecutor
             !plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE))
             return;
 
+        int globalLimit = BigDoors.get().getConfigLoader().maxDoorSize();
+        int personalLimit = sender instanceof Player ? Util.getMaxDoorSizeForPlayer((Player) sender) : -1;
+        int sizeLimit = Util.getLowestPositiveNumber(personalLimit, globalLimit);
+        if (sizeLimit > 0 && sizeLimit <= door.getBlockCount())
+        {
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                plugin.getMessages().getString("GENERAL.TooManyBlocks"));
+            return;
+        }
+
+
         UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         // Get a new instance of the door to make sure the locked / unlocked status is recent.
         Door newDoor = plugin.getCommander().getDoor(playerUUID, door.getDoorUID());
 
         if (newDoor == null)
         {
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.ToggleFailure"));
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                plugin.getMessages().getString("GENERAL.ToggleFailure"));
             return;
         }
         if (newDoor.isLocked())
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString("GENERAL.DoorIsLocked"));
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                plugin.getMessages().getString("GENERAL.DoorIsLocked"));
 
         else
         {
@@ -90,7 +103,8 @@ public class CommandHandler implements CommandExecutor
             DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(newDoor, time);
 
             if (result != DoorOpenResult.SUCCESS)
-                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, plugin.getMessages().getString(DoorOpenResult.getMessage(result)));
+                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                    plugin.getMessages().getString(DoorOpenResult.getMessage(result)));
         }
     }
 
@@ -525,7 +539,7 @@ public class CommandHandler implements CommandExecutor
         // /doordebug
         if (cmd.getName().equalsIgnoreCase("doordebug"))
         {
-            doorDebug(player);
+            doorDebug(player, args);
             return true;
         }
 
@@ -921,18 +935,43 @@ public class CommandHandler implements CommandExecutor
     }
 
     // Used for various debugging purposes (you don't say!).
-    public void doorDebug(Player player)
+    public void doorDebug(Player player, String[] args)
     {
-        plugin.getUpdateManager().checkForUpdates();
+//        UUID pim = UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935");
+//        int maxSize = plugin.getVaultManager().getMaxDoorSizeForPlayer(Bukkit.getWorld("world"), pim);
+//        System.out.println("Max door size for Pim is: " + maxSize);
+//
+//        if (args.length > 0)
+//        {
+//            String node = args[0];
+//            int highest = plugin.getVaultManager().getHighestPermissionSuffix(Bukkit.getWorld("world"), Bukkit.getOfflinePlayer(pim), node);
+//            System.out.println("Highest value of \"" + node + "\" for Pim is: " + highest);
+//        }
+//
+//        if (player != null)
+//        {
+//            maxSize = plugin.getVaultManager().getMaxDoorSizeForPlayer(player.getWorld(), pim);
+//            System.out.println("ONLINE: Max door size for Pim is: " + maxSize);
+//
+//            if (args.length > 0)
+//            {
+//                String node = args[0];
+//                int highest = plugin.getVaultManager().getHighestPermissionSuffix(player.getWorld(), player, node);
+//                System.out.println("Highest value of \"" + node + "\" for Pim is: " + highest);
+//            }
+//        }
 
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                player.sendMessage(plugin.getLoginMessage());
-            }
-        }.runTaskLater(plugin, 20L);
+
+//        plugin.getUpdateManager().checkForUpdates();
+//
+//        new BukkitRunnable()
+//        {
+//            @Override
+//            public void run()
+//            {
+//                player.sendMessage(plugin.getLoginMessage());
+//            }
+//        }.runTaskLater(plugin, 20L);
 
 
 //        Location loc = new Location(player.getWorld(), 128, 75, 140);
