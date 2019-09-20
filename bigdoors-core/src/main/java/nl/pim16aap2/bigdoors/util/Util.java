@@ -20,21 +20,20 @@ public final class Util
     /**
      * Characters to use in (secure) random strings.
      */
-    static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /**
      * Used to generate secure random strings. It's more secure than {@link Util#rnd}, but slower.
      */
-    static SecureRandom srnd = new SecureRandom();
+    private static SecureRandom srnd = new SecureRandom();
 
     /**
      * Used to generate simple random strings. It's faster than {@link Util#srnd}, but not secure.
      */
-    static Random rnd = new Random();
+    private static Random rnd = new Random();
 
     private static final Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
     private static final Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
-    public static boolean printDebugMessages = false;
 
     static
     {
@@ -287,6 +286,30 @@ public final class Util
         hash = 19 * hash + (int) (Double.doubleToLongBits(y) ^ Double.doubleToLongBits(y) >>> 32);
         hash = 19 * hash + (int) (Double.doubleToLongBits(z) ^ Double.doubleToLongBits(z) >>> 32);
         return hash;
+    }
+
+    /**
+     * Converts worldspace coordinates to chunkspace coordinates.
+     *
+     * @param position The position in world space coordinates.
+     * @return The coordinates in chunkspace coordinates.
+     */
+    public static Vector3Di getChunkSpacePosition(final @NotNull Vector3Di position)
+    {
+        return getChunkSpacePosition(position.getX(), position.getY(), position.getZ());
+    }
+
+    /**
+     * Converts world space coordinates to chunk space coordinates.
+     *
+     * @param x The x coordinate in world space.
+     * @param y The y coordinate in world space.
+     * @param z The z coordinate in world space.
+     * @return The coordinates in chunkspace coordinates.
+     */
+    public static Vector3Di getChunkSpacePosition(int x, int y, int z)
+    {
+        return new Vector3Di(x % 16, y, z % 16);
     }
 
     /**

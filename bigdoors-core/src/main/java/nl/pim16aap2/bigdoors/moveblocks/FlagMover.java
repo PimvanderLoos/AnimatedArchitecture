@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.Flag;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -15,6 +15,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.TimerTask;
 import java.util.function.BiFunction;
 
+/**
+ * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.Flag}s.
+ *
+ * @author Pim
+ */
 public class FlagMover extends BlockMover
 {
     private static final double maxSpeed = 3;
@@ -22,8 +27,11 @@ public class FlagMover extends BlockMover
     private final BiFunction<PBlockData, Double, Vector3Dd> getGoalPos;
     private final boolean NS;
     private int tickRate;
+    private final double period;
+    private final double amplitude;
+    private final double waveSpeed;
 
-    public FlagMover(final double time, final @NotNull AbstractDoorBase door, final double multiplier,
+    public FlagMover(final double time, final @NotNull Flag door, final double multiplier,
                      final @Nullable IPPlayer player)
     {
         super(door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, player, door.getMinimum(),
@@ -34,36 +42,71 @@ public class FlagMover extends BlockMover
         NS = zLen > xLen;
         getGoalPos = NS ? this::getGoalPosNS : this::getGoalPosEW;
 
+        int length = NS ? zLen : xLen;
+        period = length * 2;
+        amplitude = length / 4.0;
+
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
         this.time = time;
         tickRate = Util.tickRateFromSpeed(speed);
         tickRate = 3;
 
+        waveSpeed = tickRate * 10;
+
         super.constructFBlocks();
     }
 
-    private double getOffset(double counter, float distanceToEng, float radius)
+    /**
+     * Gets the maximum offset of a block.
+     *
+     * @param counter
+     * @param radius
+     * @return
+     */
+    private double getOffset(final double counter, final float radius)
     {
-        double baseOffset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + distanceToEng);
-        double maxVal = 0.25 * radius;
-        maxVal = Math.min(maxVal, 0.75);
-        return Math.min(baseOffset, maxVal);
+//        double baseOffset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + radius);
+//        double maxVal = 0.25 * radius;
+//        maxVal = Math.min(maxVal, 0.75);
+//        return Math.min(baseOffset, maxVal);
+
+//        // The idea here is that blocks should never loose contact with other blocks.
+//        // Especially the blocks with radius 1 should never loose contact with the pole.
+//        double maxAmplitude = radius * 0.4;
+
+
+        return Math.min(0.3 * radius, 3.2) * Math.sin(radius / 3 + (counter / 4));
+
+//        double offset;
+//        try
+//        {
+//            offset = JCalculator
+//                .getResult(BigDoors.get().getPlatform().getConfigLoader().flagFormula(),
+//                           new String[]{"radius", "counter"},
+//                           new double[]{radius, counter});
+//        }
+//        catch (Exception e)
+//        {
+//            e.printStackTrace();
+//            offset = 0;
+//        }
+//        return offset;
     }
 
-    private Vector3Dd getGoalPosNS(PBlockData block, double counter)
+    private Vector3Dd getGoalPosNS(final @NotNull PBlockData block, final double counter)
     {
-        double xOff = 3 - 1 / (tickRate / 20); // WTF is this?
+        double xOff = 0;
         if (block.getRadius() > 0)
-            xOff = getOffset(counter, block.getRadius(), block.getRadius());
+            xOff = getOffset(counter, block.getRadius());
         return new Vector3Dd(block.getStartX() + xOff, block.getStartY(), block.getStartZ());
     }
 
-    private Vector3Dd getGoalPosEW(PBlockData block, double counter)
+    private Vector3Dd getGoalPosEW(final @NotNull PBlockData block, final double counter)
     {
-        double zOff = 3 - 1 / (tickRate / 20); // WTF is this?
+        double zOff = 0;
         if (block.getRadius() > 0)
-            zOff = getOffset(counter, block.getRadius(), block.getRadius());
+            zOff = getOffset(counter, block.getRadius());
         return new Vector3Dd(block.getStartX(), block.getStartY(), block.getStartZ() + zOff);
     }
 
@@ -71,7 +114,7 @@ public class FlagMover extends BlockMover
      * {@inheritDoc}
      */
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
@@ -82,10 +125,10 @@ public class FlagMover extends BlockMover
     @Override
     protected void animateEntities()
     {
-        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(new TimerTask()
+        super.moverTask = new TimerTask()
         {
             double counter = 0;
-            int endCount = (int) (20 / tickRate * time);
+            int endCount = (int) (20 / tickRate * time) * 20;
             int totalTicks = (int) (endCount * 1.1);
             long startTime = System.nanoTime();
             long lastTime;
@@ -99,7 +142,7 @@ public class FlagMover extends BlockMover
                 currentTime = System.nanoTime();
                 startTime += currentTime - lastTime;
 
-                if (counter > totalTicks || isAborted.get())
+                if (counter > totalTicks)
                 {
                     for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
@@ -114,7 +157,8 @@ public class FlagMover extends BlockMover
                         block.getFBlock().setVelocity(vec.multiply(0.101));
                     }
             }
-        }, 14, tickRate);
+        };
+        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 
     /**

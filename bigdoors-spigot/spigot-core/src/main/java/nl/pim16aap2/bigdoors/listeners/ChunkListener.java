@@ -4,12 +4,16 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +25,7 @@ import java.lang.reflect.Method;
  *
  * @author Pim
  */
-public class ChunkUnloadListener implements Listener
+public class ChunkListener implements Listener
 {
     private final BigDoorsSpigot plugin;
     /**
@@ -35,7 +39,7 @@ public class ChunkUnloadListener implements Listener
     // 1.14 => method.
     private Method isForceLoaded;
 
-    public ChunkUnloadListener(final @NotNull BigDoorsSpigot plugin)
+    public ChunkListener(final @NotNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
@@ -66,6 +70,30 @@ public class ChunkUnloadListener implements Listener
             plugin.getPLogger()
                   .logException(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
         }
+    }
+
+    /**
+     * Listens to chunks being loaded and checks if they contain doors that move perpetually (doors, clocks, etc).
+     *
+     * @param event The {@link ChunkLoadEvent}.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onChunkLoad(final @NotNull ChunkLoadEvent event)
+    {
+        long chunkHash = Util.simpleChunkHashFromChunkCoordinates(event.getChunk().getX(), event.getChunk().getZ());
+        BigDoors.get().getDatabaseManager().getDoorsInChunk(chunkHash).whenComplete(
+            (doors, throwable) ->
+                doors.forEach(doorUID -> BigDoors.get().getDatabaseManager().getDoor(doorUID).whenComplete(
+                    (optionalDoor, throwable2) ->
+                        optionalDoor.ifPresent(
+                            door ->
+                            {
+                                if (door.perpetualMovement() && door.isPowerBlockActive())
+                                    BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                            .create(door, DoorActionCause.PERPETUALMOVEMENT, DoorActionType.TOGGLE,
+                                                    null);
+                            })
+                )));
     }
 
     /**

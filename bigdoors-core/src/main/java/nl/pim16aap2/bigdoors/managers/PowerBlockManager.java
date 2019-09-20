@@ -261,7 +261,7 @@ public final class PowerBlockManager extends Restartable
     {
         @NotNull
         private final UUID world;
-        private boolean isBigDoorsWorld;
+        private volatile boolean isBigDoorsWorld = false;
         /**
          * TimedCache of all {@link PowerBlockChunk}s in this world.
          * <p>
@@ -322,20 +322,10 @@ public final class PowerBlockManager extends Restartable
          * Updates if this world contains more than 0 doors in the database (and power blocks by extension).
          * <p>
          * This differs from {@link #isBigDoorsWorld()} in that this method queries the database.
-         *
-         * @return True if this world contains more than 0 doors.
          */
-        private boolean checkBigDoorsWorldStatus()
+        private void checkBigDoorsWorldStatus()
         {
-            try
-            {
-                return isBigDoorsWorld = databaseManager.isBigDoorsWorld(world).get();
-            }
-            catch (InterruptedException | ExecutionException e)
-            {
-                pLogger.logException(e);
-                return isBigDoorsWorld = false;
-            }
+            databaseManager.isBigDoorsWorld(world).whenComplete((result, throwable) -> isBigDoorsWorld = result);
         }
 
         /**

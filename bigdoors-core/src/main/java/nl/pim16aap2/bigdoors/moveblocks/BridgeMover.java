@@ -24,6 +24,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.TimerTask;
 import java.util.function.BiFunction;
 
+/**
+ * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.Drawbridge}s.
+ *
+ * @author Pim
+ */
 public class BridgeMover extends BlockMover
 {
     private final IGetNewLocation gnl;
@@ -89,6 +94,13 @@ public class BridgeMover extends BlockMover
         super.constructFBlocks();
     }
 
+    /**
+     * Calculates the speed vector of a block when rotating in northern direction.
+     *
+     * @param block   The block.
+     * @param stepSum The angle (in rads) of the block.
+     * @return The speed vector of the block.
+     */
     @NotNull
     private Vector3Dd getVectorNorth(final @NotNull PBlockData block, final double stepSum)
     {
@@ -97,12 +109,16 @@ public class BridgeMover extends BlockMover
         double posX = block.getFBlock().getPLocation().getX();
         double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
         double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle - stepSum);
-//        Bukkit.broadcastMessage("VectorNorth: startAngle: " + startAngle + ", stepSum: " + stepSum + ", speed: " +
-//                                    SpigotUtil.locDoubleToString(new Location(null, posX, posY, posZ)) +
-//                                    ", startAngle: " + block.getStartAngle());
         return new Vector3Dd(posX, posY, posZ + 0.5);
     }
 
+    /**
+     * Calculates the speed vector of a block when rotating in western direction.
+     *
+     * @param block   The block.
+     * @param stepSum The angle (in rads) of the block.
+     * @return The speed vector of the block.
+     */
     @NotNull
     private Vector3Dd getVectorWest(final @NotNull PBlockData block, final double stepSum)
     {
@@ -110,12 +126,16 @@ public class BridgeMover extends BlockMover
         double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - stepSum);
         double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
         double posZ = block.getFBlock().getPLocation().getZ();
-//        Bukkit.broadcastMessage("VectorWest: startAngle: " + startAngle + ", stepSum: " + stepSum + ", speed: " +
-//                                    SpigotUtil.locDoubleToString(new Location(null, posX, posY, posZ)) +
-//                                    ", startAngle: " + block.getStartAngle());
         return new Vector3Dd(posX + 0.5, posY, posZ);
     }
 
+    /**
+     * Calculates the speed vector of a block when rotating in southern direction.
+     *
+     * @param block   The block.
+     * @param stepSum The angle (in rads) of the block.
+     * @return The speed vector of the block.
+     */
     @NotNull
     private Vector3Dd getVectorSouth(final @NotNull PBlockData block, final double stepSum)
     {
@@ -123,12 +143,16 @@ public class BridgeMover extends BlockMover
         double posX = block.getFBlock().getPLocation().getX();
         double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
         double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle + stepSum);
-//        Bukkit.broadcastMessage("VectorSouth: startAngle: " + startAngle + ", stepSum: " + stepSum + ", speed: " +
-//                                    SpigotUtil.locDoubleToString(new Location(null, posX, posY, posZ)) +
-//                                    ", startAngle: " + block.getStartAngle());
         return new Vector3Dd(posX, posY, posZ + 0.5);
     }
 
+    /**
+     * Calculates the speed vector of a block when rotating in eastern direction.
+     *
+     * @param block   The block.
+     * @param stepSum The angle (in rads) of the block.
+     * @return The speed vector of the block.
+     */
     @NotNull
     private Vector3Dd getVectorEast(final @NotNull PBlockData block, final double stepSum)
     {
@@ -136,9 +160,6 @@ public class BridgeMover extends BlockMover
         double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + stepSum);
         double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
         double posZ = block.getFBlock().getPLocation().getZ();
-//        Bukkit.broadcastMessage("VectorEast: startAngle: " + startAngle + ", stepSum: " + stepSum + ", speed: " +
-//                                    SpigotUtil.locDoubleToString(new Location(null, posX, posY, posZ)) +
-//                                    ", startAngle: " + block.getStartAngle());
         return new Vector3Dd(posX + 0.5, posY, posZ);
     }
 
@@ -148,7 +169,7 @@ public class BridgeMover extends BlockMover
     @Override
     protected void animateEntities()
     {
-        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(new TimerTask()
+        super.moverTask = new TimerTask()
         {
             boolean replace = false;
             double counter = 0;
@@ -175,7 +196,7 @@ public class BridgeMover extends BlockMover
                 replace = counter == replaceCount;
                 double stepSum = step * Math.min(counter, endCount);
 
-                if (isAborted.get() || counter > totalTicks)
+                if (counter > totalTicks)
                 {
                     playSound(PSound.THUD, 2f, 0.15f);
                     for (PBlockData block : savedBlocks)
@@ -204,7 +225,8 @@ public class BridgeMover extends BlockMover
                     }
                 }
             }
-        }, 14, tickRate);
+        };
+        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 
     /**

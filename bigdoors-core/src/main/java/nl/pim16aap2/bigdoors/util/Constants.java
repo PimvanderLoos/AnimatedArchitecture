@@ -23,4 +23,9 @@ public final class Constants
      * cases of overlapping processes and whatnot.
      */
     public static final int MINIMUMDOORDELAY = 10;
+
+    /**
+     * The permission node that allows a player to bypass all compatibility hooks.
+     */
+    public static final String COMPATBYPASSPERMISSION = "bigdoors.admin.bypasscompat";
 }

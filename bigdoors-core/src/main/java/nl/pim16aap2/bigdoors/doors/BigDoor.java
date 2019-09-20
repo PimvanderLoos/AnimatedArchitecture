@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
-import nl.pim16aap2.bigdoors.moveblocks.CylindricalMover;
+import nl.pim16aap2.bigdoors.moveblocks.BigDoorMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -141,8 +141,8 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
                                       final @NotNull Vector3Di newMax, final @Nullable IPPlayer initiator)
     {
         doorOpeningUtility.registerBlockMover(
-            new CylindricalMover(getCurrentToggleDir(), time, getCurrentDirection(), this, skipAnimation,
-                                 doorOpeningUtility.getMultiplier(this),
-                                 initiator, newMin, newMax));
+            new BigDoorMover(getCurrentToggleDir(), time, getCurrentDirection(), this, skipAnimation,
+                             doorOpeningUtility.getMultiplier(this),
+                             initiator, newMin, newMax));
     }
 }

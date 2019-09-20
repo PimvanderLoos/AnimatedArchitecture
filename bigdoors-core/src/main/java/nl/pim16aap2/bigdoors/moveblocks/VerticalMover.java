@@ -16,6 +16,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.TimerTask;
 
+/**
+ * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.Portcullis}'s and {@link
+ * nl.pim16aap2.bigdoors.doors.Elevator}.
+ *
+ * @author Pim
+ */
 public class VerticalMover extends BlockMover
 {
     private int tickRate;
@@ -53,22 +59,17 @@ public class VerticalMover extends BlockMover
         super.constructFBlocks();
     }
 
-    private int getBlocksMoved()
-    {
-        return super.blocksMoved;
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     protected void animateEntities()
     {
-        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(new TimerTask()
+        super.moverTask = new TimerTask()
         {
             double counter = 0;
             int endCount = (int) (20 / tickRate * time);
-            double step = ((double) getBlocksMoved()) / (endCount);
+            double step = ((double) blocksMoved) / (endCount);
             double stepSum = 0;
             int totalTicks = (int) (endCount * 1.1);
             long startTime = System.nanoTime();
@@ -91,10 +92,9 @@ public class VerticalMover extends BlockMover
                 if (counter < endCount - 1)
                     stepSum = step * counter;
                 else
-                    stepSum = getBlocksMoved();
+                    stepSum = blocksMoved;
 
-                if (counter > totalTicks || firstBlockData == null ||
-                    isAborted.get())
+                if (counter > totalTicks || firstBlockData == null)
                 {
                     playSound(PSound.THUD, 2f, 0.15f);
                     for (PBlockData block : savedBlocks)
@@ -130,7 +130,8 @@ public class VerticalMover extends BlockMover
                         mbd.getFBlock().setVelocity(vec);
                 }
             }
-        }, 14, tickRate);
+        };
+        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 
     /**

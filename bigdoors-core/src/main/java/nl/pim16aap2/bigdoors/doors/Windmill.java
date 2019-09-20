@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.WindmillMover;
@@ -16,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  * @author Pim
  * @see HorizontalAxisAlignedBase
  */
-public class Windmill extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype
+public class Windmill extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     protected Windmill(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
                        final @NotNull DoorType type)

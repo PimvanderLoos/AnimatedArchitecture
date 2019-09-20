@@ -122,8 +122,7 @@ public final class Messages extends Restartable
         {
             URL url = getClass().getClassLoader().getResource(DEFAULTFILENAME);
             if (url == null)
-                plogger.logMessage("Failed to read resources file from the jar! "
-                                       +
+                plogger.logMessage("Failed to read resources file from the jar! " +
                                        "The default translation file cannot be generated! Please contact pim16aap2");
             else
             {

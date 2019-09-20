@@ -56,6 +56,13 @@
         <!--            <id>PlotSquared-Legacy</id>-->
         <!--            <url>http://ci.athion.net/job/PlotSquared-Legacy/ws/mvn/</url>-->
         <!--        </repository>-->
+
+
+        <!-- Towny -->
+        <repository>
+            <id>articdive-repo</id>
+            <url>https://nexus.articdive.de/repository/maven-releases</url>
+        </repository>
     </repositories>
 
 
@@ -121,7 +128,7 @@
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
-            <version>1.4</version>
+            <version>1.5</version>
             <scope>compile</scope>
         </dependency>
 
@@ -131,6 +138,22 @@
             <artifactId>bstats-bukkit</artifactId>
             <version>1.5</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Towny -->
+        <dependency>
+            <groupId>com.palmergames</groupId>
+            <artifactId>Towny</artifactId>
+            <version>0.94.0.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.palmergames</groupId>
+            <artifactId>Towny</artifactId>
+            <version>0.94.0.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/Towny_0_94_0_0.jar</systemPath>
         </dependency>
 
         <dependency>

@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -84,7 +85,27 @@ public abstract class AbstractDoorBase implements IDoorBase
         onCoordsUpdate();
     }
 
-    // TODO: ABSTRACT! (also, implement)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isPowerBlockActive()
+    {
+        Vector3Di powerBlockChunkSpaceCoords = Util.getChunkSpacePosition(getPowerBlockLoc());
+        Vector2Di powerBlockChunk = Util.getChunkCoords(getPowerBlockLoc());
+        if (BigDoors.get().getPlatform().getChunkManager().load(getWorld(), powerBlockChunk) ==
+            IChunkManager.ChunkLoadResult.FAIL)
+        {
+            PLogger.get()
+                   .logException(new IllegalStateException("Failed to load chunk at: " + powerBlockChunk.toString()));
+            return false;
+        }
+
+        // TODO: Make sure that all corners around the block are also loaded (to check redstone).
+        //       Might have to load up to 3 chunks.
+        return BigDoors.get().getPlatform().getPowerBlockRedstoneManager()
+                       .isBlockPowered(getWorld(), getPowerBlockLoc());
+    }
 
     /**
      * {@inheritDoc}

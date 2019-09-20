@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors.config;
 import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.compatiblity.ProtectionCompat;
 import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -20,11 +20,13 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static nl.pim16aap2.bigdoors.util.Constants.DEVBUILD;
 
 /**
  * Represents the config loader.
@@ -40,6 +42,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private final PLogger logger;
 
     private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Collections.singletonList("GOLD_BLOCK"));
+    private static final List<String> DEFAULTBLACKLIST = new ArrayList<>();
     private final String header;
     private final List<ConfigEntry<?>> configEntries;
     private final Map<DoorType, String> doorPrices;
@@ -57,13 +60,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private long downloadDelay;
     private boolean enableRedstone;
     private Set<Material> powerBlockTypesMap;
-    private boolean worldGuardHook;
+    private Set<Material> materialBlacklist;
+    private Map<ProtectionCompat, Boolean> hooksMap;
     private boolean checkForUpdates;
-    private boolean plotSquaredHook;
-    private boolean griefPreventionHook;
     private int headCacheTimeout;
     private boolean consoleLogging;
     private boolean debug = false;
+    private String flagFormula;
 
     /**
      * Constructs a new {@link ConfigLoaderSpigot}.
@@ -76,7 +79,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         this.plugin = plugin;
         this.logger = logger;
         configEntries = new ArrayList<>();
-        powerBlockTypesMap = new HashSet<>();
+        powerBlockTypesMap = EnumSet.noneOf(Material.class);
+        materialBlacklist = EnumSet.noneOf(Material.class);
+        hooksMap = new EnumMap<>(ProtectionCompat.class);
         doorPrices = new EnumMap<>(DoorType.class);
         doorMultipliers = new EnumMap<>(DoorType.class);
 
@@ -156,6 +161,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
             "This is the block that will open the DoorBase attached to it when it receives a redstone signal.",
             "Multiple types are allowed."};
+        String[] blacklistComment = {
+            "List of blacklisted materials. Materials on this list can not be animated.",
+            "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
+            "  - BEDROCK"};
         String[] maxDoorCountComment = {
             "Maximum number of doors a player can own. -1 = infinite."};
         String[] languageFileComment = {
@@ -190,7 +199,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Note that the maximum speed is limited, so beyond a certain point raising these values won't have any effect.",
             "To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
             "Note that everything is optimized for default values, so it's recommended to leave this setting as-is."};
-        String[] compatibilityHooks = {
+        String[] compatibilityHooksComment = {
             "Enable or disable compatibility hooks for certain plugins. If the plugins aren't installed, these options do nothing.",
             "When enabled, doors cannot be opened or created in areas not owned by the door's owner."};
         String[] coolDownComment = {
@@ -223,7 +232,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         // No need to store the result here. It would be a list of Strings anyway, while we want blocks.
         // Because all entries need to be verified as valid blocks anyway, the list of power block types is
         // populated in the verification method.
-        addNewConfigEntry(config, "powerBlockTypes", DEFAULTPOWERBLOCK, powerBlockTypeComment, this::verifyBlocks);
+        addNewConfigEntry(config, "powerBlockTypes", DEFAULTPOWERBLOCK, powerBlockTypeComment,
+                          new MaterialVerifier(powerBlockTypesMap));
+        addNewConfigEntry(config, "materialBlacklist", DEFAULTBLACKLIST, blacklistComment,
+                          new MaterialVerifier(materialBlacklist));
+
         maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
         maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
         languageFile = addNewConfigEntry(config, "languageFile", "en_US", languageFileComment);
@@ -232,16 +245,29 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
         // Multiply by 60 to get the time in seconds. Also, it's capped to 10080 minutes, better known as 1 week.
         downloadDelay = addNewConfigEntry(config, "downloadDelay", 1440, downloadDelayComment,
-                                          (Integer x) -> Math.min(10080, x)) * 60;
+                                          (Integer x) -> Math.min(10080, x)) * 60L;
         allowStats = addNewConfigEntry(config, "allowStats", true, allowStatsComment);
-        worldGuardHook = addNewConfigEntry(config, "worldGuard", false, compatibilityHooks);
-        plotSquaredHook = addNewConfigEntry(config, "plotSquared", false, null);
-        griefPreventionHook = addNewConfigEntry(config, "griefPrevention", false, null);
+
+        int idx = 0;
+        for (ProtectionCompat compat : ProtectionCompat.values())
+        {
+            final String name = ProtectionCompat.getName(compat).toLowerCase();
+            final boolean isEnabled = config.getBoolean(name, false);
+            addNewConfigEntry(config, ProtectionCompat.getName(compat), false,
+                              ((idx++ == 0) ? compatibilityHooksComment : null));
+            hooksMap.put(compat, isEnabled);
+        }
+
         resourcePack = addNewConfigEntry(config, "resourcePack", defResPackUrl1_13, resourcePackComment);
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
         makeBackup = addNewConfigEntry(config, "makeBackup", true, backupComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
+
+
+        flagFormula = addNewConfigEntry(config, "flagFormula",
+                                        "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", null);
+
 
         for (DoorType type : DoorType.cachedValues())
             if (DoorType.isEnabled(type))
@@ -260,54 +286,24 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             SpigotUtil.printDebugMessages = true;
 
         writeConfig();
+        printInfo();
     }
 
     /**
-     * Verifies that all Strings in a list are valid (solid) materials. All invalid and duplicated entries are removed
-     * from the list. If there are exactly 0 valid materials, {@link #DEFAULTPOWERBLOCK} is used instead.
-     * <p>
-     * All valid materials are added to {@link #powerBlockTypesMap}.
-     *
-     * @param input The list of Strings of potential materials.
-     * @return The list of names of all valid materials in the list without duplication or {@link #DEFAULTPOWERBLOCK} if
-     * none were found.
+     * Logs some basic info read from the config, such as the list of power block materials.
      */
-    @NotNull
-    @Contract(value = "_ -> param1")
-    private List<String> verifyBlocks(final @NotNull List<String> input)
+    private void printInfo()
     {
-        Iterator<String> it = input.iterator();
-        while (it.hasNext())
-        {
-            String str = it.next();
-            try
-            {
-                Material mat = Material.valueOf(str);
-                if (powerBlockTypesMap.contains(mat))
-                {
-                    logger.warn("Failed to add material: \"" + str + "\". It was already on the list!");
-                    it.remove();
-                }
-                else if (mat.isSolid())
-                {
-                    powerBlockTypesMap.add(mat);
-                }
-                else
-                {
-                    logger.warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
-                    it.remove();
-                }
-            }
-            catch (Exception e)
-            {
-                logger.warn("Failed to parse material: \"" + str + "\"");
-                it.remove();
-            }
-        }
-
         logger.info("Power Block Types:");
-        powerBlockTypesMap.forEach(K -> logger.info(" - " + K.toString()));
-        return input;
+        powerBlockTypesMap.forEach(mat -> logger.info(" - " + mat.toString()));
+
+        if (materialBlacklist.isEmpty())
+            logger.info("No materials are blacklisted!");
+        else
+        {
+            logger.info("Blacklisted materials:");
+            materialBlacklist.forEach(mat -> logger.info(" - " + mat.toString()));
+        }
     }
 
     /**
@@ -360,20 +356,18 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         try
         {
             File dataFolder = plugin.getDataFolder();
-            if (!dataFolder.exists())
-                if (!dataFolder.mkdirs())
-                {
-                    logger.logException(new IOException("Failed to create folder: \"" + dataFolder.toString() + "\""));
-                    return;
-                }
+            if (!dataFolder.exists() && !dataFolder.mkdirs())
+            {
+                logger.logException(new IOException("Failed to create folder: \"" + dataFolder.toString() + "\""));
+                return;
+            }
 
             File saveTo = new File(plugin.getDataFolder(), "config.yml");
-            if (!saveTo.exists())
-                if (!saveTo.createNewFile())
-                {
-                    logger.logException(new IOException("Failed to create file: \"" + saveTo.toString() + "\""));
-                    return;
-                }
+            if (!saveTo.exists() && !saveTo.createNewFile())
+            {
+                logger.logException(new IOException("Failed to create file: \"" + saveTo.toString() + "\""));
+                return;
+            }
 
             if (!saveTo.canWrite())
             {
@@ -388,25 +382,30 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                 logger.warn("=======================================");
             }
 
-            FileWriter fw = new FileWriter(saveTo, false);
-            PrintWriter pw = new PrintWriter(fw);
+            try (FileWriter fw = new FileWriter(saveTo, false);
+                 PrintWriter pw = new PrintWriter(fw))
+            {
+                if (header != null)
+                    pw.println("# " + header + "\n");
 
-            if (header != null)
-                pw.println("# " + header + "\n");
+                for (int idx = 0; idx < configEntries.size(); ++idx)
+                    pw.println(configEntries.get(idx).toString() +
+                                   // Only print an additional newLine if the next config option has a comment.
+                                   (idx < configEntries.size() - 1 && configEntries.get(idx + 1).getComment() == null ?
+                                    "" : "\n"));
+            }
+            catch (IOException e)
+            {
+                logger.logException(e, "Could not write to config.yml! "
+                    + "Please contact pim16aap2 and show him the following stacktrace:");
+            }
 
-            for (int idx = 0; idx < configEntries.size(); ++idx)
-                pw.println(configEntries.get(idx).toString() +
-                               // Only print an additional newLine if the next config option has a comment.
-                               (idx < configEntries.size() - 1 && configEntries.get(idx + 1).getComment() == null ?
-                                "" : "\n"));
 
-            pw.flush();
-            pw.close();
         }
         catch (IOException e)
         {
             logger.logException(e, "Could not save config.yml! "
-                + "Please contact pim16aap2 and show him the following code:");
+                + "Please contact pim16aap2 and show him the following stacktrace:");
         }
     }
 
@@ -417,6 +416,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     public boolean debug()
     {
         return debug;
+    }
+
+    @Override
+    @NotNull
+    public String flagFormula()
+    {
+        return flagFormula;
     }
 
     /**
@@ -515,7 +521,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @Override
     public long downloadDelay()
     {
-        if (Constants.DEVBUILD)
+        if (DEVBUILD)
             return 0L;
         return downloadDelay;
     }
@@ -534,19 +540,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         return powerBlockTypesMap;
     }
 
-    public boolean worldGuardHook()
+    /**
+     * Checks if a {@link ProtectionCompat} is enabled or not.
+     *
+     * @param hook The {@link ProtectionCompat}.
+     * @return True if this {@link ProtectionCompat} is enabled.
+     */
+    public boolean isHookEnabled(final @NotNull ProtectionCompat hook)
     {
-        return worldGuardHook;
-    }
-
-    public boolean griefPreventionHook()
-    {
-        return griefPreventionHook;
-    }
-
-    public boolean plotSquaredHook()
-    {
-        return plotSquaredHook;
+        return hooksMap.get(hook);
     }
 
     public int headCacheTimeout()
@@ -588,5 +590,91 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     public boolean consoleLogging()
     {
         return consoleLogging;
+    }
+
+
+    /**
+     * Represents a class that attempts to parse a list of materials represented as Strings into a list of Materials.
+     * <p>
+     * See {@link #verifyMaterials(List, Set)}.
+     *
+     * @author Pim
+     */
+    private static class MaterialVerifier implements ConfigEntry.TestValue<List<String>>
+    {
+        @NotNull
+        private final Set<Material> output;
+
+        /**
+         * Constructs a new MaterialVerifier.
+         * <p>
+         * Note that the output set is cleared!
+         *
+         * @param output The set to write the parsed materials to.
+         */
+        private MaterialVerifier(final @NotNull Set<Material> output)
+        {
+            this.output = output;
+            output.clear();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        @NotNull
+        public List<String> test(@NotNull List<String> input)
+        {
+            return MaterialVerifier.verifyMaterials(input, output);
+        }
+
+        /**
+         * Verifies that all Strings in a list are valid (solid) materials. All invalid and duplicated entries are
+         * removed from the list.
+         * <p>
+         * All valid materials are added to the output set.
+         *
+         * @param input  The list of Strings of potential materials.
+         * @param output The set to put all valid materials in.
+         * @return The list of names of all valid materials in the list without duplication.
+         */
+        @NotNull
+        @Contract(value = "_ -> param1")
+        private static List<String> verifyMaterials(final @NotNull List<String> input,
+                                                    final @NotNull Set<Material> output)
+        {
+            output.clear();
+            Iterator<String> it = input.iterator();
+            while (it.hasNext())
+            {
+                String str = it.next();
+                try
+                {
+                    Material mat = Material.valueOf(str);
+                    if (output.contains(mat))
+                    {
+                        PLogger.get().warn("Failed to add material: \"" + str + "\". It was already on the list!");
+                        it.remove();
+                    }
+                    else if (mat.isSolid())
+                    {
+                        output.add(mat);
+                    }
+                    else
+                    {
+                        PLogger.get()
+                               .warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
+                        it.remove();
+                    }
+                }
+                catch (Exception e)
+                {
+                    PLogger.get().warn("Failed to parse material: \"" + str + "\"");
+                    it.remove();
+                }
+            }
+
+            return input;
+        }
     }
 }

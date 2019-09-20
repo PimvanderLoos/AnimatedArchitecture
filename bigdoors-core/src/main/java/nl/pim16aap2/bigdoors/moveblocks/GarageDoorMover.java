@@ -18,6 +18,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.TimerTask;
 import java.util.function.BiFunction;
 
+/**
+ * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.GarageDoor}s.
+ *
+ * @author Pim
+ */
 public class GarageDoorMover extends BlockMover
 {
     private static final double maxSpeed = 3;
@@ -241,7 +246,7 @@ public class GarageDoorMover extends BlockMover
     @Override
     protected void animateEntities()
     {
-        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(new TimerTask()
+        super.moverTask = new TimerTask()
         {
             double counter = 0;
             int endCount = (int) (20 / tickRate * time);
@@ -260,7 +265,7 @@ public class GarageDoorMover extends BlockMover
                 currentTime = System.nanoTime();
                 startTime += currentTime - lastTime;
 
-                if (counter > totalTicks || isAborted.get())
+                if (counter > totalTicks)
                 {
                     playSound(PSound.THUD, 0.2f, 0.15f);
                     for (PBlockData block : savedBlocks)
@@ -279,7 +284,8 @@ public class GarageDoorMover extends BlockMover
                     }
                 }
             }
-        }, 14, tickRate);
+        };
+        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 
     /**

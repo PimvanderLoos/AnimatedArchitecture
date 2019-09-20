@@ -72,6 +72,7 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     public void selector(final @NotNull Location loc)
     {
+        // TODO: Make sure it's in the same world!
         newLoc = loc;
         setIsDone(true);
         plugin.getGlowingBlockSpawner()

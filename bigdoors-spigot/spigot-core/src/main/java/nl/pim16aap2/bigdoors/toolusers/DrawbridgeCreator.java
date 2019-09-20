@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.toolusers;
 
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -235,6 +236,9 @@ public class DrawbridgeCreator extends Creator
     {
         if (isUnnamed() || !creatorHasPermissionInLocation(loc))
             return;
+
+        if (world == null)
+            world = SpigotAdapter.wrapWorld(loc.getWorld());
 
         if (one == null)
         {

@@ -105,6 +105,7 @@ public class SubCommandToggle extends SubCommand
                 {
                     try
                     {
+                        // TODO: Error when trying to toggle an invalid door.
                         commandManager.getDoorFromArg(sender, args[currentPos], null, null).get().ifPresent(doors::add);
                     }
                     catch (InterruptedException | ExecutionException e)

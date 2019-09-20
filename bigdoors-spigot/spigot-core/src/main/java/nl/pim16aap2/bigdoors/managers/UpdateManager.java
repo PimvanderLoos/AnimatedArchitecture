@@ -2,11 +2,12 @@ package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.UpdateChecker;
-import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+
+import static nl.pim16aap2.bigdoors.util.Constants.DEVBUILD;
 
 /**
  * Class that manages all update-related stuff.
@@ -84,8 +85,7 @@ public final class UpdateManager
             return true;
 
         // The plugin is "up-to-date", but this is a dev-build, so it must be newer.
-        return Constants.DEVBUILD &&
-            updater.getLastResult().getReason().equals(UpdateChecker.UpdateReason.UP_TO_DATE);
+        return DEVBUILD && updater.getLastResult().getReason().equals(UpdateChecker.UpdateReason.UP_TO_DATE);
     }
 
     /**
@@ -107,7 +107,7 @@ public final class UpdateManager
                         logger.info("Update downloaded! Restart to apply it! " +
                                         "New version is " + updater.getLastResult().getNewestVersion() +
                                         ", Currently running " + plugin.getDescription().getVersion() +
-                                        (Constants.DEVBUILD ? " (but a DEV-build)" : ""));
+                                        (DEVBUILD ? " (but a DEV-build)" : ""));
                     else
                         logger.info("Failed to download latest version! You can download it manually at: " +
                                         updater.getDownloadUrl());

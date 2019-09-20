@@ -30,7 +30,7 @@ public final class PLogger
     /**
      * The file to write to.
      */
-    private final File logFile;
+    private File logFile = null;
 
     /**
      * The queue of {@link LogMessage}s that will be written to the log.
@@ -51,28 +51,33 @@ public final class PLogger
     /**
      * The instance of this {@link PLogger}.
      */
-    private static PLogger instance;
+    private static PLogger instance = new PLogger();
 
     /**
      * Controls what is written to the log file. When enabled, only exceptions and errors are written to the log file.
      */
     private AtomicBoolean onlyLogExceptions = new AtomicBoolean(false);
 
-    /**
-     * Constructs a PLogger.
-     *
-     * @param logFile The file to write to.
-     */
-    private PLogger(final @NotNull File logFile)
+//    /**
+//     * Constructs a PLogger.
+//     *
+//     * @param logFile The file to write to.
+//     */
+//    private PLogger(final @NotNull File logFile)
+//    {
+//        this.logFile = logFile;
+//        prepareLog();
+//        if (success)
+//            new Thread(this::processQueue).start();
+//    }
+
+    private PLogger()
     {
-        this.logFile = logFile;
-        prepareLog();
-        if (success)
-            new Thread(this::processQueue).start();
     }
 
     /**
-     * Initializes the PLogger. If it has already been initialized, it'll return that instance instead.
+     * Initializes the PLogger. Once initialized, it will start writing any messages to the log file. Until then, it
+     * just adds them to the queue.
      *
      * @param logFile The file to write to.
      * @return The PLogger instance.
@@ -80,7 +85,28 @@ public final class PLogger
     @NotNull
     public static PLogger init(final @NotNull File logFile)
     {
-        return (instance == null) ? instance = new PLogger(logFile) : instance;
+        if (instance.isInitialized())
+        {
+            instance.logException(new IllegalStateException("Trying to change the log file while it's already set!"));
+            return instance;
+        }
+
+        instance.logFile = logFile;
+        instance.prepareLog();
+        if (instance.success)
+            new Thread(instance::processQueue).start();
+
+        return instance;
+    }
+
+    /**
+     * Checks if this {@link PLogger} has been initialized.
+     *
+     * @return True if this logger has been initialized.
+     */
+    private boolean isInitialized()
+    {
+        return logFile == null;
     }
 
     /**

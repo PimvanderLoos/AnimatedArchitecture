@@ -172,6 +172,18 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
+     * Gets a list of door UIDs that have their engine in a given chunk.
+     *
+     * @param chunkHash The hash of the chunk the doors are in.
+     * @return A list of door UIDs that have their engine in a given chunk.
+     */
+    @NotNull
+    public CompletableFuture<List<Long>> getDoorsInChunk(final long chunkHash)
+    {
+        return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkHash), threadPool);
+    }
+
+    /**
      * Gets all {@link AbstractDoorBase} owned by a player. Only searches for {@link AbstractDoorBase} with a given name
      * if one was provided.
      *

@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.ClockMover;
@@ -16,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  * @author Pim
  * @see HorizontalAxisAlignedBase
  */
-public class Clock extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype
+public class Clock extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     protected Clock(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
                     final @NotNull DoorType type)

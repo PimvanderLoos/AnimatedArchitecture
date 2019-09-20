@@ -19,11 +19,10 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
      * {@inheritDoc}
      */
     @Override
-    public @NotNull IDoorActionEvent create(final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor,
-                                            final @NotNull DoorActionCause cause,
-                                            final @NotNull DoorActionType actionType,
-                                            final @Nullable IPPlayer responsible, final double time,
-                                            final boolean skipAnimation)
+    @NotNull
+    public IDoorActionEvent create(final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor,
+                                   final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType,
+                                   final @Nullable IPPlayer responsible, final double time, final boolean skipAnimation)
     {
         return new DoorActionEventSpigot(futureDoor, cause, actionType, responsible, time, skipAnimation);
     }
@@ -32,10 +31,10 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
      * {@inheritDoc}
      */
     @Override
-    public @NotNull IDoorActionEvent create(final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor,
-                                            final @NotNull DoorActionCause cause,
-                                            final @NotNull DoorActionType actionType,
-                                            final @Nullable IPPlayer responsible, final double time)
+    @NotNull
+    public IDoorActionEvent create(final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor,
+                                   final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType,
+                                   final @Nullable IPPlayer responsible, final double time)
     {
         return new DoorActionEventSpigot(futureDoor, cause, actionType, responsible, time);
     }
@@ -44,10 +43,10 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
      * {@inheritDoc}
      */
     @Override
-    public @NotNull IDoorActionEvent create(final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor,
-                                            final @NotNull DoorActionCause cause,
-                                            final @NotNull DoorActionType actionType,
-                                            final @Nullable IPPlayer responsible, final boolean skipAnimation)
+    @NotNull
+    public IDoorActionEvent create(final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor,
+                                   final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType,
+                                   final @Nullable IPPlayer responsible, final boolean skipAnimation)
     {
         return new DoorActionEventSpigot(futureDoor, cause, actionType, responsible, skipAnimation);
     }
@@ -56,10 +55,10 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
      * {@inheritDoc}
      */
     @Override
-    public @NotNull IDoorActionEvent create(final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor,
-                                            final @NotNull DoorActionCause cause,
-                                            final @NotNull DoorActionType actionType,
-                                            final @Nullable IPPlayer responsible)
+    @NotNull
+    public IDoorActionEvent create(final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor,
+                                   final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType,
+                                   final @Nullable IPPlayer responsible)
     {
         return new DoorActionEventSpigot(futureDoor, cause, actionType, responsible);
     }
@@ -68,10 +67,10 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
      * {@inheritDoc}
      */
     @Override
-    public @NotNull IDoorActionEvent create(final long doorUID, final @NotNull DoorActionCause cause,
-                                            final @NotNull DoorActionType actionType,
-                                            final @Nullable IPPlayer responsible, final double time,
-                                            boolean skipAnimation)
+    @NotNull
+    public IDoorActionEvent create(final long doorUID, final @NotNull DoorActionCause cause,
+                                   final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
+                                   final double time, boolean skipAnimation)
     {
         return new DoorActionEventSpigot(doorUID, cause, actionType, responsible, time, skipAnimation);
     }
@@ -80,9 +79,10 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
      * {@inheritDoc}
      */
     @Override
-    public @NotNull IDoorActionEvent create(final long doorUID, final @NotNull DoorActionCause cause,
-                                            final @NotNull DoorActionType actionType,
-                                            final @Nullable IPPlayer responsible, final double time)
+    @NotNull
+    public IDoorActionEvent create(final long doorUID, final @NotNull DoorActionCause cause,
+                                   final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
+                                   final double time)
     {
         return new DoorActionEventSpigot(doorUID, cause, actionType, responsible, time);
     }
@@ -91,9 +91,10 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
      * {@inheritDoc}
      */
     @Override
-    public @NotNull IDoorActionEvent create(final long doorUID, final @NotNull DoorActionCause cause,
-                                            final @NotNull DoorActionType actionType,
-                                            final @Nullable IPPlayer responsible, final boolean skipAnimation)
+    @NotNull
+    public IDoorActionEvent create(final long doorUID, final @NotNull DoorActionCause cause,
+                                   final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
+                                   final boolean skipAnimation)
     {
         return new DoorActionEventSpigot(doorUID, cause, actionType, responsible, skipAnimation);
     }
@@ -102,10 +103,61 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
      * {@inheritDoc}
      */
     @Override
-    public @NotNull IDoorActionEvent create(final long doorUID, final @NotNull DoorActionCause cause,
-                                            final @NotNull DoorActionType actionType,
-                                            final @Nullable IPPlayer responsible)
+    @NotNull
+    public IDoorActionEvent create(final long doorUID, final @NotNull DoorActionCause cause,
+                                   final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible)
     {
         return new DoorActionEventSpigot(doorUID, cause, actionType, responsible);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public IDoorActionEvent create(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+                                   final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
+                                   final double time, boolean skipAnimation)
+    {
+        // TODO: Don't do this stuff.
+        return new DoorActionEventSpigot(door.getDoorUID(), cause, actionType, responsible, time, skipAnimation);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public IDoorActionEvent create(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+                                   final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
+                                   final double time)
+    {
+        // TODO: Don't just get the door UID from the door only to get the door again.
+        return new DoorActionEventSpigot(door.getDoorUID(), cause, actionType, responsible, time);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public IDoorActionEvent create(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+                                   final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
+                                   final boolean skipAnimation)
+    {
+        // TODO: Don't just get the door UID from the door only to get the door again.
+        return new DoorActionEventSpigot(door.getDoorUID(), cause, actionType, responsible, skipAnimation);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public IDoorActionEvent create(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+                                   final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible)
+    {
+        // TODO: Don't just get the door UID from the door only to get the door again.
+        return new DoorActionEventSpigot(door.getDoorUID(), cause, actionType, responsible);
     }
 }

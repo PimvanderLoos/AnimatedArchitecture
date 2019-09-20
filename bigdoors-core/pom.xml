@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
-            <version>1.4</version>
+            <version>1.5</version>
             <scope>compile</scope>
         </dependency>
 

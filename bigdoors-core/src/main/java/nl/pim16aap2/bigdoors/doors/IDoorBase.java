@@ -25,6 +25,23 @@ public interface IDoorBase
     boolean canSkipAnimation();
 
     /**
+     * Checks if this door should always be moving (clocks, windmills, etc).
+     *
+     * @return True if this door should always be active.
+     */
+    default boolean perpetualMovement()
+    {
+        return false;
+    }
+
+    /**
+     * Checks if the power block of a door is powered.
+     *
+     * @return True if the power block is receiving a redstone signal.
+     */
+    boolean isPowerBlockActive();
+
+    /**
      * Checks if this door can be opened right now.
      *
      * @return True if this door can be opened right now.
@@ -38,7 +55,7 @@ public interface IDoorBase
      */
     boolean isCloseable();
 
-    // TODO: ABSTRACT! (also, implement)
+    // TODO: implement
     boolean isValidOpenDirection(final @NotNull RotateDirection openDir);
 
     /**

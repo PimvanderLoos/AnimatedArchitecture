@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
@@ -57,7 +58,7 @@ import nl.pim16aap2.bigdoors.factories.PLocationFactorySpigot;
 import nl.pim16aap2.bigdoors.factories.PPlayerFactorySpigot;
 import nl.pim16aap2.bigdoors.factories.PWorldFactorySpigot;
 import nl.pim16aap2.bigdoors.gui.GUI;
-import nl.pim16aap2.bigdoors.listeners.ChunkUnloadListener;
+import nl.pim16aap2.bigdoors.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.listeners.DoorActionListener;
 import nl.pim16aap2.bigdoors.listeners.EventListeners;
 import nl.pim16aap2.bigdoors.listeners.GUIListener;
@@ -72,6 +73,7 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorManager;
 import nl.pim16aap2.bigdoors.managers.HeadManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.managers.PowerBlockRedstoneManagerSpigot;
 import nl.pim16aap2.bigdoors.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.BlockAnalyzer_V1_14_R1;
@@ -84,7 +86,6 @@ import nl.pim16aap2.bigdoors.spigotutil.implementations.ChunkManagerSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.toolusers.ToolVerifier;
-import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -106,6 +107,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
+
+import static nl.pim16aap2.bigdoors.util.Constants.DEVBUILD;
 
 public final class BigDoorsSpigot extends JavaPlugin implements Listener, IRestartableHolder, IBigDoorsPlatform
 {
@@ -158,6 +161,8 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
     private final IChunkManager chunkManager = ChunkManagerSpigot.get();
     @NotNull
     private final IDoorActionEventFactory doorActionEventFactory = new DoorActionEventFactorySpigot();
+    @NotNull
+    private final IPowerBlockRedstoneManager powerblockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
     /**
      * {@inheritDoc}
@@ -203,7 +208,7 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
 
             Bukkit.getPluginManager().registerEvents(new EventListeners(this), this);
             Bukkit.getPluginManager().registerEvents(new GUIListener(this), this);
-            Bukkit.getPluginManager().registerEvents(new ChunkUnloadListener(this), this);
+            Bukkit.getPluginManager().registerEvents(new ChunkListener(this), this);
             protCompatMan = ProtectionCompatManagerSpigot.init(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), config.dbFile()));
@@ -380,6 +385,16 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
     public boolean isMainThread(final long compareThread)
     {
         return compareThread == mainThreadID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public IPowerBlockRedstoneManager getPowerBlockRedstoneManager()
+    {
+        return powerblockRedstoneManager;
     }
 
     /**
@@ -662,7 +677,7 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
     public String getLoginMessage()
     {
         String ret = "";
-        if (Constants.DEVBUILD)
+        if (DEVBUILD)
             ret += "[BigDoors] Warning: You are running a devbuild!\n";
         if (!validVersion)
             ret += "[BigDoors] Error: Trying to load the game on an invalid version! Plugin disabled!";

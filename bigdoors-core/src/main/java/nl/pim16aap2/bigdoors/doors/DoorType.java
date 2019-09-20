@@ -149,9 +149,9 @@ public enum DoorType
 
     ;
 
-    private final static List<DoorType> cachedValues = Collections.unmodifiableList(Arrays.asList(DoorType.values()));
-    private final static Map<Integer, DoorType> valMap = new HashMap<>();
-    private final static Map<String, DoorType> commandFlagMap = new HashMap<>();
+    private static final List<DoorType> cachedValues = Collections.unmodifiableList(Arrays.asList(DoorType.values()));
+    private static final Map<Integer, DoorType> valMap = new HashMap<>();
+    private static final Map<String, DoorType> commandFlagMap = new HashMap<>();
 
     static
     {
@@ -234,7 +234,8 @@ public enum DoorType
      * @return The {@link DoorType} with this index value.
      */
     @NotNull
-    public static DoorType valueOf(final int type) throws IllegalArgumentException
+    public static DoorType valueOf(final int type)
+        throws IllegalArgumentException
     {
         if (type >= valMap.size())
             throw new IllegalArgumentException(
@@ -287,22 +288,6 @@ public enum DoorType
     @NotNull
     public abstract AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
                                                 final @NotNull AbstractDoorBase.DoorData doorData);
-
-    /**
-     * Constructs a new {@link AbstractDoorBase} of a {@link DoorType}.
-     *
-     * @param type     The {@link DoorType} of the {@link AbstractDoorBase} to instantiate.
-     * @param pLogger  The {@link PLogger} to be used for exception handling.
-     * @param doorUID  The UID of the {@link AbstractDoorBase} to instantiate.
-     * @param doorData The data required for basic door initialization.
-     * @return A new {@link AbstractDoorBase} of a {@link DoorType}.
-     */
-    @NotNull
-    public static AbstractDoorBase getNewDoor(final @NotNull DoorType type, final @NotNull PLogger pLogger,
-                                              final @NotNull AbstractDoorBase.DoorData doorData, final long doorUID)
-    {
-        return type.getNewDoor(pLogger, doorUID, doorData);
-    }
 }
 
 

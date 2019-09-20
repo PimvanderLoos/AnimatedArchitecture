@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.toolusers;
 
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -73,6 +74,9 @@ public class SlidingDoorCreator extends Creator
     {
         if (isUnnamed() || !creatorHasPermissionInLocation(loc) || !isPosTwoValid(loc))
             return;
+
+        if (world == null)
+            world = SpigotAdapter.wrapWorld(loc.getWorld());
 
         if (one == null)
         {

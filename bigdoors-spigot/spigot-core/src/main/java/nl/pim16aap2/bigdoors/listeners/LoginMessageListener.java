@@ -1,13 +1,14 @@
 package nl.pim16aap2.bigdoors.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.util.Constants;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import static nl.pim16aap2.bigdoors.util.Constants.DEVBUILD;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them any messages if needed.
@@ -37,7 +38,7 @@ public class LoginMessageListener implements Listener
             // Normally, only send to those with permission, so they can disable it.
             // But when it's a devbuild, also send it to everyone who's OP, to make it
             // a bit harder to get around the message.
-            if (player.hasPermission("bigdoors.admin") || player.isOp() && Constants.DEVBUILD)
+            if (player.hasPermission("bigdoors.admin") || player.isOp() && DEVBUILD)
                 // Slight delay so the player actually receives the message;
                 new BukkitRunnable()
                 {

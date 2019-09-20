@@ -93,6 +93,14 @@ public interface IBigDoorsPlatform
     IBlockAnalyzer getBlockAnalyzer();
 
     /**
+     * Gets the instance of the {@link IPowerBlockRedstoneManager} for this platform.
+     *
+     * @return The instance of the {@link IPowerBlockRedstoneManager} for this platform.
+     */
+    @NotNull
+    IPowerBlockRedstoneManager getPowerBlockRedstoneManager();
+
+    /**
      * Gets the instance of the {@link IChunkManager} for this platform.
      *
      * @return The instance of the {@link IChunkManager} for this platform.

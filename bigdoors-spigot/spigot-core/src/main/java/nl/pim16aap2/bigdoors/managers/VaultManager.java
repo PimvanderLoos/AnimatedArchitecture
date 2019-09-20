@@ -40,9 +40,7 @@ public class VaultManager extends Restartable
         menu = new HashMap<>();
         flatPrices = new EnumMap<>(DoorType.class);
         init();
-        vaultEnabled = setupEconomy();
-        if (vaultEnabled)
-            setupPermissions();
+        vaultEnabled = isVaultInstalled() && setupEconomy() && setupPermissions();
     }
 
     /**
@@ -89,6 +87,7 @@ public class VaultManager extends Restartable
         }
         catch (Exception unhandled)
         {
+            // Ignored.
         }
     }
 
@@ -129,7 +128,7 @@ public class VaultManager extends Restartable
         catch (Exception e)
         {
             plugin.getPLogger().logException(e, "Failed to determine door creation price! Please contact pim16aap2! "
-                + "Include this: \"" + formula + "\" and this:");
+                + "Include this: \"" + formula + "\" and stacktrace:");
             return 0.0d;
         }
     }
@@ -147,7 +146,7 @@ public class VaultManager extends Restartable
             return 0;
 
         // Try cache first
-        long priceID = blockCount * 100 + DoorType.getValue(type);
+        long priceID = blockCount * 100L + DoorType.getValue(type);
         if (menu.containsKey(priceID))
             return menu.get(priceID);
 
@@ -221,36 +220,61 @@ public class VaultManager extends Restartable
     }
 
     /**
-     * Initialize the economy dependency.
+     * Checks if Vault is installed on this server.
+     *
+     * @return True if vault is installed on this server.
+     */
+    private boolean isVaultInstalled()
+    {
+        return plugin.getServer().getPluginManager().getPlugin("Vault") != null;
+    }
+
+    /**
+     * Initialize the economy dependency. Assumes Vault is installed on this server. See {@link #isVaultInstalled()}.
      *
      * @return True if the initialization process was successful.
      */
     private boolean setupEconomy()
     {
-        if (plugin.getServer().getPluginManager().getPlugin("Vault") == null)
-            return false;
-        RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(
-            net.milkbowl.vault.economy.Economy.class);
-        if (economyProvider != null)
-            economy = economyProvider.getProvider();
+        try
+        {
+            RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager()
+                                                                       .getRegistration(
+                                                                           net.milkbowl.vault.economy.Economy.class);
+            if (economyProvider == null)
+                return false;
 
-        return (economy != null);
+            economy = economyProvider.getProvider();
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 
     /**
-     * Initialize the permissions dependency.
+     * Initialize the permissions dependency. Assumes Vault is installed on this server. See {@link
+     * #isVaultInstalled()}.
      *
      * @return True if the initialization process was successful.
      */
     private boolean setupPermissions()
     {
-        RegisteredServiceProvider<Permission> rsp = plugin.getServer().getServicesManager()
-                                                          .getRegistration(Permission.class);
-        if (rsp == null)
-            return false;
+        try
+        {
+            RegisteredServiceProvider<Permission> permissionProvider = plugin.getServer().getServicesManager()
+                                                                             .getRegistration(Permission.class);
+            if (permissionProvider == null)
+                return false;
 
-        perms = rsp.getProvider();
-        return true;
+            perms = permissionProvider.getProvider();
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 
     /**

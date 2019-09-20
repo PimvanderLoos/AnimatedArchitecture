@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -26,21 +25,24 @@ import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static nl.pim16aap2.bigdoors.util.Constants.MINIMUMDOORDELAY;
+
 /**
  * Represents a class that animates blocks.
+ *
+ * @author Pim
  */
 public abstract class BlockMover implements IRestartable
 {
     protected final IPWorld world;
     protected final AbstractDoorBase door;
-    @Nullable
+    @NotNull
     protected final IPPlayer player;
     protected final IFallingBlockFactory fallingBlockFactory;
     protected double time;
     protected boolean skipAnimation;
     protected RotateDirection openDirection;
     protected List<PBlockData> savedBlocks;
-    protected AtomicBoolean isAborted = new AtomicBoolean(false);
     protected PBlockFace currentDirection;
     protected int blocksMoved;
     protected int xMin, xMax, yMin;
@@ -49,6 +51,8 @@ public abstract class BlockMover implements IRestartable
     private final Vector3Di finalMin, finalMax;
     protected final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
     protected final IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
+    @Nullable
+    protected TimerTask moverTask = null;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -65,7 +69,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected BlockMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
                          final @NotNull PBlockFace currentDirection, final @NotNull RotateDirection openDirection,
-                         final int blocksMoved, final @Nullable IPPlayer player, final @NotNull Vector3Di finalMin,
+                         final int blocksMoved, final @NotNull IPPlayer player, final @NotNull Vector3Di finalMin,
                          final @NotNull Vector3Di finalMax)
     {
         BigDoors.get().getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
@@ -122,11 +126,12 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Aborts the animation.
+     * {@inheritDoc}
      */
     public void abort()
     {
-        isAborted.set(true);
+        if (moverTask != null)
+            moverTask.cancel();
         putBlocks(true);
     }
 
@@ -255,8 +260,7 @@ public abstract class BlockMover implements IRestartable
 
         if (!onDisable)
         {
-            int delay = Math
-                .max(Constants.MINIMUMDOORDELAY, BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
+            int delay = Math.max(MINIMUMDOORDELAY, BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
             BigDoors.get().getPlatform().newPExecutor().runSyncLater(
                 new TimerTask()
                 {
@@ -310,24 +314,6 @@ public abstract class BlockMover implements IRestartable
     {
         door.setOpenStatus(!door.isOpen());
     }
-
-//    /**
-//     * Constructs a new {@link ICustomCraftFallingBlock}.
-//     *
-//     * @param loc   The {@link IPLocation} where the {@link ICustomCraftFallingBlock} will be created.
-//     * @param block The block of the {@link ICustomCraftFallingBlock}.
-//     * @return A new {@link ICustomCraftFallingBlock}.
-//     */
-//    @NotNull
-//    protected final ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocation loc,
-//                                                                 final @NotNull INMSBlock block)
-//    {
-//        ICustomCraftFallingBlock entity = fabf.fallingBlockFactory(loc, block);
-//        Entity bukkitEntity = (Entity) entity;
-//        bukkitEntity.setCustomName("BigDoorsEntity");
-//        bukkitEntity.setCustomNameVisible(false);
-//        return entity;
-//    }
 
     /**
      * Gets the UID of the {@link AbstractDoorBase} being moved.

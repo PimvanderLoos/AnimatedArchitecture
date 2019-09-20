@@ -2,6 +2,11 @@ package nl.pim16aap2.bigdoors.api;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Analyzes blocks to obtain various information.
+ *
+ * @author Pim
+ */
 public interface IBlockAnalyzer
 {
     /**
@@ -31,4 +36,44 @@ public interface IBlockAnalyzer
      * @return True if the block can be used for animations.
      */
     boolean isAllowedBlock(final @NotNull IPLocation location);
+
+
+    /**
+     * Represents the status of a material.
+     *
+     * @author Pim
+     */
+    enum MaterialStatus
+    {
+        /**
+         * The material is blacklisted and cannot in any way be used as an animated block.
+         */
+        BLACKLISTED,
+
+        /**
+         * The material represents a secondary block. It cannot exist on its own. It must be broken before the block it
+         * depends on and placed after.
+         * <p>
+         * For example: Torches.
+         */
+        GREYLISTED,
+
+        /**
+         * This material is allowed.
+         */
+        WHITELISTED,
+
+        /**
+         * The material type was not mapped.
+         */
+        UNMAPPED
+    }
 }
+
+
+
+
+
+
+
+

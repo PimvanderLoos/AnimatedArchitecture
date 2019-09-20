@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.compatiblity;
 
-import nl.pim16aap2.bigdoors.config.ConfigLoaderSpigot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,31 +19,46 @@ public enum ProtectionCompat
             /**
              * {@inheritDoc}
              */
-            @NotNull
             @Override
-            public Class<? extends IProtectionCompat> getClass(@NotNull final String version)
+            @Nullable
+            public Class<? extends IProtectionCompat> getClass(final @NotNull String version)
             {
                 return version.startsWith("4.") ? PlotSquaredNewProtectionCompat.class :
                        PlotSquaredOldProtectionCompat.class;
             }
+        },
 
+    TOWNY("Towny")
+        {
             /**
              * {@inheritDoc}
              */
             @Override
-            public boolean isEnabled(@NotNull ConfigLoaderSpigot config)
+            public Class<? extends IProtectionCompat> getClass(final @NotNull String version)
             {
-                return config.plotSquaredHook();
+                int[] lastOldVersion = {0, 94, 0, 1};
+
+                int[] currentVersion = Arrays.stream(version.split("\\.")).mapToInt(Integer::parseInt).toArray();
+                for (int idx = 0; idx < lastOldVersion.length; ++idx)
+                {
+                    if (currentVersion[idx] == lastOldVersion[idx])
+                        continue;
+
+                    return currentVersion[idx] > lastOldVersion[idx] ?
+                           TownyNewProtectionCompat.class : TownyOldProtectionCompat.class;
+                }
+                return null;
             }
         },
+
     WORLDGUARD("WorldGuard")
         {
             /**
              * {@inheritDoc}
              */
-            @NotNull
             @Override
-            public Class<? extends IProtectionCompat> getClass(@NotNull final String version)
+            @Nullable
+            public Class<? extends IProtectionCompat> getClass(final @NotNull String version)
             {
                 if (version.startsWith("7."))
                     return WorldGuard7ProtectionCompat.class;
@@ -52,35 +67,18 @@ public enum ProtectionCompat
                 else
                     return null;
             }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public boolean isEnabled(@NotNull ConfigLoaderSpigot config)
-            {
-                return config.worldGuardHook();
-            }
         },
+
     GRIEFPREVENTION("GriefPrevention")
         {
             /**
              * {@inheritDoc}
              */
-            @NotNull
             @Override
-            public Class<? extends IProtectionCompat> getClass(@NotNull final String version)
+            @Nullable
+            public Class<? extends IProtectionCompat> getClass(final @NotNull String version)
             {
                 return GriefPreventionProtectionCompat.class;
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public boolean isEnabled(@NotNull ConfigLoaderSpigot config)
-            {
-                return config.griefPreventionHook();
             }
         },
     ;
@@ -120,18 +118,8 @@ public enum ProtectionCompat
     @Nullable
     public static ProtectionCompat getFromName(final @NotNull String name)
     {
-        if (nameMap.containsKey(name))
-            return nameMap.get(name);
-        return null;
+        return nameMap.getOrDefault(name, null);
     }
-
-    /**
-     * Get the function in the config that determines if the compat is enabled in the config.
-     *
-     * @param config The config loader to query for if this compat is enabled.
-     * @return The function in the config that determines if the compat is enabled in the config.
-     */
-    public abstract boolean isEnabled(final @NotNull ConfigLoaderSpigot config);
 
     /**
      * Get the class of the given hook for a specific version of the plugin to load the compat for.
@@ -139,6 +127,6 @@ public enum ProtectionCompat
      * @param version The version of the plugin to load the hook for.
      * @return The {@link IProtectionCompat} class of the compat.
      */
-    @NotNull
+    @Nullable
     public abstract Class<? extends IProtectionCompat> getClass(final @NotNull String version);
 }

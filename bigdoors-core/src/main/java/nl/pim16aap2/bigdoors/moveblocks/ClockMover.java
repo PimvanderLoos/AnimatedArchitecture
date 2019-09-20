@@ -15,6 +15,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.TimerTask;
 import java.util.function.Function;
 
+/**
+ * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.Clock}s.
+ *
+ * @author Pim
+ */
 public class ClockMover extends WindmillMover
 {
     /**
@@ -23,23 +28,28 @@ public class ClockMover extends WindmillMover
      */
     @NotNull
     private final Function<PBlockData, Boolean> isLittleHand;
+
     /**
      * The start position of the clock.
      */
 //    private static final float STARTPOINT = (float) Math.PI / 2;
     private static final float STARTPOINT = 0;
+
     /**
      * The step of 1 minute on a clock, or 1/60th of a circle in radians.
      */
     private static final float MINUTESTEP = (float) Math.PI / 30;
+
     /**
      * The step of 1 hours on a clock, or 1/12th of a circle in radians.
      */
     private static final float HOURSTEP = (float) Math.PI / 6;
+
     /**
      * The step of 1 minute between two full ours on a clock, or 1/720th of a circle in radians.
      */
     private static final float HOURSUBSTEP = (float) Math.PI / 360;
+
     /**
      * Override tickRate to be once per second. It's a clock, it doesn't move wildly (or shouldn't, at least) and
      * therefor doesn't need as frequent updating.
@@ -83,7 +93,7 @@ public class ClockMover extends WindmillMover
     @Override
     protected void animateEntities()
     {
-        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(new TimerTask()
+        super.moverTask = new TimerTask()
         {
             long counter = 0;
             int endCount = (int) (20 / tickRate * time) * 400;
@@ -119,7 +129,7 @@ public class ClockMover extends WindmillMover
 
                 moveSmallHand = counter % 10 == 0;
 
-                if (isAborted.get() || counter > totalTicks)
+                if (counter > totalTicks)
                 {
                     for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
@@ -149,7 +159,8 @@ public class ClockMover extends WindmillMover
                     }
                 }
             }
-        }, 14, tickRate);
+        };
+        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 
     /**

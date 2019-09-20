@@ -14,6 +14,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.TimerTask;
 
+/**
+ * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.Windmill}s.
+ *
+ * @author Pim
+ */
 public class WindmillMover extends BridgeMover
 {
     public WindmillMover(final @NotNull HorizontalAxisAlignedBase door, final double time, final double multiplier,
@@ -39,12 +44,12 @@ public class WindmillMover extends BridgeMover
     @Override
     protected void animateEntities()
     {
-        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(new TimerTask()
+        super.moverTask = new TimerTask()
         {
             boolean replace = false;
             double counter = 0;
-            int endCount = (int) (20 / tickRate * time) * 4;
-            double step = (Math.PI / 2) / endCount;
+            int endCount = (int) (20 / tickRate * time) * 20;
+            double step = (Math.PI / 2) / ((int) (20 / tickRate * time) * 2);
             // Add a half a second or the smallest number of ticks closest to it to the timer
             // to make sure the animation doesn't jump at the end.
             int totalTicks = endCount + Math.max(1, 10 / tickRate);
@@ -62,9 +67,8 @@ public class WindmillMover extends BridgeMover
                 currentTime = System.nanoTime();
                 startTime += currentTime - lastTime;
                 replace = counter == replaceCount;
-                double stepSum = step * Math.min(counter, endCount);
 
-                if (isAborted.get() || counter > totalTicks)
+                if (counter > totalTicks)
                 {
                     for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
@@ -74,18 +78,20 @@ public class WindmillMover extends BridgeMover
                 }
                 else
                 {
+                    double stepSum = step * Math.min(counter, endCount);
                     for (PBlockData block : savedBlocks)
                     {
                         // TODO: Store separate list to avoid checking this constantly.
                         if (Math.abs(block.getRadius()) > eps)
                         {
-                            Vector3Dd vec = getVector.apply(block, counter).subtract(block.getFBlock().getPosition());
+                            Vector3Dd vec = getVector.apply(block, stepSum).subtract(block.getFBlock().getPosition());
                             block.getFBlock().setVelocity(vec.multiply(0.101));
                         }
                     }
                 }
             }
-        }, 14, tickRate);
+        };
+        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 
     /**
@@ -111,11 +117,6 @@ public class WindmillMover extends BridgeMover
         // When the engine is positioned along the NS axis, the X values does not change for this type.
         float deltaA = !NS ? door.getEngine().getX() - xAxis : door.getEngine().getZ() - zAxis;
         float deltaB = door.getEngine().getY() - yAxis;
-
-//        float startAngle = (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
-//        Bukkit.broadcastMessage(
-//            door.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType().name() + ": start angle: " + startAngle);
-//        return startAngle;
 
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }

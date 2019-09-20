@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public final class DoorManager extends Restartable
 {
     @Nullable
-    private static DoorManager instance;
+    private static DoorManager instance = null;
     private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
 
     /**
@@ -132,7 +132,7 @@ public final class DoorManager extends Restartable
      */
     public void stopDoors()
     {
-        busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::abort));
+        busyDoors.forEach((key, value) -> value.ifPresent(BlockMover::abort));
         emptyBusyDoors();
     }
 
@@ -142,7 +142,7 @@ public final class DoorManager extends Restartable
     @Override
     public void restart()
     {
-        busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::restart));
+        busyDoors.forEach((key, value) -> value.ifPresent(BlockMover::restart));
         busyDoors.clear();
     }
 
@@ -152,7 +152,7 @@ public final class DoorManager extends Restartable
     @Override
     public void shutdown()
     {
-        busyDoors.forEach((K, V) -> V.ifPresent(BlockMover::shutdown));
+        busyDoors.forEach((key, value) -> value.ifPresent(BlockMover::shutdown));
         busyDoors.clear();
     }
 }

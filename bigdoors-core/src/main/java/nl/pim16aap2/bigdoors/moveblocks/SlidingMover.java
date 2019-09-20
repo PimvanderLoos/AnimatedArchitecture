@@ -16,6 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.TimerTask;
 
+/**
+ * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.SlidingDoor}.
+ *
+ * @author Pim
+ */
 public class SlidingMover extends BlockMover
 {
     private boolean NS;
@@ -79,7 +84,7 @@ public class SlidingMover extends BlockMover
     @Override
     protected void animateEntities()
     {
-        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(new TimerTask()
+        super.moverTask = new TimerTask()
         {
             double counter = 0;
             int endCount = (int) (20 / tickRate * time);
@@ -89,6 +94,7 @@ public class SlidingMover extends BlockMover
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
+            // TODO: Check if this is still needed. It shouldn't be, as null-entries aren't allowed anymore.
             PBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst()
                                                    .orElse(null);
 
@@ -108,7 +114,7 @@ public class SlidingMover extends BlockMover
                 else
                     stepSum = getBlocksMoved();
 
-                if (isAborted.get() || counter > totalTicks ||
+                if (counter > totalTicks ||
                     firstBlockData == null)
                 {
                     playSound(PSound.THUD, 2f, 0.15f);
@@ -136,6 +142,7 @@ public class SlidingMover extends BlockMover
                         block.getFBlock().setVelocity(vec);
                 }
             }
-        }, 14, tickRate);
+        };
+        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 }

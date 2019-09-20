@@ -168,7 +168,7 @@ public abstract class Creator extends ToolUser
             door.setAutoClose(-1);
 
             final int doorSize = door.getBlockCount();
-            if (plugin.getConfigLoader().maxDoorSize() <= doorSize)
+            if (plugin.getConfigLoader().maxDoorSize() >= 0 && plugin.getConfigLoader().maxDoorSize() <= doorSize)
             {
                 sendAreaTooBigMessage(player, plugin.getConfigLoader().maxDoorSize());
                 super.finishUp();

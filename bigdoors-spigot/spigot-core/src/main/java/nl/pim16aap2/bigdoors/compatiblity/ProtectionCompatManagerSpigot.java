@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -22,21 +23,22 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static nl.pim16aap2.bigdoors.util.Constants.COMPATBYPASSPERMISSION;
+
 /**
  * Class that manages all objects of {@link IProtectionCompat}.
  *
  * @author Pim
  */
-public class ProtectionCompatManagerSpigot extends Restartable implements Listener, IProtectionCompatManager
+public final class ProtectionCompatManagerSpigot extends Restartable implements Listener, IProtectionCompatManager
 {
-    private static final String BYPASSPERMISSION = "bigdoors.admin.bypasscompat";
-
     private final List<IProtectionCompat> protectionCompats;
     private final BigDoorsSpigot plugin;
     private FakePlayerCreator fakePlayerCreator;
@@ -115,7 +117,7 @@ public class ProtectionCompatManagerSpigot extends Restartable implements Listen
 
     /**
      * Check if a player is allowed to bypass the compatibility checks. Players can bypass the check if they are OP or
-     * if they have the {@link ProtectionCompatManagerSpigot#BYPASSPERMISSION} permission node.
+     * if they have the {@link Constants#COMPATBYPASSPERMISSION} permission node.
      *
      * @param player The {@link Player} to check the permissions for.
      * @return True if the player can bypass the checks.
@@ -127,8 +129,8 @@ public class ProtectionCompatManagerSpigot extends Restartable implements Listen
 
         // offline players don't have permissions, so use Vault if that's the case.
         if (!player.hasMetadata(FakePlayerCreator.FAKEPLAYERMETADATA))
-            return player.hasPermission(BYPASSPERMISSION);
-        return plugin.getVaultManager().hasPermission(player, BYPASSPERMISSION);
+            return player.hasPermission(COMPATBYPASSPERMISSION);
+        return plugin.getVaultManager().hasPermission(player, COMPATBYPASSPERMISSION);
     }
 
     /**
@@ -158,13 +160,12 @@ public class ProtectionCompatManagerSpigot extends Restartable implements Listen
     @NotNull
     public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocation pLoc)
     {
-        if (protectionCompats.size() == 0)
+        if (protectionCompats.isEmpty())
             return Optional.empty();
 
         Location loc = SpigotAdapter.getBukkitLocation(pLoc);
         if (loc.getWorld() == null)
             return Optional.of("InvalidWorld");
-
 
         Optional<Player> fakePlayer = getPlayer(player, loc.getWorld());
         if (!fakePlayer.isPresent())
@@ -181,7 +182,7 @@ public class ProtectionCompatManagerSpigot extends Restartable implements Listen
             }
             catch (Exception e)
             {
-                plugin.getPLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
+                plugin.getPLogger().logException(e, "Failed to use \"" + compat.getName()
                     + "\"! Please send this error to pim16aap2:");
             }
         return Optional.empty();
@@ -197,7 +198,7 @@ public class ProtectionCompatManagerSpigot extends Restartable implements Listen
                                                       final @NotNull Vector3Di pos2,
                                                       final @NotNull IPWorld world)
     {
-        if (protectionCompats.size() == 0)
+        if (protectionCompats.isEmpty())
             return Optional.empty();
 
         IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
@@ -226,7 +227,7 @@ public class ProtectionCompatManagerSpigot extends Restartable implements Listen
             }
             catch (Exception e)
             {
-                plugin.getPLogger().logException(e, "Failed to use \"" + compat.getPlugin().getName()
+                plugin.getPLogger().logException(e, "Failed to use \"" + compat.getName()
                     + "\"! Please send this error to pim16aap2:");
             }
         return Optional.empty();
@@ -256,10 +257,10 @@ public class ProtectionCompatManagerSpigot extends Restartable implements Listen
         if (hook.success())
         {
             protectionCompats.add(hook);
-            plugin.getPLogger().info("Successfully hooked into \"" + hook.getPlugin().getName() + "\"!");
+            plugin.getPLogger().info("Successfully hooked into \"" + hook.getName() + "\"!");
         }
         else
-            plugin.getPLogger().info("Failed to hook into \"" + hook.getPlugin().getName() + "\"!");
+            plugin.getPLogger().info("Failed to hook into \"" + hook.getName() + "\"!");
     }
 
     /**
@@ -267,6 +268,7 @@ public class ProtectionCompatManagerSpigot extends Restartable implements Listen
      *
      * @param event The event of the plugin that is loaded.
      */
+    @SuppressWarnings("unused")
     @EventHandler
     protected void onPluginEnable(final @NotNull PluginEnableEvent event)
     {
@@ -284,15 +286,30 @@ public class ProtectionCompatManagerSpigot extends Restartable implements Listen
         if (compat == null)
             return;
 
-        if (!compat.isEnabled(config))
+        if (!config.isHookEnabled(compat))
             return;
 
         try
         {
-            Class<? extends IProtectionCompat> compatClass = compat.getClass(plugin.getServer().getPluginManager()
-                                                                                   .getPlugin(ProtectionCompat
-                                                                                                  .getName(compat))
-                                                                                   .getDescription().getVersion());
+            @Nullable
+            Plugin otherPlugin = plugin.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
+            if (otherPlugin == null)
+            {
+                PLogger.get().logMessage("Failed to obtain instance of \"" + compatName + "\"!");
+                return;
+            }
+
+            @Nullable
+            Class<? extends IProtectionCompat> compatClass = compat.getClass(plugin.getDescription().getVersion());
+
+            if (compatClass == null)
+            {
+                PLogger.get().logMessage(
+                    "Could not find compatibility class for: \"" + ProtectionCompat.getName(compat) +
+                        "\". " +
+                        "This most likely means that this version is not supported!");
+                return;
+            }
 
             // No need to load compats twice.
             if (protectionAlreadyLoaded(compatClass))

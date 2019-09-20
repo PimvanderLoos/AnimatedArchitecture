@@ -9,8 +9,6 @@ import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
-
 /*
  * Moonshoots
  */
@@ -18,20 +16,6 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Implement perpetual motion (for flags, clocks, ??).
 // TODO: Allow custom sounds. Every type should have its own sound file. This file should describe the name of the
 //       sounds in the resource pack and the length of the sound. It should contain both movement and finish sounds.
-// TODO: Implement my own Optional that allows ifPresent(Consumer<? super T> consumer).orElse(Consumer<? super T> consumer).
-//       Or implement's Java9's ifPresentOrElse:
-//       https://docs.oracle.com/javase/9/docs/api/java/util/Optional.html#ifPresentOrElse-java.util.function.Consumer-java.lang.Runnable-
-// TODO: Use custom events for door opening. Perhaps allow other plugins (keys-plugin?) to hook into those plugins.
-//       The implementation for Spigot can use Spigot's event handling system, but don't forget to keep other
-//       implementations in mind!
-// TODO: Write an event to open doors.
-// TODO: Door pooling. When a door is requested from the database, store it in a timedCache. Only get the creator by default, but store
-//       the other owners if needed. Add a Door::Sync function to sync (new) data with the database.
-//       Also part of this should be a DoorManager. NO setters should be available to any class other than the doorManager.
-//       Creators/Database might have to go back to the awful insanely long constructor.
-//       When a door is modified, post a doorModificationEvent. Instead of firing events, perhaps look into observers?
-// TODO: Write a wrapper or something for Tasks etc to allow for something like .executeAsync(0, 20000L).whenComplete(doSomething).
-//       This would be useful for the BlockMovers.
 // TODO: Look into https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Chunk.html#getChunkSnapshot to verify if a door
 //       can be opened and while I'm at it, also to construct the FBlocks. This way, that stuff can all be done
 //       async.
@@ -40,12 +24,9 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Modules
  */
-// TODO: Use AbstractWorld and AbstractLocation etc for API related stuff. Also use an abstracted player. This can also
-//       be used to store additional data, such as sorting preferences and whatnot.
 // TODO: Put Config-related stuff in BigDoorsUtil and don't use Bukkit stuff for reading it. Just give it a regular file.
 //       Make the ConfigLoader abstract and extend a Spigot-specific config in SpigotUtil with Spigot-Specific options
 //       such as resource packs.
-// TODO: Put isAllowed block and such in appropriate modules.
 
 /*
  * Experimental
@@ -62,7 +43,8 @@ import org.jetbrains.annotations.Nullable;
 //       appropriate packets to the appropriate players. This can also be done async, so no more sync scheduling needed.
 // TODO: Add command to upload error log to pastebin or something similar.
 // TODO: Add config option to limit logging file size: https://kodejava.org/how-do-i-limit-the-size-of-log-file/
-// TODO: Look into previously-blacklisted material. Torches, for example, work just fine in 1.13. They just need to be removed first and placed last.
+// TODO: Look into previously-blacklisted material. Torches, for example, work just fine in 1.13.
+//       They just need to be removed first and placed last. So-called "greylisting"
 // TODO: Figure out a way to use Interfaces or something to generate 2 separate builds: Premium and non-premium.
 // TODO: Look into Aikar's command system to replace my command system: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
 // TODO: Get rid of the DoorType enum. Instead, allow dynamic registration of door types.
@@ -72,7 +54,6 @@ import org.jetbrains.annotations.Nullable;
 //       Then send the placeholder to my site on startup. Why? As evidence the buyer has, in fact, downloaded the plugin.
 //       This could be useful in case of a PayPal chargeback.
 // TODO: Implement admin command to show database statistics (player count, door count, owner count, etc).
-// TODO: Move all database interaction off of the main thread.
 // TODO: Consider storing original locations in the database. Then use the OpenDirection as the direction to go when in
 //       the original position. Then you cannot make regular doors go in a full circle anymore.
 // TODO: Instead of placing all blocks one by one and sending packets to the players about it, use this method instead:
@@ -81,6 +62,8 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Create a system that allows a set of default messages for creators (with placeholders for the types), but also
 //       allows overriding for custom types. Then people who really want to, can write fully custom messages for every
 //       type, but the messages system will be much cleaner by default.
+// TODO: For storing player permissions, consider storing them in the database when a player leaves.
+//       Then ONLY use those whenever that player is offline. Just use the online permissions otherwise.
 
 /*
  * Doors
@@ -102,6 +85,12 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Make interface of of DoorBase, so interfaces can provide default implementations (e.g. StationaryDoor,
 //       AxisAligned?, PerpetualMovement?).
 // TODO: Look into nested interfaces for AbstractDoorBase. It might be possible to make them protected that way.
+// TODO: Implement this type: https://www.filt3rs.net/sites/default/files/study/_3VIS%20-%20318%20Fer-211%20visera%20proyectable%20visor%20fachada%20basculante.jpg
+//       Perhaps simply allow the drawbridge to go "North" even when flat in northern direction, so it goes down.
+// TODO: Allow players to change the autoCloseTimer to an autoOpenTimer or something like that.
+// TODO: Allow redefining doors.
+// TODO: Consider letting IPerpetualMoverArchetype implement IStationaryDoorArchetype. There shouldn't be any situation
+//       where a perpetualMovement isn't also stationary.
 
 /*
  * General
@@ -158,6 +147,12 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       Figure this stuff out while reading the messages file, so there's 0 impact while the plugin is running.
 // TODO: Make some kind of interface for the vectors, to avoid code duplication.
 // TODO: Add default pitch and volume to PSound enum. Allow overriding them, though. Perhaps also store tick length?
+// TODO: Add some kind of method to reset the timer on falling blocks, so they don't despawn (for perpetual movers).
+// TODO: Split DoorActionEvent into 2: one for future doors, the other for existing doors.
+// TODO: Merge spigot-core and spigot-util. It's just annoying and messy.
+// TODO: Allow the "server" to own doors.
+// TODO: Add material blacklist to the config.
+// TODO: Add option to config to set the max number of doors per power block.
 
 /*
  * GUI
@@ -185,11 +180,14 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
  */
 // TODO: Store original coordinates in the database. These can be used to find the actual close direction.
 // TODO: Consider doing all upgrades on a separate thread. Then the server won't have to wait for the upgrade to finish.
-//       Added bonus: startReplaceTempPlayerNames() can be simplified.
+//       Added bonus: startReplaceTempPlayerNames() can be simplified. Check if this isn't already the case, now
+//       that all database interaction is done on (a) secondary thread(s).
 // TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME}, with UNIQUE(PLUGIN, TYPENAME).
 //       Then use FK from doors to doortypes. Useful for allowing custom door types.
 // TODO: Store engineChunkHash in the database, so stuff can be done when the chunk of a door is loaded. Also make sure
 //       to move the engine location for movable doors (sliding, etc).
+// TODO: Look into creating a separate table for worlds and put an FK to them in the doors table. This should save a bit
+//       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
 
 /*
  * Commands
@@ -222,6 +220,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
 // TODO: For all commands that support either players or door names etc, just use flags instead of the current mess.
 // TODO: Door deletion confirmation message.
+// TODO: Allow "/BigDoors new -PC -p pim16aap2 testDoor", "/BigDoors menu -p pim16aap2", and
 
 /*
  * Creators
@@ -238,7 +237,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Rotate Sea Pickle and turtle egg.
 // TODO: Replace current time/speed/tickRate system. It's a mess.
 // TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
-// TODO: Consider using HashSet for blocks. It's faster: https://stackoverflow.com/questions/10196343/hash-set-and-array-list-performances
 // TODO: Do block deleting + placing in two passes: For removal: First remove all "attached" blocks such as torches.
 //       Then do the rest on the second pass. For placing: Place all non-"attached" blocks on the first pass. Then
 //       place all "attached" blocks on the second pass and at the same time verify all connected blocks (fences, etc)
@@ -295,6 +293,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Rotate blocks for garage doors, wind mills, clocks, and revolving doors.
 // TODO: When trying to activate a door in an unloaded chunk, load the chunk and instantly toggle the door (skip the animation).
 //       Extension: Add config option to send an error message to the player instead (so abort activation altogether).
+// TODO: Variable door depth.
 
 /*
 
@@ -312,6 +311,12 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Check if TimedCache#containsValue() works properly.
 // TODO: What happens when a player is given a creator stick while their inventory is full?
 // TODO: Test all methods in the database manager stuff.
+// TODO: Fix command waiter system.
+// TODO: Fix not being able to use doorUID in setBlocksToMove (direct).
+// TODO: Fix start message of creator appearing twice as well as receiving 2 creator sticks (at least for flag and sliding door).
+// TODO: Verify the following types work: (Wall)Signs, (Wall)Banners, plants (potatoes, carrots, etc), redstone stuff (wire, conduit, repeater, etc),
+//       Rails, coral, beds, carpet, dragon egg, concrete powders, pressure plates, buttons, levers, saplings,
+//       Structure blocks, bubble column, (wall)torches, enderchest, (shulkerbox?).
 
 /*
  * Unit tests

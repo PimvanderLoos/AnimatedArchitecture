@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
 import nl.pim16aap2.bigdoors.doors.DoorType;
+import org.jetbrains.annotations.NotNull;
 
 // TODO: Change this description and while I'm at it, also the name of the class.
 
@@ -17,6 +18,14 @@ public interface IConfigLoader extends IRestartable
      * @return True if debug mode is enabled.
      */
     boolean debug();
+
+    /**
+     * Gets the formula of a flag. Used for debugging.
+     *
+     * @return The formula of a flag.
+     */
+    @NotNull
+    String flagFormula();
 
     /**
      * Gets the name of the database file.

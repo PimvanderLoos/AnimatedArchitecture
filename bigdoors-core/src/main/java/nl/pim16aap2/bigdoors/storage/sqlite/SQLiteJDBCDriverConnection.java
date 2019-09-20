@@ -267,27 +267,28 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             {
                 Statement stmt1 = conn.createStatement();
                 String sql1 = "CREATE TABLE IF NOT EXISTS doors \n" +
-                    "(id            INTEGER    PRIMARY KEY autoincrement, \n" +
-                    " name          TEXT       NOT NULL, \n" +
-                    " world         TEXT       NOT NULL, \n" +
-                    " xMin          INTEGER    NOT NULL, \n" +
-                    " yMin          INTEGER    NOT NULL, \n" +
-                    " zMin          INTEGER    NOT NULL, \n" +
-                    " xMax          INTEGER    NOT NULL, \n" +
-                    " yMax          INTEGER    NOT NULL, \n" +
-                    " zMax          INTEGER    NOT NULL, \n" +
-                    " engineX       INTEGER    NOT NULL, \n" +
-                    " engineY       INTEGER    NOT NULL, \n" +
-                    " engineZ       INTEGER    NOT NULL, \n" +
-                    " bitflag       INTEGER    NOT NULL DEFAULT 0, \n" +
-                    " type          INTEGER    NOT NULL DEFAULT  0, \n" +
-                    " powerBlockX   INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " powerBlockY   INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " powerBlockZ   INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " openDirection INTEGER    NOT NULL DEFAULT  0, \n" +
-                    " autoClose     INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " chunkHash     INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " blocksToMove  INTEGER    NOT NULL DEFAULT -1);";
+                    "(id              INTEGER    PRIMARY KEY autoincrement, \n" +
+                    " name            TEXT       NOT NULL, \n" +
+                    " world           TEXT       NOT NULL, \n" +
+                    " xMin            INTEGER    NOT NULL, \n" +
+                    " yMin            INTEGER    NOT NULL, \n" +
+                    " zMin            INTEGER    NOT NULL, \n" +
+                    " xMax            INTEGER    NOT NULL, \n" +
+                    " yMax            INTEGER    NOT NULL, \n" +
+                    " zMax            INTEGER    NOT NULL, \n" +
+                    " engineX         INTEGER    NOT NULL, \n" +
+                    " engineY         INTEGER    NOT NULL, \n" +
+                    " engineZ         INTEGER    NOT NULL, \n" +
+                    " bitflag         INTEGER    NOT NULL DEFAULT 0, \n" +
+                    " type            INTEGER    NOT NULL DEFAULT  0, \n" +
+                    " powerBlockX     INTEGER    NOT NULL DEFAULT -1, \n" +
+                    " powerBlockY     INTEGER    NOT NULL DEFAULT -1, \n" +
+                    " powerBlockZ     INTEGER    NOT NULL DEFAULT -1, \n" +
+                    " openDirection   INTEGER    NOT NULL DEFAULT  0, \n" +
+                    " autoClose       INTEGER    NOT NULL DEFAULT -1, \n" +
+                    " chunkHash       INTEGER    NOT NULL DEFAULT -1, \n" +
+                    " engineChunkHash INTEGER    NOT NULL DEFAULT -1, \n" +
+                    " blocksToMove    INTEGER    NOT NULL DEFAULT -1);";
                 stmt1.executeUpdate(sql1);
                 stmt1.close();
 
@@ -942,6 +943,33 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         catch (SQLException | NullPointerException e)
         {
             logMessage("828", e);
+        }
+        return doors;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public List<Long> getDoorsInChunk(final long chunkHash)
+    {
+        List<Long> doors = new ArrayList<>();
+
+        try (Connection conn = getConnection())
+        {
+            // Get the door associated with the x/y/z location of the power block block.
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM doors WHERE engineChunkHash=?;");
+            ps.setLong(1, chunkHash);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+                doors.add(rs.getLong("id"));
+            ps.close();
+            rs.close();
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("972", e);
         }
         return doors;
     }

@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -26,14 +25,14 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     private boolean success = false;
     private Method m;
 
-    public WorldGuard6ProtectionCompat(BigDoorsSpigot plugin)
+    public WorldGuard6ProtectionCompat(final @NotNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
 
         Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
 
         // WorldGuard may not be loaded
-        if (plugin == null || !(wgPlugin instanceof WorldGuardPlugin))
+        if (!(wgPlugin instanceof WorldGuardPlugin))
         {
             worldGuard = null;
             return;
@@ -56,7 +55,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
      * {@inheritDoc}
      */
     @Override
-    public boolean canBreakBlock(@NotNull Player player, @NotNull Location loc)
+    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
         try
         {
@@ -73,7 +72,8 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
      * {@inheritDoc}
      */
     @Override
-    public boolean canBreakBlocksBetweenLocs(@NotNull Player player, @NotNull Location loc1, @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
+                                             final @NotNull Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -100,16 +100,6 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     public boolean success()
     {
         return success;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    public JavaPlugin getPlugin()
-    {
-        return worldGuard;
     }
 
     /**

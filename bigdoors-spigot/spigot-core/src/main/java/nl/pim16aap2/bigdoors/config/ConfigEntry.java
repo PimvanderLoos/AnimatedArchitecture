@@ -72,6 +72,8 @@ public final class ConfigEntry<V>
         try
         {
             value = (V) config.get(optionName, defaultValue);
+            if (value == null)
+                value = defaultValue;
         }
         catch (Exception e)
         {
@@ -156,6 +158,6 @@ public final class ConfigEntry<V>
          * @return The value if it was valid, otherwise the value made valid.
          */
         @NotNull
-        T test(@NotNull T value);
+        T test(final @NotNull T value);
     }
 }

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.TimerTask;
 
-public class CylindricalMover extends BlockMover
+public class BigDoorMover extends BlockMover
 {
     private final int tickRate;
     private final int stepMultiplier;
@@ -32,10 +32,10 @@ public class CylindricalMover extends BlockMover
     private double multiplier;
     private double startStepSum;
 
-    public CylindricalMover(final @NotNull RotateDirection rotDirection, final double time,
-                            final @NotNull PBlockFace currentDirection, final @NotNull AbstractDoorBase door,
-                            final boolean skipAnimation, final double multiplier, @Nullable final IPPlayer player,
-                            final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax)
+    public BigDoorMover(final @NotNull RotateDirection rotDirection, final double time,
+                        final @NotNull PBlockFace currentDirection, final @NotNull AbstractDoorBase door,
+                        final boolean skipAnimation, final double multiplier, @Nullable final IPPlayer player,
+                        final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax)
     {
         super(door, time, skipAnimation, currentDirection, rotDirection, -1, player, finalMin, finalMax);
 
@@ -89,7 +89,7 @@ public class CylindricalMover extends BlockMover
     @Override
     protected void animateEntities()
     {
-        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(new TimerTask()
+        super.moverTask = new TimerTask()
         {
             IPLocation center = locationFactory.create(world, turningPoint.getX() + 0.5, yMin,
                                                        turningPoint.getZ() + 0.5);
@@ -125,7 +125,7 @@ public class CylindricalMover extends BlockMover
 
                 replace = (counter == replaceCount);
 
-                if (counter > totalTicks || isAborted.get())
+                if (counter > totalTicks)
                 {
                     playSound(PSound.CLOSING_VAULT_DOOR, 0.2f, 1f);
 
@@ -162,7 +162,8 @@ public class CylindricalMover extends BlockMover
                     }
                 }
             }
-        }, 14, tickRate);
+        };
+        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 
     /**

@@ -13,7 +13,7 @@ public interface IRestartable
     void restart();
 
     /**
-     * Handles a shutdown..
+     * Handles a shutdown.
      */
     void shutdown();
 }

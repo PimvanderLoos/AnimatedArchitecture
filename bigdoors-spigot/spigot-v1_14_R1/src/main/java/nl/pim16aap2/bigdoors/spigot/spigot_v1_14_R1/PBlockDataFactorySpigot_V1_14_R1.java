@@ -30,7 +30,7 @@ public class PBlockDataFactorySpigot_V1_14_R1 implements IPBlockDataFactory
         Block vBlock = bukkitWorld.getBlockAt(startLocation.getBlockX(), startLocation.getBlockY(),
                                               startLocation.getBlockZ());
 
-        if (!BlockAnalyzer_V1_14_R1.isAllowedBlock(vBlock))
+        if (!BlockAnalyzer_V1_14_R1.isAllowedBlockStatic(vBlock.getType()))
             return Optional.empty();
 
         IPLocation newFBlockLocation = BigDoors.get().getPlatform().getPLocationFactory()
@@ -48,7 +48,7 @@ public class PBlockDataFactorySpigot_V1_14_R1 implements IPBlockDataFactory
         ICustomCraftFallingBlock fBlock = BigDoors.get().getPlatform().getFallingBlockFactory()
                                                   .fallingBlockFactory(newFBlockLocation, nmsBlock);
 
-        boolean deferPlacement = BlockAnalyzer_V1_14_R1.placeOnSecondPass(vBlock);
+        boolean deferPlacement = BlockAnalyzer_V1_14_R1.placeOnSecondPassStatic(vBlock.getType());
         return Optional.of(new PBlockData(fBlock, radius, nmsBlock, startLocation, startAngle, deferPlacement));
     }
 }

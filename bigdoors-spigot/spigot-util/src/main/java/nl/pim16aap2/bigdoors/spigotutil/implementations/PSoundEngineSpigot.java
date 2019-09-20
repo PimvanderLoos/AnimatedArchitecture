@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigotutil.implementations;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
@@ -26,7 +27,8 @@ public class PSoundEngineSpigot implements ISoundEngine
     public void playSound(final @NotNull IPLocation loc, final @NotNull PSound sound, final float volume,
                           final float pitch)
     {
-        SpigotUtil.playSound(SpigotAdapter.getBukkitLocation(loc), PSound.getSoundName(sound), volume, pitch);
+        BigDoors.get().getPlatform().newPExecutor().runAsync(() -> SpigotUtil
+            .playSound(SpigotAdapter.getBukkitLocation(loc), PSound.getSoundName(sound), volume, pitch));
     }
 
     /**

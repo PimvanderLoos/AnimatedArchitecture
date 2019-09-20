@@ -215,6 +215,15 @@ public interface IStorage
     ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(final long chunkHash);
 
     /**
+     * Gets a list of door UIDs that have their engine in a given chunk.
+     *
+     * @param chunkHash The hash of the chunk the doors are in.
+     * @return A list of door UIDs that have their engine in a given chunk.
+     */
+    @NotNull
+    List<Long> getDoorsInChunk(final long chunkHash);
+
+    /**
      * Changes the blocksToMove value of a door.
      *
      * @param doorUID      The door to modify.
