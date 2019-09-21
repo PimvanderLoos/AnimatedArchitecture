@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.doors.Clock;
 import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -16,7 +17,7 @@ import java.util.TimerTask;
 import java.util.function.Function;
 
 /**
- * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.Clock}s.
+ * Represents a {@link BlockMover} for {@link Clock}s.
  *
  * @author Pim
  */

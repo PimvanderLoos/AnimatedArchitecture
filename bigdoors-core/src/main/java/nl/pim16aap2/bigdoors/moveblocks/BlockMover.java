@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -24,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static nl.pim16aap2.bigdoors.util.Constants.MINIMUMDOORDELAY;
 
 /**
  * Represents a class that animates blocks.
@@ -260,7 +259,8 @@ public abstract class BlockMover implements IRestartable
 
         if (!onDisable)
         {
-            int delay = Math.max(MINIMUMDOORDELAY, BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
+            int delay = Math
+                .max(Constants.MINIMUMDOORDELAY, BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
             BigDoors.get().getPlatform().newPExecutor().runSyncLater(
                 new TimerTask()
                 {

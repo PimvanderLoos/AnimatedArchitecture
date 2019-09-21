@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.SlidingDoor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.TimerTask;
 
 /**
- * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.SlidingDoor}.
+ * Represents a {@link BlockMover} for {@link SlidingDoor}.
  *
  * @author Pim
  */

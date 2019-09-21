@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 
 /**
  * Represents the different kind of causes that can be the reason of a {@link AbstractDoorBase} action.
@@ -25,7 +26,7 @@ public enum DoorActionCause
     SERVER,
 
     /**
-     * The action was intiated by the auto close system. See {@link nl.pim16aap2.bigdoors.managers.AutoCloseScheduler}.
+     * The action was intiated by the auto close system. See {@link AutoCloseScheduler}.
      */
     AUTOCLOSE,
 

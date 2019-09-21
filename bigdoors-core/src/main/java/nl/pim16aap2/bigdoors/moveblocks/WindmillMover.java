@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
+import nl.pim16aap2.bigdoors.doors.Windmill;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.TimerTask;
 
 /**
- * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.Windmill}s.
+ * Represents a {@link BlockMover} for {@link Windmill}s.
  *
  * @author Pim
  */

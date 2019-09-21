@@ -199,11 +199,10 @@ public abstract class AbstractDoorBase implements IDoorBase
 
 
     /**
-     * Cycle the {@link nl.pim16aap2.bigdoors.util.RotateDirection} direction this {@link AbstractDoorBase} will open
-     * in. By default it'll set and return the opposite direction of the current direction.
+     * Cycle the {@link RotateDirection} direction this {@link AbstractDoorBase} will open in. By default it'll set and
+     * return the opposite direction of the current direction.
      *
-     * @return The new {@link nl.pim16aap2.bigdoors.util.RotateDirection} direction this {@link AbstractDoorBase} will
-     * open in.
+     * @return The new {@link RotateDirection} direction this {@link AbstractDoorBase} will open in.
      */
     @Override
     @NotNull
@@ -301,9 +300,9 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * The the {@link nl.pim16aap2.bigdoors.doors.DoorType} of this door.
+     * The the {@link DoorType} of this door.
      *
-     * @return The {@link nl.pim16aap2.bigdoors.doors.DoorType} of this door.
+     * @return The {@link DoorType} of this door.
      */
     @Override
     @NotNull
@@ -415,11 +414,11 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the {@link nl.pim16aap2.bigdoors.util.RotateDirection} this {@link AbstractDoorBase} will open if currently
-     * closed. Note that if it's currently in the open status, it'll go in the opposite direction, as the closing
-     * direction is the opposite of the opening direction.
+     * Get the {@link RotateDirection} this {@link AbstractDoorBase} will open if currently closed. Note that if it's
+     * currently in the open status, it'll go in the opposite direction, as the closing direction is the opposite of the
+     * opening direction.
      *
-     * @return The {@link nl.pim16aap2.bigdoors.util.RotateDirection} this {@link AbstractDoorBase} will open in.
+     * @return The {@link RotateDirection} this {@link AbstractDoorBase} will open in.
      */
     @Override
     @NotNull
@@ -433,8 +432,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      * <p>
      * Also calls {@link #invalidateChunkRange()}.
      *
-     * @param newRotDir New {@link nl.pim16aap2.bigdoors.util.RotateDirection} direction the {@link AbstractDoorBase}
-     *                  will open in.
+     * @param newRotDir New {@link RotateDirection} direction the {@link AbstractDoorBase} will open in.
      */
     @Override
     public final void setOpenDir(final @NotNull RotateDirection newRotDir)

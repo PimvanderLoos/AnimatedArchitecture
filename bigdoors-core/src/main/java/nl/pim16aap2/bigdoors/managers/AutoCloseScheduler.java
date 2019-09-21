@@ -7,14 +7,13 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorActionEvent;
+import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
-
-import static nl.pim16aap2.bigdoors.util.Constants.MINIMUMDOORDELAY;
 
 /**
  * Represents a scheduler that automatically closes doors after a certain amount of time.
@@ -109,7 +108,7 @@ public class AutoCloseScheduler extends Restartable
         deleteTimer(door.getDoorUID());
         // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the door
         // available again.
-        int delay = Math.min(MINIMUMDOORDELAY + 2, autoCloseTimer * 20);
+        int delay = Math.min(Constants.MINIMUMDOORDELAY + 2, autoCloseTimer * 20);
 
         TimerTask task = new TimerTask()
         {

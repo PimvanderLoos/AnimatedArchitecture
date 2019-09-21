@@ -5,7 +5,7 @@ import net.minecraft.server.v1_14_R1.WorldServer;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.Location;
 import org.bukkit.Material;

@@ -6,6 +6,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotEast;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotNorth;
@@ -25,7 +27,7 @@ import java.util.TimerTask;
 import java.util.function.BiFunction;
 
 /**
- * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.Drawbridge}s.
+ * Represents a {@link BlockMover} for {@link Drawbridge}s.
  *
  * @author Pim
  */
@@ -42,7 +44,7 @@ public class BridgeMover extends BlockMover
      * @param door            The {@link AbstractDoorBase}.
      * @param time            The amount of time (in seconds) the door will try to toggle itself in.
      * @param skipAnimation   If the door should be opened instantly (i.e. skip animation) or not.
-     * @param upDown          Whether the {@link nl.pim16aap2.bigdoors.doors.DoorType#DRAWBRIDGE} should go up or down.
+     * @param upDown          Whether the {@link DoorType#DRAWBRIDGE} should go up or down.
      * @param rotateDirection The direction the {@link AbstractDoorBase} will move.
      * @param multiplier      The speed multiplier.
      * @param player          The player who opened this door.

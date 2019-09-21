@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.GarageDoor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -19,7 +20,7 @@ import java.util.TimerTask;
 import java.util.function.BiFunction;
 
 /**
- * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.GarageDoor}s.
+ * Represents a {@link BlockMover} for {@link GarageDoor}s.
  *
  * @author Pim
  */

@@ -4,14 +4,13 @@ import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
-import nl.pim16aap2.bigdoors.spigotutil.SpigotAdapter;
-import nl.pim16aap2.bigdoors.spigotutil.implementations.PWorldSpigot;
+import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
-
-import static nl.pim16aap2.bigdoors.util.Constants.BIGDOORSENTITYNAME;
 
 /**
  * V1_14_R1 implementation of {@link IFallingBlockFactory}.
@@ -36,7 +35,7 @@ public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
                                                   ((NMSBlock_V1_14_R1) block).getMyBlockData());
 
         CustomCraftFallingBlock_V1_14_R1 ret = new CustomCraftFallingBlock_V1_14_R1(Bukkit.getServer(), fBlockNMS);
-        ret.setCustomName(BIGDOORSENTITYNAME);
+        ret.setCustomName(Constants.BIGDOORSENTITYNAME);
         ret.setCustomNameVisible(false);
         return ret;
     }

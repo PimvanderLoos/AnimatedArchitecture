@@ -63,7 +63,7 @@ public enum DoorAttribute
     /**
      * This is stupid. Needs to be removed.
      */
-    DIRECTION_ROTATE_VERTICAL2(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
+    DIRECTION_ROTATE_VERTICAL2(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel), // TODO: REMOVE
 
     /**
      * The direction of a horizonta rotating aniamtion (e.g. the bigdoor).

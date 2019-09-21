@@ -16,7 +16,7 @@ import java.util.TimerTask;
 import java.util.function.BiFunction;
 
 /**
- * Represents a {@link BlockMover} for {@link nl.pim16aap2.bigdoors.doors.Flag}s.
+ * Represents a {@link BlockMover} for {@link Flag}s.
  *
  * @author Pim
  */
