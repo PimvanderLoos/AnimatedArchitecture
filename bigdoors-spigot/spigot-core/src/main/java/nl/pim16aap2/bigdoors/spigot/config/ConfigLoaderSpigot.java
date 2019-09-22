@@ -1,15 +1,17 @@
 package nl.pim16aap2.bigdoors.spigot.config;
 
 import com.google.common.base.Preconditions;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
+import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
+import nl.pim16aap2.bigdoors.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -224,7 +226,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
             "In case anything goes wrong, you can just revert to the old version! Only the most recent backup will be kept."};
 
-        FileConfiguration config = plugin.getConfig();
+//        FileConfiguration config = plugin.getConfig();
+        IConfigReader config = new ConfigReaderSpigot(plugin.getConfig());
 
         enableRedstone = addNewConfigEntry(config, "allowRedstone", true, enableRedstoneComment);
 
@@ -251,7 +254,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         for (ProtectionCompat compat : ProtectionCompat.values())
         {
             final String name = ProtectionCompat.getName(compat).toLowerCase();
-            final boolean isEnabled = config.getBoolean(name, false);
+            final boolean isEnabled = (boolean) config.get(name, false);
             addNewConfigEntry(config, ProtectionCompat.getName(compat), false,
                               ((idx++ == 0) ? compatibilityHooksComment : null));
             hooksMap.put(compat, isEnabled);
@@ -316,7 +319,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @return The value as read from the config file if it exists or the default value.
      */
     @NotNull
-    private <T> T addNewConfigEntry(final @NotNull FileConfiguration config, final @NotNull String optionName,
+    private <T> T addNewConfigEntry(final @NotNull IConfigReader config, final @NotNull String optionName,
                                     final @NotNull T defaultValue, final @Nullable String[] comment)
     {
         ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment);
@@ -336,7 +339,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @return The value as read from the config file if it exists or the default value.
      */
     @NotNull
-    private <T> T addNewConfigEntry(final @NotNull FileConfiguration config, final @NotNull String optionName,
+    private <T> T addNewConfigEntry(final @NotNull IConfigReader config, final @NotNull String optionName,
                                     final @NotNull T defaultValue, final @NotNull String[] comment,
                                     final @NotNull ConfigEntry.TestValue<T> verifyValue)
     {

@@ -1,7 +1,6 @@
-package nl.pim16aap2.bigdoors.spigot.config;
+package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.util.PLogger;
-import org.bukkit.configuration.file.FileConfiguration;
+import nl.pim16aap2.bigdoors.api.IConfigReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +14,7 @@ import java.util.List;
 public final class ConfigEntry<V>
 {
     private final PLogger logger;
-    private final FileConfiguration config;
+    private final IConfigReader config;
     private final String optionName;
     private final V defaultValue;
     @Nullable
@@ -34,9 +33,9 @@ public final class ConfigEntry<V>
      * @param comment      The comment that will preceed this option.
      * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
      */
-    ConfigEntry(final @NotNull PLogger logger, final @NotNull FileConfiguration config,
-                final @NotNull String optionName, final @NotNull V defaultValue, final @Nullable String[] comment,
-                final @Nullable ConfigEntry.TestValue<V> verifyValue)
+    public ConfigEntry(final @NotNull PLogger logger, final @NotNull IConfigReader config,
+                       final @NotNull String optionName, final @NotNull V defaultValue,
+                       final @Nullable String[] comment, final @Nullable ConfigEntry.TestValue<V> verifyValue)
     {
         this.logger = logger;
         this.config = config;
@@ -56,8 +55,9 @@ public final class ConfigEntry<V>
      * @param defaultValue The default value of this option.
      * @param comment      The comment that will preceed this option.
      */
-    ConfigEntry(final @NotNull PLogger logger, final @NotNull FileConfiguration config,
-                final @NotNull String optionName, final @NotNull V defaultValue, final @Nullable String[] comment)
+    public ConfigEntry(final @NotNull PLogger logger, final @NotNull IConfigReader config,
+                       final @NotNull String optionName, final @NotNull V defaultValue,
+                       final @Nullable String[] comment)
     {
         this(logger, config, optionName, defaultValue, comment, null);
     }
@@ -146,7 +146,7 @@ public final class ConfigEntry<V>
      * @param <T> The type of the value.
      * @author Pim
      */
-    interface TestValue<T>
+    public interface TestValue<T>
     {
         /**
          * Checks if a given value is valid. If it is, it returns that value. If it isn't, it is changed so that it is
