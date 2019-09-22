@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
 
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
@@ -83,6 +83,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case BIRCH_WOOD:
             case BLACK_CONCRETE:
             case BLACK_GLAZED_TERRACOTTA:
+            case BLACK_SHULKER_BOX:
             case BLACK_STAINED_GLASS:
             case BLACK_STAINED_GLASS_PANE:
             case BLACK_TERRACOTTA:
@@ -90,6 +91,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case BLUE_CONCRETE:
             case BLUE_GLAZED_TERRACOTTA:
             case BLUE_ICE:
+            case BLUE_SHULKER_BOX:
             case BLUE_STAINED_GLASS:
             case BLUE_STAINED_GLASS_PANE:
             case BLUE_TERRACOTTA:
@@ -103,6 +105,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case BROWN_CONCRETE:
             case BROWN_GLAZED_TERRACOTTA:
             case BROWN_MUSHROOM_BLOCK:
+            case BROWN_SHULKER_BOX:
             case BROWN_STAINED_GLASS:
             case BROWN_STAINED_GLASS_PANE:
             case BROWN_TERRACOTTA:
@@ -131,6 +134,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case CUT_SANDSTONE_SLAB:
             case CYAN_CONCRETE:
             case CYAN_GLAZED_TERRACOTTA:
+            case CYAN_SHULKER_BOX:
             case CYAN_STAINED_GLASS:
             case CYAN_STAINED_GLASS_PANE:
             case CYAN_TERRACOTTA:
@@ -185,12 +189,14 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case GRAVEL:
             case GRAY_CONCRETE:
             case GRAY_GLAZED_TERRACOTTA:
+            case GRAY_SHULKER_BOX:
             case GRAY_STAINED_GLASS:
             case GRAY_STAINED_GLASS_PANE:
             case GRAY_TERRACOTTA:
             case GRAY_WOOL:
             case GREEN_CONCRETE:
             case GREEN_GLAZED_TERRACOTTA:
+            case GREEN_SHULKER_BOX:
             case GREEN_STAINED_GLASS:
             case GREEN_STAINED_GLASS_PANE:
             case GREEN_TERRACOTTA:
@@ -220,12 +226,14 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case LAPIS_ORE:
             case LIGHT_BLUE_CONCRETE:
             case LIGHT_BLUE_GLAZED_TERRACOTTA:
+            case LIGHT_BLUE_SHULKER_BOX:
             case LIGHT_BLUE_STAINED_GLASS:
             case LIGHT_BLUE_STAINED_GLASS_PANE:
             case LIGHT_BLUE_TERRACOTTA:
             case LIGHT_BLUE_WOOL:
             case LIGHT_GRAY_CONCRETE:
             case LIGHT_GRAY_GLAZED_TERRACOTTA:
+            case LIGHT_GRAY_SHULKER_BOX:
             case LIGHT_GRAY_STAINED_GLASS:
             case LIGHT_GRAY_STAINED_GLASS_PANE:
             case LIGHT_GRAY_TERRACOTTA:
@@ -238,6 +246,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case LIME_WOOL:
             case MAGENTA_CONCRETE:
             case MAGENTA_GLAZED_TERRACOTTA:
+            case MAGENTA_SHULKER_BOX:
             case MAGENTA_STAINED_GLASS:
             case MAGENTA_STAINED_GLASS_PANE:
             case MAGENTA_TERRACOTTA:
@@ -275,6 +284,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case OBSIDIAN:
             case ORANGE_CONCRETE:
             case ORANGE_GLAZED_TERRACOTTA:
+            case ORANGE_SHULKER_BOX:
             case ORANGE_STAINED_GLASS:
             case ORANGE_STAINED_GLASS_PANE:
             case ORANGE_TERRACOTTA:
@@ -283,6 +293,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case PETRIFIED_OAK_SLAB:
             case PINK_CONCRETE:
             case PINK_GLAZED_TERRACOTTA:
+            case PINK_SHULKER_BOX:
             case PINK_STAINED_GLASS:
             case PINK_STAINED_GLASS_PANE:
             case PINK_TERRACOTTA:
@@ -333,6 +344,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case PUMPKIN:
             case PURPLE_CONCRETE:
             case PURPLE_GLAZED_TERRACOTTA:
+            case PURPLE_SHULKER_BOX:
             case PURPLE_STAINED_GLASS:
             case PURPLE_STAINED_GLASS_PANE:
             case PURPLE_TERRACOTTA:
@@ -357,6 +369,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case RED_SANDSTONE_SLAB:
             case RED_SANDSTONE_STAIRS:
             case RED_SANDSTONE_WALL:
+            case RED_SHULKER_BOX:
             case RED_STAINED_GLASS:
             case RED_STAINED_GLASS_PANE:
             case RED_TERRACOTTA:
@@ -417,12 +430,14 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case WET_SPONGE:
             case WHITE_CONCRETE:
             case WHITE_GLAZED_TERRACOTTA:
+            case WHITE_SHULKER_BOX:
             case WHITE_STAINED_GLASS:
             case WHITE_STAINED_GLASS_PANE:
             case WHITE_TERRACOTTA:
             case WHITE_WOOL:
             case YELLOW_CONCRETE:
             case YELLOW_GLAZED_TERRACOTTA:
+            case YELLOW_SHULKER_BOX:
             case YELLOW_STAINED_GLASS:
             case YELLOW_STAINED_GLASS_PANE:
             case YELLOW_TERRACOTTA:
@@ -614,6 +629,7 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case PINK_CONCRETE_POWDER:
             case PINK_TULIP:
             case PINK_WALL_BANNER:
+            case PISTON_HEAD:
             case PLAYER_HEAD:
             case PLAYER_WALL_HEAD:
             case POPPY:
@@ -695,11 +711,8 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             //<editor-fold defaultstate="collapsed" desc="isBlacklisted">
             case AIR:
             case BARREL:
-            case BLACK_SHULKER_BOX:
             case BLAST_FURNACE:
-            case BLUE_SHULKER_BOX:
             case BREWING_STAND:
-            case BROWN_SHULKER_BOX:
             case CARTOGRAPHY_TABLE:
             case CAULDRON:
             case CAVE_AIR:
@@ -707,31 +720,20 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case CHEST:
             case COMMAND_BLOCK:
             case COMPOSTER:
-            case CYAN_SHULKER_BOX:
             case DISPENSER:
             case DROPPER:
             case END_GATEWAY:
             case FIRE:
             case FLETCHING_TABLE:
             case FURNACE:
-            case GRAY_SHULKER_BOX:
-            case GREEN_SHULKER_BOX:
             case GRINDSTONE:
             case HOPPER:
             case JIGSAW:
             case LAVA:
             case LECTERN:
-            case LIGHT_BLUE_SHULKER_BOX:
-            case LIGHT_GRAY_SHULKER_BOX:
             case LIME_SHULKER_BOX:
             case LOOM:
-            case MAGENTA_SHULKER_BOX:
             case MOVING_PISTON:
-            case ORANGE_SHULKER_BOX:
-            case PINK_SHULKER_BOX:
-            case PISTON_HEAD:
-            case PURPLE_SHULKER_BOX:
-            case RED_SHULKER_BOX:
             case REPEATING_COMMAND_BLOCK:
             case SHULKER_BOX:
             case SMITHING_TABLE:
@@ -740,8 +742,6 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
             case TRAPPED_CHEST:
             case VOID_AIR:
             case WATER:
-            case WHITE_SHULKER_BOX:
-            case YELLOW_SHULKER_BOX:
                 return MaterialStatus.BLACKLISTED;
             default:
                 return MaterialStatus.UNMAPPED;

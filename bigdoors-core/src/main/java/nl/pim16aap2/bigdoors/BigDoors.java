@@ -153,6 +153,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Allow the "server" to own doors.
 // TODO: Add material blacklist to the config.
 // TODO: Add option to config to set the max number of doors per power block.
+// TODO: Consider only using a ConcurrentHashMap for the TimedCache, so it can loop over it async.
 
 /*
  * GUI
