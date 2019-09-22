@@ -145,25 +145,25 @@ public class Door
     // Return the location of the powerblock of this door.
     public Location getPowerBlockLoc()
     {
-        return powerBlock;
+        return powerBlock.clone();
     }
 
     // Return the location of the engine of this door.
     public Location getEngine()
     {
-        return engine;
+        return engine.clone();
     }
 
     // Return the minimum values of this door.
     public Location getMinimum()
     {
-        return min;
+        return min.clone();
     }
 
     // Return the maximum values of this door.
     public Location getMaximum()
     {
-        return max;
+        return max.clone();
     }
 
     // Change the minimum values of this door.

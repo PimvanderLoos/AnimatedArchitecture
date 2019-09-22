@@ -5,6 +5,9 @@ Alpha 0.1.8.13
 - Before moving, doors will now check if the owner is allowed to break the blocks in the old location as well (not just the new location).
 - When a door exceeds either the personal door size limit of the owner or player that activated the door, or the global limit, it cannot be toggled anymore. (it used to only skip the animiation).
 - Removed the "bigdoors.admin.ignoreownership" permission node. This is replaced by the new node: "bigdoors.admin.bypass.<attribute>". The attributes are: "lock", "toggle", "info", "delete", "relocatepowerblock", "changetime", "blockstomove", "direction", "addowner", and "removeowner"
+- Fixed error thrown by TimedCache. Thanks, @Sneaky_42 for the bug report!
+- Added material blacklist to the config.
+- Fixed GUI buttons in 1.11. Thanks, @Hakan for the bug report!
 
 Alpha 0.1.8.12
 - Fixed sounds being played asynchronously, which Spigot didn't like. Thanks, @DeathReminds for the bug report!

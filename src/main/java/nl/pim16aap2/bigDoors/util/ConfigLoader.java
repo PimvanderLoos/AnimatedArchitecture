@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -45,6 +47,7 @@ public class ConfigLoader
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
+    private Set<Material> blacklist;
 
     private boolean checkForUpdates;
     private int headCacheTimeout;
@@ -77,6 +80,9 @@ public class ConfigLoader
         String[] powerBlockTypeComment = { "Choose the type of the power block that is used to open doors using redstone.",
                                            "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
                                            "This is the block that will open the door attached to it when it receives a redstone signal." };
+        String[] blacklistComment = {"List of blacklisted materials. Materials on this list can not be animated.",
+                                     "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
+                                     "  - BEDROCK"};
         String[] maxDoorCountComment = { "Maximum number of doors a player can own. -1 = infinite." };
         String[] languageFileComment = { "Specify a language file to be used. Note that en_US.txt will get regenerated!" };
         String[] dbFileComment = { "Pick the name (and location if you want) of the database." };
@@ -130,6 +136,7 @@ public class ConfigLoader
         configOptionsList.add(new ConfigOption("allowRedstone", enableRedstone, enableRedstoneComment));
 
         readPowerBlockConfig(config, powerBlockTypeComment);
+        readMaterialBlacklistConfig(config, blacklistComment);
 
         maxDoorCount = config.getInt("maxDoorCount", -1);
         configOptionsList.add(new ConfigOption("maxDoorCount", maxDoorCount, maxDoorCountComment));
@@ -252,8 +259,8 @@ public class ConfigLoader
                 else
                 {
                     plugin.getMyLogger()
-                        .logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true,
-                                    false);
+                    .logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true,
+                                false);
                     it.remove();
                 }
             }
@@ -280,6 +287,58 @@ public class ConfigLoader
         configOptionsList.add(new ConfigOption("powerBlockTypes", materials, powerBlockTypeComment));
         plugin.getMyLogger().logMessageToConsoleOnly("Power Block Types:");
         powerBlockTypesMap.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K.toString()));
+    }
+
+    private void readMaterialBlacklistConfig(FileConfiguration config, String[] blacklistComment)
+    {
+        List<String> materialNames;
+
+        {
+            List<?> materialsTmp = config.getList("materialBlacklist", new ArrayList<Material>());
+            // If the user is illiterate and failed to read the part saying it should be an
+            // enum string and used
+            // non-String values, put those in a new String list.
+            materialNames = new ArrayList<>();
+            materialsTmp.forEach(K -> materialNames.add(K.toString()));
+        }
+
+        List<Material> materials = new ArrayList<>(materialNames.size());
+        // Try to put all the found materials into a String map.
+        // Only valid and solid material Strings are allowed.
+        // Everything else is thrown out.
+        Iterator<String> it = materialNames.iterator();
+        while (it.hasNext())
+        {
+            String str = it.next();
+            try
+            {
+                Material mat = Material.valueOf(str);
+                if (mat.isSolid())
+                    materials.add(mat);
+                else
+                {
+                    plugin.getMyLogger()
+                        .logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true,
+                                    false);
+                    it.remove();
+                }
+            }
+            catch (Exception e)
+            {
+                plugin.getMyLogger().logMessage("Failed to parse material: \"" + str + "\"", true, false);
+                it.remove();
+            }
+        }
+
+        if (materials.size() == 0)
+            plugin.getMyLogger().logMessage("No materials blacklisted!", true, false);
+        else
+        {
+            plugin.getMyLogger().logMessageToConsoleOnly("Blacklisted materials:");
+            materialNames.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K.toString()));
+        }
+        configOptionsList.add(new ConfigOption("materialBlacklist", materialNames, blacklistComment));
+        blacklist = new HashSet<>(Collections.unmodifiableList(materials));
     }
 
     // Write new config file.
@@ -504,5 +563,15 @@ public class ConfigLoader
     public int commandWaiterTimeout()
     {
         return commandWaiterTimeout;
+    }
+
+    /**
+     * Gets a set of blacklisted materials as defined in the config.
+     *
+     * @return A set of blacklisted materials as defined in the config.
+     */
+    public Set<Material> getBlacklist()
+    {
+        return blacklist;
     }
 }

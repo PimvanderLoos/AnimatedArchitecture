@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Location;
 import org.bukkit.World;
 
 import net.md_5.bungee.api.ChatColor;
@@ -84,12 +85,12 @@ public class ElevatorOpener implements Opener
             return DoorOpenResult.ERROR;
         }
 
+        int blocksToMove = getBlocksToMove(door);
+
         // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
         if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null ||
             plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getMinimum(), door.getMinimum()) != null)
             return DoorOpenResult.NOPERMISSION;
-
-        int blocksToMove = getBlocksToMove(door);
 
         if (blocksToMove != 0)
         {
@@ -101,6 +102,7 @@ public class ElevatorOpener implements Opener
                                                 ". If this is undesired, change it via the GUI.", true, false);
                 plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), openDirection);
             }
+
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());
 
@@ -147,6 +149,9 @@ public class ElevatorOpener implements Opener
             blocksUp    = getBlocksInDir(door, RotateDirection.UP  );
         else
             blocksDown  = getBlocksInDir(door, RotateDirection.DOWN);
-        return blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
+        int blocksToMove = blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
+        door.setNewMin(new Location(door.getWorld(), door.getMinimum().getBlockX(), door.getMinimum().getBlockY() + blocksToMove, door.getMinimum().getBlockZ()));
+        door.setNewMax(new Location(door.getWorld(), door.getMaximum().getBlockX(), door.getMaximum().getBlockY() + blocksToMove, door.getMaximum().getBlockZ()));
+        return blocksToMove;
     }
 }

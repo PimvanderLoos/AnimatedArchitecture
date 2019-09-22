@@ -7,7 +7,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
@@ -15,7 +14,7 @@ import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
 
-public class VaultManager
+public final class VaultManager
 {
     // Try to store the price of the doors as integers, because that's faster than
     // evaluating the formula.
@@ -28,22 +27,16 @@ public class VaultManager
 
     private Economy economy = null;
     private Permission perms = null;
-    private Chat chat;
 
-    public VaultManager(BigDoors plugin)
+    public VaultManager(final BigDoors plugin)
     {
         this.plugin = plugin;
         menu = new HashMap<>();
         init();
-        vaultEnabled = setupEconomy();
-        if (vaultEnabled)
-        {
-            setupPermissions();
-            setupChat();
-        }
+        vaultEnabled = setupEconomy() && setupPermissions();
     }
 
-    public boolean buyDoor(Player player, DoorType type, int blockCount)
+    public boolean buyDoor(final Player player, final DoorType type, final int blockCount)
     {
         if (!vaultEnabled)
             return true;
@@ -120,26 +113,6 @@ public class VaultManager
         }
     }
 
-//    public int getMaxDoorSizeForPlayer(World world, UUID player)
-//    {
-//        return getMaxDoorSizeForPlayer(world, Bukkit.getOfflinePlayer(player));
-//    }
-//
-//    public int getMaxDoorSizeForPlayer(World world, OfflinePlayer player)
-//    {
-//        if (player.isOp())
-//            return -1;
-//        return getHighestPermissionSuffix(world, player, "bigdoors.maxsize");
-//    }
-//
-//    public int getHighestPermissionSuffix(World world, OfflinePlayer player, String permissionNode)
-//    {
-//        int ret = -1;
-//        if (!vaultEnabled)
-//            return ret;
-//        return vaultEnabled ? chat.getPlayerInfoInteger(world.getName(), player, permissionNode, -1) : -1;
-//    }
-
     public boolean hasPermission(Player player, String permission)
     {
         return vaultEnabled && perms.playerHas(player.getWorld().getName(), player, permission);
@@ -164,7 +137,7 @@ public class VaultManager
         }
     }
 
-    public double getPrice(DoorType type, int blockCount)
+    public double getPrice(final DoorType type, final int blockCount)
     {
         if (!vaultEnabled)
             return 0;
@@ -227,7 +200,7 @@ public class VaultManager
         return price;
     }
 
-    private boolean has(OfflinePlayer player, double amount)
+    private boolean has(final OfflinePlayer player, final double amount)
     {
         if (amount < EPSILON)
             return true;
@@ -243,7 +216,7 @@ public class VaultManager
         return true;
     }
 
-    private boolean withdrawPlayer(OfflinePlayer player, String worldName, double amount)
+    private boolean withdrawPlayer(final OfflinePlayer player, final String worldName, final double amount)
     {
         if (amount < EPSILON)
             return true;
@@ -261,7 +234,7 @@ public class VaultManager
         return true;
     }
 
-    private boolean withdrawPlayer(Player player, String worldName, double amount)
+    private boolean withdrawPlayer(final Player player, final String worldName, final double amount)
     {
         return withdrawPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()), worldName, amount);
     }
@@ -270,13 +243,13 @@ public class VaultManager
     {
         try
         {
-        if (plugin.getServer().getPluginManager().getPlugin("Vault") == null)
-            return false;
-        RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-        if (economyProvider != null)
-            economy = economyProvider.getProvider();
+            if (plugin.getServer().getPluginManager().getPlugin("Vault") == null)
+                return false;
+            RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+            if (economyProvider != null)
+                economy = economyProvider.getProvider();
 
-        return (economy != null);
+            return (economy != null);
         }
         catch (Exception e)
         {
@@ -288,15 +261,17 @@ public class VaultManager
 
     private boolean setupPermissions()
     {
-        RegisteredServiceProvider<Permission> rsp = plugin.getServer().getServicesManager().getRegistration(Permission.class);
-        perms = rsp.getProvider();
-        return perms != null;
-    }
-
-    private boolean setupChat()
-    {
-        RegisteredServiceProvider<Chat> rsp = plugin.getServer().getServicesManager().getRegistration(Chat.class);
-        chat = rsp.getProvider();
-        return chat != null;
+        try
+        {
+            RegisteredServiceProvider<Permission> rsp = plugin.getServer().getServicesManager().getRegistration(Permission.class);
+            perms = rsp.getProvider();
+            return perms != null;
+        }
+        catch (Exception e)
+        {
+            plugin.getMyLogger().logMessage("Exception encountered while initiating Vault dependency! It will be disabled! Please contact pim16aap2!", true, false);
+            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            return false;
+        }
     }
 }

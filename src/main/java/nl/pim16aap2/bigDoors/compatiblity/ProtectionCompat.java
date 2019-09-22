@@ -20,21 +20,21 @@ public enum ProtectionCompat
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
-            boolean newVersion = false;
             int[] lastOldVersion = {0, 94, 0, 1};
 
             int[] currentVersion = Arrays.stream(version.split("\\.")).mapToInt(Integer::parseInt).toArray();
             for (int idx = 0; idx < lastOldVersion.length; ++idx)
             {
-                if (currentVersion[idx] > lastOldVersion[idx])
-                {
-                    newVersion = true;
-                    break;
-                }
+                if (currentVersion[idx] == lastOldVersion[idx])
+                    continue;
+
+                return currentVersion[idx] > lastOldVersion[idx] ?
+                       TownyNewProtectionCompat.class : TownyOldProtectionCompat.class;
             }
-            return newVersion ? TownyNewProtectionCompat.class : TownyOldProtectionCompat.class;
+            return null;
         }
     },
+
     PLOTSQUARED ("PlotSquared")
     {
         /**
@@ -43,10 +43,11 @@ public enum ProtectionCompat
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
-            return version.startsWith("4.") ? PlotSquaredNewProtectionCompat.class :
-                PlotSquaredOldProtectionCompat.class;
+            return version.startsWith("4.") ?
+                PlotSquaredNewProtectionCompat.class : PlotSquaredOldProtectionCompat.class;
         }
     },
+
     WORLDGUARD ("WorldGuard")
     {
         /**
@@ -63,6 +64,7 @@ public enum ProtectionCompat
                 return null;
         }
     },
+
     GRIEFPREVENTION ("GriefPrevention")
     {
         /**

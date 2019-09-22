@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
@@ -47,15 +49,30 @@ public class GUI
     private static final byte       PLAYERHEADDATA =  3;
     private static final byte       SKULLDATA      =  0;
     private static final int        CHESTSIZE      = 45;
-    private static final Material[] DOORTYPES      =
+    private static Material[] DOORTYPES = new Material[6];
+
+    static
     {
-        XMaterial.OAK_DOOR.parseMaterial(),     // Door
-        XMaterial.OAK_TRAPDOOR.parseMaterial(), // DrawBridge
-        XMaterial.IRON_DOOR.parseMaterial(),    // Portcullis
-        XMaterial.OAK_BOAT.parseMaterial(),     // Elevator
-        XMaterial.PISTON.parseMaterial(),       // Sliding Door
-        XMaterial.PURPLE_CARPET.parseMaterial() // Flag
-    };
+        // Ugly hack. I cannot be bothered to fix this properly.
+        if (MCVersion.v1_11.equals(BigDoors.getMCVersion()))
+        {
+            DOORTYPES[0] = Material.getMaterial("WOOD_DOOR");   // Door
+            DOORTYPES[1] = Material.getMaterial("TRAP_DOOR");   // DrawBridge
+            DOORTYPES[2] = Material.getMaterial("IRON_DOOR");   // Portcullis
+            DOORTYPES[3] = Material.getMaterial("BOAT");        // Elevator
+            DOORTYPES[4] = Material.getMaterial("PISTON_BASE"); // Sliding Door
+            DOORTYPES[5] = Material.getMaterial("CARPET");      // Flag
+        }
+        else
+        {
+            DOORTYPES[0] = XMaterial.OAK_DOOR.parseMaterial();      // Door
+            DOORTYPES[1] = XMaterial.OAK_TRAPDOOR.parseMaterial();  // DrawBridge
+            DOORTYPES[2] = XMaterial.IRON_DOOR.parseMaterial();     // Portcullis
+            DOORTYPES[3] = XMaterial.OAK_BOAT.parseMaterial();      // Elevator
+            DOORTYPES[4] = XMaterial.PISTON.parseMaterial();        // Sliding Door
+            DOORTYPES[5] = XMaterial.PURPLE_CARPET.parseMaterial(); // Flag
+        }
+    }
 
     private final BigDoors plugin;
     private final Messages messages;
@@ -72,7 +89,7 @@ public class GUI
     private int maxDoorOwnerPageCount = 0;
     private boolean sortAlphabetically = false;
     private Inventory inventory = null;
-    private final HashMap<Integer, GUIItem> items;
+    private final Map<Integer, GUIItem> items;
     private int maxPageCount;
     private Door door = null;
 
@@ -293,7 +310,6 @@ public class GUI
     public void handleInput(int interactionIDX)
     {
         if (!items.containsKey(interactionIDX))
-            //            refresh();
             return;
 
         boolean header = Util.between(interactionIDX, 0, 8);
@@ -350,7 +366,11 @@ public class GUI
                 return;
             }
 
-            switch(items.get(interactionIDX).getDoorAttribute())
+            DoorAttribute attribute = items.get(interactionIDX).getDoorAttribute();
+            if (attribute == null)
+                return;
+
+            switch(attribute)
             {
             case LOCK:
                 door.setLock(!door.isLocked());

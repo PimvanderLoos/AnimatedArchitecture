@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigDoors.util;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
@@ -15,12 +16,12 @@ public class TimedCache<K, V>
 {
     private final BigDoors plugin;
     private int timeout = -1;
-    private Hashtable<K, Value<V>> hashtable;
+    private Map<K, Value<V>> cache;
     private BukkitTask verifyTask;
 
     public TimedCache(BigDoors plugin, int time)
     {
-        hashtable = new Hashtable<>();
+        cache = new ConcurrentHashMap<>();
         this.plugin = plugin;
         reinit(time);
     }
@@ -30,7 +31,7 @@ public class TimedCache<K, V>
     {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        hashtable.forEach((K, V) ->
+        cache.forEach((K, V) ->
         {
             sb.append(K.toString() + "=" + V.toString() + ", ");
         });
@@ -48,7 +49,7 @@ public class TimedCache<K, V>
             timeout = time;
             startTask();
         }
-        hashtable.clear();
+        cache.clear();
     }
 
     private void startTask()
@@ -69,15 +70,15 @@ public class TimedCache<K, V>
     {
         if (timeout < 0)
             return;
-        hashtable.put(key, new Value<>(value));
+        cache.put(key, new Value<>(value));
     }
 
     public V get(K key)
     {
         if (timeout < 0)
             return null;
-        if (hashtable.containsKey(key))
-            return hashtable.get(key).timedOut() ? null : hashtable.get(key).value;
+        if (cache.containsKey(key))
+            return cache.get(key).timedOut() ? null : cache.get(key).value;
         return null;
     }
 
@@ -88,18 +89,18 @@ public class TimedCache<K, V>
 
     public void invalidate(K key)
     {
-        hashtable.remove(key);
+        cache.remove(key);
     }
 
     // Loop over all cache entries to verify they haven't timed out yet.
     private void verifyCache()
     {
-        Iterator<Entry<K, TimedCache<K, V>.Value<V>>> it = hashtable.entrySet().iterator();
+        Iterator<Entry<K, TimedCache<K, V>.Value<V>>> it = cache.entrySet().iterator();
         while (it.hasNext())
         {
             Entry<K, TimedCache<K, V>.Value<V>> entry = it.next();
             if (entry.getValue().timedOut())
-                hashtable.remove(entry.getKey());
+                it.remove();
         }
     }
 
@@ -125,7 +126,7 @@ public class TimedCache<K, V>
         if (timeout < 0)
             return null;
         ArrayList<K> keys = new ArrayList<>();
-        Iterator<Entry<K, TimedCache<K, V>.Value<V>>> it = hashtable.entrySet().iterator();
+        Iterator<Entry<K, TimedCache<K, V>.Value<V>>> it = cache.entrySet().iterator();
         while (it.hasNext())
             keys.add(it.next().getKey());
         return keys;
@@ -133,6 +134,6 @@ public class TimedCache<K, V>
 
     public int getChunkCount()
     {
-        return hashtable.size();
+        return cache.size();
     }
 }

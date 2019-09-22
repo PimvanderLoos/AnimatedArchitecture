@@ -61,11 +61,6 @@ import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
-
-// TODO: Implement DoorAttribute bypass permissions (so you can toggle doors you do not own).
-// TODO: Towny.
-// TODO: Fix BlockLimit.
-
 public class BigDoors extends JavaPlugin implements Listener
 {
     private static BigDoors instance;
@@ -105,6 +100,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private HeadManager headManager;
     private VaultManager vaultManager;
     private UpdateManager updateManager;
+    private static final MCVersion mcVersion = BigDoors.calculateMCVersion();
 
     @Override
     public void onEnable()
@@ -486,6 +482,11 @@ public class BigDoors extends JavaPlugin implements Listener
         return locale == null ? "en_US" : locale;
     }
 
+    public static MCVersion getMCVersion()
+    {
+        return mcVersion;
+    }
+
     private void readConfigValues()
     {
         // Load the settings from the config file.
@@ -507,6 +508,34 @@ public class BigDoors extends JavaPlugin implements Listener
     public boolean is1_13()
     {
         return is1_13;
+    }
+
+    private static MCVersion calculateMCVersion()
+    {
+        String version;
+
+        try
+        {
+            version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
+        }
+        catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
+        {
+            useAVersionMentionedInTheDescriptionPleaseException.printStackTrace();
+            return null;
+        }
+
+        MCVersion mcVersion = null;
+        if (version.equals("v1_11_R1"))
+            mcVersion = MCVersion.v1_11;
+        else if (version.equals("v1_12_R1"))
+            mcVersion = MCVersion.v1_12;
+        else if (version.equals("v1_13_R1"))
+            mcVersion = MCVersion.v1_13;
+        else if (version.equals("v1_13_R2"))
+            mcVersion = MCVersion.v1_13;
+        else if (version.equals("v1_14_R1"))
+            mcVersion = MCVersion.v1_14;
+        return mcVersion;
     }
 
     // Check + initialize for the correct version of Minecraft.
@@ -633,6 +662,14 @@ public class BigDoors extends JavaPlugin implements Listener
     public RedstoneHandler getRedstoneHandler()
     {
         return redstoneHandler;
+    }
+
+    public enum MCVersion
+    {
+        v1_11,
+        v1_12,
+        v1_13,
+        v1_14
     }
 
 //    public long createNewDoor(Location min, Location max, Location engine,

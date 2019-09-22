@@ -244,6 +244,13 @@ public class ProtectionCompatManager implements Listener
             Class<? extends IProtectionCompat> compatClass = compat.getClass(plugin.getServer().getPluginManager()
                 .getPlugin(ProtectionCompat.getName(compat)).getDescription().getVersion());
 
+            if (compatClass == null)
+            {
+                plugin.getMyLogger().logMessage("Could not find compatibility class for: \"" + ProtectionCompat.getName(compat) + "\". "
+                    + "This most likely means that this version is not supported!", true, false);
+                return;
+            }
+
             // No need to load compats twice.
             if (protectionAlreadyLoaded(compatClass))
                 return;

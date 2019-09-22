@@ -400,6 +400,9 @@ public final class Util
     // Certain blocks don't work in doors, so don't allow their usage.
     public static boolean isAllowedBlock(Material mat)
     {
+        if (BigDoors.get().getConfigLoader().getBlacklist().contains(mat))
+            return false;
+
         String name = mat.toString();
 
         if (name.endsWith("SLAB") || name.endsWith("STAIRS") || name.endsWith("WALL"))

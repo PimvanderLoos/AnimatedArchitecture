@@ -34,6 +34,7 @@
         <jar jarfile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" basedir="./target/classes/" includes="**/*.*">
             <zipgroupfileset dir="/home/pim/Documents/workspace/JCalculator/" includes="JCalculator.jar"/>
         </jar>
+        <copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.11/plugins/BigDoors.jar"/>
         <copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
         <copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.14/plugins/BigDoors.jar"/>
     </target>

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigDoors.BigDoors;
@@ -65,6 +66,40 @@ public class SlidingDoorOpener implements Opener
         return openDoor(door, time, false, false);
     }
 
+    private void getNewCoords(final Location min, final Location max,
+                              final MovementSpecification blocksToMove)
+    {
+        int addX = 0, addY = 0, addZ = 0;
+
+        switch (blocksToMove.getRotateDirection())
+        {
+        case DOWN:
+            addY = -1 * blocksToMove.getBlocks();
+            break;
+        case EAST:
+            addX = 1 * blocksToMove.getBlocks();
+            break;
+        case NORTH:
+            addZ = -1 * blocksToMove.getBlocks();
+            break;
+        case SOUTH:
+            addZ = 1 * blocksToMove.getBlocks();
+            break;
+        case UP:
+            addY = 1 * blocksToMove.getBlocks();
+            break;
+        case WEST:
+            addX = -1 * blocksToMove.getBlocks();
+            break;
+        default:
+            break;
+
+        }
+
+        min.add(addX, addY, addZ);
+        max.add(addX, addY, addZ);
+    }
+
     // Open a door.
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
@@ -91,11 +126,6 @@ public class SlidingDoorOpener implements Opener
             return DoorOpenResult.ERROR;
         }
 
-        // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null ||
-            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getMinimum(), door.getMinimum()) != null)
-            return DoorOpenResult.NOPERMISSION;
-
         MovementSpecification blocksToMove = getBlocksToMove(door);
 
         if (blocksToMove.getBlocks() != 0)
@@ -106,6 +136,17 @@ public class SlidingDoorOpener implements Opener
                                                 ". If this is undesired, change it via the GUI.", true, false);
                 plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), blocksToMove.getRotateDirection());
             }
+
+            Location newMin = door.getMinimum();
+            Location newMax = door.getMaximum();
+            getNewCoords(newMin, newMax, blocksToMove);
+
+            // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
+            if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), newMin, newMax) != null ||
+                plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getMinimum(), door.getMinimum()) != null)
+                return DoorOpenResult.NOPERMISSION;
+
+
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());
             plugin.getCommander().addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove.getBlocks(),
