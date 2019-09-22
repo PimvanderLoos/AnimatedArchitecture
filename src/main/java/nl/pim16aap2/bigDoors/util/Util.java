@@ -667,6 +667,7 @@ public final class Util
 //        case SMOKER:
         case STONECUTTER:
         case SWEET_BERRY_BUSH:
+        case LANTERN:
 
         /* 1.14 end */
 

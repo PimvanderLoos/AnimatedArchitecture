@@ -7,7 +7,7 @@ Alpha 0.1.8.13
 - Removed the "bigdoors.admin.ignoreownership" permission node. This is replaced by the new node: "bigdoors.admin.bypass.<attribute>". The attributes are: "lock", "toggle", "info", "delete", "relocatepowerblock", "changetime", "blockstomove", "direction", "addowner", and "removeowner"
 - Fixed error thrown by TimedCache. Thanks, @Sneaky_42 for the bug report!
 - Added material blacklist to the config.
-- Fixed GUI buttons in 1.11. Thanks, @Hakan for the bug report!
+- Fixed GUI buttons in 1.11. Thanks, @HakanUnsalP for the bug report!
 
 Alpha 0.1.8.12
 - Fixed sounds being played asynchronously, which Spigot didn't like. Thanks, @DeathReminds for the bug report!

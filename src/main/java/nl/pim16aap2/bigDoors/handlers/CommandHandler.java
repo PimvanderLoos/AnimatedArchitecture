@@ -404,7 +404,7 @@ public class CommandHandler implements CommandExecutor
                 if (player != null  && !player.hasPermission("bigdoors.admin.version"))
                     break;
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " +
-                    plugin.getDescription().getVersion() + (BigDoors.DEVBUILD ? " (build " + plugin.getBuildNumber() + ")" : "") + " of this plugin!");
+                    plugin.getDescription().getVersion() + " of this plugin!");
                 break;
 
             case "menu":

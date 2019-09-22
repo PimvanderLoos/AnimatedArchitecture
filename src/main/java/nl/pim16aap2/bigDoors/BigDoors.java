@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.pim16aap2.bigDoors.GUI.GUI;
@@ -188,6 +190,7 @@ public class BigDoors extends JavaPlugin implements Listener
             exception.printStackTrace();
             logger.logMessage(Util.exceptionToString(exception), true, true);
         }
+        overrideVersion();
     }
 
     private void registerCommand(String command)
@@ -360,11 +363,6 @@ public class BigDoors extends JavaPlugin implements Listener
     public FakePlayerCreator getFakePlayerCreator()
     {
         return fakePlayerCreator;
-    }
-
-    public int getBuildNumber()
-    {
-        return buildNumber;
     }
 
     public Opener getDoorOpener(DoorType type)
@@ -605,7 +603,22 @@ public class BigDoors extends JavaPlugin implements Listener
         }
     }
 
-
+    private void overrideVersion()
+    {
+        if (!DEVBUILD)
+            return;
+        try
+        {
+            String version = getDescription().getVersion() + " (b" + buildNumber + ")";
+            final Field field = PluginDescriptionFile.class.getDeclaredField("version");
+            field.setAccessible(true);
+            field.set(getDescription(), version);
+        }
+        catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e)
+        {
+            getMyLogger().logMessage(Util.exceptionToString(e), true, false);
+        }
+    }
 
     /*
      * API Starts here.
