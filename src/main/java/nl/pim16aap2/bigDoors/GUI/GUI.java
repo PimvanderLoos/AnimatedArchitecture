@@ -1,10 +1,12 @@
 package nl.pim16aap2.bigDoors.GUI;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -74,6 +76,8 @@ public class GUI
         }
     }
 
+    private static final Pattern newLines = Pattern.compile("\\\n");
+
     private final BigDoors plugin;
     private final Messages messages;
     private final Player player;
@@ -108,6 +112,11 @@ public class GUI
 
         sort();
         update();
+    }
+
+    private void addLore(final ArrayList<String> lore, final String toAdd)
+    {
+        lore.addAll(Arrays.asList(newLines.split(toAdd)));
     }
 
     private void update()
@@ -161,14 +170,14 @@ public class GUI
         ArrayList<String> lore = new ArrayList<>();
         if (doorOwnerPage != 0)
         {
-            lore.add(messages.getString("GUI.ToPage") + doorOwnerPage + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
+            addLore(lore, messages.getString("GUI.ToPage") + doorOwnerPage + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
             items.put(1, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, doorOwnerPage));
             lore.clear();
         }
 
         if ((doorOwnerPage + 1) < maxDoorOwnerPageCount)
         {
-            lore.add(messages.getString("GUI.ToPage") + (doorOwnerPage + 2) + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
+            addLore(lore, messages.getString("GUI.ToPage") + (doorOwnerPage + 2) + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
             items.put(7, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, doorOwnerPage + 2));
             lore.clear();
         }
@@ -180,9 +189,9 @@ public class GUI
         items.put(0, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, page + 1));
         lore.clear();
 
-        lore.add(messages.getString("GUI.MoreInfoMenu") + door.getName());
-        lore.add("This door has ID " + door.getDoorUID());
-        lore.add(messages.getString(DoorType.getNameKey(door.getType())));
+        addLore(lore, messages.getString("GUI.MoreInfoMenu") + door.getName());
+        addLore(lore, "This door has ID " + door.getDoorUID());
+        addLore(lore, messages.getString(DoorType.getNameKey(door.getType())));
         items.put(4, new GUIItem(CURRDOORMAT, door.getName() + ": " + door.getDoorUID(), lore, 1));
     }
 
@@ -191,13 +200,13 @@ public class GUI
         ArrayList<String> lore = new ArrayList<>();
         if (page != 0)
         {
-            lore.add(messages.getString("GUI.ToPage") + page + messages.getString("GUI.OutOf") + maxPageCount);
+            addLore(lore, messages.getString("GUI.ToPage") + page + messages.getString("GUI.OutOf") + maxPageCount);
             items.put(0, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, page));
             lore.clear();
         }
 
-        lore.add(sortAlphabetically ? messages.getString("GUI.SORTED.Alphabetically") :
-                                      messages.getString("GUI.SORTED.Numerically"));
+        addLore(lore, sortAlphabetically ? messages.getString("GUI.SORTED.Alphabetically") :
+                                           messages.getString("GUI.SORTED.Numerically"));
         items.put(1, new GUIItem(TOGGLEDOORMAT, messages.getString("GUI.SORTED.Change"), lore, 1));
         lore.clear();
 
@@ -209,7 +218,7 @@ public class GUI
 
         if ((page + 1) < maxPageCount)
         {
-            lore.add(messages.getString("GUI.ToPage") + (page + 2) + messages.getString("GUI.OutOf") + maxPageCount);
+            addLore(lore, messages.getString("GUI.ToPage") + (page + 2) + messages.getString("GUI.OutOf") + maxPageCount);
             items.put(8, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, page + 2));
             lore.clear();
         }
@@ -220,7 +229,7 @@ public class GUI
         if (player.hasPermission(DoorType.getPermission(type)))
         {
             ArrayList<String> lore = new ArrayList<>();
-            lore.add(messages.getString("GUI.NewObjectLong") + messages.getString(message));
+            addLore(lore, messages.getString("GUI.NewObjectLong") + messages.getString(message));
             items.put(idx, new GUIItem(NEWDOORMAT, messages.getString(message), lore, page + 1));
         }
     }
@@ -234,12 +243,12 @@ public class GUI
             ArrayList<String> lore = new ArrayList<>();
             if (idx == mid) // Middle block.
             {
-                lore.add(messages.getString("GUI.ConfirmDelete"));
+                addLore(lore, messages.getString("GUI.ConfirmDelete"));
                 items.put(idx, new GUIItem(NOTCONFIRMMAT, messages.getString("GUI.Confirm"), lore, 1, CONFIRMDATA));
             }
             else
             {
-                lore.add(messages.getString("GUI.NotConfirm"));
+                addLore(lore, messages.getString("GUI.NotConfirm"));
                 items.put(idx, new GUIItem(CONFIRMMAT, messages.getString("GUI.No"), lore, 1, NOTCONFIRMDATA));
             }
         }
@@ -272,8 +281,8 @@ public class GUI
                 plugin.getMyLogger().logMessage("Failed to determine doorType of door: " + doors.get(realIdx).getDoorUID(), true, false);
                 continue;
             }
-            lore.add(messages.getString("GUI.DoorHasID") + doors.get(realIdx).getDoorUID());
-            lore.add(messages.getString(DoorType.getNameKey(doorType)));
+            addLore(lore, messages.getString("GUI.DoorHasID") + doors.get(realIdx).getDoorUID());
+            addLore(lore, messages.getString(DoorType.getNameKey(doorType)));
             GUIItem item = new GUIItem(DOORTYPES[DoorType.getValue(doorType)], doors.get(realIdx).getName(), lore, 1);
             item.setDoor(doors.get(realIdx));
             items.put(idx + 9, item);
@@ -546,27 +555,27 @@ public class GUI
 
         case TOGGLE:
             desc = messages.getString("GUI.ToggleDoor");
-            lore.add(desc);
+            addLore(lore, desc);
             ret = new GUIItem(TOGGLEDOORMAT, desc, lore, 1);
             break;
 
         case INFO:
             desc = messages.getString("GUI.GetInfo");
-            lore.add(desc);
+            addLore(lore, desc);
             ret = new GUIItem(INFOMAT, desc, lore, 1);
             break;
 
         case DELETE:
             desc = messages.getString("GUI.DeleteDoor");
             loreStr = messages.getString("GUI.DeleteDoorLong");
-            lore.add(loreStr);
+            addLore(lore, loreStr);
             ret = new GUIItem(DELDOORMAT, desc , lore, 1);
             break;
 
         case RELOCATEPOWERBLOCK:
             desc = messages.getString("GUI.RelocatePowerBlock");
             loreStr = messages.getString("GUI.RelocatePowerBlockLore");
-            lore.add(loreStr);
+            addLore(lore, loreStr);
             ret = new GUIItem(RELOCATEPBMAT, desc, lore, 1);
             break;
 
@@ -574,7 +583,7 @@ public class GUI
             desc = messages.getString("GUI.ChangeTimer");
             loreStr = door.getAutoClose() > -1 ? messages.getString("GUI.ChangeTimerLore") + door.getAutoClose() + "s." :
                 messages.getString("GUI.ChangeTimerLoreDisabled");
-            lore.add(loreStr);
+            addLore(lore, loreStr);
             int count = door.getAutoClose() < 1 ? 1 : door.getAutoClose();
             ret = new GUIItem(CHANGETIMEMAT, desc, lore, count);
             break;
@@ -582,15 +591,15 @@ public class GUI
         case DIRECTION_STRAIGHT:
             desc = messages.getString("GUI.Direction.Name");
             loreStr = messages.getString("GUI.Direction.ThisDoorGoes") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
-            lore.add(loreStr);
+            addLore(lore, loreStr);
             ret = new GUIItem(SETOPENDIRMAT, desc, lore, 1);
             break;
 
         case DIRECTION_ROTATE:
             desc = messages.getString("GUI.Direction.Name");
             loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
-            lore.add(loreStr);
-            lore.add(messages.getString("GUI.Direction.Looking") +
+            addLore(lore, loreStr);
+            addLore(lore, messages.getString("GUI.Direction.Looking") +
                     (door.getType()       == DoorType.DOOR       ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
                      door.getLookingDir() == DoorDirection.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
                                                                    messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
@@ -603,19 +612,19 @@ public class GUI
                 loreStr = messages.getString("GUI.BLOCKSTOMOVE.Unavailable");
             else
                 loreStr = messages.getString("GUI.BLOCKSTOMOVE.Available") + " " + door.getBlocksToMove();
-            lore.add(loreStr);
+            addLore(lore, loreStr);
             ret = new GUIItem(SETBTMOVEMAT, desc, lore, 1);
             break;
 
         case ADDOWNER:
             desc = messages.getString("GUI.ADDOWNER");
-            lore.add(desc);
+            addLore(lore, desc);
             ret = new GUIItem(ADDOWNERMAT, desc, lore, 1, PLAYERHEADDATA);
             break;
 
         case REMOVEOWNER:
             desc = messages.getString("GUI.REMOVEOWNER");
-            lore.add(desc);
+            addLore(lore, desc);
             ret = new GUIItem(REMOVEOWNERMAT, desc, lore, 1, SKULLDATA);
             break;
         }
