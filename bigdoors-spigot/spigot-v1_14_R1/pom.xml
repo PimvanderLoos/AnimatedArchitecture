@@ -17,8 +17,6 @@
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-util</artifactId>
             <version>${project.parent.version}</version>
-            <scope>compile</scope>
-            <type>jar</type>
         </dependency>
     </dependencies>
 </project>

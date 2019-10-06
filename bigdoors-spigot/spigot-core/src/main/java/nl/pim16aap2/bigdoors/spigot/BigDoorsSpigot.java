@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -13,7 +12,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IRestartable;
-import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
@@ -74,17 +72,15 @@ import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.managers.AbortableTaskManager;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
+import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
-import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.BlockAnalyzer_V1_14_R1;
-import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.FallingBlockFactory_V1_14_R1;
-import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.GlowingBlockSpawner_V1_14_R1;
-import nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1.PBlockDataFactorySpigot_V1_14_R1;
 import nl.pim16aap2.bigdoors.spigot.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.spigot.toolusers.ToolVerifier;
 import nl.pim16aap2.bigdoors.spigot.util.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PExecutorSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ChunkManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
@@ -96,21 +92,19 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
-public final class BigDoorsSpigot extends JavaPlugin implements Listener, IRestartableHolder, IBigDoorsPlatform
+public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     private static BigDoorsSpigot INSTANCE;
     private static final BigDoors BIGDOORS = BigDoors.get();
@@ -128,24 +122,18 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
     private Map<UUID, WaitForCommand> cmdWaiters;
     private Map<UUID, ToolUser> toolUsers;
     private Map<UUID, GUI> playerGUIs;
-    private List<IRestartable> restartables = new ArrayList<>();
+    private Set<IRestartable> restartables = new HashSet<>();
     private ProtectionCompatManagerSpigot protCompatMan;
     private LoginResourcePackListener rPackHandler;
     private VaultManager vaultManager;
     private AutoCloseScheduler autoCloseScheduler;
     private HeadManager headManager;
-    private IGlowingBlockSpawner glowingBlockSpawner;
     private UpdateManager updateManager;
     private DoorManager doorManager;
     private PowerBlockManager powerBlockManager;
     private boolean successfulInit = true;
     private static long mainThreadID = -1;
-
-    // These are specific to MC versions (e.g. 1.14.4, or 1.12.2, etc).
-    private IFallingBlockFactory fallingBlockFactory;
-    private IPBlockDataFactory pBlockDataFactory;
     private AbortableTaskManager abortableTaskManager;
-    private IBlockAnalyzer blockAnalyzer;
 
     @NotNull
     private IPLocationFactory locationFactory = new PLocationFactorySpigot();
@@ -181,8 +169,7 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
             updateManager = new UpdateManager(this, 58669);
 
             Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
-
-            validVersion = compatibleMCVer();
+            validVersion = PlatformManagerSpigot.get().initPlatform(this);
 
             // Load the files for the correct version of Minecraft.
             if (!validVersion)
@@ -201,7 +188,7 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
 
             init();
             tf = new ToolVerifier(messages, this);
-            vaultManager = new VaultManager(this);
+            vaultManager = VaultManager.init(this);
             autoCloseScheduler = AutoCloseScheduler.init(this);
 
             headManager = HeadManager.init(this, (ConfigLoaderSpigot) getConfigLoader());
@@ -209,13 +196,16 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
             Bukkit.getPluginManager().registerEvents(new EventListeners(this), this);
             Bukkit.getPluginManager().registerEvents(new GUIListener(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkListener(this), this);
+
             protCompatMan = ProtectionCompatManagerSpigot.init(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
+            DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), config, protCompatMan);
+
             databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), config.dbFile()));
             Bukkit.getPluginManager().registerEvents(DoorActionListener.get(), this);
             powerBlockManager = PowerBlockManager.init(this, config, databaseManager, getPLogger());
             Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
-            DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), config, protCompatMan);
+
             commandManager = new CommandManager(this);
             SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
             {
@@ -339,7 +329,7 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
     @NotNull
     public IPBlockDataFactory getPBlockDataFactory()
     {
-        return pBlockDataFactory;
+        return PlatformManagerSpigot.get().getSpigotPlatform().getPBlockDataFactory();
     }
 
     /**
@@ -349,7 +339,7 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
     @NotNull
     public IFallingBlockFactory getFallingBlockFactory()
     {
-        return fallingBlockFactory;
+        return PlatformManagerSpigot.get().getSpigotPlatform().getFallingBlockFactory();
     }
 
     /**
@@ -359,7 +349,7 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
     @NotNull
     public IBlockAnalyzer getBlockAnalyzer()
     {
-        return blockAnalyzer;
+        return PlatformManagerSpigot.get().getSpigotPlatform().getBlockAnalyzer();
     }
 
     @Override
@@ -456,6 +446,15 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
         restartables.add(restartable);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
+    {
+        return restartables.contains(restartable);
+    }
+
     public void restart()
     {
         if (!validVersion)
@@ -506,13 +505,13 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
     @NotNull
     public IFallingBlockFactory getFABF()
     {
-        return fallingBlockFactory;
+        return PlatformManagerSpigot.get().getSpigotPlatform().getFallingBlockFactory();
     }
 
     @NotNull
     public IGlowingBlockSpawner getGlowingBlockSpawner()
     {
-        return glowingBlockSpawner;
+        return PlatformManagerSpigot.get().getSpigotPlatform().getGlowingBlockSpawner();
     }
 
     @NotNull
@@ -645,34 +644,6 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
         return tf;
     }
 
-    // Check + initialize for the correct version of Minecraft.
-    private boolean compatibleMCVer()
-    {
-        String version;
-
-        try
-        {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        }
-        catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
-        {
-            getPLogger().logException(useAVersionMentionedInTheDescriptionPleaseException);
-            return false;
-        }
-
-        fallingBlockFactory = null;
-        if (version.equals("v1_14_R1"))
-        {
-            glowingBlockSpawner = new GlowingBlockSpawner_V1_14_R1(this, getPLogger());
-            fallingBlockFactory = new FallingBlockFactory_V1_14_R1();
-            pBlockDataFactory = new PBlockDataFactorySpigot_V1_14_R1();
-            blockAnalyzer = new BlockAnalyzer_V1_14_R1();
-        }
-
-        // Return true if compatible.
-        return fallingBlockFactory != null;
-    }
-
     @NotNull
     public String getLoginMessage()
     {
@@ -687,7 +658,8 @@ public final class BigDoorsSpigot extends JavaPlugin implements Listener, IResta
         if (updateManager.updateAvailable())
         {
             if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
-                ret += "[BigDoors] A new update (" + updateManager.getNewestVersion() + ") has been downloaded! "
+                ret += "[BigDoors] A new update (" + updateManager.getNewestVersion() +
+                    ") has been downloaded! "
                     + "Restart your server to apply the update!\n";
             else if (updateManager.updateAvailable())
                 ret += "[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n";

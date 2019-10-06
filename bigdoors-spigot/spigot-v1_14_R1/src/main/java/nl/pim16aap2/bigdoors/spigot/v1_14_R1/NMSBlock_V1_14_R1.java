@@ -1,16 +1,16 @@
-package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
+package nl.pim16aap2.bigdoors.spigot.v1_14_R1;
 
 import net.minecraft.server.v1_14_R1.BlockPosition;
 import net.minecraft.server.v1_14_R1.IBlockData;
 import net.minecraft.server.v1_14_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -108,11 +108,10 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
     public void rotateBlock(final @NotNull RotateDirection rotDir)
     {
         BlockData bd = bukkitBlockData;
-        // When rotating stairs vertically, they need to be rotated twice, as they
-        // cannot
-        // point up/down.
-        if (bd instanceof Stairs && (rotDir.equals(RotateDirection.NORTH) || rotDir.equals(RotateDirection.EAST) ||
-            rotDir.equals(RotateDirection.SOUTH) || rotDir.equals(RotateDirection.WEST)))
+        // When rotating stairs vertically, they need to be rotated twice, as they cannot point up/down.
+        if (bd instanceof Stairs &&
+            (rotDir.equals(RotateDirection.NORTH) || rotDir.equals(RotateDirection.EAST) ||
+                rotDir.equals(RotateDirection.SOUTH) || rotDir.equals(RotateDirection.WEST)))
             rotateDirectional((Directional) bd, rotDir, 2);
         else if (bd instanceof Orientable)
             rotateOrientable((Orientable) bd, rotDir);
@@ -225,9 +224,8 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
      */
     private void rotateDirectional(final @NotNull Directional bd, final @NotNull RotateDirection dir, int steps)
     {
-        BlockFace newFace = SpigotUtil
-            .getBukkitFace(
-                PBlockFace.rotate(SpigotUtil.getPBlockFace(bd.getFacing()), steps, PBlockFace.getDirFun(dir)));
+        BlockFace newFace = SpigotUtil.getBukkitFace(
+            PBlockFace.rotate(SpigotUtil.getPBlockFace(bd.getFacing()), steps, PBlockFace.getDirFun(dir)));
         if (bd.getFaces().contains(newFace))
             bd.setFacing(newFace);
     }
@@ -254,15 +252,15 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
     {
         Set<BlockFace> currentFaces = bd.getFaces();
         Set<BlockFace> allowedFaces = bd.getAllowedFaces();
-        currentFaces.forEach((K) -> bd.setFace(K, false));
-        currentFaces.forEach((K) ->
-                             {
-                                 BlockFace newFace = SpigotUtil.getBukkitFace(
-                                     PBlockFace.rotate(SpigotUtil.getPBlockFace(K), steps,
-                                                       PBlockFace.getDirFun(dir)));
-                                 if (allowedFaces.contains(newFace))
-                                     bd.setFace(newFace, true);
-                             });
+        currentFaces.forEach((blockFace) -> bd.setFace(blockFace, false));
+        currentFaces.forEach(
+            (blockFace) ->
+            {
+                BlockFace newFace = SpigotUtil.getBukkitFace(
+                    PBlockFace.rotate(SpigotUtil.getPBlockFace(blockFace), steps, PBlockFace.getDirFun(dir)));
+                if (allowedFaces.contains(newFace))
+                    bd.setFace(newFace, true);
+            });
 
         // This should never be disabled. The center column of a cobble wall, for
         // example, would be invisible otherwise.

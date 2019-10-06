@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
+package nl.pim16aap2.bigdoors.spigot.v1_14_R1;
 
 import net.minecraft.server.v1_14_R1.EntityMagmaCube;
 import net.minecraft.server.v1_14_R1.EntityTypes;
@@ -9,9 +9,9 @@ import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.PColor;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -59,7 +59,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
      */
     private void init()
     {
-        for (ChatColor col : ChatColor.values())
+        for (final ChatColor col : ChatColor.values())
             if (col.isColor())
                 try
                 {
@@ -78,7 +78,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
      */
     private void registerTeam(final @NotNull ChatColor color)
     {
-        String name = "BigDoors" + color.ordinal();
+        final String name = "BigDoors" + color.ordinal();
         // Try to get an existing team, in case something had gone wrong unregistering them last time.
         Team team = scoreboard.getTeam(name);
         if (team == null)
@@ -124,15 +124,15 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
                                  final double x, final double y, final double z, final @NotNull PColor pColor)
     {
 
-        ChatColor color = SpigotUtil.toBukkitColor(pColor);
+        final ChatColor color = SpigotUtil.toBukkitColor(pColor);
         if (!teams.containsKey(color))
         {
             plogger.logException(new IllegalArgumentException("Unsupported color: " + color.name()));
             return;
         }
 
-        Player player = Bukkit.getPlayer(pPlayer.getUUID());
-        World bukkitWorld = Bukkit.getWorld(world);
+        final Player player = Bukkit.getPlayer(pPlayer.getUUID());
+        final World bukkitWorld = Bukkit.getWorld(world);
         if (player == null || bukkitWorld == null)
         {
             plogger.logException(new NullPointerException(),
@@ -146,9 +146,9 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
                 @Override
                 public void run()
                 {
-                    PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-                    EntityMagmaCube magmaCube = new EntityMagmaCube(EntityTypes.MAGMA_CUBE,
-                                                                    ((CraftWorld) bukkitWorld).getHandle());
+                    final PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+                    final EntityMagmaCube magmaCube = new EntityMagmaCube(EntityTypes.MAGMA_CUBE,
+                                                                          ((CraftWorld) bukkitWorld).getHandle());
                     magmaCube.setLocation(x + 0.5, y, z + 0.5, 0, 0);
                     magmaCube.setSize(2, true);
                     magmaCube.setFlag(6, true); //Glowing
@@ -161,7 +161,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
                     magmaCube.collides = false;
                     teams.get(color).addEntry(magmaCube.getName());
 
-                    PacketPlayOutSpawnEntityLiving spawnMagmaCube = new PacketPlayOutSpawnEntityLiving(magmaCube);
+                    final PacketPlayOutSpawnEntityLiving spawnMagmaCube = new PacketPlayOutSpawnEntityLiving(magmaCube);
                     connection.sendPacket(spawnMagmaCube);
 
                     new java.util.Timer().schedule(
@@ -170,8 +170,9 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
                             @Override
                             public void run()
                             {
-                                PacketPlayOutEntityDestroy killMagmaCube = new PacketPlayOutEntityDestroy(
+                                final PacketPlayOutEntityDestroy killMagmaCube = new PacketPlayOutEntityDestroy(
                                     magmaCube.getId());
+
                                 connection.sendPacket(killMagmaCube);
                                 cancel();
                             }

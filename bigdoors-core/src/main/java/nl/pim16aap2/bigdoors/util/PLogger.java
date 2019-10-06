@@ -58,19 +58,6 @@ public final class PLogger
      */
     private AtomicBoolean onlyLogExceptions = new AtomicBoolean(false);
 
-//    /**
-//     * Constructs a PLogger.
-//     *
-//     * @param logFile The file to write to.
-//     */
-//    private PLogger(final @NotNull File logFile)
-//    {
-//        this.logFile = logFile;
-//        prepareLog();
-//        if (success)
-//            new Thread(this::processQueue).start();
-//    }
-
     private PLogger()
     {
     }
@@ -106,7 +93,7 @@ public final class PLogger
      */
     private boolean isInitialized()
     {
-        return logFile == null;
+        return logFile != null;
     }
 
     /**
@@ -297,13 +284,10 @@ public final class PLogger
      */
     private void writeToLog(final @NotNull String msg)
     {
-        try
+        try (final BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true)))
         {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true));
-            Date now = new Date();
-            bw.write("[" + dateFormat.format(now) + "] " + msg);
+            bw.write("[" + dateFormat.format(new Date()) + "] " + msg);
             bw.flush();
-            bw.close();
         }
         catch (IOException e)
         {
@@ -335,8 +319,7 @@ public final class PLogger
      */
     public void logException(final @NotNull Exception exception, final @NotNull String message)
     {
-        addToMessageQueue(new LogMessageException(message + "\n" + exception.getClass().getName() + "\n",
-                                                  exception));
+        addToMessageQueue(new LogMessageException(message + "\n" + exception.getClass().getName() + "\n", exception));
         writeToConsole(Level.SEVERE, message);
         if (consoleLogging)
             writeToConsole(Level.SEVERE, "\n" + exception.getClass().getName() + "\n" +
@@ -419,8 +402,7 @@ public final class PLogger
      * @return A string of the stack trace for at most numberOfLines lines if numberOfLines > 0.
      */
     @NotNull
-    private static String limitStackTraceLength(final @NotNull StackTraceElement[] stackTrace,
-                                                final int numberOfLines)
+    private static String limitStackTraceLength(final @NotNull StackTraceElement[] stackTrace, final int numberOfLines)
     {
         int linesToWrite = numberOfLines > 0 ? Math.min(numberOfLines, stackTrace.length) : stackTrace.length;
         StringBuilder sb = new StringBuilder();
@@ -464,8 +446,7 @@ public final class PLogger
         private final Exception exception;
         private final int numberOfLines;
 
-        LogMessageException(final @NotNull String message, final @NotNull Exception exception,
-                            final int numberOfLines)
+        LogMessageException(final @NotNull String message, final @NotNull Exception exception, final int numberOfLines)
         {
             super(message);
             this.exception = exception;

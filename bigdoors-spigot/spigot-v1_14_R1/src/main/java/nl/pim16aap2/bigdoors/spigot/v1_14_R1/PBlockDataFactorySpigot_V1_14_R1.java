@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
+package nl.pim16aap2.bigdoors.spigot.v1_14_R1;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
@@ -23,30 +23,32 @@ public class PBlockDataFactorySpigot_V1_14_R1 implements IPBlockDataFactory
     public Optional<PBlockData> create(final @NotNull IPLocation startLocation, final boolean bottom,
                                        final float radius, final float startAngle)
     {
-        World bukkitWorld = SpigotAdapter.getBukkitWorld(startLocation.getWorld());
+        final World bukkitWorld = SpigotAdapter.getBukkitWorld(startLocation.getWorld());
         if (bukkitWorld == null)
             return Optional.empty();
 
-        Block vBlock = bukkitWorld.getBlockAt(startLocation.getBlockX(), startLocation.getBlockY(),
-                                              startLocation.getBlockZ());
+        final Block vBlock = bukkitWorld.getBlockAt(startLocation.getBlockX(),
+                                                    startLocation.getBlockY(),
+                                                    startLocation.getBlockZ());
 
         if (!BlockAnalyzer_V1_14_R1.isAllowedBlockStatic(vBlock.getType()))
             return Optional.empty();
 
-        IPLocation newFBlockLocation = BigDoors.get().getPlatform().getPLocationFactory()
-                                               .create(startLocation.getWorld(),
-                                                       startLocation.getBlockX() + 0.5,
-                                                       startLocation.getBlockY() - 0.020,
-                                                       startLocation.getBlockZ() + 0.5);
+        final IPLocation newFBlockLocation = BigDoors.get().getPlatform().getPLocationFactory()
+                                                     .create(startLocation.getWorld(),
+                                                             startLocation.getBlockX() + 0.5,
+                                                             startLocation.getBlockY() - 0.020,
+                                                             startLocation.getBlockZ() + 0.5);
 
         // Move the lowest blocks up a little, so the client won't predict they're
         // touching through the ground, which would make them slower than the rest.
         if (bottom)
             newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 
-        INMSBlock nmsBlock = BigDoors.get().getPlatform().getFallingBlockFactory().nmsBlockFactory(startLocation);
-        ICustomCraftFallingBlock fBlock = BigDoors.get().getPlatform().getFallingBlockFactory()
-                                                  .fallingBlockFactory(newFBlockLocation, nmsBlock);
+        final INMSBlock nmsBlock = BigDoors.get().getPlatform().getFallingBlockFactory()
+                                           .nmsBlockFactory(startLocation);
+        final ICustomCraftFallingBlock fBlock = BigDoors.get().getPlatform().getFallingBlockFactory()
+                                                        .fallingBlockFactory(newFBlockLocation, nmsBlock);
 
         boolean deferPlacement = BlockAnalyzer_V1_14_R1.placeOnSecondPassStatic(vBlock.getType());
         return Optional.of(new PBlockData(fBlock, radius, nmsBlock, startLocation, startAngle, deferPlacement));

@@ -243,8 +243,8 @@ public interface IStorage
      * @param yMax    The new maximum y coordinate.
      * @param zMax    The new maximum z coordinate.
      */
-    void updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin,
-                          final int zMin, final int xMax, final int yMax, final int zMax);
+    void updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin, final int zMin,
+                          final int xMax, final int yMax, final int zMax);
 
     /**
      * Changes the blocksToMove value of a door.
@@ -330,6 +330,15 @@ public interface IStorage
         flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), door.isOpen(), flag);
         flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), door.isLocked(), flag);
         return flag;
+    }
+
+    enum DatabaseStatus
+    {
+        ERROR,
+        OUT_OF_DATE,
+        TOO_NEW,
+
+        ;
     }
 
     /**

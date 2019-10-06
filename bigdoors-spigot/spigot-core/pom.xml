@@ -40,11 +40,6 @@
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
 
-        <repository>
-            <id>sqlite-jdbc</id>
-            <url>https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc</url>
-        </repository>
-
         <!--        &lt;!&ndash; PlotSquared Breaking &ndash;&gt;-->
         <!--        <repository>-->
         <!--            <id>PlotSquared-Breaking</id>-->
@@ -71,32 +66,24 @@
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>bigdoors-core</artifactId>
             <version>${project.parent.version}</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-v1_14_R1</artifactId>
             <version>${project.parent.version}</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-util</artifactId>
             <version>${project.parent.version}</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>bigdoors-spigot</artifactId>
             <version>${project.parent.version}</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
 
 
@@ -116,14 +103,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- GriefPrevention -->
-        <dependency>
-            <groupId>com.github.TechFortress</groupId>
-            <artifactId>GriefPrevention</artifactId>
-            <version>16.7.1</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- JCalculator -->
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
@@ -138,6 +117,14 @@
             <artifactId>bstats-bukkit</artifactId>
             <version>1.5</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- GriefPrevention -->
+        <dependency>
+            <groupId>com.github.TechFortress</groupId>
+            <artifactId>GriefPrevention</artifactId>
+            <version>16.7.1</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Towny -->

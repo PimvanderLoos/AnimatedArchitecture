@@ -3,11 +3,12 @@ package nl.pim16aap2.bigdoors.spigot.managers;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.util.Restartable;
-import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -24,23 +25,38 @@ import java.util.Map;
  *
  * @author Pim
  */
-public class VaultManager extends Restartable
+public final class VaultManager implements IRestartable
 {
-    protected final BigDoorsSpigot plugin;
+    private static final VaultManager instance = new VaultManager();
     private final Map<Long, Double> menu;
     private final Map<DoorType, Double> flatPrices;
     private final boolean vaultEnabled;
     private Economy economy = null;
     private Permission perms = null;
+    private BigDoorsSpigot plugin;
 
-    public VaultManager(final @NotNull BigDoorsSpigot plugin)
+    private VaultManager()
     {
-        super(plugin);
-        this.plugin = plugin;
         menu = new HashMap<>();
         flatPrices = new EnumMap<>(DoorType.class);
-        init();
         vaultEnabled = isVaultInstalled() && setupEconomy() && setupPermissions();
+        if (!vaultEnabled)
+            PLogger.get().logException(new IllegalStateException("Failed to enable Vault!"));
+    }
+
+    /**
+     * Initializes this object.
+     *
+     * @param plugin The {@link BigDoorsSpigot} instance.
+     * @return The {@link VaultManager} instance.
+     */
+    public static VaultManager init(final @NotNull BigDoorsSpigot plugin)
+    {
+        if (!plugin.isRestartableRegistered(instance))
+            plugin.registerRestartable(instance);
+        instance.plugin = plugin;
+        instance.init();
+        return instance;
     }
 
     /**
@@ -146,7 +162,7 @@ public class VaultManager extends Restartable
             return 0;
 
         // Try cache first
-        long priceID = blockCount * 100L + DoorType.getValue(type);
+        final long priceID = blockCount * 100L + DoorType.getValue(type);
         if (menu.containsKey(priceID))
             return menu.get(priceID);
 
@@ -238,9 +254,8 @@ public class VaultManager extends Restartable
     {
         try
         {
-            RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager()
-                                                                       .getRegistration(
-                                                                           net.milkbowl.vault.economy.Economy.class);
+            final RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager()
+                                                                             .getRegistration(Economy.class);
             if (economyProvider == null)
                 return false;
 
@@ -249,6 +264,7 @@ public class VaultManager extends Restartable
         }
         catch (Exception e)
         {
+            PLogger.get().logException(e);
             return false;
         }
     }
@@ -263,8 +279,8 @@ public class VaultManager extends Restartable
     {
         try
         {
-            RegisteredServiceProvider<Permission> permissionProvider = plugin.getServer().getServicesManager()
-                                                                             .getRegistration(Permission.class);
+            final RegisteredServiceProvider<Permission> permissionProvider = plugin.getServer().getServicesManager()
+                                                                                   .getRegistration(Permission.class);
             if (permissionProvider == null)
                 return false;
 
@@ -273,6 +289,7 @@ public class VaultManager extends Restartable
         }
         catch (Exception e)
         {
+            PLogger.get().logException(e);
             return false;
         }
     }

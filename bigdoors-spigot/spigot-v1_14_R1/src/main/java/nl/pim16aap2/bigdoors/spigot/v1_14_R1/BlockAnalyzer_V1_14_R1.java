@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.spigot_v1_14_R1;
+package nl.pim16aap2.bigdoors.spigot.v1_14_R1;
 
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IPLocation;

@@ -64,6 +64,11 @@ import org.jetbrains.annotations.Nullable;
 //       type, but the messages system will be much cleaner by default.
 // TODO: For storing player permissions, consider storing them in the database when a player leaves.
 //       Then ONLY use those whenever that player is offline. Just use the online permissions otherwise.
+// TODO: When initializing the plugin, initialize vital functions first (database, etc). Because some
+//       things are intialized async (e.g. database upgrades), make sure to wait for everything on a
+//       separate thread. If anything fails, make sure to try to unload everything properly.
+//       Only keep something loaded to inform users about the issue and to handle command attempts
+//       gracefully.
 
 /*
  * Doors
@@ -126,7 +131,9 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
 // TODO: Get rid of all calls to SpigotUtil for messaging players. They should all go via the proper interface for that.
-// TODO: Logging, instead of "onlyLogExceptions", properly use logging levels.
+// TODO: Logging, instead of "onlyLogExceptions", properly use logging levels. Also implement a
+//       MINIMALISTIC logging level. On this level, only the names + messages of exceptions are written
+//       to the console. Make this the default setting.
 // TODO: Every Manager must be a singleton.
 // TODO: Use the following snippet for all singletons, not just the ones in bigdoors-core. This will require the use of
 //       "com.google.common.base.Preconditions" (so import that via Maven).
@@ -180,15 +187,14 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
  * SQL
  */
 // TODO: Store original coordinates in the database. These can be used to find the actual close direction.
-// TODO: Consider doing all upgrades on a separate thread. Then the server won't have to wait for the upgrade to finish.
-//       Added bonus: startReplaceTempPlayerNames() can be simplified. Check if this isn't already the case, now
-//       that all database interaction is done on (a) secondary thread(s).
 // TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME}, with UNIQUE(PLUGIN, TYPENAME).
 //       Then use FK from doors to doortypes. Useful for allowing custom door types.
 // TODO: Store engineChunkHash in the database, so stuff can be done when the chunk of a door is loaded. Also make sure
 //       to move the engine location for movable doors (sliding, etc).
 // TODO: Look into creating a separate table for worlds and put an FK to them in the doors table. This should save a bit
 //       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
+// TODO: When the database version is higher than the current version, disable the plugin (downgrading is not supported!)
+// TODO: Make sure all upgrades are done on the main SQL thread.
 
 /*
  * Commands
@@ -295,6 +301,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: When trying to activate a door in an unloaded chunk, load the chunk and instantly toggle the door (skip the animation).
 //       Extension: Add config option to send an error message to the player instead (so abort activation altogether).
 // TODO: Variable door depth.
+// TODO: Add a doortype that allows sliding doors to go diagonally. Might be possible to modify sliding doors as well.
 
 /*
 
