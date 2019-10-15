@@ -177,19 +177,19 @@ public final class PowerBlockManager extends Restartable
     /**
      * Updates the position of the power block of a {@link AbstractDoorBase} in the database.
      *
-     * @param doorUID   The UID of the {@link AbstractDoorBase}.
-     * @param worldUUID The UUID of the world.
-     * @param oldPos    The old position.
-     * @param newPos    The new position.
+     * @param door   The {@link AbstractDoorBase}.
+     * @param oldPos The old position.
+     * @param newPos The new position.
      */
-    public void updatePowerBlockLoc(final long doorUID, final @NotNull UUID worldUUID,
-                                    final @NotNull Vector3Di oldPos, final @NotNull Vector3Di newPos)
+    public void updatePowerBlockLoc(final @NotNull AbstractDoorBase door, final @NotNull Vector3Di oldPos,
+                                    final @NotNull Vector3Di newPos)
     {
-        databaseManager.updatePowerBlockLoc(doorUID, newPos, worldUUID);
-        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        databaseManager.updatePowerBlockLoc(door.getDoorUID(), newPos);
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getUID());
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            pLogger.logMessage("Failed to load power blocks for world: \"" +
+                                   door.getWorld().getUID().toString() + "\".");
             return;
         }
 
@@ -206,7 +206,7 @@ public final class PowerBlockManager extends Restartable
      */
     public void onDoorAddOrRemove(final @NotNull UUID worldUUID, final @NotNull Vector3Di pos)
     {
-        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
@@ -224,7 +224,7 @@ public final class PowerBlockManager extends Restartable
      */
     public void invalidateChunk(final @NotNull UUID worldUUID, final @NotNull Vector2Di chunk)
     {
-        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");

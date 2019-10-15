@@ -1,13 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
 import com.google.common.base.Preconditions;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetBlocksToMove;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.spigot.toolusers.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.spigot.util.AbortableTask;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForAddOwner;
@@ -83,8 +83,7 @@ public final class AbortableTaskManager
      */
     public void startPowerBlockRelocator(final @NotNull Player player, final @NotNull AbstractDoorBase door)
     {
-        startTimerForAbortableTask(new PowerBlockRelocator(plugin, player, door.getDoorUID(), door.getPowerBlockLoc()),
-                                   20 * 20);
+        startTimerForAbortableTask(new PowerBlockRelocator(plugin, player, door, door.getPowerBlockLoc()), 20 * 20);
     }
 
     /**

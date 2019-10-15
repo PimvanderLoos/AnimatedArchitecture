@@ -100,6 +100,7 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Move AbortableTaskManager and PowerBlockRedstoneManagerSpigot to bigdoors-core.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
 // TODO: Move all non-database related stuff out of DatabaseManager.
@@ -161,6 +162,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Add material blacklist to the config.
 // TODO: Add option to config to set the max number of doors per power block.
 // TODO: Consider only using a ConcurrentHashMap for the TimedCache, so it can loop over it async.
+// TODO: Make some kind of MessageRecipient interface. Much cleaner than sending an "Object" to sendMessageToTarget.
+//       Just let IPPlayer extend it for players.
 
 /*
  * GUI
@@ -195,6 +198,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
 // TODO: When the database version is higher than the current version, disable the plugin (downgrading is not supported!)
 // TODO: Make sure all upgrades are done on the main SQL thread.
+// TODO: Don't instantiate new Strings for SQL stuff. Just have some static final Strings stored for statements.
+//       This can also get rid of some code duplication.
 
 /*
  * Commands
@@ -302,6 +307,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       Extension: Add config option to send an error message to the player instead (so abort activation altogether).
 // TODO: Variable door depth.
 // TODO: Add a doortype that allows sliding doors to go diagonally. Might be possible to modify sliding doors as well.
+// TODO: Magic carpets? Flat flags.
 
 /*
 
@@ -422,7 +428,7 @@ public final class BigDoors
 
     /**
      * Gets the currently used {@link IMessagingInterface}. If the current one isn't set, {@link
-     * IBigDoorsPlatform#getMessagingInteface} is used instead.
+     * IBigDoorsPlatform#getMessagingInterface} is used instead.
      *
      * @return The currently used {@link IMessagingInterface}.
      */

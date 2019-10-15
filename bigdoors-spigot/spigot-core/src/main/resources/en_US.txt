@@ -191,6 +191,7 @@ CREATOR.PBRELOCATOR.STICKLORE=This tool is used to change the location of a powe
 CREATOR.PBRELOCATOR.INIT=&aYou have been given a Big Door Relocator stick! You can use this tool to change the location of a powerblock. Just hit a new block!
 CREATOR.PBRELOCATOR.SUCCESS=&aPower Block Relocation successful! Don't forget to put a powerblock (default: Gold block) here! Otherwise, it won't work!
 CREATOR.PBRELOCATOR.LOCATIONINUSE=&4Invalid Power Block Location selected! Location already in use by another door!
+CREATOR.PBRELOCATOR.LOCATIONNOTINSAMEWORLD=&4Invalid Power Block Location selected! The location must be in the same world as the door!
 
 
 CREATOR.PBINSPECTOR.STICKLORE=This tool is used to inspect a power block.

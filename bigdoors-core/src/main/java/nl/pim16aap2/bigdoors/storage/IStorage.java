@@ -104,7 +104,6 @@ public interface IStorage
     @NotNull
     Optional<AbstractDoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID);
 
-
     /**
      * Gets the door with the given doorUID and the original creator as {@link DoorOwner};
      *
@@ -265,14 +264,12 @@ public interface IStorage
     /**
      * Changes the location of the powerblock of a door.
      *
-     * @param doorUID   The door to modify.
-     * @param xPos      The new x coordinate for the powerblock.
-     * @param yPos      The new y coordinate for the powerblock.
-     * @param zPos      The new z coordinate for the powerblock.
-     * @param worldUUID The UUID of the world the power block is now in.
+     * @param doorUID The door to modify.
+     * @param xPos    The new x coordinate for the powerblock.
+     * @param yPos    The new y coordinate for the powerblock.
+     * @param zPos    The new z coordinate for the powerblock.
      */
-    void updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos,
-                                 final @NotNull UUID worldUUID);
+    void updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos);
 
     /**
      * Changes the lock status of a door.

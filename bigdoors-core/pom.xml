@@ -17,6 +17,11 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+
+        <repository>
+            <id>SQLite</id>
+            <url>https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc</url>
+        </repository>
     </repositories>
 
 
@@ -73,6 +78,13 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>2.23.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.28.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

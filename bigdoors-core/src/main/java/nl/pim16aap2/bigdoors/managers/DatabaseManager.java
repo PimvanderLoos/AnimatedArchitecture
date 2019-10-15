@@ -516,14 +516,13 @@ public final class DatabaseManager extends Restartable
     /**
      * Updates the location of a power block of a door.
      *
-     * @param doorUID   The UID of the door.
-     * @param newLoc    The new location.
-     * @param worldUUID The UUID of the world.
+     * @param doorUID The UID of the door.
+     * @param newLoc  The new location.
      */
-    void updatePowerBlockLoc(final long doorUID, final @NotNull Vector3Di newLoc, final @NotNull UUID worldUUID)
+    void updatePowerBlockLoc(final long doorUID, final @NotNull Vector3Di newLoc)
     {
         CompletableFuture.runAsync(() -> db.updateDoorPowerBlockLoc(doorUID, newLoc.getX(), newLoc.getY(),
-                                                                    newLoc.getZ(), worldUUID), threadPool);
+                                                                    newLoc.getZ()), threadPool);
     }
 
     /**

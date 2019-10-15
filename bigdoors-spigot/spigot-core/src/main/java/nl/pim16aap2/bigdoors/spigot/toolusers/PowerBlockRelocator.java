@@ -21,12 +21,14 @@ public class PowerBlockRelocator extends ToolUser
     protected Location newLoc = null;
     @NotNull
     private final Vector3Di oldLoc;
+    @NotNull
+    private final AbstractDoorBase door;
 
-    public PowerBlockRelocator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player, final long doorUID,
-                               final @NotNull Vector3Di oldLoc)
+    public PowerBlockRelocator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
+                               final @NotNull AbstractDoorBase door, final @NotNull Vector3Di oldLoc)
     {
         super(plugin, player);
-        this.doorUID = doorUID;
+        this.door = door;
         this.oldLoc = oldLoc;
         giveToolToPlayer();
     }
@@ -57,10 +59,9 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (newLoc != null)
         {
-            Vector3Di oldPos = new Vector3Di(oldLoc.getX(), oldLoc.getY(), oldLoc.getZ());
-            Vector3Di newPos = new Vector3Di(newLoc.getBlockX(), newLoc.getBlockY(), newLoc.getBlockZ());
-            BigDoors.get().getPowerBlockManager()
-                    .updatePowerBlockLoc(doorUID, newLoc.getWorld().getUID(), oldPos, newPos);
+            final Vector3Di oldPos = new Vector3Di(oldLoc.getX(), oldLoc.getY(), oldLoc.getZ());
+            final Vector3Di newPos = new Vector3Di(newLoc.getBlockX(), newLoc.getBlockY(), newLoc.getBlockZ());
+            BigDoors.get().getPowerBlockManager().updatePowerBlockLoc(door, oldPos, newPos);
             SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_PBRELOCATOR_SUCCESS));
         }
         finishUp();
@@ -72,7 +73,11 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     public void selector(final @NotNull Location loc)
     {
-        // TODO: Make sure it's in the same world!
+        if (!door.getWorld().getUID().equals(loc.getWorld().getUID()))
+        {
+            SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_PBRELOCATOR_LOCATIONNOTINSAMEWORLD));
+            return;
+        }
         newLoc = loc;
         setIsDone(true);
         plugin.getGlowingBlockSpawner()
