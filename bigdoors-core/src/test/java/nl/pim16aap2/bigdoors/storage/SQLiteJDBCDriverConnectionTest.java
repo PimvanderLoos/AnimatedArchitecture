@@ -29,15 +29,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class SQLiteJDBCDriverConnectionTest
@@ -657,53 +653,14 @@ public class SQLiteJDBCDriverConnectionTest
         // Disable console logging of errors as it's the point of this test. This way I won't get scared by errors in the console.
         plogger.setConsoleLogging(false);
 
-        waitForLogger();
-        long logSize = logFile.length();
-
-        // Verify database disabling works as intended.
-        {
-            // Set the enabled status of the database to false.
-            final Field databaseLock = SQLiteJDBCDriverConnection.class.getDeclaredField("enabled");
-            databaseLock.setAccessible(true);
-            databaseLock.setBoolean(storage, false);
-
-            // Verify that an IllegalStateException is thrown whenever retrieval is attempted while the database is
-            // disabled.
-            assertThrows(IllegalStateException.class, () -> storage.getDoor(1L));
-
-            // Set the database state to enabled again and verify that it's now possible to retrieve doors again.
-            databaseLock.setBoolean(storage, true);
-            Assert.assertTrue(storage.getDoor(player1UUID, 1L).isPresent());
-        }
-
-        // Make sure new errors were added to the log file.
-        waitForLogger();
-        long newLogSize = logFile.length();
-        Assert.assertTrue(newLogSize > logSize);
-        logSize = newLogSize;
-
-        // Verify database locking works as intended.
-        {
-            // Set the enabled status of the database to false.
-            final Method databaseLock = SQLiteJDBCDriverConnection.class
-                .getDeclaredMethod("setDatabaseLock", boolean.class);
-            databaseLock.setAccessible(true);
-            databaseLock.invoke(storage, true);
-
-            // Verify that an IllegalStateException is thrown whenever retrieval is attempted while the database is
-            // locked.
-            assertThrows(IllegalStateException.class, () -> storage.getDoor(1L));
-
-            // Unlock the database again and verify that it's now possible to retrieve doors again.
-            databaseLock.invoke(storage, false);
-            Assert.assertTrue(storage.getDoor(player1UUID, 1L).isPresent());
-        }
-
-        // Make sure new errors were added to the log file.
-        waitForLogger();
-        newLogSize = logFile.length();
-        Assert.assertTrue(newLogSize > logSize);
-        logSize = newLogSize;
+//        waitForLogger();
+//        long logSize = logFile.length();
+//
+//        // Make sure new errors were added to the log file.
+//        waitForLogger();
+//        long newLogSize = logFile.length();
+//        Assert.assertTrue(newLogSize > logSize);
+//        logSize = newLogSize;
 
         plogger.setConsoleLogging(true); // Enable console logging again after the test.
     }

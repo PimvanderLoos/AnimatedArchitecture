@@ -198,8 +198,13 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
 // TODO: When the database version is higher than the current version, disable the plugin (downgrading is not supported!)
 // TODO: Make sure all upgrades are done on the main SQL thread.
-// TODO: Don't instantiate new Strings for SQL stuff. Just have some static final Strings stored for statements.
-//       This can also get rid of some code duplication.
+// TODO: Put the list of Strings in the database class into an enum. In the enum's constructor, count the number of '?'
+//       symbols. Add a method to the enum "getPPreparedStatement()", which generates a new PPreparedStatement for that
+//       enum statement. Pass the number of "?" in the statement to the PPreparedStatement constructor, so that it can
+//       initialize an array of the proper size.
+// TODO: Get rid of the getPlayerID method. Try to figure out a way to incorporate it into the door insertion or the
+//       addOwner method statements. If not, put the getPlayerID method into a single statement.
+// TODO: Make all "void updateSomethingSomething()" methods return a boolean (if an error occurred).
 
 /*
  * Commands
@@ -338,6 +343,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
 // TODO: https://www.spigotmc.org/threads/using-junit-to-test-plugins.71420/#post-789671
 // TODO: https://github.com/seeseemelk/MockBukkit
+// TODO: Make sure to test database upgrade to v11. Make this future-proof somehow. Perhaps store the old v10 creation
+//       stuff somewhere.
 
 
 /**

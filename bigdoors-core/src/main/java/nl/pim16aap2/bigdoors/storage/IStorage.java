@@ -29,19 +29,19 @@ public interface IStorage
     int getPermission(final @NotNull String playerUUID, final long doorUID);
 
     /**
+     * Checks if this storage type only allows single threaded access or not.
+     *
+     * @return True if only single threaded access is allowed.
+     */
+    boolean isSingleThreaded();
+
+    /**
      * Delete the door with the given doorUID from the database.
      *
      * @param doorUID The UID of the door to delete.
      * @return True if at least 1 door was successfully removed.
      */
     boolean removeDoor(final long doorUID);
-
-    /**
-     * Checks if this storage type only allows single threaded access or not.
-     *
-     * @return True if only single threaded access is allowed.
-     */
-    boolean isSingleThreaded();
 
     /**
      * Delete all doors owned by the given player with the given name.
@@ -227,8 +227,9 @@ public interface IStorage
      *
      * @param doorUID      The door to modify.
      * @param blocksToMove The new number of blocks this door will try to move.
+     * @return True if the update was successful.
      */
-    void updateDoorBlocksToMove(final long doorUID, final int blocksToMove);
+    boolean updateDoorBlocksToMove(final long doorUID, final int blocksToMove);
 
     /**
      * Updates the coordinates of a door.
@@ -241,25 +242,28 @@ public interface IStorage
      * @param xMax    The new maximum x coordinate.
      * @param yMax    The new maximum y coordinate.
      * @param zMax    The new maximum z coordinate.
+     * @return True if the update was successful.
      */
-    void updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin, final int zMin,
-                          final int xMax, final int yMax, final int zMax);
+    boolean updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin, final int zMin,
+                             final int xMax, final int yMax, final int zMax);
 
     /**
      * Changes the blocksToMove value of a door.
      *
      * @param doorUID   The door to modify.
      * @param autoClose The new auto close timer of this door.
+     * @return True if the update was successful.
      */
-    void updateDoorAutoClose(final long doorUID, final int autoClose);
+    boolean updateDoorAutoClose(final long doorUID, final int autoClose);
 
     /**
      * Changes the blocksToMove value of a door.
      *
      * @param doorUID The door to modify.
      * @param openDir The new rotation direction of this door.
+     * @return True if the update was successful.
      */
-    void updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir);
+    boolean updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir);
 
     /**
      * Changes the location of the powerblock of a door.
@@ -268,23 +272,26 @@ public interface IStorage
      * @param xPos    The new x coordinate for the powerblock.
      * @param yPos    The new y coordinate for the powerblock.
      * @param zPos    The new z coordinate for the powerblock.
+     * @return True if the update was successful.
      */
-    void updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos);
+    boolean updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos);
 
     /**
      * Changes the lock status of a door.
      *
      * @param doorUID       The UID of the door to modify.
      * @param newLockStatus The new lock status of this door.
+     * @return True if the update was successful.
      */
-    void setLock(final long doorUID, final boolean newLockStatus);
+    boolean setLock(final long doorUID, final boolean newLockStatus);
 
     /**
      * Inserts a new door in the database.
      *
      * @param door The door to insert.
+     * @return True if the update was successful.
      */
-    void insert(final @NotNull AbstractDoorBase door);
+    boolean insert(final @NotNull AbstractDoorBase door);
 
     /**
      * Removes an owner of a door. Note that the original creator (= permission level 0) can never be removed.
@@ -312,8 +319,9 @@ public interface IStorage
      * @param doorUID    The UID of the door to modify.
      * @param player     The player to add as owner.
      * @param permission The level of ownership the player will have over the door.
+     * @return True if the update was successful.
      */
-    void addOwner(final long doorUID, final @NotNull IPPlayer player, final int permission);
+    boolean addOwner(final long doorUID, final @NotNull IPPlayer player, final int permission);
 
     /**
      * Gets the flag value of various boolean properties of a {@link AbstractDoorBase}.

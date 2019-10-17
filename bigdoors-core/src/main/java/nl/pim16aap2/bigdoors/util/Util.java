@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents various small and platform agnostic utility functions.
@@ -32,6 +34,9 @@ public final class Util
      */
     private static Random rnd = new Random();
 
+    @NotNull
+    private static final Pattern QUESTION_MARK = Pattern.compile("\\?");
+
     private static final Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
     private static final Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
 
@@ -51,6 +56,21 @@ public final class Util
             toRotateDirection.put(pbf, mappedRotDir);
             toPBlockFace.put(mappedRotDir, pbf);
         }
+    }
+
+    /**
+     * Obtains the numbers of question marks in a String.
+     *
+     * @param statement The String.
+     * @return The number of question marks in the String.
+     */
+    public static int getQuestionMarkCount(final @NotNull String statement)
+    {
+        int found = 0;
+        final Matcher matcher = QUESTION_MARK.matcher(statement);
+        while (matcher.find())
+            ++found;
+        return found;
     }
 
     /**

@@ -1,12 +1,12 @@
-package nl.pim16aap2.bigdoors.util;
+package nl.pim16aap2.bigdoors.util.Functional;
 
 /**
- * Represents a function with 3 input arguments.
+ * Represents a consumer with 3 input arguments.
  *
  * @author Pim
  */
 @FunctionalInterface
-public interface TriFunction<T, U, V, R>
+public interface TriConsumer<T, U, V>
 {
     /**
      * Applies this function to the given arguments.
@@ -14,7 +14,6 @@ public interface TriFunction<T, U, V, R>
      * @param t The first function argument.
      * @param u The second function argument.
      * @param v The third function argument.
-     * @return The function result.
      */
-    R apply(T t, U u, V v);
+    void accept(T t, U u, V v);
 }
