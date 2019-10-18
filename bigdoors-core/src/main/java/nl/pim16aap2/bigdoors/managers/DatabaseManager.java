@@ -96,6 +96,17 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
+     * Obtains {@link IStorage.DatabaseState} the database is in.
+     *
+     * @return The {@link IStorage.DatabaseState} the database is in.
+     */
+    @NotNull
+    public IStorage.DatabaseState getDatabaseState()
+    {
+        return db.getDatabaseState();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

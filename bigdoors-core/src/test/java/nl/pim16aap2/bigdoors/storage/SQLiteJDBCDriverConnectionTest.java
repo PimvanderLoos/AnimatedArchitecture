@@ -29,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.List;
@@ -278,6 +279,8 @@ public class SQLiteJDBCDriverConnectionTest
         Assert.assertNotNull(door);
         Assert.assertNotNull(door.getPlayerUUID().toString());
         Assert.assertNotNull(door.getName());
+
+        storage.getDoor(1L);
 
         Optional<List<AbstractDoorBase>> test = storage.getDoors(door.getPlayerUUID(), door.getName());
         if (!test.isPresent())
@@ -645,22 +648,44 @@ public class SQLiteJDBCDriverConnectionTest
     }
 
     /**
+     * Verifies that the size of the log file has increased in regards to the previous size.
+     *
+     * @param previousSize The last known size of the log file to compare the current size against.
+     * @return The current size of the log file.
+     */
+    private long verifyLogSizeIncrease(final long previousSize)
+    {
+        waitForLogger();
+        final long currentLogSize = logFile.length();
+        Assert.assertTrue(currentLogSize > previousSize);
+        return currentLogSize;
+    }
+
+    /**
      * Runs tests to verify that exceptions are caught when the should be and properly handled.
      */
     public void testFailures()
-        throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException
+        throws NoSuchFieldException, IllegalAccessException
     {
         // Disable console logging of errors as it's the point of this test. This way I won't get scared by errors in the console.
         plogger.setConsoleLogging(false);
 
-//        waitForLogger();
-//        long logSize = logFile.length();
-//
-//        // Make sure new errors were added to the log file.
-//        waitForLogger();
-//        long newLogSize = logFile.length();
-//        Assert.assertTrue(newLogSize > logSize);
-//        logSize = newLogSize;
+        long previousLogSize = verifyLogSizeIncrease(-1L);
+        // Verify database disabling works as intended.
+        {
+            // Set the enabled status of the database to false.
+            final Field databaseLock = SQLiteJDBCDriverConnection.class.getDeclaredField("databaseState");
+            databaseLock.setAccessible(true);
+            databaseLock.set(storage, IStorage.DatabaseState.ERROR);
+            storage.getDoor(player1UUID, 1L);
+
+            // Set the database state to enabled again and verify that it's now possible to retrieve doors again.
+            databaseLock.set(storage, IStorage.DatabaseState.OK);
+            Assert.assertTrue(storage.getDoor(player1UUID, 1L).isPresent());
+        }
+
+        // Make sure new errors were added to the log file.
+        previousLogSize = verifyLogSizeIncrease(previousLogSize);
 
         plogger.setConsoleLogging(true); // Enable console logging again after the test.
     }

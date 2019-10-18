@@ -54,11 +54,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private static final String FAKEUUID = "0000";
 
     /**
-     * Whether or not the database version is compatible with this version of BigDoors.
-     */
-    private boolean validVersion = true;
-
-    /**
      * The database file.
      */
     private final File dbFile;
@@ -74,15 +69,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private final PLogger pLogger;
 
     /**
-     * Whether or not the database is enabled. It gets disabled when it could not initialize the database properly or if
-     * it failed to create a backup before updating.
-     */
-    private boolean enabled = false;
-
-    /**
      * The BigDoors configuration.
      */
     private final IConfigLoader config;
+
+    /**
+     * The {@link DatabaseState} the database is in.
+     */
+    private volatile DatabaseState databaseState = DatabaseState.UNINITIALIZED;
 
     /**
      * Constructor of the SQLite driver connection.
@@ -100,12 +94,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         url = "jdbc:sqlite:" + dbFile;
         if (!loadDriver())
         {
-            // TODO: Handle this properly.
-            enabled = false;
+            databaseState = DatabaseState.NO_DRIVER;
             return;
         }
         init();
-        upgrade();
+        if (databaseState == DatabaseState.OUT_OF_DATE)
+            upgrade();
     }
 
     /**
@@ -139,28 +133,18 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Establishes a connection with the database.
      *
+     * @param state The state from which the connection was requested.
      * @return A database connection.
      */
-    @NotNull
-    private Connection getConnection()
+    @Nullable
+    private Connection getConnection(final @NotNull DatabaseState state)
     {
-        if (!validVersion)
+        if (!databaseState.equals(state))
         {
-            final IllegalStateException e = new IllegalStateException(
-                "Database disabled! Reason: Version too low! This is not a bug!\n" +
-                    "If you want to use your old database, you'll have to upgrade it to v2 first.\n" +
-                    "Please download the latest version of v1 first. For more info, go to the resource page.\n");
-            pLogger.logException(e);
-            throw e;
-        }
-
-        if (!enabled)
-        {
-            final IllegalStateException e = new IllegalStateException(
-                "Database disabled! This probably means an upgrade failed! " +
-                    "Please contact pim16aap2.");
-            pLogger.logException(e);
-            throw e;
+            PLogger.get().logException(new IllegalStateException(
+                "The database is in an incorrect state: " + databaseState.name() +
+                    ". All database operations are disabled!"));
+            return null;
         }
 
         Connection conn = null;
@@ -174,12 +158,19 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             pLogger.logException(e, "Failed to open connection!");
         }
         if (conn == null)
-        {
-            final NullPointerException e = new NullPointerException("Could not open connection!");
-            pLogger.logException(e);
-            throw e;
-        }
+            pLogger.logException(new NullPointerException("Could not open connection!"));
         return conn;
+    }
+
+    /**
+     * Establishes a connection with the database, assuming a database state of {@link DatabaseState#OK}.
+     *
+     * @return A database connection.
+     */
+    @Nullable
+    private Connection getConnection()
+    {
+        return getConnection(DatabaseState.OK);
     }
 
     /**
@@ -223,11 +214,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                     pLogger.logException(
                         new IOException(
                             "Failed to create directory \"" + dbFile.getParentFile().toString() + "\""));
+                    databaseState = DatabaseState.ERROR;
                     return;
                 }
                 if (!dbFile.createNewFile())
                 {
                     pLogger.logException(new IOException("Failed to create file \"" + dbFile.toString() + "\""));
+                    databaseState = DatabaseState.ERROR;
                     return;
                 }
                 pLogger.info("New file created at " + dbFile);
@@ -236,69 +229,73 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             {
                 pLogger.severe("File write error: " + dbFile);
                 PLogger.get().logException(e);
+                databaseState = DatabaseState.ERROR;
                 return;
             }
-        enabled = true;
 
         // Table creation
-        try (final Connection conn = getConnection())
+        try (final Connection conn = getConnection(DatabaseState.UNINITIALIZED))
         {
+            if (conn == null)
+            {
+                databaseState = DatabaseState.ERROR;
+                return;
+            }
+
             // Check if the doors table already exists. If it does, assume the rest exists
             // as well and don't set it up.
             if (!conn.getMetaData().getTables(null, null, "doors", new String[]{"TABLE"}).next())
             {
-                final Statement stmt1 = conn.createStatement();
-                final String sql1 = "CREATE TABLE IF NOT EXISTS doors \n" +
-                    "(id              INTEGER    PRIMARY KEY autoincrement, \n" +
-                    " name            TEXT       NOT NULL, \n" +
-                    " world           TEXT       NOT NULL, \n" +
-                    " xMin            INTEGER    NOT NULL, \n" +
-                    " yMin            INTEGER    NOT NULL, \n" +
-                    " zMin            INTEGER    NOT NULL, \n" +
-                    " xMax            INTEGER    NOT NULL, \n" +
-                    " yMax            INTEGER    NOT NULL, \n" +
-                    " zMax            INTEGER    NOT NULL, \n" +
-                    " engineX         INTEGER    NOT NULL, \n" +
-                    " engineY         INTEGER    NOT NULL, \n" +
-                    " engineZ         INTEGER    NOT NULL, \n" +
-                    " bitflag         INTEGER    NOT NULL DEFAULT 0, \n" +
-                    " type            INTEGER    NOT NULL DEFAULT  0, \n" +
-                    " powerBlockX     INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " powerBlockY     INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " powerBlockZ     INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " openDirection   INTEGER    NOT NULL DEFAULT  0, \n" +
-                    " autoClose       INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " chunkHash       INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " engineChunkHash INTEGER    NOT NULL DEFAULT -1, \n" +
-                    " blocksToMove    INTEGER    NOT NULL DEFAULT -1);";
-                stmt1.executeUpdate(sql1);
-                stmt1.close();
+                executeUpdate(conn, new PPreparedStatement(
+                    "CREATE TABLE IF NOT EXISTS doors \n" +
+                        "(id              INTEGER    PRIMARY KEY autoincrement, \n" +
+                        " name            TEXT       NOT NULL, \n" +
+                        " world           TEXT       NOT NULL, \n" +
+                        " xMin            INTEGER    NOT NULL, \n" +
+                        " yMin            INTEGER    NOT NULL, \n" +
+                        " zMin            INTEGER    NOT NULL, \n" +
+                        " xMax            INTEGER    NOT NULL, \n" +
+                        " yMax            INTEGER    NOT NULL, \n" +
+                        " zMax            INTEGER    NOT NULL, \n" +
+                        " engineX         INTEGER    NOT NULL, \n" +
+                        " engineY         INTEGER    NOT NULL, \n" +
+                        " engineZ         INTEGER    NOT NULL, \n" +
+                        " bitflag         INTEGER    NOT NULL DEFAULT 0, \n" +
+                        " type            INTEGER    NOT NULL DEFAULT  0, \n" +
+                        " powerBlockX     INTEGER    NOT NULL DEFAULT -1, \n" +
+                        " powerBlockY     INTEGER    NOT NULL DEFAULT -1, \n" +
+                        " powerBlockZ     INTEGER    NOT NULL DEFAULT -1, \n" +
+                        " openDirection   INTEGER    NOT NULL DEFAULT  0, \n" +
+                        " autoClose       INTEGER    NOT NULL DEFAULT -1, \n" +
+                        " chunkHash       INTEGER    NOT NULL DEFAULT -1, \n" +
+                        " engineChunkHash INTEGER    NOT NULL DEFAULT -1, \n" +
+                        " blocksToMove    INTEGER    NOT NULL DEFAULT -1);"));
 
-                final Statement stmt2 = conn.createStatement();
-                final String sql2 = "CREATE TABLE IF NOT EXISTS players \n" +
-                    "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n" +
-                    " playerUUID  TEXT       NOT NULL, \n" +
-                    " playerName  TEXT       NOT NULL, \n" +
-                    " unique(playerUUID));";
-                stmt2.executeUpdate(sql2);
-                stmt2.close();
+                executeUpdate(conn, new PPreparedStatement(
+                    "CREATE TABLE IF NOT EXISTS players \n" +
+                        "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n" +
+                        " playerUUID  TEXT       NOT NULL, \n" +
+                        " playerName  TEXT       NOT NULL, \n" +
+                        " unique(playerUUID));"));
 
-                final Statement stmt3 = conn.createStatement();
-                final String sql3 = "CREATE TABLE IF NOT EXISTS sqlUnion \n" +
-                    "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n" +
-                    " permission  INTEGER    NOT NULL, \n" +
-                    " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, \n" +
-                    " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE, \n" +
-                    " unique (playerID, doorUID));";
-                stmt3.executeUpdate(sql3);
-                stmt3.close();
+                executeUpdate(conn, new PPreparedStatement(
+                    "CREATE TABLE IF NOT EXISTS sqlUnion \n" +
+                        "(id          INTEGER    PRIMARY KEY AUTOINCREMENT, \n" +
+                        " permission  INTEGER    NOT NULL, \n" +
+                        " playerID    REFERENCES players(id) ON UPDATE CASCADE ON DELETE CASCADE, \n" +
+                        " doorUID     REFERENCES doors(id)   ON UPDATE CASCADE ON DELETE CASCADE, \n" +
+                        " unique (playerID, doorUID));"));
+
                 setDBVersion(conn, DATABASE_VERSION);
+                databaseState = DatabaseState.OK;
             }
+            else
+                databaseState = DatabaseState.OUT_OF_DATE; // Assume it's outdated if it isn't newly created.
         }
         catch (SQLException | NullPointerException e)
         {
             pLogger.logException(e);
-            enabled = false;
+            databaseState = DatabaseState.ERROR;
         }
     }
 
@@ -490,10 +487,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         Optional<AbstractDoorBase> door = Optional.empty();
 
         try (final Connection conn = getConnection();
-             final PreparedStatement ps = SQLStatement.GET_DOOR_FROM_UID.constructPPreparedStatement()
+             final PreparedStatement ps = conn == null ? null :
+                                          SQLStatement.GET_DOOR_FROM_UID.constructPPreparedStatement()
                                                                         .setLong(1, doorUID).construct(conn);
-             final ResultSet rs = ps.executeQuery())
+             final ResultSet rs = conn == null ? null : ps.executeQuery())
         {
+            if (conn == null)
+                return Optional.empty();
+
             final Optional<DoorOwner> doorOwner = getOwnerOfDoor(conn, doorUID);
             if (!doorOwner.isPresent())
                 return door;
@@ -501,7 +502,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             if (rs.next())
                 door = newDoorFromRS(rs, doorOwner.get());
         }
-        catch (Exception e)
+        catch (SQLException e)
         {
             pLogger.logException(e);
         }
@@ -683,11 +684,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @NotNull
     public Optional<DoorOwner> getOwnerOfDoor(final long doorUID)
     {
-        try (Connection conn = getConnection())
+        try (final Connection conn = getConnection())
         {
+            if (conn == null)
+                return Optional.empty();
             return getOwnerOfDoor(conn, doorUID);
         }
-        catch (SQLException | NullPointerException e)
+        catch (SQLException e)
         {
             pLogger.logException(e);
         }
@@ -899,6 +902,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         try (final Connection conn = getConnection())
         {
+            if (conn == null)
+                return -1;
             return executeUpdate(conn, pPreparedStatement);
         }
         catch (SQLException e)
@@ -939,6 +944,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         try (final Connection conn = getConnection())
         {
+            if (conn == null)
+                return -1;
             return executeUpdateReturnGeneratedKeys(conn, pPreparedStatement);
         }
         catch (SQLException e)
@@ -1007,6 +1014,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         try (final Connection conn = getConnection())
         {
+            if (conn == null)
+                return fallback;
             return executeQuery(conn, pPreparedStatement, fun, fallback);
         }
         catch (Exception e)
@@ -1106,13 +1115,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         try (final Connection conn = getConnection())
         {
+            if (conn == null)
+                return -1L;
             return getPlayerID(conn, doorOwner);
         }
         catch (Exception e)
         {
             PLogger.get().logException(e);
         }
-        return -1;
+        return -1L;
     }
 
     /**
@@ -1155,6 +1166,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         try (final Connection conn = getConnection())
         {
+            if (conn == null)
+                return false;
+
             final String playerName = player.getName();
             final long playerID = getPlayerID(conn, new DoorOwner(doorUID, player.getUUID(), playerName, permission));
             if (playerID == -1)
@@ -1178,32 +1192,71 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DatabaseState getDatabaseState()
+    {
+        return databaseState;
+    }
+
+    /**
+     * Obtains and checks the version of the database.
+     * <p>
+     * If the database version is invalid for this version of the database class, an error will be printed and the
+     * appropriate {@link #databaseState} will be set.
+     *
+     * @param conn A connection to the database.
+     * @return The version of the database, or -1 if something went wrong.
+     */
+    private int verifyDatabaseVersion(final @NotNull Connection conn)
+    {
+        int dbVersion = executeQuery(conn, new PPreparedStatement("PRAGMA user_version;"),
+                                     rs -> rs.getInt(1), -1);
+        if (dbVersion == -1)
+        {
+            PLogger.get().logMessage("Failed to obtain database version!");
+            databaseState = DatabaseState.ERROR;
+            return dbVersion;
+        }
+
+        if (dbVersion == DATABASE_VERSION)
+        {
+            databaseState = DatabaseState.OK;
+        }
+
+        if (dbVersion < MIN_DATABASE_VERSION)
+        {
+            PLogger.get().logMessage("Trying to load database version " + dbVersion +
+                                         " while the minimum allowed version is " + MIN_DATABASE_VERSION);
+            databaseState = DatabaseState.TOO_OLD;
+        }
+
+        if (dbVersion > DATABASE_VERSION)
+        {
+            PLogger.get().logMessage("Trying to load database version " + dbVersion +
+                                         " while the maximum allowed version is " + DATABASE_VERSION);
+            databaseState = DatabaseState.TOO_NEW;
+        }
+        return dbVersion;
+    }
+
+    /**
      * Upgrades the database to the latest version if needed.
      */
     private void upgrade()
     {
-        Connection conn = null;
+        Connection conn;
         try
         {
-            conn = getConnection();
-            final Statement stmt = conn.createStatement();
-            final ResultSet rs = stmt.executeQuery("PRAGMA user_version;");
-            int dbVersion = rs.getInt(1);
-            stmt.close();
-            rs.close();
-
-            if (dbVersion == DATABASE_VERSION)
-            {
-                conn.close();
+            conn = getConnection(DatabaseState.OUT_OF_DATE);
+            if (conn == null)
                 return;
-            }
 
-            if (dbVersion < MIN_DATABASE_VERSION || dbVersion > DATABASE_VERSION)
+            final int dbVersion = verifyDatabaseVersion(conn);
+            if (databaseState != DatabaseState.OUT_OF_DATE)
             {
-                pLogger.logMessage("Trying to load a database that is incompatible with this version of the plugin! " +
-                                       "Database version = " + dbVersion + ". Please update the plugin.");
                 conn.close();
-                validVersion = false;
                 return;
             }
 
@@ -1214,7 +1267,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 conn.close();
                 if (!makeBackup())
                     return;
-                conn = getConnection();
+                conn = getConnection(DatabaseState.OUT_OF_DATE);
+                if (conn == null)
+                    return;
             }
 
             if (dbVersion < 11)
@@ -1222,10 +1277,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
             // Do this at the very end, so the db version isn't altered if anything fails.
             setDBVersion(conn, DATABASE_VERSION);
+            databaseState = DatabaseState.OK;
         }
         catch (SQLException | NullPointerException e)
         {
             pLogger.logException(e);
+            databaseState = DatabaseState.ERROR;
         }
     }
 
@@ -1252,7 +1309,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             pLogger.logException(e, "Failed to create backup of the database! "
                 + "Database upgrade aborted and access is disabled!");
-            enabled = false;
             return false;
         }
         return true;

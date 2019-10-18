@@ -84,6 +84,7 @@ import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ChunkManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
+import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -104,6 +105,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Represents the implementation of {@link BigDoorsSpigotAbstract}.
+ *
+ * @author Pim
+ */
 public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     private static BigDoorsSpigot INSTANCE;
@@ -184,9 +190,19 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             abortableTaskManager = AbortableTaskManager.init(this);
 
             config = ConfigLoaderSpigot.init(this, getPLogger());
-            doorManager = DoorManager.init(this);
-
             init();
+            databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), config.dbFile()));
+
+            final IStorage.DatabaseState databaseState = databaseManager.getDatabaseState();
+            if (databaseState != IStorage.DatabaseState.OK)
+            {
+                PLogger.get().severe("Failed to load database! Found it in the state: " + databaseState.name() +
+                                         ". Plugin initialization has been aborted!");
+                successfulInit = false;
+                return;
+            }
+
+            doorManager = DoorManager.init(this);
             tf = new ToolVerifier(messages, this);
             vaultManager = VaultManager.init(this);
             autoCloseScheduler = AutoCloseScheduler.init(this);
@@ -201,40 +217,11 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), config, protCompatMan);
 
-            databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), config.dbFile()));
             Bukkit.getPluginManager().registerEvents(DoorActionListener.get(), this);
             powerBlockManager = PowerBlockManager.init(this, config, databaseManager, getPLogger());
             Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
 
-            commandManager = new CommandManager(this);
-            SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
-            {
-                commandBigDoors.registerSubCommand(new SubCommandAddOwner(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandCancel(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandMovePowerBlock(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandClose(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandDebug(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandDelete(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandFill(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandInfo(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandInspectPowerBlock(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandListDoors(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandListPlayerDoors(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandMenu(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandSetName(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandNew(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandOpen(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandRemoveOwner(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandRestart(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandSetAutoCloseTime(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandSetBlocksToMove(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandSetRotation(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandStopDoors(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandToggle(this, commandManager));
-                commandBigDoors.registerSubCommand(new SubCommandVersion(this, commandManager));
-            }
-            commandManager.registerCommand(commandBigDoors);
-            commandManager.registerCommand(new CommandMenu(this, commandManager));
+            loadCommands();
 
             pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
         }
@@ -300,6 +287,39 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         }
 
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
+    }
+
+    private final void loadCommands()
+    {
+        commandManager = new CommandManager(this);
+        SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
+        {
+            commandBigDoors.registerSubCommand(new SubCommandAddOwner(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandCancel(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandMovePowerBlock(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandClose(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandDebug(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandDelete(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandFill(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandInfo(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandInspectPowerBlock(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandListDoors(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandListPlayerDoors(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandMenu(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandSetName(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandNew(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandOpen(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandRemoveOwner(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandRestart(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandSetAutoCloseTime(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandSetBlocksToMove(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandSetRotation(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandStopDoors(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandToggle(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandVersion(this, commandManager));
+        }
+        commandManager.registerCommand(commandBigDoors);
+        commandManager.registerCommand(new CommandMenu(this, commandManager));
     }
 
     /**
@@ -644,6 +664,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return tf;
     }
 
+    /**
+     * Gets the message to send to admins and OPs when they log in. This message can contain all kinds of information,
+     * including but not limited to: The current build is a dev build, the plugin could not be initialized properly, an
+     * update is available.
+     *
+     * @return The message to send to admins and OPs when they log in.
+     */
     @NotNull
     public String getLoginMessage()
     {
@@ -651,10 +678,10 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         if (Constants.DEVBUILD)
             ret += "[BigDoors] Warning: You are running a devbuild!\n";
         if (!validVersion)
-            ret += "[BigDoors] Error: Trying to load the game on an invalid version! Plugin disabled!";
+            ret += "[BigDoors] Error: Trying to load the game on an invalid version! Plugin disabled!\n";
         if (!successfulInit)
             ret += "[BigDoors] Error: Failed to initialize the plugin! Some functions may not work as expected. " +
-                "Please contact pim16aap2!";
+                "Please contact pim16aap2! Don't forget to attach both the server log AND the BigDoors log!\n";
         if (updateManager.updateAvailable())
         {
             if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())

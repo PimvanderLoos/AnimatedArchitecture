@@ -196,15 +196,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       to move the engine location for movable doors (sliding, etc).
 // TODO: Look into creating a separate table for worlds and put an FK to them in the doors table. This should save a bit
 //       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
-// TODO: When the database version is higher than the current version, disable the plugin (downgrading is not supported!)
-// TODO: Make sure all upgrades are done on the main SQL thread.
-// TODO: Put the list of Strings in the database class into an enum. In the enum's constructor, count the number of '?'
-//       symbols. Add a method to the enum "getPPreparedStatement()", which generates a new PPreparedStatement for that
-//       enum statement. Pass the number of "?" in the statement to the PPreparedStatement constructor, so that it can
-//       initialize an array of the proper size.
-// TODO: Get rid of the getPlayerID method. Try to figure out a way to incorporate it into the door insertion or the
-//       addOwner method statements. If not, put the getPlayerID method into a single statement.
-// TODO: Make all "void updateSomethingSomething()" methods return a boolean (if an error occurred).
 
 /*
  * Commands

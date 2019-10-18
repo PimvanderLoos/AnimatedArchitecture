@@ -337,12 +337,54 @@ public interface IStorage
         return flag;
     }
 
-    enum DatabaseStatus
+    /**
+     * Obtains {@link DatabaseState} the database is in.
+     *
+     * @return The {@link DatabaseState} the database is in.
+     */
+    DatabaseState getDatabaseState();
+
+    /**
+     * Represents the status of the database.
+     *
+     * @author Pim
+     */
+    enum DatabaseState
     {
+        /**
+         * Everything is in order.
+         */
+        OK,
+
+        /**
+         * An error occurred somewhere along the way.
+         */
         ERROR,
+
+        /**
+         * The database is out of date and needs to be upgraded before it can work.
+         */
         OUT_OF_DATE,
+
+        /**
+         * The database version is newer than the maximum allowed version.
+         */
         TOO_NEW,
 
+        /**
+         * The database version is older than the minimum allowed version and can therefore not be upgraded.
+         */
+        TOO_OLD,
+
+        /**
+         * The database has not been initialized yet.
+         */
+        UNINITIALIZED,
+
+        /**
+         * No driver could be found.
+         */
+        NO_DRIVER,
         ;
     }
 
