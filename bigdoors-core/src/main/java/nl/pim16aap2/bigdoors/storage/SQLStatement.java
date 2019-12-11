@@ -85,7 +85,7 @@ public enum SQLStatement
         "SELECT * FROM doors WHERE chunkHash=?;"),
 
     GET_DOORS_IN_CHUNK(
-        "SELECT * FROM doors WHERE engineChunkHash=?;"),
+        "SELECT * FROM doors WHERE chunkHash=?;"),
 
     UPDATE_BLOCKS_TO_MOVE(
         "UPDATE doors SET blocksToMove=? WHERE id=?;"),

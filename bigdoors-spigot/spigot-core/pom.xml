@@ -39,25 +39,6 @@
             <id>vault-repo</id>
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
-
-        <!--        &lt;!&ndash; PlotSquared Breaking &ndash;&gt;-->
-        <!--        <repository>-->
-        <!--            <id>PlotSquared-Breaking</id>-->
-        <!--            <url>http://ci.athion.net/job/PlotSquared-Breaking/ws/mvn/</url>-->
-        <!--        </repository>-->
-
-        <!--        &lt;!&ndash; Old PlotSquared &ndash;&gt;-->
-        <!--        <repository>-->
-        <!--            <id>PlotSquared-Legacy</id>-->
-        <!--            <url>http://ci.athion.net/job/PlotSquared-Legacy/ws/mvn/</url>-->
-        <!--        </repository>-->
-
-
-        <!-- Towny -->
-        <repository>
-            <id>articdive-repo</id>
-            <url>https://nexus.articdive.de/repository/maven-releases</url>
-        </repository>
     </repositories>
 
 
@@ -71,6 +52,12 @@
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-v1_14_R1</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-v1_15_R1</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -127,14 +114,16 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Towny -->
+        <!-- New Towny -->
         <dependency>
             <groupId>com.palmergames</groupId>
             <artifactId>Towny</artifactId>
-            <version>0.94.0.5</version>
-            <scope>provided</scope>
+            <version>0.95.2.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/Towny-0.95.2.0.jar</systemPath>
         </dependency>
 
+        <!-- Old Towny -->
         <dependency>
             <groupId>com.palmergames</groupId>
             <artifactId>Towny</artifactId>

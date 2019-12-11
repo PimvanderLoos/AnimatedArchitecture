@@ -40,7 +40,7 @@ public final class VaultManager implements IRestartable
         menu = new HashMap<>();
         flatPrices = new EnumMap<>(DoorType.class);
         vaultEnabled = isVaultInstalled() && setupEconomy() && setupPermissions();
-        if (!vaultEnabled)
+        if (!vaultEnabled) // TODO: Don't throw an exception here, it's completely fine if Vault isn't installed!
             PLogger.get().logException(new IllegalStateException("Failed to enable Vault!"));
     }
 
@@ -242,7 +242,14 @@ public final class VaultManager implements IRestartable
      */
     private boolean isVaultInstalled()
     {
-        return plugin.getServer().getPluginManager().getPlugin("Vault") != null;
+        try
+        {
+            return plugin.getServer().getPluginManager().getPlugin("Vault") != null;
+        }
+        catch (NullPointerException e)
+        {
+            return false;
+        }
     }
 
     /**

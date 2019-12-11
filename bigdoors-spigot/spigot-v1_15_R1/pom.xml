@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>spigot-util</artifactId>
+    <artifactId>spigot-v1_15_R1</artifactId>
     <packaging>jar</packaging>
+    <description>BigDoors implementation for v1_15_R1</description>
     <version>${project.parent.version}</version>
-    <description>Spigot-related Utils used by BigDoors</description>
 
     <parent>
         <artifactId>bigdoors-spigot</artifactId>
@@ -13,11 +13,16 @@
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>spigot-util</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <!-- Spigot API (docs) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <version>1.15-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -26,22 +31,8 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <version>1.15-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

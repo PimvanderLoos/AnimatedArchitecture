@@ -18,5 +18,22 @@
             <artifactId>spigot-util</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
+        <!-- Spigot API (docs) -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <!-- Spigot API + (Craft)Bukkit API + NMS -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

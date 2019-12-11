@@ -13,6 +13,7 @@
     </parent>
 
     <modules>
+        <module>spigot-v1_15_R1</module>
         <module>spigot-v1_14_R1</module>
         <module>spigot-core</module>
         <module>spigot-util</module>
@@ -22,22 +23,6 @@
     </repositories>
 
     <dependencies>
-        <!-- Spigot API (docs) -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.14.4-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Spigot API + (Craft)Bukkit API + NMS -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.14.4-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>bigdoors-core</artifactId>

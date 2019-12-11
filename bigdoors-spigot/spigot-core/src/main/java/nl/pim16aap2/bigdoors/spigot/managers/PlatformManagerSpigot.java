@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.managers;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.spigot.v1_14_R1.SpigotPlatform_V1_14_R1;
+import nl.pim16aap2.bigdoors.spigot.v1_15_R1.SpigotPlatform_V1_15_R1;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -98,6 +99,18 @@ public final class PlatformManagerSpigot
                 public ISpigotPlatform getPlatform()
                 {
                     return SpigotPlatform_V1_14_R1.get();
+                }
+            },
+        v1_15_R1
+            {
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                @NotNull
+                public ISpigotPlatform getPlatform()
+                {
+                    return SpigotPlatform_V1_15_R1.get();
                 }
             },
         ;

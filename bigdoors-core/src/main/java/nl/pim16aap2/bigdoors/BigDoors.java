@@ -240,6 +240,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Openers / Movers
  */
+// TODO: Get rid of the weird speed multipliers in the CustomEntityFallingBlock_VX_XX_RX classes.
 // TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick.
 //       Then set the direction in the creator.
 // TODO: Rotate Sea Pickle and turtle egg.
@@ -314,6 +315,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Manual Testing
  */
+// TODO: Make sure no unnecessary database calls are made. Log them in the construct method of the PPreparedStatement class.
 // TODO: Test new creators: Windmill, RevolvingDoor, GarageDoor. Make sure it cannot be fucked up.
 // TODO: Test new chunkInRange methods. Especially sliding door.
 // TODO: Make sure that new lines in the messages work (check Util::stringFromArray).

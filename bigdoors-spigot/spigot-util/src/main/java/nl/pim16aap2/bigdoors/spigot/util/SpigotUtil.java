@@ -12,7 +12,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
@@ -289,9 +288,9 @@ public final class SpigotUtil
     {
         if (loc.getWorld() == null)
             return;
-        for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
-            if (ent instanceof Player)
-                ((Player) ent).playSound(loc, sound, volume, pitch);
+//        for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
+//            if (ent instanceof Player)
+//                ((Player) ent).playSound(loc, sound, volume, pitch);
     }
 
     /**
