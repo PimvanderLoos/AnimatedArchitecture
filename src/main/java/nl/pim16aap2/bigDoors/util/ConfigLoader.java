@@ -114,7 +114,7 @@ public class ConfigLoader
                                          "Doesn't take up a lot of RAM, so it's recommended to leave this value high. It'll get updated automatically when needed anyway." };
         String[] pricesComment = { "When Vault is present, you can set the price of door creation here for every type of door.",
                                    "You can use the word \"blockCount\" (without quotationmarks, case sensitive) as a variable that will be replaced by the actual blockCount.",
-                                   "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), and parentheses.",
+                                   "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), log(a), ln(a), e, pi, and parentheses.",
                                    "For example: \"doorPrice='max(10, sqrt(16)^4/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
                                    "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!" };
         String[] commandWaiterTimeoutComment = { "Amount of time (measured in seconds) until a command waiter times out.",

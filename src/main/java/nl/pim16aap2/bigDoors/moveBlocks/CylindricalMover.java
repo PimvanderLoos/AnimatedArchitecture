@@ -32,58 +32,64 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class CylindricalMover implements BlockMover
 {
-    private GetNewLocation             gnl;
-    private final FallingBlockFactory_Vall  fabf;
-    private final double                    time;
-    private final Door                      door;
-    private final World                    world;
-    private final int                     dx, dz;
-    private final BigDoors                plugin;
-    private final int                   tickRate;
-    private double              endStepSum;
-    private double              multiplier;
-    private final boolean            instantOpen;
-    private double            startStepSum;
-    private final RotateDirection   rotDirection;
-    private final int             stepMultiplier;
-    private final int           xMin, xMax, yMin;
-    private final int           yMax, zMin, zMax;
+    private GetNewLocation gnl;
+    private final FallingBlockFactory_Vall fabf;
+    private final double time;
+    private final Door door;
+    private final World world;
+    private final int dx, dz;
+    private final BigDoors plugin;
+    private final int tickRate;
+    private double endStepSum;
+    private double multiplier;
+    private final boolean instantOpen;
+    private double startStepSum;
+    private final RotateDirection rotDirection;
+    private final int stepMultiplier;
+    private final int xMin, xMax, yMin;
+    private final int yMax, zMin, zMax;
     private final DoorDirection currentDirection;
-    private final Location          turningPoint;
+    private final Location turningPoint;
     private final List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
 
     @SuppressWarnings("deprecation")
     public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
-            Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen, double multiplier)
+        Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen, double multiplier)
     {
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
-        this.rotDirection     = rotDirection;
+        this.rotDirection = rotDirection;
         this.currentDirection = currentDirection;
-        this.plugin           = plugin;
-        this.world            = world;
-        this.door             = door;
-        turningPoint          = door.getEngine();
-        fabf             = plugin.getFABF();
+        this.plugin = plugin;
+        this.world = world;
+        this.door = door;
+        turningPoint = door.getEngine();
+        fabf = plugin.getFABF();
         this.instantOpen = instantOpen;
-        stepMultiplier   = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
+        stepMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
 
-        xMin = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
-        yMin = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
-        zMin = turningPoint.getBlockZ() < pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
-        xMax = turningPoint.getBlockX() > pointOpposite.getBlockX() ? turningPoint.getBlockX() : pointOpposite.getBlockX();
-        yMax = turningPoint.getBlockY() > pointOpposite.getBlockY() ? turningPoint.getBlockY() : pointOpposite.getBlockY();
-        zMax = turningPoint.getBlockZ() > pointOpposite.getBlockZ() ? turningPoint.getBlockZ() : pointOpposite.getBlockZ();
-        int xLen      = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
-        int zLen      = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
-        int doorSize  = Math.max(xLen, zLen) + 1;
+        xMin = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() :
+            pointOpposite.getBlockX();
+        yMin = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() :
+            pointOpposite.getBlockY();
+        zMin = turningPoint.getBlockZ() < pointOpposite.getBlockZ() ? turningPoint.getBlockZ() :
+            pointOpposite.getBlockZ();
+        xMax = turningPoint.getBlockX() > pointOpposite.getBlockX() ? turningPoint.getBlockX() :
+            pointOpposite.getBlockX();
+        yMax = turningPoint.getBlockY() > pointOpposite.getBlockY() ? turningPoint.getBlockY() :
+            pointOpposite.getBlockY();
+        zMax = turningPoint.getBlockZ() > pointOpposite.getBlockZ() ? turningPoint.getBlockZ() :
+            pointOpposite.getBlockZ();
+        int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
+        int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
+        int doorSize = Math.max(xLen, zLen) + 1;
         double vars[] = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 3.7);
-        this.time     = vars[0];
-        tickRate      = (int) vars[1];
-        this.multiplier    = vars[2];
+        this.time = vars[0];
+        tickRate = (int) vars[1];
+        this.multiplier = vars[2];
 
-        dx   = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
-        dz   = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
+        dx = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
+        dz = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
 
         double xAxis = turningPoint.getX();
         do
@@ -92,14 +98,16 @@ public class CylindricalMover implements BlockMover
             do
             {
                 // Get the radius of this pillar.
-                double radius = Math.abs(xAxis - turningPoint.getBlockX()) > Math.abs(zAxis - turningPoint.getBlockZ()) ?
-                                Math.abs(xAxis - turningPoint.getBlockX()) : Math.abs(zAxis - turningPoint.getBlockZ());
+                double radius = Math.abs(xAxis - turningPoint.getBlockX()) > Math
+                    .abs(zAxis - turningPoint.getBlockZ()) ? Math.abs(xAxis - turningPoint.getBlockX()) :
+                        Math.abs(zAxis - turningPoint.getBlockZ());
 
                 for (double yAxis = yMin; yAxis <= yMax; yAxis++)
                 {
                     Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-                    // Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
+                    // Move the lowest blocks up a little, so the client won't predict they're
+                    // touching through the ground, which would make them slower than the rest.
                     if (yAxis == yMin)
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 
@@ -108,17 +116,18 @@ public class CylindricalMover implements BlockMover
 
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData  = vBlock.getData();
+                        Byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
 
-                        NMSBlock_Vall block  = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                        NMSBlock_Vall block = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                         NMSBlock_Vall block2 = null;
 
                         int canRotate = 0;
-                        Byte matByte  = matData;
+                        Byte matByte = matData;
 
                         canRotate = Util.canRotate(mat);
+
                         // Rotate blocks here so they don't interrupt the rotation animation.
                         if (canRotate != 0)
                         {
@@ -153,9 +162,10 @@ public class CylindricalMover implements BlockMover
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
-                             fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
+                            fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 
-                        savedBlocks.add(new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, startLocation));
+                        savedBlocks.add(new MyBlockData(mat, matByte, fBlock, radius, materialData,
+                                                        block2 == null ? block : block2, canRotate, startLocation));
                     }
                     else
                         savedBlocks.add(new MyBlockData(Material.AIR));
@@ -170,24 +180,24 @@ public class CylindricalMover implements BlockMover
         switch (currentDirection)
         {
         case NORTH:
-            gnl          = new GetNewLocationNorth(world, xMin, xMax, zMin, zMax, rotDirection);
+            gnl = new GetNewLocationNorth(world, xMin, xMax, zMin, zMax, rotDirection);
             startStepSum = Math.PI;
-            endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 : 3 * Math.PI / 2;
+            endStepSum = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 : 3 * Math.PI / 2;
             break;
         case EAST:
-            gnl          = new GetNewLocationEast (world, xMin, xMax, zMin, zMax, rotDirection);
+            gnl = new GetNewLocationEast(world, xMin, xMax, zMin, zMax, rotDirection);
             startStepSum = Math.PI / 2;
-            endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? 0 : Math.PI;
+            endStepSum = rotDirection == RotateDirection.CLOCKWISE ? 0 : Math.PI;
             break;
         case SOUTH:
-            gnl          = new GetNewLocationSouth(world, xMin, xMax, zMin, zMax, rotDirection);
+            gnl = new GetNewLocationSouth(world, xMin, xMax, zMin, zMax, rotDirection);
             startStepSum = 0;
-            endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? 3 * Math.PI / 2 : Math.PI / 2;
+            endStepSum = rotDirection == RotateDirection.CLOCKWISE ? 3 * Math.PI / 2 : Math.PI / 2;
             break;
         case WEST:
-            gnl          = new GetNewLocationWest (world, xMin, xMax, zMin, zMax, rotDirection);
+            gnl = new GetNewLocationWest(world, xMin, xMax, zMin, zMax, rotDirection);
             startStepSum = 3 * Math.PI / 2;
-            endStepSum   = rotDirection == RotateDirection.CLOCKWISE ? Math.PI : 0;
+            endStepSum = rotDirection == RotateDirection.CLOCKWISE ? Math.PI : 0;
             break;
         }
 
@@ -228,7 +238,6 @@ public class CylindricalMover implements BlockMover
             {
                 Byte matByte = savedBlock.getBlockByte();
 
-
                 Location newPos = gnl.getNewLocation(savedBlock.getRadius(), savedBlock.getStartX(),
                                                      savedBlock.getStartY(), savedBlock.getStartZ());
 
@@ -258,8 +267,8 @@ public class CylindricalMover implements BlockMover
         }
 
         // Tell the door object it has been opened and what its new coordinates are.
-        updateCoords(door, currentDirection, rotDirection, -1);
-        toggleOpen  (door);
+        updateCoords(door, currentDirection, rotDirection, -1, false);
+        toggleOpen(door);
 
         if (!onDisable)
         {
@@ -282,17 +291,17 @@ public class CylindricalMover implements BlockMover
     {
         new BukkitRunnable()
         {
-            Location center   = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
-            boolean replace   = false;
-            double counter    = 0;
-            int endCount      = (int) (20 / tickRate * time);
-            double step       = (Math.PI / 2) / endCount * stepMultiplier;
-            double stepSum    = startStepSum;
-            int totalTicks    = (int) (endCount * multiplier);
-            int replaceCount  = endCount / 2;
-            long startTime    = System.nanoTime();
+            Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
+            boolean replace = false;
+            double counter = 0;
+            int endCount = (int) (20 / tickRate * time);
+            double step = (Math.PI / 2) / endCount * stepMultiplier;
+            double stepSum = startStepSum;
+            int totalTicks = (int) (endCount * multiplier);
+            int replaceCount = endCount / 2;
+            long startTime = System.nanoTime();
             long lastTime;
-            long currentTime  = System.nanoTime();
+            long currentTime = System.nanoTime();
 
             @Override
             public void run()
@@ -333,7 +342,8 @@ public class CylindricalMover implements BlockMover
                 }
                 else
                 {
-                    // It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated.
+                    // It is not pssible to edit falling block blockdata (client won't update it),
+                    // so delete the current fBlock and replace it by one that's been rotated.
                     // Also, this stuff needs to be done on the main thread.
                     if (replace)
                         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
@@ -367,7 +377,7 @@ public class CylindricalMover implements BlockMover
                         if (!block.getMat().equals(Material.AIR))
                         {
                             double radius = block.getRadius();
-                            int yPos      = block.getStartLocation().getBlockY();
+                            int yPos = block.getStartLocation().getBlockY();
 
                             if (radius != 0)
                             {
@@ -401,18 +411,18 @@ public class CylindricalMover implements BlockMover
     {
         if (rotDirection == RotateDirection.CLOCKWISE)
         {
-            if (     matData == 0 || matData == 4 || matData ==  8)
+            if (matData == 0 || matData == 4 || matData == 8)
                 matData = (byte) (matData + 1);
-            else if (matData == 1 || matData == 5 || matData ==  9)
+            else if (matData == 1 || matData == 5 || matData == 9)
                 matData = (byte) (matData + 1);
             else if (matData == 2 || matData == 6 || matData == 10)
                 matData = (byte) (matData + 1);
             else if (matData == 3 || matData == 7 || matData == 11)
                 matData = (byte) (matData - 3);
         }
-        else if (     matData == 0 || matData == 4 || matData ==  8)
+        else if (matData == 0 || matData == 4 || matData == 8)
             matData = (byte) (matData + 3);
-        else if (matData == 1 || matData == 5 || matData ==  9)
+        else if (matData == 1 || matData == 5 || matData == 9)
             matData = (byte) (matData - 1);
         else if (matData == 2 || matData == 6 || matData == 10)
             matData = (byte) (matData - 1);
@@ -452,9 +462,11 @@ public class CylindricalMover implements BlockMover
         door.setOpenStatus(!door.isOpen());
     }
 
-    // Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
+    // Update the coordinates of a door based on its location, direction it's
+    // pointing in and rotation direction.
     @SuppressWarnings("null")
-    private void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
+    public static void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved,
+                                    boolean shadow)
     {
         int xMin = door.getMinimum().getBlockX();
         int yMin = door.getMinimum().getBlockY();
@@ -472,54 +484,51 @@ public class CylindricalMover implements BlockMover
         case NORTH:
             if (rotDirection == RotateDirection.CLOCKWISE)
             {
-                newMin = new Location(door.getWorld(), xMin,          yMin, zMax);
+                newMin = new Location(door.getWorld(), xMin, yMin, zMax);
                 newMax = new Location(door.getWorld(), (xMin + zLen), yMax, zMax);
             }
             else
             {
                 newMin = new Location(door.getWorld(), (xMin - zLen), yMin, zMax);
-                newMax = new Location(door.getWorld(), xMax,          yMax, zMax);
+                newMax = new Location(door.getWorld(), xMax, yMax, zMax);
             }
             break;
-
 
         case EAST:
             if (rotDirection == RotateDirection.CLOCKWISE)
             {
-                newMin = new Location(door.getWorld(), xMin, yMin,         zMin );
+                newMin = new Location(door.getWorld(), xMin, yMin, zMin);
                 newMax = new Location(door.getWorld(), xMin, yMax, (zMax + xLen));
             }
             else
             {
                 newMin = new Location(door.getWorld(), xMin, yMin, (zMin - xLen));
-                newMax = new Location(door.getWorld(), xMin, yMax,         zMin );
+                newMax = new Location(door.getWorld(), xMin, yMax, zMin);
             }
             break;
-
 
         case SOUTH:
             if (rotDirection == RotateDirection.CLOCKWISE)
             {
                 newMin = new Location(door.getWorld(), (xMin - zLen), yMin, zMin);
-                newMax = new Location(door.getWorld(), xMax,          yMax, zMin);
+                newMax = new Location(door.getWorld(), xMax, yMax, zMin);
             }
             else
             {
-                newMin = new Location(door.getWorld(), xMin,          yMin, zMin);
+                newMin = new Location(door.getWorld(), xMin, yMin, zMin);
                 newMax = new Location(door.getWorld(), (xMin + zLen), yMax, zMin);
             }
             break;
-
 
         case WEST:
             if (rotDirection == RotateDirection.CLOCKWISE)
             {
                 newMin = new Location(door.getWorld(), xMax, yMin, (zMin - xLen));
-                newMax = new Location(door.getWorld(), xMax, yMax,         zMax );
+                newMax = new Location(door.getWorld(), xMax, yMax, zMax);
             }
             else
             {
-                newMin = new Location(door.getWorld(), xMax, yMin,         zMin );
+                newMin = new Location(door.getWorld(), xMax, yMin, zMin);
                 newMax = new Location(door.getWorld(), xMax, yMax, (zMax + xLen));
             }
             break;
@@ -527,10 +536,14 @@ public class CylindricalMover implements BlockMover
         door.setMaximum(newMax);
         door.setMinimum(newMin);
 
-        plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
+        boolean isOpen = shadow ? door.isOpen() : !door.isOpen();
+        BigDoors.get().getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(),
+                                                       newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
+                                                       newMax.getBlockY(), newMax.getBlockZ());
     }
 
-    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
+    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData,
+                                                             NMSBlock_Vall block)
     {
         CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
         Entity bukkitEntity = (Entity) entity;
@@ -542,7 +555,6 @@ public class CylindricalMover implements BlockMover
     {
         return door.getDoorUID();
     }
-
 
     @Override
     public Door getDoor()

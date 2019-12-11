@@ -49,6 +49,12 @@ public class FlagOpener implements Opener
     }
 
     @Override
+    public DoorOpenResult shadowToggle(Door door)
+    {
+        return DoorOpenResult.SUCCESS;
+    }
+
+    @Override
     public DoorOpenResult openDoor(Door door, double time)
     {
         return openDoor(door, time, false, false);

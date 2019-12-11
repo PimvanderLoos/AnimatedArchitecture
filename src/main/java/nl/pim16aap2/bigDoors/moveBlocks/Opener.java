@@ -13,6 +13,7 @@ public interface Opener
 {
     public DoorOpenResult openDoor (Door door, double time);
     public DoorOpenResult openDoor (Door door, double time, boolean instantOpen, boolean silent);
+    public DoorOpenResult shadowToggle(Door door);
 
     RotateDirection getRotateDirection(Door door);
     boolean isRotateDirectionValid(Door door);

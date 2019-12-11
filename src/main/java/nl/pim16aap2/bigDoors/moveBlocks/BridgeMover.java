@@ -381,7 +381,7 @@ public class BridgeMover implements BlockMover
         savedBlocks.clear();
 
         // Tell the door object it has been opened and what its new coordinates are.
-        updateCoords(door, openDirection, upDown, -1);
+        updateCoords(door, openDirection, upDown, -1, false);
         toggleOpen  (door);
 
         if (!onDisable)
@@ -575,7 +575,7 @@ public class BridgeMover implements BlockMover
 
     // Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
     @SuppressWarnings("null")
-    private void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown, int moved)
+    public static void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown, int moved, boolean shadow)
     {
         int xMin = door.getMinimum().getBlockX();
         int yMin = door.getMinimum().getBlockY();
@@ -659,7 +659,10 @@ public class BridgeMover implements BlockMover
         door.setMinimum(newMin);
         door.setEngineSide(newEngSide);
 
-        plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
+        boolean isOpen = shadow ? door.isOpen() : !door.isOpen();
+        BigDoors.get().getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(),
+                                                       newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
+                                                       newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
     }
 
     private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)

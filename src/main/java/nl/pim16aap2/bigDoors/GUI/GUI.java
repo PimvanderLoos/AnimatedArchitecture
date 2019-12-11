@@ -65,6 +65,15 @@ public class GUI
             DOORTYPES[4] = Material.getMaterial("PISTON_BASE"); // Sliding Door
             DOORTYPES[5] = Material.getMaterial("CARPET");      // Flag
         }
+        else if (MCVersion.v1_12.equals(BigDoors.getMCVersion()))
+        {
+            DOORTYPES[0] = Material.getMaterial("WOOD_DOOR");   // Door
+            DOORTYPES[1] = Material.getMaterial("TRAP_DOOR");   // DrawBridge
+            DOORTYPES[2] = Material.getMaterial("IRON_DOOR");   // Portcullis
+            DOORTYPES[3] = Material.getMaterial("BOAT");        // Elevator
+            DOORTYPES[4] = Material.getMaterial("PISTON_BASE"); // Sliding Door
+            DOORTYPES[5] = Material.getMaterial("CARPET");      // Flag
+        }
         else
         {
             DOORTYPES[0] = XMaterial.OAK_DOOR.parseMaterial();      // Door

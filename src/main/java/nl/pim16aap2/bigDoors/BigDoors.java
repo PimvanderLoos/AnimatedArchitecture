@@ -31,6 +31,8 @@ import nl.pim16aap2.bigDoors.NMS.v1_13_R2.FallingBlockFactory_V1_13_R2;
 import nl.pim16aap2.bigDoors.NMS.v1_13_R2.SkullCreator_V1_13_R2;
 import nl.pim16aap2.bigDoors.NMS.v1_14_R1.FallingBlockFactory_V1_14_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_14_R1.SkullCreator_V1_14_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_15_R1.FallingBlockFactory_V1_15_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_15_R1.SkullCreator_V1_15_R1;
 import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.ChunkUnloadHandler;
@@ -69,7 +71,7 @@ public class BigDoors extends JavaPlugin implements Listener
     public static final boolean DEVBUILD = true;
     private int buildNumber = -1;
 
-    public static final int MINIMUMDOORDELAY = 10;
+    public static final int MINIMUMDOORDELAY = 15;
 
     private ToolVerifier tf;
     private SQLiteJDBCDriverConnection db;
@@ -98,7 +100,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private AutoCloseScheduler autoCloseScheduler;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
-    private TimedCache<Long /*Chunk*/, HashMap<Long /*Loc*/, Long /*doorUID*/>> pbCache = null;
+    private TimedCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
     private HeadManager headManager;
     private VaultManager vaultManager;
     private UpdateManager updateManager;
@@ -110,7 +112,7 @@ public class BigDoors extends JavaPlugin implements Listener
         instance = this;
 
         logFile = new File(getDataFolder(), "log.txt");
-        logger  = new MyLogger(this, logFile);
+        logger = new MyLogger(this, logFile);
         updateManager = new UpdateManager(this, 58669);
         if (DEVBUILD)
         {
@@ -127,9 +129,9 @@ public class BigDoors extends JavaPlugin implements Listener
             // Load the files for the correct version of Minecraft.
             if (!validVersion)
             {
-                logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! (\""  +
-                    (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3]) +
-                                  "\"). This plugin will NOT be enabled!", true, true);
+                logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! (\""
+                    + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3])
+                    + "\"). This plugin will NOT be enabled!", true, true);
                 return;
             }
 
@@ -164,6 +166,7 @@ public class BigDoors extends JavaPlugin implements Listener
             registerCommand("inspectpowerblockloc");
             registerCommand("changepowerblockloc");
             registerCommand("setautoclosetime");
+            registerCommand("shadowtoggledoor");
             registerCommand("setdoorrotation");
             registerCommand("setblockstomove");
             registerCommand("newportcullis");
@@ -185,7 +188,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
             liveDevelopmentLoad();
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
             exception.printStackTrace();
             logger.logMessage(Util.exceptionToString(exception), true, true);
@@ -204,11 +207,11 @@ public class BigDoors extends JavaPlugin implements Listener
             return;
 
         readConfigValues();
-        messages    = new Messages(this);
-        toolUsers   = new HashMap<>();
-        playerGUIs  = new HashMap<>();
-        cmdWaiters  = new HashMap<>();
-        tf          = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
+        messages = new Messages(this);
+        toolUsers = new HashMap<>();
+        playerGUIs = new HashMap<>();
+        cmdWaiters = new HashMap<>();
+        tf = new ToolVerifier(messages.getString("CREATOR.GENERAL.StickName"));
 
         if (config.enableRedstone())
         {
@@ -218,12 +221,14 @@ public class BigDoors extends JavaPlugin implements Listener
         // If the resourcepack is set to "NONE", don't load it.
         if (!config.resourcePack().equals("NONE"))
         {
-            // If a resource pack was set for the current version of Minecraft, send that pack to the client on login.
+            // If a resource pack was set for the current version of Minecraft, send that
+            // pack to the client on login.
             rPackHandler = new LoginResourcePackHandler(this, config.resourcePack());
-            Bukkit.getPluginManager().registerEvents(rPackHandler,  this);
+            Bukkit.getPluginManager().registerEvents(rPackHandler, this);
         }
 
-        // Load stats collector if allowed, otherwise unload it if needed or simply don't load it in the first place.
+        // Load stats collector if allowed, otherwise unload it if needed or simply
+        // don't load it in the first place.
         if (config.allowStats())
         {
             logger.myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
@@ -234,7 +239,9 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             // Y u do dis? :(
             metrics = null;
-            logger.myLogger(Level.INFO, "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
+            logger
+                .myLogger(Level.INFO,
+                          "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
         }
 
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
@@ -278,7 +285,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         onDisable();
         protCompatMan.restart();
-        playerGUIs.forEach((key,value) -> value.close());
+        playerGUIs.forEach((key, value) -> value.close());
         playerGUIs.clear();
 
         HandlerList.unregisterAll(redstoneHandler);
@@ -492,14 +499,15 @@ public class BigDoors extends JavaPlugin implements Listener
         locale = config.languageFile();
     }
 
-    // This function simply loads these classes to make my life a bit less hell-ish with live development.
+    // This function simply loads these classes to make my life a bit less hell-ish
+    // with live development.
     @SuppressWarnings("unused")
     private void liveDevelopmentLoad()
     {
-        new GetNewLocationNorth ();
-        new GetNewLocationEast  ();
-        new GetNewLocationSouth ();
-        new GetNewLocationWest  ();
+        new GetNewLocationNorth();
+        new GetNewLocationEast();
+        new GetNewLocationSouth();
+        new GetNewLocationWest();
         commandHandler.stopDoors();
     }
 
@@ -514,7 +522,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         try
         {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
+            version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         }
         catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
@@ -533,6 +541,8 @@ public class BigDoors extends JavaPlugin implements Listener
             mcVersion = MCVersion.v1_13;
         else if (version.equals("v1_14_R1"))
             mcVersion = MCVersion.v1_14;
+        else if (version.equals("v1_15_R1"))
+            mcVersion = MCVersion.v1_15;
         return mcVersion;
     }
 
@@ -543,7 +553,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         try
         {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
+            version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         }
         catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
@@ -551,34 +561,40 @@ public class BigDoors extends JavaPlugin implements Listener
             return false;
         }
 
-        fabf  = null;
+        fabf = null;
         if (version.equals("v1_11_R1"))
         {
-            fabf        = new FallingBlockFactory_V1_11_R1();
+            fabf = new FallingBlockFactory_V1_11_R1();
             headManager = new SkullCreator_V1_11_R1(this);
         }
         else if (version.equals("v1_12_R1"))
         {
-            fabf        = new FallingBlockFactory_V1_12_R1();
+            fabf = new FallingBlockFactory_V1_12_R1();
             headManager = new SkullCreator_V1_12_R1(this);
         }
         else if (version.equals("v1_13_R1"))
         {
-            is1_13      = true;
-            fabf        = new FallingBlockFactory_V1_13_R1();
+            is1_13 = true;
+            fabf = new FallingBlockFactory_V1_13_R1();
             headManager = new SkullCreator_V1_13_R1(this);
         }
         else if (version.equals("v1_13_R2"))
         {
-            is1_13      = true;
-            fabf        = new FallingBlockFactory_V1_13_R2();
+            is1_13 = true;
+            fabf = new FallingBlockFactory_V1_13_R2();
             headManager = new SkullCreator_V1_13_R2(this);
         }
         else if (version.equals("v1_14_R1"))
         {
-            is1_13      = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
-            fabf        = new FallingBlockFactory_V1_14_R1();
+            is1_13 = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
+            fabf = new FallingBlockFactory_V1_14_R1();
             headManager = new SkullCreator_V1_14_R1(this);
+        }
+        else if (version.equals("v1_15_R1"))
+        {
+            is1_13 = true; // Yeah, it's actually 1.15, but it still needs to use new stuff.
+            fabf = new FallingBlockFactory_V1_15_R1();
+            headManager = new SkullCreator_V1_15_R1(this);
         }
         // Return true if compatible.
         return fabf != null;
@@ -591,13 +607,14 @@ public class BigDoors extends JavaPlugin implements Listener
 
     private int readBuildNumber()
     {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/build.number"))))
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass()
+            .getResourceAsStream("/build.number"))))
         {
             for (int idx = 0; idx != 2; ++idx)
                 reader.readLine();
             return Integer.parseInt(reader.readLine().replace("build.number=", ""));
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             return -1;
         }
@@ -682,7 +699,8 @@ public class BigDoors extends JavaPlugin implements Listener
         v1_11,
         v1_12,
         v1_13,
-        v1_14
+        v1_14,
+        v1_15
     }
 
 //    public long createNewDoor(Location min, Location max, Location engine,

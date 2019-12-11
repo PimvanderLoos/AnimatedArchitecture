@@ -1,3 +1,11 @@
+Alpha 0.1.8.15
+- Added "/shadowtoggledoor <doorName/doorUID>" (permission: bigdoors.admin.shadowtoggledoor) command to toggle a door purely in the database (no blocks will be moved). This can be used to fix a desync issue. It should only be used as a last resort!
+- Added support for 1.15.
+
+Alpha 0.1.8.14
+- Fixed materials in 1.12. Thanks, @GameFire99 for the bug report!
+- Updated to JCalculator 1.6 (for the price formulas in the config), fixing issues with exponentiation and adding some more operators. 
+
 Alpha 0.1.8.13
 - Added support for Towny. Thanks, @Onions for the suggestion!
 - Fixed incorrect handling of the doorSize limit in the config and the permissions. Thanks, @Onions for the bug report!

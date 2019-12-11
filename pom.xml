@@ -4,14 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.pim16aap2</groupId>
     <artifactId>BigDoors</artifactId>
-    <version>0.1.8.13-ALPHA</version>
+    <version>0.1.8.15-ALPHA</version>
 
     <repositories>
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-        
+                
         <!-- Spigot -->
         <repository>
             <id>spigot-repo</id>
@@ -89,6 +89,12 @@
             <version>1.14-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.spigotmc.old</groupId>
+            <artifactId>spigot-1.15</artifactId>
+            <version>1.15-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
         
 
         <!-- bStats -->
@@ -157,7 +163,7 @@
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
-            <version>1.4</version>
+            <version>1.6</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

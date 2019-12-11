@@ -25,18 +25,22 @@
         <copy file="./build.number"          tofile="./target/classes/build.number"/>
         <copy file="./changelog.txt"         tofile="./target/classes/changelog.txt"/>
 
+        <delete file="${basedir}/Servers/SpigotServer_1.11/plugins/BigDoors.jar"/>
         <delete file="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
         <delete file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar"/>
         <delete file="${basedir}/Servers/SpigotServer_1.14/plugins/BigDoors.jar"/>
+        <delete file="${basedir}/Servers/SpigotServer_1.15/plugins/BigDoors.jar"/>
     </target>
     
     <target name="CreateJar" description="Create Jar file" depends="init">
-        <jar jarfile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" basedir="./target/classes/" includes="**/*.*">
-            <zipgroupfileset dir="/home/pim/Documents/workspace/JCalculator/" includes="JCalculator.jar"/>
+        <jar jarfile="${basedir}/Jars/BigDoors-unobf.jar" basedir="./target/classes/" includes="**/*.*">
+            <zipgroupfileset dir="/home/pim/Documents/workspace/JCalculator/target" includes="JCalculator.jar"/>
         </jar>
-        <copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.11/plugins/BigDoors.jar"/>
-        <copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
-        <copy file="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar" tofile="${basedir}/Servers/SpigotServer_1.14/plugins/BigDoors.jar"/>
+        <copy file="${basedir}/Jars/BigDoors-unobf.jar" tofile="${basedir}/Servers/SpigotServer_1.11/plugins/BigDoors.jar"/>
+        <copy file="${basedir}/Jars/BigDoors-unobf.jar" tofile="${basedir}/Servers/SpigotServer_1.12/plugins/BigDoors.jar"/>
+        <copy file="${basedir}/Jars/BigDoors-unobf.jar" tofile="${basedir}/Servers/SpigotServer_1.13/plugins/BigDoors.jar"/>
+        <copy file="${basedir}/Jars/BigDoors-unobf.jar" tofile="${basedir}/Servers/SpigotServer_1.14/plugins/BigDoors.jar"/>
+        <copy file="${basedir}/Jars/BigDoors-unobf.jar" tofile="${basedir}/Servers/SpigotServer_1.15/plugins/BigDoors.jar"/>
     </target>
 
     <target name="allatori" depends="CreateJar">

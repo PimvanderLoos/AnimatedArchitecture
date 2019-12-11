@@ -1,0 +1,8 @@
+- Check version number.
+- Check debug statements.
+- Check if release mode is selected. (e.g. DEVBUILD is set properly).
+- If SQL has been updated:
+    - Check if insert statement has all the variables + matching # of '?' chars.
+    - Check if creating a new table is correct.
+- Go over entire to-do list to see if anything still needs to be implemented.
+- Update changelog.

@@ -136,6 +136,45 @@ public class DoorOpener implements Opener
         return null;
     }
 
+    // Determine which direction the door is going to rotate. Clockwise or counterclockwise.
+    private RotateDirection getShadowRotationDirection(Door door, DoorDirection currentDir)
+    {
+        RotateDirection openDir = door.getOpenDir();
+        openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
+                  openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE : openDir;
+        switch(currentDir)
+        {
+        case NORTH:
+            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE))
+                return RotateDirection.CLOCKWISE;
+            else if (!openDir.equals(RotateDirection.CLOCKWISE))
+                return RotateDirection.COUNTERCLOCKWISE;
+            break;
+
+        case EAST:
+            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE))
+                return RotateDirection.CLOCKWISE;
+            else if (!openDir.equals(RotateDirection.CLOCKWISE))
+                return RotateDirection.COUNTERCLOCKWISE;
+            break;
+
+        case SOUTH:
+            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE))
+                return RotateDirection.CLOCKWISE;
+            else if (!openDir.equals(RotateDirection.CLOCKWISE))
+                return RotateDirection.COUNTERCLOCKWISE;
+            break;
+
+        case WEST:
+            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE))
+                return RotateDirection.CLOCKWISE;
+            else if (!openDir.equals(RotateDirection.CLOCKWISE))
+                return RotateDirection.COUNTERCLOCKWISE;
+            break;
+        }
+        return null;
+    }
+
     // Get the direction the door is currently facing as seen from the engine to the end of the door.
     private DoorDirection getCurrentDirection(Door door)
     {
@@ -161,6 +200,26 @@ public class DoorOpener implements Opener
             plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
 
         return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
+    }
+
+    @Override
+    public DoorOpenResult shadowToggle(Door door)
+    {
+        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        {
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+            return DoorOpenResult.BUSY;
+        }
+        DoorDirection currentDirection = getCurrentDirection(door);
+        RotateDirection rotDirection = getShadowRotationDirection(door, currentDirection);
+        if (door.getOpenDir().equals(RotateDirection.NONE) || currentDirection == null || rotDirection == null)
+        {
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
+            return DoorOpenResult.NODIRECTION;
+        }
+        CylindricalMover.updateCoords(door, currentDirection, rotDirection, 0, true);
+
+        return DoorOpenResult.SUCCESS;
     }
 
     @Override

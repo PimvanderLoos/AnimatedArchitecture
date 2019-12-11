@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.bukkit.Material;
 //import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -19,20 +18,46 @@ import nl.pim16aap2.bigDoors.HeadManager;
 public enum Skull
 {
 
-    ARROW_LEFT("MHF_ArrowLeft"), ARROW_RIGHT("MHF_ArrowRight"), ARROW_UP("MHF_ArrowUp"), ARROW_DOWN("MHF_ArrowDown"),
-    QUESTION("MHF_Question"), EXCLAMATION("MHF_Exclamation"), CAMERA("FHG_Cam"),
+    ARROW_LEFT ("MHF_ArrowLeft"),
+    ARROW_RIGHT ("MHF_ArrowRight"),
+    ARROW_UP ("MHF_ArrowUp"),
+    ARROW_DOWN ("MHF_ArrowDown"),
+    QUESTION ("MHF_Question"),
+    EXCLAMATION ("MHF_Exclamation"),
+    CAMERA ("FHG_Cam"),
 
-    ZOMBIE_PIGMAN("MHF_PigZombie"), PIG("MHF_Pig"), SHEEP("MHF_Sheep"), BLAZE("MHF_Blaze"), CHICKEN("MHF_Chicken"),
-    COW("MHF_Cow"), SLIME("MHF_Slime"), SPIDER("MHF_Spider"), SQUID("MHF_Squid"), VILLAGER("MHF_Villager"),
-    OCELOT("MHF_Ocelot"), HEROBRINE("MHF_Herobrine"), LAVA_SLIME("MHF_LavaSlime"), MOOSHROOM("MHF_MushroomCow"),
-    GOLEM("MHF_Golem"), GHAST("MHF_Ghast"), ENDERMAN("MHF_Enderman"), CAVE_SPIDER("MHF_CaveSpider"),
+    ZOMBIE_PIGMAN ("MHF_PigZombie"),
+    PIG ("MHF_Pig"),
+    SHEEP ("MHF_Sheep"),
+    BLAZE ("MHF_Blaze"),
+    CHICKEN ("MHF_Chicken"),
+    COW ("MHF_Cow"),
+    SLIME ("MHF_Slime"),
+    SPIDER ("MHF_Spider"),
+    SQUID ("MHF_Squid"),
+    VILLAGER ("MHF_Villager"),
+    OCELOT ("MHF_Ocelot"),
+    HEROBRINE ("MHF_Herobrine"),
+    LAVA_SLIME ("MHF_LavaSlime"),
+    MOOSHROOM ("MHF_MushroomCow"),
+    GOLEM ("MHF_Golem"),
+    GHAST ("MHF_Ghast"),
+    ENDERMAN ("MHF_Enderman"),
+    CAVE_SPIDER ("MHF_CaveSpider"),
 
-    CACTUS("MHF_Cactus"), CAKE("MHF_Cake"), CHEST("MHF_Chest"), MELON("MHF_Melon"), LOG("MHF_OakLog"),
-    PUMPKIN("MHF_Pumpkin"), TNT("MHF_TNT"), DYNAMITE("MHF_TNT2");
+    CACTUS ("MHF_Cactus"),
+    CAKE ("MHF_Cake"),
+    CHEST ("MHF_Chest"),
+    MELON ("MHF_Melon"),
+    LOG ("MHF_OakLog"),
+    PUMPKIN ("MHF_Pumpkin"),
+    TNT ("MHF_TNT"),
+    DYNAMITE ("MHF_TNT2");
 
     private String id;
 
-    // Spigot 1.14 moved Apache import. This way it should support the new versions too.
+    // Spigot 1.14 moved Apache import. This way it should support the new versions
+    // too.
     // NOTE: UNTESTED!
     private static Object base64;
     private static Method encode;
@@ -43,7 +68,8 @@ public enum Skull
             base64 = new org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64();
             try
             {
-                encode = org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64.class.getDeclaredMethod("encode", String.class);
+                encode = org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64.class
+                    .getDeclaredMethod("encode", String.class);
             }
             catch (NoSuchMethodException | SecurityException e)
             {
@@ -87,7 +113,8 @@ public enum Skull
         byte[] encodedData;
         try
         {
-            encodedData = (byte[]) encode.invoke(base64, String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+            encodedData = (byte[]) encode.invoke(base64,
+                                                 String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
@@ -111,7 +138,7 @@ public enum Skull
      */
     public static ItemStack getPlayerSkull(String name)
     {
-        ItemStack itemStack = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        ItemStack itemStack = new ItemStack(XMaterial.PLAYER_HEAD.parseMaterial(), 1, (short) 3);
         SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
         meta.setOwner(name);
         itemStack.setItemMeta(meta);
@@ -135,7 +162,7 @@ public enum Skull
      */
     public ItemStack getSkull()
     {
-        ItemStack itemStack = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        ItemStack itemStack = new ItemStack(XMaterial.PLAYER_HEAD.parseMaterial(), 1, (short) 3);
         SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
         meta.setOwner(id);
         itemStack.setItemMeta(meta);

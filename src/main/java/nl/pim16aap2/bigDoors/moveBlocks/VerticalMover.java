@@ -194,7 +194,7 @@ public class VerticalMover implements BlockMover
         savedBlocks.clear();
 
         // Tell the door object it has been opened and what its new coordinates are.
-        updateCoords(door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, blocksToMove);
+        updateCoords(door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, blocksToMove, false);
         toggleOpen  (door);
 
         if (!onDisable)
@@ -287,7 +287,7 @@ public class VerticalMover implements BlockMover
     }
 
     // Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
-    private void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved)
+    public static void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved, boolean shadow)
     {
         int xMin = door.getMinimum().getBlockX();
         int yMin = door.getMinimum().getBlockY();
@@ -302,7 +302,10 @@ public class VerticalMover implements BlockMover
         door.setMaximum(newMax);
         door.setMinimum(newMin);
 
-        plugin.getCommander().updateDoorCoords(door.getDoorUID(), !door.isOpen(), newMin.getBlockX(), newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(), newMax.getBlockY(), newMax.getBlockZ());
+        boolean isOpen = shadow ? door.isOpen() : !door.isOpen();
+        BigDoors.get().getCommander().updateDoorCoords(door.getDoorUID(), isOpen, newMin.getBlockX(),
+                                                       newMin.getBlockY(), newMin.getBlockZ(), newMax.getBlockX(),
+                                                       newMax.getBlockY(), newMax.getBlockZ());
     }
 
     private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)

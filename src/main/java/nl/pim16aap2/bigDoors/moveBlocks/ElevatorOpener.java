@@ -54,6 +54,29 @@ public class ElevatorOpener implements Opener
     }
 
     @Override
+    public DoorOpenResult shadowToggle(Door door)
+    {
+        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        {
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+            return DoorOpenResult.BUSY;
+        }
+        if (door.getOpenDir().equals(RotateDirection.NONE))
+        {
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
+            return DoorOpenResult.NODIRECTION;
+        }
+
+        // For the blocks to shadow move the door, prefer to use the BTM variable, but use the height if that's unavailable.
+        int moved = door.getBlocksToMove() > 0 ? door.getBlocksToMove() : (door.getMaximum().getBlockY() - door.getMinimum().getBlockY() + 1);
+        int multiplier = door.getOpenDir().equals(RotateDirection.UP) ? 1 : -1;
+        multiplier *= door.isOpen() ? 1 : -1;
+
+        VerticalMover.updateCoords(door, null, null, moved * multiplier, true);
+        return DoorOpenResult.SUCCESS;
+    }
+
+    @Override
     public DoorOpenResult openDoor(Door door, double time)
     {
         return openDoor(door, time, false, false);

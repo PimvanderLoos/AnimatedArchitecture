@@ -82,9 +82,9 @@ public class CommandHandler implements CommandExecutor
             return;
         }
 
-
         UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
-        // Get a new instance of the door to make sure the locked / unlocked status is recent.
+        // Get a new instance of the door to make sure the locked / unlocked status is
+        // recent.
         Door newDoor = plugin.getCommander().getDoor(playerUUID, door.getDoorUID());
 
         if (newDoor == null)
@@ -118,7 +118,8 @@ public class CommandHandler implements CommandExecutor
         openDoorCommand((CommandSender) player, door, 0.0);
     }
 
-    // Get the number of doors owned by player player with name doorName (or any name, if doorName == null)
+    // Get the number of doors owned by player player with name doorName (or any
+    // name, if doorName == null)
     public long countDoors(Player player, String doorName)
     {
         return plugin.getCommander().countDoors(player.getUniqueId().toString(), doorName);
@@ -141,7 +142,8 @@ public class CommandHandler implements CommandExecutor
         if (doorUID != -1)
         {
             if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.INFO))
-                Util.messagePlayer(player, Util.getFullDoorInfo(plugin.getCommander().getDoor(player.getUniqueId(), doorUID)));
+                Util.messagePlayer(player,
+                                   Util.getFullDoorInfo(plugin.getCommander().getDoor(player.getUniqueId(), doorUID)));
         }
         else
         {
@@ -172,7 +174,8 @@ public class CommandHandler implements CommandExecutor
         {
             ArrayList<Door> doors = plugin.getCommander().getDoors(null, str);
             for (Door door : doors)
-                plugin.getMyLogger().myLogger(Level.INFO, plugin.getCommander().playerNameFromUUID(door.getPlayerUUID()) + ": " + Util.getFullDoorInfo(door));
+                plugin.getMyLogger().myLogger(Level.INFO, plugin.getCommander().playerNameFromUUID(door.getPlayerUUID())
+                    + ": " + Util.getFullDoorInfo(door));
             if (doors.size() == 0)
                 plugin.getMyLogger().myLogger(Level.INFO, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
             return;
@@ -183,7 +186,8 @@ public class CommandHandler implements CommandExecutor
             plugin.getMyLogger().myLogger(Level.INFO, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
             return;
         }
-        plugin.getMyLogger().myLogger(Level.INFO, Util.nameFromUUID(door.getPlayerUUID()) + ": " + Util.getFullDoorInfo(door));
+        plugin.getMyLogger().myLogger(Level.INFO,
+                                      Util.nameFromUUID(door.getPlayerUUID()) + ": " + Util.getFullDoorInfo(door));
     }
 
     private void listDoorsFromConsole(String playerUUID, String name)
@@ -208,7 +212,8 @@ public class CommandHandler implements CommandExecutor
             plugin.getMyLogger().info("Player \"" + str + "\" was not found!");
     }
 
-    // Doors aren't allowed to have numerical names, to differentiate doorNames from doorUIDs.
+    // Doors aren't allowed to have numerical names, to differentiate doorNames from
+    // doorUIDs.
     public boolean isValidDoorName(String name)
     {
         try
@@ -216,7 +221,7 @@ public class CommandHandler implements CommandExecutor
             Integer.parseInt(name);
             return false;
         }
-        catch(NumberFormatException e)
+        catch (NumberFormatException e)
         {
             return true;
         }
@@ -227,13 +232,14 @@ public class CommandHandler implements CommandExecutor
     {
         if (!player.hasPermission(DoorType.getPermission(type)))
         {
-            Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
+            Util.messagePlayer(player, ChatColor.RED,
+                               plugin.getMessages().getString("GENERAL.NoDoorTypeCreationPermission"));
             return;
         }
 
         long doorCount = plugin.getCommander().countDoors(player.getUniqueId().toString(), null);
-        int maxCount   = Util.getMaxDoorsForPlayer(player);
-        if (maxCount  >= 0 && doorCount >= maxCount)
+        int maxCount = Util.getMaxDoorsForPlayer(player);
+        if (maxCount >= 0 && doorCount >= maxCount)
         {
             Util.messagePlayer(player, ChatColor.RED, plugin.getMessages().getString("GENERAL.TooManyDoors"));
             return;
@@ -241,7 +247,8 @@ public class CommandHandler implements CommandExecutor
 
         if (name != null && !isValidDoorName(name))
         {
-            Util.messagePlayer(player, ChatColor.RED, "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+            Util.messagePlayer(player, ChatColor.RED,
+                               "\"" + name + "\"" + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
             return;
         }
 
@@ -252,12 +259,12 @@ public class CommandHandler implements CommandExecutor
         if (type.equals(DoorType.FLAG) || type.equals(DoorType.ELEVATOR)) // DISABLED ELEVATORS
             return;
 
-        ToolUser tu = type == DoorType.DOOR        ? new DoorCreator       (plugin, player, name) :
-                      type == DoorType.DRAWBRIDGE  ? new DrawbridgeCreator (plugin, player, name) :
-                      type == DoorType.PORTCULLIS  ? new PortcullisCreator (plugin, player, name) :
-                      type == DoorType.ELEVATOR    ? new ElevatorCreator   (plugin, player, name) :
-                      type == DoorType.FLAG        ? new FlagCreator       (plugin, player, name) :
-                      type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
+        ToolUser tu = type == DoorType.DOOR ? new DoorCreator(plugin, player, name) :
+            type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
+            type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) :
+            type == DoorType.ELEVATOR ? new ElevatorCreator(plugin, player, name) :
+            type == DoorType.FLAG ? new FlagCreator(plugin, player, name) :
+            type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
 
         startTimerForAbortable(tu, 120 * 20);
     }
@@ -291,7 +298,8 @@ public class CommandHandler implements CommandExecutor
     {
         if (isPlayerBusy(player))
             return;
-        startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, doorUID)), plugin.getConfigLoader().commandWaiterTimeout() * 20);
+        startTimerForAbortable((new WaitForSetBlocksToMove(plugin, player, doorUID)),
+                               plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     private void replaceWaitForCommand(Player player)
@@ -307,19 +315,22 @@ public class CommandHandler implements CommandExecutor
     public void startTimerSetter(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForSetTime(plugin, player, doorUID)), plugin.getConfigLoader().commandWaiterTimeout() * 20);
+        startTimerForAbortable((new WaitForSetTime(plugin, player, doorUID)),
+                               plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     public void startAddOwner(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForAddOwner(plugin, player, doorUID)), plugin.getConfigLoader().commandWaiterTimeout() * 20);
+        startTimerForAbortable((new WaitForAddOwner(plugin, player, doorUID)),
+                               plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     public void startRemoveOwner(Player player, long doorUID)
     {
         replaceWaitForCommand(player);
-        startTimerForAbortable((new WaitForRemoveOwner(plugin, player, doorUID)), plugin.getConfigLoader().commandWaiterTimeout() * 20);
+        startTimerForAbortable((new WaitForRemoveOwner(plugin, player, doorUID)),
+                               plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     private boolean isPlayerBusy(Player player)
@@ -339,7 +350,8 @@ public class CommandHandler implements CommandExecutor
 
     public void startPowerBlockRelocator(Player player, long doorUID)
     {
-        startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID), plugin.getConfigLoader().commandWaiterTimeout() * 20);
+        startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID),
+                               plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
     public void killAllBigDoorsEntities()
@@ -350,17 +362,18 @@ public class CommandHandler implements CommandExecutor
                     entity.remove();
     }
 
-    private static final String upgradeWarning = "\n" +
-        "===================================================================================\n" +
-        "===================================== WARNING =====================================\n" +
-        "===================================================================================\n" +
-        "||  Are you absolutely sure you want to upgrade the database to v2 of BigDoors?  ||\n" +
-        "||  You will NOT BE ABLE to use this database on the current version anymore!    ||\n" +
-        "||  If you are aware of the consequences, execute the following command:         ||\n" +
-        "||  \"bigdoors upgradedatabaseforv2 confirm\"                                      ||\n" +
-        "===================================================================================\n" +
-        "===================================== WARNING =====================================\n" +
-        "===================================================================================";
+    private static final String upgradeWarning = "\n"
+        + "===================================================================================\n"
+        + "===================================== WARNING =====================================\n"
+        + "===================================================================================\n"
+        + "||  Are you absolutely sure you want to upgrade the database to v2 of BigDoors?  ||\n"
+        + "||  You will NOT BE ABLE to use this database on the current version anymore!    ||\n"
+        + "||  If you are aware of the consequences, execute the following command:         ||\n"
+        + "||  \"bigdoors upgradedatabaseforv2 confirm\"                                      ||\n"
+        + "===================================================================================\n"
+        + "===================================== WARNING =====================================\n"
+        + "===================================================================================";
+
     private void prepareDatabaseForV2(CommandSender sender, Command cmd, String label, String[] args)
     {
         if (sender instanceof Player)
@@ -393,7 +406,7 @@ public class CommandHandler implements CommandExecutor
         {
             String firstCommand = args.length == 0 ? "" : args[0].toLowerCase();
 
-            switch(firstCommand)
+            switch (firstCommand)
             {
             case "upgradedatabaseforv2":
                 if (player != null) // Only the server may use this command.
@@ -401,10 +414,10 @@ public class CommandHandler implements CommandExecutor
                 prepareDatabaseForV2(sender, cmd, label, args);
                 break;
             case "version":
-                if (player != null  && !player.hasPermission("bigdoors.admin.version"))
+                if (player != null && !player.hasPermission("bigdoors.admin.version"))
                     break;
-                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version " +
-                    plugin.getDescription().getVersion() + " of this plugin!");
+                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version "
+                    + plugin.getDescription().getVersion() + " of this plugin!");
                 break;
 
             case "menu":
@@ -416,7 +429,8 @@ public class CommandHandler implements CommandExecutor
                 if (player != null && !player.hasPermission("bigdoors.admin.restart"))
                     break;
                 plugin.restart();
-                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "BigDoors has been restarted!");
+                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN,
+                                                    "BigDoors has been restarted!");
                 break;
 
             case "stop":
@@ -430,7 +444,9 @@ public class CommandHandler implements CommandExecutor
                 break;
 
             case "addowner":
-                if (player == null || !player.hasPermission("bigdoors.user.addowner")) // TODO: Surely, the server should be able to add any user to any door?
+                if (player == null || !player.hasPermission("bigdoors.user.addowner")) // TODO: Surely, the server
+                                                                                       // should be able to add any user
+                                                                                       // to any door?
                     break;
 
                 if (args.length > 1)
@@ -442,8 +458,8 @@ public class CommandHandler implements CommandExecutor
                     Door door = plugin.getCommander().getDoor(args[1], player);
                     if (door == null)
                     {
-                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                            ChatColor.RED, "\"" + args[1] + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[1] + "\" "
+                            + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
                         return true;
                     }
 
@@ -463,16 +479,18 @@ public class CommandHandler implements CommandExecutor
                     {
                         if (plugin.getCommander().addOwner(playerUUID, door, permission))
                         {
-                            plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                                ChatColor.RED, plugin.getMessages().getString("COMMAND.AddOwner.Success"));
+                            plugin.getMyLogger()
+                                .returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                plugin.getMessages().getString("COMMAND.AddOwner.Success"));
                             return true;
                         }
-                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                            ChatColor.RED, plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                            plugin.getMessages().getString("COMMAND.AddOwner.Fail"));
                         return false;
                     }
-                    plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                        ChatColor.RED, plugin.getMessages().getString("GENERAL.PlayerNotFound") + ": \"" + args[2] + "\"");
+                    plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                        plugin.getMessages().getString("GENERAL.PlayerNotFound")
+                                                            + ": \"" + args[2] + "\"");
                     return true;
                 }
                 // TODO: Print help menu!
@@ -491,7 +509,8 @@ public class CommandHandler implements CommandExecutor
                 }
                 else if (args.length > 2)
                 {
-                    // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
+                    // If the player is currently in a commandWaiter, just abort that and use the
+                    // direct one instead.
                     WaitForCommand cw = plugin.getCommandWaiter(player);
                     if (cw != null && cw.getCommand().equals("removeowner"))
                         cw.abortSilently();
@@ -499,8 +518,8 @@ public class CommandHandler implements CommandExecutor
                     Door door = plugin.getCommander().getDoor(args[1], player);
                     if (door == null)
                     {
-                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                            ChatColor.RED, "\"" + args[1] + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[1] + "\" "
+                            + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
                         return true;
                     }
 
@@ -510,12 +529,13 @@ public class CommandHandler implements CommandExecutor
                     {
                         if (plugin.getCommander().removeOwner(door, playerUUID, player))
                         {
-                            plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                                ChatColor.RED, plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
+                            plugin.getMyLogger()
+                                .returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                plugin.getMessages().getString("COMMAND.RemoveOwner.Success"));
                             return true;
                         }
-                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                            ChatColor.RED, plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                            plugin.getMessages().getString("COMMAND.RemoveOwner.Fail"));
                         return false;
                     }
                 }
@@ -546,8 +566,10 @@ public class CommandHandler implements CommandExecutor
         // /setautoclosetime <doorName> <time>
         if (cmd.getName().equalsIgnoreCase("setautoclosetime"))
         {
-            // If there is only 1 argument, assume that it is a player using the commandWaiter system
-            // And therefore the Door is already defined somewhere else (e.g. selected from the GUI).
+            // If there is only 1 argument, assume that it is a player using the
+            // commandWaiter system
+            // And therefore the Door is already defined somewhere else (e.g. selected from
+            // the GUI).
             if (args.length == 1 && player != null)
             {
                 WaitForCommand cw = plugin.getCommandWaiter(player);
@@ -556,7 +578,8 @@ public class CommandHandler implements CommandExecutor
             }
             else if (args.length == 2)
             {
-                // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
+                // If the player is currently in a commandWaiter, just abort that and use the
+                // direct one instead.
                 WaitForCommand cw = plugin.getCommandWaiter(player);
                 if (cw != null && cw.getCommand().equals("setautoclosetime"))
                     cw.abortSilently();
@@ -585,8 +608,10 @@ public class CommandHandler implements CommandExecutor
         // /setblockstomove <doorName> <distance>
         if (cmd.getName().equalsIgnoreCase("setblockstomove"))
         {
-            // If there is only 1 argument, assume that it is a player using the commandWaiter system
-            // And therefore the Door is already defined somewhere else (e.g. selected from the GUI).
+            // If there is only 1 argument, assume that it is a player using the
+            // commandWaiter system
+            // And therefore the Door is already defined somewhere else (e.g. selected from
+            // the GUI).
             if (args.length == 1 && player != null)
             {
                 WaitForCommand cw = plugin.getCommandWaiter(player);
@@ -595,7 +620,8 @@ public class CommandHandler implements CommandExecutor
             }
             else if (args.length == 2)
             {
-                // If the player is currently in a commandWaiter, just abort that and use the direct one instead.
+                // If the player is currently in a commandWaiter, just abort that and use the
+                // direct one instead.
                 WaitForCommand cw = plugin.getCommandWaiter(player);
                 if (cw != null && cw.getCommand().equals("setblockstomove"))
                     cw.abortSilently();
@@ -604,7 +630,8 @@ public class CommandHandler implements CommandExecutor
                 if (door == null)
                     return false;
 
-                if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE))
+                if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(),
+                                                                  DoorAttribute.BLOCKSTOMOVE))
                     return true;
 
                 try
@@ -631,7 +658,8 @@ public class CommandHandler implements CommandExecutor
             if (door == null)
                 return false;
 
-            if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.DIRECTION_ROTATE))
+            if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(),
+                                                              DoorAttribute.DIRECTION_ROTATE))
                 return true;
 
             RotateDirection openDir = null;
@@ -688,7 +716,8 @@ public class CommandHandler implements CommandExecutor
         if (cmd.getName().equalsIgnoreCase("recalculatepowerblocks"))
         {
             plugin.getCommander().recalculatePowerBlockHashes();
-            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "power block hashes have been regenerated!");
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN,
+                                                "power block hashes have been regenerated!");
             return true;
         }
 
@@ -699,14 +728,28 @@ public class CommandHandler implements CommandExecutor
             return true;
         }
 
+        // /pausedoors
+        if (cmd.getName().equalsIgnoreCase("shadowtoggledoor"))
+        {
+            if (args.length != 1)
+                return false;
+
+            Door door = plugin.getCommander().getDoor(args[0], player);
+            DoorOpenResult result = plugin.getDoorOpener(door.getType()).shadowToggle(door);
+            String resultMsg = result.equals(DoorOpenResult.SUCCESS) ?
+                "Successfully shadowtoggled door " + door.getDoorUID() :
+                plugin.getMessages().getString(DoorOpenResult.getMessage(result));
+            plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.YELLOW, resultMsg);
+            return true;
+        }
+
         // /opendoor <doorName 1> [doorName 2] ... [doorName x] [time]
-        if (cmd.getName().equalsIgnoreCase("opendoor") ||
-            cmd.getName().equalsIgnoreCase("closedoor") ||
+        if (cmd.getName().equalsIgnoreCase("opendoor") || cmd.getName().equalsIgnoreCase("closedoor") ||
             cmd.getName().equalsIgnoreCase("toggledoor"))
         {
             // type0 = opendoor, type1 = closedoor, type2 = toggledoor
-            int type = cmd.getName().equalsIgnoreCase("opendoor")  ? 0 :
-                       cmd.getName().equalsIgnoreCase("closedoor") ? 1 : 2;
+            int type = cmd.getName().equalsIgnoreCase("opendoor") ? 0 :
+                cmd.getName().equalsIgnoreCase("closedoor") ? 1 : 2;
 
             if (args.length >= 1)
             {
@@ -714,7 +757,8 @@ public class CommandHandler implements CommandExecutor
                 // Last argument sets speed if it's a double.
                 double time = Util.longFromString(lastStr, -1L) == -1L ? Util.doubleFromString(lastStr, 0.0D) : 0.0D;
                 int endIDX = args.length;
-                // If the time variable was specified, decrement endIDX by 1, as the last argument is not a door!
+                // If the time variable was specified, decrement endIDX by 1, as the last
+                // argument is not a door!
                 if (time != 0.0D)
                     --endIDX;
                 // Go over all arguments until the last one (or the one before that).
@@ -724,13 +768,15 @@ public class CommandHandler implements CommandExecutor
                     // If the door is null, let the player know that the selected door is invalid.
                     if (door == null)
                     {
-                        plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                            ChatColor.RED, "\"" + args[index] + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
+                        plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[index]
+                            + "\" " + plugin.getMessages().getString("GENERAL.InvalidDoorName"));
                         // If player is null, the console or a command block is being used.
-                        // If that's the case, kindly remind them (in the console) that they should be using DoorUIDs.
+                        // If that's the case, kindly remind them (in the console) that they should be
+                        // using DoorUIDs.
                         if (player == null)
-                            plugin.getMyLogger().returnToSender(sender, Level.INFO,
-                                                                ChatColor.RED, "Don't forget that you should use the DoorUID in the console/command blocks! DoorName won't work here!");
+                            plugin.getMyLogger()
+                                .returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                "Don't forget that you should use the DoorUID in the console/command blocks! DoorName won't work here!");
                     }
                     else
                     {
@@ -741,17 +787,21 @@ public class CommandHandler implements CommandExecutor
                             if (door.isOpen())
                                 openDoorCommand(sender, door, time);
                             else
-                                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
-                                                                    plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] +
-                                                                    "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyClosed"));
+                                plugin.getMyLogger()
+                                    .returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                    plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index]
+                                                        + "\" "
+                                                        + plugin.getMessages().getString("GENERAL.DoorAlreadyClosed"));
                         }
                         else if (type == 0)
                             if (!door.isOpen())
                                 openDoorCommand(sender, door, time);
                             else
-                                plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
-                                                                    plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index] +
-                                                                    "\" " + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
+                                plugin.getMyLogger()
+                                    .returnToSender(sender, Level.INFO, ChatColor.RED,
+                                                    plugin.getMessages().getString("GENERAL.Door") + " \"" + args[index]
+                                                        + "\" "
+                                                        + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
                     }
                 }
                 return true;
@@ -796,7 +846,8 @@ public class CommandHandler implements CommandExecutor
             {
                 if (isPlayerBusy(player))
                     return false;
-                startTimerForAbortable(new PowerBlockInspector(plugin, player, -1), plugin.getConfigLoader().commandWaiterTimeout() * 20);
+                startTimerForAbortable(new PowerBlockInspector(plugin, player, -1),
+                                       plugin.getConfigLoader().commandWaiterTimeout() * 20);
                 return true;
             }
 
@@ -845,7 +896,8 @@ public class CommandHandler implements CommandExecutor
                 if (tu != null)
                 {
                     abortAbortable(tu);
-                    plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED, plugin.getMessages().getString("CREATOR.GENERAL.Cancelled"));
+                    plugin.getMyLogger().returnToSender(player, Level.INFO, ChatColor.RED,
+                                                        plugin.getMessages().getString("CREATOR.GENERAL.Cancelled"));
                 }
                 else
                 {
@@ -910,8 +962,9 @@ public class CommandHandler implements CommandExecutor
         {
             doorUID = Long.parseLong(doorName);
         }
-        catch(NumberFormatException e)
-        {}
+        catch (NumberFormatException e)
+        {
+        }
 
         long doorCount = countDoors(player, doorName);
         if (doorCount == 0)
@@ -925,7 +978,8 @@ public class CommandHandler implements CommandExecutor
         }
         else
         {
-            Util.messagePlayer(player, ChatColor.RED, "More than one door found with that name! Please use their ID instead:");
+            Util.messagePlayer(player, ChatColor.RED,
+                               "More than one door found with that name! Please use their ID instead:");
             listDoors(player, doorName);
             return;
         }
@@ -961,7 +1015,6 @@ public class CommandHandler implements CommandExecutor
 //            }
 //        }
 
-
 //        plugin.getUpdateManager().checkForUpdates();
 //
 //        new BukkitRunnable()
@@ -972,7 +1025,6 @@ public class CommandHandler implements CommandExecutor
 //                player.sendMessage(plugin.getLoginMessage());
 //            }
 //        }.runTaskLater(plugin, 20L);
-
 
 //        Location loc = new Location(player.getWorld(), 128, 75, 140);
 //        long toSecond = 1000000000L;
@@ -1033,7 +1085,8 @@ public class CommandHandler implements CommandExecutor
         help += helpFormat(commandPrefix + "BigDoors menu", "Opens BigDoors' GUI.");
         help += helpFormat(commandPrefix + "BigDoors version", "Get the version of this plugin.");
         help += helpFormat(commandPrefix + "BigDoors removeowner <door> <player>", "Add another owner for a door.");
-        help += helpFormat(commandPrefix + "BigDoors addowner <door> <player> [permission]", "Add another owner for a door.");
+        help += helpFormat(commandPrefix + "BigDoors addowner <door> <player> [permission]",
+                           "Add another owner for a door.");
         if (player == null || player.hasPermission("bigdoors.admin.restart"))
             help += helpFormat("BigDoors restart", "Restart the plugin. Reinitializes almost everything.");
         if (player == null || player.hasPermission("bigdoors.admin.stopdoors"))

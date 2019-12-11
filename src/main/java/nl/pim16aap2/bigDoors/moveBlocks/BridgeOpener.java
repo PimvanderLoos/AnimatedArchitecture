@@ -203,6 +203,29 @@ public class BridgeOpener implements Opener
         return RotateDirection.UP;
     }
 
+    private DoorDirection getShadowDirection(Door door)
+    {
+        if (door.getOpenDir() == null || door.getOpenDir().equals(RotateDirection.NONE))
+            return null;
+
+        RotateDirection upDown = getUpDown(door);
+        DoorDirection cDir     = getCurrentDirection(door);
+        if (upDown == null || cDir == null)
+            return null;
+
+        boolean NS  = cDir    == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
+
+        if (upDown.equals(RotateDirection.UP))
+            return door.getEngSide();
+        if (door.getOpenDir().equals(RotateDirection.CLOCKWISE       ) && !door.isOpen() ||
+            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) &&  door.isOpen())
+            return  NS ? DoorDirection.SOUTH :  DoorDirection.EAST;
+        if (door.getOpenDir().equals(RotateDirection.CLOCKWISE       ) &&  door.isOpen() ||
+            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
+            return  NS ? DoorDirection.NORTH : DoorDirection.WEST;
+        return null;
+    }
+
     // Figure out which way the bridge should go.
     private DoorDirection getOpenDirection(Door door)
     {
@@ -245,6 +268,25 @@ public class BridgeOpener implements Opener
             plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
 
         return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
+    }
+
+    @Override
+    public DoorOpenResult shadowToggle(Door door)
+    {
+        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        {
+            plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
+            return DoorOpenResult.BUSY;
+        }
+        DoorDirection openDirection = getShadowDirection(door);
+        final RotateDirection upDown = getUpDown(door);
+        if (door.getOpenDir().equals(RotateDirection.NONE) || openDirection == null || upDown == null)
+        {
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
+            return DoorOpenResult.NODIRECTION;
+        }
+        BridgeMover.updateCoords(door, openDirection, upDown, 0, true);
+        return DoorOpenResult.SUCCESS;
     }
 
     @Override

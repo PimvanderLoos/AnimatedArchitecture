@@ -10,18 +10,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class ChunkUnloadHandler implements Listener
 {
     private final BigDoors plugin;
-    private final boolean is1_14;
+    private final boolean useTheForce;
     private boolean success = false;
 
     public ChunkUnloadHandler(BigDoors plugin)
     {
         this.plugin = plugin;
-        is1_14 = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3].startsWith("v1_14");
+        useTheForce = BigDoors.getMCVersion().equals(MCVersion.v1_14) || BigDoors.getMCVersion().equals(MCVersion.v1_15);
         init();
     }
 
@@ -35,7 +36,7 @@ public class ChunkUnloadHandler implements Listener
     {
         try
         {
-            if (is1_14)
+            if (useTheForce)
             {
                 isForceLoaded = org.bukkit.Chunk.class.getMethod("isForceLoaded");
                 success = true;
@@ -79,7 +80,7 @@ public class ChunkUnloadHandler implements Listener
     {
         try
         {
-            if (is1_14)
+            if (useTheForce)
                 return (boolean) isForceLoaded.invoke(event.getChunk());
             return (boolean) isCancelled.invoke(event);
         }

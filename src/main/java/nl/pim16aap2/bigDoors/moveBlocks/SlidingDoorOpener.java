@@ -60,6 +60,44 @@ public class SlidingDoorOpener implements Opener
         return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
     }
 
+    private int getLengthInDir(Door door, boolean NS)
+    {
+        // If NS, check the number of blocks along the north/south axis, i.e. the Z axis.
+        if (NS)
+            return 1 + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
+        return 1 + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
+    }
+
+    @Override
+    public DoorOpenResult shadowToggle(Door door)
+    {
+        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        {
+            plugin.getMyLogger().myLogger(Level.INFO, "Sliding door " + door.getName() + " is not available right now!");
+            return DoorOpenResult.BUSY;
+        }
+
+        RotateDirection openDirection = door.getOpenDir();
+        if (door.getOpenDir().equals(RotateDirection.NONE) || openDirection == null)
+        {
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
+            return DoorOpenResult.NODIRECTION;
+        }
+
+        boolean NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
+        int moved = door.getBlocksToMove() > 0 ? door.getBlocksToMove() : getLengthInDir(door, NS);
+
+        int multiplier = 1;
+        // These directions go to a negative value.
+        if (openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.WEST))
+            multiplier *= 1;
+        multiplier *= door.isOpen() ? 1 : -1;
+
+        SlidingMover.updateCoords(door, null, null, moved * multiplier, NS, true);
+
+        return DoorOpenResult.SUCCESS;
+    }
+
     @Override
     public DoorOpenResult openDoor(Door door, double time)
     {
