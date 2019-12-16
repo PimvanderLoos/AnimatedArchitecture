@@ -30,7 +30,8 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
 
     public NMSBlock_V1_13_R1(World world, int x, int y, int z)
     {
-        super(net.minecraft.server.v1_13_R1.Block.Info.a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
+        super(net.minecraft.server.v1_13_R1.Block.Info
+            .a(((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock()));
 
         loc = new Location(world, x, y, z);
 
@@ -41,7 +42,7 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
 
         constructBlockDataFromBukkit();
 
-        xmat = XMaterial.matchXMaterial(world.getBlockAt(x, y, z).getType().toString());
+        xmat = XMaterial.matchXMaterial(world.getBlockAt(x, y, z).getType().toString()).orElse(XMaterial.BEDROCK);
         // Update iBlockData in NMS Block.
         super.v(blockData);
     }
@@ -56,7 +57,7 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
     public void rotateBlock(RotateDirection rotDir)
     {
         EnumBlockRotation rot;
-        switch(rotDir)
+        switch (rotDir)
         {
         case CLOCKWISE:
             rot = EnumBlockRotation.CLOCKWISE_90;
@@ -83,8 +84,8 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
         if (craftBlockData instanceof MultipleFacing)
             updateCraftBlockDataMultipleFacing();
 
-        ((CraftWorld) loc.getWorld()).getHandle().setTypeAndData(
-                new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), blockData, 1);
+        ((CraftWorld) loc.getWorld()).getHandle()
+            .setTypeAndData(new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), blockData, 1);
     }
 
     private void updateCraftBlockDataMultipleFacing()
@@ -100,8 +101,10 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
             else if (otherBlock.getType().isSolid())
             {
                 ((MultipleFacing) craftBlockData).setFace(K, true);
-                if (otherData instanceof MultipleFacing && (otherBlock.getType().equals(xmat.parseMaterial()) ||
-                    (craftBlockData instanceof org.bukkit.block.data.type.Fence && otherData instanceof org.bukkit.block.data.type.Fence)))
+                if (otherData instanceof MultipleFacing &&
+                    (otherBlock.getType().equals(xmat.parseMaterial()) ||
+                     (craftBlockData instanceof org.bukkit.block.data.type.Fence &&
+                      otherData instanceof org.bukkit.block.data.type.Fence)))
                     if (((MultipleFacing) otherData).getAllowedFaces().contains(K.getOppositeFace()))
                     {
                         ((MultipleFacing) otherData).setFace(K.getOppositeFace(), true);
@@ -117,9 +120,9 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
     @Override
     public void rotateBlockUpDown(boolean NS)
     {
-        EnumAxis axis    = blockData.get(BlockRotatable.AXIS);
+        EnumAxis axis = blockData.get(BlockRotatable.AXIS);
         EnumAxis newAxis = axis;
-        switch(axis)
+        switch (axis)
         {
         case X:
             newAxis = NS ? EnumAxis.X : EnumAxis.Y;

@@ -85,6 +85,7 @@ public final class Util
     static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     static SecureRandom srnd = new SecureRandom();
     static Random rnd = new Random();
+
     public static String randomString(int length)
     {
         StringBuilder sb = new StringBuilder(length);
@@ -129,9 +130,11 @@ public final class Util
             {
                 player = Bukkit.getPlayer(UUID.fromString(input));
             }
-            // Not doing anything with catch because I really couldn't care less if it didn't work.
+            // Not doing anything with catch because I really couldn't care less if it
+            // didn't work.
             catch (Exception e)
-            {}
+            {
+            }
         if (player != null)
             return player.getName().equals(input) ? player.getUniqueId() : null;
 
@@ -140,9 +143,11 @@ public final class Util
         {
             offPlayer = Bukkit.getOfflinePlayer(UUID.fromString(input));
         }
-        // Not doing anything with catch because I really couldn't care less if it didn't work.
+        // Not doing anything with catch because I really couldn't care less if it
+        // didn't work.
         catch (Exception e)
-        {}
+        {
+        }
         if (offPlayer != null)
             return offPlayer.getName().equals(input) ? offPlayer.getUniqueId() : null;
         return null;
@@ -156,18 +161,19 @@ public final class Util
     public static String getFullDoorInfo(Door door)
     {
 
-        return     door == null ? "Door not found!" :
-                door.getDoorUID() + ": " + door.getName().toString()  +
-                ", Min("     + door.getMinimum().getBlockX() + ";"    + door.getMinimum().getBlockY() + ";"   + door.getMinimum().getBlockZ()   + ")" +
-                ", Max("     + door.getMaximum().getBlockX() + ";"    + door.getMaximum().getBlockY() + ";"   + door.getMaximum().getBlockZ()   + ")" +
-                ", Engine("  + door.getEngine().getBlockX()  + ";"    + door.getEngine().getBlockY()  + ";"   + door.getEngine().getBlockZ()    + ")" +
-                ", " + (door.isLocked() ? "" : "NOT ") + "locked"     + "; Type=" + door.getType()    +
-                (door.getEngSide() == null ? "" : ("; EngineSide = "  + door.getEngSide().toString()  + "; doorLen = " +
-                 door.getLength())) + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX()     + ";"   +
-                 door.getPowerBlockLoc().getBlockY() + ";"  + door.getPowerBlockLoc().getBlockZ()     + ") = (" + door.getPowerBlockChunkHash() + ")" +
-                ". It is "   + (door.isOpen() ? "OPEN." : "CLOSED.")  + " OpenDir = " + door.getOpenDir().toString() +
-                ", Looking " + door.getLookingDir().toString()        + ". It " +
-                (door.getAutoClose() == -1 ? "does not auto close."   : ("auto closes after " + door.getAutoClose() + " seconds."));
+        return door == null ? "Door not found!" : door.getDoorUID() + ": " + door.getName().toString() + ", Min("
+            + door.getMinimum().getBlockX() + ";" + door.getMinimum().getBlockY() + ";" + door.getMinimum().getBlockZ()
+            + ")" + ", Max(" + door.getMaximum().getBlockX() + ";" + door.getMaximum().getBlockY() + ";"
+            + door.getMaximum().getBlockZ() + ")" + ", Engine(" + door.getEngine().getBlockX() + ";"
+            + door.getEngine().getBlockY() + ";" + door.getEngine().getBlockZ() + ")" + ", "
+            + (door.isLocked() ? "" : "NOT ") + "locked" + "; Type=" + door.getType()
+            + (door.getEngSide() == null ? "" :
+                ("; EngineSide = " + door.getEngSide().toString() + "; doorLen = " + door.getLength()))
+            + ", PowerBlockPos = (" + door.getPowerBlockLoc().getBlockX() + ";" + door.getPowerBlockLoc().getBlockY()
+            + ";" + door.getPowerBlockLoc().getBlockZ() + ") = (" + door.getPowerBlockChunkHash() + ")" + ". It is "
+            + (door.isOpen() ? "OPEN." : "CLOSED.") + " OpenDir = " + door.getOpenDir().toString() + ", Looking "
+            + door.getLookingDir().toString() + ". It " + (door.getAutoClose() == -1 ? "does not auto close." :
+                ("auto closes after " + door.getAutoClose() + " seconds."));
     }
 
     private static void playSoundSync(Location loc, String sound, float volume, float pitch)
@@ -204,6 +210,7 @@ public final class Util
 
     /**
      * Gets the lowest positive integer out of 2.
+     *
      * @param a The first int.
      * @param b The second int.
      * @return The lowest positive integer.
@@ -226,7 +233,9 @@ public final class Util
                 {
                     ret = Math.max(ret, Integer.valueOf(perms.getPermission().split(permissionNode)[1]));
                 }
-                catch (Exception e) {}
+                catch (Exception e)
+                {
+                }
         return ret;
     }
 
@@ -247,7 +256,7 @@ public final class Util
     // Return {time, tickRate, distanceMultiplier} for a given door size.
     public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
     {
-        double ret[]    = new double[3];
+        double ret[] = new double[3];
         double distance = Math.PI * doorSize / 2;
         if (time == 0.0)
             time = baseSpeed + doorSize / 3.5;
@@ -263,15 +272,9 @@ public final class Util
         if (speed > maxSpeed || speed <= 0)
             time = distance / maxSpeed;
 
-        double distanceMultiplier = speed > 4     ? 1.01 :
-                                    speed > 3.918 ? 1.08 :
-                                    speed > 3.916 ? 1.10 :
-                                    speed > 2.812 ? 1.12 :
-                                    speed > 2.537 ? 1.19 :
-                                    speed > 2.2   ? 1.22 :
-                                    speed > 2.0   ? 1.23 :
-                                    speed > 1.770 ? 1.25 :
-                                    speed > 1.570 ? 1.28 : 1.30;
+        double distanceMultiplier = speed > 4 ? 1.01 : speed > 3.918 ? 1.08 : speed > 3.916 ? 1.10 :
+            speed > 2.812 ? 1.12 : speed > 2.537 ? 1.19 : speed > 2.2 ? 1.22 : speed > 2.0 ? 1.23 :
+            speed > 1.770 ? 1.25 : speed > 1.570 ? 1.28 : 1.30;
         ret[0] = time;
         ret[1] = tickRateFromSpeed(speed);
         ret[2] = distanceMultiplier;
@@ -332,7 +335,7 @@ public final class Util
         Location newMin = door.getMinimum();
         Location newMax = door.getMaximum();
         double temp;
-        switch(mode)
+        switch (mode)
         {
         case 0:
             temp = door.getMaximum().getX();
@@ -354,43 +357,47 @@ public final class Util
 
     public static boolean isAirOrWater(Material mat)
     {
-        XMaterial xmat = XMaterial.matchXMaterial(mat.toString());
-        if (xmat == null)
-            return false;
-        return xmat.equals(XMaterial.AIR)   || xmat.equals(XMaterial.CAVE_AIR) ||
-               xmat.equals(XMaterial.WATER) || xmat.equals(XMaterial.LAVA);
+        return XMaterial
+            .matchXMaterial(mat.toString()).map(xmat -> xmat.equals(XMaterial.AIR) || xmat.equals(XMaterial.CAVE_AIR) ||
+                                                        xmat.equals(XMaterial.WATER) || xmat.equals(XMaterial.LAVA))
+            .orElse(false);
     }
 
-    // Logs, stairs and glass panes can rotate, but they don't rotate in exactly the same way.
+    // Logs, stairs and glass panes can rotate, but they don't rotate in exactly the
+    // same way.
     public static int canRotate(Material mat)
     {
-        XMaterial xmat = XMaterial.matchXMaterial(mat.toString());
-        if (xmat.equals(XMaterial.ACACIA_LOG)             || xmat.equals(XMaterial.BIRCH_LOG)           || xmat.equals(XMaterial.DARK_OAK_LOG)       ||
-            xmat.equals(XMaterial.JUNGLE_LOG)             || xmat.equals(XMaterial.OAK_LOG)             || xmat.equals(XMaterial.SPRUCE_LOG))
+        XMaterial xmat = XMaterial.matchXMaterial(mat.toString()).orElse(null);
+        if (xmat == null)
+            return 0;
+
+        if (xmat.equals(XMaterial.ACACIA_LOG) || xmat.equals(XMaterial.BIRCH_LOG) ||
+            xmat.equals(XMaterial.DARK_OAK_LOG) || xmat.equals(XMaterial.JUNGLE_LOG) ||
+            xmat.equals(XMaterial.OAK_LOG) || xmat.equals(XMaterial.SPRUCE_LOG))
             return 1;
         if (mat.toString().endsWith("STAIRS"))
             return 2;
-        if (xmat.equals(XMaterial.WHITE_STAINED_GLASS)       || xmat.equals(XMaterial.YELLOW_STAINED_GLASS)          ||
-            xmat.equals(XMaterial.PURPLE_STAINED_GLASS)      || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS)      ||
-            xmat.equals(XMaterial.GRAY_STAINED_GLASS)        || xmat.equals(XMaterial.GREEN_STAINED_GLASS)           ||
-            xmat.equals(XMaterial.BLACK_STAINED_GLASS)       || xmat.equals(XMaterial.LIME_STAINED_GLASS)            ||
-            xmat.equals(XMaterial.BLUE_STAINED_GLASS)        || xmat.equals(XMaterial.BROWN_STAINED_GLASS)           ||
-            xmat.equals(XMaterial.CYAN_STAINED_GLASS)        || xmat.equals(XMaterial.RED_STAINED_GLASS)             ||
-            xmat.equals(XMaterial.MAGENTA_STAINED_GLASS)     ||
-            xmat.equals(XMaterial.WHITE_STAINED_GLASS_PANE)  || xmat.equals(XMaterial.YELLOW_STAINED_GLASS_PANE)     ||
-            xmat.equals(XMaterial.PURPLE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE) ||
-            xmat.equals(XMaterial.GRAY_STAINED_GLASS_PANE)   || xmat.equals(XMaterial.GREEN_STAINED_GLASS_PANE)      ||
-            xmat.equals(XMaterial.BLACK_STAINED_GLASS_PANE)  || xmat.equals(XMaterial.LIME_STAINED_GLASS_PANE)       ||
-            xmat.equals(XMaterial.BLUE_STAINED_GLASS_PANE)   || xmat.equals(XMaterial.BROWN_STAINED_GLASS_PANE)      ||
-            xmat.equals(XMaterial.CYAN_STAINED_GLASS_PANE)   || xmat.equals(XMaterial.RED_STAINED_GLASS_PANE)        ||
-            xmat.equals(XMaterial.MAGENTA_STAINED_GLASS_PANE))
+        if (xmat.equals(XMaterial.WHITE_STAINED_GLASS) || xmat.equals(XMaterial.YELLOW_STAINED_GLASS) ||
+            xmat.equals(XMaterial.PURPLE_STAINED_GLASS) || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS) ||
+            xmat.equals(XMaterial.GRAY_STAINED_GLASS) || xmat.equals(XMaterial.GREEN_STAINED_GLASS) ||
+            xmat.equals(XMaterial.BLACK_STAINED_GLASS) || xmat.equals(XMaterial.LIME_STAINED_GLASS) ||
+            xmat.equals(XMaterial.BLUE_STAINED_GLASS) || xmat.equals(XMaterial.BROWN_STAINED_GLASS) ||
+            xmat.equals(XMaterial.CYAN_STAINED_GLASS) || xmat.equals(XMaterial.RED_STAINED_GLASS) ||
+            xmat.equals(XMaterial.MAGENTA_STAINED_GLASS) || xmat.equals(XMaterial.WHITE_STAINED_GLASS_PANE) ||
+            xmat.equals(XMaterial.YELLOW_STAINED_GLASS_PANE) || xmat.equals(XMaterial.PURPLE_STAINED_GLASS_PANE) ||
+            xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.GRAY_STAINED_GLASS_PANE) ||
+            xmat.equals(XMaterial.GREEN_STAINED_GLASS_PANE) || xmat.equals(XMaterial.BLACK_STAINED_GLASS_PANE) ||
+            xmat.equals(XMaterial.LIME_STAINED_GLASS_PANE) || xmat.equals(XMaterial.BLUE_STAINED_GLASS_PANE) ||
+            xmat.equals(XMaterial.BROWN_STAINED_GLASS_PANE) || xmat.equals(XMaterial.CYAN_STAINED_GLASS_PANE) ||
+            xmat.equals(XMaterial.RED_STAINED_GLASS_PANE) || xmat.equals(XMaterial.MAGENTA_STAINED_GLASS_PANE))
             return 3;
         if (xmat.equals(XMaterial.ANVIL))
             return 4;
         if (xmat.equals(XMaterial.COBBLESTONE_WALL))
             return 5;
-        if (xmat.equals(XMaterial.STRIPPED_ACACIA_LOG)    || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG)  || xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG)||
-            xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG)  || xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG))
+        if (xmat.equals(XMaterial.STRIPPED_ACACIA_LOG) || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG) ||
+            xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG) || xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG) ||
+            xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG))
             return 6;
         if (xmat.equals(XMaterial.END_ROD))
             return 7;
@@ -411,14 +418,14 @@ public final class Util
         if (name.endsWith("TULIP"))
             return false;
 
-        XMaterial xmat = XMaterial.matchXMaterial(name);
+        XMaterial xmat = XMaterial.matchXMaterial(name).orElse(null);
         if (xmat == null)
         {
             Util.broadcastMessage("Could not determine material of mat: " + name);
             return false;
         }
 
-        switch(xmat)
+        switch (xmat)
         {
         case AIR:
         case WATER:
@@ -633,8 +640,7 @@ public final class Util
         case ACACIA_PRESSURE_PLATE:
         case DARK_OAK_PRESSURE_PLATE:
 
-
-        /* 1.14 start */
+            /* 1.14 start */
 
         case DANDELION:
         case CORNFLOWER:
@@ -669,7 +675,12 @@ public final class Util
         case SWEET_BERRY_BUSH:
         case LANTERN:
 
-        /* 1.14 end */
+            /* 1.14 end */
+
+            /* 1.15 start */
+        case BEEHIVE:
+        case BEE_NEST:
+            /* 1.15 end */
 
             return false;
         default:
@@ -682,15 +693,3 @@ public final class Util
         return value <= end && value >= start;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -35,3 +35,6 @@ hs_err_pid*
 .externalToolBuilders/*
 .project
 .settings/*
+build.number
+log.xml
+config.xml.resolved

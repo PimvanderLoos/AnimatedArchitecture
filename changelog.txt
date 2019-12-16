@@ -1,3 +1,7 @@
+Alpha 0.1.8.16
+- Updated to the latest version of XMaterial, which is supposed to bring some performance improvements in the areas concerning materials.
+- Added beehive and bee nest to the material blacklist.
+
 Alpha 0.1.8.15
 - Added "/shadowtoggledoor <doorName/doorUID>" (permission: bigdoors.admin.shadowtoggledoor) command to toggle a door purely in the database (no blocks will be moved). This can be used to fix a desync issue. It should only be used as a last resort!
 - Added support for 1.15.
