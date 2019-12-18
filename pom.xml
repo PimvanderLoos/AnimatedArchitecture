@@ -91,8 +91,8 @@
         </dependency>
         <dependency>
             <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.15</artifactId>
-            <version>1.15-R0.1-SNAPSHOT</version>
+            <artifactId>spigot-1.15.1</artifactId>
+            <version>1.15.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         

@@ -1,25 +1,5 @@
 package nl.pim16aap2.bigDoors.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-
 /*
  * The MIT License (MIT)
  *
@@ -42,12 +22,34 @@ import org.bukkit.inventory.ItemStack;
  * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.WordUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
 import com.google.common.base.Enums;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 /*
  * References
@@ -68,7 +70,7 @@ import com.google.common.collect.ImmutableSet;
  * 1.13 and above as priority.
  *
  * @author Crypto Morin
- * @version 3.0.0
+ * @version 3.1.0
  * @see Material
  * @see ItemStack
  */
@@ -1071,13 +1073,12 @@ public enum XMaterial
     ZOMBIE_WALL_HEAD (2, "SKULL", "SKULL_ITEM");
 
     /**
-     * An immutable cached list of {@link XMaterial#values()} to avoid allocating
+     * An immutable cached set of {@link XMaterial#values()} to avoid allocating
      * memory for calling the method every time.
      *
      * @since 2.0.0
      */
-    public static final ImmutableList<XMaterial> VALUES = Arrays.stream(values())
-        .collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
+    public static final EnumSet<XMaterial> VALUES = EnumSet.allOf(XMaterial.class);
     /**
      * A set of material names that can be damaged.
      * <p>
@@ -1099,10 +1100,11 @@ public enum XMaterial
      *
      * @since 3.0.0
      */
-    private static final ImmutableMap<XMaterial, XMaterial> DUPLICATED = ImmutableMap.<XMaterial, XMaterial>builder()
-        .put(MELON, MELON_SLICE).put(CARROT, CARROTS).put(POTATO, POTATOES).put(BEETROOT, BEETROOTS)
-        .put(BROWN_MUSHROOM, BROWN_MUSHROOM_BLOCK).put(BRICK, BRICKS).put(RED_MUSHROOM, RED_MUSHROOM_BLOCK)
-        .put(MAP, FILLED_MAP).put(NETHER_BRICK, NETHER_BRICKS).build();
+    @SuppressWarnings("UnstableApiUsage")
+    private static final ImmutableMap<XMaterial, XMaterial> DUPLICATED = Maps
+        .immutableEnumMap(ImmutableMap.<XMaterial, XMaterial>builder().put(MELON, MELON_SLICE).put(CARROT, CARROTS)
+            .put(POTATO, POTATOES).put(BEETROOT, BEETROOTS).put(BROWN_MUSHROOM, BROWN_MUSHROOM_BLOCK).put(BRICK, BRICKS)
+            .put(RED_MUSHROOM, RED_MUSHROOM_BLOCK).put(MAP, FILLED_MAP).put(NETHER_BRICK, NETHER_BRICKS).build());
     /**
      * A set of all the legacy names without duplicates.
      * <p>
@@ -1111,8 +1113,8 @@ public enum XMaterial
      * @see #containsLegacy(String)
      * @since 2.2.0
      */
-    private static final ImmutableSet<String> LEGACY_VALUES = VALUES.stream().map(m -> m.legacy).flatMap(Arrays::stream)
-        .filter(m -> m.charAt(1) == '.')
+    private static final ImmutableSet<String> LEGACY_VALUES = VALUES.stream().map(XMaterial::getLegacy)
+        .flatMap(Arrays::stream).filter(m -> m.charAt(1) == '.')
         .collect(Collectors.collectingAndThen(Collectors.toSet(), ImmutableSet::copyOf));
 
     /**
@@ -1653,20 +1655,7 @@ public enum XMaterial
     @Nonnull
     private static String toWord(@Nonnull String name)
     {
-        Validate.notEmpty(name, "Cannot translate a null or empty material name to a word");
-        StringBuilder translated = new StringBuilder();
-        String[] separator = StringUtils.split(name, '_');
-
-        if (separator.length == 0)
-            translated.append(name.charAt(0)).append(name.substring(1).toLowerCase());
-        else
-        {
-            for (String separated : separator)
-                translated.append(separated.charAt(0)).append(separated.substring(1).toLowerCase()).append(' ');
-            translated.setLength(translated.length() - 1);
-        }
-
-        return translated.toString();
+        return WordUtils.capitalize(name.replace('_', ' ').toLowerCase(Locale.ENGLISH));
     }
 
     /**
@@ -2165,7 +2154,7 @@ public enum XMaterial
         Material material = Material.getMaterial(name());
         if (material == null)
         {
-            for (int i = legacy.length - 1; i != (version != MinecraftVersion.UNKNOWN ? 0 : -1); i--)
+            for (int i = legacy.length - 1; i != -1; i--)
             {
                 String legacy = this.legacy[i];
                 if (StringUtils.contains(legacy, '/'))
@@ -2243,6 +2232,6 @@ public enum XMaterial
          *
          * @since 3.0.0
          */
-        V1_15;
+        V1_15
     }
 }
