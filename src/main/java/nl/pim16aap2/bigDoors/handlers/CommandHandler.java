@@ -82,10 +82,10 @@ public class CommandHandler implements CommandExecutor
             return;
         }
 
-        UUID playerUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
+        Player player = sender instanceof Player ? (Player) sender : null;
         // Get a new instance of the door to make sure the locked / unlocked status is
         // recent.
-        Door newDoor = plugin.getCommander().getDoor(playerUUID, door.getDoorUID());
+        Door newDoor = plugin.getCommander().getDoor(Long.toString(door.getDoorUID()), player);
 
         if (newDoor == null)
         {
@@ -765,6 +765,7 @@ public class CommandHandler implements CommandExecutor
                 for (int index = 0; index < endIDX; ++index)
                 {
                     Door door = plugin.getCommander().getDoor(args[index], player);
+
                     // If the door is null, let the player know that the selected door is invalid.
                     if (door == null)
                     {

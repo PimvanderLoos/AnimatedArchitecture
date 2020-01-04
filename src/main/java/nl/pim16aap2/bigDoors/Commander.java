@@ -27,7 +27,7 @@ public class Commander
     private final BigDoors plugin;
     private Map<Long, BlockMover> busyDoors;
     private HashMap<UUID, String> players;
-    private boolean goOn   = true;
+    private boolean goOn = true;
     private boolean paused = false;
     private SQLiteJDBCDriverConnection db;
     private Messages messages;
@@ -36,10 +36,10 @@ public class Commander
     public Commander(BigDoors plugin, SQLiteJDBCDriverConnection db)
     {
         this.plugin = plugin;
-        this.db     = db;
-        busyDoors   = new ConcurrentHashMap<>();
-        messages    = plugin.getMessages();
-        players     = new HashMap<>();
+        this.db = db;
+        busyDoors = new ConcurrentHashMap<>();
+        messages = plugin.getMessages();
+        players = new HashMap<>();
     }
 
     public void prepareDatabaseForV2()
@@ -103,7 +103,8 @@ public class Commander
         paused = !paused;
     }
 
-    // Check if the doors can go. This differs from begin paused in that it will finish up
+    // Check if the doors can go. This differs from begin paused in that it will
+    // finish up
     // all currently moving doors.
     public boolean canGo()
     {
@@ -130,10 +131,18 @@ public class Commander
         try
         {
             long doorUID = Long.parseLong(doorStr);
-            return db.getDoor(player == null ? null : player.getUniqueId() , doorUID);
+            if (player == null)
+                return db.getDoor(null, doorUID);
+
+            Door ret = db.getDoor(player.getUniqueId(), doorUID);
+            if (ret == null)
+                return db.getDoor(null, doorUID);
+            return ret;
         }
-        // If it can't convert to a long, get all doors from the player with the provided name.
-        // If there is more than one, tell the player that they are going to have to make a choice.
+        // If it can't convert to a long, get all doors from the player with the
+        // provided name.
+        // If there is more than one, tell the player that they are going to have to
+        // make a choice.
         catch (NumberFormatException e)
         {
             if (player == null)
@@ -180,13 +189,15 @@ public class Commander
         return true;
     }
 
-    // Returns the number of doors owner by a player and with a specific name, if provided (can be null).
+    // Returns the number of doors owner by a player and with a specific name, if
+    // provided (can be null).
     public long countDoors(String playerUUID, @Nullable String doorName)
     {
         return db.countDoors(playerUUID, doorName);
     }
 
-    // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
+    // Returns an ArrayList of doors owner by a player and with a specific name, if
+    // provided (can be null).
     public ArrayList<Door> getDoors(String playerUUID, @Nullable String name)
     {
         return playerUUID == null ? getDoors(name) : db.getDoors(playerUUID, name);
@@ -198,7 +209,8 @@ public class Commander
         return db.getDoors(name);
     }
 
-    // Returns an ArrayList of doors owner by a player and with a specific name, if provided (can be null).
+    // Returns an ArrayList of doors owner by a player and with a specific name, if
+    // provided (can be null).
     public ArrayList<Door> getDoorsInRange(String playerUUID, @Nullable String name, int start, int end)
     {
         return db.getDoors(playerUUID, name, start, end);
@@ -206,11 +218,8 @@ public class Commander
 
     public UUID playerUUIDFromName(String playerName)
     {
-        UUID uuid = players.entrySet().stream()
-            .filter(e -> e.getValue().equals(playerName))
-            .map(Map.Entry::getKey)
-            .findFirst()
-            .orElse(null);
+        UUID uuid = players.entrySet().stream().filter(e -> e.getValue().equals(playerName)).map(Map.Entry::getKey)
+            .findFirst().orElse(null);
         if (uuid != null)
             return uuid;
 
@@ -237,7 +246,8 @@ public class Commander
         String name = db.getPlayerName(playerUUID);
         if (name != null)
             return name;
-        // As a last resort, try to get the name from an offline player. This is slow af, so last resort.
+        // As a last resort, try to get the name from an offline player. This is slow
+        // af, so last resort.
         name = Util.nameFromUUID(playerUUID);
         // Then place the UUID/String combo in the db. Need moar data!
         updatePlayer(playerUUID, name);
@@ -276,9 +286,10 @@ public class Commander
         if (player.isOp())
             return true;
 
-        String permissionNode = "bigdoors.admin.bypass." +
-            ((atr == DoorAttribute.DIRECTION_ROTATE || atr == DoorAttribute.DIRECTION_STRAIGHT) ?
-            "direction" : atr.name().toLowerCase());
+        String permissionNode = "bigdoors.admin.bypass."
+            + ((atr == DoorAttribute.DIRECTION_ROTATE || atr == DoorAttribute.DIRECTION_STRAIGHT) ? "direction" :
+                atr.name().toLowerCase());
+
         if (player.hasPermission(permissionNode))
             return true;
 
@@ -296,20 +307,18 @@ public class Commander
     }
 
     // Update the coordinates of a given door.
-    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
-                                 int blockZMin, int blockXMax, int blockYMax, int blockZMax)
+    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin, int blockZMin,
+                                 int blockXMax, int blockYMax, int blockZMax)
     {
-        db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax,
-                            blockYMax, blockZMax, null);
+        db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax, null);
     }
 
     // Update the coordinates of a given door.
-    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin,
-                                 int blockZMin, int blockXMax, int blockYMax, int blockZMax,
-                                 DoorDirection newEngSide)
+    public void updateDoorCoords(long doorUID, boolean isOpen, int blockXMin, int blockYMin, int blockZMin,
+                                 int blockXMax, int blockYMax, int blockZMax, DoorDirection newEngSide)
     {
-        db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax,
-                            blockZMax, newEngSide);
+        db.updateDoorCoords(doorUID, isOpen, blockXMin, blockYMin, blockZMin, blockXMax, blockYMax, blockZMax,
+                            newEngSide);
     }
 
     public void addOwner(UUID playerUUID, Door door)
@@ -407,7 +416,8 @@ public class Commander
 
         @Override
         public void putBlocks(boolean onDisable)
-        {}
+        {
+        }
 
         @Override
         public long getDoorUID()
