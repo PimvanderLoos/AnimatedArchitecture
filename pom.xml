@@ -166,6 +166,14 @@
             <version>1.6</version>
             <scope>compile</scope>
         </dependency>
+        
+        <!-- Lands -->
+        <dependency>
+            <groupId>com.github.Angeschossen</groupId>
+            <artifactId>LandsAPI</artifactId>
+            <version>4.3.3.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -4,7 +4,7 @@ version: Alpha 0.1.8.16
 author: pim16aap2
 api-version: 1.13
 loadbefore: [PlotSquared]
-softdepend: [WorldGuard, Vault, GriefPrevention, Towny]
+softdepend: [WorldGuard, Vault, GriefPrevention, Towny, Lands]
 commands:
   bigdoors:
     description: Basic command

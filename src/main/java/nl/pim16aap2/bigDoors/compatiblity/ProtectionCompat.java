@@ -20,7 +20,7 @@ public enum ProtectionCompat
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
-            int[] lastOldVersion = {0, 94, 0, 1};
+            int[] lastOldVersion = { 0, 94, 0, 1 };
 
             int[] currentVersion = Arrays.stream(version.split("\\.")).mapToInt(Integer::parseInt).toArray();
             for (int idx = 0; idx < lastOldVersion.length; ++idx)
@@ -28,8 +28,8 @@ public enum ProtectionCompat
                 if (currentVersion[idx] == lastOldVersion[idx])
                     continue;
 
-                return currentVersion[idx] > lastOldVersion[idx] ?
-                       TownyNewProtectionCompat.class : TownyOldProtectionCompat.class;
+                return currentVersion[idx] > lastOldVersion[idx] ? TownyNewProtectionCompat.class :
+                    TownyOldProtectionCompat.class;
             }
             return null;
         }
@@ -43,8 +43,8 @@ public enum ProtectionCompat
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
-            return version.startsWith("4.") ?
-                PlotSquaredNewProtectionCompat.class : PlotSquaredOldProtectionCompat.class;
+            return version.startsWith("4.") ? PlotSquaredNewProtectionCompat.class :
+                PlotSquaredOldProtectionCompat.class;
         }
     },
 
@@ -75,7 +75,21 @@ public enum ProtectionCompat
         {
             return GriefPreventionProtectionCompat.class;
         }
-    },;
+    },
+
+    LANDS ("Lands")
+    {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Class<? extends IProtectionCompat> getClass(final String version)
+        {
+            return LandsProtectionCompat.class;
+        }
+    },
+
+    ;
 
     private final String name;
     private static final Map<String, ProtectionCompat> nameMap = new HashMap<>();
