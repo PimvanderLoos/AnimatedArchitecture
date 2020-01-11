@@ -1,27 +1,5 @@
 package nl.pim16aap2.bigDoors.util;
 
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2018 Hex_27
- * Copyright (c) 2019 Crypto Morin
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
- * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
- * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -43,6 +21,29 @@ import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018 Hex_27
+ * Copyright (c) 2020 Crypto Morin
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
 import com.google.common.base.Enums;
 import com.google.common.cache.Cache;
@@ -70,7 +71,7 @@ import com.google.common.collect.Maps;
  * 1.13 and above as priority.
  *
  * @author Crypto Morin
- * @version 3.1.0
+ * @version 3.2.0
  * @see Material
  * @see ItemStack
  */
@@ -150,7 +151,7 @@ public enum XMaterial
     BLACK_CARPET (15, "CARPET"),
     BLACK_CONCRETE (15, "CONCRETE"),
     BLACK_CONCRETE_POWDER (15, "CONCRETE_POWDER"),
-    BLACK_DYE ("1.14", "INK_SAC"),
+    BLACK_DYE ("1.14", "INK_SACK"),
     BLACK_GLAZED_TERRACOTTA (15, "1.12", "HARD_CLAY", "STAINED_CLAY", "BLACK_TERRACOTTA"),
     BLACK_SHULKER_BOX,
     BLACK_STAINED_GLASS (15, "STAINED_GLASS"),
@@ -167,7 +168,7 @@ public enum XMaterial
     BLUE_CARPET (11, "CARPET"),
     BLUE_CONCRETE (11, "CONCRETE"),
     BLUE_CONCRETE_POWDER (11, "CONCRETE_POWDER"),
-    BLUE_DYE (4, "INK_SAC", "LAPIS_LAZULI"),
+    BLUE_DYE (4, "INK_SACK", "LAPIS_LAZULI"),
     BLUE_GLAZED_TERRACOTTA (11, "1.12", "HARD_CLAY", "STAINED_CLAY", "BLUE_TERRACOTTA"),
     BLUE_ICE ("1.13", "PACKED_ICE"),
     BLUE_ORCHID (1, "RED_ROSE"),
@@ -179,7 +180,7 @@ public enum XMaterial
     BLUE_WOOL (11, "WOOL"),
     BONE,
     BONE_BLOCK,
-    BONE_MEAL (15, "INK_SAC"),
+    BONE_MEAL (15, "INK_SACK"),
     BOOK,
     BOOKSHELF,
     BOW,
@@ -200,7 +201,7 @@ public enum XMaterial
     BROWN_CARPET (12, "CARPET"),
     BROWN_CONCRETE (12, "CONCRETE"),
     BROWN_CONCRETE_POWDER (12, "CONCRETE_POWDER"),
-    BROWN_DYE (3, "INK_SAC", "COCOA", "COCOA_BEANS"),
+    BROWN_DYE (3, "INK_SACK", "COCOA", "COCOA_BEANS"),
     BROWN_GLAZED_TERRACOTTA (12, "1.12", "HARD_CLAY", "STAINED_CLAY", "BROWN_TERRACOTTA"),
     BROWN_MUSHROOM,
     BROWN_MUSHROOM_BLOCK ("BROWN_MUSHROOM", "HUGE_MUSHROOM_1"),
@@ -264,7 +265,7 @@ public enum XMaterial
     COBBLESTONE_WALL ("COBBLE_WALL"),
     COBWEB ("WEB"),
     COCOA ("1.15"),
-    COCOA_BEANS (3, "INK_SAC", "COCOA"),
+    COCOA_BEANS (3, "INK_SACK", "COCOA"),
     COD ("RAW_FISH"),
     COD_BUCKET ("1.13", "BUCKET", "WATER_BUCKET"),
     COD_SPAWN_EGG ("1.13", "MONSTER_EGG"),
@@ -300,7 +301,7 @@ public enum XMaterial
     CYAN_CARPET (9, "CARPET"),
     CYAN_CONCRETE (9, "CONCRETE"),
     CYAN_CONCRETE_POWDER (9, "CONCRETE_POWDER"),
-    CYAN_DYE (6, "INK_SAC"),
+    CYAN_DYE (6, "INK_SACK"),
     CYAN_GLAZED_TERRACOTTA (9, "1.12", "HARD_CLAY", "STAINED_CLAY", "CYAN_TERRACOTTA"),
     CYAN_SHULKER_BOX,
     CYAN_STAINED_GLASS (9, "STAINED_GLASS"),
@@ -469,20 +470,20 @@ public enum XMaterial
     GRAY_CARPET (7, "CARPET"),
     GRAY_CONCRETE (7, "CONCRETE"),
     GRAY_CONCRETE_POWDER (7, "CONCRETE_POWDER"),
-    GRAY_DYE (8, "INK_SAC"),
+    GRAY_DYE (8, "INK_SACK"),
     GRAY_GLAZED_TERRACOTTA (7, "1.12", "HARD_CLAY", "STAINED_CLAY", "GRAY_TERRACOTTA"),
     GRAY_SHULKER_BOX,
-    GRAY_STAINED_GLASS (8, "STAINED_GLASS"),
+    GRAY_STAINED_GLASS (7, "STAINED_GLASS"),
     GRAY_STAINED_GLASS_PANE (7, "THIN_GLASS", "STAINED_GLASS_PANE"),
     GRAY_TERRACOTTA (7, "HARD_CLAY", "STAINED_CLAY"),
     GRAY_WALL_BANNER (8, "WALL_BANNER"),
-    GRAY_WOOL (8, "WOOL"),
+    GRAY_WOOL (7, "WOOL"),
     GREEN_BANNER (2, "BANNER", "STANDING_BANNER"),
     GREEN_BED (13, "BED", "BED_BLOCK"),
     GREEN_CARPET (13, "CARPET"),
     GREEN_CONCRETE (13, "CONCRETE"),
     GREEN_CONCRETE_POWDER (13, "CONCRETE_POWDER"),
-    GREEN_DYE (2, "INK_SAC", "CACTUS_GREEN"),
+    GREEN_DYE (2, "INK_SACK", "CACTUS_GREEN"),
     GREEN_GLAZED_TERRACOTTA (13, "1.12", "HARD_CLAY", "STAINED_CLAY", "GREEN_TERRACOTTA"),
     GREEN_SHULKER_BOX,
     GREEN_STAINED_GLASS (13, "STAINED_GLASS"),
@@ -559,7 +560,7 @@ public enum XMaterial
     LADDER,
     LANTERN ("1.14", "SEA_LANTERN"),
     LAPIS_BLOCK,
-    LAPIS_LAZULI (4, "INK_SAC"),
+    LAPIS_LAZULI (4, "INK_SACK"),
     LAPIS_ORE,
     LARGE_FERN (3, "DOUBLE_PLANT"),
     LAVA ("STATIONARY_LAVA"),
@@ -578,7 +579,7 @@ public enum XMaterial
     LIGHT_BLUE_CARPET (3, "CARPET"),
     LIGHT_BLUE_CONCRETE (3, "CONCRETE"),
     LIGHT_BLUE_CONCRETE_POWDER (3, "CONCRETE_POWDER"),
-    LIGHT_BLUE_DYE (12, "INK_SAC"),
+    LIGHT_BLUE_DYE (12, "INK_SACK"),
     LIGHT_BLUE_GLAZED_TERRACOTTA (3, "1.12", "HARD_CLAY", "STAINED_CLAY", "LIGHT_BLUE_TERRACOTTA"),
     LIGHT_BLUE_SHULKER_BOX,
     LIGHT_BLUE_STAINED_GLASS (3, "STAINED_GLASS"),
@@ -587,11 +588,11 @@ public enum XMaterial
     LIGHT_BLUE_WALL_BANNER (12, "WALL_BANNER", "BANNER", "STANDING_BANNER"),
     LIGHT_BLUE_WOOL (3, "WOOL"),
     LIGHT_GRAY_BANNER (7, "BANNER", "STANDING_BANNER"),
-    LIGHT_GRAY_BED (7, "BED", "BED_BLOCK"),
+    LIGHT_GRAY_BED (8, "BED", "BED_BLOCK"),
     LIGHT_GRAY_CARPET (8, "CARPET"),
     LIGHT_GRAY_CONCRETE (8, "CONCRETE"),
     LIGHT_GRAY_CONCRETE_POWDER (8, "CONCRETE_POWDER"),
-    LIGHT_GRAY_DYE (7, "INK_SAC"),
+    LIGHT_GRAY_DYE (7, "INK_SACK"),
     LIGHT_GRAY_GLAZED_TERRACOTTA (8, "1.12", "HARD_CLAY", "STAINED_CLAY", "LIGHT_GRAY_TERRACOTTA", "SILVER_GLAZED_TERRACOTTA/1.13"),
     LIGHT_GRAY_SHULKER_BOX ("SILVER_SHULKER_BOX"),
     LIGHT_GRAY_STAINED_GLASS (8, "STAINED_GLASS"),
@@ -608,7 +609,7 @@ public enum XMaterial
     LIME_CARPET (5, "CARPET"),
     LIME_CONCRETE (5, "CONCRETE"),
     LIME_CONCRETE_POWDER (5, "CONCRETE_POWDER"),
-    LIME_DYE (10, "INK_SAC"),
+    LIME_DYE (10, "INK_SACK"),
     LIME_GLAZED_TERRACOTTA (5, "1.12", "HARD_CLAY", "STAINED_CLAY", "LIME_TERRACOTTA"),
     LIME_SHULKER_BOX,
     LIME_STAINED_GLASS (5, "STAINED_GLASS"),
@@ -624,7 +625,7 @@ public enum XMaterial
     MAGENTA_CARPET (2, "CARPET"),
     MAGENTA_CONCRETE (2, "CONCRETE"),
     MAGENTA_CONCRETE_POWDER (2, "CONCRETE_POWDER"),
-    MAGENTA_DYE (13, "INK_SAC"),
+    MAGENTA_DYE (13, "INK_SACK"),
     MAGENTA_GLAZED_TERRACOTTA (2, "1.12", "HARD_CLAY", "STAINED_CLAY", "MAGENTA_TERRACOTTA"),
     MAGENTA_SHULKER_BOX,
     MAGENTA_STAINED_GLASS (2, "STAINED_GLASS"),
@@ -709,7 +710,7 @@ public enum XMaterial
     ORANGE_CARPET (1, "CARPET"),
     ORANGE_CONCRETE (1, "CONCRETE"),
     ORANGE_CONCRETE_POWDER (1, "CONCRETE_POWDER"),
-    ORANGE_DYE (14, "INK_SAC"),
+    ORANGE_DYE (14, "INK_SACK"),
     ORANGE_GLAZED_TERRACOTTA (1, "1.12", "HARD_CLAY", "STAINED_CLAY", "ORANGE_TERRACOTTA"),
     ORANGE_SHULKER_BOX,
     ORANGE_STAINED_GLASS (1, "STAINED_GLASS"),
@@ -735,7 +736,7 @@ public enum XMaterial
     PINK_CARPET (6, "CARPET"),
     PINK_CONCRETE (6, "CONCRETE"),
     PINK_CONCRETE_POWDER (6, "CONCRETE_POWDER"),
-    PINK_DYE (9, "INK_SAC"),
+    PINK_DYE (9, "INK_SACK"),
     PINK_GLAZED_TERRACOTTA (6, "1.12", "HARD_CLAY", "STAINED_CLAY", "PINK_TERRACOTTA"),
     PINK_SHULKER_BOX,
     PINK_STAINED_GLASS (6, "STAINED_GLASS"),
@@ -813,7 +814,7 @@ public enum XMaterial
     PURPLE_CARPET (10, "CARPET"),
     PURPLE_CONCRETE (10, "CONCRETE"),
     PURPLE_CONCRETE_POWDER (10, "CONCRETE_POWDER"),
-    PURPLE_DYE (5, "INK_SAC"),
+    PURPLE_DYE (5, "INK_SACK"),
     PURPLE_GLAZED_TERRACOTTA (10, "1.12", "HARD_CLAY", "STAINED_CLAY", "PURPLE_TERRACOTTA"),
     PURPLE_SHULKER_BOX,
     PURPLE_STAINED_GLASS (10, "STAINED_GLASS"),
@@ -1020,6 +1021,12 @@ public enum XMaterial
     VOID_AIR ("AIR"),
     WALL_TORCH ("TORCH"),
     WANDERING_TRADER_SPAWN_EGG ("1.14", "VILLAGER_SPAWN_EGG"),
+    /**
+     * This is used for blocks only. In 1.13- WATER will turn into STATIONARY_WATER
+     * after it finished spreading. After 1.13+ this uses
+     * https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/data/Levelled.html
+     * water flowing system. Use XBlock for this instead.
+     */
     WATER ("STATIONARY_WATER"),
     WATER_BUCKET,
     WET_SPONGE (1, "SPONGE"),
@@ -1030,7 +1037,7 @@ public enum XMaterial
     WHITE_CARPET ("CARPET"),
     WHITE_CONCRETE ("CONCRETE"),
     WHITE_CONCRETE_POWDER ("CONCRETE_POWDER"),
-    WHITE_DYE (15, "1.14", "INK_SAC", "BONE_MEAL"),
+    WHITE_DYE (15, "1.14", "INK_SACK", "BONE_MEAL"),
     WHITE_GLAZED_TERRACOTTA ("1.12", "HARD_CLAY", "STAINED_CLAY", "WHITE_TERRACOTTA"),
     WHITE_SHULKER_BOX,
     WHITE_STAINED_GLASS ("STAINED_GLASS"),
@@ -1057,7 +1064,7 @@ public enum XMaterial
     YELLOW_CARPET (4, "CARPET"),
     YELLOW_CONCRETE (4, "CONCRETE"),
     YELLOW_CONCRETE_POWDER (4, "CONCRETE_POWDER"),
-    YELLOW_DYE (11, "INK_SAC", "DANDELION_YELLOW"),
+    YELLOW_DYE (11, "INK_SACK", "DANDELION_YELLOW"),
     YELLOW_GLAZED_TERRACOTTA (4, "1.12", "HARD_CLAY", "STAINED_CLAY", "YELLOW_TERRACOTTA"),
     YELLOW_SHULKER_BOX,
     YELLOW_STAINED_GLASS (4, "STAINED_GLASS"),
@@ -1090,7 +1097,7 @@ public enum XMaterial
     private static final ImmutableSet<String> DAMAGEABLE = ImmutableSet
         .of("HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS", "SWORD", "AXE", "PICKAXE", "SHOVEL", "HOE", "ELYTRA",
             "TRIDENT", "HORSE_ARMOR", "BARDING", "SHEARS", "FLINT_AND_STEEL", "BOW", "FISHING_ROD", "CARROT_ON_A_STICK",
-            "CARROT_STICK");
+            "CARROT_STICK", "SPADE", "SHIELD");
     /**
      * <b>XMaterial Paradox (Duplication Check)</b>
      * <p>
@@ -1258,14 +1265,12 @@ public enum XMaterial
         {
             if ((data == -1 || data == materials.data) && materials.anyMatchLegacy(name))
             {
-                material = materials;
-                break;
+                NAME_CACHE.put(holder, materials);
+                return materials;
             }
         }
 
-        if (material != null)
-            NAME_CACHE.put(holder, material);
-        return material;
+        return null;
     }
 
     /**
@@ -1326,9 +1331,9 @@ public enum XMaterial
      * <b>MATERIAL:DATA</b>
      * <p>
      * <b>Examples</b>
-     *
+     * 
      * <pre>
-     *     INK_SAC:1 -> RED_DYE
+     *     INK_SACK:1 -> RED_DYE
      *     WOOL, 14  -> RED_WOOL
      * </pre>
      *
@@ -1358,9 +1363,9 @@ public enum XMaterial
      * <p>
      * <b>Examples</b>
      * <p>
-     *
+     * 
      * <pre>
-     *     INK_SAC:1 -> RED_DYE
+     *     INK_SACK:1 -> RED_DYE
      *     WOOL, 14  -> RED_WOOL
      * </pre>
      *
@@ -1531,7 +1536,8 @@ public enum XMaterial
     {
         XMaterial mat = requestOldXMaterial(name, data);
         // If ends with "S" -> Plural Form Material
-        return mat.name().charAt(mat.name().length() - 1) == 'S' ? valueOf(name) : mat;
+        return mat.name().charAt(mat.name().length() - 1) == 'S' ? Enums.getIfPresent(XMaterial.class, name).orNull() :
+            mat;
     }
 
     /**
@@ -1641,7 +1647,7 @@ public enum XMaterial
      * and each word capitalized.
      * <p>
      * <b>Examples:</b>
-     *
+     * 
      * <pre>
      *     EMERALD                 -> Emerald
      *     EMERALD_BLOCK           -> Emerald Block
@@ -1730,6 +1736,86 @@ public enum XMaterial
     }
 
     /**
+     * Checks if the list of given material names matches the given base material.
+     * Mostly used for configs.
+     * <p>
+     * Supports {@link String#contains} {@code CONTAINS:NAME} and Regular Expression
+     * {@code REGEX:PATTERN} formats.
+     * <p>
+     * <b>Example:</b> <blockquote>
+     * 
+     * <pre>
+     *     XMaterial material = {@link #matchXMaterial(ItemStack)};
+     *     if (material.isOneOf(plugin.getConfig().getStringList("disabled-items")) return;
+     * </pre>
+     * 
+     * </blockquote> <br>
+     * <b>{@code CONTAINS} Examples:</b>
+     * 
+     * <pre>
+     *     "CONTAINS:CHEST" -> CHEST, ENDERCHEST, TRAPPED_CHEST -> true
+     *     "cOnTaINS:dYe" -> GREEN_DYE, YELLOW_DYE, BLUE_DYE, INK_SACK -> true
+     * </pre>
+     * <p>
+     * <b>{@code REGEX} Examples</b>
+     * 
+     * <pre>
+     *     "REGEX:^.+_.+_.+$" -> Every Material with 3 underlines or more: SHULKER_SPAWN_EGG, SILVERFISH_SPAWN_EGG, SKELETON_HORSE_SPAWN_EGG
+     *     "REGEX:^.{1,3}$" -> Material names that have 3 letters only: BED, MAP, AIR
+     * </pre>
+     * <p>
+     * The reason that there are tags for {@code CONTAINS} and {@code REGEX} is for
+     * the performance. Please avoid using the {@code REGEX} tag if you can use the
+     * {@code CONTAINS} tag. It'll have a huge impact on performance. Please avoid
+     * using {@code (capturing groups)} there's no use for them in this case. If you
+     * want to use groups, use {@code (?: non-capturing groups)}. It's faster.
+     * <p>
+     * You can make a cache for pre-compiled RegEx patterns from your config. It's
+     * better, but not much faster since these patterns are not that complex.
+     * <p>
+     * Want to learn RegEx? You can mess around in
+     * <a href="https://regexr.com/">RegExr</a> website.
+     *
+     * @param material  the base material to match other materials with.
+     * @param materials the material names to check base material on.
+     * @return true if one of the given material names is similar to the base
+     *         material.
+     * @since 3.1.1
+     */
+    public static boolean isOneOf(@Nonnull Material material, @Nullable List<String> materials)
+    {
+        if (materials == null || materials.isEmpty())
+            return false;
+        Objects.requireNonNull(material, "Cannot match materials with a null material");
+        String name = material.name();
+
+        for (String comp : materials)
+        {
+            comp = comp.toUpperCase();
+            if (comp.startsWith("CONTAINS:"))
+            {
+                comp = format(comp.substring(9));
+                if (name.contains(comp))
+                    return true;
+                continue;
+            }
+            if (comp.startsWith("REGEX:"))
+            {
+                comp = comp.substring(6);
+                if (name.matches(comp))
+                    return true;
+                continue;
+            }
+
+            // Direct Object Equals
+            Optional<XMaterial> mat = matchXMaterial(comp);
+            if (mat.isPresent() && mat.get().parseMaterial() == material)
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Gets the version which this material was added in. If the material was added
      * before {@link MinecraftVersion#V1_13} then it'll return
      * {@link MinecraftVersion#UNKNOWN}
@@ -1774,101 +1860,38 @@ public enum XMaterial
     /**
      * Checks if the list of given material names matches the given base material.
      * Mostly used for configs.
-     * <p>
-     * Supports {@link String#contains} {@code CONTAINS:NAME} and Regular Expression
-     * {@code REGEX:PATTERN} formats.
-     * <p>
-     * <b>Example:</b> <blockquote>
-     *
-     * <pre>
-     *     XMaterial material = {@link #matchXMaterial(ItemStack)};
-     *     if (material.isOneOf(plugin.getConfig().getStringList("disabled-items")) return;
-     * </pre>
-     *
-     * </blockquote> <br>
-     * <b>{@code CONTAINS} Examples:</b>
-     *
-     * <pre>
-     *     "CONTAINS:CHEST" -> CHEST, ENDERCHEST, TRAPPED_CHEST -> true
-     *     "cOnTaINS:dYe" -> GREEN_DYE, YELLOW_DYE, BLUE_DYE, INK_SACK -> true
-     * </pre>
-     * <p>
-     * <b>{@code REGEX} Examples</b>
-     *
-     * <pre>
-     *     "REGEX:^.+_.+_.+$" -> Every Material with 3 underlines or more: SHULKER_SPAWN_EGG, SILVERFISH_SPAWN_EGG, SKELETON_HORSE_SPAWN_EGG
-     *     "REGEX:^.{1,3}$" -> Material names that have 3 letters only: BED, MAP, AIR
-     * </pre>
-     * <p>
-     * The reason that there are tags for {@code CONTAINS} and {@code REGEX} is for
-     * the performance. Please avoid using the {@code REGEX} tag if you can use the
-     * {@code CONTAINS} tag. It'll have a huge impact on performance. Please avoid
-     * using {@code (capturing groups)} there's no use for them in this case. If you
-     * want to use groups, use {@code (?: non-capturing groups)}. It's faster.
-     * <p>
-     * You can make a cache for pre-compiled RegEx patterns from your config. It's
-     * better, but not much faster since these patterns are not that complex.
-     * <p>
-     * Want to learn RegEx? You can mess around in
-     * <a href="https://regexr.com/">RegExr</a> website.
      *
      * @param materials the material names to check base material on.
      * @return true if one of the given material names is similar to the base
      *         material.
+     * @see #isOneOf(Material, List)
      * @since 3.0.0
      */
     public boolean isOneOf(@Nullable List<String> materials)
     {
-        if (materials == null || materials.isEmpty())
+        Material material = this.parseMaterial();
+        if (material == null)
             return false;
-        Material baseMat = this.parseMaterial();
-        if (baseMat == null)
-            return false;
-
-        for (String comp : materials)
-        {
-            comp = comp.toUpperCase();
-            if (comp.startsWith("CONTAINS:"))
-            {
-                comp = format(comp.substring(9));
-                if (name().contains(comp))
-                    return true;
-                continue;
-            }
-            else if (comp.startsWith("REGEX:"))
-            {
-                comp = comp.substring(6);
-                if (name().matches(comp))
-                    return true;
-                continue;
-            }
-
-            // Normal handling - Equals
-            Optional<XMaterial> mat = matchXMaterial(comp);
-            if (mat.isPresent() && mat.get().parseMaterial() == baseMat)
-                return true;
-        }
-        return false;
+        return isOneOf(material, materials);
     }
 
     /**
      * Checks if the given string matches any of this material's legacy material
-     * names.
+     * names. All the values passed to this method will not be null or empty and are
+     * formatted correctly.
      *
      * @param name the name to check
      * @return true if it's one of the legacy names.
      * @see #containsLegacy(String)
      * @since 2.0.0
      */
-    public boolean anyMatchLegacy(@Nonnull String name)
+    private boolean anyMatchLegacy(@Nonnull String name)
     {
-        Validate.notEmpty(name, "Cannot check for legacy name for null or empty material name");
         // If it's a new material, everything after this is a suggestion.
         // At least until now except one or two materials.
         if (isNew())
             return false;
 
-        name = format(name);
         for (String legacy : this.legacy)
             if (parseLegacyMaterialName(legacy).equals(name))
                 return true;
@@ -1876,8 +1899,8 @@ public enum XMaterial
     }
 
     /**
-     * Friendly readable string for this material In most cases you should be using
-     * {@link #name()} instead.
+     * User-friendly readable name for this material In most cases you should be
+     * using {@link #name()} instead.
      *
      * @return string of this object.
      * @see #toWord(String)

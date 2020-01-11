@@ -11,11 +11,19 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public interface Opener
 {
-    public DoorOpenResult openDoor (Door door, double time);
-    public DoorOpenResult openDoor (Door door, double time, boolean instantOpen, boolean silent);
+    public DoorOpenResult openDoor(Door door, double time);
+
+    default DoorOpenResult openDoor(Door door, double time, boolean instantOpen)
+    {
+        return openDoor(door, time, instantOpen, false);
+    }
+
+    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent);
+
     public DoorOpenResult shadowToggle(Door door);
 
     RotateDirection getRotateDirection(Door door);
+
     boolean isRotateDirectionValid(Door door);
 
     default int getSizeLimit(final Door door)

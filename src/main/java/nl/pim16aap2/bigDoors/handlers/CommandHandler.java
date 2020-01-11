@@ -66,7 +66,7 @@ public class CommandHandler implements CommandExecutor
     }
 
     // Open the door.
-    public void openDoorCommand(CommandSender sender, Door door, double time)
+    public void openDoorCommand(CommandSender sender, Door door, double time, boolean instant)
     {
         if (sender instanceof Player &&
             !plugin.getCommander().hasPermissionForAction((Player) sender, door.getDoorUID(), DoorAttribute.TOGGLE))
@@ -100,7 +100,8 @@ public class CommandHandler implements CommandExecutor
         else
         {
             Opener opener = plugin.getDoorOpener(newDoor.getType());
-            DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(newDoor, time);
+            DoorOpenResult result = opener == null ? DoorOpenResult.TYPEDISABLED :
+                opener.openDoor(newDoor, time, instant);
 
             if (result != DoorOpenResult.SUCCESS)
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
@@ -110,12 +111,12 @@ public class CommandHandler implements CommandExecutor
 
     public void openDoorCommand(Player player, Door door, double time)
     {
-        openDoorCommand((CommandSender) player, door, time);
+        openDoorCommand(player, door, time, false);
     }
 
     public void openDoorCommand(Player player, Door door)
     {
-        openDoorCommand((CommandSender) player, door, 0.0);
+        openDoorCommand(player, door, 0.0, false);
     }
 
     // Get the number of doors owned by player player with name doorName (or any
@@ -747,6 +748,7 @@ public class CommandHandler implements CommandExecutor
         if (cmd.getName().equalsIgnoreCase("opendoor") || cmd.getName().equalsIgnoreCase("closedoor") ||
             cmd.getName().equalsIgnoreCase("toggledoor"))
         {
+            boolean instantly = false;
             // type0 = opendoor, type1 = closedoor, type2 = toggledoor
             int type = cmd.getName().equalsIgnoreCase("opendoor") ? 0 :
                 cmd.getName().equalsIgnoreCase("closedoor") ? 1 : 2;
@@ -760,7 +762,12 @@ public class CommandHandler implements CommandExecutor
                 // If the time variable was specified, decrement endIDX by 1, as the last
                 // argument is not a door!
                 if (time != 0.0D)
+                {
                     --endIDX;
+                    if (time < 0)
+                        instantly = true;
+                }
+
                 // Go over all arguments until the last one (or the one before that).
                 for (int index = 0; index < endIDX; ++index)
                 {
@@ -782,11 +789,11 @@ public class CommandHandler implements CommandExecutor
                     else
                     {
                         if (type == 2 || door.getOpenDir().equals(RotateDirection.NONE))
-                            openDoorCommand(sender, door, time);
+                            openDoorCommand(sender, door, time, instantly);
                         else if (type == 1)
                         {
                             if (door.isOpen())
-                                openDoorCommand(sender, door, time);
+                                openDoorCommand(sender, door, time, instantly);
                             else
                                 plugin.getMyLogger()
                                     .returnToSender(sender, Level.INFO, ChatColor.RED,
@@ -796,7 +803,7 @@ public class CommandHandler implements CommandExecutor
                         }
                         else if (type == 0)
                             if (!door.isOpen())
-                                openDoorCommand(sender, door, time);
+                                openDoorCommand(sender, door, time, instantly);
                             else
                                 plugin.getMyLogger()
                                     .returnToSender(sender, Level.INFO, ChatColor.RED,
