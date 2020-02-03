@@ -3,7 +3,9 @@ package nl.pim16aap2.bigDoors.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.SecureRandom;
+import java.util.EnumSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -20,6 +22,29 @@ import nl.pim16aap2.bigDoors.Door;
 
 public final class Util
 {
+    private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
+    private static final Set<Material> BLACKLIST = EnumSet.noneOf(Material.class);
+
+    public static void processConfig(ConfigLoader configLoader)
+    {
+        WHITELIST.clear();
+        BLACKLIST.clear();
+
+        for (Material mat : configLoader.getWhitelist())
+            WHITELIST.add(mat);
+
+        for (Material mat : configLoader.getBlacklist())
+            BLACKLIST.add(mat);
+
+        for (Material mat : Material.values())
+        {
+            if (WHITELIST.contains(mat))
+                continue;
+            if (!Util.isAllowedBlockBackDoor(mat))
+                BLACKLIST.add(mat);
+        }
+    }
+
     // Send a message to a player in a specific color.
     public static void messagePlayer(Player player, ChatColor color, String s)
     {
@@ -404,8 +429,13 @@ public final class Util
         return 0;
     }
 
-    // Certain blocks don't work in doors, so don't allow their usage.
     public static boolean isAllowedBlock(Material mat)
+    {
+        return WHITELIST.contains(mat) || !BLACKLIST.contains(mat);
+    }
+
+    // Certain blocks don't work in doors, so don't allow their usage.
+    public static boolean isAllowedBlockBackDoor(Material mat)
     {
         if (BigDoors.get().getConfigLoader().getBlacklist().contains(mat))
             return false;
@@ -674,6 +704,7 @@ public final class Util
         case STONECUTTER:
         case SWEET_BERRY_BUSH:
         case LANTERN:
+        case BELL:
 
             /* 1.14 end */
 

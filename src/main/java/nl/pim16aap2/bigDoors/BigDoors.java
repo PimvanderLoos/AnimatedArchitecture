@@ -207,6 +207,7 @@ public class BigDoors extends JavaPlugin implements Listener
             return;
 
         readConfigValues();
+        Util.processConfig(getConfigLoader());
         messages = new Messages(this);
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();

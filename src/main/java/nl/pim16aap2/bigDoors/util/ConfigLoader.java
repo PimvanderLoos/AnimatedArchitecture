@@ -50,6 +50,7 @@ public class ConfigLoader
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
     private Set<Material> blacklist;
+    private Set<Material> whitelist;
 
     private boolean checkForUpdates;
     private int headCacheTimeout;
@@ -98,6 +99,10 @@ public class ConfigLoader
         String[] blacklistComment = { "List of blacklisted materials. Materials on this list can not be animated.",
                                       "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
                                       "  - BEDROCK" };
+        String[] whitelistComment = { "List of whitelisted materials. Materials on this list can be animated even if they're blacklisted ",
+                                      "(either in the blacklist setting or hardcoded in the plugin).",
+                                      "Use the same list of materials as for the power blocks. For example, you would whitelist a bell like so:",
+                                      "  - BELL" };
         String[] maxDoorCountComment = { "Maximum number of doors a player can own. -1 = infinite." };
         String[] languageFileComment = { "Specify a language file to be used. Note that en_US.txt will get regenerated!" };
         String[] dbFileComment = { "Pick the name (and location if you want) of the database." };
@@ -154,7 +159,9 @@ public class ConfigLoader
         configOptionsList.add(new ConfigOption("allowRedstone", enableRedstone, enableRedstoneComment));
 
         readPowerBlockConfig(config, powerBlockTypeComment);
-        readMaterialBlacklistConfig(config, blacklistComment);
+
+        blacklist = readMaterialConfig(config, blacklistComment, "materialBlacklist", "Blacklisted");
+        whitelist = readMaterialConfig(config, whitelistComment, "materialWhitelist", "Whitelisted");
 
         maxDoorCount = config.getInt("maxDoorCount", -1);
         configOptionsList.add(new ConfigOption("maxDoorCount", maxDoorCount, maxDoorCountComment));
@@ -307,12 +314,23 @@ public class ConfigLoader
         powerBlockTypesMap.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K.toString()));
     }
 
-    private void readMaterialBlacklistConfig(FileConfiguration config, String[] blacklistComment)
+    /**
+     * Read material names from a config option.
+     *
+     * @param config     The config to read the values from.
+     * @param comment    The comment of the config option.
+     * @param optionName The name of the option
+     * @param reportName The name to use for reporting. E.g.: "blacklisted" +
+     *                   "materials:" (when "blacklisted" is the reportName.
+     * @return The set of materials. Only solid materials are added.
+     */
+    private Set<Material> readMaterialConfig(final FileConfiguration config, final String[] comment,
+                                             final String optionName, final String reportName)
     {
         List<String> materialNames;
 
         {
-            List<?> materialsTmp = config.getList("materialBlacklist", new ArrayList<Material>());
+            List<?> materialsTmp = config.getList(optionName, new ArrayList<Material>());
             // If the user is illiterate and failed to read the part saying it should be an
             // enum string and used
             // non-String values, put those in a new String list.
@@ -349,14 +367,14 @@ public class ConfigLoader
         }
 
         if (materials.size() == 0)
-            plugin.getMyLogger().logMessage("No materials blacklisted!", true, false);
+            plugin.getMyLogger().logMessage("No materials " + reportName + "!", true, false);
         else
         {
-            plugin.getMyLogger().logMessageToConsoleOnly("Blacklisted materials:");
+            plugin.getMyLogger().logMessageToConsoleOnly(reportName + " materials:");
             materialNames.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K.toString()));
         }
-        configOptionsList.add(new ConfigOption("materialBlacklist", materialNames, blacklistComment));
-        blacklist = new HashSet<>(Collections.unmodifiableList(materials));
+        configOptionsList.add(new ConfigOption(optionName, materialNames, comment));
+        return new HashSet<>(Collections.unmodifiableList(materials));
     }
 
     // Write new config file.
@@ -592,6 +610,16 @@ public class ConfigLoader
     public Set<Material> getBlacklist()
     {
         return blacklist;
+    }
+
+    /**
+     * Gets a set of whitelisted materials as defined in the config.
+     *
+     * @return A set of whitelisted materials as defined in the config.
+     */
+    public Set<Material> getWhitelist()
+    {
+        return whitelist;
     }
 
     public boolean resourcePackEnabled()
