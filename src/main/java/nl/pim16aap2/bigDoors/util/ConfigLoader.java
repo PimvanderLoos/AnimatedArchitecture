@@ -20,6 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
 
 public class ConfigLoader
@@ -36,6 +37,7 @@ public class ConfigLoader
     private double sdMultiplier = 1.0;
     private double flMultiplier = 1.0;
     private double elMultiplier = 1.0;
+    private boolean resourcePackEnabled;
     private String resourcePack;
     private String languageFile;
     private int maxDoorCount;
@@ -59,9 +61,25 @@ public class ConfigLoader
 
     private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Arrays.asList("GOLD_BLOCK"));
 
+    private static final EnumMap<MCVersion, String> RESOURCEPACKS = new EnumMap<>(MCVersion.class);
+    static
+    {
+        RESOURCEPACKS.put(MCVersion.v1_11,
+                          "https://www.dropbox.com/s/6zdkg4jr90pc1mi/BigDoorsResourcePack-1_11.zip?dl=1");
+        RESOURCEPACKS.put(MCVersion.v1_12,
+                          "https://www.dropbox.com/s/6zdkg4jr90pc1mi/BigDoorsResourcePack-1_11.zip?dl=1");
+        RESOURCEPACKS.put(MCVersion.v1_13,
+                          "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1");
+        RESOURCEPACKS.put(MCVersion.v1_14,
+                          "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1");
+        RESOURCEPACKS.put(MCVersion.v1_15,
+                          "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-1_15.zip?dl=1");
+    }
+
     public ConfigLoader(BigDoors plugin)
     {
         this.plugin = plugin;
+        resourcePack = RESOURCEPACKS.get(BigDoors.getMCVersion());
         configOptionsList = new ArrayList<>();
         powerBlockTypesMap = new HashSet<>();
         hooksMap = new EnumMap<>(ProtectionCompat.class);
@@ -73,16 +91,13 @@ public class ConfigLoader
     // values, whichever is applicable.
     public void makeConfig()
     {
-        String defResPackUrl = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
-        String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
-
         String[] enableRedstoneComment = { "Allow doors to be opened using redstone signals." };
         String[] powerBlockTypeComment = { "Choose the type of the power block that is used to open doors using redstone.",
                                            "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
                                            "This is the block that will open the door attached to it when it receives a redstone signal." };
-        String[] blacklistComment = {"List of blacklisted materials. Materials on this list can not be animated.",
-                                     "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
-                                     "  - BEDROCK"};
+        String[] blacklistComment = { "List of blacklisted materials. Materials on this list can not be animated.",
+                                      "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
+                                      "  - BEDROCK" };
         String[] maxDoorCountComment = { "Maximum number of doors a player can own. -1 = infinite." };
         String[] languageFileComment = { "Specify a language file to be used. Note that en_US.txt will get regenerated!" };
         String[] dbFileComment = { "Pick the name (and location if you want) of the database." };
@@ -96,12 +111,15 @@ public class ConfigLoader
                                        "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!" };
         String[] maxDoorSizeComment = { "Max. number of blocks allowed in a door (including air blocks). Doors exceeding this limit cannt be created or used.",
                                         "This is a global limit that not even OPs can bypass. Use permissions for more fine-grained control.",
-                                        "Use -1 to disable this limit."};
+                                        "Use -1 to disable this limit." };
         String[] resourcePackComment = { "This plugin uses a support resource pack for things suchs as sound.",
-                                         "You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
-                                         "Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
-                                         "The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl + "'",
-                                         "The default resource pack for 1.13.x/1.14.x is: \'" + defResPackUrl1_13 + "\'" };
+                                         "Different packs will be used for different versions of Minecraft:",
+                                         "The resource pack for 1.11.x/1.12.x is: \'"
+                                             + RESOURCEPACKS.get(MCVersion.v1_11) + "\'",
+                                         "The resource pack for 1.13.x/1.14.x is: \'"
+                                             + RESOURCEPACKS.get(MCVersion.v1_13) + "\'",
+                                         "The resource pack for 1.15.x is:        \'"
+                                             + RESOURCEPACKS.get(MCVersion.v1_15) + "\'" };
         String[] multiplierComment = { "These multipliers affect the opening/closing speed of their respective door types.",
                                        "Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
                                        "To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
@@ -172,25 +190,25 @@ public class ConfigLoader
         maxDoorSize = config.getInt("maxDoorSize", -1);
         configOptionsList.add(new ConfigOption("maxDoorSize", maxDoorSize, maxDoorSizeComment));
 
-        resourcePack = config.getString("resourcePack", plugin.is1_13() ? defResPackUrl1_13 : defResPackUrl);
-        configOptionsList.add(new ConfigOption("resourcePack", resourcePack, resourcePackComment));
+        resourcePackEnabled = config.getBoolean("resourcePackEnabled", true);
+        configOptionsList.add(new ConfigOption("resourcePackEnabled", resourcePackEnabled, resourcePackComment));
 
-        bdMultiplier = config.getDouble("bdMultiplier", 0.0D);
+        bdMultiplier = config.getDouble("bdMultiplier", 1.0D);
         configOptionsList.add(new ConfigOption("bdMultiplier", bdMultiplier, multiplierComment));
 
-        pcMultiplier = config.getDouble("pcMultiplier", 0.0D);
+        pcMultiplier = config.getDouble("pcMultiplier", 1.0D);
         configOptionsList.add(new ConfigOption("pcMultiplier", pcMultiplier, null));
 
-        dbMultiplier = config.getDouble("dbMultiplier", 0.0D);
+        dbMultiplier = config.getDouble("dbMultiplier", 1.0D);
         configOptionsList.add(new ConfigOption("dbMultiplier", dbMultiplier, null));
 
-        sdMultiplier = config.getDouble("sdMultiplier", 0.0D);
+        sdMultiplier = config.getDouble("sdMultiplier", 1.0D);
         configOptionsList.add(new ConfigOption("sdMultiplier", sdMultiplier, null));
 
-        flMultiplier = config.getDouble("flMultiplier", 0.0D);
+        flMultiplier = config.getDouble("flMultiplier", 1.0D);
         configOptionsList.add(new ConfigOption("flMultiplier", flMultiplier, null));
 
-        elMultiplier = config.getDouble("elMultiplier", 0.0D);
+        elMultiplier = config.getDouble("elMultiplier", 1.0D);
         configOptionsList.add(new ConfigOption("elMultiplier", elMultiplier, null));
 
         coolDown = config.getInt("coolDown", 0);
@@ -259,8 +277,8 @@ public class ConfigLoader
                 else
                 {
                     plugin.getMyLogger()
-                    .logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true,
-                                false);
+                        .logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true,
+                                    false);
                     it.remove();
                 }
             }
@@ -380,13 +398,13 @@ public class ConfigLoader
                 {
                     pw.println(configOptionsList.get(idx).toString() +
                     // Only print an additional newLine if the next config option has a comment.
-                        (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? "" :
-                            "\n"));
+                        (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ?
+                            "" : "\n"));
                 }
                 catch (Exception e)
                 {
-                    plugin.getMyLogger().warn("Failed to write config option \"" + configOptionsList.get(idx).getName() + "\"! "
-                        + "Please contact pim16aap2 and attach the error below:");
+                    plugin.getMyLogger().warn("Failed to write config option \"" + configOptionsList.get(idx).getName()
+                        + "\"! " + "Please contact pim16aap2 and attach the error below:");
                     e.printStackTrace();
                     plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
                 }
@@ -488,9 +506,10 @@ public class ConfigLoader
     }
 
     /**
-     * Gets the amount time (in seconds) to wait before downloading an update. If set to 24 hours (86400 seconds), and
-     * an update was released on Monday June 1 at 12PM, it will not download this update before Tuesday June 2 at 12PM.
-     * When running a dev-build, however, this value is overridden to 0.
+     * Gets the amount time (in seconds) to wait before downloading an update. If
+     * set to 24 hours (86400 seconds), and an update was released on Monday June 1
+     * at 12PM, it will not download this update before Tuesday June 2 at 12PM. When
+     * running a dev-build, however, this value is overridden to 0.
      *
      * @return The amount time (in seconds) to wait before downloading an update.
      */
@@ -573,5 +592,10 @@ public class ConfigLoader
     public Set<Material> getBlacklist()
     {
         return blacklist;
+    }
+
+    public boolean resourcePackEnabled()
+    {
+        return resourcePackEnabled;
     }
 }

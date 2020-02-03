@@ -218,8 +218,8 @@ public class BigDoors extends JavaPlugin implements Listener
             redstoneHandler = new RedstoneHandler(this);
             Bukkit.getPluginManager().registerEvents(redstoneHandler, this);
         }
-        // If the resourcepack is set to "NONE", don't load it.
-        if (!config.resourcePack().equals("NONE"))
+
+        if (!config.resourcePackEnabled())
         {
             // If a resource pack was set for the current version of Minecraft, send that
             // pack to the client on login.
