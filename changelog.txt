@@ -2,7 +2,7 @@ Alpha 0.1.8.16
 - Updated to the latest version of XMaterial, which is supposed to bring some performance improvements in the areas concerning materials.
 - Added beehive and bee nest to the material blacklist.
 - Fixed bypass permission node for toggling doors not allowing people to toggle doors via commands if they did not own them. Thanks, @ReshiStar for the bug report.
-- Added support for "Lands" (the land claim plugin). Thanks, @serhanekmekci for the request!
+- Added support for "Lands" (the land claim plugin). Thanks, @serhanekmekci for the request and @angeschossen for generously providing their plugin!
 - Using negative speed values now results in an instant toggle (so no animations). Example: "/ToggleDoor 42 -1.0" to instantly toggle a door with ID 42. Thanks, @Keifranien for the suggestion!
 - Updated the resource pack for version 1.15 of Minecraft. Additionally, the config now uses a boolean value instead of an URL. Thanks, @wjtonline for the report!
 - Added BELL to the material blacklist by default to avoid duplication. Thanks, @Achaius for the report!

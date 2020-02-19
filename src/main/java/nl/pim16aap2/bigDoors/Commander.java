@@ -200,6 +200,8 @@ public class Commander
     // provided (can be null).
     public ArrayList<Door> getDoors(String playerUUID, @Nullable String name)
     {
+        if (playerUUID == null && name == null)
+            return new ArrayList<>();
         return playerUUID == null ? getDoors(name) : db.getDoors(playerUUID, name);
     }
 
