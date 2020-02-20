@@ -115,6 +115,7 @@ public class ConfigLoader
         String[] allowStatsComment = { "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
                                        "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!" };
         String[] maxDoorSizeComment = { "Max. number of blocks allowed in a door (including air blocks). Doors exceeding this limit cannt be created or used.",
+                                        "For example, If you'd want to allow doors of 20 by 10 blocks, you'd need a limit of at least 200.",
                                         "This is a global limit that not even OPs can bypass. Use permissions for more fine-grained control.",
                                         "Use -1 to disable this limit." };
         String[] resourcePackComment = { "This plugin uses a support resource pack for things suchs as sound.",
@@ -361,13 +362,13 @@ public class ConfigLoader
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().logMessage("Failed to parse material: \"" + str + "\"", true, false);
+                plugin.getMyLogger().logMessageToConsoleOnly("Failed to parse material: \"" + str + "\"");
                 it.remove();
             }
         }
 
         if (materials.size() == 0)
-            plugin.getMyLogger().logMessage("No materials " + reportName + "!", true, false);
+            plugin.getMyLogger().logMessageToConsoleOnly("No materials " + reportName + "!");
         else
         {
             plugin.getMyLogger().logMessageToConsoleOnly(reportName + " materials:");

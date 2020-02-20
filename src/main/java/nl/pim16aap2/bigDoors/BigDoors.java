@@ -65,6 +65,8 @@ import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 
+// TODO: Drawbridges that were created when flat, should remember that direction for opening.
+
 public class BigDoors extends JavaPlugin implements Listener
 {
     private static BigDoors instance;

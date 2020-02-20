@@ -22,7 +22,7 @@ public class MyLogger
 
     public MyLogger(BigDoors plugin, File logFile)
     {
-        this.plugin  = plugin;
+        this.plugin = plugin;
         this.logFile = logFile;
         loadLog();
     }
@@ -61,10 +61,10 @@ public class MyLogger
 
     // Log a message to the log file. Can print to console and/or
     // add some new lines before the message in the logfile to make it stand out.
-    public void logMessage(String msg, boolean printToConsole, boolean startSkip)
+    public void logMessage(String msg, boolean printToConsole, boolean startSkip, final Level level)
     {
         if (printToConsole)
-            myLogger(Level.WARNING, msg);
+            myLogger(level, msg);
         try
         {
             BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true));
@@ -85,7 +85,15 @@ public class MyLogger
         }
     }
 
-    // Log a message to the logfile. Does not print to console or add newlines in front of the actual message.
+    // Log a message to the log file. Can print to console and/or
+    // add some new lines before the message in the logfile to make it stand out.
+    public void logMessage(String msg, boolean printToConsole, boolean startSkip)
+    {
+        logMessage(msg, printToConsole, startSkip, Level.WARNING);
+    }
+
+    // Log a message to the logfile. Does not print to console or add newlines in
+    // front of the actual message.
     public void logMessageToLogFile(String msg)
     {
         logMessage(msg, false, false);
