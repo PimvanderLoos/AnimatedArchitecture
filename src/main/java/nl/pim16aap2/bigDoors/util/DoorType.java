@@ -14,7 +14,7 @@ public enum DoorType
     DRAWBRIDGE  (1, "-DB", "GENERAL.DOORTYPE.DrawBridge", "bigdoors.user.createdoor.drawbridge",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE}),
+                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT}),
 
 
     PORTCULLIS  (2, "-PC", "GENERAL.DOORTYPE.Portcullis", "bigdoors.user.createdoor.portcullis",

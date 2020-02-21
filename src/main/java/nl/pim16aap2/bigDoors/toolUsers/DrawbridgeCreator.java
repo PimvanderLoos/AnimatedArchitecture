@@ -7,6 +7,7 @@ import org.bukkit.util.Vector;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorType;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 
 /*
@@ -31,7 +32,7 @@ public class DrawbridgeCreator extends ToolUser
     @Override
     protected void triggerGiveTool()
     {
-        giveToolToPlayer(messages.getString("CREATOR.DRAWBRIDGE.StickLore"    ).split("\n"),
+        giveToolToPlayer(messages.getString("CREATOR.DRAWBRIDGE.StickLore").split("\n"),
                          messages.getString("CREATOR.DRAWBRIDGE.StickReceived").split("\n"));
     }
 
@@ -54,10 +55,8 @@ public class DrawbridgeCreator extends ToolUser
         if (loc.getBlockY() != one.getBlockY())
             return false;
 
-        boolean onEdge = loc.getBlockX() == one.getBlockX() ||
-                         loc.getBlockX() == two.getBlockX() ||
-                         loc.getBlockZ() == one.getBlockZ() ||
-                         loc.getBlockZ() == two.getBlockZ();
+        boolean onEdge = loc.getBlockX() == one.getBlockX() || loc.getBlockX() == two.getBlockX() ||
+                         loc.getBlockZ() == one.getBlockZ() || loc.getBlockZ() == two.getBlockZ();
 
         boolean inArea = Util.between(loc.getBlockX(), one.getBlockX(), two.getBlockX()) &&
                          Util.between(loc.getBlockZ(), one.getBlockZ(), two.getBlockZ());
@@ -109,12 +108,12 @@ public class DrawbridgeCreator extends ToolUser
             int posZ = loc.getBlockZ();
 
             if (loc.equals(one) || loc.equals(two) || // "bottom left" or "top right" (on 2d grid)
-               (posX == one.getBlockX() && posZ == two.getBlockZ()) || // "top left"
-               (posX == two.getBlockX() && posZ == one.getBlockZ()))
+                (posX == one.getBlockX() && posZ == two.getBlockZ()) || // "top left"
+                (posX == two.getBlockX() && posZ == one.getBlockZ()))
                 engine = loc;
             else
             {
-                if      (posZ == one.getBlockZ())
+                if (posZ == one.getBlockZ())
                     engineSide = DoorDirection.NORTH;
                 else if (posZ == two.getBlockZ())
                     engineSide = DoorDirection.SOUTH;
@@ -127,7 +126,8 @@ public class DrawbridgeCreator extends ToolUser
             return true;
         }
 
-        // If an engine point has already been selected but an engine side wasn't determined yet.
+        // If an engine point has already been selected but an engine side wasn't
+        // determined yet.
         if (loc.equals(engine))
             return false;
 
@@ -187,6 +187,18 @@ public class DrawbridgeCreator extends ToolUser
             engine.setX(one.getX() + (two.getX() - one.getX()) / 2);
         else
             engine.setZ(one.getZ() + (two.getZ() - one.getZ()) / 2);
+
+        if (isOpen)
+        {
+            if (engineSide == DoorDirection.NORTH)
+                openDir = RotateDirection.SOUTH;
+            else if (engineSide == DoorDirection.EAST)
+                openDir = RotateDirection.WEST;
+            else if (engineSide == DoorDirection.SOUTH)
+                openDir = RotateDirection.NORTH;
+            else if (engineSide == DoorDirection.WEST)
+                openDir = RotateDirection.EAST;
+        }
     }
 
     // Check if the second position is valid.
@@ -254,7 +266,8 @@ public class DrawbridgeCreator extends ToolUser
                     drawBridgeEngineFix();
                     setIsDone(true);
                 }
-                // If the engine side could not be determined, branch out for additional information.
+                // If the engine side could not be determined, branch out for additional
+                // information.
                 else
                     Util.messagePlayer(player, messages.getString("CREATOR.DRAWBRIDGE.Step3"));
             }

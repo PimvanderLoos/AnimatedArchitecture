@@ -1,6 +1,8 @@
 Alpha 0.1.8.17
-- Changed messages about no items being blacklisted or whitelisted from WARN to INFO. Thanks, @SlimeDog for the report.
-
+- Changed logging level of messages about no items being blacklisted or whitelisted from WARN to INFO. Thanks, @SlimeDog for the report!
+- Drawbridges will now figure out which way to open when created in their open-position (i.e. flat). Thanks, @BobbyMC for the report!
+- Fixed portcullises showing incorrect open direction options in the GUI. Thanks, @SlimeDog for the report!
+- Fixed drawbridges showing invalid open direction options in the GUI.
 
 Alpha 0.1.8.16
 - Updated to the latest version of XMaterial, which is supposed to bring some performance improvements in the areas concerning materials.

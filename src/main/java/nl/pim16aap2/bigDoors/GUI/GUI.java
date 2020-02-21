@@ -28,29 +28,29 @@ import nl.pim16aap2.bigDoors.util.XMaterial;
 
 public class GUI
 {
-    private static final Material   PAGESWITCHMAT  = Material.ARROW;
-    private static final Material   CURRDOORMAT    = Material.BOOK;
-    private static final Material   CHANGETIMEMAT  = XMaterial.CLOCK.parseMaterial();
-    private static final Material   NEWDOORMAT     = XMaterial.WRITABLE_BOOK.parseMaterial();
-    private static final Material   LOCKDOORMAT    = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
-    private static final Material   UNLOCKDOORMAT  = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
-    private static final Material   CONFIRMMAT     = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
-    private static final Material   NOTCONFIRMMAT  = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
-    private static final Material   TOGGLEDOORMAT  = Material.LEVER;
-    private static final Material   INFOMAT        = Material.BOOKSHELF;
-    private static final Material   DELDOORMAT     = Material.BARRIER;
-    private static final Material   RELOCATEPBMAT  = Material.LEATHER_BOOTS;
-    private static final Material   SETOPENDIRMAT  = Material.COMPASS;
-    private static final Material   SETBTMOVEMAT   = XMaterial.STICKY_PISTON.parseMaterial();
-    private static final Material   ADDOWNERMAT    = XMaterial.PLAYER_HEAD.parseMaterial();
-    private static final Material   REMOVEOWNERMAT = XMaterial.SKELETON_SKULL.parseMaterial();
-    private static final byte       LOCKEDDATA     = 14;
-    private static final byte       UNLOCKEDDATA   =  5;
-    private static final byte       CONFIRMDATA    = 14;
-    private static final byte       NOTCONFIRMDATA =  5;
-    private static final byte       PLAYERHEADDATA =  3;
-    private static final byte       SKULLDATA      =  0;
-    private static final int        CHESTSIZE      = 45;
+    private static final Material PAGESWITCHMAT = Material.ARROW;
+    private static final Material CURRDOORMAT = Material.BOOK;
+    private static final Material CHANGETIMEMAT = XMaterial.CLOCK.parseMaterial();
+    private static final Material NEWDOORMAT = XMaterial.WRITABLE_BOOK.parseMaterial();
+    private static final Material LOCKDOORMAT = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
+    private static final Material UNLOCKDOORMAT = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
+    private static final Material CONFIRMMAT = XMaterial.RED_STAINED_GLASS_PANE.parseMaterial();
+    private static final Material NOTCONFIRMMAT = XMaterial.GREEN_STAINED_GLASS_PANE.parseMaterial();
+    private static final Material TOGGLEDOORMAT = Material.LEVER;
+    private static final Material INFOMAT = Material.BOOKSHELF;
+    private static final Material DELDOORMAT = Material.BARRIER;
+    private static final Material RELOCATEPBMAT = Material.LEATHER_BOOTS;
+    private static final Material SETOPENDIRMAT = Material.COMPASS;
+    private static final Material SETBTMOVEMAT = XMaterial.STICKY_PISTON.parseMaterial();
+    private static final Material ADDOWNERMAT = XMaterial.PLAYER_HEAD.parseMaterial();
+    private static final Material REMOVEOWNERMAT = XMaterial.SKELETON_SKULL.parseMaterial();
+    private static final byte LOCKEDDATA = 14;
+    private static final byte UNLOCKEDDATA = 5;
+    private static final byte CONFIRMDATA = 14;
+    private static final byte NOTCONFIRMDATA = 5;
+    private static final byte PLAYERHEADDATA = 3;
+    private static final byte SKULLDATA = 0;
+    private static final int CHESTSIZE = 45;
     private static Material[] DOORTYPES = new Material[6];
 
     static
@@ -58,29 +58,29 @@ public class GUI
         // Ugly hack. I cannot be bothered to fix this properly.
         if (MCVersion.v1_11.equals(BigDoors.getMCVersion()))
         {
-            DOORTYPES[0] = Material.getMaterial("WOOD_DOOR");   // Door
-            DOORTYPES[1] = Material.getMaterial("TRAP_DOOR");   // DrawBridge
-            DOORTYPES[2] = Material.getMaterial("IRON_DOOR");   // Portcullis
-            DOORTYPES[3] = Material.getMaterial("BOAT");        // Elevator
+            DOORTYPES[0] = Material.getMaterial("WOOD_DOOR"); // Door
+            DOORTYPES[1] = Material.getMaterial("TRAP_DOOR"); // DrawBridge
+            DOORTYPES[2] = Material.getMaterial("IRON_DOOR"); // Portcullis
+            DOORTYPES[3] = Material.getMaterial("BOAT"); // Elevator
             DOORTYPES[4] = Material.getMaterial("PISTON_BASE"); // Sliding Door
-            DOORTYPES[5] = Material.getMaterial("CARPET");      // Flag
+            DOORTYPES[5] = Material.getMaterial("CARPET"); // Flag
         }
         else if (MCVersion.v1_12.equals(BigDoors.getMCVersion()))
         {
-            DOORTYPES[0] = Material.getMaterial("WOOD_DOOR");   // Door
-            DOORTYPES[1] = Material.getMaterial("TRAP_DOOR");   // DrawBridge
-            DOORTYPES[2] = Material.getMaterial("IRON_DOOR");   // Portcullis
-            DOORTYPES[3] = Material.getMaterial("BOAT");        // Elevator
+            DOORTYPES[0] = Material.getMaterial("WOOD_DOOR"); // Door
+            DOORTYPES[1] = Material.getMaterial("TRAP_DOOR"); // DrawBridge
+            DOORTYPES[2] = Material.getMaterial("IRON_DOOR"); // Portcullis
+            DOORTYPES[3] = Material.getMaterial("BOAT"); // Elevator
             DOORTYPES[4] = Material.getMaterial("PISTON_BASE"); // Sliding Door
-            DOORTYPES[5] = Material.getMaterial("CARPET");      // Flag
+            DOORTYPES[5] = Material.getMaterial("CARPET"); // Flag
         }
         else
         {
-            DOORTYPES[0] = XMaterial.OAK_DOOR.parseMaterial();      // Door
-            DOORTYPES[1] = XMaterial.OAK_TRAPDOOR.parseMaterial();  // DrawBridge
-            DOORTYPES[2] = XMaterial.IRON_DOOR.parseMaterial();     // Portcullis
-            DOORTYPES[3] = XMaterial.OAK_BOAT.parseMaterial();      // Elevator
-            DOORTYPES[4] = XMaterial.PISTON.parseMaterial();        // Sliding Door
+            DOORTYPES[0] = XMaterial.OAK_DOOR.parseMaterial(); // Door
+            DOORTYPES[1] = XMaterial.OAK_TRAPDOOR.parseMaterial(); // DrawBridge
+            DOORTYPES[2] = XMaterial.IRON_DOOR.parseMaterial(); // Portcullis
+            DOORTYPES[3] = XMaterial.OAK_BOAT.parseMaterial(); // Elevator
+            DOORTYPES[4] = XMaterial.PISTON.parseMaterial(); // Sliding Door
             DOORTYPES[5] = XMaterial.PURPLE_CARPET.parseMaterial(); // Flag
         }
     }
@@ -169,7 +169,7 @@ public class GUI
 
         inventory = Bukkit.createInventory(player, CHESTSIZE, messages.getString(PageType.getMessage(pageType)));
         player.openInventory(inventory);
-        items.forEach((k,v) -> inventory.setItem(k, v.getItemStack()));
+        items.forEach((k, v) -> inventory.setItem(k, v.getItemStack()));
     }
 
     private void fillOwnerListHeader()
@@ -179,14 +179,16 @@ public class GUI
         ArrayList<String> lore = new ArrayList<>();
         if (doorOwnerPage != 0)
         {
-            addLore(lore, messages.getString("GUI.ToPage") + doorOwnerPage + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
+            addLore(lore, messages.getString("GUI.ToPage") + doorOwnerPage + messages.getString("GUI.OutOf")
+                + maxDoorOwnerPageCount);
             items.put(1, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.PreviousPage"), lore, doorOwnerPage));
             lore.clear();
         }
 
         if ((doorOwnerPage + 1) < maxDoorOwnerPageCount)
         {
-            addLore(lore, messages.getString("GUI.ToPage") + (doorOwnerPage + 2) + messages.getString("GUI.OutOf") + maxDoorOwnerPageCount);
+            addLore(lore, messages.getString("GUI.ToPage") + (doorOwnerPage + 2) + messages.getString("GUI.OutOf")
+                + maxDoorOwnerPageCount);
             items.put(7, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, doorOwnerPage + 2));
             lore.clear();
         }
@@ -215,19 +217,20 @@ public class GUI
         }
 
         addLore(lore, sortAlphabetically ? messages.getString("GUI.SORTED.Alphabetically") :
-                                           messages.getString("GUI.SORTED.Numerically"));
+            messages.getString("GUI.SORTED.Numerically"));
         items.put(1, new GUIItem(TOGGLEDOORMAT, messages.getString("GUI.SORTED.Change"), lore, 1));
         lore.clear();
 
 //        addCreationBook(DoorType.ELEVATOR,    2, "GUI.NewElevator"   ); // DISABLED ELEVATORS
-        addCreationBook(DoorType.DRAWBRIDGE,  3, "GUI.NewDrawbridge" );
-        addCreationBook(DoorType.DOOR,        4, "GUI.NewDoor"       );
-        addCreationBook(DoorType.PORTCULLIS,  5, "GUI.NewPortcullis" );
+        addCreationBook(DoorType.DRAWBRIDGE, 3, "GUI.NewDrawbridge");
+        addCreationBook(DoorType.DOOR, 4, "GUI.NewDoor");
+        addCreationBook(DoorType.PORTCULLIS, 5, "GUI.NewPortcullis");
         addCreationBook(DoorType.SLIDINGDOOR, 6, "GUI.NewSlidingDoor");
 
         if ((page + 1) < maxPageCount)
         {
-            addLore(lore, messages.getString("GUI.ToPage") + (page + 2) + messages.getString("GUI.OutOf") + maxPageCount);
+            addLore(lore,
+                    messages.getString("GUI.ToPage") + (page + 2) + messages.getString("GUI.OutOf") + maxPageCount);
             items.put(8, new GUIItem(PAGESWITCHMAT, messages.getString("GUI.NextPage"), lore, page + 2));
             lore.clear();
         }
@@ -275,7 +278,8 @@ public class GUI
         }
     }
 
-    // Populate the inventory (starting at the second row, as counted from the top) with doors.
+    // Populate the inventory (starting at the second row, as counted from the top)
+    // with doors.
     private void fillDoors()
     {
         int offset = page * (CHESTSIZE - 9);
@@ -283,11 +287,13 @@ public class GUI
         ArrayList<String> lore = new ArrayList<>();
         for (int idx = 0; idx < endCount; ++idx)
         {
-            int realIdx  = offset + idx;
+            int realIdx = offset + idx;
             DoorType doorType = doors.get(realIdx).getType();
             if (doorType == null)
             {
-                plugin.getMyLogger().logMessage("Failed to determine doorType of door: " + doors.get(realIdx).getDoorUID(), true, false);
+                plugin.getMyLogger()
+                    .logMessage("Failed to determine doorType of door: " + doors.get(realIdx).getDoorUID(), true,
+                                false);
                 continue;
             }
             addLore(lore, messages.getString("GUI.DoorHasID") + doors.get(realIdx).getDoorUID());
@@ -314,7 +320,8 @@ public class GUI
 
     private boolean isStillOwner()
     {
-        if (door != null && plugin.getCommander().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
+        if (door != null &&
+            plugin.getCommander().getPermission(player.getUniqueId().toString(), door.getDoorUID()) == -1)
         {
             doors.remove(door);
             door = null;
@@ -378,7 +385,8 @@ public class GUI
         }
         else
         {
-            if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), items.get(interactionIDX).getDoorAttribute()))
+            if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(),
+                                                              items.get(interactionIDX).getDoorAttribute()))
             {
                 update();
                 return;
@@ -388,7 +396,7 @@ public class GUI
             if (attribute == null)
                 return;
 
-            switch(attribute)
+            switch (attribute)
             {
             case LOCK:
                 door.setLock(!door.isLocked());
@@ -496,7 +504,8 @@ public class GUI
             door = items.get(interactionIDX).getDoor();
             if (door == null)
             {
-                Util.messagePlayer(player, "An unexpected error occurred while trying to open a sub-menu for a door! Try again!");
+                Util.messagePlayer(player,
+                                   "An unexpected error occurred while trying to open a sub-menu for a door! Try again!");
                 close();
                 return;
             }
@@ -540,7 +549,6 @@ public class GUI
             Collections.sort(doors, Comparator.comparing(Door::getDoorUID));
     }
 
-
     private GUIItem getGUIItem(Door door, DoorAttribute atr)
     {
         // If the permission level is higher than the
@@ -551,15 +559,13 @@ public class GUI
         String desc, loreStr;
         GUIItem ret = null;
 
-        switch(atr)
+        switch (atr)
         {
         case LOCK:
             if (door.isLocked())
-                ret = new GUIItem(LOCKDOORMAT, messages.getString("GUI.UnlockDoor"),
-                            null, 1, UNLOCKEDDATA);
+                ret = new GUIItem(LOCKDOORMAT, messages.getString("GUI.UnlockDoor"), null, 1, UNLOCKEDDATA);
             else
-                ret = new GUIItem(UNLOCKDOORMAT, messages.getString("GUI.LockDoor"),
-                            null, 1, LOCKEDDATA);
+                ret = new GUIItem(UNLOCKDOORMAT, messages.getString("GUI.LockDoor"), null, 1, LOCKEDDATA);
             break;
 
         case TOGGLE:
@@ -578,7 +584,7 @@ public class GUI
             desc = messages.getString("GUI.DeleteDoor");
             loreStr = messages.getString("GUI.DeleteDoorLong");
             addLore(lore, loreStr);
-            ret = new GUIItem(DELDOORMAT, desc , lore, 1);
+            ret = new GUIItem(DELDOORMAT, desc, lore, 1);
             break;
 
         case RELOCATEPOWERBLOCK:
@@ -590,7 +596,8 @@ public class GUI
 
         case CHANGETIMER:
             desc = messages.getString("GUI.ChangeTimer");
-            loreStr = door.getAutoClose() > -1 ? messages.getString("GUI.ChangeTimerLore") + door.getAutoClose() + "s." :
+            loreStr = door.getAutoClose() > -1 ?
+                messages.getString("GUI.ChangeTimerLore") + door.getAutoClose() + "s." :
                 messages.getString("GUI.ChangeTimerLoreDisabled");
             addLore(lore, loreStr);
             int count = door.getAutoClose() < 1 ? 1 : door.getAutoClose();
@@ -599,19 +606,23 @@ public class GUI
 
         case DIRECTION_STRAIGHT:
             desc = messages.getString("GUI.Direction.Name");
-            loreStr = messages.getString("GUI.Direction.ThisDoorGoes") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
+            loreStr = messages.getString("GUI.Direction.ThisDoorGoes")
+                + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             addLore(lore, loreStr);
             ret = new GUIItem(SETOPENDIRMAT, desc, lore, 1);
             break;
 
         case DIRECTION_ROTATE:
             desc = messages.getString("GUI.Direction.Name");
-            loreStr = messages.getString("GUI.Direction.ThisDoorOpens") + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
+            loreStr = messages.getString("GUI.Direction.ThisDoorOpens")
+                + messages.getString(RotateDirection.getNameKey(door.getOpenDir()));
             addLore(lore, loreStr);
-            addLore(lore, messages.getString("GUI.Direction.Looking") +
-                    (door.getType()       == DoorType.DOOR       ? messages.getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
-                     door.getLookingDir() == DoorDirection.NORTH ? messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
-                                                                   messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
+            addLore(lore,
+                    messages.getString("GUI.Direction.Looking") + (door.getType() == DoorType.DOOR ? messages
+                        .getString(RotateDirection.getNameKey(RotateDirection.DOWN)) :
+                        door.getLookingDir() == DoorDirection.NORTH ?
+                            messages.getString(RotateDirection.getNameKey(RotateDirection.EAST)) :
+                        messages.getString(RotateDirection.getNameKey(RotateDirection.NORTH))));
             ret = new GUIItem(SETOPENDIRMAT, desc, lore, 1);
             break;
 
@@ -642,12 +653,10 @@ public class GUI
         return ret;
     }
 
-
     public Player getPlayer()
     {
         return player;
     }
-
 
     public void close()
     {
@@ -655,8 +664,9 @@ public class GUI
         plugin.removeGUIUser(this);
     }
 
-
-    /* Implementation of all the that require additional actions not provided by the commander.
+    /*
+     * Implementation of all the that require additional actions not provided by the
+     * commander.
      */
 
     private void deleteDoor()
@@ -678,17 +688,20 @@ public class GUI
         RotateDirection newOpenDir;
 
         if (door.getType() == DoorType.SLIDINGDOOR)
-            newOpenDir = curOpenDir == RotateDirection.NONE  ? RotateDirection.NORTH :
-                         curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST  :
-                         curOpenDir == RotateDirection.EAST  ? RotateDirection.SOUTH :
-                         curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST  :
-                                                               RotateDirection.NORTH;
-        else if (door.getType() == DoorType.ELEVATOR)
+            newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.NORTH :
+                curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST :
+                curOpenDir == RotateDirection.EAST ? RotateDirection.SOUTH :
+                curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST : RotateDirection.NORTH;
+        else if (door.getType() == DoorType.ELEVATOR || door.getType() == DoorType.PORTCULLIS)
             newOpenDir = curOpenDir == RotateDirection.UP ? RotateDirection.DOWN : RotateDirection.UP;
+        else if (door.getType() == DoorType.DRAWBRIDGE)
+            newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.NORTH :
+                curOpenDir == RotateDirection.NORTH ? RotateDirection.SOUTH :
+                curOpenDir == RotateDirection.SOUTH ? RotateDirection.NORTH :
+                curOpenDir == RotateDirection.EAST ? RotateDirection.WEST : RotateDirection.EAST;
         else
-            newOpenDir = curOpenDir == RotateDirection.NONE      ? RotateDirection.CLOCKWISE :
-                         curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE :
-                                                                   RotateDirection.CLOCKWISE;
+            newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.CLOCKWISE :
+                curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
 
         plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newOpenDir);
         int idx = doors.indexOf(door);
