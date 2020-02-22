@@ -225,15 +225,20 @@ public final class DoorOpeningUtility
                               final @NotNull IPWorld world, final @NotNull Vector3Di curMin,
                               final @NotNull Vector3Di curMax, final int blocksToMove)
     {
-        int startX, startY, startZ, endX, endY, endZ;
+        int startY = vec.getY() == 0 ? curMin.getY() : vec.getY() == 1 ? curMax.getY() + 1 : curMin.getY() - 1;
 
+        // Doors cannot start outside of the world limit.
+        if (startY < 0 || startY > 255)
+            return 0;
+
+        int startX, startZ, endX, endY, endZ;
         startX = vec.getX() == 0 ? curMin.getX() : vec.getX() == 1 ? curMax.getX() + 1 : curMin.getX() - 1;
-        startY = vec.getY() == 0 ? curMin.getY() : vec.getY() == 1 ? curMax.getY() + 1 : curMin.getY() - 1;
         startZ = vec.getZ() == 0 ? curMin.getZ() : vec.getZ() == 1 ? curMax.getZ() + 1 : curMin.getZ() - 1;
 
         endX = vec.getX() == 0 ? curMax.getX() : startX;
         endY = vec.getY() == 0 ? curMax.getY() : startY;
         endZ = vec.getZ() == 0 ? curMax.getZ() : startZ;
+
 
         Vector3Di locA = new Vector3Di(startX, startY, startZ);
         Vector3Di locB = new Vector3Di(endX, endY, endZ);
@@ -243,6 +248,9 @@ public final class DoorOpeningUtility
         int xLen = blocksToMove < 1 ? (curMax.getX() - curMin.getX()) + 1 : blocksToMove;
         int yLen = blocksToMove < 1 ? (curMax.getY() - curMin.getY()) + 1 : blocksToMove;
         int zLen = blocksToMove < 1 ? (curMax.getZ() - curMin.getZ()) + 1 : blocksToMove;
+
+        yLen = vec.getY() == 1 ? Math.min(255, curMax.getY() + yLen) :
+               vec.getY() == -1 ? Math.max(0, curMin.getY() - yLen) : yLen;
 
         // The maxDist is the number of blocks to check in a direction. This is either getBlocksToMove if it that has
         // been specified. If it hasn't, it's the length of the door in the provided direction.

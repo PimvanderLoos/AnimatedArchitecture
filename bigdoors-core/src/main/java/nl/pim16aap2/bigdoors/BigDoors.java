@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Look into https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Chunk.html#getChunkSnapshot to verify if a door
 //       can be opened and while I'm at it, also to construct the FBlocks. This way, that stuff can all be done
 //       async.
+// TODO: Perhaps use a separate table for every type of door. That would allow more specialzed storage. More research
+//       is required, though. https://stackoverflow.com/a/3579462
 
 
 /*
@@ -27,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Put Config-related stuff in BigDoorsUtil and don't use Bukkit stuff for reading it. Just give it a regular file.
 //       Make the ConfigLoader abstract and extend a Spigot-specific config in SpigotUtil with Spigot-Specific options
 //       such as resource packs.
+// TODO: Every version submodule (e.g. spigot-v1_14_R1) should depend on spigot-core and be compiled as a separate jar.
+//       Load these version-specific submodules from a folder on startup.
 
 /*
  * Experimental
@@ -96,13 +100,19 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Allow redefining doors.
 // TODO: Consider letting IPerpetualMoverArchetype implement IStationaryDoorArchetype. There shouldn't be any situation
 //       where a perpetualMovement isn't also stationary.
+// TODO: Allow 3D doors and drawbridges.
 
 /*
  * General
  */
+// TODO: Add a new type of powerblock that locks/unlocks doors instead of toggling them.
+// TODO: Don't use the local maven files. Use this method instead: https://stackoverflow.com/a/4955695
+// TODO: Load everything on startup (including RedstoneListener (should be singleton)). Use the IRestartable interface to handle restarts instead.
+// TODO: Don't just play sound at the door's engine. Instead, play it more realistically (so not from a single point). Perhaps packets might help with this.
 // TODO: Move AbortableTaskManager and PowerBlockRedstoneManagerSpigot to bigdoors-core.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
+// TODO: Don't overwrite the default language file (and don't make it read-only). Instead, load as many translations as possible and revert to the internal default for any missing ones. Dump some messages in the log.
 // TODO: Move all non-database related stuff out of DatabaseManager.
 // TODO: Rename region bypass permission to bigdoors.admin.bypass.region.
 // TODO: ICustomEntityFallingBlock: Clean this damn class up!
@@ -136,6 +146,7 @@ import org.jetbrains.annotations.Nullable;
 //       MINIMALISTIC logging level. On this level, only the names + messages of exceptions are written
 //       to the console. Make this the default setting.
 // TODO: Every Manager must be a singleton.
+// TODO: Add door creation event (or perhaps door modification event?).
 // TODO: Use the following snippet for all singletons, not just the ones in bigdoors-core. This will require the use of
 //       "com.google.common.base.Preconditions" (so import that via Maven).
 /*
@@ -164,6 +175,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Consider only using a ConcurrentHashMap for the TimedCache, so it can loop over it async.
 // TODO: Make some kind of MessageRecipient interface. Much cleaner than sending an "Object" to sendMessageToTarget.
 //       Just let IPPlayer extend it for players.
+// TODO: Send out event after toggling a door.
 
 /*
  * GUI
@@ -196,6 +208,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       to move the engine location for movable doors (sliding, etc).
 // TODO: Look into creating a separate table for worlds and put an FK to them in the doors table. This should save a bit
 //       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
+// TODO: Add a "folder" column to the sqlUnion table. This would allow users to organize doors into different folders.
 
 /*
  * Commands
@@ -228,7 +241,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Make sure you cannot use direct commands (i.e. /setPowerBlockLoc 12) of doors not owned by the one using the command.
 // TODO: For all commands that support either players or door names etc, just use flags instead of the current mess.
 // TODO: Door deletion confirmation message.
-// TODO: Allow "/BigDoors new -PC -p pim16aap2 testDoor", "/BigDoors menu -p pim16aap2", and
+// TODO: Allow "/BigDoors new -PC -p pim16aap2 testDoor", "/BigDoors menu -p pim16aap2", etc. So basically allow doing
+//       stuff in someone else's name.
 
 /*
  * Creators
@@ -304,6 +318,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       Extension: Add config option to send an error message to the player instead (so abort activation altogether).
 // TODO: Variable door depth.
 // TODO: Add a doortype that allows sliding doors to go diagonally. Might be possible to modify sliding doors as well.
+// TODO: New door type: Diagonal doors.
+// TODO: New door type: Folding doors.
 // TODO: Magic carpets? Flat flags.
 
 /*

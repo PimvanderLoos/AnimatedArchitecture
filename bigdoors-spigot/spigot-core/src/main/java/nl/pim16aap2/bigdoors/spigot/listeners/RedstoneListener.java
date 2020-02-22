@@ -11,13 +11,16 @@ import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorActionEventSpigot;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -31,14 +34,30 @@ import java.util.concurrent.CompletableFuture;
  */
 public class RedstoneListener extends Restartable implements Listener
 {
+    @Nullable
+    private static RedstoneListener instance;
     private final BigDoorsSpigot plugin;
     private final Set<Material> powerBlockTypes = new HashSet<>();
+    private boolean isRegistered = false;
 
-    public RedstoneListener(final @NotNull BigDoorsSpigot plugin)
+    private RedstoneListener(final @NotNull BigDoorsSpigot plugin)
     {
         super(plugin);
         this.plugin = plugin;
         restart();
+    }
+
+    /**
+     * Initializes the {@link RedstoneListener}. If it has already been initialized, it'll return that instance
+     * instead.
+     *
+     * @param plugin The {@link BigDoorsSpigot} plugin.
+     * @return The instance of this {@link RedstoneListener}.
+     */
+    @NotNull
+    public static RedstoneListener init(final @NotNull BigDoorsSpigot plugin)
+    {
+        return (instance == null) ? instance = new RedstoneListener(plugin) : instance;
     }
 
     /**
@@ -57,7 +76,36 @@ public class RedstoneListener extends Restartable implements Listener
             return;
         }
         ConfigLoaderSpigot spigotConfig = (ConfigLoaderSpigot) config;
-        powerBlockTypes.addAll(spigotConfig.powerBlockTypes());
+
+        if (spigotConfig.enableRedstone())
+        {
+            register();
+            powerBlockTypes.addAll(spigotConfig.powerBlockTypes());
+            return;
+        }
+        unregister();
+    }
+
+    /**
+     * Registers this listener if it isn't already registered.
+     */
+    private void register()
+    {
+        if (isRegistered)
+            return;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+        isRegistered = true;
+    }
+
+    /**
+     * Unregisters this listener if it isn't already unregistered.
+     */
+    private void unregister()
+    {
+        if (!isRegistered)
+            return;
+        HandlerList.unregisterAll(this);
+        isRegistered = false;
     }
 
     /**
@@ -67,6 +115,7 @@ public class RedstoneListener extends Restartable implements Listener
     public void shutdown()
     {
         powerBlockTypes.clear();
+        unregister();
     }
 
     private void checkDoors(final @NotNull Location loc)

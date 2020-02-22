@@ -113,6 +113,8 @@ import java.util.UUID;
 public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     private static BigDoorsSpigot INSTANCE;
+    private static long MAINTHREADID = -1;
+    @NotNull
     private static final BigDoors BIGDOORS = BigDoors.get();
 
     private ToolVerifier tf;
@@ -122,7 +124,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private Messages messages;
     private DatabaseManager databaseManager = null;
 
-    private RedstoneListener redstoneListener;
     private boolean validVersion;
     private CommandManager commandManager;
     private Map<UUID, WaitForCommand> cmdWaiters;
@@ -138,7 +139,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private DoorManager doorManager;
     private PowerBlockManager powerBlockManager;
     private boolean successfulInit = true;
-    private static long mainThreadID = -1;
     private AbortableTaskManager abortableTaskManager;
 
     @NotNull
@@ -167,7 +167,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         INSTANCE = this;
         BIGDOORS.setBigDoorsPlatform(this);
         pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
-        mainThreadID = Thread.currentThread().getId();
+        MAINTHREADID = Thread.currentThread().getId();
 
         try
         {
@@ -192,6 +192,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             config = ConfigLoaderSpigot.init(this, getPLogger());
             init();
             databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), config.dbFile()));
+            RedstoneListener.init(this);
+            LoginResourcePackListener.init(this, config.resourcePack());
 
             final IStorage.DatabaseState databaseState = databaseManager.getDatabaseState();
             if (databaseState != IStorage.DatabaseState.OK)
@@ -248,20 +250,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
         cmdWaiters = new HashMap<>();
-
-        if (config.enableRedstone())
-        {
-            redstoneListener = new RedstoneListener(this);
-            Bukkit.getPluginManager().registerEvents(redstoneListener, this);
-        }
-        // If the resourcepack is set to "NONE", don't load it.
-        if (!config.resourcePack().equals("NONE"))
-        {
-            // If a resource pack was set for the current version of Minecraft, send that
-            // pack to the client on login.
-            rPackHandler = new LoginResourcePackListener(this, config.resourcePack());
-            Bukkit.getPluginManager().registerEvents(rPackHandler, this);
-        }
 
         // Load stats collector if allowed, otherwise unload it if needed or simply
         // don't load it in the first place.
@@ -394,7 +382,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Override
     public boolean isMainThread(final long compareThread)
     {
-        return compareThread == mainThreadID;
+        return compareThread == MAINTHREADID;
     }
 
     /**
@@ -486,8 +474,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         playerGUIs.forEach((key, value) -> value.close());
         playerGUIs.clear();
 
-        HandlerList.unregisterAll(redstoneListener);
-        redstoneListener = null;
         HandlerList.unregisterAll(rPackHandler);
         rPackHandler = null;
 
