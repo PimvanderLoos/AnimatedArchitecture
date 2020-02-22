@@ -11,11 +11,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.StandardCopyOption;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 /**
@@ -82,9 +85,9 @@ public final class Messages extends Restartable
             plogger.warn("Failed to load language file: \"" + textFile
                              + "\": File not found! Using default file instead!");
             textFile = new File(fileDir, DEFAULTFILENAME);
+            writeDefaultFile();
         }
-        writeDefaultFile();
-        readFile();
+        populateMessageMap();
     }
 
     /**
@@ -94,7 +97,7 @@ public final class Messages extends Restartable
     public void restart()
     {
         shutdown();
-        readFile();
+        populateMessageMap();
     }
 
     /**
@@ -113,8 +116,6 @@ public final class Messages extends Restartable
     private void writeDefaultFile()
     {
         File defaultFile = new File(fileDir, DEFAULTFILENAME);
-        if (defaultFile.exists() && !defaultFile.setWritable(true))
-            plogger.severe("Failed to make file \"" + defaultFile + "\" writable!");
 
         // Load the DEFAULTFILENAME from the resources folder.
         InputStream in = null;
@@ -148,43 +149,79 @@ public final class Messages extends Restartable
                 plogger.logException(e);
             }
         }
-        if (!defaultFile.setWritable(false))
+    }
+
+    /**
+     * Processes the contents of a file. Each valid line will be split up in the message key and the message value. It
+     * then
+     *
+     * @param br     The {@link BufferedReader} that supplies the text.
+     * @param action The action to take for every message and value combination that is encountered.
+     * @throws IOException
+     */
+    private void processFile(final @NotNull BufferedReader br, final @NotNull BiConsumer<Message, String> action)
+        throws IOException
+    {
+        String sCurrentLine;
+
+        while ((sCurrentLine = br.readLine()) != null)
         {
-            plogger.logException(new IOException("Failed to make default translation file writable! " +
-                                                     "This is not a big problem as long as you remember not to " +
-                                                     "edit it manually!"));
+            // Ignore comments.
+            if (sCurrentLine.startsWith("#") || sCurrentLine.isEmpty())
+                continue;
+
+            String[] parts = sCurrentLine.split("=", 2);
+            try
+            {
+                final Message msg = Message.valueOf(matchDots.matcher(parts[0]).replaceAll("_"));
+                final String value = matchNewLines.matcher(matchColorCodes.matcher(parts[1]).replaceAll("\u00A7$1"))
+                                                  .replaceAll("\n");
+                action.accept(msg, value);
+            }
+            catch (IllegalArgumentException e)
+            {
+                plogger.logMessage("Failed to identify Message corresponding to key: \"" + parts[0] +
+                                       "\". Its value will be ignored!");
+            }
         }
     }
 
     /**
-     * Reads the translations from the provided translations file.
+     * Adds a message to the {@link #messageMap}.
+     *
+     * @param message The {@link Message}.
+     * @param value   The value of the message.
      */
-    private void readFile()
+    private void addMessage(final @NotNull Message message, final @NotNull String value)
+    {
+        messageMap.put(message, value);
+    }
+
+    /**
+     * Adds a message to the {@link #messageMap} if it isn't on the map already.
+     *
+     * @param message The {@link Message}.
+     * @param value   The value of the message.
+     */
+    private void addBackupMessage(final @NotNull Message message, final @NotNull String value)
+    {
+        if (messageMap.containsKey(message))
+            return;
+
+        plogger.warn("Could not find translation of key: \"" + message.name() + "\". Using default value instead!");
+        addMessage(message, value);
+    }
+
+    /**
+     * Reads the translations from the provided translations file.
+     * <p>
+     * Missing translations will use their default value.
+     */
+    private void populateMessageMap()
     {
         try (BufferedReader br = new BufferedReader(new FileReader(textFile)))
         {
-            String sCurrentLine;
-
-            while ((sCurrentLine = br.readLine()) != null)
-            {
-                // Ignore comments.
-                if (sCurrentLine.startsWith("#") || sCurrentLine.isEmpty())
-                    continue;
-
-                String[] parts = sCurrentLine.split("=", 2);
-                try
-                {
-                    Message msg = Message.valueOf(matchDots.matcher(parts[0]).replaceAll("_"));
-                    String value = matchNewLines.matcher(matchColorCodes.matcher(parts[1]).replaceAll("\u00A7$1"))
-                                                .replaceAll("\n");
-                    messageMap.put(msg, value);
-                }
-                catch (IllegalArgumentException e)
-                {
-                    plogger.logMessage("Failed to identify Message corresponding to key: \"" + parts[0] +
-                                           "\". Its value will be ignored!");
-                }
-            }
+            processFile(br, this::addMessage);
         }
         catch (FileNotFoundException e)
         {
@@ -195,7 +232,23 @@ public final class Messages extends Restartable
             plogger.logException(e, "Could not read locale file! \"" + textFile + "\"");
         }
 
-        for (Message msg : Message.values())
+
+        try (BufferedReader br = new BufferedReader(
+            new InputStreamReader(
+                Objects.requireNonNull(getClass().getClassLoader().getResource(DEFAULTFILENAME)).openStream())))
+        {
+            processFile(br, this::addBackupMessage);
+        }
+        catch (FileNotFoundException e)
+        {
+            plogger.logException(e, "Failed to load internal locale file!");
+        }
+        catch (IOException e)
+        {
+            plogger.logException(e, "Could not read internal locale file!");
+        }
+
+        for (final Message msg : Message.values())
             if (!msg.equals(Message.EMPTY) && !messageMap.containsKey(msg))
             {
                 plogger.warn("Could not find translation of key: " + msg.name());

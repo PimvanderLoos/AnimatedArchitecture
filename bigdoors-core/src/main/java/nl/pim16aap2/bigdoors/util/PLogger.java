@@ -305,10 +305,11 @@ public final class PLogger
     {
         addToMessageQueue(new LogMessageException(exception.getMessage() + "\n" + exception.getClass().getName() +
                                                       "\n", exception));
-        writeToConsole(Level.SEVERE, exception.getMessage());
         if (consoleLogging)
-            writeToConsole(Level.SEVERE, "\n" + exception.getClass().getName() + "\n" +
+            writeToConsole(Level.SEVERE, "\n" + exception.getClass().getName() + ": " + exception.getMessage() + "\n" +
                 limitStackTraceLength(exception.getStackTrace(), 0));
+        else
+            writeToConsole(Level.SEVERE, exception.getMessage());
     }
 
     /**
@@ -320,10 +321,11 @@ public final class PLogger
     public void logException(final @NotNull Exception exception, final @NotNull String message)
     {
         addToMessageQueue(new LogMessageException(message + "\n" + exception.getClass().getName() + "\n", exception));
-        writeToConsole(Level.SEVERE, message);
         if (consoleLogging)
-            writeToConsole(Level.SEVERE, "\n" + exception.getClass().getName() + "\n" +
+            writeToConsole(Level.SEVERE, "\n" + exception.getClass().getName() + ": " + message + "\n" +
                 limitStackTraceLength(exception.getStackTrace(), 0));
+        else
+            writeToConsole(Level.SEVERE, message);
     }
 
     /**
@@ -334,9 +336,11 @@ public final class PLogger
     public void logError(final @NotNull Error error)
     {
         addToMessageQueue(new LogMessageError(error.getMessage() + "\n", error));
-        writeToConsole(Level.SEVERE, error.getMessage());
         if (consoleLogging)
-            writeToConsole(Level.SEVERE, "\n" + limitStackTraceLength(error.getStackTrace(), 0));
+            writeToConsole(Level.SEVERE, "\n" + error.getClass().getName() + ": " + error.getMessage() + "\n" +
+                limitStackTraceLength(error.getStackTrace(), 0));
+        else
+            writeToConsole(Level.SEVERE, error.getMessage());
     }
 
     /**
@@ -348,9 +352,11 @@ public final class PLogger
     public void logError(final @NotNull Error error, final @NotNull String message)
     {
         addToMessageQueue(new LogMessageError(message + "\n", error));
-        writeToConsole(Level.SEVERE, message);
         if (consoleLogging)
-            writeToConsole(Level.SEVERE, "\n" + limitStackTraceLength(error.getStackTrace(), 0));
+            writeToConsole(Level.SEVERE, "\n" + error.getClass().getName() + ": " + message + "\n" +
+                limitStackTraceLength(error.getStackTrace(), 0));
+        else
+            writeToConsole(Level.SEVERE, message);
     }
 
     /**
