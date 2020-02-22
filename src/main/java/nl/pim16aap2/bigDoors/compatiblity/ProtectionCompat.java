@@ -89,6 +89,18 @@ public enum ProtectionCompat
         }
     },
 
+    REDPROTECT ("RedProtect")
+    {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Class<? extends IProtectionCompat> getClass(final String version)
+        {
+            return RedProtectProtectionCompat.class;
+        }
+    },
+
     ;
 
     private final String name;
