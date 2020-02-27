@@ -105,6 +105,7 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Use reflection or something to hack Spigot's API-version to always use the currently-used API-version.
 // TODO: Add a new type of powerblock that locks/unlocks doors instead of toggling them.
 // TODO: Don't use the local maven files. Use this method instead: https://stackoverflow.com/a/4955695
 // TODO: Load everything on startup (including RedstoneListener (should be singleton)). Use the IRestartable interface to handle restarts instead.
@@ -209,6 +210,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Look into creating a separate table for worlds and put an FK to them in the doors table. This should save a bit
 //       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
 // TODO: Add a "folder" column to the sqlUnion table. This would allow users to organize doors into different folders.
+// TODO: Store UUIDs as 16 byte binary blobs to save space: https://stackoverflow.com/a/17278095
 
 /*
  * Commands
@@ -243,6 +245,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Door deletion confirmation message.
 // TODO: Allow "/BigDoors new -PC -p pim16aap2 testDoor", "/BigDoors menu -p pim16aap2", etc. So basically allow doing
 //       stuff in someone else's name.
+// TODO: Instead of using an enum, consider using annotations instead. It can also include stuff like PlayerOnly etc.
 
 /*
  * Creators

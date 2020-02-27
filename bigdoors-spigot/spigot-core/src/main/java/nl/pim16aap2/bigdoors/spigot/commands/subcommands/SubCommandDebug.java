@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import org.bukkit.Bukkit;
@@ -36,6 +36,9 @@ public class SubCommandDebug extends SubCommand
 
     public boolean execute(CommandSender sender)
     {
+        if (!(sender instanceof Player))
+            return false;
+
 //        BigDoors.get().getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140);
 //        BigDoors.get().getDatabaseManager().getDoor(236L).ifPresent(door -> BigDoors.get().getDatabaseManager().fillDoor((door)));
 //        if (sender instanceof Player)
@@ -45,6 +48,8 @@ public class SubCommandDebug extends SubCommand
         long worldTime = ((Player) sender).getWorld().getTime();
         Bukkit.broadcastMessage("WorldTime: " + worldTime +
                                     ", WorldTimeObject: " + new WorldTime(worldTime).toString());
+
+
         return true;
     }
 
