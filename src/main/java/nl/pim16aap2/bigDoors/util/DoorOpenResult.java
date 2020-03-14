@@ -10,7 +10,9 @@ public enum DoorOpenResult
     NODIRECTION   ("GENERAL.CannotFindOpenDirection"),
     ALREADYOPEN   ("GENERAL.DoorAlreadyOpen"),
     ALREADYCLOSED ("GENERAL.DoorAlreadyClosed"),
-    TYPEDISABLED  ("GENERAL.DoorTypeDisabled");
+    TYPEDISABLED  ("GENERAL.DoorTypeDisabled"),
+    CANCELLED     ("GENERAL.ToggleCancelled"),
+    ;
 
     private String message;
 

@@ -2,12 +2,15 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.events.DoorEventToggleStart;
+import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
@@ -169,10 +172,21 @@ public class SlidingDoorOpener implements Opener
         if (blocksToMove.getBlocks() != 0)
         {
             if (!isRotateDirectionValid(door))
-            {
-                plugin.getMyLogger().logMessage("Updating openDirection of sliding door " + door.getName() + " to " + blocksToMove.getRotateDirection() +
+            {                
+                // If the door is currently open, then the selected rotDirection is actually the closing direction.
+                // So, if the door is open, flip the direciton.
+                RotateDirection newRotDir = blocksToMove.getRotateDirection();
+                if (door.isOpen())
+                {
+                    newRotDir = 
+                        newRotDir.equals(RotateDirection.NORTH) ? RotateDirection.SOUTH :
+                        newRotDir.equals(RotateDirection.SOUTH) ? RotateDirection.NORTH :
+                        newRotDir.equals(RotateDirection.EAST)  ? RotateDirection.WEST  : RotateDirection.EAST;
+                }
+
+                plugin.getMyLogger().logMessage("Updating openDirection of sliding door " + door.getName() + " to " + newRotDir.name() +
                                                 ". If this is undesired, change it via the GUI.", true, false);
-                plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), blocksToMove.getRotateDirection());
+                plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDir);
             }
 
             Location newMin = door.getMinimum();
@@ -184,6 +198,11 @@ public class SlidingDoorOpener implements Opener
                 plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getMinimum(), door.getMinimum()) != null)
                 return DoorOpenResult.NOPERMISSION;
 
+            DoorEventToggleStart event = new DoorEventToggleStart(door,
+                                                                  (door.isOpen() ? ToggleType.CLOSE : ToggleType.OPEN));
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled())
+                return DoorOpenResult.CANCELLED;
 
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());

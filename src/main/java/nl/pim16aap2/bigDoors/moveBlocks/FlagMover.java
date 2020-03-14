@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -19,21 +20,23 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
+import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
+import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class FlagMover implements BlockMover
 {
-    private boolean                     NS;
-    private FallingBlockFactory_Vall  fabf;
-    private Door                      door;
-    private double                    time;
-    private World                    world;
-    private BigDoors                plugin;
-    private int                   tickRate;
-    private boolean            instantOpen;
-    private int           xMin, xMax, yMin;
-    private int           yMax, zMin, zMax;
+    private boolean NS;
+    private FallingBlockFactory_Vall fabf;
+    private Door door;
+    private double time;
+    private World world;
+    private BigDoors plugin;
+    private int tickRate;
+    private boolean instantOpen;
+    private int xMin, xMax, yMin;
+    private int yMax, zMin, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
 
@@ -42,24 +45,24 @@ public class FlagMover implements BlockMover
     {
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.plugin = plugin;
-        this.world  = world;
-        this.door   = door;
-        fabf        = plugin.getFABF();
+        this.world = world;
+        this.door = door;
+        fabf = plugin.getFABF();
 
-        xMin     = door.getMinimum().getBlockX();
-        yMin     = door.getMinimum().getBlockY();
-        zMin     = door.getMinimum().getBlockZ();
-        xMax     = door.getMaximum().getBlockX();
-        yMax     = door.getMaximum().getBlockY();
-        zMax     = door.getMaximum().getBlockZ();
+        xMin = door.getMinimum().getBlockX();
+        yMin = door.getMinimum().getBlockY();
+        zMin = door.getMinimum().getBlockZ();
+        xMax = door.getMaximum().getBlockX();
+        yMax = door.getMaximum().getBlockY();
+        zMax = door.getMaximum().getBlockZ();
         int xLen = Math.abs(xMax - xMin) + 1;
         int zLen = Math.abs(zMax - zMin) + 1;
-        NS       = zLen > xLen ? true : false;
+        NS = zLen > xLen ? true : false;
 
         double speed = 1;
-        this.time    = time;
-        tickRate  = Util.tickRateFromSpeed(speed);
-        tickRate  = 3;
+        this.time = time;
+        tickRate = Util.tickRateFromSpeed(speed);
+        tickRate = 3;
 
         int index = 0;
         int yAxis = yMin;
@@ -72,24 +75,27 @@ public class FlagMover implements BlockMover
                 {
                     Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-                    // Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
+                    // Move the lowest blocks up a little, so the client won't predict they're
+                    // touching through the ground, which would make them slower than the rest.
                     if (yAxis == yMin)
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
-                    Block vBlock  = world.getBlockAt(xAxis, yAxis, zAxis);
-                    Material mat  = vBlock.getType();
+                    Block vBlock = world.getBlockAt(xAxis, yAxis, zAxis);
+                    Material mat = vBlock.getType();
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData  = vBlock.getData();
+                        Byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
-                        NMSBlock_Vall block  = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
+                        NMSBlock_Vall block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
 
                         vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
-                             fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-                        savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
+                            fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
+                        savedBlocks
+                            .add(index,
+                                 new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
                     }
                     else
                         savedBlocks.add(index, new MyBlockData(Material.AIR));
@@ -125,10 +131,10 @@ public class FlagMover implements BlockMover
             {
                 for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
                 {
-                    Material mat    = savedBlocks.get(index).getMat();
+                    Material mat = savedBlocks.get(index).getMat();
                     if (!mat.equals(Material.AIR))
                     {
-                        Byte matByte    = savedBlocks.get(index).getBlockByte();
+                        Byte matByte = savedBlocks.get(index).getBlockByte();
                         Location newPos = getNewLocation(xAxis, yAxis, zAxis);
 
                         if (!instantOpen)
@@ -174,6 +180,9 @@ public class FlagMover implements BlockMover
                 public void run()
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    Bukkit.getPluginManager()
+                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE)));
+
                     if (door.isOpen())
                         plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }
@@ -191,10 +200,10 @@ public class FlagMover implements BlockMover
     {
         new BukkitRunnable()
         {
-            double counter   = 0;
-            int endCount     = (int) (20 / tickRate * time);
-            int totalTicks   = (int) (endCount * 1.1);
-            long startTime   = System.nanoTime();
+            double counter = 0;
+            int endCount = (int) (20 / tickRate * time);
+            int totalTicks = (int) (endCount * 1.1);
+            long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
 
@@ -232,29 +241,31 @@ public class FlagMover implements BlockMover
                             if (NS)
                             {
                                 xOff = 3 - 1 / (tickRate / 20);
-                                int distanceToEng = Math.abs(block.getStartLocation().getBlockZ() - door.getEngine().getBlockZ());
+                                int distanceToEng = Math
+                                    .abs(block.getStartLocation().getBlockZ() - door.getEngine().getBlockZ());
                                 if (distanceToEng > 0)
                                 {
                                     double offset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + distanceToEng);
-                                    double maxVal   = 0.25   *   distanceToEng;
-                                    maxVal = maxVal > 0.75   ? 0.75   : maxVal;
-                                    xOff   = offset > maxVal ? maxVal : offset;
+                                    double maxVal = 0.25 * distanceToEng;
+                                    maxVal = maxVal > 0.75 ? 0.75 : maxVal;
+                                    xOff = offset > maxVal ? maxVal : offset;
                                 }
                             }
                             else
                             {
-                                int distanceToEng = Math.abs(block.getStartLocation().getBlockX() - door.getEngine().getBlockX());
+                                int distanceToEng = Math
+                                    .abs(block.getStartLocation().getBlockX() - door.getEngine().getBlockX());
                                 if (distanceToEng > 0)
                                 {
                                     double offset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + distanceToEng);
-                                    double maxVal   = 0.25   *   distanceToEng;
-                                    maxVal = maxVal > 0.75   ? 0.75   : maxVal;
-                                    zOff   = offset > maxVal ? maxVal : offset;
+                                    double maxVal = 0.25 * distanceToEng;
+                                    maxVal = maxVal > 0.75 ? 0.75 : maxVal;
+                                    zOff = offset > maxVal ? maxVal : offset;
                                 }
                             }
                             Location loc = block.getStartLocation();
                             loc.add(xOff, 0, zOff);
-                            Vector vec   = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
+                            Vector vec = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
                             vec.multiply(0.101);
                             block.getFBlock().setVelocity(vec);
                         }
@@ -264,7 +275,8 @@ public class FlagMover implements BlockMover
         }.runTaskTimer(plugin, 14, tickRate);
     }
 
-    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
+    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData,
+                                                             NMSBlock_Vall block)
     {
         CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
         Entity bukkitEntity = (Entity) entity;

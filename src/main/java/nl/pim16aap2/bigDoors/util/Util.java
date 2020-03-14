@@ -392,6 +392,7 @@ public final class Util
     // same way.
     public static int canRotate(Material mat)
     {
+//        Util.broadcastMessage("Checking conRotate of material: " + mat.toString());
         XMaterial xmat = XMaterial.matchXMaterial(mat.toString()).orElse(null);
         if (xmat == null)
             return 0;
@@ -401,7 +402,10 @@ public final class Util
             xmat.equals(XMaterial.OAK_LOG) || xmat.equals(XMaterial.SPRUCE_LOG))
             return 1;
         if (mat.toString().endsWith("STAIRS"))
+        {
+//            Util.broadcastMessage("Material issa stair!");
             return 2;
+        }
         if (xmat.equals(XMaterial.WHITE_STAINED_GLASS) || xmat.equals(XMaterial.YELLOW_STAINED_GLASS) ||
             xmat.equals(XMaterial.PURPLE_STAINED_GLASS) || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS) ||
             xmat.equals(XMaterial.GRAY_STAINED_GLASS) || xmat.equals(XMaterial.GREEN_STAINED_GLASS) ||
@@ -426,6 +430,9 @@ public final class Util
             return 6;
         if (xmat.equals(XMaterial.END_ROD))
             return 7;
+        {
+//            Util.broadcastMessage("Material CANNOT ROTATE!");
+        }
         return 0;
     }
 
@@ -451,7 +458,7 @@ public final class Util
         XMaterial xmat = XMaterial.matchXMaterial(name).orElse(null);
         if (xmat == null)
         {
-            Util.broadcastMessage("Could not determine material of mat: " + name);
+//            Util.broadcastMessage("Could not determine material of mat: " + name);
             return false;
         }
 

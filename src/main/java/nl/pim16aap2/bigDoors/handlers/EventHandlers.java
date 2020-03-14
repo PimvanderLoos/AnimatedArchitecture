@@ -80,7 +80,8 @@ public class EventHandlers implements Listener
     {
         if (!plugin.getTF().isTool(event.getCurrentItem()))
             return;
-        if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) || !event.getClickedInventory().getType().equals(InventoryType.PLAYER))
+        if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) ||
+            !event.getClickedInventory().getType().equals(InventoryType.PLAYER))
         {
             if (event.getWhoClicked() instanceof Player)
             {
@@ -99,7 +100,7 @@ public class EventHandlers implements Listener
     @EventHandler
     public void inventoryDragEvent(InventoryDragEvent event)
     {
-        event.getNewItems().forEach((K,V) ->
+        event.getNewItems().forEach((K, V) ->
         {
             if (plugin.getTF().isTool(V))
                 event.setCancelled(true);

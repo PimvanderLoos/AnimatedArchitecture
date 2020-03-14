@@ -9,6 +9,7 @@ GENERAL.InvalidDoorName=is not a valid door name!
 GENERAL.InvalidDoorID=is not a valid door ID!
 GENERAL.Door=Door
 GENERAL.DoorTypeDisabled=&ccannot be use as its type is disabled!
+GENERAL.ToggleCancelled=&cThis door cannot be toggled because another plugin does not allow it!
 GENERAL.DoorAlreadyClosed=&ccannot be closed as it is already closed!
 GENERAL.DoorAlreadyOpen=&ccannot be opened as it is already open!
 GENERAL.CannotFindOpenDirection=&cThe door cannot open as it is obstructed!

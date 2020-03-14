@@ -2,12 +2,15 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.events.DoorEventToggleStart;
+import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -125,6 +128,12 @@ public class ElevatorOpener implements Opener
                                                 ". If this is undesired, change it via the GUI.", true, false);
                 plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), openDirection);
             }
+            
+            DoorEventToggleStart event = new DoorEventToggleStart(door,
+                                                                  (door.isOpen() ? ToggleType.CLOSE : ToggleType.OPEN));
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled())
+                return DoorOpenResult.CANCELLED;
 
             // Change door availability so it cannot be opened again (just temporarily, don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());

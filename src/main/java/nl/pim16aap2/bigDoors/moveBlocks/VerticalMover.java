@@ -20,6 +20,8 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
+import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
+import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -27,28 +29,29 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class VerticalMover implements BlockMover
 {
-    private FallingBlockFactory_Vall  fabf;
-    private Door                      door;
-    private double                    time;
-    private World                    world;
-    private BigDoors                plugin;
-    private int                   tickRate;
-    private boolean            instantOpen;
-    private int               blocksToMove;
-    private int           xMin, xMax, yMin;
-    private int           yMax, zMin, zMax;
+    private FallingBlockFactory_Vall fabf;
+    private Door door;
+    private double time;
+    private World world;
+    private BigDoors plugin;
+    private int tickRate;
+    private boolean instantOpen;
+    private int blocksToMove;
+    private int xMin, xMax, yMin;
+    private int yMax, zMin, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
 
     @SuppressWarnings("deprecation")
-    public VerticalMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove, double multiplier)
+    public VerticalMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove,
+        double multiplier)
     {
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         this.plugin = plugin;
-        this.world  = world;
-        this.door   = door;
-        fabf        = plugin.getFABF();
-        this.instantOpen  = instantOpen;
+        this.world = world;
+        this.door = door;
+        fabf = plugin.getFABF();
+        this.instantOpen = instantOpen;
         this.blocksToMove = blocksToMove;
 
         xMin = door.getMinimum().getBlockX();
@@ -58,22 +61,23 @@ public class VerticalMover implements BlockMover
         yMax = door.getMaximum().getBlockY();
         zMax = door.getMaximum().getBlockZ();
 
-        double speed  = 1;
+        double speed = 1;
         double pcMult = multiplier;
         pcMult = pcMult == 0.0 ? 1.0 : pcMult;
-        int maxSpeed  = 6;
+        int maxSpeed = 6;
         // If the time isn't default, calculate speed.
         if (time != 0.0)
         {
-            speed     = Math.abs(blocksToMove) / time;
+            speed = Math.abs(blocksToMove) / time;
             this.time = time;
         }
 
-        // If the non-default exceeds the max-speed or isn't set, calculate default speed.
+        // If the non-default exceeds the max-speed or isn't set, calculate default
+        // speed.
         if (time == 0.0 || speed > maxSpeed)
         {
-            speed     = (blocksToMove < 0 ? 1.7 : 0.8) * pcMult;
-            speed     = speed > maxSpeed ? maxSpeed : speed;
+            speed = (blocksToMove < 0 ? 1.7 : 0.8) * pcMult;
+            speed = speed > maxSpeed ? maxSpeed : speed;
             this.time = Math.abs(blocksToMove) / speed;
         }
 
@@ -90,25 +94,28 @@ public class VerticalMover implements BlockMover
                 {
                     Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-                    // Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
+                    // Move the lowest blocks up a little, so the client won't predict they're
+                    // touching through the ground, which would make them slower than the rest.
                     if (yAxis == yMin)
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
-                    Block vBlock  = world.getBlockAt(startLocation);
-                    Material mat  = vBlock.getType();
+                    Block vBlock = world.getBlockAt(startLocation);
+                    Material mat = vBlock.getType();
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData  = vBlock.getData();
+                        Byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
-                        NMSBlock_Vall block  = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
+                        NMSBlock_Vall block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
 
                         if (!plugin.is1_13())
                             vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
-                             fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-                        savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
+                            fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
+                        savedBlocks
+                            .add(index,
+                                 new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
                     }
                     else
                         savedBlocks.add(index, new MyBlockData(Material.AIR));
@@ -153,10 +160,10 @@ public class VerticalMover implements BlockMover
             {
                 for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
                 {
-                    Material mat    = savedBlocks.get(index).getMat();
+                    Material mat = savedBlocks.get(index).getMat();
                     if (!mat.equals(Material.AIR))
                     {
-                        Byte matByte    = savedBlocks.get(index).getBlockByte();
+                        Byte matByte = savedBlocks.get(index).getBlockByte();
                         Location newPos = getNewLocation(xAxis, yAxis, zAxis);
 
                         if (!instantOpen)
@@ -195,7 +202,7 @@ public class VerticalMover implements BlockMover
 
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, blocksToMove, false);
-        toggleOpen  (door);
+        toggleOpen(door);
 
         if (!onDisable)
         {
@@ -206,6 +213,9 @@ public class VerticalMover implements BlockMover
                 public void run()
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    Bukkit.getPluginManager()
+                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE)));
+
                     if (door.isOpen())
                         plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }
@@ -223,15 +233,16 @@ public class VerticalMover implements BlockMover
     {
         new BukkitRunnable()
         {
-            double counter   = 0;
-            int endCount     = (int) (20 / tickRate * time);
-            double step      = ((double) blocksToMove) / ((double) endCount);
-            double stepSum   = 0;
-            int totalTicks   = (int) (endCount * 1.1);
-            long startTime   = System.nanoTime();
+            double counter = 0;
+            int endCount = (int) (20 / tickRate * time);
+            double step = ((double) blocksToMove) / ((double) endCount);
+            double stepSum = 0;
+            int totalTicks = (int) (endCount * 1.1);
+            long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
-            MyBlockData firstBlockData = savedBlocks.stream().filter(block -> !block.getMat().equals(Material.AIR)).findFirst().orElse(null);
+            MyBlockData firstBlockData = savedBlocks.stream().filter(block -> !block.getMat().equals(Material.AIR))
+                .findFirst().orElse(null);
 
             @Override
             public void run()
@@ -286,8 +297,10 @@ public class VerticalMover implements BlockMover
         door.setOpenStatus(!door.isOpen());
     }
 
-    // Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
-    public static void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved, boolean shadow)
+    // Update the coordinates of a door based on its location, direction it's
+    // pointing in and rotation direction.
+    public static void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved,
+                                    boolean shadow)
     {
         int xMin = door.getMinimum().getBlockX();
         int yMin = door.getMinimum().getBlockY();
@@ -308,7 +321,8 @@ public class VerticalMover implements BlockMover
                                                        newMax.getBlockY(), newMax.getBlockZ());
     }
 
-    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
+    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData,
+                                                             NMSBlock_Vall block)
     {
         CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
         Entity bukkitEntity = (Entity) entity;

@@ -65,6 +65,11 @@ public class MyLogger
     {
         if (printToConsole)
             myLogger(level, msg);
+
+        // Don't write stuff to the logfile if this is disabled in the config.
+        if (!plugin.getConfigLoader().enableFileLogging())
+            return;
+
         try
         {
             BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true));

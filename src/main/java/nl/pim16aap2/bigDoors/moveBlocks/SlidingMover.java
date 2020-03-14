@@ -20,6 +20,8 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
+import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
+import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -27,35 +29,35 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class SlidingMover implements BlockMover
 {
-    private FallingBlockFactory_Vall  fabf;
-    private Door                      door;
-    private boolean                     NS;
-    private double                    time;
-    private World                    world;
-    private BigDoors                plugin;
-    private int                   tickRate;
-    private boolean            instantOpen;
-    private int               moveX, moveZ;
-    private int               blocksToMove;
-    private RotateDirection  openDirection;
-    private int           xMin, xMax, yMin;
-    private int           yMax, zMin, zMax;
+    private FallingBlockFactory_Vall fabf;
+    private Door door;
+    private boolean NS;
+    private double time;
+    private World world;
+    private BigDoors plugin;
+    private int tickRate;
+    private boolean instantOpen;
+    private int moveX, moveZ;
+    private int blocksToMove;
+    private RotateDirection openDirection;
+    private int xMin, xMax, yMin;
+    private int yMax, zMin, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
 
     @SuppressWarnings("deprecation")
-    public SlidingMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove, RotateDirection openDirection,
-                        double multiplier)
+    public SlidingMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove,
+        RotateDirection openDirection, double multiplier)
     {
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
-        this.plugin        = plugin;
-        this.world         = world;
-        this.door          = door;
-        fabf               = plugin.getFABF();
-        this.instantOpen   = instantOpen;
-        this.blocksToMove  = blocksToMove;
+        this.plugin = plugin;
+        this.world = world;
+        this.door = door;
+        fabf = plugin.getFABF();
+        this.instantOpen = instantOpen;
+        this.blocksToMove = blocksToMove;
         this.openDirection = openDirection;
-        NS                 = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
+        NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 
         xMin = door.getMinimum().getBlockX();
         yMin = door.getMinimum().getBlockY();
@@ -67,23 +69,24 @@ public class SlidingMover implements BlockMover
         moveX = NS ? 0 : this.blocksToMove;
         moveZ = NS ? this.blocksToMove : 0;
 
-        double speed  = 1;
+        double speed = 1;
         double pcMult = multiplier;
         pcMult = pcMult == 0.0 ? 1.0 : pcMult;
-        int maxSpeed  = 6;
+        int maxSpeed = 6;
 
         // If the time isn't default, calculate speed.
         if (time != 0.0)
         {
-            speed     = Math.abs(blocksToMove) / time;
+            speed = Math.abs(blocksToMove) / time;
             this.time = time;
         }
 
-        // If the non-default exceeds the max-speed or isn't set, calculate default speed.
+        // If the non-default exceeds the max-speed or isn't set, calculate default
+        // speed.
         if (time == 0.0 || speed > maxSpeed)
         {
-            speed     = 1.4 * pcMult;
-            speed     = speed > maxSpeed ? maxSpeed : speed;
+            speed = 1.4 * pcMult;
+            speed = speed > maxSpeed ? maxSpeed : speed;
             this.time = Math.abs(blocksToMove) / speed;
         }
         tickRate = Util.tickRateFromSpeed(speed);
@@ -99,25 +102,28 @@ public class SlidingMover implements BlockMover
                 {
                     Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-                    // Move the lowest blocks up a little, so the client won't predict they're touching through the ground, which would make them slower than the rest.
+                    // Move the lowest blocks up a little, so the client won't predict they're
+                    // touching through the ground, which would make them slower than the rest.
                     if (yAxis == yMin)
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
-                    Block vBlock  = world.getBlockAt(xAxis, yAxis, zAxis);
-                    Material mat  = vBlock.getType();
+                    Block vBlock = world.getBlockAt(xAxis, yAxis, zAxis);
+                    Material mat = vBlock.getType();
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData  = vBlock.getData();
+                        Byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
-                        NMSBlock_Vall block  = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
+                        NMSBlock_Vall block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
 
                         if (!plugin.is1_13())
                             vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
-                             fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
-                        savedBlocks.add(index, new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
+                            fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
+                        savedBlocks
+                            .add(index,
+                                 new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
                     }
                     else
                         savedBlocks.add(index, new MyBlockData(Material.AIR));
@@ -162,10 +168,10 @@ public class SlidingMover implements BlockMover
             {
                 for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
                 {
-                    Material mat    = savedBlocks.get(index).getMat();
+                    Material mat = savedBlocks.get(index).getMat();
                     if (!mat.equals(Material.AIR))
                     {
-                        Byte matByte    = savedBlocks.get(index).getBlockByte();
+                        Byte matByte = savedBlocks.get(index).getBlockByte();
                         Location newPos = getNewLocation(xAxis, yAxis, zAxis);
 
                         if (!instantOpen)
@@ -204,7 +210,7 @@ public class SlidingMover implements BlockMover
 
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door, null, openDirection, blocksToMove, NS, false);
-        toggleOpen  (door);
+        toggleOpen(door);
 
         if (!onDisable)
         {
@@ -215,6 +221,9 @@ public class SlidingMover implements BlockMover
                 public void run()
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    Bukkit.getPluginManager()
+                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE)));
+
                     if (door.isOpen())
                         plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }
@@ -232,15 +241,16 @@ public class SlidingMover implements BlockMover
     {
         new BukkitRunnable()
         {
-            double counter   = 0;
-            int endCount     = (int) (20 / tickRate * time);
-            double step      = ((double) blocksToMove) / ((double) endCount);
-            double stepSum   = 0;
-            int totalTicks   = (int) (endCount * 1.1);
-            long startTime   = System.nanoTime();
+            double counter = 0;
+            int endCount = (int) (20 / tickRate * time);
+            double step = ((double) blocksToMove) / ((double) endCount);
+            double stepSum = 0;
+            int totalTicks = (int) (endCount * 1.1);
+            long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
-            MyBlockData firstBlockData = savedBlocks.stream().filter(block -> !block.getMat().equals(Material.AIR)).findFirst().orElse(null);
+            MyBlockData firstBlockData = savedBlocks.stream().filter(block -> !block.getMat().equals(Material.AIR))
+                .findFirst().orElse(null);
 
             @Override
             public void run()
@@ -302,8 +312,10 @@ public class SlidingMover implements BlockMover
         door.setOpenStatus(!door.isOpen());
     }
 
-    // Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
-    public static void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved, boolean NS, boolean shadow)
+    // Update the coordinates of a door based on its location, direction it's
+    // pointing in and rotation direction.
+    public static void updateCoords(Door door, DoorDirection currentDirection, RotateDirection rotDirection, int moved,
+                                    boolean NS, boolean shadow)
     {
         int xMin = door.getMinimum().getBlockX();
         int yMin = door.getMinimum().getBlockY();
@@ -327,7 +339,8 @@ public class SlidingMover implements BlockMover
                                                        newMax.getBlockY(), newMax.getBlockZ());
     }
 
-    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
+    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData,
+                                                             NMSBlock_Vall block)
     {
         CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
         Entity bukkitEntity = (Entity) entity;

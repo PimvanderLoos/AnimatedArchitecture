@@ -116,12 +116,25 @@ public class BigDoors extends JavaPlugin implements Listener
         logFile = new File(getDataFolder(), "log.txt");
         logger = new MyLogger(this, logFile);
         updateManager = new UpdateManager(this, 58669);
-        if (DEVBUILD)
+
+        buildNumber = readBuildNumber();
+        overrideVersion();
+
+        try
         {
-            buildNumber = readBuildNumber();
+            readConfigValues();
+        }
+        catch (Exception e)
+        {
+            logger.logMessageToConsoleOnly("Failed to read config file. Plugin disabled!");
+            return;
+        }
+
+        logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
+
+        if (DEVBUILD)
             logger.logMessageToConsoleOnly("WARNING! You are running a devbuild (build: " + buildNumber + ")! "
                 + "Update checking + downloading has been enabled (overrides config options)!");
-        }
 
         try
         {
@@ -195,7 +208,6 @@ public class BigDoors extends JavaPlugin implements Listener
             exception.printStackTrace();
             logger.logMessage(Util.exceptionToString(exception), true, true);
         }
-        overrideVersion();
     }
 
     private void registerCommand(String command)
@@ -625,8 +637,6 @@ public class BigDoors extends JavaPlugin implements Listener
 
     private void overrideVersion()
     {
-        if (!DEVBUILD)
-            return;
         try
         {
             String version = getDescription().getVersion() + " (b" + buildNumber + ")";

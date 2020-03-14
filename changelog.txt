@@ -4,6 +4,9 @@ Alpha 0.1.8.17
 - Fixed portcullises showing incorrect open direction options in the GUI. Thanks, @SlimeDog for the report!
 - Fixed drawbridges showing invalid open direction options in the GUI.
 - Added RedProtect support. Thanks, @Rebellion for the suggestion!
+- Fixed default direction selection for doors that are open when toggled first.
+- Added option to disable logging to the log file. Thanks, @SlimeDog for the suggestion!
+- Added DoorEventToggleStart and DoorEventToggleEnd, which are fired before and after a door is toggled respectively. DoorEventToggleStart is Cancellable.
 
 Alpha 0.1.8.16
 - Updated to the latest version of XMaterial, which is supposed to bring some performance improvements in the areas concerning materials.
@@ -101,7 +104,7 @@ Alpha 0.1.8.6
 - Fixed regular doors (and presumably other blocks) spawning ghost versions when used in a door. Thanks, @RedYoshi for the bug report!
 
 Alpha 0.1.8.5
-- Added permission node "bigdoors.admin.bypasscompat" to bypass compatibility stuff like WorldGuard and PlotSquared )door creation and toggling).
+- Added permission node "bigdoors.admin.bypasscompat" to bypass compatibility stuff like WorldGuard and PlotSquared (door creation and toggling).
 - OPs also bypass compatibility stuff.
 - When a compatibility hook doesn't allow you to create a door somewhere, you'll now be notified which specific hook is blocking access.
 

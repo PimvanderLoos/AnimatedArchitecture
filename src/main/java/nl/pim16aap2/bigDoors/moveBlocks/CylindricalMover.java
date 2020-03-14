@@ -20,6 +20,8 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
+import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
+import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocation;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationNorth;
@@ -279,6 +281,9 @@ public class CylindricalMover implements BlockMover
                 public void run()
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    Bukkit.getPluginManager()
+                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE)));
+
                     if (door.isOpen())
                         plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }

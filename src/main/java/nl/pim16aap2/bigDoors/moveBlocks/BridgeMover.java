@@ -20,6 +20,8 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
+import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
+import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocation;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationNorth;
@@ -32,33 +34,33 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class BridgeMover implements BlockMover
 {
-    private World                    world;
-    private BigDoors                plugin;
-    private int                   tickRate;
-    private double              multiplier;
-    private int                     dx, dz;
-    private double                    time;
-    private FallingBlockFactory_Vall  fabf;
-    private boolean                     NS;
-    private GetNewLocation             gnl;
-    private Door                      door;
-    private RotateDirection         upDown;
-    private DoorDirection       engineSide;
-    private double              endStepSum;
-    private boolean            instantOpen;
-    private Location          turningPoint;
-    private double            startStepSum;
-    private DoorDirection    openDirection;
-    private Location         pointOpposite;
-    private int             stepMultiplier;
-    private int           xMin, yMin, zMin;
-    private int           xMax, yMax, zMax;
+    private World world;
+    private BigDoors plugin;
+    private int tickRate;
+    private double multiplier;
+    private int dx, dz;
+    private double time;
+    private FallingBlockFactory_Vall fabf;
+    private boolean NS;
+    private GetNewLocation gnl;
+    private Door door;
+    private RotateDirection upDown;
+    private DoorDirection engineSide;
+    private double endStepSum;
+    private boolean instantOpen;
+    private Location turningPoint;
+    private double startStepSum;
+    private DoorDirection openDirection;
+    private Location pointOpposite;
+    private int stepMultiplier;
+    private int xMin, yMin, zMin;
+    private int xMax, yMax, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
 
     @SuppressWarnings("deprecation")
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
-            DoorDirection openDirection, boolean instantOpen, double multiplier)
+        DoorDirection openDirection, boolean instantOpen, double multiplier)
     {
         plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
         fabf = plugin.getFABF();
@@ -86,17 +88,15 @@ public class BridgeMover implements BlockMover
         tickRate = (int) vars[1];
         this.multiplier = vars[2];
 
-        // Regarding dx, dz. These variables determine whether loops get incremented (1) or decremented (-1)
-        // When looking in the direction of the opposite point from the engine side, the blocks should get
+        // Regarding dx, dz. These variables determine whether loops get incremented (1)
+        // or decremented (-1)
+        // When looking in the direction of the opposite point from the engine side, the
+        // blocks should get
         // Processed from left to right and from the engine to the opposite.
-        /* Pointing:   Degrees:
-         * UP            0 or 360
-         * EAST         90
-         * WEST        270
-         * NORTH       270
-         * SOUTH        90
+        /*
+         * Pointing: Degrees: UP 0 or 360 EAST 90 WEST 270 NORTH 270 SOUTH 90
          */
-        startStepSum   = -1;
+        startStepSum = -1;
         stepMultiplier = -1;
 
         // Calculate turningpoint and pointOpposite.
@@ -105,22 +105,22 @@ public class BridgeMover implements BlockMover
         case NORTH:
             // When EngineSide is North, x goes from low to high and z goes from low to high
             turningPoint = new Location(world, xMin, yMin, zMin);
-            dx =  1;
-            dz =  1;
+            dx = 1;
+            dz = 1;
 
             if (upDown.equals(RotateDirection.UP))
             {
-                pointOpposite  = new Location(world, xMax, yMin, zMax);
-                startStepSum   =  Math.PI / 2;
+                pointOpposite = new Location(world, xMax, yMin, zMax);
+                startStepSum = Math.PI / 2;
                 stepMultiplier = -1;
             }
             else
             {
-                pointOpposite  = new Location(world, xMax, yMax, zMin);
+                pointOpposite = new Location(world, xMax, yMax, zMin);
                 if (openDirection.equals(DoorDirection.NORTH))
                     stepMultiplier = -1;
                 else if (openDirection.equals(DoorDirection.SOUTH))
-                    stepMultiplier =  1;
+                    stepMultiplier = 1;
             }
             break;
 
@@ -132,17 +132,17 @@ public class BridgeMover implements BlockMover
 
             if (upDown.equals(RotateDirection.UP))
             {
-                pointOpposite  = new Location(world, xMin, yMin, zMin);
-                startStepSum   = -Math.PI / 2;
-                stepMultiplier =  1;
+                pointOpposite = new Location(world, xMin, yMin, zMin);
+                startStepSum = -Math.PI / 2;
+                stepMultiplier = 1;
             }
             else
             {
-                pointOpposite  = new Location(world, xMin, yMax, zMax);
+                pointOpposite = new Location(world, xMin, yMax, zMax);
                 if (openDirection.equals(DoorDirection.NORTH))
                     stepMultiplier = -1;
                 else if (openDirection.equals(DoorDirection.SOUTH))
-                    stepMultiplier =  1;
+                    stepMultiplier = 1;
             }
             break;
 
@@ -150,19 +150,19 @@ public class BridgeMover implements BlockMover
             // When EngineSide is East, x goes from high to low and z goes from low to high
             turningPoint = new Location(world, xMax, yMin, zMin);
             dx = -1;
-            dz =  1;
+            dz = 1;
 
             if (upDown.equals(RotateDirection.UP))
             {
-                pointOpposite  = new Location(world, xMin, yMin, zMax);
-                startStepSum   = -Math.PI / 2;
-                stepMultiplier =  1;
+                pointOpposite = new Location(world, xMin, yMin, zMax);
+                startStepSum = -Math.PI / 2;
+                stepMultiplier = 1;
             }
             else
             {
-                pointOpposite  = new Location(world, xMax, yMax, zMax);
+                pointOpposite = new Location(world, xMax, yMax, zMax);
                 if (openDirection.equals(DoorDirection.EAST))
-                    stepMultiplier =  1;
+                    stepMultiplier = 1;
                 else if (openDirection.equals(DoorDirection.WEST))
                     stepMultiplier = -1;
             }
@@ -171,27 +171,27 @@ public class BridgeMover implements BlockMover
         case WEST:
             // When EngineSide is West, x goes from low to high and z goes from high to low
             turningPoint = new Location(world, xMin, yMin, zMax);
-            dx =  1;
+            dx = 1;
             dz = -1;
 
             if (upDown.equals(RotateDirection.UP))
             {
-                pointOpposite  = new Location(world, xMax, yMin, zMin);
-                startStepSum   =  Math.PI / 2;
+                pointOpposite = new Location(world, xMax, yMin, zMin);
+                startStepSum = Math.PI / 2;
                 stepMultiplier = -1;
             }
             else
             {
-                pointOpposite  = new Location(world, xMin, yMax, zMin);
+                pointOpposite = new Location(world, xMin, yMax, zMin);
                 if (openDirection.equals(DoorDirection.EAST))
-                    stepMultiplier =  1;
+                    stepMultiplier = 1;
                 else if (openDirection.equals(DoorDirection.WEST))
                     stepMultiplier = -1;
             }
             break;
         }
 
-        endStepSum   = upDown.equals(RotateDirection.UP)   ? 0 : Math.PI / 2 * stepMultiplier;
+        endStepSum = upDown.equals(RotateDirection.UP) ? 0 : Math.PI / 2 * stepMultiplier;
         startStepSum = upDown.equals(RotateDirection.DOWN) ? 0 : startStepSum;
 
         int index = 0;
@@ -218,31 +218,32 @@ public class BridgeMover implements BlockMover
                         radius = yAxis - turningPoint.getBlockY();
 
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-                    // Move the lowest blocks up a little, so the client won't predict they're touching through the ground,
+                    // Move the lowest blocks up a little, so the client won't predict they're
+                    // touching through the ground,
                     // which would make them slower than the rest.
                     if (yAxis == yMin)
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 
-                    Block vBlock  = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
-                    Material mat  = vBlock.getType();
+                    Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+                    Material mat = vBlock.getType();
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData  = vBlock.getData();
+                        Byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
 
-                        NMSBlock_Vall block  = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                        NMSBlock_Vall block = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                         NMSBlock_Vall block2 = null;
 
                         int canRotate = 0;
-                        Byte matByte  = matData;
+                        Byte matByte = matData;
 
                         canRotate = Util.canRotate(mat);
                         // Rotate blocks here so they don't interrupt the rotation animation.
                         if (canRotate == 1 || canRotate == 2 || canRotate == 3 || canRotate == 6 || canRotate == 7)
                         {
-                            matByte      = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
-                            Block b      = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+                            matByte = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
+                            Block b = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                             materialData.setData(matByte);
 
                             if (plugin.is1_13())
@@ -267,9 +268,11 @@ public class BridgeMover implements BlockMover
 
                         CustomCraftFallingBlock_Vall fBlock = null;
                         if (!instantOpen)
-                             fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
+                            fBlock = fallingBlockFactory(newFBlockLocation, mat, matData, block);
 
-                        savedBlocks.add(index, new MyBlockData(mat, matByte, fBlock, radius, materialData, block2 == null ? block : block2, canRotate, startLocation));
+                        savedBlocks.add(index,
+                                        new MyBlockData(mat, matByte, fBlock, radius, materialData,
+                                                        block2 == null ? block : block2, canRotate, startLocation));
                     }
                     else
                         savedBlocks.add(index, new MyBlockData(Material.AIR));
@@ -288,13 +291,13 @@ public class BridgeMover implements BlockMover
             gnl = new GetNewLocationNorth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
             break;
         case EAST:
-            gnl = new GetNewLocationEast (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+            gnl = new GetNewLocationEast(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
             break;
         case SOUTH:
             gnl = new GetNewLocationSouth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
             break;
         case WEST:
-            gnl = new GetNewLocationWest (world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
+            gnl = new GetNewLocationWest(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
             break;
         }
 
@@ -343,7 +346,8 @@ public class BridgeMover implements BlockMover
                     {
                         Byte matByte;
                         matByte = savedBlocks.get(index).getBlockByte();
-                        Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis, index);
+                        Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis,
+                                                             index);
 
                         if (!instantOpen)
                             savedBlocks.get(index).getFBlock().remove();
@@ -382,7 +386,7 @@ public class BridgeMover implements BlockMover
 
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door, openDirection, upDown, -1, false);
-        toggleOpen  (door);
+        toggleOpen(door);
 
         if (!onDisable)
         {
@@ -393,6 +397,9 @@ public class BridgeMover implements BlockMover
                 public void run()
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
+                    Bukkit.getPluginManager()
+                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE)));
+
                     if (door.isOpen())
                         plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
                 }
@@ -405,17 +412,17 @@ public class BridgeMover implements BlockMover
     {
         new BukkitRunnable()
         {
-            Location center   = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
-            boolean replace   = false;
-            double counter    = 0;
-            int endCount      = (int) (20 / tickRate * time);
-            double step       = (Math.PI / 2) / endCount * stepMultiplier;
-            double stepSum    = startStepSum;
-            int totalTicks    = (int) (endCount * multiplier);
-            int replaceCount  = endCount / 2;
-            long startTime    = System.nanoTime();
+            Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
+            boolean replace = false;
+            double counter = 0;
+            int endCount = (int) (20 / tickRate * time);
+            double step = (Math.PI / 2) / endCount * stepMultiplier;
+            double stepSum = startStepSum;
+            int totalTicks = (int) (endCount * multiplier);
+            int replaceCount = endCount / 2;
+            long startTime = System.nanoTime();
             long lastTime;
-            long currentTime  = System.nanoTime();
+            long currentTime = System.nanoTime();
 
             @Override
             public void run()
@@ -455,7 +462,8 @@ public class BridgeMover implements BlockMover
                 }
                 else
                 {
-                    // It is not pssible to edit falling block blockdata (client won't update it), so delete the current fBlock and replace it by one that's been rotated.
+                    // It is not pssible to edit falling block blockdata (client won't update it),
+                    // so delete the current fBlock and replace it by one that's been rotated.
                     // Also, this stuff needs to be done on the main thread.
                     if (replace)
                     {
@@ -471,7 +479,8 @@ public class BridgeMover implements BlockMover
                                     Vector veloc = block.getFBlock().getVelocity();
 
                                     CustomCraftFallingBlock_Vall fBlock;
-                                    // Because the block in savedBlocks is already rotated where applicable, just use that block now.
+                                    // Because the block in savedBlocks is already rotated where applicable, just
+                                    // use that block now.
                                     fBlock = fallingBlockFactory(loc, mat, matData, block.getBlock());
 
                                     block.getFBlock().remove();
@@ -503,7 +512,7 @@ public class BridgeMover implements BlockMover
                                     posZ = center.getZ() + radius * Math.sin(stepSum);
                                 }
                                 Location loc = new Location(null, posX, posY, posZ);
-                                Vector vec   = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
+                                Vector vec = loc.toVector().subtract(block.getFBlock().getLocation().toVector());
                                 vec.multiply(0.101);
                                 block.getFBlock().setVelocity(vec);
                             }
@@ -536,12 +545,9 @@ public class BridgeMover implements BlockMover
     // Rotate blocks such a logs by modifying its material data.
     private byte rotateEndRotBlockData(Byte matData)
     {
-        /* 0: Pointing Down     (upside down (purple on top))
-         * 1: Pointing Up       (normal)
-         * 2: Pointing North
-         * 3: Pointing South
-         * 4: Pointing West
-         * 5: Pointing East
+        /*
+         * 0: Pointing Down (upside down (purple on top)) 1: Pointing Up (normal) 2:
+         * Pointing North 3: Pointing South 4: Pointing West 5: Pointing East
          */
         if (!NS)
         {
@@ -573,9 +579,11 @@ public class BridgeMover implements BlockMover
         door.setOpenStatus(!door.isOpen());
     }
 
-    // Update the coordinates of a door based on its location, direction it's pointing in and rotation direction.
+    // Update the coordinates of a door based on its location, direction it's
+    // pointing in and rotation direction.
     @SuppressWarnings("null")
-    public static void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown, int moved, boolean shadow)
+    public static void updateCoords(Door door, DoorDirection openDirection, RotateDirection upDown, int moved,
+                                    boolean shadow)
     {
         int xMin = door.getMinimum().getBlockX();
         int yMin = door.getMinimum().getBlockY();
@@ -596,62 +604,59 @@ public class BridgeMover implements BlockMover
             if (upDown == RotateDirection.UP)
             {
                 newEngSide = DoorDirection.NORTH;
-                newMin = new Location(door.getWorld(), xMin, yMin,        zMin);
+                newMin = new Location(door.getWorld(), xMin, yMin, zMin);
                 newMax = new Location(door.getWorld(), xMax, yMin + zLen, zMin);
             }
             else
             {
                 newEngSide = DoorDirection.SOUTH;
                 newMin = new Location(door.getWorld(), xMin, yMin, zMin - yLen);
-                newMax = new Location(door.getWorld(), xMax, yMin, zMin       );
+                newMax = new Location(door.getWorld(), xMax, yMin, zMin);
             }
             break;
-
 
         case EAST:
             if (upDown == RotateDirection.UP)
             {
                 newEngSide = DoorDirection.EAST;
-                newMin = new Location(door.getWorld(), xMax, yMin,        zMin);
+                newMin = new Location(door.getWorld(), xMax, yMin, zMin);
                 newMax = new Location(door.getWorld(), xMax, yMin + xLen, zMax);
             }
             else
             {
                 newEngSide = DoorDirection.WEST;
-                newMin = new Location(door.getWorld(), xMax,        yMin, zMin);
+                newMin = new Location(door.getWorld(), xMax, yMin, zMin);
                 newMax = new Location(door.getWorld(), xMax + yLen, yMin, zMax);
             }
             break;
-
 
         case SOUTH:
             if (upDown == RotateDirection.UP)
             {
                 newEngSide = DoorDirection.SOUTH;
-                newMin = new Location(door.getWorld(), xMin, yMin,        zMax);
+                newMin = new Location(door.getWorld(), xMin, yMin, zMax);
                 newMax = new Location(door.getWorld(), xMax, yMin + zLen, zMax);
             }
             else
             {
                 newEngSide = DoorDirection.NORTH;
-                newMin = new Location(door.getWorld(), xMin, yMin, zMax       );
+                newMin = new Location(door.getWorld(), xMin, yMin, zMax);
                 newMax = new Location(door.getWorld(), xMax, yMin, zMax + yLen);
             }
             break;
-
 
         case WEST:
             if (upDown == RotateDirection.UP)
             {
                 newEngSide = DoorDirection.WEST;
-                newMin = new Location(door.getWorld(), xMin, yMin,        zMin);
+                newMin = new Location(door.getWorld(), xMin, yMin, zMin);
                 newMax = new Location(door.getWorld(), xMin, yMin + xLen, zMax);
             }
             else
             {
                 newEngSide = DoorDirection.EAST;
                 newMin = new Location(door.getWorld(), xMin - yLen, yMin, zMin);
-                newMax = new Location(door.getWorld(), xMin,        yMin, zMax);
+                newMax = new Location(door.getWorld(), xMin, yMin, zMax);
             }
             break;
         }
@@ -665,13 +670,13 @@ public class BridgeMover implements BlockMover
                                                        newMax.getBlockY(), newMax.getBlockZ(), newEngSide);
     }
 
-    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData, NMSBlock_Vall block)
+    private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData,
+                                                             NMSBlock_Vall block)
     {
         CustomCraftFallingBlock_Vall entity = fabf.fallingBlockFactory(plugin, loc, block, matData, mat);
         Entity bukkitEntity = (Entity) entity;
         return entity;
     }
-
 
     @Override
     public long getDoorUID()

@@ -46,6 +46,7 @@ public class ConfigLoader
     private long downloadDelay;
     private boolean enableRedstone;
     private int commandWaiterTimeout;
+    private boolean enableFileLogging;
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
@@ -148,6 +149,7 @@ public class ConfigLoader
 //                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
 
         String[] debugComment = { "Don't use this. Just leave it on false." };
+        String[] enableFileLoggingComment = { "Whether to write stuff to BigDoor's own log file. Please keep this enabled if you want to receive support." };
         String[] backupComment = { "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
                                    "In case anything goes wrong, you can just revert to the old version! Only the most recent backup will be kept." };
 
@@ -249,6 +251,9 @@ public class ConfigLoader
         commandWaiterTimeout = config.getInt("commandWaiterTimeout", 40);
         configOptionsList
             .add(new ConfigOption("commandWaiterTimeout", commandWaiterTimeout, commandWaiterTimeoutComment));
+
+        enableFileLogging = config.getBoolean("enableFileLogging", true);
+        configOptionsList.add(new ConfigOption("enableFileLogging", enableFileLogging, enableFileLoggingComment));
 
         // This is a bit special, as it's public static (for util debug messages).
         ConfigLoader.DEBUG = config.getBoolean("DEBUG", false);
@@ -626,5 +631,15 @@ public class ConfigLoader
     public boolean resourcePackEnabled()
     {
         return resourcePackEnabled;
+    }
+
+    /**
+     * Checks if the plugin should log to BigDoor's own log file.
+     *
+     * @return True if the option to log to the log file is enabled.
+     */
+    public boolean enableFileLogging()
+    {
+        return enableFileLogging;
     }
 }

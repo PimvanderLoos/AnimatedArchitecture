@@ -20,10 +20,8 @@ public class FlagOpener implements Opener
     @Override
     public boolean isRotateDirectionValid(Door door)
     {
-        return door.getOpenDir().equals(RotateDirection.NORTH) ||
-               door.getOpenDir().equals(RotateDirection.EAST ) ||
-               door.getOpenDir().equals(RotateDirection.SOUTH) ||
-               door.getOpenDir().equals(RotateDirection.WEST );
+        return door.getOpenDir().equals(RotateDirection.NORTH) || door.getOpenDir().equals(RotateDirection.EAST) ||
+               door.getOpenDir().equals(RotateDirection.SOUTH) || door.getOpenDir().equals(RotateDirection.WEST);
     }
 
     @Override
@@ -31,21 +29,28 @@ public class FlagOpener implements Opener
     {
         if (isRotateDirectionValid(door))
             return door.getOpenDir();
-        return door.getMinimum().getBlockX() == door.getMaximum().getBlockX() ? RotateDirection.NORTH : RotateDirection.EAST;
+        return door.getMinimum().getBlockX() == door.getMaximum().getBlockX() ? RotateDirection.NORTH :
+            RotateDirection.EAST;
     }
 
-    // Check if the chunks at the minimum and maximum locations of the door are loaded.
+    // Check if the chunks at the minimum and maximum locations of the door are
+    // loaded.
     private boolean chunksLoaded(Door door)
     {
-        // Return true if the chunk at the max and at the min of the chunks were loaded correctly.
+        // Return true if the chunk at the max and at the min of the chunks were loaded
+        // correctly.
         if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \""    + door.getName().toString() + "\"",          true, false);
+            plugin.getMyLogger().logMessage("World is null for door \"" + door.getName().toString() + "\"", true,
+                                            false);
         if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
+            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!",
+                                            true, false);
         if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
+            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!",
+                                            true, false);
 
-        return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
+        return door.getWorld().getChunkAt(door.getMaximum()).load() &&
+               door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
     }
 
     @Override
@@ -73,7 +78,8 @@ public class FlagOpener implements Opener
 
         if (!chunksLoaded(door))
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!", true, false);
+            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
+                                            true, false);
             return DoorOpenResult.ERROR;
         }
 
@@ -82,24 +88,30 @@ public class FlagOpener implements Opener
         int maxDoorSize = getSizeLimit(door);
         if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
         {
-            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize, true, false);
+            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
+                                            true, false);
             return DoorOpenResult.ERROR;
         }
 
-        // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
+        // The door's owner does not have permission to move the door into the new
+        // position (e.g. worldguard doens't allow it.
         if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getMinimum(), door.getMinimum()) != null)
             return DoorOpenResult.NOPERMISSION;
 
         if (!isRotateDirectionValid(door))
         {
             RotateDirection rotDir = getRotateDirection(door);
-            plugin.getMyLogger().logMessage("Updating openDirection of flag " + door.getName() + " to " + rotDir.name() +
-                                            ". If this is undesired, change it via the GUI.", true, false);
+            plugin.getMyLogger().logMessage("Updating openDirection of flag " + door.getName() + " to " + rotDir.name()
+                + ". If this is undesired, change it via the GUI.", true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), rotDir);
         }
 
-
 //        // THIS TYPE IS NOT ENABLED!
+//        DoorEventToggleStart event = new DoorEventToggleStart(door, ToggleType.STATIC);
+//        Bukkit.getPluginManager().callEvent(event);
+//        if (event.isCancelled())
+//            return DoorOpenResult.CANCELLED;
+//
 //        // Change door availability so it cannot be opened again (just temporarily, don't worry!).
 //        plugin.getCommander().setDoorBusy(door.getDoorUID());
 //
