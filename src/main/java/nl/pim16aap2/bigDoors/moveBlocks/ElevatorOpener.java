@@ -2,15 +2,12 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.events.DoorEventToggleStart;
-import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -30,8 +27,7 @@ public class ElevatorOpener implements Opener
     @Override
     public boolean isRotateDirectionValid(Door door)
     {
-        return door.getOpenDir().equals(RotateDirection.UP) ||
-               door.getOpenDir().equals(RotateDirection.DOWN);
+        return door.getOpenDir().equals(RotateDirection.UP) || door.getOpenDir().equals(RotateDirection.DOWN);
     }
 
     @Override
@@ -42,18 +38,24 @@ public class ElevatorOpener implements Opener
         return RotateDirection.UP;
     }
 
-    // Check if the chunks at the minimum and maximum locations of the door are loaded.
+    // Check if the chunks at the minimum and maximum locations of the door are
+    // loaded.
     private boolean chunksLoaded(Door door)
     {
-        // Return true if the chunk at the max and at the min of the chunks were loaded correctly.
+        // Return true if the chunk at the max and at the min of the chunks were loaded
+        // correctly.
         if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \""    + door.getName().toString() + "\"",          true, false);
+            plugin.getMyLogger().logMessage("World is null for door \"" + door.getName().toString() + "\"", true,
+                                            false);
         if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
+            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!",
+                                            true, false);
         if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
+            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!",
+                                            true, false);
 
-        return door.getWorld().getChunkAt(door.getMaximum()).load() && door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
+        return door.getWorld().getChunkAt(door.getMaximum()).load() &&
+               door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
     }
 
     @Override
@@ -70,8 +72,10 @@ public class ElevatorOpener implements Opener
             return DoorOpenResult.NODIRECTION;
         }
 
-        // For the blocks to shadow move the door, prefer to use the BTM variable, but use the height if that's unavailable.
-        int moved = door.getBlocksToMove() > 0 ? door.getBlocksToMove() : (door.getMaximum().getBlockY() - door.getMinimum().getBlockY() + 1);
+        // For the blocks to shadow move the door, prefer to use the BTM variable, but
+        // use the height if that's unavailable.
+        int moved = door.getBlocksToMove() > 0 ? door.getBlocksToMove() :
+            (door.getMaximum().getBlockY() - door.getMinimum().getBlockY() + 1);
         int multiplier = door.getOpenDir().equals(RotateDirection.UP) ? 1 : -1;
         multiplier *= door.isOpen() ? 1 : -1;
 
@@ -98,7 +102,8 @@ public class ElevatorOpener implements Opener
 
         if (!chunksLoaded(door))
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!", true, false);
+            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
+                                            true, false);
             return DoorOpenResult.ERROR;
         }
 
@@ -107,13 +112,15 @@ public class ElevatorOpener implements Opener
         int maxDoorSize = getSizeLimit(door);
         if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
         {
-            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize, true, false);
+            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
+                                            true, false);
             return DoorOpenResult.ERROR;
         }
 
         int blocksToMove = getBlocksToMove(door);
 
-        // The door's owner does not have permission to move the door into the new position (e.g. worldguard doens't allow it.
+        // The door's owner does not have permission to move the door into the new
+        // position (e.g. worldguard doens't allow it.
         if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null ||
             plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getMinimum(), door.getMinimum()) != null)
             return DoorOpenResult.NOPERMISSION;
@@ -122,23 +129,25 @@ public class ElevatorOpener implements Opener
         {
             if (!isRotateDirectionValid(door))
             {
-                RotateDirection openDirection = door.isOpen() ? (blocksToMove > 0 ? RotateDirection.DOWN : RotateDirection.UP) :
-                                                                (blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN);
-                plugin.getMyLogger().logMessage("Updating openDirection of elevator " + door.getName() + " to " + openDirection.name() +
-                                                ". If this is undesired, change it via the GUI.", true, false);
+                RotateDirection openDirection = door.isOpen() ?
+                    (blocksToMove > 0 ? RotateDirection.DOWN : RotateDirection.UP) :
+                    (blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN);
+                plugin.getMyLogger().logMessage("Updating openDirection of elevator " + door.getName() + " to "
+                    + openDirection.name() + ". If this is undesired, change it via the GUI.", true, false);
                 plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), openDirection);
             }
-            
-            DoorEventToggleStart event = new DoorEventToggleStart(door,
-                                                                  (door.isOpen() ? ToggleType.CLOSE : ToggleType.OPEN));
-            Bukkit.getPluginManager().callEvent(event);
-            if (event.isCancelled())
+
+            if (fireDoorEventTogglePrepare(door, instantOpen))
                 return DoorOpenResult.CANCELLED;
 
-            // Change door availability so it cannot be opened again (just temporarily, don't worry!).
+            // Change door availability so it cannot be opened again (just temporarily,
+            // don't worry!).
             plugin.getCommander().setDoorBusy(door.getDoorUID());
 
-            plugin.getCommander().addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove, plugin.getConfigLoader().elMultiplier()));
+            plugin.getCommander()
+                .addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
+                                                 plugin.getConfigLoader().elMultiplier()));
+            fireDoorEventToggleStart(door, instantOpen);
         }
         return DoorOpenResult.SUCCESS;
     }
@@ -146,18 +155,18 @@ public class ElevatorOpener implements Opener
     private int getBlocksInDir(Door door, RotateDirection upDown)
     {
         int xMin, xMax, zMin, zMax, yMin, yMax, yLen, blocksMoved = 0, step;
-        xMin  = door.getMinimum().getBlockX();
-        yMin  = door.getMinimum().getBlockY();
-        zMin  = door.getMinimum().getBlockZ();
-        xMax  = door.getMaximum().getBlockX();
-        yMax  = door.getMaximum().getBlockY();
-        zMax  = door.getMaximum().getBlockZ();
-        yLen  = yMax - yMin + 1;
+        xMin = door.getMinimum().getBlockX();
+        yMin = door.getMinimum().getBlockY();
+        zMin = door.getMinimum().getBlockZ();
+        xMax = door.getMaximum().getBlockX();
+        yMax = door.getMaximum().getBlockY();
+        zMax = door.getMaximum().getBlockZ();
+        yLen = yMax - yMin + 1;
         int distanceToCheck = door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
 
         int xAxis, yAxis, zAxis, yGoal;
         World world = door.getWorld();
-        step  = upDown == RotateDirection.DOWN ? -1 : 1;
+        step = upDown == RotateDirection.DOWN ? -1 : 1;
         yAxis = upDown == RotateDirection.DOWN ? yMin - 1 : yMax + 1;
         yGoal = upDown == RotateDirection.DOWN ? yMin - distanceToCheck - 1 : yMax + distanceToCheck + 1;
 
@@ -176,14 +185,16 @@ public class ElevatorOpener implements Opener
     private int getBlocksToMove(Door door)
     {
         int blocksUp = 0, blocksDown = 0;
-        if (door.getOpenDir() == RotateDirection.UP   && !door.isOpen() ||
-            door.getOpenDir() == RotateDirection.DOWN &&  door.isOpen())
-            blocksUp    = getBlocksInDir(door, RotateDirection.UP  );
+        if (door.getOpenDir() == RotateDirection.UP && !door.isOpen() ||
+            door.getOpenDir() == RotateDirection.DOWN && door.isOpen())
+            blocksUp = getBlocksInDir(door, RotateDirection.UP);
         else
-            blocksDown  = getBlocksInDir(door, RotateDirection.DOWN);
+            blocksDown = getBlocksInDir(door, RotateDirection.DOWN);
         int blocksToMove = blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
-        door.setNewMin(new Location(door.getWorld(), door.getMinimum().getBlockX(), door.getMinimum().getBlockY() + blocksToMove, door.getMinimum().getBlockZ()));
-        door.setNewMax(new Location(door.getWorld(), door.getMaximum().getBlockX(), door.getMaximum().getBlockY() + blocksToMove, door.getMaximum().getBlockZ()));
+        door.setNewMin(new Location(door.getWorld(), door.getMinimum().getBlockX(),
+                                    door.getMinimum().getBlockY() + blocksToMove, door.getMinimum().getBlockZ()));
+        door.setNewMax(new Location(door.getWorld(), door.getMaximum().getBlockX(),
+                                    door.getMaximum().getBlockY() + blocksToMove, door.getMaximum().getBlockZ()));
         return blocksToMove;
     }
 }

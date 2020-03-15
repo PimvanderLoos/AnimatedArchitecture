@@ -9,37 +9,21 @@ import org.bukkit.event.HandlerList;
 import nl.pim16aap2.bigDoors.Door;
 
 /**
- * Represents the start of a {@link DoorEventToggle}. It is fired before the
- * actual toggle takes place and is therefore {@link Cancellable}.
+ * Represents the start of a {@link DoorEventToggle}. It is fired after the
+ * actual toggle has already started and is therefore NOT {@link Cancellable}.
+ * <p>
+ * If you want to cancel the {@link DoorEventToggle}, you have to use
+ * {@link {@link DoorEventTogglePrepare} instead.
  *
  * @author Pim
  */
-public class DoorEventToggleStart extends DoorEventToggle implements Cancellable
+public class DoorEventToggleStart extends DoorEventToggle
 {
-    private boolean isCancelled = false;
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
-    public DoorEventToggleStart(Door door, ToggleType toggleType)
+    public DoorEventToggleStart(Door door, ToggleType toggleType, final boolean instantOpen)
     {
-        super(door, toggleType);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isCancelled()
-    {
-        return isCancelled;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setCancelled(boolean val)
-    {
-        isCancelled = val;
+        super(door, toggleType, instantOpen);
     }
 
     /**

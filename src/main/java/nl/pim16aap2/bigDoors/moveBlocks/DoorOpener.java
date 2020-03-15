@@ -2,14 +2,11 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
-import nl.pim16aap2.bigDoors.events.DoorEventToggleStart;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -329,20 +326,17 @@ public class DoorOpener implements Opener
             plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getMinimum(), door.getMinimum()) != null)
             return DoorOpenResult.NOPERMISSION;
 
-        DoorEventToggleStart event = new DoorEventToggleStart(door,
-                                                              (door.isOpen() ? ToggleType.CLOSE : ToggleType.OPEN));
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled())
+        if (fireDoorEventTogglePrepare(door, instantOpen))
             return DoorOpenResult.CANCELLED;
 
         // Change door availability so it cannot be opened again (just temporarily,
         // don't worry!).
         plugin.getCommander().setDoorBusy(door.getDoorUID());
-
         plugin.getCommander()
             .addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint,
                                                 currentDirection, door, instantOpen,
                                                 plugin.getConfigLoader().bdMultiplier()));
+        fireDoorEventToggleStart(door, instantOpen);
 
         return DoorOpenResult.SUCCESS;
     }
