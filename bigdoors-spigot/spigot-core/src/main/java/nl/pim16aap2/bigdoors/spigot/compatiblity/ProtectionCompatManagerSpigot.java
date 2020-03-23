@@ -94,12 +94,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     public void restart()
     {
         shutdown();
-        if (!(plugin.getConfigLoader() instanceof ConfigLoaderSpigot))
-        {
-            PLogger.get().logException(new IllegalStateException("Config is not a Spigot config!"));
-            return;
-        }
-        config = (ConfigLoaderSpigot) plugin.getConfigLoader();
+
+        config = plugin.getConfigLoader();
         for (Plugin p : plugin.getServer().getPluginManager().getPlugins())
             loadFromPluginName(p.getName());
     }

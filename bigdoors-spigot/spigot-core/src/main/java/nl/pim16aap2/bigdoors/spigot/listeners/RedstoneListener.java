@@ -1,14 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorActionEventSpigot;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
@@ -67,20 +64,11 @@ public class RedstoneListener extends Restartable implements Listener
     public void restart()
     {
         powerBlockTypes.clear();
-        IConfigLoader config = plugin.getConfigLoader();
-        if (!(config instanceof ConfigLoaderSpigot))
-        {
-            PLogger.get().logException(new IllegalStateException(
-                "Config loader is not a Spigot config loader! Defaulting to gold block power block!"));
-            powerBlockTypes.add(Material.GOLD_BLOCK);
-            return;
-        }
-        ConfigLoaderSpigot spigotConfig = (ConfigLoaderSpigot) config;
 
-        if (spigotConfig.enableRedstone())
+        if (plugin.getConfigLoader().enableRedstone())
         {
             register();
-            powerBlockTypes.addAll(spigotConfig.powerBlockTypes());
+            powerBlockTypes.addAll(plugin.getConfigLoader().powerBlockTypes());
             return;
         }
         unregister();

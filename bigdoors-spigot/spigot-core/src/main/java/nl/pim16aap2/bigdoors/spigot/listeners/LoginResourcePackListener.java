@@ -1,9 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -54,16 +51,7 @@ public class LoginResourcePackListener extends Restartable implements Listener
     @Override
     public void restart()
     {
-        IConfigLoader config = plugin.getConfigLoader();
-        if (!(config instanceof ConfigLoaderSpigot))
-        {
-            PLogger.get().logException(new IllegalStateException(
-                "Config loader is not a Spigot config loader! Cannot find resource pack!"));
-            return;
-        }
-        ConfigLoaderSpigot spigotConfig = (ConfigLoaderSpigot) config;
-
-        if (spigotConfig.enableRedstone())
+        if (plugin.getConfigLoader().enableRedstone())
             register();
         else
             unregister();

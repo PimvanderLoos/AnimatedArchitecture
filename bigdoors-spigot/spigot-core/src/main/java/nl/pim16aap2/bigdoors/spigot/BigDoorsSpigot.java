@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.spigot;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -136,7 +135,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private AutoCloseScheduler autoCloseScheduler;
     private HeadManager headManager;
     private UpdateManager updateManager;
-    private DoorManager doorManager;
     private PowerBlockManager powerBlockManager;
     private boolean successfulInit = true;
     private AbortableTaskManager abortableTaskManager;
@@ -204,12 +202,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                 return;
             }
 
-            doorManager = DoorManager.init(this);
+            DoorManager.init(this);
             tf = new ToolVerifier(messages, this);
             vaultManager = VaultManager.init(this);
             autoCloseScheduler = AutoCloseScheduler.init(this);
 
-            headManager = HeadManager.init(this, (ConfigLoaderSpigot) getConfigLoader());
+            headManager = HeadManager.init(this, getConfigLoader());
 
             Bukkit.getPluginManager().registerEvents(new EventListeners(this), this);
             Bukkit.getPluginManager().registerEvents(new GUIListener(this), this);
@@ -277,7 +275,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
     }
 
-    private final void loadCommands()
+    private void loadCommands()
     {
         commandManager = new CommandManager(this);
         SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
@@ -361,7 +359,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public @NotNull IChunkManager getChunkManager()
+    @NotNull
+    public IChunkManager getChunkManager()
     {
         return chunkManager;
     }
@@ -409,7 +408,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      * {@inheritDoc}
      */
     @Override
-    public @NotNull IMessagingInterface getMessagingInterface()
+    @NotNull
+    public IMessagingInterface getMessagingInterface()
     {
         return messagingInterface;
     }
@@ -632,7 +632,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      */
     @Override
     @NotNull
-    public IConfigLoader getConfigLoader()
+    public ConfigLoaderSpigot getConfigLoader()
     {
         return config;
     }
