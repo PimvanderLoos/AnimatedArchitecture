@@ -214,39 +214,53 @@ public final class Util
     /**
      * Try to convert a string to a double. Use the default value in case of failure.
      *
-     * @param input      The string to be converted to a double.
-     * @param defaultVal The value that is to be used as backup.
+     * @param input The string to be converted to a double.
      * @return Double converted from the string if possible, and defaultVal otherwise.
      */
-    public static double doubleFromString(String input, double defaultVal)
+    public static Pair<Boolean, Double> doubleFromString(String input)
     {
+        boolean isDouble = false;
+        double value = 0;
+
         try
         {
-            return input == null ? defaultVal : Double.parseDouble(input);
+            if (input != null)
+            {
+                value = Double.parseDouble(input);
+                isDouble = true;
+            }
         }
-        catch (NumberFormatException e)
+        catch (final NumberFormatException unhandled)
         {
-            return defaultVal;
+            // This exception doesn't need to be handled, as it means the default values will be returned.
         }
+        return new Pair<>(isDouble, value);
     }
 
     /**
      * Try to convert a string to a long. Use the default value in case of failure.
      *
-     * @param input      The string to be converted to a long.
-     * @param defaultVal The value that is to be used as backup.
+     * @param input The string to be converted to a long.
      * @return Long converted from the string if possible, and defaultVal otherwise.
      */
-    public static long longFromString(String input, long defaultVal)
+    public static Pair<Boolean, Long> longFromString(final String input)
     {
+        boolean isLong = false;
+        long value = 0;
+
         try
         {
-            return input == null ? defaultVal : Long.parseLong(input);
+            if (input != null)
+            {
+                value = Long.parseLong(input);
+                isLong = true;
+            }
         }
-        catch (NumberFormatException e)
+        catch (final NumberFormatException unhandled)
         {
-            return defaultVal;
+            // This exception doesn't need to be handled, as it means the default values will be returned.
         }
+        return new Pair<>(isLong, value);
     }
 
     /**

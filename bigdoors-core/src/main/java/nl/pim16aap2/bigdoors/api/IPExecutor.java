@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 /**
  * Represents an interface that allows scheduling (a)sync tasks.
  *
+ * @param <T> Object type used for the supplier methods.
  * @author Pim
  */
 public interface IPExecutor<T>
@@ -60,8 +61,9 @@ public interface IPExecutor<T>
      * @param timerTask The task to run.
      * @param delay     The delay in ticks before the task is to be executed.
      * @param period    The time in ticks between successive task executions.
+     * @return The ID of the task.
      */
-    void runAsyncRepeated(final @NotNull TimerTask timerTask, final int delay, final int period);
+    int runAsyncRepeated(final @NotNull TimerTask timerTask, final int delay, final int period);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run on the main thread.
@@ -69,8 +71,9 @@ public interface IPExecutor<T>
      * @param timerTask The task to run.
      * @param delay     The delay in ticks before the task is to be executed.
      * @param period    The time in ticks between successive task executions.
+     * @return The ID of the task.
      */
-    void runSyncRepeated(final @NotNull TimerTask timerTask, final int delay, final int period);
+    int runSyncRepeated(final @NotNull TimerTask timerTask, final int delay, final int period);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run asynchronously.
@@ -87,4 +90,12 @@ public interface IPExecutor<T>
      * @param delay     The delay in ticks before the task is to be executed.
      */
     void runSyncLater(final @NotNull TimerTask timerTask, final int delay);
+
+    /**
+     * Cancels a task.
+     *
+     * @param timerTask The task that is to be cancelled.
+     * @param taskID    The ID assigned to the task.
+     */
+    void cancel(final @NotNull TimerTask timerTask, final int taskID);
 }

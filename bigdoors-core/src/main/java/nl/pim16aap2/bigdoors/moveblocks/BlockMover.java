@@ -52,6 +52,7 @@ public abstract class BlockMover implements IRestartable
     protected final IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
     @Nullable
     protected TimerTask moverTask = null;
+    protected int moverTaskID = 0;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -130,7 +131,7 @@ public abstract class BlockMover implements IRestartable
     public void abort()
     {
         if (moverTask != null)
-            moverTask.cancel();
+            BigDoors.get().getPlatform().newPExecutor().cancel(moverTask, moverTaskID);
         putBlocks(true);
     }
 

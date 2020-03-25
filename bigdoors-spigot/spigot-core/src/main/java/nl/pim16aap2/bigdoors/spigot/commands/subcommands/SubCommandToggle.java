@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorActionEventSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -89,14 +90,23 @@ public class SubCommandToggle extends SubCommand
         // First try to get a long from the last string. If it's successful, it must be a door UID.
         // If it isn't successful (-1), try to get parse it as a double. If that is successful, it
         // must be the speed. If that isn't successful either (0.0), it must be a door name.
-        long lastUID = Util.longFromString(lastStr, -1L);
-        double time = lastUID == -1L ? Util.doubleFromString(lastStr, 0.0D) : 0.0D;
+        final @NotNull Pair<Boolean, Long> lastUID = Util.longFromString(lastStr);
+
+        double time = 0.0d;
+        if (!lastUID.key())
+        {
+            final @NotNull Pair<Boolean, Double> timeVal = Util.doubleFromString(lastStr);
+            if (timeVal.key())
+                time = timeVal.value();
+        }
+
         int index = args.length;
         // If the time variable was specified, decrement endIDX by 1, as the last argument is not a door!
         if (time != 0.0D)
             --index;
         final int doorCount = index;
 
+        double finalTime = time;
         return CompletableFuture.supplyAsync(
             () ->
             {
@@ -113,7 +123,7 @@ public class SubCommandToggle extends SubCommand
                         plugin.getPLogger().logException(e, "Failed to obtain door \"" + args[currentPos] + "\"");
                     }
                 }
-                return time;
+                return finalTime;
             });
     }
 

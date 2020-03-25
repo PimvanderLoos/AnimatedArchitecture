@@ -151,7 +151,7 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
                                                                           ((CraftWorld) bukkitWorld).getHandle());
                     magmaCube.setLocation(x + 0.5, y, z + 0.5, 0, 0);
                     magmaCube.setSize(2, true);
-                    magmaCube.setFlag(6, true); //Glowing
+                    magmaCube.h(true); //Glowing
                     magmaCube.setNoGravity(true);
                     magmaCube.setInvisible(true);
                     magmaCube.setNoAI(true);

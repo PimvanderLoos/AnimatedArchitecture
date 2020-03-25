@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -272,8 +273,9 @@ public class GarageDoorMover extends BlockMover
                     for (PBlockData block : savedBlocks)
                         block.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
-                    BigDoors.get().getPlatform().newPExecutor().runSync(() -> putBlocks(false));
-                    cancel();
+                    final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
+                    executor.runSync(() -> putBlocks(false));
+                    executor.cancel(this, moverTaskID);
                 }
                 else
                 {
@@ -286,7 +288,7 @@ public class GarageDoorMover extends BlockMover
                 }
             }
         };
-        BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
+        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 
     /**

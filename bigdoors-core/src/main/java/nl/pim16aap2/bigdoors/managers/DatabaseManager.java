@@ -10,13 +10,16 @@ import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -199,15 +202,23 @@ public final class DatabaseManager extends Restartable
      * if one was provided.
      *
      * @param playerUUID The {@link UUID} of the payer.
-     * @param name       The name of the {@link AbstractDoorBase} to search for. Can be null.
+     * @param name       The name or the UID of the {@link AbstractDoorBase} to search for. Can be null.
      * @return All {@link AbstractDoorBase} owned by a player with a specific name.
      */
     @NotNull
     public CompletableFuture<Optional<List<AbstractDoorBase>>> getDoors(final @NotNull UUID playerUUID,
                                                                         final @Nullable String name)
     {
+        // Check if the name is actually the UID of the door.
+        final @NotNull Pair<Boolean, Long> doorID = Util.longFromString(name);
+        if (doorID.key())
+            return CompletableFuture
+                .supplyAsync(() -> db.getDoor(playerUUID, doorID.value()).map(Collections::singletonList),
+                             threadPool);
+
         return name == null ? getDoors(playerUUID) :
                CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name), threadPool);
+
     }
 
     /**

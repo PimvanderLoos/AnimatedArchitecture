@@ -368,7 +368,7 @@ public class CommandManager implements CommandExecutor
                         plugin.getPLogger().logException(e);
                         doors = Optional.empty();
                     }
-                    if (!doors.isPresent() || doors.get().size() == 0)
+                    if (!doors.isPresent() || doors.get().isEmpty())
                     {
                         handleException(new NotEnoughDoorsException(), sender, cmd, args);
                         return Optional.empty();

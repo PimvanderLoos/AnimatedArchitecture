@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,14 +60,6 @@ public final class PExecutorSpigot<T> implements IPExecutor<T>
     public synchronized void runOnMainThread(final @NotNull Runnable runnable)
     {
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, runnable);
-        BukkitRunnable x = new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-
-            }
-        };
     }
 
     /**
@@ -114,18 +105,20 @@ public final class PExecutorSpigot<T> implements IPExecutor<T>
      * {@inheritDoc}
      */
     @Override
-    public void runAsyncRepeated(final @NotNull TimerTask timerTask, int delay, int period)
+    public int runAsyncRepeated(final @NotNull TimerTask timerTask, int delay, int period)
     {
-        Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, timerTask, delay, period);
+        // This is deprecated only because the name is supposedly confusing
+        // (one might read it as scheduling "a sync" task).
+        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, timerTask, delay, period);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void runSyncRepeated(final @NotNull TimerTask timerTask, int delay, int period)
+    public int runSyncRepeated(final @NotNull TimerTask timerTask, int delay, int period)
     {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, timerTask, delay, period);
+        return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, timerTask, delay, period);
     }
 
     /**
@@ -144,5 +137,15 @@ public final class PExecutorSpigot<T> implements IPExecutor<T>
     public void runSyncLater(final @NotNull TimerTask timerTask, int delay)
     {
         Bukkit.getScheduler().runTaskLater(plugin, timerTask, delay);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cancel(final @NotNull TimerTask timerTask, final int taskID)
+    {
+        timerTask.cancel();
+        Bukkit.getScheduler().cancelTask(taskID);
     }
 }
