@@ -282,7 +282,8 @@ public class CylindricalMover implements BlockMover
                 {
                     plugin.getCommander().setDoorAvailable(door.getDoorUID());
                     Bukkit.getPluginManager()
-                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE)));
+                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE),
+                                                          instantOpen));
 
                     if (door.isOpen())
                         plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);

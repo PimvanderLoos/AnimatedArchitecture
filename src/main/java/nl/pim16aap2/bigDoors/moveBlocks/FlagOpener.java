@@ -107,15 +107,14 @@ public class FlagOpener implements Opener
         }
 
 //        // THIS TYPE IS NOT ENABLED!
-//        DoorEventToggleStart event = new DoorEventToggleStart(door, ToggleType.STATIC);
-//        Bukkit.getPluginManager().callEvent(event);
-//        if (event.isCancelled())
+//        if (fireDoorEventTogglePrepare(door, false))
 //            return DoorOpenResult.CANCELLED;
 //
 //        // Change door availability so it cannot be opened again (just temporarily, don't worry!).
 //        plugin.getCommander().setDoorBusy(door.getDoorUID());
 //
 //        plugin.getCommander().addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door));
+//        fireDoorEventToggleStart(door, false);
 
         return DoorOpenResult.SUCCESS;
     }
