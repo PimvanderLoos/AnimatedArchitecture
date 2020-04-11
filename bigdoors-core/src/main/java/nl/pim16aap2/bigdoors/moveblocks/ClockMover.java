@@ -56,12 +56,13 @@ public class ClockMover extends WindmillMover
      * Override tickRate to be once per second. It's a clock, it doesn't move wildly (or shouldn't, at least) and
      * therefor doesn't need as frequent updating.
      */
-    private static final int tickRate = 1; // TODO: Set this to 20 or something.
+    private static final int tickRate = 1;
 
     public ClockMover(final @NotNull HorizontalAxisAlignedBase door, final @NotNull RotateDirection rotateDirection,
                       final @Nullable IPPlayer player)
     {
         super(door, 0.0D, 0.0D, rotateDirection, player);
+        BigDoors.get().getMessagingInterface().messagePlayer(player, "NS: " + NS);
         isLittleHand = NS ? this::isLittleHandNS : this::isLittleHandEW;
     }
 
@@ -74,7 +75,7 @@ public class ClockMover extends WindmillMover
     {
         // If NS, the clock rotates along the z axis (north south), so the hands are distributed along the x axis.
         // The engine location determines what the front side of the clock is and the little hand is the front side.
-        return block.getStartLocation().getX() == door.getEngine().getX();
+        return (int) block.getStartLocation().getX() == door.getEngine().getX();
     }
 
     /**
@@ -86,7 +87,7 @@ public class ClockMover extends WindmillMover
     {
         // If NS, the clock rotates along the z axis (north south), so the hands are distributed along the x axis.
         // The engine location determines what the front side of the clock is and the little hand is the front side.
-        return block.getStartLocation().getZ() == door.getEngine().getZ();
+        return (int) block.getStartLocation().getZ() == door.getEngine().getZ();
     }
 
     /**
@@ -98,7 +99,7 @@ public class ClockMover extends WindmillMover
         super.moverTask = new TimerTask()
         {
             long counter = 0;
-            int endCount = (int) (20 / tickRate * time) * 400;
+            int endCount = (int) (20.0f / tickRate * time) * 400;
             // Add a half a second or the smallest number of ticks closest to it to the timer
             // to make sure the animation doesn't jump at the end.
             int totalTicks = endCount + Math.max(1, 10 / tickRate);
@@ -156,7 +157,7 @@ public class ClockMover extends WindmillMover
                             double timeAngle = littleHand ? hourAngle : minuteAngle;
                             Vector3Dd vec = getVector.apply(block, timeAngle)
                                                      .subtract(block.getFBlock().getPosition());
-                            vec.multiply(0.101);
+                            vec.multiply(0.03);
                             block.getFBlock().setVelocity(vec);
                         }
                     }
