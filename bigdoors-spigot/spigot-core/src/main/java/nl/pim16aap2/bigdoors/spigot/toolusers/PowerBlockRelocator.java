@@ -1,15 +1,18 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IGlowingBlock;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a user relocating the power block of a {@link AbstractDoorBase}.
@@ -23,14 +26,22 @@ public class PowerBlockRelocator extends ToolUser
     private final Vector3Di oldLoc;
     @NotNull
     private final AbstractDoorBase door;
+    @Nullable
+    private final IGlowingBlock glowingBlock;
 
     public PowerBlockRelocator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
-                               final @NotNull AbstractDoorBase door, final @NotNull Vector3Di oldLoc)
+                               final @NotNull AbstractDoorBase door, final @NotNull Vector3Di oldLoc,
+                               final int time)
     {
         super(plugin, player);
         this.door = door;
         this.oldLoc = oldLoc;
         giveToolToPlayer();
+
+        glowingBlock = plugin.getGlowingBlockSpawner()
+                             .spawnGlowinBlock(SpigotAdapter.wrapPlayer(player), player.getWorld().getUID(), time,
+                                               door.getPowerBlockLoc().getX(), door.getPowerBlockLoc().getY(),
+                                               door.getPowerBlockLoc().getZ(), PColor.GOLD);
     }
 
     /**
@@ -80,8 +91,12 @@ public class PowerBlockRelocator extends ToolUser
         }
         newLoc = loc;
         setIsDone(true);
+
+        if (glowingBlock != null)
+            glowingBlock.kill();
+
         plugin.getGlowingBlockSpawner()
               .spawnGlowinBlock(pPlayer, loc.getWorld().getUID(), 10, loc.getBlockX(),
-                                loc.getBlockY(), loc.getBlockZ(), PColor.GREEN);
+                                loc.getBlockY(), loc.getBlockZ(), PColor.GOLD);
     }
 }

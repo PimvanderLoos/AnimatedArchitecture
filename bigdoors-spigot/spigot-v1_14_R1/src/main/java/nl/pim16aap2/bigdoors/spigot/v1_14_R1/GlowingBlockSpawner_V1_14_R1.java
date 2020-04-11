@@ -5,6 +5,7 @@ import net.minecraft.server.v1_14_R1.EntityTypes;
 import net.minecraft.server.v1_14_R1.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_14_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_14_R1.PlayerConnection;
+import nl.pim16aap2.bigdoors.api.IGlowingBlock;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
@@ -21,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -110,25 +112,27 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(final @NotNull IPPlayer player, final @NotNull UUID world, final long time,
-                                 final double x, final double y, final double z)
+    @Nullable
+    public IGlowingBlock spawnGlowinBlock(final @NotNull IPPlayer player, final @NotNull UUID world, final int time,
+                                          final double x, final double y, final double z)
     {
-        spawnGlowinBlock(player, world, time, x, y, z, PColor.WHITE);
+        return spawnGlowinBlock(player, world, time, x, y, z, PColor.WHITE);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final long time,
-                                 final double x, final double y, final double z, final @NotNull PColor pColor)
+    @Nullable
+    public IGlowingBlock spawnGlowinBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,
+                                          final double x, final double y, final double z, final @NotNull PColor pColor)
     {
 
         final ChatColor color = SpigotUtil.toBukkitColor(pColor);
         if (!teams.containsKey(color))
         {
             plogger.logException(new IllegalArgumentException("Unsupported color: " + color.name()));
-            return;
+            return null;
         }
 
         final Player player = Bukkit.getPlayer(pPlayer.getUUID());
@@ -137,7 +141,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
         {
             plogger.logException(new NullPointerException(),
                                  (player == null ? "Player" : "bukkitWorld") + " unexpectedly null!");
-            return;
+            return null;
         }
 
         new java.util.Timer().schedule(
@@ -181,5 +185,6 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
                 }
             }, 0
         );
+        return null;
     }
 }

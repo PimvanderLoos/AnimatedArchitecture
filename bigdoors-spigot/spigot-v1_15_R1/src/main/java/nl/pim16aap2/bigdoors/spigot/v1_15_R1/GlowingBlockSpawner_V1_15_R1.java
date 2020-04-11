@@ -1,11 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import net.minecraft.server.v1_15_R1.EntityMagmaCube;
-import net.minecraft.server.v1_15_R1.EntityTypes;
-import net.minecraft.server.v1_15_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntityLiving;
-import net.minecraft.server.v1_15_R1.PlayerConnection;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IGlowingBlock;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
@@ -16,15 +12,15 @@ import nl.pim16aap2.bigdoors.util.Restartable;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.UUID;
 
 /**
@@ -35,8 +31,13 @@ import java.util.UUID;
  */
 public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowingBlockSpawner
 {
-    private final Map<ChatColor, Team> teams;
+    @Nullable
+    private static GlowingBlockSpawner_V1_15_R1 instance;
+    @NotNull
+    private final Map<PColor, Team> teams;
+    @NotNull
     private final Scoreboard scoreboard;
+    @NotNull
     private final PLogger plogger;
 
     /**
@@ -46,13 +47,40 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
      *                object.
      * @param plogger The logger object to log to.
      */
-    public GlowingBlockSpawner_V1_15_R1(final @NotNull IRestartableHolder holder, final @NotNull PLogger plogger)
+    private GlowingBlockSpawner_V1_15_R1(final @NotNull IRestartableHolder holder, final @NotNull PLogger plogger)
     {
         super(holder);
         this.plogger = plogger;
-        teams = new EnumMap<>(ChatColor.class);
+        teams = new EnumMap<>(PColor.class);
         scoreboard = org.bukkit.Bukkit.getServer().getScoreboardManager().getMainScoreboard();
         init();
+    }
+
+    /**
+     * Obtains the instance of this class.
+     *
+     * @return The instance of this class.
+     */
+    @Nullable
+    public static GlowingBlockSpawner_V1_15_R1 get()
+    {
+        return instance;
+    }
+
+    /**
+     * Initializes the {@link GlowingBlockSpawner_V1_15_R1}. If it has already been initialized, it'll return that
+     * instance instead.
+     *
+     * @param holder  The holder of this restartable. I.e., the object that manages the restarting / stopping of this
+     *                object.
+     * @param plogger The logger object to log to.
+     * @return The instance of this {@link GlowingBlockSpawner_V1_15_R1}.
+     */
+    @NotNull
+    public static GlowingBlockSpawner_V1_15_R1 init(final @NotNull IRestartableHolder holder,
+                                                    final @NotNull PLogger plogger)
+    {
+        return instance == null ? instance = new GlowingBlockSpawner_V1_15_R1(holder, plogger) : instance;
     }
 
     /**
@@ -60,16 +88,15 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
      */
     private void init()
     {
-        for (final ChatColor col : ChatColor.values())
-            if (col.isColor())
-                try
-                {
-                    registerTeam(col);
-                }
-                catch (Exception e)
-                {
-                    plogger.logException(e, "Failed to register color: " + col.name());
-                }
+        for (final PColor col : PColor.values())
+            try
+            {
+                registerTeam(col);
+            }
+            catch (Exception e)
+            {
+                plogger.logException(e, "Failed to register color: " + col.name());
+            }
     }
 
     /**
@@ -77,14 +104,15 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
      *
      * @param color The color to register the team for.
      */
-    private void registerTeam(final @NotNull ChatColor color)
+    private void registerTeam(final @NotNull PColor color)
     {
+        final @NotNull ChatColor chatColor = SpigotUtil.toBukkitColor(color);
         final String name = "BigDoors" + color.ordinal();
         // Try to get an existing team, in case something had gone wrong unregistering them last time.
         Team team = scoreboard.getTeam(name);
         if (team == null)
             team = scoreboard.registerNewTeam(name);
-        team.setColor(color);
+        team.setColor(chatColor);
         team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
         teams.put(color, team);
     }
@@ -111,79 +139,51 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(final @NotNull IPPlayer player, final @NotNull UUID world, final long time,
-                                 final double x, final double y, final double z)
+    @Nullable
+    public IGlowingBlock spawnGlowinBlock(final @NotNull IPPlayer player, final @NotNull UUID world, final int time,
+                                          final double x, final double y, final double z)
     {
-        spawnGlowinBlock(player, world, time, x, y, z, PColor.WHITE);
+        return spawnGlowinBlock(player, world, time, x, y, z, PColor.WHITE);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void spawnGlowinBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final long time,
-                                 final double x, final double y, final double z, final @NotNull PColor pColor)
+    @Nullable
+    public IGlowingBlock spawnGlowinBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,
+                                          final double x, final double y, final double z, final @NotNull PColor color)
     {
-        final ChatColor color = SpigotUtil.toBukkitColor(pColor);
-        if (!teams.containsKey(color))
-        {
-            plogger.logException(new IllegalArgumentException("Unsupported color: " + color.name()));
-            return;
-        }
-
         final Player player = Bukkit.getPlayer(pPlayer.getUUID());
         final World bukkitWorld = Bukkit.getWorld(world);
         if (player == null || bukkitWorld == null)
         {
             plogger.logException(new NullPointerException(),
                                  (player == null ? "Player" : "bukkitWorld") + " unexpectedly null!");
-            return;
+            return null;
         }
 
-        new java.util.Timer().schedule(
-            new java.util.TimerTask()
+        final IGlowingBlock glowingBlock = new GlowingBlock_V1_15_R1(player, bukkitWorld, color, x, y, z);
+        BigDoors.get().getPlatform().newPExecutor().runSyncLater(new TimerTask()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
-                {
-                    final PlayerConnection playerConnection = ((CraftPlayer) player).getHandle().playerConnection;
-                    final EntityMagmaCube glowingBlockEntity =
-                        new EntityMagmaCube(EntityTypes.MAGMA_CUBE, ((CraftWorld) bukkitWorld).getHandle());
+                glowingBlock.kill();
+            }
+        }, time * 20);
 
-                    glowingBlockEntity.setLocation(x + 0.5, y, z + 0.5, 0, 0);
-                    glowingBlockEntity.setHeadRotation(0);
-                    glowingBlockEntity.setInvisible(true);
-                    glowingBlockEntity.setInvulnerable(true);
-                    glowingBlockEntity.setNoAI(true);
-                    glowingBlockEntity.setSilent(true);
-                    glowingBlockEntity.setFlag(6, true); // Glowing
-                    glowingBlockEntity.setFlag(5, true); // Invisible
-                    glowingBlockEntity.setSize(2, true);
-                    teams.get(color).addEntry(glowingBlockEntity.getName());
+        return glowingBlock;
+    }
 
-                    final PacketPlayOutSpawnEntityLiving spawnGlowingBlock =
-                        new PacketPlayOutSpawnEntityLiving(glowingBlockEntity);
-                    playerConnection.sendPacket(spawnGlowingBlock);
-
-                    final PacketPlayOutEntityMetadata entityMetadata =
-                        new PacketPlayOutEntityMetadata(glowingBlockEntity.getId(),
-                                                        glowingBlockEntity.getDataWatcher(), false);
-                    playerConnection.sendPacket(entityMetadata);
-
-                    new java.util.Timer().schedule(
-                        new java.util.TimerTask()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                final PacketPlayOutEntityDestroy killMagmaCube =
-                                    new PacketPlayOutEntityDestroy(glowingBlockEntity.getId());
-                                playerConnection.sendPacket(killMagmaCube);
-                                cancel();
-                            }
-                        }, time * 1000);
-                    cancel();
-                }
-            }, 0);
+    /**
+     * Gets all the registered teams.
+     *
+     * @return All the registered teams.
+     */
+    @NotNull
+    Map<PColor, Team> getTeams()
+    {
+        return teams;
     }
 }
