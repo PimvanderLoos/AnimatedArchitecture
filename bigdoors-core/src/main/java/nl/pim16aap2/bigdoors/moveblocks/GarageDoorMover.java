@@ -260,7 +260,7 @@ public class GarageDoorMover extends BlockMover
         {
             double counter = 0;
             final int endCount = (int) (20.0f / tickRate * time);
-            final int totalTicks = endCount + (int) Math.ceil(16.0f / tickRate);
+            final int totalTicks = endCount + (int) Math.ceil(50.0f / tickRate);
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
