@@ -211,8 +211,8 @@ public class BigDoors extends JavaPlugin implements Listener
     }
 
     private void registerCommand(String command)
-    {   // TODO: Don't register a billion new CommandHandlers here. It makes no sense.
-        getCommand(command).setExecutor(new CommandHandler(this)); 
+    { // TODO: Don't register a billion new CommandHandlers here. It makes no sense.
+        getCommand(command).setExecutor(new CommandHandler(this));
     }
 
     private void init()
@@ -234,7 +234,7 @@ public class BigDoors extends JavaPlugin implements Listener
             Bukkit.getPluginManager().registerEvents(redstoneHandler, this);
         }
 
-        if (!config.resourcePackEnabled())
+        if (config.resourcePackEnabled())
         {
             // If a resource pack was set for the current version of Minecraft, send that
             // pack to the client on login.
