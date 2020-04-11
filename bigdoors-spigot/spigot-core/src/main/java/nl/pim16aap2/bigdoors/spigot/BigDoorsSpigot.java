@@ -115,10 +115,11 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private static long MAINTHREADID = -1;
     @NotNull
     private static final BigDoors BIGDOORS = BigDoors.get();
+    
+    private final PLogger pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
 
     private ToolVerifier tf;
     private ConfigLoaderSpigot config;
-    private PLogger pLogger;
     private Metrics metrics;
     private Messages messages;
     private DatabaseManager databaseManager = null;
@@ -164,7 +165,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     {
         INSTANCE = this;
         BIGDOORS.setBigDoorsPlatform(this);
-        pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
         MAINTHREADID = Thread.currentThread().getId();
 
         try

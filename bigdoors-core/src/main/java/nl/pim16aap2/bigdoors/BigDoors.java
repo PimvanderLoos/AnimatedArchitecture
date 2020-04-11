@@ -119,6 +119,7 @@ import org.jetbrains.annotations.Nullable;
 // TODO: ICustomEntityFallingBlock: Clean this damn class up!
 // TODO: Look into restartables interface. Perhaps it's a good idea to split restart() into stop() and init().
 //       This way, it can call all init()s in BigDoors::onEnable and all stop()s in BigDoors::onDisable.
+// TODO: Make GlowingBlockSpawner restartable. Upon restarting the plugin, all glowing blocks have to be removed.
 // TODO: Store PBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
 //       Alternatively, merge PBlockFace and RotateDirection into Direction.
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
@@ -211,6 +212,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
 // TODO: Add a "folder" column to the sqlUnion table. This would allow users to organize doors into different folders.
 // TODO: Store UUIDs as 16 byte binary blobs to save space: https://stackoverflow.com/a/17278095
+// TODO: Move database upgrades out of the main SQL class. Perhaps create some kind of upgrade routine interface. 
 
 /*
  * Commands

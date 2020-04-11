@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 import net.minecraft.server.v1_15_R1.EntityMagmaCube;
 import net.minecraft.server.v1_15_R1.EntityTypes;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_15_R1.PlayerConnection;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
@@ -123,7 +124,6 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
     public void spawnGlowinBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final long time,
                                  final double x, final double y, final double z, final @NotNull PColor pColor)
     {
-
         final ChatColor color = SpigotUtil.toBukkitColor(pColor);
         if (!teams.containsKey(color))
         {
@@ -146,23 +146,29 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
                 @Override
                 public void run()
                 {
-                    final PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-                    final EntityMagmaCube magmaCube = new EntityMagmaCube(EntityTypes.MAGMA_CUBE,
-                                                                          ((CraftWorld) bukkitWorld).getHandle());
-                    magmaCube.setLocation(x + 0.5, y, z + 0.5, 0, 0);
-                    magmaCube.setSize(2, true);
-                    magmaCube.h(true); //Glowing
-                    magmaCube.setNoGravity(true);
-                    magmaCube.setInvisible(true);
-                    magmaCube.setNoAI(true);
-                    magmaCube.setSilent(true);
-                    magmaCube.setInvulnerable(true);
-                    magmaCube.setHeadRotation(0);
-                    magmaCube.collides = false;
-                    teams.get(color).addEntry(magmaCube.getName());
+                    final PlayerConnection playerConnection = ((CraftPlayer) player).getHandle().playerConnection;
+                    final EntityMagmaCube glowingBlockEntity =
+                        new EntityMagmaCube(EntityTypes.MAGMA_CUBE, ((CraftWorld) bukkitWorld).getHandle());
 
-                    final PacketPlayOutSpawnEntityLiving spawnMagmaCube = new PacketPlayOutSpawnEntityLiving(magmaCube);
-                    connection.sendPacket(spawnMagmaCube);
+                    glowingBlockEntity.setLocation(x + 0.5, y, z + 0.5, 0, 0);
+                    glowingBlockEntity.setHeadRotation(0);
+                    glowingBlockEntity.setInvisible(true);
+                    glowingBlockEntity.setInvulnerable(true);
+                    glowingBlockEntity.setNoAI(true);
+                    glowingBlockEntity.setSilent(true);
+                    glowingBlockEntity.setFlag(6, true); // Glowing
+                    glowingBlockEntity.setFlag(5, true); // Invisible
+                    glowingBlockEntity.setSize(2, true);
+                    teams.get(color).addEntry(glowingBlockEntity.getName());
+
+                    final PacketPlayOutSpawnEntityLiving spawnGlowingBlock =
+                        new PacketPlayOutSpawnEntityLiving(glowingBlockEntity);
+                    playerConnection.sendPacket(spawnGlowingBlock);
+
+                    final PacketPlayOutEntityMetadata entityMetadata =
+                        new PacketPlayOutEntityMetadata(glowingBlockEntity.getId(),
+                                                        glowingBlockEntity.getDataWatcher(), false);
+                    playerConnection.sendPacket(entityMetadata);
 
                     new java.util.Timer().schedule(
                         new java.util.TimerTask()
@@ -170,16 +176,14 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
                             @Override
                             public void run()
                             {
-                                final PacketPlayOutEntityDestroy killMagmaCube = new PacketPlayOutEntityDestroy(
-                                    magmaCube.getId());
-
-                                connection.sendPacket(killMagmaCube);
+                                final PacketPlayOutEntityDestroy killMagmaCube =
+                                    new PacketPlayOutEntityDestroy(glowingBlockEntity.getId());
+                                playerConnection.sendPacket(killMagmaCube);
                                 cancel();
                             }
                         }, time * 1000);
                     cancel();
                 }
-            }, 0
-        );
+            }, 0);
     }
 }
