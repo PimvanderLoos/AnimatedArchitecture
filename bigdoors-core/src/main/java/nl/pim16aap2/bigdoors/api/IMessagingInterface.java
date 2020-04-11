@@ -35,4 +35,11 @@ public interface IMessagingInterface
      * @param message The message.
      */
     void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level, final @NotNull String message);
+
+    /**
+     * Broadcasts a server-wide message.
+     *
+     * @param message The message to broadcast.
+     */
+    void broadcastMessage(final @NotNull String message);
 }

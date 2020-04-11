@@ -48,4 +48,13 @@ public class MessagingInterfaceStdout implements IMessagingInterface
     {
         System.out.println(formattedName + " to a target: " + message);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void broadcastMessage(final @NotNull String message)
+    {
+        System.out.println(message);
+    }
 }

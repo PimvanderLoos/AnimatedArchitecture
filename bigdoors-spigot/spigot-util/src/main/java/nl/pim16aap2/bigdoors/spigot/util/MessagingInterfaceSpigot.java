@@ -60,4 +60,13 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
         else
             writeToConsole(level, ChatColor.stripColor(message));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void broadcastMessage(final @NotNull String message)
+    {
+        Bukkit.broadcastMessage(message);
+    }
 }

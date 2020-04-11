@@ -35,13 +35,14 @@ public class GarageDoorMover extends BlockMover
     private int tickRate;
     private BiFunction<PBlockData, Double, Vector3Dd> getVector;
     private int xLen, yLen, zLen;
+    private boolean NS = false;
 
     public GarageDoorMover(final @NotNull AbstractDoorBase door, final double time, final double multiplier,
                            final boolean skipAnimation, final @NotNull PBlockFace currentDirection,
                            final @NotNull RotateDirection rotateDirection, final @Nullable IPPlayer player,
                            final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax)
     {
-        super(door, 30, skipAnimation, currentDirection, rotateDirection, -1, player, finalMin, finalMax);
+        super(door, time, skipAnimation, currentDirection, rotateDirection, -1, player, finalMin, finalMax);
         this.time = time;
 
         double speed = 1 * multiplier;
@@ -57,6 +58,7 @@ public class GarageDoorMover extends BlockMover
             case NORTH:
                 directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
                 getVectorTmp = this::getVectorDownNorth;
+                NS = true;
                 break;
             case EAST:
                 directionVec = PBlockFace.getDirection(PBlockFace.EAST);
@@ -65,6 +67,7 @@ public class GarageDoorMover extends BlockMover
             case SOUTH:
                 directionVec = PBlockFace.getDirection(PBlockFace.SOUTH);
                 getVectorTmp = this::getVectorDownSouth;
+                NS = true;
                 break;
             case WEST:
                 directionVec = PBlockFace.getDirection(PBlockFace.WEST);
@@ -116,7 +119,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownNorth(final @NotNull PBlockData block, final double stepSum)
     {
-        double goalZ = door.getEngine().getZ() - 0.5;
+        double goalZ = door.getEngine().getZ();
         double pivotZ = goalZ + 1.5;
         double currentZ = Math.max(goalZ, block.getStartZ() - stepSum);
 
@@ -135,7 +138,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownSouth(final @NotNull PBlockData block, final double stepSum)
     {
-        double goalZ = door.getEngine().getZ() - 0.5;
+        double goalZ = door.getEngine().getZ();
         double pivotZ = goalZ - 1.5;
         double currentZ = Math.min(goalZ, block.getStartZ() + stepSum);
 
@@ -153,7 +156,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownEast(final @NotNull PBlockData block, final double stepSum)
     {
-        double goalX = door.getEngine().getX() - 0.5;
+        double goalX = door.getEngine().getX();
         double pivotX = goalX - 1.5;
         double currentX = Math.min(goalX, block.getStartX() + stepSum);
 
@@ -171,31 +174,42 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownWest(final @NotNull PBlockData block, final double stepSum)
     {
-
-        double goalX = door.getEngine().getX() - 0.5;
+        double goalX = door.getEngine().getX();
         double pivotX = goalX + 1.5;
         double currentX = Math.max(goalX, block.getStartX() - stepSum);
 
         double xMod = -stepSum;
         double yMod = 0;
         double zMod = 0;
-        boolean test = false;
 
         if (currentX <= pivotX)
         {
-            test = true;
-
             xMod = Math.max(goalX - block.getStartLocation().getX() + 0.5, xMod);
             yMod = -Math.max(0, stepSum - block.getRadius() + 0.5);
         }
 
-//        SpigotUtil.broadcastMessage(String.format(
-//            "%.5b: goalX: %.2f, pivotX: %.2f, currentX: %.2f, stepSum: %.2f, "
-//                + "yMod: %.2f, xMod: %.2f, radius: %.2f, startX: %.2f, BTM: %.1f, test: %.2f",
-//            test, goalX, pivotX, currentX, stepSum, yMod, xMod, block.getRadius(),
-//            block.getStartX(), getBlocksMoved(), (goalX - block.getStartLocation().getX() + 0.5)));
-
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
+    }
+
+    /**
+     * Gets the vector to the final location for a {@link PBlockData}.
+     *
+     * @param block The {@link PBlockData}.
+     * @return The vector towards the final location for a {@link PBlockData}.
+     */
+    private Vector3Dd getFinalVector(final @NotNull PBlockData block)
+    {
+        final @NotNull IPLocation startLocation = block.getStartLocation();
+        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+                                                            startLocation.getY(), startLocation.getZ());
+        double addX = 0;
+        double addZ = 0;
+        if (door.isOpen()) // The offset isn't needed when going up.
+        {
+            addX = NS ? 0 : 0.5f;
+            addZ = NS ? 0.5f : 0;
+        }
+        return new Vector3Dd(finalLoc.getX() + addX, finalLoc.getY(), finalLoc.getZ() + addZ);
     }
 
     /**
@@ -229,12 +243,6 @@ public class GarageDoorMover extends BlockMover
             newY -= 2;
         }
         return locationFactory.create(world, newX, newY, newZ);
-
-
-//        Location newLoc = new Location(world, newX, newY, newZ);
-//        newLoc.getBlock().setType(Material.LAPIS_BLOCK);
-//        SpigotUtil.broadcastMessage("newLoc: " + SpigotUtil.locIntToString(newLoc));
-//        return new Location(world, xAxis, yAxis, zAxis);
     }
 
     private double getBlocksMoved()
@@ -251,12 +259,12 @@ public class GarageDoorMover extends BlockMover
         super.moverTask = new TimerTask()
         {
             double counter = 0;
-            int endCount = (int) (20 / tickRate * time);
-            int totalTicks = (int) (endCount * 1.1);
+            final int endCount = (int) (20.0f / tickRate * time);
+            final int totalTicks = endCount + (int) Math.ceil(16.0f / tickRate);
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
-            double step = getBlocksMoved() / endCount;
+            final double step = getBlocksMoved() / ((float) endCount);
             double stepSum = 0;
 
             @Override
@@ -277,12 +285,20 @@ public class GarageDoorMover extends BlockMover
                     executor.runSync(() -> putBlocks(false));
                     executor.cancel(this, moverTaskID);
                 }
+                else if (counter > endCount)
+                {
+                    for (final PBlockData block : savedBlocks)
+                    {
+                        Vector3Dd vec = getFinalVector(block).subtract(block.getFBlock().getPosition());
+                        block.getFBlock().setVelocity(vec.multiply(0.101));
+                    }
+                }
                 else
                 {
                     stepSum = counter * step;
-                    for (PBlockData block : savedBlocks)
+                    for (final PBlockData block : savedBlocks)
                     {
-                        Vector3Dd vec = getVector.apply(block, counter).subtract(block.getFBlock().getPosition());
+                        Vector3Dd vec = getVector.apply(block, stepSum).subtract(block.getFBlock().getPosition());
                         block.getFBlock().setVelocity(vec.multiply(0.101));
                     }
                 }

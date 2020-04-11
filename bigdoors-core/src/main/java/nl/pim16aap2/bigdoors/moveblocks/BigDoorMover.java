@@ -96,11 +96,11 @@ public class BigDoorMover extends BlockMover
                                                        turningPoint.getZ() + 0.5);
             boolean replace = false;
             double counter = 0;
-            int endCount = (int) (20 / tickRate * time);
-            double step = (Math.PI / 2) / endCount * stepMultiplier;
+            final int endCount = (int) (20.0f / tickRate * time);
+            final double step = (Math.PI / 2) / endCount * stepMultiplier;
             double stepSum = startStepSum;
-            int totalTicks = (int) (endCount * multiplier);
-            int replaceCount = endCount / 2;
+            final int totalTicks = (int) (endCount * multiplier);
+            final int replaceCount = endCount / 2;
             Long startTime = null; // Initialize on the first run, for better accuracy.
             long lastTime;
             long currentTime = System.nanoTime();
@@ -112,7 +112,7 @@ public class BigDoorMover extends BlockMover
                     startTime = System.nanoTime();
                 ++counter;
 
-                if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
+                if (counter == 0 || (counter < endCount - 27.0f / tickRate && counter % (5.0f * tickRate / 4.0f) == 0))
                     playSound(PSound.DRAGGING, 0.5f, 0.6f);
 
                 lastTime = currentTime;

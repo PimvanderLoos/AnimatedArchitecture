@@ -27,4 +27,10 @@ public final class TestMessagingInterface implements IMessagingInterface
         System.out.println("Recipient Type: [" + target.getClass().getSimpleName() + "]. Level: [" + level.toString() +
                                "]. Message: " + message);
     }
+
+    @Override
+    public void broadcastMessage(@NotNull String message)
+    {
+        System.out.println(message);
+    }
 }
