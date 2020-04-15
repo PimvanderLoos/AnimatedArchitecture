@@ -113,7 +113,6 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Move AbortableTaskManager and PowerBlockRedstoneManagerSpigot to bigdoors-core.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
-// TODO: Don't overwrite the default language file (and don't make it read-only). Instead, load as many translations as possible and revert to the internal default for any missing ones. Dump some messages in the log.
 // TODO: Move all non-database related stuff out of DatabaseManager.
 // TODO: Rename region bypass permission to bigdoors.admin.bypass.region.
 // TODO: ICustomEntityFallingBlock: Clean this damn class up!
@@ -123,10 +122,11 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Store PBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
 //       Alternatively, merge PBlockFace and RotateDirection into Direction.
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.
-// TODO: ConfigLoader: Use dynamic protection compat listing. Just like how door prices etc are handled.
 // TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
 // TODO: Allow wand material selection in config.
 // TODO: Get rid of code duplication in ProtectionCompatManager.
+// TODO: Force users to register permissions for stuff like the number / max size of doors in the config or something. 
+//       This would make it much more efficient to check the max number/size of doors for a user in most cases.
 // TODO: Make sure permission checking for offline users isn't done on the main thread.
 // TODO: Make timeout for CommandWaiters and Creators configurable and put variable in messages.
 // TODO: Somehow replace the %HOOK% variable in the message of DoorOpenResult.NOPERMISSION.

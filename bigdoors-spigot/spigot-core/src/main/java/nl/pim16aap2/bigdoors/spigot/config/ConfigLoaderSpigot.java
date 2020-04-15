@@ -44,10 +44,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
     private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Collections.singletonList("GOLD_BLOCK"));
     private static final List<String> DEFAULTBLACKLIST = new ArrayList<>();
-    private final String header;
+
+    private final Set<Material> powerBlockTypesMap;
+    private final Set<Material> materialBlacklist;
+    private final Map<ProtectionCompat, Boolean> hooksMap;
     private final List<ConfigEntry<?>> configEntries;
     private final Map<DoorType, String> doorPrices;
     private final Map<DoorType, Double> doorMultipliers;
+
+    private final String header;
     private String dbFile;
     private int coolDown;
     private boolean makeBackup;
@@ -60,9 +65,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private boolean autoDLUpdate;
     private long downloadDelay;
     private boolean enableRedstone;
-    private Set<Material> powerBlockTypesMap;
-    private Set<Material> materialBlacklist;
-    private Map<ProtectionCompat, Boolean> hooksMap;
     private boolean checkForUpdates;
     private int headCacheTimeout;
     private boolean consoleLogging;
