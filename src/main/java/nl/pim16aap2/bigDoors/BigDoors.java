@@ -70,7 +70,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 public class BigDoors extends JavaPlugin implements Listener
 {
     private static BigDoors instance;
-    public static final boolean DEVBUILD = true;
+    public static final boolean DEVBUILD = false;
     private int buildNumber = -1;
 
     public static final int MINIMUMDOORDELAY = 15;
@@ -107,6 +107,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private VaultManager vaultManager;
     private UpdateManager updateManager;
     private static final MCVersion mcVersion = BigDoors.calculateMCVersion();
+    private boolean isEnabled = false;
 
     @Override
     public void onEnable()
@@ -208,6 +209,8 @@ public class BigDoors extends JavaPlugin implements Listener
             exception.printStackTrace();
             logger.logMessage(Util.exceptionToString(exception), true, true);
         }
+
+        isEnabled = true;
     }
 
     private void registerCommand(String command)
@@ -220,7 +223,12 @@ public class BigDoors extends JavaPlugin implements Listener
         if (!validVersion)
             return;
 
-        readConfigValues();
+        // Don't read the config if the plugin hasn't been enabled yet.
+        // In other words: Skip reading the config on the first run (because it's
+        // already read in onEnable).
+        if (isEnabled)
+            readConfigValues();
+
         Util.processConfig(getConfigLoader());
         messages = new Messages(this);
         toolUsers = new HashMap<>();
