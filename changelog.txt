@@ -7,6 +7,7 @@ Alpha 0.1.8.17
 - Fixed default direction selection for doors that are open when toggled first.
 - Added option to disable logging to the log file. Thanks, @SlimeDog for the suggestion!
 - Added DoorEventTogglePrepare, DoorEventToggleStart, and DoorEventToggleEnd, which are fired when a door is toggled. DoorEventTogglePrepare is Cancellable, the other two are not.
+- Fixed some issues with the resource pack system. Including an issue where disabling it actually enabled it and the other way round... Whoops! Thanks, @giovanny196, for the bug report!
 
 Alpha 0.1.8.16
 - Updated to the latest version of XMaterial, which is supposed to bring some performance improvements in the areas concerning materials.
