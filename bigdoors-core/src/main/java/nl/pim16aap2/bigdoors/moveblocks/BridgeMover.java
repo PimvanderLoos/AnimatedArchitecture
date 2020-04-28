@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -17,6 +16,7 @@ import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotWest;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.IGetNewLocation;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.TimerTask;
 import java.util.function.BiFunction;
 
 /**
@@ -37,7 +36,9 @@ public class BridgeMover extends BlockMover
     private final IGetNewLocation gnl;
     protected final boolean NS;
     protected final BiFunction<PBlockData, Double, Vector3Dd> getVector;
-    protected final int tickRate;
+
+    private int halfEndCount;
+    private double step;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -59,11 +60,11 @@ public class BridgeMover extends BlockMover
 
         NS = door.onNorthSouthAxis();
 
-        int xLen = Math.abs(door.getMaximum().getX() - door.getMinimum().getX());
-        int yLen = Math.abs(door.getMaximum().getY() - door.getMinimum().getY());
-        int zLen = Math.abs(door.getMaximum().getZ() - door.getMinimum().getZ());
-        int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-        double[] vars = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
+        final int xLen = Math.abs(door.getMaximum().getX() - door.getMinimum().getX());
+        final int yLen = Math.abs(door.getMaximum().getY() - door.getMinimum().getY());
+        final int zLen = Math.abs(door.getMaximum().getZ() - door.getMinimum().getZ());
+        final int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
+        final double[] vars = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
         this.time = vars[0];
         tickRate = (int) vars[1];
 
@@ -91,10 +92,23 @@ public class BridgeMover extends BlockMover
                 PLogger.get().dumpStackTrace("Failed to open door \"" + getDoorUID()
                                                  + "\". Reason: Invalid rotateDirection \"" +
                                                  rotateDirection.toString() + "\"");
-                return; // TODO: MEMORY LEAK!!
+                return; // TODO: This will cause a memory leak, as this object will never be removed from the list keeping track of movers.
         }
 
-        super.constructFBlocks();
+        init();
+        super.startAnimation();
+    }
+
+    /**
+     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
+     */
+    protected void init()
+    {
+        super.endCount = 20 * (int) super.time;
+        halfEndCount = super.endCount / 2;
+        step = (Math.PI / 2.0f) / super.endCount;
+        super.soundActive = new PSoundDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
+        super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
     /**
@@ -108,10 +122,10 @@ public class BridgeMover extends BlockMover
     private Vector3Dd getVectorNorth(final @NotNull PBlockData block, final double stepSum)
     {
 
-        double startAngle = block.getStartAngle();
-        double posX = block.getFBlock().getPLocation().getX();
-        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
-        double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle - stepSum);
+        final double startAngle = block.getStartAngle();
+        final double posX = block.getFBlock().getPLocation().getX();
+        final double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
+        final double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle - stepSum);
         return new Vector3Dd(posX, posY, posZ + 0.5);
     }
 
@@ -125,10 +139,10 @@ public class BridgeMover extends BlockMover
     @NotNull
     private Vector3Dd getVectorWest(final @NotNull PBlockData block, final double stepSum)
     {
-        double startAngle = block.getStartAngle();
-        double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - stepSum);
-        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
-        double posZ = block.getFBlock().getPLocation().getZ();
+        final double startAngle = block.getStartAngle();
+        final double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - stepSum);
+        final double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
+        final double posZ = block.getFBlock().getPLocation().getZ();
         return new Vector3Dd(posX + 0.5, posY, posZ);
     }
 
@@ -142,10 +156,10 @@ public class BridgeMover extends BlockMover
     @NotNull
     private Vector3Dd getVectorSouth(final @NotNull PBlockData block, final double stepSum)
     {
-        float startAngle = block.getStartAngle();
-        double posX = block.getFBlock().getPLocation().getX();
-        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
-        double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle + stepSum);
+        final float startAngle = block.getStartAngle();
+        final double posX = block.getFBlock().getPLocation().getX();
+        final double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
+        final double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle + stepSum);
         return new Vector3Dd(posX, posY, posZ + 0.5);
     }
 
@@ -159,10 +173,10 @@ public class BridgeMover extends BlockMover
     @NotNull
     private Vector3Dd getVectorEast(final @NotNull PBlockData block, final double stepSum)
     {
-        float startAngle = block.getStartAngle();
-        double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + stepSum);
-        double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
-        double posZ = block.getFBlock().getPLocation().getZ();
+        final float startAngle = block.getStartAngle();
+        final double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + stepSum);
+        final double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
+        final double posZ = block.getFBlock().getPLocation().getZ();
         return new Vector3Dd(posX + 0.5, posY, posZ);
     }
 
@@ -170,67 +184,39 @@ public class BridgeMover extends BlockMover
      * {@inheritDoc}
      */
     @Override
-    protected void animateEntities()
+    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        super.moverTask = new TimerTask()
+        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+                                                            startLocation.getY(), startLocation.getZ());
+        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void executeAnimationStep(final int ticks)
+    {
+        final double stepSum = step * ticks;
+        final boolean replace = ticks == halfEndCount;
+
+        // It is not possible to edit falling block blockdata (client won't update it),
+        // so delete the current fBlock and replace it by one that's been rotated.
+        // Also, this stuff needs to be done on the main thread.
+        if (replace)
+            BigDoors.get().getPlatform().newPExecutor().runSync(this::respawnBlocks);
+        for (final PBlockData block : savedBlocks)
         {
-            boolean replace = false;
-            double counter = 0;
-            int endCount = (int) (20 / tickRate * time);
-            double step = (Math.PI / 2) / endCount;
-            // Add a half a second or the smallest number of ticks closest to it to the timer
-            // to make sure the animation doesn't jump at the end.
-            int totalTicks = endCount + Math.max(1, 10 / tickRate);
-            int replaceCount = endCount / 2;
-            long startTime = System.nanoTime();
-            long lastTime;
-            long currentTime = System.nanoTime();
-
-            @Override
-            public void run()
+            double radius = block.getRadius();
+            if (radius != 0)
             {
-                ++counter;
-                if (counter == 0 || (counter < endCount - (45 / tickRate) && counter % (6 * tickRate / 4) == 0))
-                    playSound(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
-
-                lastTime = currentTime;
-                currentTime = System.nanoTime();
-                startTime += currentTime - lastTime;
-                replace = counter == replaceCount;
-                double stepSum = step * Math.min(counter, endCount);
-
-                if (counter > totalTicks)
-                {
-                    playSound(PSound.THUD, 2f, 0.15f);
-                    for (PBlockData block : savedBlocks)
-                        block.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
-
-                    final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
-                    executor.runSync(() -> putBlocks(false));
-                    executor.cancel(this, moverTaskID);
-                }
-                else
-                {
-                    // It is not possible to edit falling block blockdata (client won't update it),
-                    // so delete the current fBlock and replace it by one that's been rotated.
-                    // Also, this stuff needs to be done on the main thread.
-                    if (replace)
-                        BigDoors.get().getPlatform().newPExecutor().runSync(() -> respawnBlocks());
-                    for (PBlockData block : savedBlocks)
-                    {
-                        double radius = block.getRadius();
-                        if (radius != 0)
-                        {
-                            Vector3Dd vec = getVector.apply(block, stepSum)
-                                                     .subtract(block.getFBlock().getPosition());
-                            vec.multiply(0.101);
-                            block.getFBlock().setVelocity(vec);
-                        }
-                    }
-                }
+                Vector3Dd vec = getVector.apply(block, stepSum)
+                                         .subtract(block.getFBlock().getPosition());
+                vec.multiply(0.101);
+                block.getFBlock().setVelocity(vec);
             }
-        };
-        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
+        }
     }
 
     /**
@@ -241,8 +227,8 @@ public class BridgeMover extends BlockMover
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the Z values does not change.
-        double deltaA = (door.getEngine().getY() - yAxis);
-        double deltaB = NS ? (door.getEngine().getX() - xAxis) : (door.getEngine().getZ() - zAxis);
+        final double deltaA = (door.getEngine().getY() - yAxis);
+        final double deltaB = NS ? (door.getEngine().getX() - xAxis) : (door.getEngine().getZ() - zAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -264,8 +250,8 @@ public class BridgeMover extends BlockMover
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the Z values does not change.
-        float deltaA = NS ? door.getEngine().getX() - xAxis : door.getEngine().getZ() - zAxis;
-        float deltaB = door.getEngine().getY() - yAxis;
+        final float deltaA = NS ? door.getEngine().getX() - xAxis : door.getEngine().getZ() - zAxis;
+        final float deltaB = door.getEngine().getY() - yAxis;
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }
 }

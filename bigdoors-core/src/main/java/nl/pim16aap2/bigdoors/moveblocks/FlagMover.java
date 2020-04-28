@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -13,7 +11,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.TimerTask;
 import java.util.function.BiFunction;
 
 /**
@@ -25,9 +22,8 @@ public class FlagMover extends BlockMover
 {
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
-    private final BiFunction<PBlockData, Double, Vector3Dd> getGoalPos;
+    private final BiFunction<PBlockData, Integer, Vector3Dd> getGoalPos;
     private final boolean NS;
-    private int tickRate;
     private final double period;
     private final double amplitude;
     private final double waveSpeed;
@@ -38,24 +34,34 @@ public class FlagMover extends BlockMover
         super(door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, player, door.getMinimum(),
               door.getMaximum());
 
-        int xLen = Math.abs(xMax - xMin) + 1;
-        int zLen = Math.abs(zMax - zMin) + 1;
+        final int xLen = Math.abs(xMax - xMin) + 1;
+        final int zLen = Math.abs(zMax - zMin) + 1;
         NS = zLen > xLen;
         getGoalPos = NS ? this::getGoalPosNS : this::getGoalPosEW;
 
-        int length = NS ? zLen : xLen;
-        period = length * 2;
+        final int length = NS ? zLen : xLen;
+        period = length * 2.0f;
         amplitude = length / 4.0;
 
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
         this.time = time;
-        tickRate = Util.tickRateFromSpeed(speed);
-        tickRate = 3;
 
-        waveSpeed = tickRate * 10;
+        super.tickRate = Util.tickRateFromSpeed(speed);
+        super.tickRate = 3;
 
-        super.constructFBlocks();
+        waveSpeed = super.tickRate * 10.0f;
+
+        init();
+        super.startAnimation();
+    }
+
+    /**
+     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
+     */
+    protected void init()
+    {
+        super.endCount = 200;
     }
 
     /**
@@ -65,7 +71,7 @@ public class FlagMover extends BlockMover
      * @param radius
      * @return
      */
-    private double getOffset(final double counter, final float radius)
+    private double getOffset(final int counter, final float radius)
     {
 //        double baseOffset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + radius);
 //        double maxVal = 0.25 * radius;
@@ -77,7 +83,7 @@ public class FlagMover extends BlockMover
 //        double maxAmplitude = radius * 0.4;
 
 
-        return Math.min(0.3 * radius, 3.2) * Math.sin(radius / 3 + (counter / 4));
+        return Math.min(0.3 * radius, 3.2) * Math.sin(radius / 3.0 + ((double) counter / 4.0));
 
 //        double offset;
 //        try
@@ -95,7 +101,7 @@ public class FlagMover extends BlockMover
 //        return offset;
     }
 
-    private Vector3Dd getGoalPosNS(final @NotNull PBlockData block, final double counter)
+    private Vector3Dd getGoalPosNS(final @NotNull PBlockData block, final int counter)
     {
         double xOff = 0;
         if (block.getRadius() > 0)
@@ -103,7 +109,7 @@ public class FlagMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xOff, block.getStartY(), block.getStartZ());
     }
 
-    private Vector3Dd getGoalPosEW(final @NotNull PBlockData block, final double counter)
+    private Vector3Dd getGoalPosEW(final @NotNull PBlockData block, final int counter)
     {
         double zOff = 0;
         if (block.getRadius() > 0)
@@ -124,50 +130,30 @@ public class FlagMover extends BlockMover
      * {@inheritDoc}
      */
     @Override
-    protected void animateEntities()
+    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        super.moverTask = new TimerTask()
-        {
-            double counter = 0;
-            int endCount = (int) (20 / tickRate * time) * 20;
-            int totalTicks = (int) (endCount * 1.1);
-            long startTime = System.nanoTime();
-            long lastTime;
-            long currentTime = System.nanoTime();
-
-            @Override
-            public void run()
-            {
-                ++counter;
-                lastTime = currentTime;
-                currentTime = System.nanoTime();
-                startTime += currentTime - lastTime;
-
-                if (counter > totalTicks)
-                {
-                    for (PBlockData block : savedBlocks)
-                        block.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
-
-                    final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
-                    executor.runSync(() -> putBlocks(false));
-                    executor.cancel(this, moverTaskID);
-                }
-                else
-                    for (PBlockData block : savedBlocks)
-                    {
-                        Vector3Dd vec = getGoalPos.apply(block, counter).subtract(block.getFBlock().getPosition());
-                        block.getFBlock().setVelocity(vec.multiply(0.101));
-                    }
-            }
-        };
-        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
+        return block.getStartPosition();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    protected void executeAnimationStep(final int ticks)
+    {
+        final int counter = ticks / tickRate;
+        for (final PBlockData block : savedBlocks)
+        {
+            Vector3Dd vec = getGoalPos.apply(block, counter).subtract(block.getFBlock().getPosition());
+            block.getFBlock().setVelocity(vec.multiply(0.101));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
         if (NS)
             return Math.abs(zAxis - door.getEngine().getZ());

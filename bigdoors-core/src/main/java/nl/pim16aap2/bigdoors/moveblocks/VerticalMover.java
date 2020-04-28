@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -10,14 +8,13 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Elevator;
 import nl.pim16aap2.bigdoors.doors.Portcullis;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.TimerTask;
 
 /**
  * Represents a {@link BlockMover} for {@link Portcullis}'s and {@link Elevator}.
@@ -26,7 +23,10 @@ import java.util.TimerTask;
  */
 public class VerticalMover extends BlockMover
 {
-    private int tickRate;
+    private double step;
+
+    @Nullable
+    private PBlockData firstBlockData = null;
 
     public VerticalMover(final double time, final @NotNull AbstractDoorBase door, final boolean skipAnimation,
                          final int blocksToMove, final double multiplier, final @Nullable IPPlayer player,
@@ -38,13 +38,13 @@ public class VerticalMover extends BlockMover
         double speed = 1;
         double pcMult = multiplier;
         pcMult = pcMult == 0.0 ? 1.0 : pcMult;
-        int maxSpeed = 6;
+        final int maxSpeed = 6;
 
         // If the time isn't default, calculate speed.
         if (time != 0.0)
         {
             speed = Math.abs(blocksToMove) / time;
-            this.time = time;
+            super.time = time;
         }
 
         // If the non-default exceeds the max-speed or isn't set, calculate default
@@ -53,95 +53,90 @@ public class VerticalMover extends BlockMover
         {
             speed = blocksToMove < 0 ? 1.7 : 0.8 * pcMult;
             speed = speed > maxSpeed ? maxSpeed : speed;
-            this.time = Math.abs(blocksToMove) / speed;
+            super.time = Math.abs(blocksToMove) / speed;
         }
 
         tickRate = Util.tickRateFromSpeed(speed);
 
-        super.constructFBlocks();
+        init();
+        super.startAnimation();
     }
 
     /**
-     * {@inheritDoc}
+     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
      */
-    @Override
-    protected void animateEntities()
+    protected void init()
     {
-        super.moverTask = new TimerTask()
-        {
-            double counter = 0;
-            int endCount = (int) (20 / tickRate * time);
-            double step = ((double) blocksMoved) / (endCount);
-            double stepSum = 0;
-            int totalTicks = (int) (endCount * 1.1);
-            long startTime = System.nanoTime();
-            long lastTime;
-            long currentTime = System.nanoTime();
-            PBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst()
-                                                   .orElse(null);
-
-            @Override
-            public void run()
-            {
-                ++counter;
-                if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
-                    playSound(PSound.DRAGGING, 0.5f, 0.6f);
-
-                lastTime = currentTime;
-                currentTime = System.nanoTime();
-                startTime += currentTime - lastTime;
-
-                if (counter < endCount - 1)
-                    stepSum = step * counter;
-                else
-                    stepSum = blocksMoved;
-
-                if (counter > totalTicks || firstBlockData == null)
-                {
-                    playSound(PSound.THUD, 2f, 0.15f);
-                    for (PBlockData block : savedBlocks)
-                        block.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
-
-                    final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
-                    executor.runSync(() -> putBlocks(false));
-                    executor.cancel(this, moverTaskID);
-                }
-                else
-                {
-//                    // This isn't used currently, but the idea is to spawn solid blocks where this door is / is going to be.
-//                    // A cheap way to create fake solid blocks. Should really be part of the blocks themselves, but
-//                    // this was just to see how viable it is. Leaving it here for future reference.
-//                    BigDoors.get().getPlatform().newPExecutor().runSync(
-//                        () ->
-//                        {
-//                            int fullBlocksMoved = (int) Math.round(stepSum + Math.max(0.5, 2 * step));
-//                            Vector3Di newMin = new Vector3Di(door.getMinimum().getX(),
-//                                                             door.getMinimum().getY() + fullBlocksMoved,
-//                                                             door.getMinimum().getZ());
-//                            Vector3Di newMax = new Vector3Di(door.getMaximum().getX(),
-//                                                             door.getMaximum().getY() + fullBlocksMoved,
-//                                                             door.getMaximum().getZ());
-//                        updateSolidBlocks(newMin, newMax);
-//                        });
-
-                    Vector3Dd pos = firstBlockData.getStartPosition();
-                    pos.add(0, stepSum, 0);
-                    Vector3Dd vec = pos.subtract(firstBlockData.getFBlock().getPosition());
-                    vec.multiply(0.101);
-
-                    for (PBlockData mbd : savedBlocks)
-                        mbd.getFBlock().setVelocity(vec);
-                }
-            }
-        };
-        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
+        super.endCount = 20 * (int) super.time;
+        step = ((double) blocksMoved) / ((double) super.endCount);
+        super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
+        super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    {
+        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+                                                            startLocation.getY(), startLocation.getZ());
+        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void prepareAnimation()
+    {
+        // Gets the first block, which will be used as a base for the movement of all other blocks in the animation.
+        firstBlockData = savedBlocks.get(0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void executeAnimationStep(final int ticks)
+    {
+//        // This isn't used currently, but the idea is to spawn solid blocks where this door is / is going to be.
+//        // A cheap way to create fake solid blocks. Should really be part of the blocks themselves, but
+//        // this was just to see how viable it is. Leaving it here for future reference.
+//        BigDoors.get().getPlatform().newPExecutor().runSync(
+//            () ->
+//            {
+//                int fullBlocksMoved = (int) Math.round(stepSum + Math.max(0.5, 2 * step));
+//                Vector3Di newMin = new Vector3Di(door.getMinimum().getX(),
+//                                                 door.getMinimum().getY() + fullBlocksMoved,
+//                                                 door.getMinimum().getZ());
+//                Vector3Di newMax = new Vector3Di(door.getMaximum().getX(),
+//                                                 door.getMaximum().getY() + fullBlocksMoved,
+//                                                 door.getMaximum().getZ());
+//                updateSolidBlocks(newMin, newMax);
+//            });
+
+        if (firstBlockData == null)
+            return;
+
+        final double stepSum = step * ticks;
+
+        final Vector3Dd pos = firstBlockData.getStartPosition();
+        pos.add(0, stepSum, 0);
+
+        final Vector3Dd vec = pos.subtract(firstBlockData.getFBlock().getPosition());
+        vec.multiply(0.101);
+
+        for (final PBlockData mbd : savedBlocks)
+            mbd.getFBlock().setVelocity(vec);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis + blocksMoved, zAxis);
     }

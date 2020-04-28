@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -14,6 +13,7 @@ import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotWest;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.IGetNewLocation;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -21,17 +21,19 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.TimerTask;
-
 public class BigDoorMover extends BlockMover
 {
-    private final int tickRate;
     private final int stepMultiplier;
     private final Vector3Di turningPoint;
     private final IGetNewLocation gnl;
     private double endStepSum;
     private double multiplier;
     private double startStepSum;
+
+    private int halfEndCount;
+    private double step;
+
+    private Vector3Dd rotationCenter;
 
     public BigDoorMover(final @NotNull RotateDirection rotDirection, final double time,
                         final @NotNull PBlockFace currentDirection, final @NotNull AbstractDoorBase door,
@@ -41,14 +43,15 @@ public class BigDoorMover extends BlockMover
         super(door, time, skipAnimation, currentDirection, rotDirection, -1, player, finalMin, finalMax);
 
         turningPoint = door.getEngine();
+        rotationCenter = new Vector3Dd(turningPoint.getX() + 0.5, yMin, turningPoint.getZ() + 0.5);
         stepMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
 
-        int xLen = Math.abs(door.getMaximum().getX() - door.getMinimum().getX());
-        int zLen = Math.abs(door.getMaximum().getZ() - door.getMinimum().getZ());
-        int doorLength = Math.max(xLen, zLen) + 1;
-        double vars[] = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
-        this.time = vars[0];
-        tickRate = (int) vars[1];
+        final int xLen = Math.abs(door.getMaximum().getX() - door.getMinimum().getX());
+        final int zLen = Math.abs(door.getMaximum().getZ() - door.getMinimum().getZ());
+        final int doorLength = Math.max(xLen, zLen) + 1;
+        final double[] vars = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
+        super.time = vars[0];
+        super.tickRate = (int) vars[1];
         this.multiplier = vars[2];
 
         switch (currentDirection)
@@ -80,100 +83,76 @@ public class BigDoorMover extends BlockMover
                 gnl = null;
                 break;
         }
+        BigDoors.get().getMessagingInterface()
+                .broadcastMessage("Constructor BIGDOOR! endCount = " + endCount + ", time = " + super.time);
 
-        super.constructFBlocks();
+        init();
+        super.startAnimation();
     }
 
     /**
-     * {@inheritDoc}
+     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
      */
-    @Override
-    protected void animateEntities()
+    protected void init()
     {
-        super.moverTask = new TimerTask()
-        {
-            IPLocation center = locationFactory.create(world, turningPoint.getX() + 0.5, yMin,
-                                                       turningPoint.getZ() + 0.5);
-            boolean replace = false;
-            double counter = 0;
-            final int endCount = (int) (20.0f / tickRate * time);
-            final double step = (Math.PI / 2) / endCount * stepMultiplier;
-            double stepSum = startStepSum;
-            final int totalTicks = (int) (endCount * multiplier);
-            final int replaceCount = endCount / 2;
-            Long startTime = null; // Initialize on the first run, for better accuracy.
-            long lastTime;
-            long currentTime = System.nanoTime();
-
-            @Override
-            public void run()
-            {
-                if (startTime == null)
-                    startTime = System.nanoTime();
-                ++counter;
-
-                if (counter == 0 || (counter < endCount - 27.0f / tickRate && counter % (5.0f * tickRate / 4.0f) == 0))
-                    playSound(PSound.DRAGGING, 0.5f, 0.6f);
-
-                lastTime = currentTime;
-                currentTime = System.nanoTime();
-                startTime += currentTime - lastTime;
-
-                if (counter < endCount - 1)
-                    stepSum = startStepSum + step * counter;
-                else
-                    stepSum = endStepSum;
-
-                replace = (counter == replaceCount);
-
-                if (counter > totalTicks)
-                {
-                    playSound(PSound.CLOSING_VAULT_DOOR, 0.2f, 1f);
-
-                    for (PBlockData savedBlock : savedBlocks)
-                        savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
-
-                    final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
-                    executor.runSync(() -> putBlocks(false));
-                    executor.cancel(this, moverTaskID);
-                }
-                else
-                {
-                    // It is not possible to edit falling block blockdata (client won't update it),
-                    // so delete the current fBlock and replace it by one that's been rotated.
-                    // Also, this stuff needs to be done on the main thread.
-                    if (replace)
-                        BigDoors.get().getPlatform().newPExecutor().runSync(() -> respawnBlocks());
-
-                    double sin = Math.sin(stepSum);
-                    double cos = Math.cos(stepSum);
-
-                    for (PBlockData block : savedBlocks)
-                    {
-                        double radius = block.getRadius();
-                        int yPos = block.getStartLocation().getBlockY();
-
-                        if (radius != 0)
-                        {
-                            double addX = radius * sin;
-                            double addZ = radius * cos;
-
-                            Vector3Dd position = new Vector3Dd(center.getX() + addX, yPos, center.getZ() + addZ);
-                            Vector3Dd vec = position.subtract(block.getFBlock().getPosition());
-                            block.getFBlock().setVelocity(vec.multiply(0.101));
-                        }
-                    }
-                }
-            }
-        };
-        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
+        super.endCount = 20 * (int) super.time;
+        step = (Math.PI / 2.0f) / super.endCount * stepMultiplier;
+        halfEndCount = super.endCount / 2;
+        super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
+        super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
+        BigDoors.get().getMessagingInterface()
+                .broadcastMessage("INIT BIGDOOR! endCount = " + endCount + ", time = " + super.time);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    {
+        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+                                                            startLocation.getY(), startLocation.getZ());
+        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void executeAnimationStep(final int ticks)
+    {
+        final double stepSum = startStepSum + step * ticks;
+
+        if (ticks == halfEndCount)
+            applyRotation();
+
+        final double sin = Math.sin(stepSum);
+        final double cos = Math.cos(stepSum);
+
+        for (final PBlockData block : savedBlocks)
+        {
+            final double radius = block.getRadius();
+            final int yPos = block.getStartLocation().getBlockY();
+
+            if (radius != 0)
+            {
+                final double addX = radius * sin;
+                final double addZ = radius * cos;
+
+                final Vector3Dd position = new Vector3Dd(rotationCenter.getX() + addX, yPos,
+                                                         rotationCenter.getZ() + addZ);
+                final Vector3Dd vec = position.subtract(block.getFBlock().getPosition());
+                block.getFBlock().setVelocity(vec.multiply(0.101));
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return gnl.getNewLocation(radius, xAxis, yAxis, zAxis);
     }
@@ -182,7 +161,7 @@ public class BigDoorMover extends BlockMover
      * {@inheritDoc}
      */
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
         // Get the radius of this pillar.
         return Math.max(Math.abs(xAxis - turningPoint.getX()), Math.abs(zAxis - turningPoint.getZ()));

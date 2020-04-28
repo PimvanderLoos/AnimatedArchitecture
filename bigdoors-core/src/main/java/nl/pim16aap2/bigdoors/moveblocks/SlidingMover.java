@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -9,14 +7,13 @@ import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.SlidingDoor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.TimerTask;
 
 /**
  * Represents a {@link BlockMover} for {@link SlidingDoor}.
@@ -26,8 +23,12 @@ import java.util.TimerTask;
 public class SlidingMover extends BlockMover
 {
     private boolean NS;
-    private int tickRate;
     private int moveX, moveZ;
+
+    private double step;
+
+    @Nullable
+    private PBlockData firstBlockData = null;
 
     public SlidingMover(final double time, final @NotNull AbstractDoorBase door, final boolean skipAnimation,
                         final int blocksToMove, final @NotNull RotateDirection openDirection, final double multiplier,
@@ -44,13 +45,13 @@ public class SlidingMover extends BlockMover
         double speed = 1;
         double pcMult = multiplier;
         pcMult = pcMult == 0.0 ? 1.0 : pcMult;
-        int maxSpeed = 6;
+        final int maxSpeed = 6;
 
         // If the time isn't default, calculate speed.
         if (time != 0.0)
         {
             speed = Math.abs(blocksToMove) / time;
-            this.time = time;
+            super.time = time;
         }
 
         // If the non-default exceeds the max-speed or isn't set, calculate default speed.
@@ -58,19 +59,31 @@ public class SlidingMover extends BlockMover
         {
             speed = 1.4 * pcMult;
             speed = speed > maxSpeed ? maxSpeed : speed;
-            this.time = Math.abs(blocksToMove) / speed;
+            super.time = Math.abs(blocksToMove) / speed;
         }
 
         tickRate = Util.tickRateFromSpeed(speed);
 
-        super.constructFBlocks();
+        init();
+        super.startAnimation();
+    }
+
+    /**
+     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
+     */
+    protected void init()
+    {
+        super.endCount = 20 * (int) super.time;
+        step = ((double) getBlocksMoved()) / ((double) super.endCount);
+        super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
+        super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return locationFactory.create(world, xAxis + moveX, yAxis, zAxis + moveZ);
     }
@@ -84,68 +97,47 @@ public class SlidingMover extends BlockMover
      * {@inheritDoc}
      */
     @Override
-    protected void animateEntities()
+    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        super.moverTask = new TimerTask()
-        {
-            double counter = 0;
-            int endCount = (int) (20 / tickRate * time);
-            double step = ((double) getBlocksMoved()) / ((double) endCount);
-            double stepSum = 0;
-            int totalTicks = (int) (endCount * 1.1);
-            long startTime = System.nanoTime();
-            long lastTime;
-            long currentTime = System.nanoTime();
-            // TODO: Check if this is still needed. It shouldn't be, as null-entries aren't allowed anymore.
-            PBlockData firstBlockData = savedBlocks.stream().filter(block -> block.getFBlock() != null).findFirst()
-                                                   .orElse(null);
+        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+                                                            startLocation.getY(), startLocation.getZ());
+        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
+    }
 
-            @Override
-            public void run()
-            {
-                ++counter;
-                if (counter == 0 || (counter < endCount - 27 / tickRate && counter % (5 * tickRate / 4) == 0))
-                    playSound(PSound.DRAGGING, 0.5f, 0.6f);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void prepareAnimation()
+    {
+        // Gets the first block, which will be used as a base for the movement of all other blocks in the animation.
+        firstBlockData = savedBlocks.get(0);
+    }
 
-                lastTime = currentTime;
-                currentTime = System.nanoTime();
-                startTime += currentTime - lastTime;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void executeAnimationStep(final int ticks)
+    {
+        if (firstBlockData == null)
+            return;
 
-                if (counter < endCount - 1)
-                    stepSum = step * counter;
-                else
-                    stepSum = getBlocksMoved();
+        final Vector3Dd pos = firstBlockData.getStartPosition();
+        final double stepSum = step * ticks;
 
-                if (counter > totalTicks ||
-                    firstBlockData == null)
-                {
-                    playSound(PSound.THUD, 2f, 0.15f);
-                    for (PBlockData savedBlock : savedBlocks)
-                        savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
+        if (NS)
+            pos.setZ(pos.getZ() + stepSum);
+        else
+            pos.setX(pos.getX() + stepSum);
 
-                    final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
-                    executor.runSync(() -> putBlocks(false));
-                    executor.cancel(this, moverTaskID);
-                }
-                else
-                {
-                    Vector3Dd pos = firstBlockData.getStartPosition();
+        if (firstBlockData.getStartLocation().getY() != yMin)
+            pos.setY(pos.getY() - .010001);
+        final Vector3Dd vec = pos.subtract(firstBlockData.getFBlock().getPosition());
+        vec.multiply(0.101);
 
-                    if (NS)
-                        pos.setZ(pos.getZ() + stepSum);
-                    else
-                        pos.setX(pos.getX() + stepSum);
-
-                    if (firstBlockData.getStartLocation().getY() != yMin)
-                        pos.setY(pos.getY() - .010001);
-                    Vector3Dd vec = pos.subtract(firstBlockData.getFBlock().getPosition());
-                    vec.multiply(0.101);
-
-                    for (PBlockData block : savedBlocks)
-                        block.getFBlock().setVelocity(vec);
-                }
-            }
-        };
-        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
+        for (final PBlockData block : savedBlocks)
+            block.getFBlock().setVelocity(vec);
     }
 }

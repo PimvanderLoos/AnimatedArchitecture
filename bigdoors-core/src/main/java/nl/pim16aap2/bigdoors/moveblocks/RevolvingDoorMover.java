@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -10,13 +8,13 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.RevolvingDoor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.TimerTask;
 import java.util.function.BiFunction;
 
 /**
@@ -29,15 +27,15 @@ public class RevolvingDoorMover extends BlockMover
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
     private final BiFunction<PBlockData, Double, Vector3Dd> getGoalPos;
-    private final double time;
-    private int tickRate;
-    private final double endStepSum;
     private final RotateDirection rotateDirection;
 
     /**
      * The number of quarter circles to turn.
      */
     private static final int quarterCircles = 2;
+
+    private double step = 0;
+    private double endStepSum = 0;
 
     public RevolvingDoorMover(final @NotNull AbstractDoorBase door, final double time, final double multiplier,
                               final @NotNull RotateDirection rotateDirection, final @Nullable IPPlayer player)
@@ -52,10 +50,6 @@ public class RevolvingDoorMover extends BlockMover
         speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
         tickRate = Util.tickRateFromSpeed(speed);
         tickRate = 3;
-
-        int endCount = (int) (20.0 / ((double) tickRate) * time * ((double) quarterCircles));
-        double step = (Math.PI / 2.0 * ((double) quarterCircles)) / ((double) endCount) * -1.0;
-        endStepSum = endCount * step;
 
         switch (rotateDirection)
         {
@@ -72,7 +66,21 @@ public class RevolvingDoorMover extends BlockMover
                                                  rotateDirection.toString() + "\"");
                 return;
         }
-        super.constructFBlocks();
+
+        init();
+        super.startAnimation();
+    }
+
+    /**
+     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
+     */
+    protected void init()
+    {
+        super.endCount = (int) (20.0 * super.time * ((double) quarterCircles));
+        step = (Math.PI / 2.0 * ((double) quarterCircles)) / ((double) super.endCount) * -1.0;
+        endStepSum = super.endCount * step;
+        super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
+        super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
     private Vector3Dd getGoalPosClockwise(final double radius, final double startAngle, final double startY,
@@ -105,7 +113,7 @@ public class RevolvingDoorMover extends BlockMover
      * {@inheritDoc}
      */
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         // TODO: Redo all this, it's too hacky.
         final double startAngle = getStartAngle((int) xAxis, (int) yAxis, (int) zAxis);
@@ -121,60 +129,40 @@ public class RevolvingDoorMover extends BlockMover
      * {@inheritDoc}
      */
     @Override
-    protected void animateEntities()
+    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        super.moverTask = new TimerTask()
-        {
-            double counter = 0;
-            int endCount = (int) (20.0 / ((double) tickRate) * time * ((double) quarterCircles));
-            int totalTicks = (int) (endCount * 1.1);
-            long startTime = System.nanoTime();
-            long lastTime;
-            long currentTime = System.nanoTime();
-            double step = (Math.PI / 2.0 * ((double) quarterCircles)) / ((double) endCount) * -1.0;
-
-            @Override
-            public void run()
-            {
-                ++counter;
-                lastTime = currentTime;
-                currentTime = System.nanoTime();
-                startTime += currentTime - lastTime;
-
-                if (counter > totalTicks)
-                {
-                    playSound(PSound.THUD, 2f, 0.15f);
-                    final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
-                    executor.runSync(() -> putBlocks(false));
-                    executor.cancel(this, moverTaskID);
-                }
-                else
-                {
-                    final double stepSum = Math.max(endStepSum, counter * step);
-                    for (PBlockData block : savedBlocks)
-                    {
-                        if (Math.abs(block.getRadius()) > 2 * Double.MIN_VALUE)
-                        {
-                            Vector3Dd vec = getGoalPos.apply(block, stepSum)
-                                                      .subtract(block.getFBlock().getPosition());
-                            vec.multiply(0.101);
-                            block.getFBlock().setVelocity(vec);
-                        }
-                    }
-                }
-            }
-        };
-        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
+        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+                                                            startLocation.getY(), startLocation.getZ());
+        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected float getRadius(int xAxis, int yAxis, int zAxis)
+    protected void executeAnimationStep(int ticks)
     {
-        double deltaA = (door.getEngine().getX() - xAxis);
-        double deltaB = door.getEngine().getZ() - zAxis;
+        final double stepSum = step * ticks;
+
+        for (final PBlockData block : savedBlocks)
+            if (Math.abs(block.getRadius()) > 2 * Double.MIN_VALUE)
+            {
+                final Vector3Dd vec = getGoalPos.apply(block, stepSum)
+                                                .subtract(block.getFBlock().getPosition());
+                vec.multiply(0.101);
+                block.getFBlock().setVelocity(vec);
+            }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
+    {
+        final double deltaA = (door.getEngine().getX() - xAxis);
+        final double deltaB = door.getEngine().getZ() - zAxis;
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -182,7 +170,7 @@ public class RevolvingDoorMover extends BlockMover
      * {@inheritDoc}
      */
     @Override
-    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
+    protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
     {
         return (float) Math.atan2(door.getEngine().getX() - xAxis, door.getEngine().getZ() - zAxis);
     }

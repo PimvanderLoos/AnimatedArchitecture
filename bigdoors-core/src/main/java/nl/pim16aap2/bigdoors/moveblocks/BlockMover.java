@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -15,6 +16,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -53,6 +55,35 @@ public abstract class BlockMover implements IRestartable
     @Nullable
     protected TimerTask moverTask = null;
     protected int moverTaskID = 0;
+
+    /**
+     * The tick at which to stop the animation.
+     */
+    protected int endCount = 0;
+
+    /**
+     * The tickrate of the animation.
+     */
+    protected int tickRate = 1;
+
+    /**
+     * The sound to play while the animation is active.
+     */
+    @Nullable
+    protected PSoundDescription soundActive = null;
+
+    /**
+     * The sound to play upon finishing the animation.
+     */
+    @Nullable
+    protected PSoundDescription soundFinish = null;
+
+    /**
+     * The amount of time (measured in ticks) between the "prepareToEndAnimation" phase (where blocks are moved to their
+     * final position while in their animated state.
+     */
+    protected int stopDelay = 50;
+
 
     /**
      * Constructs a {@link BlockMover}.
@@ -97,14 +128,13 @@ public abstract class BlockMover implements IRestartable
     /**
      * Plays a sound at the engine of a door.
      *
-     * @param sound  The sound to play.
-     * @param volume The volume
-     * @param pitch  The pitch
+     * @param soundDescription The {@link PSoundDescription} containing all the properties of the sound to play.
      */
-    protected void playSound(final @NotNull PSound sound, final float volume, final float pitch)
+    protected void playSound(final @NotNull PSoundDescription soundDescription)
     {
         BigDoors.get().getPlatform().getSoundEngine()
-                .playSound(door.getEngine(), door.getWorld(), sound, volume, pitch);
+                .playSound(door.getEngine(), door.getWorld(), soundDescription.getSound(), soundDescription.getVolume(),
+                           soundDescription.getPitch());
     }
 
     /**
@@ -136,35 +166,71 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Rotates (in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
-     * PBlockData}.
+     * Respawns a {@link ICustomCraftFallingBlock}.
+     *
+     * @param blockData The {@link PBlockData} containing the {@link ICustomCraftFallingBlock} that will be respawned.
+     * @param newBlock  The new {@link INMSBlock} to use for the {@link ICustomCraftFallingBlock}.
      */
-    protected void respawnBlocks()
+    private void respawnBlock(final @NotNull PBlockData blockData, final @NotNull INMSBlock newBlock)
     {
-        for (PBlockData block : savedBlocks)
-            if (block.canRot())
+        final IPLocation loc = blockData.getFBlock().getPLocation();
+        final Vector3Dd veloc = blockData.getFBlock().getPVelocity();
+
+        final ICustomCraftFallingBlock fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
+        blockData.getFBlock().remove();
+        blockData.setFBlock(fBlock);
+
+        blockData.getFBlock().setVelocity(veloc);
+    }
+
+    /**
+     * Rotates (in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
+     * PBlockData}. Note that this is executed on the thread it was called from, which MUST BE the main thread!
+     */
+    private void applyRotationOnCurrentThread()
+    {
+        for (final PBlockData blockData : savedBlocks)
+            if (blockData.canRot())
             {
-                IPLocation loc = block.getFBlock().getPLocation();
-                Vector3Dd veloc = block.getFBlock().getPVelocity();
-
-                ICustomCraftFallingBlock fBlock;
-                // Because the block in savedBlocks is already rotated where applicable, just
-                // use that block now.
-                INMSBlock newBlock = block.getBlock();
+                final INMSBlock newBlock = blockData.getBlock();
                 newBlock.rotateBlock(openDirection);
-                fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
-
-                block.getFBlock().remove();
-                block.setFBlock(fBlock);
-
-                block.getFBlock().setVelocity(veloc);
+                respawnBlock(blockData, newBlock);
             }
     }
 
     /**
-     * Replaces all blocks of the {@link AbstractDoorBase} by Falling Blocks.
+     * Rotates (in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
+     * PBlockData}. This is executed on the main thread.
      */
-    protected void constructFBlocks()
+    protected void applyRotation()
+    {
+        BigDoors.get().getPlatform().newPExecutor().runSync(this::applyRotationOnCurrentThread);
+    }
+
+    /**
+     * Respawns all blocks. Note that this is executed on the thread it was called from, which MUST BE the main thread!
+     */
+    private void respawnBlocksOnCurrentThread()
+    {
+        for (final PBlockData blockData : savedBlocks)
+            respawnBlock(blockData, blockData.getBlock());
+    }
+
+    /**
+     * Respawns all blocks. This is executed on the main thread.
+     */
+    protected void respawnBlocks()
+    {
+        BigDoors.get().getPlatform().newPExecutor().runSync(this::respawnBlocksOnCurrentThread);
+    }
+
+    /**
+     * Replaces all blocks of the {@link AbstractDoorBase} by Falling Blocks and starts the animation.
+     * <p>
+     * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
+     * any animations.
+     */
+    protected void startAnimation()
     {
         for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
             for (int yAxis = yMin; yAxis <= yMax; ++yAxis)
@@ -174,19 +240,115 @@ public abstract class BlockMover implements IRestartable
                                 getRadius(xAxis, yAxis, zAxis), getStartAngle(xAxis, yAxis, zAxis))
                         .ifPresent(savedBlocks::add);
 
-        for (PBlockData mbd : savedBlocks)
+        for (final PBlockData mbd : savedBlocks)
             mbd.getBlock().deleteOriginalBlock();
 
-        if (skipAnimation)
+        if (skipAnimation || savedBlocks.isEmpty())
             putBlocks(false);
         else
             animateEntities();
     }
 
     /**
+     * Gets the final position of a {@link PBlockData}.
+     *
+     * @param block The {@link PBlockData}.
+     * @return The final position of a {@link PBlockData}.
+     */
+    protected abstract Vector3Dd getFinalPosition(final @NotNull PBlockData block);
+
+    /**
+     * Runs a single step of the animation.
+     *
+     * @param ticks The number of ticks that have passed since the start of the animation.
+     */
+    protected abstract void executeAnimationStep(final int ticks);
+
+    /**
+     * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
+     * new location.
+     */
+    private void stopAnimation()
+    {
+        if (soundFinish != null)
+            playSound(soundFinish);
+
+        for (final PBlockData savedBlock : savedBlocks)
+            savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
+
+        final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
+        executor.runSync(() -> putBlocks(false));
+        executor.cancel(moverTask, moverTaskID);
+    }
+
+    /**
+     * Executes the final step of the animation: Move all blocks to their final positions while still in their animated
+     * state.
+     */
+    protected void prepareToEndAnimation()
+    {
+        // Move the blocks to their final positions.
+        // TODO: Store the final location in the block or something.
+        for (final PBlockData block : savedBlocks)
+        {
+            Vector3Dd vec = getFinalPosition(block).subtract(block.getFBlock().getPosition());
+            block.getFBlock().setVelocity(vec.multiply(0.101));
+        }
+    }
+
+    /**
+     * This method is called right before the animation is started (and after all variables have been initialized).
+     * <p>
+     * It does not do anything by default.
+     */
+    protected void prepareAnimation()
+    {
+    }
+
+    /**
      * Runs the animation of the animated blocks.
      */
-    protected abstract void animateEntities();
+    private void animateEntities()
+    {
+        prepareAnimation();
+
+        moverTask = new TimerTask()
+        {
+            int counter = 0;
+            Long startTime = null; // Initialize on the first run.
+            long lastTime;
+            long currentTime = System.nanoTime();
+
+            @Override
+            public void run()
+            {
+                if (startTime == null)
+                    startTime = System.nanoTime();
+                ++counter;
+
+                if (soundActive != null && counter % PSound.getDuration(soundActive.getSound()) == 0)
+                    playSound(soundActive);
+
+                lastTime = currentTime;
+                currentTime = System.nanoTime();
+                startTime += currentTime - lastTime;
+
+                // After about 12620 ticks, the blocks will disappear.
+                // Respawning them before this happens, fixes the issue.
+                // TODO: Check if just resetting the tick value of the blocks works as well.
+                if (counter % 12500 == 0)
+                    respawnBlocks();
+
+                if (counter > (endCount + stopDelay))
+                    stopAnimation();
+                else if (counter > endCount)
+                    prepareToEndAnimation();
+                else if (counter % tickRate == 0)
+                    executeAnimationStep(counter);
+            }
+        };
+        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, 1);
+    }
 
     /**
      * Gets the radius of a block at the given coordinates.

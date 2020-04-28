@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -14,8 +12,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.TimerTask;
-
 /**
  * Represents a {@link BlockMover} for {@link Windmill}s.
  *
@@ -23,6 +19,10 @@ import java.util.TimerTask;
  */
 public class WindmillMover extends BridgeMover
 {
+    protected static final double EPS = 2 * Double.MIN_VALUE;
+
+    private double step;
+
     public WindmillMover(final @NotNull HorizontalAxisAlignedBase door, final double time, final double multiplier,
                          final @NotNull RotateDirection rotateDirection, final @Nullable IPPlayer player)
     {
@@ -33,9 +33,19 @@ public class WindmillMover extends BridgeMover
     /**
      * {@inheritDoc}
      */
+    @Override
+    protected void init()
+    {
+        super.endCount = 20 * 20 * (int) super.time;
+        step = (Math.PI / 2.0) / (20.0f * super.time * 2.0f);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
-    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
+    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
@@ -44,57 +54,25 @@ public class WindmillMover extends BridgeMover
      * {@inheritDoc}
      */
     @Override
-    protected void animateEntities()
+    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        super.moverTask = new TimerTask()
-        {
-            boolean replace = false;
-            double counter = 0;
-            int endCount = (int) (20 / tickRate * time) * 20;
-            double step = (Math.PI / 2) / ((int) (20 / tickRate * time) * 2);
-            // Add a half a second or the smallest number of ticks closest to it to the timer
-            // to make sure the animation doesn't jump at the end.
-            int totalTicks = endCount + Math.max(1, 10 / tickRate);
-            int replaceCount = endCount / 2;
-            long startTime = System.nanoTime();
-            long lastTime;
-            long currentTime = System.nanoTime();
-            final double eps = 2 * Double.MIN_VALUE;
+        return block.getStartPosition();
+    }
 
-            @Override
-            public void run()
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void executeAnimationStep(final int ticks)
+    {
+        double stepSum = step * ticks;
+        for (final PBlockData block : savedBlocks)
+            // TODO: Store separate list to avoid checking this constantly.
+            if (Math.abs(block.getRadius()) > EPS)
             {
-                ++counter;
-                lastTime = currentTime;
-                currentTime = System.nanoTime();
-                startTime += currentTime - lastTime;
-                replace = counter == replaceCount;
-
-                if (counter > totalTicks)
-                {
-                    for (PBlockData block : savedBlocks)
-                        block.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
-
-                    final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
-                    executor.runSync(() -> putBlocks(false));
-                    executor.cancel(this, moverTaskID);
-                }
-                else
-                {
-                    double stepSum = step * Math.min(counter, endCount);
-                    for (PBlockData block : savedBlocks)
-                    {
-                        // TODO: Store separate list to avoid checking this constantly.
-                        if (Math.abs(block.getRadius()) > eps)
-                        {
-                            Vector3Dd vec = getVector.apply(block, stepSum).subtract(block.getFBlock().getPosition());
-                            block.getFBlock().setVelocity(vec.multiply(0.101));
-                        }
-                    }
-                }
+                final Vector3Dd vec = getVector.apply(block, stepSum).subtract(block.getFBlock().getPosition());
+                block.getFBlock().setVelocity(vec.multiply(0.101));
             }
-        };
-        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, tickRate);
     }
 
     /**
@@ -105,8 +83,8 @@ public class WindmillMover extends BridgeMover
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the X values does not change for this type.
-        double deltaA = (door.getEngine().getY() - yAxis);
-        double deltaB = !NS ? (door.getEngine().getX() - xAxis) : (door.getEngine().getZ() - zAxis);
+        final double deltaA = (door.getEngine().getY() - yAxis);
+        final double deltaB = !NS ? (door.getEngine().getX() - xAxis) : (door.getEngine().getZ() - zAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -118,8 +96,8 @@ public class WindmillMover extends BridgeMover
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the X values does not change for this type.
-        float deltaA = !NS ? door.getEngine().getX() - xAxis : door.getEngine().getZ() - zAxis;
-        float deltaB = door.getEngine().getY() - yAxis;
+        final float deltaA = !NS ? door.getEngine().getX() - xAxis : door.getEngine().getZ() - zAxis;
+        final float deltaB = door.getEngine().getY() - yAxis;
 
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }

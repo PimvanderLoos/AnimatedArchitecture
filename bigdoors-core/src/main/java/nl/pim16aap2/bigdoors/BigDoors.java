@@ -264,6 +264,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Openers / Movers
  */
+// TODO: FIX DRABRIDGES! THEY ARE BROKEN!
+// TODO: Figure out what to do with the player sometimes being nullable and notnull at other times. Make a clear decision.
 // TODO: Get rid of the weird speed multipliers in the CustomEntityFallingBlock_VX_XX_RX classes.
 // TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick.
 //       Then set the direction in the creator.
