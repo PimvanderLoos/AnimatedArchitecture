@@ -208,6 +208,9 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: Rewrite everything. Create a completely new schema as well. This plugin has outgrown the current one.
+//       Use the items below for more information on the layout. The philosophy of the new design is to store everything
+//       and make sure no data should be inferred. For example, the drawbridge type shouldn't
 // TODO: Store original coordinates in the database. These can be used to find the actual close direction.
 // TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME}, with UNIQUE(PLUGIN, TYPENAME).
 //       Then use FK from doors to doortypes. Useful for allowing custom door types.
@@ -265,6 +268,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
  * Openers / Movers
  */
 // TODO: FIX DRABRIDGES! THEY ARE BROKEN!
+// TODO: RevolvingDoor: The final location of the blocks is not the original location. You can see this issue when
+//       using a revolving door with an off-center rotation point.
 // TODO: Figure out what to do with the player sometimes being nullable and notnull at other times. Make a clear decision.
 // TODO: Get rid of the weird speed multipliers in the CustomEntityFallingBlock_VX_XX_RX classes.
 // TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick.
