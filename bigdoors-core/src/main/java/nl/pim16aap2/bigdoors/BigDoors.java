@@ -208,17 +208,31 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: Do not allow modifying properties of a door while it is busy.
 // TODO: Rewrite everything. Create a completely new schema as well. This plugin has outgrown the current one.
 //       Use the items below for more information on the layout. The philosophy of the new design is to store everything
-//       and make sure no data should be inferred. For example, the drawbridge type shouldn't
-// TODO: Store original coordinates in the database. These can be used to find the actual close direction.
-// TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME}, with UNIQUE(PLUGIN, TYPENAME).
+//       and make sure no data should be inferred. For example, the drawbridge type shouldn't have to figure out which
+//       way it is looking based on coordinates.
+// TODO: Consider creating groups of users, which would make it easy to add an entire group of users as co-owner of a door.
+//       Remember that when removing a player from a group, the player should also be removed as co-owner from all doors
+//       as well, as long as they are not in another group that is also a co-owner of this door.
+//       Alternatively, consider splitting the DoorOwner table into DoorOwnerPlayer and DoorOwnerGroup, so that when you
+//       add a player to a group that is an owner of a door, you don't have to modify everything. Would make queries
+//       more difficult, though.
+// TODO: Consider adding folders. This would require a "Folders" table with an owner, ID, and a folder name as well as
+//       a table that links up doors with folders.
+// TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME | VERSION}, with UNIQUE(PLUGIN, TYPENAME, VERSION).
 //       Then use FK from doors to doortypes. Useful for allowing custom door types.
+//       The version value is used so other plugins can update their types' database values when needed.
+//       They would retrieve the number of doors of that type (e.g. getNumberOfType("BigDoors", "Drawbridge", "1");)
+//       and if that number is >0, loop over all existing entries for that version on startup, update them as needed,
+//       and add them to the database as the new type (e.g. "BigDoors", "Drawbridge", "2").
+// TODO: Create a system of creating new tables dynamically for new door types that contain additional information
+//       that is not required for other types (e.g. blocksToMove).
 // TODO: Store engineChunkHash in the database, so stuff can be done when the chunk of a door is loaded. Also make sure
 //       to move the engine location for movable doors (sliding, etc).
 // TODO: Look into creating a separate table for worlds and put an FK to them in the doors table. This should save a bit
 //       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
-// TODO: Add a "folder" column to the sqlUnion table. This would allow users to organize doors into different folders.
 // TODO: Store UUIDs as 16 byte binary blobs to save space: https://stackoverflow.com/a/17278095
 // TODO: Move database upgrades out of the main SQL class. Perhaps create some kind of upgrade routine interface. 
 
@@ -267,6 +281,10 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Openers / Movers
  */
+// TODO: When a door is modified in a way that leaves it in an 'impossible' state, make sure to first return to the proper state.
+//       So, if a door is currently open to the west and the opendir is changed to east and it is toggled again,
+//       toggle it to the east again first, even though the closedir would normally be the opposite of the opendir
+//       (therefore close to the west).
 // TODO: FIX DRABRIDGES! THEY ARE BROKEN!
 // TODO: RevolvingDoor: The final location of the blocks is not the original location. You can see this issue when
 //       using a revolving door with an off-center rotation point.
