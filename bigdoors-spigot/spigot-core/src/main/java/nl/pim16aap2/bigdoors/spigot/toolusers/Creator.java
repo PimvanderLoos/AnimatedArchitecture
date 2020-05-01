@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -31,7 +31,7 @@ import java.util.logging.Level;
  **/
 public abstract class Creator extends ToolUser
 {
-    protected DoorType type;
+    protected EDoorType type;
     protected String doorName;
     protected PBlockFace engineSide = null;
     protected boolean isOpen = false;
@@ -46,7 +46,7 @@ public abstract class Creator extends ToolUser
 
     protected Creator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                       final @Nullable String doorName,
-                      final @NotNull DoorType type)
+                      final @NotNull EDoorType type)
     {
         super(plugin, player);
         doorUID = -1;
@@ -157,15 +157,14 @@ public abstract class Creator extends ToolUser
 
             DoorOwner owner = new DoorOwner(doorUID, player.getUniqueId(), player.getName(), 0);
 
-            AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(min, max, engine,
+            AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, doorName, min, max, engine,
                                                                                getPowerBlockLoc(), world,
-                                                                               isOpen, openDirection);
+                                                                               isOpen, openDirection, owner);
+
             AbstractDoorBase door = type.getNewDoor(plugin.getPLogger(), doorUID, doorData);
             if (openDirection.equals(RotateDirection.NONE))
                 door.setDefaultOpenDirection();
 
-            door.setName(doorName);
-            door.setDoorOwner(owner);
             door.setAutoClose(-1);
 
             final int doorSize = door.getBlockCount();

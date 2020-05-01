@@ -18,7 +18,7 @@ import java.util.Optional;
  * @author Pim
  */
 // Regex to quickly get a list of all types: \([\d\s\w\@\.\n\,\"\)\(\{\-\;]*\}[\s]*\}\,\n
-public enum DoorType
+public enum EDoorType
 {
     BIGDOOR(0, true, "-BD", Message.DOORTYPE_BIGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
             DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
@@ -60,7 +60,7 @@ public enum DoorType
             }
         },
 
-    ELEVATOR(3, true, "-EL", Message.DOORTYPE_ELEVATOR, DoorType.PORTCULLIS.attributes)
+    ELEVATOR(3, true, "-EL", Message.DOORTYPE_ELEVATOR, EDoorType.PORTCULLIS.attributes)
         {
             @NotNull
             @Override
@@ -124,7 +124,7 @@ public enum DoorType
             }
         },
 
-    REVOLVINGDOOR(8, true, "-RD", Message.DOORTYPE_REVOLVINGDOOR, DoorType.BIGDOOR.attributes)
+    REVOLVINGDOOR(8, true, "-RD", Message.DOORTYPE_REVOLVINGDOOR, EDoorType.BIGDOOR.attributes)
         {
             @NotNull
             @Override
@@ -149,13 +149,13 @@ public enum DoorType
 
     ;
 
-    private static final List<DoorType> cachedValues = Collections.unmodifiableList(Arrays.asList(DoorType.values()));
-    private static final Map<Integer, DoorType> valMap = new HashMap<>();
-    private static final Map<String, DoorType> commandFlagMap = new HashMap<>();
+    private static final List<EDoorType> cachedValues = Collections.unmodifiableList(Arrays.asList(EDoorType.values()));
+    private static final Map<Integer, EDoorType> valMap = new HashMap<>();
+    private static final Map<String, EDoorType> commandFlagMap = new HashMap<>();
 
     static
     {
-        for (DoorType type : DoorType.cachedValues())
+        for (EDoorType type : EDoorType.cachedValues())
         {
             valMap.put(type.val, type);
             commandFlagMap.put(type.commandFlag, type);
@@ -167,7 +167,7 @@ public enum DoorType
      *
      * @return The cached array of values.
      */
-    public static List<DoorType> cachedValues()
+    public static List<EDoorType> cachedValues()
     {
         return cachedValues;
     }
@@ -189,13 +189,13 @@ public enum DoorType
      */
     private final boolean enabled;
     /**
-     * The attributes of this door. For example, a {@link DoorType#BIGDOOR} would have no use for {@link
+     * The attributes of this door. For example, a {@link EDoorType#BIGDOOR} would have no use for {@link
      * DoorAttribute#BLOCKSTOMOVE} because it moves in quarter circles, not in numbers of blocks.
      */
     private final DoorAttribute[] attributes;
 
-    DoorType(final int val, final boolean enabled, final @NotNull String commandFlag, final @NotNull Message message,
-             final @NotNull DoorAttribute... attributes)
+    EDoorType(final int val, final boolean enabled, final @NotNull String commandFlag, final @NotNull Message message,
+              final @NotNull DoorAttribute... attributes)
     {
         this.val = val;
         this.enabled = enabled;
@@ -205,36 +205,36 @@ public enum DoorType
     }
 
     /**
-     * Gets the index value of a {@link DoorType}.
+     * Gets the index value of a {@link EDoorType}.
      *
-     * @param type The {@link DoorType}.
-     * @return The index value of a {@link DoorType}.
+     * @param type The {@link EDoorType}.
+     * @return The index value of a {@link EDoorType}.
      */
-    public static int getValue(final @NotNull DoorType type)
+    public static int getValue(final @NotNull EDoorType type)
     {
         return type.val;
     }
 
     /**
-     * Gets the {@link Message} associated with the name of a {@link DoorType}.
+     * Gets the {@link Message} associated with the name of a {@link EDoorType}.
      *
-     * @param type The {@link DoorType}.
-     * @return The {@link Message} associated with the name of a {@link DoorType}.
+     * @param type The {@link EDoorType}.
+     * @return The {@link Message} associated with the name of a {@link EDoorType}.
      */
     @NotNull
-    public static Message getMessage(final @NotNull DoorType type)
+    public static Message getMessage(final @NotNull EDoorType type)
     {
         return type.message;
     }
 
     /**
-     * Gets the {@link DoorType} from an index value.
+     * Gets the {@link EDoorType} from an index value.
      *
      * @param type The index value of this type.
-     * @return The {@link DoorType} with this index value.
+     * @return The {@link EDoorType} with this index value.
      */
     @NotNull
-    public static DoorType valueOf(final int type)
+    public static EDoorType valueOf(final int type)
         throws IllegalArgumentException
     {
         if (type >= valMap.size())
@@ -244,35 +244,35 @@ public enum DoorType
     }
 
     /**
-     * Gets the {@link DoorType} from its commandFlag, e.g. "-BD" for {@link DoorType#BIGDOOR}).
+     * Gets the {@link EDoorType} from its commandFlag, e.g. "-BD" for {@link EDoorType#BIGDOOR}).
      *
      * @param commandFlag The command flag
-     * @return The {@link DoorType} associated with this command flag or null if none was found.
+     * @return The {@link EDoorType} associated with this command flag or null if none was found.
      */
-    public static Optional<DoorType> valueOfCommandFlag(final @NotNull String commandFlag)
+    public static Optional<EDoorType> valueOfCommandFlag(final @NotNull String commandFlag)
     {
         return Optional.ofNullable(commandFlagMap.getOrDefault(commandFlag, null));
     }
 
     /**
-     * Gets all {@link DoorAttribute}s of the {@link DoorType}.
+     * Gets all {@link DoorAttribute}s of the {@link EDoorType}.
      *
-     * @param type The {@link DoorType}.
-     * @return All {@link DoorAttribute}s of the {@link DoorType}.
+     * @param type The {@link EDoorType}.
+     * @return All {@link DoorAttribute}s of the {@link EDoorType}.
      */
     @NotNull
-    public static DoorAttribute[] getAttributes(final @NotNull DoorType type)
+    public static DoorAttribute[] getAttributes(final @NotNull EDoorType type)
     {
         return type.attributes;
     }
 
     /**
-     * Checks if a {@link DoorType} is enabled or not.
+     * Checks if a {@link EDoorType} is enabled or not.
      *
-     * @param type The {@link DoorType}.
-     * @return True if a {@link DoorType} is enabled.
+     * @param type The {@link EDoorType}.
+     * @return True if a {@link EDoorType} is enabled.
      */
-    public static boolean isEnabled(final @NotNull DoorType type)
+    public static boolean isEnabled(final @NotNull EDoorType type)
     {
         return type.enabled;
     }

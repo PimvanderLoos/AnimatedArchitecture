@@ -28,4 +28,9 @@ public final class Constants
      * The permission node that allows a player to bypass all compatibility hooks.
      */
     public static final String COMPATBYPASSPERMISSION = "bigdoors.admin.bypasscompat";
+
+    /**
+     * The name of this plugin.
+     */
+    public static final String PLUGINNAME = "BigDoors";
 }

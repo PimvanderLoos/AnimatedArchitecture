@@ -34,9 +34,6 @@ public final class Util
      */
     private static Random rnd = new Random();
 
-    @NotNull
-    private static final Pattern QUESTION_MARK = Pattern.compile("\\?");
-
     private static final Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
     private static final Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
 
@@ -64,10 +61,10 @@ public final class Util
      * @param statement The String.
      * @return The number of question marks in the String.
      */
-    public static int getQuestionMarkCount(final @NotNull String statement)
+    public static int countPatternOccurrences(final @NotNull Pattern pattern, final @NotNull String statement)
     {
         int found = 0;
-        final Matcher matcher = QUESTION_MARK.matcher(statement);
+        final Matcher matcher = pattern.matcher(statement);
         while (matcher.find())
             ++found;
         return found;

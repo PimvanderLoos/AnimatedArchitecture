@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import org.jetbrains.annotations.NotNull;
 
 // TODO: Change this description and while I'm at it, also the name of the class.
@@ -121,7 +121,7 @@ public interface IConfigLoader extends IRestartable
      * @param type The door type.
      * @return The formula for the door type.
      */
-    String getPrice(DoorType type);
+    String getPrice(EDoorType type);
 
     /**
      * Gets the speed multiplier for a specific type of door.
@@ -129,7 +129,7 @@ public interface IConfigLoader extends IRestartable
      * @param type The door type.
      * @return The speed multiplier for the door type.
      */
-    double getMultiplier(DoorType type);
+    double getMultiplier(EDoorType type);
 
     /**
      * Checks if errors should be logged to the console.

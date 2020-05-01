@@ -1,20 +1,20 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link DoorType#BIGDOOR}.
+ * Represents a user creating a {@link EDoorType#BIGDOOR}.
  *
  * @author Pim
  **/
@@ -22,7 +22,7 @@ public class BigDoorCreator extends Creator
 {
     public BigDoorCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                           final @Nullable String name,
-                          final @NotNull DoorType type)
+                          final @NotNull EDoorType type)
     {
         super(plugin, player, name, type);
     }
@@ -30,7 +30,7 @@ public class BigDoorCreator extends Creator
     public BigDoorCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                           final @Nullable String name)
     {
-        this(plugin, player, name, DoorType.BIGDOOR);
+        this(plugin, player, name, EDoorType.BIGDOOR);
     }
 
     /**
@@ -82,8 +82,8 @@ public class BigDoorCreator extends Creator
     }
 
     /**
-     * Updates the {@link Location} of the engine. For a {@link DoorType#BIGDOOR}, for example, this sets the Y-value of
-     * the engine coordinates to the 1 block under lowest Y-value of the {@link AbstractDoorBase}.
+     * Updates the {@link Location} of the engine. For a {@link EDoorType#BIGDOOR}, for example, this sets the Y-value
+     * of the engine coordinates to the 1 block under lowest Y-value of the {@link AbstractDoorBase}.
      */
     protected void updateEngineLoc()
     {

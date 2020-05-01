@@ -19,10 +19,12 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorActionEvent;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorManager;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
@@ -115,7 +117,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private static long MAINTHREADID = -1;
     @NotNull
     private static final BigDoors BIGDOORS = BigDoors.get();
-    
+
     private final PLogger pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
 
     private ToolVerifier tf;
@@ -190,6 +192,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             config = ConfigLoaderSpigot.init(this, getPLogger());
             init();
             databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), config.dbFile()));
+            registerDoorTypes();
+
             RedstoneListener.init(this);
             LoginResourcePackListener.init(this, config.resourcePack());
 
@@ -230,6 +234,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             successfulInit = false;
             pLogger.logException(exception);
         }
+        System.exit(0);
+    }
+
+    private void registerDoorTypes()
+    {
+        DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get());
+        System.exit(0);
     }
 
     public static BigDoorsSpigot get()

@@ -12,13 +12,13 @@ import org.jetbrains.annotations.NotNull;
 public class Elevator extends Portcullis
 {
     protected Elevator(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                       final @NotNull DoorType type)
+                       final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
     protected Elevator(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.ELEVATOR);
+        this(pLogger, doorUID, doorData, EDoorType.ELEVATOR);
     }
 }

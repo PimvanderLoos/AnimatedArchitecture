@@ -33,7 +33,6 @@ public final class DoorOpeningUtility
     @Nullable
     private static DoorOpeningUtility instance;
 
-    private final PLogger pLogger;
     private final IGlowingBlockSpawner glowingBlockSpawner;
     private final IConfigLoader config;
     private final IProtectionCompatManager protectionManager;
@@ -51,7 +50,6 @@ public final class DoorOpeningUtility
                                final @NotNull IConfigLoader config,
                                final @NotNull IProtectionCompatManager protectionManager)
     {
-        this.pLogger = pLogger;
         this.glowingBlockSpawner = glowingBlockSpawner;
         this.config = config;
         this.protectionManager = protectionManager;
@@ -112,7 +110,7 @@ public final class DoorOpeningUtility
 
         if (!result.equals(DoorToggleResult.NOPERMISSION))
             if (!cause.equals(DoorActionCause.PLAYER))
-                pLogger.warn("Failed to toggle door: " + result.name());
+                PLogger.get().warn("Failed to toggle door: " + result.name());
             else
             {
                 BigDoors.get().getMessagingInterface()
@@ -156,9 +154,9 @@ public final class DoorOpeningUtility
         return protectionManager.canBreakBlocksBetweenLocs(initiator, pos1, pos2, door.getWorld()).map(
             PROT ->
             {
-                pLogger
-                    .warn("Player \"" + door.getPlayerUUID().toString() + "\" is not allowed to open door " +
-                              door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
+                PLogger.get()
+                       .warn("Player \"" + door.getPlayerUUID().toString() + "\" is not allowed to open door " +
+                                 door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
                 return false;
             }).orElse(true);
     }
@@ -301,7 +299,7 @@ public final class DoorOpeningUtility
      * <p>
      * - The {@link AbstractDoorBase} is not already being animated.
      * <p>
-     * - The {@link DoorType} is enabled.
+     * - The {@link EDoorType} is enabled.
      * <p>
      * - The {@link AbstractDoorBase} is not locked.
      * <p>
@@ -326,12 +324,12 @@ public final class DoorOpeningUtility
 
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
-        if (!DoorType.isEnabled(door.getType()))
+        if (!EDoorType.isEnabled(door.getType()))
             return DoorToggleResult.TYPEDISABLED;
 
         if (!chunksLoaded(door))
         {
-            pLogger.warn("Chunks for door " + door.getName() + " could not be not loaded!");
+            PLogger.get().warn("Chunks for door " + door.getName() + " could not be not loaded!");
             return DoorToggleResult.ERROR;
         }
 
@@ -404,7 +402,7 @@ public final class DoorOpeningUtility
     }
 
     /**
-     * Gets the speed multiplier of a {@link AbstractDoorBase} from the config based on its {@link DoorType}.
+     * Gets the speed multiplier of a {@link AbstractDoorBase} from the config based on its {@link EDoorType}.
      *
      * @param door The {@link AbstractDoorBase}.
      * @return The speed multiplier of this {@link AbstractDoorBase}.

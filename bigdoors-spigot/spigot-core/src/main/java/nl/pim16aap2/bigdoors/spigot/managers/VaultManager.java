@@ -4,7 +4,7 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.bigdoors.api.IRestartable;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -29,7 +29,7 @@ public final class VaultManager implements IRestartable
 {
     private static final VaultManager instance = new VaultManager();
     private final Map<Long, Double> menu;
-    private final Map<DoorType, Double> flatPrices;
+    private final Map<EDoorType, Double> flatPrices;
     private final boolean vaultEnabled;
     private Economy economy = null;
     private Permission perms = null;
@@ -38,7 +38,7 @@ public final class VaultManager implements IRestartable
     private VaultManager()
     {
         menu = new HashMap<>();
-        flatPrices = new EnumMap<>(DoorType.class);
+        flatPrices = new EnumMap<>(EDoorType.class);
         vaultEnabled = isVaultInstalled() && setupEconomy() && setupPermissions();
         if (!vaultEnabled) // TODO: Don't throw an exception here, it's completely fine if Vault isn't installed!
             PLogger.get().logException(new IllegalStateException("Failed to enable Vault!"));
@@ -63,11 +63,11 @@ public final class VaultManager implements IRestartable
      * Buys a door for a player.
      *
      * @param player     The player whose bank account to use.
-     * @param type       The {@link DoorType} of the door.
+     * @param type       The {@link EDoorType} of the door.
      * @param blockCount The number of blocks in the door.
      * @return True if the player bought the door successfully.
      */
-    public boolean buyDoor(final @NotNull Player player, final @NotNull DoorType type, final int blockCount)
+    public boolean buyDoor(final @NotNull Player player, final @NotNull EDoorType type, final int blockCount)
     {
         if (!vaultEnabled)
             return true;
@@ -88,17 +88,17 @@ public final class VaultManager implements IRestartable
     }
 
     /**
-     * Tries to get a flat price from the config for a {@link DoorType}. Useful in case the price is set to zero, so the
-     * plugin won't have to parse the formula every time if it is disabled.
+     * Tries to get a flat price from the config for a {@link EDoorType}. Useful in case the price is set to zero, so
+     * the plugin won't have to parse the formula every time if it is disabled.
      *
-     * @param type The {@link DoorType}.
+     * @param type The {@link EDoorType}.
      */
-    private void getFlatPrice(final @NotNull DoorType type)
+    private void getFlatPrice(final @NotNull EDoorType type)
     {
         Double price;
         try
         {
-            price = Double.parseDouble(plugin.getConfigLoader().getPrice(DoorType.BIGDOOR));
+            price = Double.parseDouble(plugin.getConfigLoader().getPrice(EDoorType.BIGDOOR));
             flatPrices.put(type, price);
         }
         catch (Exception unhandled)
@@ -112,7 +112,7 @@ public final class VaultManager implements IRestartable
      */
     private void init()
     {
-        for (DoorType type : DoorType.cachedValues())
+        for (EDoorType type : EDoorType.cachedValues())
             getFlatPrice(type);
     }
 
@@ -150,19 +150,19 @@ public final class VaultManager implements IRestartable
     }
 
     /**
-     * Gets the price of {@link DoorType} for a specific number of blocks.
+     * Gets the price of {@link EDoorType} for a specific number of blocks.
      *
-     * @param type       The {@link DoorType}.
+     * @param type       The {@link EDoorType}.
      * @param blockCount The number of blocks.
-     * @return The price of this {@link DoorType} with this number of blocks.
+     * @return The price of this {@link EDoorType} with this number of blocks.
      */
-    public double getPrice(final @NotNull DoorType type, final int blockCount)
+    public double getPrice(final @NotNull EDoorType type, final int blockCount)
     {
         if (!vaultEnabled)
             return 0;
 
         // Try cache first
-        final long priceID = blockCount * 100L + DoorType.getValue(type);
+        final long priceID = blockCount * 100L + EDoorType.getValue(type);
         if (menu.containsKey(priceID))
             return menu.get(priceID);
 

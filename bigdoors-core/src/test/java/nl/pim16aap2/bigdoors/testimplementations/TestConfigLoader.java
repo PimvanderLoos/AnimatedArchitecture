@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import org.jetbrains.annotations.NotNull;
 
 public class TestConfigLoader implements IConfigLoader
@@ -137,7 +137,7 @@ public class TestConfigLoader implements IConfigLoader
      * {@inheritDoc}
      */
     @Override
-    public String getPrice(DoorType type)
+    public String getPrice(EDoorType type)
     {
         return null;
     }
@@ -146,7 +146,7 @@ public class TestConfigLoader implements IConfigLoader
      * {@inheritDoc}
      */
     @Override
-    public double getMultiplier(DoorType type)
+    public double getMultiplier(EDoorType type)
     {
         return 0;
     }

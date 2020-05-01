@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
@@ -119,7 +119,7 @@ public class SQLiteJDBCDriverConnectionTest
                 doorData = new AbstractDoorBase.DoorData(min, max, engine, powerBlock, world, isOpen,
                                                          RotateDirection.valueOf(0));
             }
-            door1 = DoorType.BIGDOOR.getNewDoor(plogger, 1, doorData);
+            door1 = EDoorType.BIGDOOR.getNewDoor(plogger, 1, doorData);
 
             door1.setName("massive1");
             door1.setLock(false);
@@ -137,7 +137,7 @@ public class SQLiteJDBCDriverConnectionTest
                 doorData = new AbstractDoorBase.DoorData(min, max, engine, powerBlock, world, isOpen,
                                                          RotateDirection.valueOf(0));
             }
-            door2 = DoorType.DRAWBRIDGE.getNewDoor(plogger, 2, doorData);
+            door2 = EDoorType.DRAWBRIDGE.getNewDoor(plogger, 2, doorData);
             door2.setName("massive2");
             door2.setLock(false);
             door2.setAutoClose(0);
@@ -154,7 +154,7 @@ public class SQLiteJDBCDriverConnectionTest
                 doorData = new AbstractDoorBase.DoorData(min, max, engine, powerBlock, world, isOpen,
                                                          RotateDirection.NORTH);
             }
-            door3 = DoorType.BIGDOOR.getNewDoor(plogger, 3, doorData);
+            door3 = EDoorType.BIGDOOR.getNewDoor(plogger, 3, doorData);
             door3.setName("massive2");
             door3.setLock(false);
             door3.setAutoClose(0);

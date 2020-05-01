@@ -1,18 +1,18 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link DoorType#SLIDINGDOOR}.
+ * Represents a user creating a {@link EDoorType#SLIDINGDOOR}.
  *
  * @author Pim
  **/
@@ -21,7 +21,7 @@ public class SlidingDoorCreator extends Creator
     public SlidingDoorCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                               final @Nullable String name)
     {
-        super(plugin, player, name, DoorType.SLIDINGDOOR);
+        super(plugin, player, name, EDoorType.SLIDINGDOOR);
         if (name == null)
             SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_GIVENAME));
         else

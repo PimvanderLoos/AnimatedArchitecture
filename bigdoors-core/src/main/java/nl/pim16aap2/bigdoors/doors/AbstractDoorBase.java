@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -29,9 +30,8 @@ public abstract class AbstractDoorBase implements IDoorBase
 {
     protected final long doorUID;
     @NotNull
-    protected final PLogger pLogger;
-    @NotNull
-    protected final DoorType doorType;
+//    protected final DoorType doorType;
+    protected EDoorType eDoorType;
     @NotNull
     protected final DoorOpeningUtility doorOpeningUtility;
     @NotNull
@@ -41,7 +41,7 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     private String name;
     private boolean isOpen;
-    private RotateDirection openDir = RotateDirection.NONE;
+    private RotateDirection openDir;
     private int blocksToMove;
 
     private boolean isLocked;
@@ -51,6 +51,10 @@ public abstract class AbstractDoorBase implements IDoorBase
     // "cached" values that only get calculated when first retrieved.
     private Vector2Di engineChunk = null;
     private Integer blockCount = null;
+
+    /**
+     * The direction from the engine to the other end of the door.
+     */
     private PBlockFace currentDirection = null;
 
     /**
@@ -59,20 +63,30 @@ public abstract class AbstractDoorBase implements IDoorBase
      */
     private Vector2Di minChunkCoords = null, maxChunkCoords = null;
 
-    /**
-     * Constructs a new DoorBase.
-     *
-     * @param pLogger  The {@link PLogger} used for logging.
-     * @param doorUID  The UID of this door.
-     * @param doorType The type of this door.
-     */
-    protected AbstractDoorBase(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                               final @NotNull DoorType doorType)
-    {
-        this.pLogger = pLogger;
-        this.doorUID = doorUID;
-        this.doorType = doorType;
+    @NotNull
+    protected final DoorType doorType;
 
+    @Deprecated
+    protected AbstractDoorBase(PLogger pLogger, long uid, DoorData doorData, EDoorType eDoorType)
+    {
+        System.out.println("USING DEPRECATED DOORBASE CONSTRUCTOR!");
+        eDoorType = null;
+        doorOpeningUtility = null;
+        IPWorld = null;
+        doorType = null;
+        doorUID = 0;
+    }
+
+    /**
+     * Constructs a new {@link AbstractDoorBase}.
+     */
+    protected AbstractDoorBase(final @NotNull DoorData doorData, final @NotNull DoorType doorType)
+    {
+        doorUID = doorData.getUID();
+        this.doorType = doorType;
+        eDoorType = null;
+
+        name = doorData.getName();
         min = doorData.getMin();
         max = doorData.getMax();
         engine = doorData.getEngine();
@@ -80,9 +94,15 @@ public abstract class AbstractDoorBase implements IDoorBase
         IPWorld = doorData.getWorld();
         isOpen = doorData.getIsOpen();
         openDir = doorData.getOpenDirection();
+        doorOwner = doorData.getDoorOwner();
 
         doorOpeningUtility = DoorOpeningUtility.get();
         onCoordsUpdate();
+    }
+
+    public DoorType getDoorType()
+    {
+        return doorType;
     }
 
     /**
@@ -134,7 +154,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (openDir.equals(RotateDirection.NONE))
         {
             IllegalStateException e = new IllegalStateException("OpenDir cannot be NONE!");
-            pLogger.logException(e);
+            PLogger.get().logException(e);
             throw e;
         }
 
@@ -300,15 +320,15 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * The the {@link DoorType} of this door.
+     * The the {@link EDoorType} of this door.
      *
-     * @return The {@link DoorType} of this door.
+     * @return The {@link EDoorType} of this door.
      */
     @Override
     @NotNull
-    public final DoorType getType()
+    public final EDoorType getType()
     {
-        return doorType;
+        return eDoorType;
     }
 
     /**
@@ -395,7 +415,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         {
             NullPointerException npe = new NullPointerException(
                 "Door " + getDoorUID() + " did not have an owner! Please contact pim16aap2.");
-            pLogger.logException(npe);
+            PLogger.get().logException(npe);
             throw npe;
         }
         return doorOwner.getPlayerUUID();
@@ -414,11 +434,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the {@link RotateDirection} this {@link AbstractDoorBase} will open if currently closed. Note that if it's
-     * currently in the open status, it'll go in the opposite direction, as the closing direction is the opposite of the
-     * opening direction.
-     *
-     * @return The {@link RotateDirection} this {@link AbstractDoorBase} will open in.
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -440,7 +456,8 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (newRotDir.equals(RotateDirection.NONE))
         {
             setDefaultOpenDirection();
-            pLogger.logMessage("\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
+            PLogger.get()
+                   .logMessage("\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
             return;
         }
         openDir = newRotDir;
@@ -753,6 +770,16 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
+     * Update the {@link #currentDirection} of this {@link AbstractDoorBase}.
+     *
+     * @param currentDirection The new {@link #currentDirection} of this {@link AbstractDoorBase}.
+     */
+    protected final void setCurrentDirection(final @NotNull PBlockFace currentDirection)
+    {
+        this.currentDirection = currentDirection;
+    }
+
+    /**
      * @return The simple hash of the chunk in which the power block resides.
      */
     @Override
@@ -761,7 +788,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (powerBlock == null)
         {
             NullPointerException e = new NullPointerException("Powerblock unexpectedly null!");
-            pLogger.logException(e);
+            PLogger.get().logException(e);
             throw e;
         }
         return Util.simpleChunkHashFromLocation(powerBlock.getX(), powerBlock.getZ());
@@ -787,7 +814,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         StringBuilder builder = new StringBuilder();
         builder.append(doorUID).append(": ").append(name).append("\n");
-        builder.append("Type: ").append(doorType.toString()).append(". Permission: ").append(getPermission())
+        builder.append("Type: ").append(eDoorType.toString()).append(". Permission: ").append(getPermission())
                .append("\n");
         builder.append("Min: ").append(min.toString()).append(", Max: ")
                .append(max.toString()).append(", Engine: ").append(engine.toString())
@@ -817,7 +844,7 @@ public abstract class AbstractDoorBase implements IDoorBase
 
         AbstractDoorBase other = (AbstractDoorBase) o;
         return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
-            powerBlock.equals(other.powerBlock) && doorType.equals(other.doorType) && isOpen == other.isOpen &&
+            powerBlock.equals(other.powerBlock) && eDoorType.equals(other.eDoorType) && isOpen == other.isOpen &&
             doorOwner.equals(other.doorOwner) && blocksToMove == other.blocksToMove && isLocked == other.isLocked &&
             autoClose == other.autoClose && IPWorld.getUID().equals(other.IPWorld.getUID());
     }
@@ -829,6 +856,9 @@ public abstract class AbstractDoorBase implements IDoorBase
      */
     public static final class DoorData
     {
+        private final long uid;
+        @NotNull
+        private final String name;
         @NotNull
         private final Vector3Di min;
         @NotNull
@@ -836,35 +866,50 @@ public abstract class AbstractDoorBase implements IDoorBase
         @NotNull
         private final Vector3Di engine;
         @NotNull
-        private final Vector3Di powerBlock;
+        private final Vector3Di powerBlock; // TODO: Use a list of powerblocks.
         @NotNull
-        private final IPWorld IPWorld;
-        private final boolean isOpen;
+        private final IPWorld world;
+        private final boolean isOpen; // TODO: Use the bitflag here instead.
         @NotNull
         private final RotateDirection openDirection;
+        @NotNull
+        private final DoorOwner doorOwner;
 
         /**
          * Initializes all basic data of this door. This refers to all data required to put this door in a basic valid
          * state. It can then infer further details from this data (such as NorthSouthAxis and dimensions).
          *
-         * @param min        The IPLocation with the coordinates closest to the origin.
-         * @param max        The IPLocation with the coordinates furthest away from the origin.
-         * @param engine     The IPLocation of the engine.
-         * @param powerBlock The IPLocation of the powerblock.
-         * @param IPWorld    The IPWorld this door is in.
-         * @param isOpen     Whether or not this door is currently open.
+         * @param uid           The UID of this door.
+         * @param name          The name of this door.
+         * @param min           The IPLocation with the coordinates closest to the origin.
+         * @param max           The IPLocation with the coordinates furthest away from the origin.
+         * @param engine        The IPLocation of the engine.
+         * @param powerBlock    The IPLocation of the powerblock.
+         * @param world         The IPWorld this door is in.
+         * @param isOpen        Whether or not this door is currently open.
+         * @param openDirection The open direction of this door.
+         * @param doorOwner     The {@link DoorOwner} of this door.
          */
-        public DoorData(final @NotNull Vector3Di min, final @NotNull Vector3Di max, final @NotNull Vector3Di engine,
-                        final @NotNull Vector3Di powerBlock, final @NotNull IPWorld IPWorld, final boolean isOpen,
-                        final @NotNull RotateDirection openDirection)
+        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,
+                        final @NotNull Vector3Di max, final @NotNull Vector3Di engine,
+                        final @NotNull Vector3Di powerBlock, final @NotNull IPWorld world, final boolean isOpen,
+                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner doorOwner)
         {
+            this.uid = uid;
+            this.name = name;
             this.min = min;
             this.max = max;
             this.engine = engine;
             this.powerBlock = powerBlock;
-            this.IPWorld = IPWorld;
+            this.world = world;
             this.isOpen = isOpen;
             this.openDirection = openDirection;
+            this.doorOwner = doorOwner;
+        }
+
+        private long getUID()
+        {
+            return uid;
         }
 
         @NotNull
@@ -894,7 +939,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         @NotNull
         private IPWorld getWorld()
         {
-            return IPWorld;
+            return world;
         }
 
         private boolean getIsOpen()
@@ -906,6 +951,18 @@ public abstract class AbstractDoorBase implements IDoorBase
         private RotateDirection getOpenDirection()
         {
             return openDirection;
+        }
+
+        @NotNull
+        private String getName()
+        {
+            return name;
+        }
+
+        @NotNull
+        private DoorOwner getDoorOwner()
+        {
+            return doorOwner;
         }
     }
 }

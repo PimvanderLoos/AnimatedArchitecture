@@ -22,14 +22,14 @@ import org.jetbrains.annotations.Nullable;
 public class Portcullis extends AbstractDoorBase implements IMovingDoorArchetype
 {
     protected Portcullis(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                         final @NotNull DoorType type)
+                         final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
     protected Portcullis(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.PORTCULLIS);
+        this(pLogger, doorUID, doorData, EDoorType.PORTCULLIS);
     }
 
     /**

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.BitFlag;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 /**
  * Represents storage of all door related stuff.
@@ -19,6 +21,30 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public interface IStorage
 {
+
+    Pattern VALID_TABLE_NAME = Pattern.compile("^[a-zA-Z0-9_]*$");
+
+    /**
+     * Checks if a specific String would make for a valid name for a table.
+     *
+     * @param str The String to check.
+     * @return True if this String is valid as a table name.
+     */
+    static boolean isValidTableName(final @NotNull String str)
+    {
+        return VALID_TABLE_NAME.matcher(str).find();
+    }
+
+    /**
+     * Registeres an {@link DoorType} in the database.
+     *
+     * @param doorType The {@link DoorType}.
+     * @return The identifier value assigned to the {@link DoorType} during registration. A value less than 1 means that
+     * registration was not successful. If the {@link DoorType} already exists in the database, it will return the
+     * existing identifier value. As long as the type does not change,
+     */
+    long registerDoorType(final @NotNull DoorType doorType);
+
     /**
      * Gets the level of ownership a given player has over a given door.
      *
@@ -102,7 +128,7 @@ public interface IStorage
      * @return The door if it exists and if the player is an owner of it.
      */
     @NotNull
-    Optional<AbstractDoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID);
+    Optional<? extends AbstractDoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID);
 
     /**
      * Gets the door with the given doorUID and the original creator as {@link DoorOwner};
@@ -111,7 +137,7 @@ public interface IStorage
      * @return The door with the given doorUID and the original creator.
      */
     @NotNull
-    Optional<AbstractDoorBase> getDoor(final long doorUID);
+    Optional<? extends AbstractDoorBase> getDoor(final long doorUID);
 
     /**
      * Gets all the doors owned by the the given player with the given name.

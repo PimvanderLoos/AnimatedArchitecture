@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents all {@link DoorType}s that are aligned on the North/South or East/West axis. For example: {@link
+ * Represents all {@link EDoorType}s that are aligned on the North/South or East/West axis. For example: {@link
  * SlidingDoor}.
  * <p>
  * Only doors with a depth of 1 block can be extended.
@@ -22,7 +22,7 @@ public abstract class HorizontalAxisAlignedBase extends AbstractDoorBase
     private Boolean northSouthAxis = null;
 
     protected HorizontalAxisAlignedBase(final @NotNull PLogger pLogger, final long doorUID,
-                                        final @NotNull DoorData doorData, final @NotNull DoorType type)
+                                        final @NotNull DoorData doorData, final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
@@ -68,8 +68,8 @@ public abstract class HorizontalAxisAlignedBase extends AbstractDoorBase
     }
 
     /**
-     * Retrieve if the {@link AbstractDoorBase} is aligned with the z-axis (North/South). If not calculated/invalidated, {@link
-     * #calculateNorthSouthAxis()} is called to (re)calculate it.
+     * Retrieve if the {@link AbstractDoorBase} is aligned with the z-axis (North/South). If not calculated/invalidated,
+     * {@link #calculateNorthSouthAxis()} is called to (re)calculate it.
      *
      * @return True if aligned with the z-axis (North/South), False when aligned with the x-axis (East/West).
      */

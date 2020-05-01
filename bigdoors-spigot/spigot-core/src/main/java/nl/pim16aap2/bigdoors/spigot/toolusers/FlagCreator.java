@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link DoorType#FLAG}.
+ * Represents a user creating a {@link EDoorType#FLAG}.
  *
  * @author Pim
  **/
@@ -17,7 +17,7 @@ public class FlagCreator extends BigDoorCreator
     public FlagCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player, final @Nullable String name)
     {
         super(plugin, player, name);
-        type = DoorType.FLAG;
+        type = EDoorType.FLAG;
     }
 
     /**

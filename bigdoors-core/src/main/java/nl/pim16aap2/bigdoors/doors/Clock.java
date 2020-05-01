@@ -20,14 +20,14 @@ import org.jetbrains.annotations.Nullable;
 public class Clock extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     protected Clock(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                    final @NotNull DoorType type)
+                    final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
     protected Clock(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.CLOCK);
+        this(pLogger, doorUID, doorData, EDoorType.CLOCK);
     }
 
     /**

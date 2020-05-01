@@ -22,14 +22,14 @@ import org.jetbrains.annotations.Nullable;
 public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoorArchetype
 {
     protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                         final @NotNull DoorType type)
+                         final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
     protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.GARAGEDOOR);
+        this(pLogger, doorUID, doorData, EDoorType.GARAGEDOOR);
     }
 
     /**
@@ -134,7 +134,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
         }
         catch (Exception e)
         {
-            pLogger.logException(new IllegalArgumentException(
+            PLogger.get().logException(new IllegalArgumentException(
                 "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
                     getType().name() + "\""));
             return false;

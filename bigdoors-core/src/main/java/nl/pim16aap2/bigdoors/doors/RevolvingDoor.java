@@ -19,14 +19,14 @@ import org.jetbrains.annotations.Nullable;
 public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorArchetype
 {
     protected RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                            final @NotNull DoorType type)
+                            final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
     protected RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.REVOLVINGDOOR);
+        this(pLogger, doorUID, doorData, EDoorType.REVOLVINGDOOR);
     }
 
     /**

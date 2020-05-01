@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
 
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link DoorType#CLOCK}.
+ * Represents a user creating a {@link EDoorType#CLOCK}.
  *
  * @author Pim
  **/
@@ -22,7 +22,7 @@ public class ClockCreator extends BigDoorCreator
 
     public ClockCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player, final @Nullable String name)
     {
-        super(plugin, player, name, DoorType.CLOCK);
+        super(plugin, player, name, EDoorType.CLOCK);
     }
 
     /**

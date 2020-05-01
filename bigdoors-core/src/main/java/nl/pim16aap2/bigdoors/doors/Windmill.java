@@ -20,14 +20,14 @@ import org.jetbrains.annotations.Nullable;
 public class Windmill extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     protected Windmill(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                       final @NotNull DoorType type)
+                       final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
     protected Windmill(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.WINDMILL);
+        this(pLogger, doorUID, doorData, EDoorType.WINDMILL);
     }
 
     /**

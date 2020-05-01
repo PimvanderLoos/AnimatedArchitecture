@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.config;
 import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -49,8 +49,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private final Set<Material> materialBlacklist;
     private final Map<ProtectionCompat, Boolean> hooksMap;
     private final List<ConfigEntry<?>> configEntries;
-    private final Map<DoorType, String> doorPrices;
-    private final Map<DoorType, Double> doorMultipliers;
+    private final Map<EDoorType, String> doorPrices;
+    private final Map<EDoorType, Double> doorMultipliers;
 
     private final String header;
     private String dbFile;
@@ -85,8 +85,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         powerBlockTypesMap = EnumSet.noneOf(Material.class);
         materialBlacklist = EnumSet.noneOf(Material.class);
         hooksMap = new EnumMap<>(ProtectionCompat.class);
-        doorPrices = new EnumMap<>(DoorType.class);
-        doorMultipliers = new EnumMap<>(DoorType.class);
+        doorPrices = new EnumMap<>(EDoorType.class);
+        doorMultipliers = new EnumMap<>(EDoorType.class);
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
     }
@@ -273,15 +273,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                                         "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", null);
 
 
-        for (DoorType type : DoorType.cachedValues())
-            if (DoorType.isEnabled(type))
+        for (EDoorType type : EDoorType.cachedValues())
+            if (EDoorType.isEnabled(type))
                 doorMultipliers.put(type, addNewConfigEntry(config, "multiplierOf" + type, 0.0D,
-                                                            DoorType.getValue(type) == 0 ? multiplierComment : null));
+                                                            EDoorType.getValue(type) == 0 ? multiplierComment : null));
 
-        for (DoorType type : DoorType.cachedValues())
-            if (DoorType.isEnabled(type))
+        for (EDoorType type : EDoorType.cachedValues())
+            if (EDoorType.isEnabled(type))
                 doorPrices.put(type, addNewConfigEntry(config, "priceOf" + type.name(), "0",
-                                                       DoorType.getValue(type) == 0 ? pricesComment : null));
+                                                       EDoorType.getValue(type) == 0 ? pricesComment : null));
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         // This is a bit special, as it's public static (for SpigotUtil debug messages).
@@ -573,7 +573,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * {@inheritDoc}
      */
     @Override
-    public String getPrice(final @NotNull DoorType type)
+    public String getPrice(final @NotNull EDoorType type)
     {
         return doorPrices.get(type);
     }
@@ -582,7 +582,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * {@inheritDoc}
      */
     @Override
-    public double getMultiplier(final @NotNull DoorType type)
+    public double getMultiplier(final @NotNull EDoorType type)
     {
         return doorMultipliers.get(type);
     }

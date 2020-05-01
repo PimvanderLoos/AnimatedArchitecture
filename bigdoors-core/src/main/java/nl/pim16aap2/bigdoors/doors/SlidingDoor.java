@@ -22,14 +22,14 @@ import org.jetbrains.annotations.Nullable;
 public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype
 {
     protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                          final @NotNull DoorType type)
+                          final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
     protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.SLIDINGDOOR);
+        this(pLogger, doorUID, doorData, EDoorType.SLIDINGDOOR);
     }
 
     /**

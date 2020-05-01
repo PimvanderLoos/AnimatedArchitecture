@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -38,11 +38,11 @@ public class SubCommandNew extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.NEW;
 
-    private static final Map<DoorType, String> typePermissions = new EnumMap<>(DoorType.class);
+    private static final Map<EDoorType, String> typePermissions = new EnumMap<>(EDoorType.class);
 
     static
     {
-        for (DoorType type : DoorType.cachedValues())
+        for (EDoorType type : EDoorType.cachedValues())
             typePermissions.put(type, CommandData.getPermission(CommandData.NEW) + type.toString().toLowerCase());
     }
 
@@ -52,7 +52,7 @@ public class SubCommandNew extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public static boolean hasCreationPermission(final @NotNull Player player, final @NotNull DoorType type)
+    public static boolean hasCreationPermission(final @NotNull Player player, final @NotNull EDoorType type)
     {
         return player.hasPermission(typePermissions.get(type));
     }
@@ -74,7 +74,7 @@ public class SubCommandNew extends SubCommand
      * @param type   The type of the door to be created.
      */
     private void initiateDoorCreation(final @NotNull Player player, final @Nullable String name,
-                                      final @NotNull DoorType type)
+                                      final @NotNull EDoorType type)
     {
         if (name != null && !Util.isValidDoorName(name))
         {
@@ -137,7 +137,7 @@ public class SubCommandNew extends SubCommand
      * @param maxDoorCount The maximum number of doors this player is allowed to create.
      */
     private void initiateDoorCreation(final @NotNull Player player, final @Nullable String name,
-                                      final @NotNull DoorType type, final int maxDoorCount)
+                                      final @NotNull EDoorType type, final int maxDoorCount)
     {
         if (maxDoorCount < 0)
             initiateDoorCreation(player, name, type);
@@ -154,9 +154,9 @@ public class SubCommandNew extends SubCommand
     }
 
     // Create a new door.
-    public void execute(final @NotNull Player player, final @Nullable String name, final @NotNull DoorType type)
+    public void execute(final @NotNull Player player, final @Nullable String name, final @NotNull EDoorType type)
     {
-        if (!DoorType.isEnabled(type))
+        if (!EDoorType.isEnabled(type))
         {
             plugin.getPLogger()
                   .severe("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!");
@@ -187,12 +187,12 @@ public class SubCommandNew extends SubCommand
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
 
-        DoorType type = DoorType.BIGDOOR;
+        EDoorType type = EDoorType.BIGDOOR;
         String name = args[args.length - 1];
 
         if (args.length == minArgCount + 1)
         {
-            Optional<DoorType> optType = DoorType.valueOfCommandFlag(args[args.length - 2].toUpperCase());
+            Optional<EDoorType> optType = EDoorType.valueOfCommandFlag(args[args.length - 2].toUpperCase());
             if (!optType.isPresent())
                 return false;
             else type = optType.get();

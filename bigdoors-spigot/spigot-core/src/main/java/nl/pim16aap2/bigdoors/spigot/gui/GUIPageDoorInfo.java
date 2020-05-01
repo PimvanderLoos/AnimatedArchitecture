@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
@@ -177,7 +177,7 @@ public class GUIPageDoorInfo implements IGUIPage
 
         lore.add(messages.getString(Message.GUI_DESCRIPTION_INFO, gui.getDoor().getName()));
         lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(gui.getDoor().getDoorUID())));
-        lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
+        lore.add(messages.getString(EDoorType.getMessage(gui.getDoor().getType())));
         gui.addItem(4, new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(),
                                    lore, 1));
     }
@@ -185,7 +185,7 @@ public class GUIPageDoorInfo implements IGUIPage
     protected void fillPage()
     {
         final AtomicInteger position = new AtomicInteger(8);
-        for (DoorAttribute attr : DoorType.getAttributes(gui.getDoor().getType()))
+        for (DoorAttribute attr : EDoorType.getAttributes(gui.getDoor().getType()))
             createGUIItemOfAttribute(gui.getDoor(), attr).ifPresent(I -> gui.addItem(position.addAndGet(1), I));
     }
 
@@ -212,7 +212,7 @@ public class GUIPageDoorInfo implements IGUIPage
     // Changes the opening direction for a door.
     private void changeOpenDir(final @NotNull AbstractDoorBase door, final int index)
     {
-        DoorAttribute[] attributes = DoorType.getAttributes(door.getType());
+        DoorAttribute[] attributes = EDoorType.getAttributes(door.getType());
         DoorAttribute openTypeAttribute = null;
 
         outerLoop:

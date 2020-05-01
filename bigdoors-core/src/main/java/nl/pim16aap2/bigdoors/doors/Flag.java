@@ -22,14 +22,14 @@ import org.jetbrains.annotations.Nullable;
 public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     protected Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                   final @NotNull DoorType type)
+                   final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
     protected Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.FLAG);
+        this(pLogger, doorUID, doorData, EDoorType.FLAG);
     }
 
     /**

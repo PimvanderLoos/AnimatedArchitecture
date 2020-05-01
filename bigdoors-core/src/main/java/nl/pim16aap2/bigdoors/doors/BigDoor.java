@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.BigDoorMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -12,6 +14,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Represents a Big Door doorType.
  *
@@ -20,15 +24,51 @@ import org.jetbrains.annotations.Nullable;
  */
 public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
 {
+    private static final DoorType doorType = DoorTypeBigDoor.get();
+
+    @NotNull
+    public static Optional<BigDoor> constructDoor(final @NotNull DoorData doorData, final @NotNull Object... args)
+    {
+        if (args.length != 2)
+            return Optional.empty();
+        final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) args[1]);
+        if (currentDirection == null)
+            return Optional.empty();
+        return Optional.of(BigDoor.constructDoor(doorData, (int) args[0], currentDirection));
+    }
+
+    @NotNull
+    public static BigDoor constructDoor(final @NotNull DoorData doorData, final int autoCloseTimer,
+                                        final @NotNull PBlockFace currentDirection)
+    {
+        return new BigDoor(doorData, autoCloseTimer, currentDirection);
+    }
+
+    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
+    {
+        return new Object[]{door.getAutoClose(), PBlockFace.getValue(door.getCurrentDirection())};
+    }
+
+
+    private BigDoor(final @NotNull DoorData doorData, final int autoCloseTimer,
+                    final @NotNull PBlockFace currentDirection)
+    {
+        super(doorData, doorType);
+        setAutoClose(autoCloseTimer);
+        setCurrentDirection(currentDirection);
+    }
+
+    @Deprecated
     protected BigDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                      final @NotNull DoorType type)
+                      final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
+    @Deprecated
     protected BigDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.BIGDOOR);
+        this(pLogger, doorUID, doorData, EDoorType.BIGDOOR);
     }
 
     /**
@@ -111,7 +151,8 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
                 newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.NORTH : PBlockFace.SOUTH;
                 break;
             default:
-                pLogger.warn("Invalid currentDirection for BigDoor! \"" + getCurrentDirection().toString() + "\"");
+                PLogger.get()
+                       .warn("Invalid currentDirection for BigDoor! \"" + getCurrentDirection().toString() + "\"");
                 return false;
         }
 

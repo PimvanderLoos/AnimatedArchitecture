@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -83,6 +84,24 @@ public final class DatabaseManager extends Restartable
                                        final @NotNull IConfigLoader config, final @NotNull File dbFile)
     {
         return (instance == null) ? instance = new DatabaseManager(restartableHolder, config, dbFile) : instance;
+    }
+
+    /**
+     * Registeres an {@link DoorType} in the database.
+     *
+     * @param doorType The {@link DoorType}.
+     * @return The identifier value assigned to the {@link DoorType} during registration. A value less than 1 means that
+     * registration was not successful. If the {@link DoorType} already exists in the database, it will return the
+     * existing identifier value. As long as the type does not change,
+     */
+    public long registerDoorType(final @NotNull DoorType doorType)
+    {
+        return db.registerDoorType(doorType);
+    }
+
+    public void TEST()
+    {
+        ((SQLiteJDBCDriverConnection) db).TEST();
     }
 
     /**
@@ -282,7 +301,7 @@ public final class DatabaseManager extends Restartable
     @NotNull
     public CompletableFuture<Optional<AbstractDoorBase>> getDoor(final long doorUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool);
+        return CompletableFuture.supplyAsync(() -> (Optional<AbstractDoorBase>) db.getDoor(doorUID), threadPool);
     }
 
     /**
@@ -296,10 +315,11 @@ public final class DatabaseManager extends Restartable
     @NotNull
     public CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @Nullable IPPlayer player,
                                                                  final long doorUID)
-    {
+    { // TODO: Use Optional<? extends AbstractDoorBase>.
         return player == null ?
-               CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool) :
-               CompletableFuture.supplyAsync(() -> db.getDoor(player.getUUID(), doorUID), threadPool);
+               CompletableFuture.supplyAsync(() -> (Optional<AbstractDoorBase>) db.getDoor(doorUID), threadPool) :
+               CompletableFuture.supplyAsync(() -> (Optional<AbstractDoorBase>) db.getDoor(player.getUUID(), doorUID),
+                                             threadPool);
     }
 
     /**

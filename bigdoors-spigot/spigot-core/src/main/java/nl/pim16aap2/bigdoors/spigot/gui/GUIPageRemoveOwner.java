@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -145,7 +145,7 @@ public class GUIPageRemoveOwner implements IGUIPage
 
         lore.add(messages.getString(Message.GUI_DESCRIPTION_INFO, gui.getDoor().getName()));
         lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(gui.getDoor().getDoorUID())));
-        lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
+        lore.add(messages.getString(EDoorType.getMessage(gui.getDoor().getType())));
         gui.setItem(4, new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(),
                                    lore, 1));
     }

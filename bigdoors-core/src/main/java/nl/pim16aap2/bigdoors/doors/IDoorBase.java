@@ -159,12 +159,12 @@ public interface IDoorBase
     void setBlocksToMove(final int newBTM);
 
     /**
-     * The the {@link DoorType} of this door.
+     * The the {@link EDoorType} of this door.
      *
-     * @return The {@link DoorType} of this door.
+     * @return The {@link EDoorType} of this door.
      */
     @NotNull
-    DoorType getType();
+    EDoorType getType();
 
     /**
      * Gets the name of this door.

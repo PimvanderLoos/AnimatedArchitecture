@@ -35,6 +35,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Experimental
  */
+// TODO: Consider being more strict in the data types used for the door types system. If the type is actually correctly
+//       defined, it's possible to cast it, right?
 // TODO: Look into allowing people to set a (estimated) max size in RAM for certain caches.
 //       Example: https://www.javaworld.com/article/2074458/estimating-java-object-sizes-with-instrumentation.html
 //       Simpler example: https://stackoverflow.com/questions/52353/in-java-what-is-the-best-way-to-determine-the-size-of-an-object#
@@ -105,6 +107,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Clean up the duplicate JDocs in AbstractDoorBase. Check if the JDocs in IDoorBase are indeed exactly the same.
+// TODO: Make sure there aren't any errors on startup if the plugin folder doesn't exist.
 // TODO: Use reflection or something to hack Spigot's API-version to always use the currently-used API-version.
 // TODO: Add a new type of powerblock that locks/unlocks doors instead of toggling them.
 // TODO: Handle restartable interface options in DatabaseManager class.
@@ -208,11 +212,16 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: Not using any additional data is completely fine! Right now the DoorType system assumes a strict minimum of 1
+//       additional data value.
+// TODO: Allow deleting door types.
+// TODO: Allow retrieving all doors from a certain type.
+// TODO: Be consistent in UUID usage. Either use Strings everywhere or UUIDs everywhere, not the current mix.
+// TODO: When registering DoorTypes, make sure to take into account that the database might be upgrading itself on
+//       another thread. If this is the case, wait until the upgrades have finished before registering them.
+//       Just return a CompletableFuture<Boolean> instead of a boolean from the register method.
+// TODO: Cache functions in PPreparedStatement.
 // TODO: Do not allow modifying properties of a door while it is busy.
-// TODO: Rewrite everything. Create a completely new schema as well. This plugin has outgrown the current one.
-//       Use the items below for more information on the layout. The philosophy of the new design is to store everything
-//       and make sure no data should be inferred. For example, the drawbridge type shouldn't have to figure out which
-//       way it is looking based on coordinates.
 // TODO: Consider creating groups of users, which would make it easy to add an entire group of users as co-owner of a door.
 //       Remember that when removing a player from a group, the player should also be removed as co-owner from all doors
 //       as well, as long as they are not in another group that is also a co-owner of this door.
@@ -221,19 +230,9 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       more difficult, though.
 // TODO: Consider adding folders. This would require a "Folders" table with an owner, ID, and a folder name as well as
 //       a table that links up doors with folders.
-// TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME | VERSION}, with UNIQUE(PLUGIN, TYPENAME, VERSION).
-//       Then use FK from doors to doortypes. Useful for allowing custom door types.
-//       The version value is used so other plugins can update their types' database values when needed.
-//       They would retrieve the number of doors of that type (e.g. getNumberOfType("BigDoors", "Drawbridge", "1");)
-//       and if that number is >0, loop over all existing entries for that version on startup, update them as needed,
-//       and add them to the database as the new type (e.g. "BigDoors", "Drawbridge", "2").
-// TODO: Create a system of creating new tables dynamically for new door types that contain additional information
-//       that is not required for other types (e.g. blocksToMove).
 // TODO: Store engineChunkHash in the database, so stuff can be done when the chunk of a door is loaded. Also make sure
 //       to move the engine location for movable doors (sliding, etc).
-// TODO: Look into creating a separate table for worlds and put an FK to them in the doors table. This should save a bit
-//       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
-// TODO: Store UUIDs as 16 byte binary blobs to save space: https://stackoverflow.com/a/17278095
+// TODO: Maybe store UUIDs as 16 byte binary blobs to save space: https://stackoverflow.com/a/17278095
 // TODO: Move database upgrades out of the main SQL class. Perhaps create some kind of upgrade routine interface. 
 
 /*
@@ -389,6 +388,10 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: https://github.com/seeseemelk/MockBukkit
 // TODO: Make sure to test database upgrade to v11. Make this future-proof somehow. Perhaps store the old v10 creation
 //       stuff somewhere.
+// TODO: Write a completely standalone implementation of the API, which can be used not only to test all core stuff,
+//       but also for development. If the jar is launched on its own, it should load up this implementation.
+//       This would allow developing without using the Spigot server, which takes a bit of time to launch for every
+//       change made to the core, slowing down development.
 
 
 /**

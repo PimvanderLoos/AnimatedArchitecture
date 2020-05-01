@@ -22,14 +22,14 @@ import org.jetbrains.annotations.Nullable;
 public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoorArchetype
 {
     protected Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                         final @NotNull DoorType type)
+                         final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
     protected Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.DRAWBRIDGE);
+        this(pLogger, doorUID, doorData, EDoorType.DRAWBRIDGE);
     }
 
     /**
