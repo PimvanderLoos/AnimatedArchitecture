@@ -18,13 +18,27 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorActionEvent;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+
 public final class TestPlatform implements IBigDoorsPlatform
 {
     private final TestPPlayerFactory pPlayerFactory = new TestPPlayerFactory();
     private final TestPWorldFactory pWorldFactory = new TestPWorldFactory();
+    private static final File dataDirectory = new File(".");
 
     public TestPlatform()
     {
+        // TODO: INIT STUFF. Perhaps add a #getDataFolder() to IBigDoorsPlatform.
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public File getDataDirectory()
+    {
+        return dataDirectory;
     }
 
     @Override

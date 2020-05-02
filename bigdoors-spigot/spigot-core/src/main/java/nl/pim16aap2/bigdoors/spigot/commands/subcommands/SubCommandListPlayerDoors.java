@@ -31,7 +31,7 @@ public class SubCommandListPlayerDoors extends SubCommand
 
     public boolean execute(final @NotNull CommandSender sender, final @NotNull List<AbstractDoorBase> doors)
     {
-        if (doors.size() == 0)
+        if (doors.isEmpty())
         {
             plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, messages.getString(Message.ERROR_NODOORSFOUND));
             return true;

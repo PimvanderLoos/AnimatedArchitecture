@@ -27,7 +27,8 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
     private static final DoorType doorType = DoorTypeBigDoor.get();
 
     @NotNull
-    public static Optional<BigDoor> constructDoor(final @NotNull DoorData doorData, final @NotNull Object... args)
+    public static Optional<AbstractDoorBase> constructDoor(final @NotNull DoorData doorData,
+                                                           final @NotNull Object... args)
     {
         if (args.length != 2)
             return Optional.empty();
@@ -185,5 +186,21 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
             new BigDoorMover(getCurrentToggleDir(), time, getCurrentDirection(), this, skipAnimation,
                              doorOpeningUtility.getMultiplier(this),
                              initiator, newMin, newMax));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final @Nullable Object o)
+    {
+        if (!super.equals(o))
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull BigDoor other = (BigDoor) o;
+        return getCurrentDirection().equals(other.getCurrentDirection()) &&
+            getAutoClose() == other.getAutoClose();
     }
 }

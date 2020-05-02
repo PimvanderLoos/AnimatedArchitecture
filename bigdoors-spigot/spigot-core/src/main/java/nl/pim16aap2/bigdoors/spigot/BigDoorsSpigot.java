@@ -324,6 +324,16 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      */
     @Override
     @NotNull
+    public File getDataDirectory()
+    {
+        return getDataFolder();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
     public IPLocationFactory getPLocationFactory()
     {
         return locationFactory;

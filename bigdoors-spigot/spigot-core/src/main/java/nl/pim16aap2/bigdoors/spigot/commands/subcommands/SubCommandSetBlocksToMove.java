@@ -52,7 +52,8 @@ public class SubCommandSetBlocksToMove extends SubCommand
         int blocksToMove = CommandManager.getIntegerFromArg(blocksToMoveArg);
         if (!(sender instanceof Player))
         {
-            BigDoors.get().getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
+            door.setBlocksToMove(blocksToMove);
+            BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
             sendResultMessage(sender, blocksToMove);
             return true;
         }
@@ -67,7 +68,9 @@ public class SubCommandSetBlocksToMove extends SubCommand
                     commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
                     return;
                 }
-                BigDoors.get().getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
+                
+                door.setBlocksToMove(blocksToMove);
+                BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
                 sendResultMessage(sender, blocksToMove);
             });
         return true;

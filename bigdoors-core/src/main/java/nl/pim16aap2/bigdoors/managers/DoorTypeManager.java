@@ -96,8 +96,6 @@ public final class DoorTypeManager
         doorTypesToID.put(doorType, doorTypeID);
         doorTypesFromID.put(doorTypeID, doorType);
 
-        BigDoors.get().getDatabaseManager().TEST();
-
         return true;
     }
 }

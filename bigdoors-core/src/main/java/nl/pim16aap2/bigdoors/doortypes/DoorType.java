@@ -25,7 +25,7 @@ public class DoorType
     @NotNull
     protected final List<Parameter> parameters;
     @NotNull
-    protected final BiFunction<AbstractDoorBase.DoorData, Object[], Optional<? extends AbstractDoorBase>> constructor;
+    protected final BiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>> constructor;
     @NotNull
     protected final Function<AbstractDoorBase, Object[]> dataSupplier;
 
@@ -47,7 +47,7 @@ public class DoorType
      */
     protected DoorType(final @NotNull String pluginName, final @NotNull String typeName, final int typeVersion,
                        final @NotNull List<Parameter> parameters,
-                       final @NotNull BiFunction<AbstractDoorBase.DoorData, Object[], Optional<? extends AbstractDoorBase>> constructor,
+                       final @NotNull BiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>> constructor,
                        final @NotNull Function<AbstractDoorBase, Object[]> dataSupplier)
     {
         this.pluginName = pluginName;
@@ -119,7 +119,7 @@ public class DoorType
      * @return The constructor used to construct an object of this {@link DoorType}.
      */
     @NotNull
-    public final BiFunction<AbstractDoorBase.DoorData, Object[], Optional<? extends AbstractDoorBase>> getConstructor()
+    public final BiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>> getConstructor()
     {
         return constructor;
     }

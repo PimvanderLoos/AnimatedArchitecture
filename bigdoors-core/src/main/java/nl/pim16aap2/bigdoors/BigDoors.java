@@ -212,8 +212,14 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: Store the locked variable as a flag. Also (not SQL-related), make it part of DoorData.
+// TODO: Implement a doorUpdate method that updates both the doorBase and the door-specific data.
+// TODO: Implement multiple powerblocks per door.
 // TODO: Not using any additional data is completely fine! Right now the DoorType system assumes a strict minimum of 1
 //       additional data value.
+// TODO: Look into this stuff:
+//       https://www.sqlite.org/lang_analyze.html
+//       https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setReadOnly%28boolean%29
 // TODO: Allow deleting door types.
 // TODO: Allow retrieving all doors from a certain type.
 // TODO: Be consistent in UUID usage. Either use Strings everywhere or UUIDs everywhere, not the current mix.

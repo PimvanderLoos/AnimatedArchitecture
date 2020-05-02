@@ -64,7 +64,7 @@ public final class DatabaseManager extends Restartable
                             final @NotNull File dbFile)
     {
         super(restartableHolder);
-        db = new SQLiteJDBCDriverConnection(dbFile, PLogger.get(), config);
+        db = new SQLiteJDBCDriverConnection(dbFile, config);
         if (db.isSingleThreaded())
             threadPool = Executors.newSingleThreadExecutor();
         else
@@ -97,11 +97,6 @@ public final class DatabaseManager extends Restartable
     public long registerDoorType(final @NotNull DoorType doorType)
     {
         return db.registerDoorType(doorType);
-    }
-
-    public void TEST()
-    {
-        ((SQLiteJDBCDriverConnection) db).TEST();
     }
 
     /**
@@ -142,28 +137,6 @@ public final class DatabaseManager extends Restartable
     @Override
     public void shutdown()
     {
-    }
-
-    /**
-     * Changes the auto close time of a door.
-     *
-     * @param doorUID   The UID of the door.
-     * @param autoClose The new auto close time.
-     */
-    public void setDoorOpenTime(final long doorUID, final int autoClose)
-    {
-        CompletableFuture.runAsync(() -> updateDoorAutoClose(doorUID, autoClose), threadPool);
-    }
-
-    /**
-     * Changes the number of blocks a {@link AbstractDoorBase} will try to move.
-     *
-     * @param doorUID      The UID of a {@link AbstractDoorBase}.
-     * @param blocksToMove The number of blocks the {@link AbstractDoorBase} will try to move.
-     */
-    public void setDoorBlocksToMove(final long doorUID, final int blocksToMove)
-    {
-        CompletableFuture.runAsync(() -> updateDoorBlocksToMove(doorUID, blocksToMove), threadPool);
     }
 
     /**
@@ -301,7 +274,7 @@ public final class DatabaseManager extends Restartable
     @NotNull
     public CompletableFuture<Optional<AbstractDoorBase>> getDoor(final long doorUID)
     {
-        return CompletableFuture.supplyAsync(() -> (Optional<AbstractDoorBase>) db.getDoor(doorUID), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool);
     }
 
     /**
@@ -315,10 +288,10 @@ public final class DatabaseManager extends Restartable
     @NotNull
     public CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @Nullable IPPlayer player,
                                                                  final long doorUID)
-    { // TODO: Use Optional<? extends AbstractDoorBase>.
+    {
         return player == null ?
-               CompletableFuture.supplyAsync(() -> (Optional<AbstractDoorBase>) db.getDoor(doorUID), threadPool) :
-               CompletableFuture.supplyAsync(() -> (Optional<AbstractDoorBase>) db.getDoor(player.getUUID(), doorUID),
+               CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool) :
+               CompletableFuture.supplyAsync(() -> db.getDoor(player.getUUID(), doorUID),
                                              threadPool);
     }
 
@@ -523,25 +496,14 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Updates the auto close timer of a {@link AbstractDoorBase}.
+     * Updates the type-specific data of an {@link AbstractDoorBase}. The data will be provided by {@link
+     * DoorType#getDataSupplier()}.
      *
-     * @param doorUID   The UID of the {@link AbstractDoorBase}.
-     * @param autoClose The new auto close timer value.
+     * @param door The {@link AbstractDoorBase} whose type-specific data will be updated.
      */
-    public void updateDoorAutoClose(final long doorUID, final int autoClose)
+    public void updateDoorTypeData(final @NotNull AbstractDoorBase door)
     {
-        CompletableFuture.runAsync(() -> db.updateDoorAutoClose(doorUID, autoClose), threadPool);
-    }
-
-    /**
-     * Updates the number of blocks a {@link AbstractDoorBase} will try to move.
-     *
-     * @param doorUID      The UID of the {@link AbstractDoorBase}.
-     * @param blocksToMove The new number of blocks to move value.
-     */
-    public void updateDoorBlocksToMove(final long doorUID, final int blocksToMove)
-    {
-        CompletableFuture.runAsync(() -> db.updateDoorBlocksToMove(doorUID, blocksToMove), threadPool);
+        CompletableFuture.runAsync(() -> db.updateTypeData(door), threadPool);
     }
 
     /**

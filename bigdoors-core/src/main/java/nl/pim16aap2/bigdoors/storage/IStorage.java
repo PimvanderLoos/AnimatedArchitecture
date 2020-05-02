@@ -128,7 +128,7 @@ public interface IStorage
      * @return The door if it exists and if the player is an owner of it.
      */
     @NotNull
-    Optional<? extends AbstractDoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID);
+    Optional<AbstractDoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID);
 
     /**
      * Gets the door with the given doorUID and the original creator as {@link DoorOwner};
@@ -137,7 +137,7 @@ public interface IStorage
      * @return The door with the given doorUID and the original creator.
      */
     @NotNull
-    Optional<? extends AbstractDoorBase> getDoor(final long doorUID);
+    Optional<AbstractDoorBase> getDoor(final long doorUID);
 
     /**
      * Gets all the doors owned by the the given player with the given name.
@@ -176,7 +176,8 @@ public interface IStorage
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
     @NotNull
-    Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID, final @NotNull String doorName,
+    Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID,
+                                              final @NotNull String doorName,
                                               final int maxPermission);
 
     /**
@@ -249,15 +250,6 @@ public interface IStorage
     List<Long> getDoorsInChunk(final long chunkHash);
 
     /**
-     * Changes the blocksToMove value of a door.
-     *
-     * @param doorUID      The door to modify.
-     * @param blocksToMove The new number of blocks this door will try to move.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorBlocksToMove(final long doorUID, final int blocksToMove);
-
-    /**
      * Updates the coordinates of a door.
      *
      * @param doorUID The UID of the door to update.
@@ -272,15 +264,6 @@ public interface IStorage
      */
     boolean updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin, final int zMin,
                              final int xMax, final int yMax, final int zMax);
-
-    /**
-     * Changes the blocksToMove value of a door.
-     *
-     * @param doorUID   The door to modify.
-     * @param autoClose The new auto close timer of this door.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorAutoClose(final long doorUID, final int autoClose);
 
     /**
      * Changes the blocksToMove value of a door.
@@ -318,6 +301,15 @@ public interface IStorage
      * @return True if the update was successful.
      */
     boolean insert(final @NotNull AbstractDoorBase door);
+
+    /**
+     * Updates the type-specific data of an {@link AbstractDoorBase} in the database. This data is provided by {@link
+     * DoorType#getDataSupplier()}.
+     *
+     * @param door The door whose type-specific data should be updated.
+     * @return True if the update was successful.
+     */
+    boolean updateTypeData(final @NotNull AbstractDoorBase door);
 
     /**
      * Removes an owner of a door. Note that the original creator (= permission level 0) can never be removed.

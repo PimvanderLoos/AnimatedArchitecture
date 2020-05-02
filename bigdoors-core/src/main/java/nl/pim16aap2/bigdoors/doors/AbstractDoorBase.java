@@ -839,14 +839,16 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         if (this == o)
             return true;
+
         if (o == null || getClass() != o.getClass())
             return false;
 
         AbstractDoorBase other = (AbstractDoorBase) o;
+
         return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
-            powerBlock.equals(other.powerBlock) && eDoorType.equals(other.eDoorType) && isOpen == other.isOpen &&
-            doorOwner.equals(other.doorOwner) && blocksToMove == other.blocksToMove && isLocked == other.isLocked &&
-            autoClose == other.autoClose && IPWorld.getUID().equals(other.IPWorld.getUID());
+            doorType.equals(other.doorType) && isOpen == other.isOpen && doorOwner.equals(other.doorOwner) &&
+            blocksToMove == other.blocksToMove && isLocked == other.isLocked && autoClose == other.autoClose &&
+            IPWorld.getUID().equals(other.IPWorld.getUID());
     }
 
     /**

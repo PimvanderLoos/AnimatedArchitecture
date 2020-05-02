@@ -34,9 +34,9 @@ public class SubCommandListDoors extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(CommandSender sender, List<AbstractDoorBase> doors)
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull List<AbstractDoorBase> doors)
     {
-        if (doors.size() == 0)
+        if (doors.isEmpty())
         {
             plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, messages.getString(Message.ERROR_NODOORSFOUND));
             return true;
@@ -67,11 +67,12 @@ public class SubCommandListDoors extends SubCommand
             BigDoors.get().getDatabaseManager().getDoors(name).whenComplete(
                 (optionalDoorList, throwable) ->
                 {
-                    List<AbstractDoorBase> doorList = optionalDoorList.orElse(new ArrayList<>());
+                    @NotNull List<AbstractDoorBase> doorList = optionalDoorList
+                        .orElse(new ArrayList<>());
 
                     // If no door with the provided name could be found, list all doors owned by the
                     // player with that name instead.
-                    if (doorList.size() == 0)
+                    if (doorList.isEmpty())
                     {
                         try
                         {

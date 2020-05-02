@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -14,7 +13,6 @@ import nl.pim16aap2.bigdoors.storage.SQLStatement;
 import nl.pim16aap2.bigdoors.util.BitFlag;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Functional.CheckedFunction;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -69,14 +67,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private final String url;
 
     /**
-     * The logger used for error logging.
-     */
-    private final PLogger pLogger;
-
-    /**
      * The BigDoors configuration.
      */
     private final IConfigLoader config;
+
+    /**
+     * Log ALL statements to the log file.
+     */
+    private boolean logStatements = false;
 
     /**
      * The {@link DatabaseState} the database is in.
@@ -86,14 +84,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Constructor of the SQLite driver connection.
      *
-     * @param dbFile  The file to store the database in.
-     * @param pLogger The logger used for error logging.
-     * @param config  The {@link IConfigLoader} containing options used in this class.
+     * @param dbFile The file to store the database in.
+     * @param config The {@link IConfigLoader} containing options used in this class.
      */
-    public SQLiteJDBCDriverConnection(final @NotNull File dbFile, final @NotNull PLogger pLogger,
-                                      final @NotNull IConfigLoader config)
+    public SQLiteJDBCDriverConnection(final @NotNull File dbFile, final @NotNull IConfigLoader config)
     {
-        this.pLogger = pLogger;
         this.dbFile = dbFile;
         this.config = config;
         url = "jdbc:sqlite:" + dbFile;
@@ -160,10 +155,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            pLogger.logException(e, "Failed to open connection!");
+            PLogger.get().logException(e, "Failed to open connection!");
         }
         if (conn == null)
-            pLogger.logException(new NullPointerException("Could not open connection!"));
+            PLogger.get().logException(new NullPointerException("Could not open connection!"));
         return conn;
     }
 
@@ -220,7 +215,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             {
                 if (!dbFile.getParentFile().exists() && !dbFile.getParentFile().mkdirs())
                 {
-                    pLogger.logException(
+                    PLogger.get().logException(
                         new IOException(
                             "Failed to create directory \"" + dbFile.getParentFile().toString() + "\""));
                     databaseState = DatabaseState.ERROR;
@@ -228,15 +223,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 }
                 if (!dbFile.createNewFile())
                 {
-                    pLogger.logException(new IOException("Failed to create file \"" + dbFile.toString() + "\""));
+                    PLogger.get().logException(new IOException("Failed to create file \"" + dbFile.toString() + "\""));
                     databaseState = DatabaseState.ERROR;
                     return;
                 }
-                pLogger.info("New file created at " + dbFile);
+                PLogger.get().info("New file created at " + dbFile);
             }
             catch (IOException e)
             {
-                pLogger.severe("File write error: " + dbFile);
+                PLogger.get().severe("File write error: " + dbFile);
                 PLogger.get().logException(e);
                 databaseState = DatabaseState.ERROR;
                 return;
@@ -259,7 +254,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_PLAYER.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_DOORTYPE.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_DOORBASE.constructPPreparedStatement());
-                executeUpdate(conn, SQLStatement.CREATE_TABLE_DOOROWNERPLAYER.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.CREATE_TABLE_DOOROWNER_PLAYER.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_POWERBLOCK.constructPPreparedStatement());
 
                 setDBVersion(conn, DATABASE_VERSION);
@@ -270,7 +265,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            pLogger.logException(e);
+            PLogger.get().logException(e);
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -291,8 +286,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
 
     @NotNull
-    private Optional<? extends AbstractDoorBase> constructDoor(final @NotNull ResultSet doorBaseRS,
-                                                               final @NotNull Object[] typeData)
+    private Optional<AbstractDoorBase> constructDoor(final @NotNull ResultSet doorBaseRS,
+                                                     final @NotNull Object[] typeData)
         throws SQLException
     {
         final @NotNull Optional<DoorType> doorType = DoorTypeManager.get().getDoorType(doorBaseRS.getInt("doorType"));
@@ -330,8 +325,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                                           powerBlock, world, isOpen,
                                                                                           openDirection.get(),
                                                                                           doorOwner);
-
-        return doorType.get().getConstructor().apply(doorData, typeData);
+        final @NotNull Optional<? extends AbstractDoorBase> door = doorType.get().getConstructor()
+                                                                           .apply(doorData, typeData);
+        return door.map(abstractDoorBase -> (AbstractDoorBase) abstractDoorBase);
     }
 
     /**
@@ -430,6 +426,44 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean updateTypeData(final @NotNull AbstractDoorBase door)
+    {
+        if (!DoorTypeManager.get().isRegistered(door.getDoorType()))
+        {
+            PLogger.get().logException(new SQLException(
+                "Failed to update type-data of door: \"" + door.getDoorUID() + "\"! Reason: DoorType not registered!"));
+            return false;
+        }
+
+        final @NotNull StringBuilder updateStatementBuilder = new StringBuilder();
+        updateStatementBuilder.append("UPDATE ").append(getTableNameOfType(door.getDoorType())).append(" SET ");
+
+        final @NotNull List<DoorType.Parameter> parameters = door.getDoorType().getParameters();
+        final int parameterCount = parameters.size();
+        for (int idx = 0; idx < parameterCount; ++idx)
+        {
+            updateStatementBuilder.append(parameters.get(idx).getParameterName()).append(" = ?");
+            if (idx < (parameterCount - 1))
+                updateStatementBuilder.append(", ");
+        }
+        updateStatementBuilder.append(" WHERE doorUID = ?;");
+
+        // TODO: Caching
+        final @NotNull PPreparedStatement pPreparedStatement =
+            new PPreparedStatement(parameterCount + 1, updateStatementBuilder.toString());
+
+        final @NotNull Object[] typeData = door.getDoorType().getDataSupplier().apply(door);
+        for (int idx = 0; idx < parameterCount; ++idx)
+            pPreparedStatement.setObject(idx + 1, typeData[idx]);
+        pPreparedStatement.setLong(parameterCount + 1, door.getDoorUID());
+
+        return executeUpdate(pPreparedStatement) > 0;
+    }
+
+    /**
      * Constructs the name of the table used for the type-specific data of a {@link DoorType}.
      *
      * @param doorType The {@link DoorType}.
@@ -502,8 +536,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             PLogger.get().logException(new SQLException("Could not find newly added door! Was it ever added at all?"));
             return false;
         }
-
-//        "INSERT INTO BigDoors_BigDoor_1 (doorUID, autoCloseTimer, currentDirection) VALUES (1, 1, 1);"
 
         // TODO: Caching
         final @NotNull String typeTableName = getTableNameOfType(door.getDoorType());
@@ -610,7 +642,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *
      * @throws SQLException
      */
-    private Optional<? extends AbstractDoorBase> getDoor(final @NotNull ResultSet doorBaseRS)
+    private Optional<AbstractDoorBase> getDoor(final @NotNull ResultSet doorBaseRS)
         throws SQLException
     {
         if (!DoorTypeManager.get().isRegistered(doorBaseRS.getInt("doorType")))
@@ -628,13 +660,50 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return constructDoor(doorBaseRS, typeData);
     }
 
+    /**
+     * Attempts to construct a list of subclasses of {@link AbstractDoorBase} from a resultset containing all data
+     * pertaining to one or more {@link AbstractDoorBase}s (as stored in the "DoorBase" table), as well as the owner
+     * (name, UUID, permission) and the typeTableName.
+     *
+     * @param doorBaseRS The {@link ResultSet} containing one or more rows from the "DoorBase" table as well as matching
+     *                   rows from the "DoorOwnerPlayer" table and "typeTableName" from the "DoorType" table.
+     * @return An optional with a list of {@link AbstractDoorBase}s if any could be constructed. If none could be
+     * constructed, an empty {@link Optional} is returned instead.
+     *
+     * @throws SQLException
+     */
+    private Optional<List<AbstractDoorBase>> getDoors(final @NotNull ResultSet doorBaseRS)
+        throws SQLException
+    {
+        if (!doorBaseRS.isBeforeFirst())
+            return Optional.empty();
+
+        final List<AbstractDoorBase> doors = new ArrayList<>();
+        while (doorBaseRS.next())
+        {
+            if (!DoorTypeManager.get().isRegistered(doorBaseRS.getInt("doorType")))
+            {
+                PLogger.get().logException(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
+                                                                         " has not been registered (yet)!"));
+                continue;
+            }
+            final @NotNull Object[] typeData =
+                executeQuery(SQLStatement.GET_TYPE_SPECIFIC_DATA.constructPPreparedStatement()
+                                                                .setTableName(1, doorBaseRS.getString("typeTableName"))
+                                                                .setString(2, doorBaseRS.getString("typeTableName"))
+                                                                .setLong(3, doorBaseRS.getLong("id")),
+                             this::createTypeData, new Object[]{});
+            constructDoor(doorBaseRS, typeData).ifPresent(doors::add);
+        }
+        return doors.isEmpty() ? Optional.empty() : Optional.of(doors);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     @NotNull
-    public Optional<? extends AbstractDoorBase> getDoor(final long doorUID)
+    public Optional<AbstractDoorBase> getDoor(final long doorUID)
     {
         return executeQuery(SQLStatement.GET_DOOR_BASE_FROM_ID.constructPPreparedStatement()
                                                               .setLong(1, doorUID),
@@ -646,7 +715,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Override
     @NotNull
-    public Optional<? extends AbstractDoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID)
+    public Optional<AbstractDoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID)
     {
         return executeQuery(SQLStatement.GET_DOOR_BASE_FROM_ID_FOR_PLAYER.constructPPreparedStatement()
                                                                          .setLong(1, doorUID)
@@ -718,57 +787,67 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
     public void TEST()
     {
-        {
-            final @NotNull IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
-                                                   .create(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360"));
-            final @NotNull IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory()
-                                                     .create(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"),
-                                                             "pim16aap2");
+//        {
+//            final @NotNull IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
+//                                                   .create(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360"));
+//            final @NotNull IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory()
+//                                                     .create(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"),
+//                                                             "pim16aap2");
+//
+//            final @NotNull Vector3Di min = new Vector3Di(1, 2, 3);
+//            final @NotNull Vector3Di max = new Vector3Di(4, 5, 6);
+//            final @NotNull Vector3Di eng = new Vector3Di(7, 8, 9);
+//            final @NotNull Vector3Di powerBlock = new Vector3Di(10, 11, 12);
+//            final boolean isOpen = false;
+//
+//            final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, player);
+//            final @NotNull String name = "MYFIRSTDOOR!";
+//
+//
+//            final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(-1, name, min, max, eng,
+//                                                                                              powerBlock, world, isOpen,
+//                                                                                              RotateDirection.CLOCKWISE,
+//                                                                                              doorOwner);
+//            final int autoCloseTimer = 10;
+//            final PBlockFace currentDirection = PBlockFace.SOUTH;
+//
+//            final @NotNull BigDoor bigDoor = BigDoor.constructDoor(doorData, autoCloseTimer, currentDirection);
+//            insert(bigDoor);
+//        }
+//
+//        @NotNull
+//        Optional<AbstractDoorBase> bigDoor = getDoor(1L);
+//
+//        if (!bigDoor.isPresent())
+//            System.out.println("DID NOT FIND A DOOR!");
+//        else
+//        {
+//            System.out.println(
+//                "BigDoor's name: " + bigDoor.get().getName() + ", autoCloseTimer: " + bigDoor.get().getAutoClose() +
+//                    ", playerName: " + bigDoor.get().getDoorOwner().getPlayerName());
+//
+//            BigDoor door = (BigDoor) bigDoor.get();
+//            door.setAutoClose(100);
+//            door.setCurrentDirection(PBlockFace.DOWN);
+//
+//
+//            updateTypeData(door);
+//        }
 
-            final @NotNull Vector3Di min = new Vector3Di(1, 2, 3);
-            final @NotNull Vector3Di max = new Vector3Di(4, 5, 6);
-            final @NotNull Vector3Di eng = new Vector3Di(7, 8, 9);
-            final @NotNull Vector3Di powerBlock = new Vector3Di(10, 11, 12);
-            final boolean isOpen = false;
 
-            final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, player);
-            final @NotNull String name = "MYFIRSTDOOR!";
-
-
-            final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(-1, name, min, max, eng,
-                                                                                              powerBlock, world, isOpen,
-                                                                                              RotateDirection.CLOCKWISE,
-                                                                                              doorOwner);
-            final int autoCloseTimer = 10;
-            final PBlockFace currentDirection = PBlockFace.SOUTH;
-
-            final @NotNull BigDoor bigDoor = BigDoor.constructDoor(doorData, autoCloseTimer, currentDirection);
-            insert(bigDoor);
-        }
-
-        @NotNull
-        Optional<? extends AbstractDoorBase> bigDoor = getDoor(1L);
-
-        if (!bigDoor.isPresent())
-            System.out.println("DID NOT FIND A DOOR!");
-        else
-            System.out.println(
-                "BigDoor's name: " + bigDoor.get().getName() + ", autoCloseTimer: " + bigDoor.get().getAutoClose() +
-                    ", playerName: " + bigDoor.get().getDoorOwner().getPlayerName());
-
-        System.out.println(
-            "IsBigDoorsWorld (fakeWorld): " +
-                isBigDoorsWorld(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935")));
-
-        System.out.println(
-            "IsBigDoorsWorld (realWorld): " +
-                isBigDoorsWorld(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360")));
-
-        removeDoor(1L);
-
-        System.out.println(
-            "IsBigDoorsWorld (emptyWorld): " +
-                isBigDoorsWorld(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360")));
+//        System.out.println(
+//            "IsBigDoorsWorld (fakeWorld): " +
+//                isBigDoorsWorld(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935")));
+//
+//        System.out.println(
+//            "IsBigDoorsWorld (realWorld): " +
+//                isBigDoorsWorld(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360")));
+//
+//        removeDoor(1L);
+//
+//        System.out.println(
+//            "IsBigDoorsWorld (emptyWorld): " +
+//                isBigDoorsWorld(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360")));
     }
 
     /**
@@ -781,112 +860,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                           .setString(1, worldUUID.toString()),
                             ResultSet::next, false);
     }
-
-
-    /*
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     */
-
-//    /**
-//     * Construct a new Door from a resultset.
-//     *
-//     * @param rs The resultset that contains the data of the animated object.
-//     * @return An Door if one could be found.
-//     */
-//    @NotNull
-//    private Optional<AbstractDoorBase> newDoorFromRS(final @NotNull ResultSet rs)
-//        throws SQLException
-//    {
-//        return newDoorFromRS(rs, new DoorOwner(rs.getLong("id"), UUID.fromString(rs.getString("playerUUID")),
-//                                               rs.getString("playerName"), rs.getInt("permission")));
-//    }
-//
-//    /**
-//     * Construct a new Door from a resultset.
-//     *
-//     * @param rs        The resultset that contains the data of the animated object.
-//     * @param doorOwner The owner of this Door.
-//     * @return An Door if one could be found.
-//     */
-//    @NotNull
-//    private Optional<AbstractDoorBase> newDoorFromRS(final @NotNull ResultSet rs,
-//                                                     final @NotNull DoorOwner doorOwner)
-//    {
-//        AbstractDoorBase ret = null;
-//        try
-//        {
-//            AbstractDoorBase.DoorData doorData;
-//            {
-//                final IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
-//                                              .create(UUID.fromString(rs.getString("world")));
-//                if (!world.exists())
-//                {
-//                    PLogger.get().logException(new NullPointerException(
-//                        "Failed to obtain the world of door \"" + doorOwner.getDoorUID() + "\"."));
-//                    return Optional.empty();
-//                }
-//
-//                final Vector3Di min = new Vector3Di(rs.getInt("xMin"), rs.getInt("yMin"), rs.getInt("zMin"));
-//                final Vector3Di max = new Vector3Di(rs.getInt("xMax"), rs.getInt("yMax"), rs.getInt("zMax"));
-//                final Vector3Di engine = new Vector3Di(rs.getInt("engineX"), rs.getInt("engineY"),
-//                                                       rs.getInt("engineZ"));
-//                final Vector3Di powerBlock = new Vector3Di(rs.getInt("powerBlockX"), rs.getInt("powerBlockY"),
-//                                                           rs.getInt("powerBlockZ"));
-//                final boolean isOpen = BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), rs.getInt("bitflag"));
-//
-//                final RotateDirection openDir = RotateDirection.valueOf(rs.getInt("openDirection"));
-//                if (openDir == null)
-//                {
-//                    PLogger.get().logException(
-//                        new NullPointerException("OpenDirection is null for door \"" + doorOwner.getDoorUID() + "\""));
-//                    return Optional.empty();
-//                }
-//
-//                doorData = new AbstractDoorBase.DoorData(doorOwner.getDoorUID(), "OLDSYSTEM", min, max, engine,
-//                                                         powerBlock, world, isOpen, openDir, null);
-//            }
-//            final AbstractDoorBase door = EDoorType.valueOf(rs.getInt("type"))
-//                                                   .getNewDoor(pLogger, doorOwner.getDoorUID(), doorData);
-//
-//            door.setName(rs.getString("name"));
-//            door.setLock(BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), rs.getInt("bitflag")));
-//            door.setDoorOwner(doorOwner);
-//            door.setAutoClose(rs.getInt("autoClose"));
-//            door.setBlocksToMove(rs.getInt("blocksToMove"));
-//
-//            ret = door;
-//        }
-//        catch (SQLException | NullPointerException | IllegalArgumentException e)
-//        {
-//            pLogger.logException(e);
-//        }
-//        return Optional.ofNullable(ret);
-//    }
-
 
     /**
      * {@inheritDoc}
@@ -938,9 +911,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Override
     @NotNull
-    public Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID, final @NotNull String name)
+    public Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID,
+                                                     final @NotNull String doorName,
+                                                     final int maxPermission)
     {
-        return getDoors(playerUUID.toString(), name, 0);
+        return executeQuery(SQLStatement.GET_NAMED_DOORS_OWNED_BY_PLAYER.constructPPreparedStatement()
+                                                                        .setString(1, playerUUID)
+                                                                        .setString(2, doorName)
+                                                                        .setInt(3, maxPermission),
+                            this::getDoors, Optional.empty());
     }
 
     /**
@@ -948,9 +927,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Override
     @NotNull
-    public Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID)
+    public Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID,
+                                                     final @NotNull String name)
     {
-        return getDoors(playerUUID.toString(), 0);
+        return getDoors(playerUUID.toString(), name, 0);
     }
 
     /**
@@ -962,49 +942,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeQuery(SQLStatement.GET_DOORS_WITH_NAME.constructPPreparedStatement()
                                                             .setString(1, name),
-                            this::parseDoors, Optional.empty());
-    }
-
-    /**
-     * Constructs a list of doors from a {@link ResultSet}.
-     *
-     * @param rs The {@link ResultSet}.
-     * @return A list of doors that can be parsed from the {@link ResultSet} if any could be found. Otherwise, an empty
-     * Optional is returned.
-     *
-     * @throws SQLException When something went wrong processing the {@link ResultSet}.
-     */
-    @NotNull
-    private Optional<List<AbstractDoorBase>> parseDoors(final @NotNull ResultSet rs)
-        throws SQLException
-    {
-//        final List<AbstractDoorBase> doors = new ArrayList<>();
-//        while (rs.next())
-//        {
-//            final DoorOwner doorOwner = new DoorOwner(rs.getLong("id"),
-//                                                      UUID.fromString(rs.getString("playerUUID")),
-//                                                      rs.getString("playerName"),
-//                                                      rs.getInt("permission"));
-//            newDoorFromRS(rs, doorOwner).ifPresent(doors::add);
-//        }
-//        return Optional.ofNullable(doors.isEmpty() ? null : doors);
-        return Optional.empty();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID,
-                                                     final @NotNull String doorName,
-                                                     final int maxPermission)
-    {
-        return executeQuery(SQLStatement.GET_NAMED_DOORS_OWNED_BY_PLAYER.constructPPreparedStatement()
-                                                                        .setString(1, playerUUID)
-                                                                        .setString(2, doorName)
-                                                                        .setInt(3, maxPermission),
-                            this::parseDoors, Optional.empty());
+                            this::getDoors, Optional.empty());
     }
 
     /**
@@ -1017,7 +955,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return executeQuery(SQLStatement.GET_DOORS_OWNED_BY_PLAYER_WITH_LEVEL.constructPPreparedStatement()
                                                                              .setString(1, playerUUID)
                                                                              .setInt(2, maxPermission),
-                            this::parseDoors, Optional.empty());
+                            this::getDoors, Optional.empty());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID)
+    {
+        return getDoors(playerUUID.toString(), 0);
     }
 
     /**
@@ -1072,53 +1020,18 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Gets the original creator of a door using an established database connection.
-     *
-     * @param doorUID The door whose owner to get.
-     * @return The original creator of a door.
-     */
-    @NotNull
-    // TODO: Delete this. I want to do all this in a single statement.
-    private Optional<DoorOwner> getOwnerOfDoor(final @NotNull Connection conn, final long doorUID)
-        throws SQLException
-    {
-        DoorOwner doorOwner = null;
-        final String sql = "SELECT playerUUID, playerName \n" +
-            "FROM players, \n" +
-            "     (SELECT U.playerID, U.permission, doors.name \n" +
-            "      FROM sqlUnion as U INNER JOIN doors ON doors.id = U.doorUID \n" +
-            "      WHERE U.permission = '0' AND doors.id = ?) AS R \n" +
-            "WHERE id = R.playerID;";
-        final PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setLong(1, doorUID);
-        final ResultSet rs = ps.executeQuery();
-        if (rs.next())
-            doorOwner = new DoorOwner(doorUID, UUID.fromString(rs.getString("playerUUID")), rs.getString("playerName"),
-                                      0);
-        ps.close();
-        rs.close();
-
-        return Optional.ofNullable(doorOwner);
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     @NotNull
     public Optional<DoorOwner> getOwnerOfDoor(final long doorUID)
     {
-        try (final Connection conn = getConnection())
-        {
-            if (conn == null)
-                return Optional.empty();
-            return getOwnerOfDoor(conn, doorUID);
-        }
-        catch (SQLException e)
-        {
-            pLogger.logException(e);
-        }
-        return Optional.empty();
+        return executeQuery(SQLStatement.GET_DOOR_OWNER.constructPPreparedStatement().setLong(1, doorUID),
+                            (resultSet -> Optional.of(new DoorOwner(doorUID,
+                                                                    UUID.fromString(resultSet.getString("playerUUID")),
+                                                                    resultSet.getString("playerName"),
+                                                                    resultSet.getInt("permission")))),
+                            Optional.empty());
     }
 
     /**
@@ -1128,16 +1041,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @NotNull
     public ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(final long chunkHash)
     {
-        return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA.constructPPreparedStatement()
-                                                             .setLong(1, chunkHash),
+        return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructPPreparedStatement()
+                                                                      .setLong(1, chunkHash),
                             (rs) ->
                             {
                                 final ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
                                 while (rs.next())
                                 {
-                                    int locationHash = Util.simpleChunkSpaceLocationhash(rs.getInt("powerBlockX"),
-                                                                                         rs.getInt("powerBlockY"),
-                                                                                         rs.getInt("powerBlockZ"));
+                                    int locationHash = Util.simpleChunkSpaceLocationhash(rs.getInt("x"),
+                                                                                         rs.getInt("y"),
+                                                                                         rs.getInt("z"));
                                     if (!doors.containsKey(locationHash))
                                         doors.put(locationHash, new ArrayList<>());
                                     doors.get(locationHash).add(rs.getLong("id"));
@@ -1153,8 +1066,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @NotNull
     public List<Long> getDoorsInChunk(final long chunkHash)
     {
-        return executeQuery(SQLStatement.GET_DOORS_IN_CHUNK.constructPPreparedStatement()
-                                                           .setLong(1, chunkHash),
+        return executeQuery(SQLStatement.GET_DOOR_IDS_IN_CHUNK.constructPPreparedStatement()
+                                                              .setLong(1, chunkHash),
                             (rs) ->
                             {
                                 final List<Long> doors = new ArrayList<>();
@@ -1164,16 +1077,35 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             }, new ArrayList<>());
     }
 
-    /**
-     * {@inheritDoc}
+
+
+    /*
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
      */
-    @Override
-    public boolean updateDoorBlocksToMove(final long doorUID, final int blocksToMove)
-    {
-        return executeUpdate(SQLStatement.UPDATE_BLOCKS_TO_MOVE.constructPPreparedStatement()
-                                                               .setInt(1, blocksToMove)
-                                                               .setLong(2, doorUID)) > 0;
-    }
 
     /**
      * {@inheritDoc}
@@ -1191,17 +1123,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                       .setInt(6, zMax)
                                                                       .setLong(7, doorUID)) > 0;
         return result && changeDoorFlag(doorUID, DoorFlag.ISOPEN, isOpen);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean updateDoorAutoClose(final long doorUID, final int autoClose)
-    {
-        return executeUpdate(SQLStatement.UPDATE_DOOR_AUTO_CLOSE.constructPPreparedStatement()
-                                                                .setInt(1, autoClose)
-                                                                .setLong(2, doorUID)) > 0;
     }
 
     /**
@@ -1271,11 +1192,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private int executeUpdate(final @NotNull PPreparedStatement pPreparedStatement)
     {
-//        System.out.println("executeUpdate0:\n" + pPreparedStatement.toString());
         try (final Connection conn = getConnection())
         {
             if (conn == null)
+            {
+                logStatement(pPreparedStatement);
                 return -1;
+            }
             return executeUpdate(conn, pPreparedStatement);
         }
         catch (SQLException e)
@@ -1294,7 +1217,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private int executeUpdate(final @NotNull Connection conn, final @NotNull PPreparedStatement pPreparedStatement)
     {
-//        System.out.println("executeUpdate1:\n" + pPreparedStatement.toString());
+        logStatement(pPreparedStatement);
         try (final PreparedStatement ps = pPreparedStatement.construct(conn))
         {
             return ps.executeUpdate();
@@ -1315,11 +1238,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private int executeUpdateReturnGeneratedKeys(final @NotNull PPreparedStatement pPreparedStatement)
     {
-//        System.out.println("executeUpdateReturnGeneratedKeys0:\n" + pPreparedStatement.toString());
         try (final Connection conn = getConnection())
         {
             if (conn == null)
+            {
+                logStatement(pPreparedStatement);
                 return -1;
+            }
             return executeUpdateReturnGeneratedKeys(conn, pPreparedStatement);
         }
         catch (SQLException e)
@@ -1340,7 +1265,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private int executeUpdateReturnGeneratedKeys(final @NotNull Connection conn,
                                                  final @NotNull PPreparedStatement pPreparedStatement)
     {
-//        System.out.println("executeUpdateReturnGeneratedKeys1:\n" + pPreparedStatement.toString());
+        logStatement(pPreparedStatement);
         try (final PreparedStatement ps = pPreparedStatement.construct(conn, Statement.RETURN_GENERATED_KEYS))
         {
             ps.executeUpdate();
@@ -1370,7 +1295,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private <T> T executeQuery(final @NotNull PPreparedStatement pPreparedStatement,
                                final @NotNull CheckedFunction<ResultSet, T, SQLException> fun)
     {
-//        System.out.println("executeQuery0:\n" + pPreparedStatement.toString());
         return executeQuery(pPreparedStatement, fun, null);
     }
 
@@ -1388,11 +1312,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                final @NotNull CheckedFunction<ResultSet, T, SQLException> fun,
                                final @Nullable T fallback)
     {
-//        System.out.println("executeQuery1:\n" + pPreparedStatement.toString());
         try (final @Nullable Connection conn = getConnection())
         {
             if (conn == null)
+            {
+                logStatement(pPreparedStatement);
                 return fallback;
+            }
             return executeQuery(conn, pPreparedStatement, fun, fallback);
         }
         catch (Exception e)
@@ -1419,7 +1345,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                final @NotNull CheckedFunction<ResultSet, T, SQLException> fun,
                                final @Nullable T fallback)
     {
-//        System.out.println("executeQuery2:\n" + pPreparedStatement.toString());
+        logStatement(pPreparedStatement);
         try (final PreparedStatement ps = pPreparedStatement.construct(conn);
              final ResultSet rs = ps.executeQuery())
         {
@@ -1431,6 +1357,54 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             PLogger.get().logException(e);
         }
         return fallback;
+    }
+
+    /**
+     * Executes a {@link CheckedFunction} given an active Connection.
+     *
+     * @param fun      The function to execute.
+     * @param fallback The fallback value to return in case of failure.
+     * @param <T>      The type of the result to return.
+     * @return The result of the Function.
+     */
+    @Contract(" _, !null -> !null")
+    private <T> T execute(final @NotNull CheckedFunction<Connection, T, SQLException> fun,
+                          final @Nullable T fallback)
+    {
+        try (final @Nullable Connection conn = getConnection())
+        {
+            if (conn == null)
+                return fallback;
+            return fun.apply(conn);
+        }
+        catch (Exception e)
+        {
+            PLogger.get().logException(e);
+        }
+        return null;
+    }
+
+    /**
+     * Logs a {@link PPreparedStatement} to the logger as INFO. If {@link #logStatements} is false, nothing is logged
+     * instead.
+     *
+     * @param pPreparedStatement The {@link PPreparedStatement} to log.
+     */
+    private void logStatement(final @NotNull PPreparedStatement pPreparedStatement)
+    {
+        if (!logStatements)
+            return;
+        PLogger.get().info("Executed statement:\n" + pPreparedStatement.toString() + "\n");
+    }
+
+    /**
+     * Enables or disables {@link #logStatements}.
+     *
+     * @param enabled True to enable statement logging, false to disable.
+     */
+    public void setStatementLogging(final boolean enabled)
+    {
+        logStatements = enabled;
     }
 
     /**
@@ -1513,7 +1487,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             final long playerID = getPlayerID(conn, new DoorOwner(doorUID, player.getUUID(), playerName, permission));
             if (playerID == -1)
             {
-                pLogger.logException(new IllegalArgumentException(
+                PLogger.get().logException(new IllegalArgumentException(
                     "Trying to add player \"" + player.getUUID().toString() + "\" as owner of door " + doorUID +
                         ", but that player is not registered in the database! Aborting..."));
                 return false;
@@ -1526,7 +1500,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            pLogger.logException(e);
+            PLogger.get().logException(e);
         }
         return false;
     }
@@ -1621,7 +1595,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            pLogger.logException(e);
+            PLogger.get().logException(e);
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -1638,7 +1612,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         // to be created.
         if (dbFileBackup.exists() && !dbFileBackup.delete())
         {
-            pLogger.logException(new IOException("Failed to delete old backup! Aborting backup creation!"));
+            PLogger.get().logException(new IOException("Failed to delete old backup! Aborting backup creation!"));
             return false;
         }
         try
@@ -1647,7 +1621,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (IOException e)
         {
-            pLogger.logException(e, "Failed to create backup of the database! "
+            PLogger.get().logException(e, "Failed to create backup of the database! "
                 + "Database upgrade aborted and access is disabled!");
             return false;
         }
@@ -1668,7 +1642,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            pLogger.logException(e);
+            PLogger.get().logException(e);
         }
     }
 
@@ -1686,7 +1660,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         try (final PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
              final ResultSet rs1 = ps1.executeQuery())
         {
-            pLogger.warn("Upgrading database to V11!");
+            PLogger.get().warn("Upgrading database to V11!");
 
             while (rs1.next())
             {
@@ -1701,7 +1675,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            pLogger.logException(e);
+            PLogger.get().logException(e);
         }
     }
 }
