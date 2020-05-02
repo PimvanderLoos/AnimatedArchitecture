@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -105,7 +106,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     }
 
     @NotNull
-    private static final File logFile = new File(testDir, "log.txt");
+    private static final File logFile = new File(testDir, "/log.txt");
 
     static
     {
@@ -145,7 +146,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
                                                          RotateDirection.valueOf(0), doorOwner);
-                final @NotNull BigDoor bigDoor = BigDoor.constructDoor(doorData, autoClose, currentDirection);
+                final @NotNull BigDoor bigDoor = new BigDoor(doorData, autoClose, currentDirection);
                 door1 = bigDoor;
             }
 
@@ -237,37 +238,37 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     @AfterAll
     public static void cleanup()
     {
-//        // Remove any old database files and append ".FINISHED" to the name of the current one, so it
-//        // won't interfere with the next run, but can still be used for manual inspection.
-//        final @NotNull File oldDB = new File(dbFile.toString() + ".FINISHED");
-//        final @NotNull File oldLog = new File(logFile.toString() + ".FINISHED");
-//
-//        plogger.setConsoleLogging(true);
-//        if (oldDB.exists())
-//            oldDB.delete();
-//        if (dbFileBackup.exists())
-//            dbFileBackup.delete();
-//
-//        try
-//        {
-//            Files.move(dbFile.toPath(), oldDB.toPath());
-//        }
-//        catch (IOException e)
-//        {
-//            plogger.logException(e);
-//        }
-//        try
-//        {
-//            if (oldLog.exists())
-//                oldLog.delete();
-//            while (!plogger.isEmpty())
-//                Thread.sleep(100L);
-//            Files.move(logFile.toPath(), oldLog.toPath());
-//        }
-//        catch (IOException | InterruptedException e)
-//        {
-//            e.printStackTrace();
-//        }
+        // Remove any old database files and append ".FINISHED" to the name of the current one, so it
+        // won't interfere with the next run, but can still be used for manual inspection.
+        final @NotNull File oldDB = new File(dbFile.toString() + ".FINISHED");
+        final @NotNull File oldLog = new File(logFile.toString() + ".FINISHED");
+
+        PLogger.get().setConsoleLogging(true);
+        if (oldDB.exists())
+            oldDB.delete();
+        if (dbFileBackup.exists())
+            dbFileBackup.delete();
+
+        try
+        {
+            Files.move(dbFile.toPath(), oldDB.toPath());
+        }
+        catch (IOException e)
+        {
+            PLogger.get().logException(e);
+        }
+        try
+        {
+            if (oldLog.exists())
+                oldLog.delete();
+            while (!PLogger.get().isEmpty())
+                Thread.sleep(100L);
+            Files.move(logFile.toPath(), oldLog.toPath());
+        }
+        catch (IOException | InterruptedException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private void registerDoorTypes()

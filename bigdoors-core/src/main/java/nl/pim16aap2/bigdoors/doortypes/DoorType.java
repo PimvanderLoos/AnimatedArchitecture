@@ -2,12 +2,13 @@ package nl.pim16aap2.bigdoors.doortypes;
 
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.util.Functional.CheckedBiFunction;
+import nl.pim16aap2.bigdoors.util.Functional.CheckedFunction;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * This class represents a type of Door. "Door" in this case, refers to any kind of animated object, so not necessarily
@@ -25,9 +26,9 @@ public class DoorType
     @NotNull
     protected final List<Parameter> parameters;
     @NotNull
-    protected final BiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>> constructor;
+    protected final CheckedBiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>, Exception> constructor;
     @NotNull
-    protected final Function<AbstractDoorBase, Object[]> dataSupplier;
+    protected final CheckedFunction<AbstractDoorBase, Object[], IllegalArgumentException> dataSupplier;
 
     /**
      * Constructs a new {@link DoorType}. Don't forget to register it using {@link DoorTypeManager#registerDoorType(DoorType)}.
@@ -47,8 +48,8 @@ public class DoorType
      */
     protected DoorType(final @NotNull String pluginName, final @NotNull String typeName, final int typeVersion,
                        final @NotNull List<Parameter> parameters,
-                       final @NotNull BiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>> constructor,
-                       final @NotNull Function<AbstractDoorBase, Object[]> dataSupplier)
+                       final @NotNull CheckedBiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>, Exception> constructor,
+                       final @NotNull CheckedFunction<AbstractDoorBase, Object[], IllegalArgumentException> dataSupplier)
     {
         this.pluginName = pluginName;
         this.typeName = typeName;
@@ -113,15 +114,54 @@ public class DoorType
     }
 
     /**
+     * Gets the number of parameters used to instantiate a door of this type. See {@link #getParameters()}.
+     *
+     * @return The number of parameters used to instantiate a door of this type.
+     */
+    public final int getParameterCount()
+    {
+        return parameters.size();
+    }
+
+    /**
      * Obtains the constructor for this {@link DoorType}. Note that the order of the array of objects must be the same
      * as {@link #parameters}.
      *
      * @return The constructor used to construct an object of this {@link DoorType}.
      */
     @NotNull
-    public final BiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>> getConstructor()
+    protected final CheckedBiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>, Exception> getConstructor()
     {
         return constructor;
+    }
+
+    /**
+     * Attempts to instantiate an object of a {@link DoorType}.
+     *
+     * @param doorData The base data for the new door.
+     * @param typeData The type-specific data for the door.
+     * @return A new {@link AbstractDoorBase} if one was instantiated successfully.
+     */
+    public final Optional<AbstractDoorBase> constructDoor(final @NotNull
+                                                              AbstractDoorBase.DoorData doorData,
+                                                          final @NotNull Object[] typeData)
+    {
+        if (typeData.length != getParameters().size())
+        {
+            PLogger.get().logException(new IllegalArgumentException(
+                "DoorType " + toString() + " Expects " + getParameters().size() + " parameters but received: " +
+                    typeData.length));
+            return Optional.empty();
+        }
+        try
+        {
+            return getConstructor().apply(doorData, typeData);
+        }
+        catch (Exception e)
+        {
+            PLogger.get().logException(e);
+        }
+        return Optional.empty();
     }
 
     /**
@@ -130,9 +170,28 @@ public class DoorType
      * @return The data supplier of this {@link DoorType}.
      */
     @NotNull
-    public final Function<AbstractDoorBase, Object[]> getDataSupplier()
+    protected final CheckedFunction<AbstractDoorBase, Object[], IllegalArgumentException> getDataSupplier()
     {
         return dataSupplier;
+    }
+
+    /**
+     * Attempts to get all the type-specific data for a given {@link AbstractDoorBase}.
+     *
+     * @param door The {@link AbstractDoorBase} whose type-specific data to get.
+     * @return An optional containing the type-specific data of the door, represented as an array of Objects.
+     */
+    public final Optional<Object[]> getTypeData(final @NotNull AbstractDoorBase door)
+    {
+        try
+        {
+            return Optional.of(getDataSupplier().apply(door));
+        }
+        catch (Exception e)
+        {
+            PLogger.get().logException(e);
+        }
+        return Optional.empty();
     }
 
     /**

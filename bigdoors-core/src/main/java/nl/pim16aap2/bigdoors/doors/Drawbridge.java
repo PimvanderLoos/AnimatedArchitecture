@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -13,6 +15,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Represents a DrawBrige doorType.
  *
@@ -21,15 +25,87 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoorArchetype
 {
+    private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
+
+    protected int autoCloseTimer;
+
+    /**
+     * Describes the current direction the door is pointing in when taking the engine as center.
+     */
+    protected PBlockFace currentDirection;
+
+    /**
+     * Describes if this drawbridge's vertical position points (when taking the engine Y value as center) up <b>(=
+     * TRUE)</b> or down <b>(= FALSE)</b>
+     */
+    protected boolean modeUp = true;
+
+
+    @NotNull
+    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
+                                                         final @NotNull Object... args)
+        throws Exception
+    {
+        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) args[1]);
+        if (currentDirection == null)
+            return Optional.empty();
+
+        final boolean modeUP = ((int) args[2]) == 1;
+        return Optional.of(new Drawbridge(doorData, (int) args[0], currentDirection, modeUP));
+    }
+
+    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
+        throws IllegalArgumentException
+    {
+        if (!(door instanceof Drawbridge))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for a Drawbridge from type: " + door.getDoorType().toString());
+
+        final @NotNull Drawbridge drawbridge = (Drawbridge) door;
+        return new Object[]{drawbridge.getAutoClose(), PBlockFace.getValue(drawbridge.getCurrentDirection()),
+                            drawbridge.isModeUp() ? 1 : 0};
+    }
+
+    public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTimer, final PBlockFace currentDirection,
+                      final boolean modeUp)
+    {
+        super(doorData);
+        this.autoCloseTimer = autoCloseTimer;
+        this.currentDirection = currentDirection;
+        this.modeUp = modeUp;
+    }
+
+    @Deprecated
     protected Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
                          final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
+    @Deprecated
     protected Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
         this(pLogger, doorUID, doorData, EDoorType.DRAWBRIDGE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public DoorType getDoorType()
+    {
+        return DOOR_TYPE;
+    }
+
+    /**
+     * Checks if the vertical stance of this {@link Drawbridge} is up or down, as seen from the engine's y-value.
+     *
+     * @return True if this {@link Drawbridge}'s vertical stance points up.
+     */
+    public boolean isModeUp()
+    {
+        return modeUp;
     }
 
     /**
@@ -144,5 +220,21 @@ public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoor
         doorOpeningUtility.registerBlockMover(
             new BridgeMover(time, this, upDown, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
                 .getMultiplier(this), initiator, newMin, newMax));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (!super.equals(o))
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull Drawbridge other = (Drawbridge) o;
+        return currentDirection.equals(other.currentDirection) && autoCloseTimer == other.autoCloseTimer &&
+            modeUp == other.modeUp;
     }
 }

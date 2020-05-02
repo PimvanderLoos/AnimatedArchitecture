@@ -30,9 +30,6 @@ public abstract class AbstractDoorBase implements IDoorBase
 {
     protected final long doorUID;
     @NotNull
-//    protected final DoorType doorType;
-    protected EDoorType eDoorType;
-    @NotNull
     protected final DoorOpeningUtility doorOpeningUtility;
     @NotNull
     protected final nl.pim16aap2.bigdoors.api.IPWorld IPWorld;
@@ -63,9 +60,6 @@ public abstract class AbstractDoorBase implements IDoorBase
      */
     private Vector2Di minChunkCoords = null, maxChunkCoords = null;
 
-    @NotNull
-    protected final DoorType doorType;
-
     @Deprecated
     protected AbstractDoorBase(PLogger pLogger, long uid, DoorData doorData, EDoorType eDoorType)
     {
@@ -73,18 +67,15 @@ public abstract class AbstractDoorBase implements IDoorBase
         eDoorType = null;
         doorOpeningUtility = null;
         IPWorld = null;
-        doorType = null;
         doorUID = 0;
     }
 
     /**
      * Constructs a new {@link AbstractDoorBase}.
      */
-    protected AbstractDoorBase(final @NotNull DoorData doorData, final @NotNull DoorType doorType)
+    protected AbstractDoorBase(final @NotNull DoorData doorData)
     {
         doorUID = doorData.getUID();
-        this.doorType = doorType;
-        eDoorType = null;
 
         name = doorData.getName();
         min = doorData.getMin();
@@ -100,9 +91,23 @@ public abstract class AbstractDoorBase implements IDoorBase
         onCoordsUpdate();
     }
 
-    public DoorType getDoorType()
+    /**
+     * Gets the {@link DoorType} of this door.
+     *
+     * @return The {@link DoorType} of this door.
+     */
+    public abstract DoorType getDoorType();
+
+    /**
+     * The the {@link EDoorType} of this door.
+     *
+     * @return The {@link EDoorType} of this door.
+     */
+    @Override
+    @NotNull
+    public final EDoorType getType()
     {
-        return doorType;
+        return null;
     }
 
     /**
@@ -317,18 +322,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         blocksToMove = newBTM;
         invalidateChunkRange();
-    }
-
-    /**
-     * The the {@link EDoorType} of this door.
-     *
-     * @return The {@link EDoorType} of this door.
-     */
-    @Override
-    @NotNull
-    public final EDoorType getType()
-    {
-        return eDoorType;
     }
 
     /**
@@ -814,7 +807,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         StringBuilder builder = new StringBuilder();
         builder.append(doorUID).append(": ").append(name).append("\n");
-        builder.append("Type: ").append(eDoorType.toString()).append(". Permission: ").append(getPermission())
+        builder.append("Type: ").append(getDoorType().toString()).append(". Permission: ").append(getPermission())
                .append("\n");
         builder.append("Min: ").append(min.toString()).append(", Max: ")
                .append(max.toString()).append(", Engine: ").append(engine.toString())
@@ -846,7 +839,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         AbstractDoorBase other = (AbstractDoorBase) o;
 
         return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
-            doorType.equals(other.doorType) && isOpen == other.isOpen && doorOwner.equals(other.doorOwner) &&
+            getDoorType().equals(other.getDoorType()) && isOpen == other.isOpen && doorOwner.equals(other.doorOwner) &&
             blocksToMove == other.blocksToMove && isLocked == other.isLocked && autoClose == other.autoClose &&
             IPWorld.getUID().equals(other.IPWorld.getUID());
     }

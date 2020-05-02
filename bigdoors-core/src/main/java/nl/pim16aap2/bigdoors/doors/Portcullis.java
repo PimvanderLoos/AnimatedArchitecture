@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.VerticalMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -13,6 +15,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Represents a Portcullis doorType.
  *
@@ -21,15 +25,60 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Portcullis extends AbstractDoorBase implements IMovingDoorArchetype
 {
+    private static final DoorType DOOR_TYPE = DoorTypePortcullis.get();
+
+    /**
+     * The number of blocks this door will try to move.
+     */
+    protected int blocksToMove;
+
+
+    @NotNull
+    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
+                                                         final @NotNull Object... args)
+        throws Exception
+    {
+        return Optional.of(new Portcullis(doorData, (int) args[0]));
+    }
+
+    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
+        throws IllegalArgumentException
+    {
+        if (!(door instanceof Portcullis))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for an Portcullis from type: " + door.getDoorType().toString());
+
+        final @NotNull Portcullis portcullis = (Portcullis) door;
+        return new Object[]{portcullis.getBlocksToMove()};
+    }
+
+    public Portcullis(final @NotNull DoorData doorData, final int blocksToMove)
+    {
+        super(doorData);
+        this.blocksToMove = blocksToMove;
+    }
+
+    @Deprecated
     protected Portcullis(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
                          final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
+    @Deprecated
     protected Portcullis(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
         this(pLogger, doorUID, doorData, EDoorType.PORTCULLIS);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 
     /**
@@ -130,5 +179,30 @@ public class Portcullis extends AbstractDoorBase implements IMovingDoorArchetype
         doorOpeningUtility.registerBlockMover(
             new VerticalMover(time, this, skipAnimation, blocksToMove, doorOpeningUtility.getMultiplier(this),
                               initiator, newMin, newMax));
+    }
+
+    /**
+     * Gets the number of blocks this door will try to move.
+     *
+     * @return The number of blocks this door will try to move.
+     */
+    public int getBlocksToMove2() // TODO: This isn't #2.
+    {
+        return blocksToMove;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (!super.equals(o))
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull Elevator other = (Elevator) o;
+        return blocksToMove == other.blocksToMove;
     }
 }

@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -13,6 +15,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Represents a Sliding Door doorType.
  *
@@ -21,15 +25,60 @@ import org.jetbrains.annotations.Nullable;
  */
 public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype
 {
+    private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
+
+    /**
+     * The number of blocks this door will try to move.
+     */
+    protected int blocksToMove;
+
+
+    @NotNull
+    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
+                                                         final @NotNull Object... args)
+        throws Exception
+    {
+        return Optional.of(new SlidingDoor(doorData, (int) args[0]));
+    }
+
+    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
+        throws IllegalArgumentException
+    {
+        if (!(door instanceof SlidingDoor))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for an SlidingDoor from type: " + door.getDoorType().toString());
+
+        final @NotNull SlidingDoor slidingDoor = (SlidingDoor) door;
+        return new Object[]{slidingDoor.getBlocksToMove()};
+    }
+
+    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove)
+    {
+        super(doorData);
+        this.blocksToMove = blocksToMove;
+    }
+
+    @Deprecated
     protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
                           final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
+    @Deprecated
     protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
         this(pLogger, doorUID, doorData, EDoorType.SLIDINGDOOR);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 
     /**
@@ -123,5 +172,20 @@ public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationar
         doorOpeningUtility.registerBlockMover(
             new SlidingMover(time, this, skipAnimation, blocksToMove, currentToggleDir,
                              doorOpeningUtility.getMultiplier(this), initiator, newMin, newMax));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (!super.equals(o))
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull SlidingDoor other = (SlidingDoor) o;
+        return blocksToMove == other.blocksToMove;
     }
 }

@@ -21,10 +21,16 @@ public abstract class HorizontalAxisAlignedBase extends AbstractDoorBase
      */
     private Boolean northSouthAxis = null;
 
+    @Deprecated
     protected HorizontalAxisAlignedBase(final @NotNull PLogger pLogger, final long doorUID,
                                         final @NotNull DoorData doorData, final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
+    }
+
+    protected HorizontalAxisAlignedBase(final @NotNull DoorData doorData)
+    {
+        super(doorData);
     }
 
     /**

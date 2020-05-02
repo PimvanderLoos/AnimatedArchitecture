@@ -24,37 +24,39 @@ import java.util.Optional;
  */
 public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
 {
-    private static final DoorType doorType = DoorTypeBigDoor.get();
+    private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
+
+    protected int autoCloseTime = 0;
+    protected PBlockFace currentDirection;
 
     @NotNull
-    public static Optional<AbstractDoorBase> constructDoor(final @NotNull DoorData doorData,
-                                                           final @NotNull Object... args)
+    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
+                                                         final @NotNull Object... args)
+        throws Exception
     {
-        if (args.length != 2)
-            return Optional.empty();
         final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) args[1]);
         if (currentDirection == null)
             return Optional.empty();
-        return Optional.of(BigDoor.constructDoor(doorData, (int) args[0], currentDirection));
+        return Optional.of(new BigDoor(doorData, (int) args[0], currentDirection));
     }
 
-    @NotNull
-    public static BigDoor constructDoor(final @NotNull DoorData doorData, final int autoCloseTimer,
-                                        final @NotNull PBlockFace currentDirection)
-    {
-        return new BigDoor(doorData, autoCloseTimer, currentDirection);
-    }
 
     public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
+        throws IllegalArgumentException
     {
-        return new Object[]{door.getAutoClose(), PBlockFace.getValue(door.getCurrentDirection())};
+        if (!(door instanceof BigDoor))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for a BigDoor from type: " + door.getDoorType().toString());
+
+        final @NotNull BigDoor bigDoor = (BigDoor) door;
+        return new Object[]{bigDoor.getAutoClose(), PBlockFace.getValue(bigDoor.getCurrentDirection())};
     }
 
 
-    private BigDoor(final @NotNull DoorData doorData, final int autoCloseTimer,
-                    final @NotNull PBlockFace currentDirection)
+    public BigDoor(final @NotNull DoorData doorData, final int autoCloseTimer,
+                   final @NotNull PBlockFace currentDirection)
     {
-        super(doorData, doorType);
+        super(doorData);
         setAutoClose(autoCloseTimer);
         setCurrentDirection(currentDirection);
     }
@@ -70,6 +72,16 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
     protected BigDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
         this(pLogger, doorUID, doorData, EDoorType.BIGDOOR);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 
     /**

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
-import nl.pim16aap2.bigdoors.doors.BigDoor;
+import nl.pim16aap2.bigdoors.doors.Drawbridge;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,25 +8,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class DoorTypeBigDoor extends DoorType
+public final class DoorTypeDrawbridge extends DoorType
 {
     private static final int TYPE_VERSION = 1;
     private static final List<Parameter> PARAMETERS;
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(2);
+        List<Parameter> parameterTMP = new ArrayList<>(3);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "currentDirection"));
+        parameterTMP.add(new Parameter(ParameterType.INTEGER, "modeUpDown"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
 
     @NotNull
-    private static final DoorTypeBigDoor instance = new DoorTypeBigDoor();
+    private static final DoorTypeDrawbridge instance = new DoorTypeDrawbridge();
 
-    private DoorTypeBigDoor()
+    private DoorTypeDrawbridge()
     {
-        super(Constants.PLUGINNAME, "BigDoor", TYPE_VERSION, PARAMETERS, BigDoor::constructor, BigDoor::dataSupplier);
+        super(Constants.PLUGINNAME, "DrawBridge", TYPE_VERSION, PARAMETERS, Drawbridge::constructor,
+              Drawbridge::dataSupplier);
     }
 
     /**
@@ -35,8 +37,9 @@ public final class DoorTypeBigDoor extends DoorType
      * @return The instance of this type.
      */
     @NotNull
-    public static DoorTypeBigDoor get()
+    public static DoorTypeDrawbridge get()
     {
         return instance;
     }
+
 }

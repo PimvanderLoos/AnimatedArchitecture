@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.GarageDoorMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -13,6 +15,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Represents a Garage Door doorType.
  *
@@ -21,15 +25,90 @@ import org.jetbrains.annotations.Nullable;
  */
 public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoorArchetype
 {
+    private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
+    /**
+     * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
+     * axis
+     * <b>(= FALSE)</b>.
+     * <p>
+     * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
+     * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
+     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     */
+    protected final boolean onNorthSouthAxis;
+
+    /**
+     * Gets the side the flag is on flag relative to it rotation point ("engine", i.e. the point).
+     */
+    @NotNull
+    protected PBlockFace currentDirection;
+
+    @NotNull
+    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
+                                                         final @NotNull Object... args)
+        throws Exception
+    {
+        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) args[1]);
+        if (currentDirection == null)
+            return Optional.empty();
+
+        final boolean onNorthSouthAxis = ((int) args[0]) == 1;
+        return Optional.of(new GarageDoor(doorData, onNorthSouthAxis, currentDirection));
+    }
+
+    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
+        throws IllegalArgumentException
+    {
+        if (!(door instanceof GarageDoor))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for a GarageDoor from type: " + door.getDoorType().toString());
+
+        final @NotNull GarageDoor garageDoor = (GarageDoor) door;
+        return new Object[]{garageDoor.getOnNorthSouthAxis() ? 1 : 0,
+                            PBlockFace.getValue(garageDoor.getCurrentDirection())};
+    }
+
+    public GarageDoor(final @NotNull DoorData doorData, final boolean onNorthSouthAxis,
+                      final @NotNull PBlockFace currentDirection)
+    {
+        super(doorData);
+        this.onNorthSouthAxis = onNorthSouthAxis;
+        this.currentDirection = currentDirection;
+    }
+
+    @Deprecated
     protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
                          final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
+        currentDirection = null;
+        onNorthSouthAxis = false;
     }
 
+    @Deprecated
     protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
         this(pLogger, doorUID, doorData, EDoorType.GARAGEDOOR);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public DoorType getDoorType()
+    {
+        return DOOR_TYPE;
+    }
+
+    /**
+     * Checks if this {@link Clock} is on the North/South axis or not. See {@link #onNorthSouthAxis}.
+     *
+     * @return True if this door is animated along the North/South axis.
+     */
+    public boolean getOnNorthSouthAxis()
+    {
+        return onNorthSouthAxis;
     }
 
     /**
@@ -216,5 +295,21 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
         doorOpeningUtility.registerBlockMover(
             new GarageDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), skipAnimation,
                                 getCurrentDirection(), getCurrentToggleDir(), initiator, newMin, newMax));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final @Nullable Object o)
+    {
+        if (!super.equals(o))
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull GarageDoor other = (GarageDoor) o;
+        return currentDirection.equals(other.currentDirection) &&
+            onNorthSouthAxis == other.onNorthSouthAxis;
     }
 }

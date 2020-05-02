@@ -107,6 +107,11 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Find a way to restrict access to all the "constructor" methods such as BigDoors#constructor(DoorData, Object[] ...)
+//       Only the construct method from DoorType should have access to it, as it is inherently unsafe. Furthermore,
+//       that would allow phasing it out for a strict type-casting method in the future.
+//       The same goes for the "dataSupplier" method. Centralizing it would allow getting rid of the code duplication
+//       checking if the class is correct and shit.
 // TODO: Clean up the duplicate JDocs in AbstractDoorBase. Check if the JDocs in IDoorBase are indeed exactly the same.
 // TODO: Make sure there aren't any errors on startup if the plugin folder doesn't exist.
 // TODO: Use reflection or something to hack Spigot's API-version to always use the currently-used API-version.
@@ -212,6 +217,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: Allow storing lists/arrays. Perhaps do this dynamically via creating yet more dynamic tables? Sorry, future me!
 // TODO: Store the locked variable as a flag. Also (not SQL-related), make it part of DoorData.
 // TODO: Implement a doorUpdate method that updates both the doorBase and the door-specific data.
 // TODO: Implement multiple powerblocks per door.
@@ -222,6 +228,10 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setReadOnly%28boolean%29
 // TODO: Allow deleting door types.
 // TODO: Allow retrieving all doors from a certain type.
+// TODO: Allow updating a DoorType. This should not change the UID of the door. In the DoorBase table, only the column
+//       "doorType" should be modified. All entries in the typeSpecific table should be passed to some kind of update
+//       function that takes the array of Objects and returns a new array of Objects that should be put in the new
+//       type-specific table. All this should be done off the main thread and the database should be locked until it's done.
 // TODO: Be consistent in UUID usage. Either use Strings everywhere or UUIDs everywhere, not the current mix.
 // TODO: When registering DoorTypes, make sure to take into account that the database might be upgrading itself on
 //       another thread. If this is the case, wait until the upgrades have finished before registering them.
@@ -286,6 +296,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Openers / Movers
  */
+// TODO: The perpetual movers (revolving door, windmill) should also have a mode where they can be opened and closed like regular doors.
 // TODO: When a door is modified in a way that leaves it in an 'impossible' state, make sure to first return to the proper state.
 //       So, if a door is currently open to the west and the opendir is changed to east and it is toggled again,
 //       toggle it to the east again first, even though the closedir would normally be the opposite of the opendir

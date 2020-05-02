@@ -325,8 +325,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                                           powerBlock, world, isOpen,
                                                                                           openDirection.get(),
                                                                                           doorOwner);
-        final @NotNull Optional<? extends AbstractDoorBase> door = doorType.get().getConstructor()
-                                                                           .apply(doorData, typeData);
+
+        final @NotNull Optional<? extends AbstractDoorBase> door = doorType.get().constructDoor(doorData, typeData);
+
         return door.map(abstractDoorBase -> (AbstractDoorBase) abstractDoorBase);
     }
 
@@ -431,6 +432,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public boolean updateTypeData(final @NotNull AbstractDoorBase door)
     {
+        final @NotNull Optional<Object[]> typeDataOpt = door.getDoorType().getTypeData(door);
+        if (!typeDataOpt.isPresent())
+        {
+            PLogger.get().logException(new IllegalArgumentException(
+                "Failed to update door " + door.getDoorUID() + ": Could not get type-specific data!"));
+            return false;
+        }
+
         if (!DoorTypeManager.get().isRegistered(door.getDoorType()))
         {
             PLogger.get().logException(new SQLException(
@@ -454,8 +463,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         // TODO: Caching
         final @NotNull PPreparedStatement pPreparedStatement =
             new PPreparedStatement(parameterCount + 1, updateStatementBuilder.toString());
+        final @NotNull Object[] typeData = typeDataOpt.get();
 
-        final @NotNull Object[] typeData = door.getDoorType().getDataSupplier().apply(door);
         for (int idx = 0; idx < parameterCount; ++idx)
             pPreparedStatement.setObject(idx + 1, typeData[idx]);
         pPreparedStatement.setLong(parameterCount + 1, door.getDoorUID());
@@ -485,12 +494,24 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         if (playerID == -1)
             return false;
 
+        final @NotNull Optional<Object[]> typeSpecificDataOpt = door.getDoorType().getTypeData(door);
+        if (!typeSpecificDataOpt.isPresent())
+        {
+            PLogger.get().logException(new IllegalArgumentException(
+                "Could not get type-specific data for a new door of type: " + door.getType().toString()));
+            return false;
+        }
+
         final @NotNull IPWorld world = door.getWorld();
+
+        // TODO: This does not retrieve the ID, but the amount of worlds added, which is only the ID in case it's
+        //       the first world to be added to the database for the first time.
         int worldID =
             executeUpdateReturnGeneratedKeys(SQLStatement.INSERT_OR_IGNORE_WORLD.constructPPreparedStatement()
                                                                                 .setString(1, world.getUID()
                                                                                                    .toString()));
-        if (worldID == -1)
+
+        if (worldID > -1) // If the world was added, the result above is 1, if it was ignored, it's 0. -1 == error.
             worldID = executeQuery(SQLStatement.SELECT_WORLD_FROM_DATA.constructPPreparedStatement()
                                                                       .setString(1, world.getUID().toString()),
                                    resultSet -> resultSet.getInt("id"), -1);
@@ -542,12 +563,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull StringBuilder parameterNames = new StringBuilder();
         final @NotNull StringBuilder parameterQuestionMarks = new StringBuilder();
 
-        final @NotNull Object[] typeSpecificData = door.getDoorType().getDataSupplier().apply(door);
-
         parameterNames.append("INSERT INTO ").append(typeTableName).append(" (doorUID, ");
         parameterQuestionMarks.append("(?, ");
 
-        final int parameterCount = door.getDoorType().getParameters().size();
+        final int parameterCount = door.getDoorType().getParameterCount();
         for (int parameterIDX = 0; parameterIDX < parameterCount; ++parameterIDX)
         {
             final @NotNull DoorType.Parameter parameter = door.getDoorType().getParameters().get(parameterIDX);
@@ -568,6 +587,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
 
         final @NotNull String insertString = parameterNames.toString() + parameterQuestionMarks.toString();
+        final @NotNull Object[] typeSpecificData = typeSpecificDataOpt.get();
 
         System.out.println(insertString);
         final @NotNull PPreparedStatement pPreparedStatement = new PPreparedStatement(parameterCount + 1, insertString);
@@ -1398,10 +1418,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Enables or disables {@link #logStatements}.
-     *
-     * @param enabled True to enable statement logging, false to disable.
+     * {@inheritDoc}
      */
+    @Override
     public void setStatementLogging(final boolean enabled)
     {
         logStatements = enabled;

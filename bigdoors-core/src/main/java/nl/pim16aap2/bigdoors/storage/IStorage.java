@@ -304,12 +304,19 @@ public interface IStorage
 
     /**
      * Updates the type-specific data of an {@link AbstractDoorBase} in the database. This data is provided by {@link
-     * DoorType#getDataSupplier()}.
+     * DoorType#getTypeData(AbstractDoorBase)} ()}.
      *
      * @param door The door whose type-specific data should be updated.
      * @return True if the update was successful.
      */
     boolean updateTypeData(final @NotNull AbstractDoorBase door);
+
+    /**
+     * Enables or disables logging of statements sent to the database.
+     *
+     * @param enabled True to enable statement logging, false to disable.
+     */
+    void setStatementLogging(final boolean enabled);
 
     /**
      * Removes an owner of a door. Note that the original creator (= permission level 0) can never be removed.
