@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
@@ -49,13 +50,19 @@ public class SubCommandSetAutoCloseTime extends SubCommand
                            final @NotNull String timeArg)
         throws IllegalArgumentException
     {
+        if (!(door instanceof ITimerToggleableArchetype))
+            throw new IllegalArgumentException(
+                "Doors of type: " + door.getDoorType().toString() + " do not have the \"autoCloseTimer\" property!");
+
+        ITimerToggleableArchetype doorWithTimer = (ITimerToggleableArchetype) door;
+
         int time = CommandManager.getIntegerFromArg(timeArg);
         if (!(sender instanceof Player))
         {
-            door.setAutoClose(time);
+            doorWithTimer.setAutoCloseTimer(time);
             BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
             BigDoors.get().getAutoCloseScheduler()
-                    .scheduleAutoClose(door.getDoorOwner().getPlayer(), door, time, false);
+                    .scheduleAutoClose(door.getDoorOwner().getPlayer(), doorWithTimer, time, false);
             sendResultMessage(sender, time);
             return true;
         }
@@ -70,9 +77,9 @@ public class SubCommandSetAutoCloseTime extends SubCommand
                     commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
                     return;
                 }
-                door.setAutoClose(time);
+                doorWithTimer.setAutoCloseTimer(time);
                 BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
-                plugin.getAutoCloseScheduler().scheduleAutoClose(player, door, time, false);
+                plugin.getAutoCloseScheduler().scheduleAutoClose(player, doorWithTimer, time, false);
                 sendResultMessage(sender, time);
             });
         return true;

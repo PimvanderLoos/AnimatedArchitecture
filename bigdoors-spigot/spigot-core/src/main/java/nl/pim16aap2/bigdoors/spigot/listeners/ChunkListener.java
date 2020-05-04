@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -88,7 +89,7 @@ public class ChunkListener implements Listener
                         optionalDoor.ifPresent(
                             door ->
                             {
-                                if (door.perpetualMovement() && door.isPowerBlockActive())
+                                if (door instanceof IPerpetualMoverArchetype && door.isPowerBlockActive())
                                     BigDoors.get().getPlatform().getDoorActionEventFactory()
                                             .create(door, DoorActionCause.PERPETUALMOVEMENT, DoorActionType.TOGGLE,
                                                     null);

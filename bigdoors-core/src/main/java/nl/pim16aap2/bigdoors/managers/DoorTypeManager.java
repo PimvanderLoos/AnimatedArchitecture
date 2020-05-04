@@ -50,7 +50,7 @@ public final class DoorTypeManager
     public List<DoorType> getEnabledDoorTypes()
     {
         final List<DoorType> enabledDoorTypes = new ArrayList<>();
-        for (Map.Entry<DoorType, DoorTypeInfo> doorType : doorTypesToID.entrySet())
+        for (final Map.Entry<DoorType, DoorTypeInfo> doorType : doorTypesToID.entrySet())
             if (doorType.getValue().status)
                 enabledDoorTypes.add(doorType.getKey());
         return enabledDoorTypes;

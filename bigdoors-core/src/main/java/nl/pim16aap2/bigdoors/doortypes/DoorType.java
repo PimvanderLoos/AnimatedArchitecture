@@ -29,6 +29,8 @@ public class DoorType
     protected final CheckedBiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>, Exception> constructor;
     @NotNull
     protected final CheckedFunction<AbstractDoorBase, Object[], IllegalArgumentException> dataSupplier;
+    @NotNull
+    protected final String translationName;
 
     /**
      * Constructs a new {@link DoorType}. Don't forget to register it using {@link DoorTypeManager#registerDoorType(DoorType)}.
@@ -57,13 +59,26 @@ public class DoorType
         this.parameters = parameters;
         this.constructor = constructor;
         this.dataSupplier = dataSupplier;
+        translationName = "DoorType_" + toString();
+    }
+
+    /**
+     * Obtains the value of this type that represents the key in the translation system.
+     *
+     * @return The value of this type that represents the key in the translation system.
+     */
+    @NotNull
+    public final String getTranslationName()
+    {
+        return translationName;
     }
 
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public String toString()
+    public final String toString()
     {
         return getPluginName() + ":" + getTypeName() + ":" + getVersion();
     }

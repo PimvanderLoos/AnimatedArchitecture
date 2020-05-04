@@ -229,7 +229,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Field dbField = DatabaseManager.class.getDeclaredField("db");
         dbField.setAccessible(true);
         storage = (SQLiteJDBCDriverConnection) dbField.get(DatabaseManager.get());
-        storage.setStatementLogging(true);
+//        storage.setStatementLogging(true);
     }
 
     /**
