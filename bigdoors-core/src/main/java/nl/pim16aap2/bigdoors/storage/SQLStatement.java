@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.storage;
 
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
@@ -133,7 +132,7 @@ public enum SQLStatement
         "DELETE FROM DoorBase WHERE id = ?;"
     ),
 
-    GET_OR_CREATE_PLAYER(
+    INSERT_OR_IGNORE_PLAYER(
         "INSERT OR IGNORE INTO Player(playerUUID, playerName) VALUES(?, ?);"
     ),
 
@@ -230,15 +229,6 @@ public enum SQLStatement
     ),
 
     /**
-     * Inserts a new base door into the database. This represents an {@link AbstractDoorBase}.
-     */
-    INSERT_BASE_DOOR(
-        "INSERT INTO DoorBase(name,world,doorType,xMin,yMin,zMin,xMax,yMax,zMax, \n" +
-            "                  engineX,engineY,engineZ,bitflag,openDirection,chunkHash) \n" +
-            "                  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
-    ),
-
-    /**
      * Insert the {@link DoorType} into the database if it doesn't exist already.
      */
     INSERT_OR_IGNORE_DOOR_TYPE(
@@ -277,6 +267,39 @@ public enum SQLStatement
         "SELECT O.doorUID, O.permission, P.playerUUID, P.playerName \n" +
             "FROM DoorOwnerPlayer AS O INNER JOIN Player AS P ON O.playerID = P.id \n" +
             "WHERE doorUID=?;"
+    ),
+
+    INSERT_DOOR_BASE(
+        "INSERT INTO DoorBase\n" +
+            "    (name, world, doorType, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, bitflag, openDirection, chunkHash)\n" +
+            "    VALUES (?,\n" +
+            "    (SELECT id\n" +
+            "     FROM World\n" +
+            "     WHERE World.worldUUID = ?)\n" +
+            "    , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+    ),
+
+    /**
+     * Inserts a new door creator. This is a door owner with permission level 0.
+     * <p>
+     * This statement is intended to be used in the same transaction that inserted the DoorBase.
+     */
+    INSERT_DOOR_CREATOR(
+        "INSERT INTO DoorOwnerPlayer\n" +
+            "    (permission, playerID, doorUID)\n" +
+            "    VALUES (0,\n" +
+            "        (SELECT id\n" +
+            "         FROM Player\n" +
+            "         WHERE Player.playerUUID = ?),\n" +
+            "        (SELECT seq\n" +
+            "         FROM sqlite_sequence\n" +
+            "         WHERE sqlite_sequence.name =\"DoorBase\"));"
+    ),
+
+    SELECT_MOST_RECENT_DOOR(
+        "SELECT seq \n" +
+            "    FROM sqlite_sequence \n" +
+            "    WHERE sqlite_sequence.name =\"DoorBase\";"
     ),
 
     LEGACY_ALTER_TABLE_ON(
@@ -359,6 +382,8 @@ public enum SQLStatement
             "     z              INTEGER    NOT NULL,\n" +
             "     chunkHash      INTEGER    NOT NULL);"
     ),
+
+
     ;
 
     @NotNull

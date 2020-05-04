@@ -217,6 +217,12 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: Use batch statements to reduce the number of transactions for door inserts. More info:
+//       https://stackoverflow.com/questions/9601030/transaction-in-java-sqlite3
+//       Some more info about general optimizations:
+//       https://www.whoishostingthis.com/compare/sqlite/optimize/
+//       Or maybe insert into views using triggers?
+// TODO: Look into triggers to potentially improve stuff.
 // TODO: Allow storing lists/arrays. Perhaps do this dynamically via creating yet more dynamic tables? Sorry, future me!
 // TODO: Store the locked variable as a flag. Also (not SQL-related), make it part of DoorData.
 // TODO: Implement a doorUpdate method that updates both the doorBase and the door-specific data.

@@ -48,12 +48,13 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
                                                          final @NotNull Object... args)
         throws Exception
     {
-        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) args[1]);
+        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) args[2]);
         if (currentDirection == null)
             return Optional.empty();
 
-        final boolean onNorthSouthAxis = ((int) args[0]) == 1;
-        return Optional.of(new GarageDoor(doorData, onNorthSouthAxis, currentDirection));
+        final int autoClose = (int) args[0];
+        final boolean onNorthSouthAxis = ((int) args[1]) == 1;
+        return Optional.of(new GarageDoor(doorData, autoClose, onNorthSouthAxis, currentDirection));
     }
 
     public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
@@ -64,14 +65,16 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
                 "Trying to get the type-specific data for a GarageDoor from type: " + door.getDoorType().toString());
 
         final @NotNull GarageDoor garageDoor = (GarageDoor) door;
-        return new Object[]{garageDoor.getOnNorthSouthAxis() ? 1 : 0,
+        return new Object[]{garageDoor.getAutoClose(),
+                            garageDoor.getOnNorthSouthAxis() ? 1 : 0,
                             PBlockFace.getValue(garageDoor.getCurrentDirection())};
     }
 
-    public GarageDoor(final @NotNull DoorData doorData, final boolean onNorthSouthAxis,
+    public GarageDoor(final @NotNull DoorData doorData, final int autoClose, final boolean onNorthSouthAxis,
                       final @NotNull PBlockFace currentDirection)
     {
         super(doorData);
+        setAutoClose(autoClose);
         this.onNorthSouthAxis = onNorthSouthAxis;
         this.currentDirection = currentDirection;
     }

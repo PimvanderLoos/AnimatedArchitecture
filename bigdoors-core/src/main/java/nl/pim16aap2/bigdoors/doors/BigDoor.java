@@ -208,10 +208,28 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
     {
         if (!super.equals(o))
             return false;
+
+        System.out.println("000003");
+
         if (getClass() != o.getClass())
             return false;
+        System.out.println("000004");
 
         final @NotNull BigDoor other = (BigDoor) o;
+
+
+        if (getCurrentDirection() == null) System.out.println("000005");
+        if (other.getCurrentDirection() == null) System.out.println("000006");
+
+
+        if (getAutoClose() != other.getAutoClose()) System.out.println("000007");
+        if (!getCurrentDirection().equals(other.getCurrentDirection())) System.out.println("000008");
+
+        boolean isSameBigDoor = getCurrentDirection().equals(other.getCurrentDirection()) &&
+            getAutoClose() == other.getAutoClose();
+        System.out.println("isSameBigDoor: " + isSameBigDoor);
+
+
         return getCurrentDirection().equals(other.getCurrentDirection()) &&
             getAutoClose() == other.getAutoClose();
     }

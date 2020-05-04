@@ -11,7 +11,18 @@ import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
+import nl.pim16aap2.bigdoors.doors.Drawbridge;
+import nl.pim16aap2.bigdoors.doors.GarageDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeClock;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeRevolvingDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -154,45 +165,46 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
             door1.setBlocksToMove(0);
 
 
-//            {
-//                final int doorUID = 2;
-//                final boolean isOpen = false;
-//                final @NotNull String name = "massive2";
-//                final @NotNull Vector3Di min = new Vector3Di(144, 75, 168);
-//                final @NotNull Vector3Di max = new Vector3Di(144, 131, 182);
-//                final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-//                final @NotNull Vector3Di powerBlock = new Vector3Di(102, 102, 102);
-//                final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
-//
-//                doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-//                                                         RotateDirection.valueOf(0), doorOwner);
-//            }
-//            door2 = EDoorType.DRAWBRIDGE.getNewDoor(plogger, 2, doorData);
-//            door2 = EDoorType.BIGDOOR.getNewDoor(plogger, 2, doorData);
-//
-//            door2.setLock(false);
-//            door2.setAutoClose(0);
-//            door2.setBlocksToMove(0);
-//            door2.setDoorOwner(new DoorOwner(door2.getDoorUID(), 0, player1));
-//
-//
-//            {
-//                final int doorUID = 3;
-//                final boolean isOpen = false;
-//                final @NotNull String name = "massive2";
-//                final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
-//                final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
-//                final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-//                final @NotNull Vector3Di powerBlock = new Vector3Di(103, 103, 103);
-//                final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
-//
-//                doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-//                                                         RotateDirection.valueOf(0), doorOwner);
-//            }
-//            door3 = EDoorType.BIGDOOR.getNewDoor(plogger, 3, doorData);
-//            door3.setLock(false);
-//            door3.setAutoClose(0);
-//            door3.setBlocksToMove(0);
+            {
+                final int doorUID = 2;
+                final int autoClose = 0;
+                final boolean isOpen = false;
+                final @NotNull String name = "massive2";
+                final @NotNull PBlockFace currentDirection = PBlockFace.DOWN;
+                final @NotNull Vector3Di min = new Vector3Di(144, 75, 168);
+                final @NotNull Vector3Di max = new Vector3Di(144, 131, 182);
+                final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
+                final @NotNull Vector3Di powerBlock = new Vector3Di(102, 102, 102);
+                final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
+
+                doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
+                                                         RotateDirection.valueOf(0), doorOwner);
+                final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, currentDirection, true);
+                door2 = drawbridge;
+            }
+
+            door2.setLock(false);
+            door2.setBlocksToMove(0);
+
+
+            {
+                final int doorUID = 3;
+                final int autoClose = 0;
+                final boolean isOpen = false;
+                final @NotNull String name = "massive2";
+                final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
+                final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
+                final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
+                final @NotNull Vector3Di powerBlock = new Vector3Di(103, 103, 103);
+                final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player2);
+
+                doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
+                                                         RotateDirection.valueOf(0), doorOwner);
+                final @NotNull GarageDoor garageDoor = new GarageDoor(doorData, autoClose, true, PBlockFace.UP);
+                door3 = garageDoor;
+            }
+            door3.setLock(false);
+            door3.setBlocksToMove(0);
         }
         catch (Exception e)
         {
@@ -274,6 +286,15 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     private void registerDoorTypes()
     {
         Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get()));
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()));
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get()));
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeElevator.get()));
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeFlag.get()));
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeGarageDoor.get()));
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get()));
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get()));
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get()));
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get()));
     }
 
     /**
@@ -307,8 +328,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     public void insertDoors()
     {
         Assert.assertTrue(storage.insert(door1));
-//        Assert.assertTrue(storage.insert(door2));
-//        Assert.assertTrue(storage.insert(door3));
+        Assert.assertTrue(storage.insert(door2));
+        Assert.assertTrue(storage.insert(door3));
     }
 
     /**
@@ -324,17 +345,15 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertNotNull(door.getPlayerUUID().toString());
         Assert.assertNotNull(door.getName());
 
-        storage.getDoor(1L);
-
         Optional<List<AbstractDoorBase>> test = storage.getDoors(door.getPlayerUUID(), door.getName());
         if (!test.isPresent())
-            Assert.fail("COULD NOT RETRIEVE DOOR WITH ID \"" + door.getDoorUID() + "\"!");
+            Assert.fail("COULD NOT RETRIEVE DOOR WITH name \"" + door.getName() + "\"!");
 
         if (test.get().size() != 1)
-            Assert.fail("TOO MANY DOORS FOUND FOR DOOR WITH ID \"" + door.getDoorUID() + "\"!");
+            Assert.fail("TOO MANY DOORS FOUND FOR DOOR WITH name \"" + door.getName() + "\"!");
 
         if (!door.equals(test.get().get(0)))
-            Assert.fail("Data of retrieved door is not the same!");
+            Assert.fail("Data of retrieved door is not the same! ID = " + door.getDoorUID());
     }
 
     /**
@@ -344,8 +363,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         throws TooManyDoorsException
     {
         testRetrieval(door1);
-//        testRetrieval(door2);
-//        testRetrieval(door3);
+        testRetrieval(door2);
+        testRetrieval(door3);
     }
 
     /**

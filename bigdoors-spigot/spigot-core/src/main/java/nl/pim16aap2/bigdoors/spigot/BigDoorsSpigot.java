@@ -253,14 +253,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
 
             TEST();
-            System.exit(0);
         }
         catch (Exception exception)
         {
             successfulInit = false;
             pLogger.logException(exception);
         }
-        System.exit(0);
     }
 
     private void registerDoorTypes()
@@ -304,7 +302,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         final @NotNull Drawbridge d03 = new Drawbridge(doorData, 100, PBlockFace.EAST, true);
         final @NotNull Elevator d04 = new Elevator(doorData, 100);
         final @NotNull Flag d05 = new Flag(doorData, true, PBlockFace.NORTH);
-        final @NotNull GarageDoor d06 = new GarageDoor(doorData, true, PBlockFace.UP);
+        final @NotNull GarageDoor d06 = new GarageDoor(doorData, 10, true, PBlockFace.UP);
         final @NotNull Portcullis d07 = new Portcullis(doorData, 10);
         final @NotNull RevolvingDoor d08 = new RevolvingDoor(doorData, 8);
         final @NotNull SlidingDoor d09 = new SlidingDoor(doorData, 10);
@@ -321,14 +319,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         DatabaseManager.get().addDoorBase(d08);
         DatabaseManager.get().addDoorBase(d09);
         DatabaseManager.get().addDoorBase(d10);
-        try
-        {
-            Thread.sleep(1000L);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+        for (int idx = 0; idx < 15000; ++idx)
+            DatabaseManager.get().addDoorBase(d01);
     }
 
     public static BigDoorsSpigot get()

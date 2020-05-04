@@ -62,7 +62,7 @@ public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoor
                 "Trying to get the type-specific data for a Drawbridge from type: " + door.getDoorType().toString());
 
         final @NotNull Drawbridge drawbridge = (Drawbridge) door;
-        return new Object[]{drawbridge.getAutoClose(), PBlockFace.getValue(drawbridge.getCurrentDirection()),
+        return new Object[]{drawbridge.autoCloseTimer, PBlockFace.getValue(drawbridge.currentDirection),
                             drawbridge.isModeUp() ? 1 : 0};
     }
 
@@ -228,12 +228,29 @@ public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoor
     @Override
     public boolean equals(@Nullable Object o)
     {
+        System.out.println("000013");
         if (!super.equals(o))
             return false;
+        System.out.println("000014");
         if (getClass() != o.getClass())
             return false;
 
         final @NotNull Drawbridge other = (Drawbridge) o;
+
+
+        if (currentDirection == null) System.out.println("000015");
+        if (other.currentDirection == null) System.out.println("000016");
+
+
+        if (autoCloseTimer != other.autoCloseTimer) System.out.println("000017");
+        if (modeUp != other.modeUp) System.out.println("000018");
+        if (!currentDirection.equals(other.currentDirection)) System.out.println("000019");
+
+        boolean isSameDrawbridge =
+            currentDirection.equals(other.currentDirection) && autoCloseTimer == other.autoCloseTimer &&
+                modeUp == other.modeUp;
+        System.out.println("isSameDrawbridge: " + isSameDrawbridge);
+
         return currentDirection.equals(other.currentDirection) && autoCloseTimer == other.autoCloseTimer &&
             modeUp == other.modeUp;
     }

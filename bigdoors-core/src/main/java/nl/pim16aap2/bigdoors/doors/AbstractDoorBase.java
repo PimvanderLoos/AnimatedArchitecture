@@ -830,13 +830,52 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public boolean equals(Object o)
     {
+        System.out.println("000000");
         if (this == o)
             return true;
+        System.out.println("000001");
 
         if (o == null || getClass() != o.getClass())
             return false;
+        System.out.println("000002");
 
         AbstractDoorBase other = (AbstractDoorBase) o;
+
+        if (name == null) System.out.println("12");
+        if (min == null) System.out.println("13");
+        if (max == null) System.out.println("14");
+        if (getDoorType() == null) System.out.println("16");
+        if (doorOwner == null) System.out.println("17");
+        if (IPWorld == null) System.out.println("18");
+        if (IPWorld.getUID() == null) System.out.println("19");
+
+        if (other.name == null) System.out.println("20");
+        if (other.min == null) System.out.println("21");
+        if (other.max == null) System.out.println("22");
+        if (other.getDoorType() == null) System.out.println("24");
+        if (other.doorOwner == null) System.out.println("25");
+        if (other.IPWorld == null) System.out.println("26");
+        if (other.IPWorld.getUID() == null) System.out.println("27");
+
+        if (doorUID != other.doorUID) System.out.println("0");
+        if (!name.equals(other.name)) System.out.println("1");
+        if (!min.equals(other.min)) System.out.println("2");
+        if (!max.equals(other.max)) System.out.println("3");
+        if (!getDoorType().equals(other.getDoorType())) System.out.println("5");
+        if (isOpen != other.isOpen) System.out.println("6");
+        if (!doorOwner.equals(other.doorOwner)) System.out.println("7");
+        if (blocksToMove != other.blocksToMove) System.out.println("8");
+        if (isLocked != other.isLocked) System.out.println("9");
+        if (autoClose != other.autoClose) System.out.println("10");
+        if (!IPWorld.getUID().equals(other.IPWorld.getUID())) System.out.println("11");
+
+        boolean isSameDoorBase =
+            doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
+                getDoorType().equals(other.getDoorType()) && isOpen == other.isOpen &&
+                doorOwner.equals(other.doorOwner) &&
+                blocksToMove == other.blocksToMove && isLocked == other.isLocked && autoClose == other.autoClose &&
+                IPWorld.getUID().equals(other.IPWorld.getUID());
+        System.out.println("isSameDoorBase: " + isSameDoorBase);
 
         return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
             getDoorType().equals(other.getDoorType()) && isOpen == other.isOpen && doorOwner.equals(other.doorOwner) &&
