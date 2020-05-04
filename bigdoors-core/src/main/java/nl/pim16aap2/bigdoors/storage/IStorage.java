@@ -226,7 +226,7 @@ public interface IStorage
      * @return The original creator of a door.
      */
     @NotNull
-    Optional<DoorOwner> getOwnerOfDoor(final long doorUID);
+    Optional<DoorOwner> getCreatorOfDoor(final long doorUID);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
@@ -312,6 +312,17 @@ public interface IStorage
     boolean updateTypeData(final @NotNull AbstractDoorBase door);
 
     /**
+     * Deletes a {@link DoorType} and all {@link AbstractDoorBase}s of this type from the database.
+     * <p>
+     * Note that the {@link DoorType} has to be registered before it can be deleted! It doesn't need to be enabled,
+     * though.
+     *
+     * @param doorType The {@link DoorType} to delete.
+     * @return True if deletion was successful.
+     */
+    boolean deleteDoorType(final @NotNull DoorType doorType);
+
+    /**
      * Enables or disables logging of statements sent to the database.
      *
      * @param enabled True to enable statement logging, false to disable.
@@ -354,9 +365,9 @@ public interface IStorage
      * @param door The {@link AbstractDoorBase}.
      * @return The flag value of a {@link AbstractDoorBase}.
      */
-    default int getFlag(final @NotNull AbstractDoorBase door)
+    default long getFlag(final @NotNull AbstractDoorBase door)
     {
-        int flag = 0;
+        long flag = 0;
         flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), door.isOpen(), flag);
         flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), door.isLocked(), flag);
         return flag;
@@ -444,9 +455,9 @@ public interface IStorage
         /**
          * The bit value of the flag.
          */
-        private final int flagValue;
+        private final long flagValue;
 
-        DoorFlag(final int flagValue)
+        DoorFlag(final long flagValue)
         {
             this.flagValue = flagValue;
         }
@@ -457,7 +468,7 @@ public interface IStorage
          * @param flag The {@link DoorFlag}.
          * @return The flag value of a {@link DoorFlag}.
          */
-        public static int getFlagValue(final @NotNull DoorFlag flag)
+        public static long getFlagValue(final @NotNull DoorFlag flag)
         {
             return flag.flagValue;
         }

@@ -312,7 +312,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
                                                .create(UUID.fromString(doorBaseRS.getString("worldUUID")));
 
-        final boolean isOpen = BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), doorBaseRS.getInt("bitflag"));
+        final long bitflag = doorBaseRS.getLong("bitflag");
+        final boolean isOpen = BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), bitflag);
+        final boolean isLocked = BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), bitflag);
 
         final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, UUID.fromString(doorBaseRS.getString("playerUUID")),
                                                            doorBaseRS.getString("playerName"),
@@ -324,7 +326,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, eng,
                                                                                           powerBlock, world, isOpen,
                                                                                           openDirection.get(),
-                                                                                          doorOwner);
+                                                                                          doorOwner, isLocked);
 
         final @NotNull Optional<? extends AbstractDoorBase> door = doorType.get().constructDoor(doorData, typeData);
 
@@ -430,6 +432,33 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * {@inheritDoc}
      */
     @Override
+    public boolean deleteDoorType(final @NotNull DoorType doorType)
+    {
+        final long typeID = DoorTypeManager.get().getDoorType(doorType).orElse(-1L);
+        if (typeID == -1)
+        {
+            PLogger.get().logException(new IllegalStateException(
+                "Trying to delete door type: " + doorType.toString() +
+                    ", but it is not registered! Please register it first."));
+            return false;
+        }
+        final @NotNull String typeTableName = getTableNameOfType(doorType);
+        if (!IStorage.isValidTableName(typeTableName))
+        {
+            PLogger.get().logException(new IllegalArgumentException(
+                "Invalid table name in database: \"" + typeTableName + "\". Please use only alphanumeric characters."));
+            return false;
+        }
+        // TODO: Use a transaction.
+        int result = executeUpdate(SQLStatement.DELETE_DOOR_TYPE.constructPPreparedStatement().setLong(1, typeID));
+        result += executeUpdate(new PPreparedStatement(0, "DROP TABLE " + typeTableName + ";"));
+        return result == 2; // TODO: This isn't particularly safe. If it's 1, for example, which data is still there??
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean updateTypeData(final @NotNull AbstractDoorBase door)
     {
         final @NotNull Optional<Object[]> typeDataOpt = door.getDoorType().getTypeData(door);
@@ -512,7 +541,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                          .setInt(10, door.getEngine().getX())
                                                          .setInt(11, door.getEngine().getY())
                                                          .setInt(12, door.getEngine().getZ())
-                                                         .setInt(13, getFlag(door))
+                                                         .setLong(13, getFlag(door))
                                                          .setInt(14, RotateDirection.getValue(door.getOpenDir()))
                                                          .setLong(15, chunkHash));
 
@@ -605,28 +634,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Gets the ID player in the "players" table. If the player isn't in the database yet, they are added first.
      *
-     * @param doorOwner The doorOwner with the player to retrieve.
-     * @return The database ID of the player or -1 if it failed.
-     */
-    private long getPlayerID(final @NotNull DoorOwner doorOwner)
-    {
-        // TODO: No business doing this in the connection.
-        try (final @Nullable Connection conn = getConnection())
-        {
-            if (conn == null)
-                return -1L;
-            return getPlayerID(conn, doorOwner);
-        }
-        catch (Exception e)
-        {
-            PLogger.get().logException(e);
-        }
-        return -1L;
-    }
-
-    /**
-     * Gets the ID player in the "players" table. If the player isn't in the database yet, they are added first.
-     *
      * @param conn      The connection to the database.
      * @param doorOwner The doorOwner with the player to retrieve.
      * @return The database ID of the player.
@@ -656,6 +663,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private Optional<AbstractDoorBase> getDoor(final @NotNull ResultSet doorBaseRS)
         throws SQLException
     {
+        // Make sure the resultset isn't empty.
+        if (!doorBaseRS.isBeforeFirst())
+            return Optional.empty();
+
         if (!DoorTypeManager.get().isRegistered(doorBaseRS.getInt("doorType")))
         {
             PLogger.get().logException(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
@@ -686,6 +697,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private Optional<List<AbstractDoorBase>> getDoors(final @NotNull ResultSet doorBaseRS)
         throws SQLException
     {
+        // Make sure the resultset isn't empty.
         if (!doorBaseRS.isBeforeFirst())
             return Optional.empty();
 
@@ -704,6 +716,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                 .setString(2, doorBaseRS.getString("typeTableName"))
                                                                 .setLong(3, doorBaseRS.getLong("id")),
                              this::createTypeData, new Object[]{});
+
             constructDoor(doorBaseRS, typeData).ifPresent(doors::add);
         }
         return doors.isEmpty() ? Optional.empty() : Optional.of(doors);
@@ -767,100 +780,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                      .setString(2, doorName)) > 0;
     }
 
-
-
-    /*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-     */
-
-    public void TEST()
-    {
-//        {
-//            final @NotNull IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
-//                                                   .create(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360"));
-//            final @NotNull IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory()
-//                                                     .create(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"),
-//                                                             "pim16aap2");
-//
-//            final @NotNull Vector3Di min = new Vector3Di(1, 2, 3);
-//            final @NotNull Vector3Di max = new Vector3Di(4, 5, 6);
-//            final @NotNull Vector3Di eng = new Vector3Di(7, 8, 9);
-//            final @NotNull Vector3Di powerBlock = new Vector3Di(10, 11, 12);
-//            final boolean isOpen = false;
-//
-//            final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, player);
-//            final @NotNull String name = "MYFIRSTDOOR!";
-//
-//
-//            final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(-1, name, min, max, eng,
-//                                                                                              powerBlock, world, isOpen,
-//                                                                                              RotateDirection.CLOCKWISE,
-//                                                                                              doorOwner);
-//            final int autoCloseTimer = 10;
-//            final PBlockFace currentDirection = PBlockFace.SOUTH;
-//
-//            final @NotNull BigDoor bigDoor = BigDoor.constructDoor(doorData, autoCloseTimer, currentDirection);
-//            insert(bigDoor);
-//        }
-//
-//        @NotNull
-//        Optional<AbstractDoorBase> bigDoor = getDoor(1L);
-//
-//        if (!bigDoor.isPresent())
-//            System.out.println("DID NOT FIND A DOOR!");
-//        else
-//        {
-//            System.out.println(
-//                "BigDoor's name: " + bigDoor.get().getName() + ", autoCloseTimer: " + bigDoor.get().getAutoClose() +
-//                    ", playerName: " + bigDoor.get().getDoorOwner().getPlayerName());
-//
-//            BigDoor door = (BigDoor) bigDoor.get();
-//            door.setAutoClose(100);
-//            door.setCurrentDirection(PBlockFace.DOWN);
-//
-//
-//            updateTypeData(door);
-//        }
-
-
-//        System.out.println(
-//            "IsBigDoorsWorld (fakeWorld): " +
-//                isBigDoorsWorld(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935")));
-//
-//        System.out.println(
-//            "IsBigDoorsWorld (realWorld): " +
-//                isBigDoorsWorld(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360")));
-//
-//        removeDoor(1L);
-//
-//        System.out.println(
-//            "IsBigDoorsWorld (emptyWorld): " +
-//                isBigDoorsWorld(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360")));
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -880,7 +799,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeQuery(SQLStatement.GET_DOOR_COUNT_FOR_PLAYER.constructPPreparedStatement()
                                                                   .setString(1, playerUUID.toString()),
-                            (resultSet) -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
+                            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     /**
@@ -892,7 +811,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return executeQuery(SQLStatement.GET_PLAYER_DOOR_COUNT.constructPPreparedStatement()
                                                               .setString(1, playerUUID.toString())
                                                               .setString(2, doorName),
-                            (resultSet) -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
+                            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     /**
@@ -903,7 +822,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeQuery(SQLStatement.GET_DOOR_COUNT_BY_NAME.constructPPreparedStatement()
                                                                .setString(1, doorName),
-                            (resultSet) -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
+                            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     /**
@@ -914,7 +833,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeQuery(SQLStatement.GET_OWNER_COUNT_OF_DOOR.constructPPreparedStatement()
                                                                 .setLong(1, doorUID),
-                            (resultSet) -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
+                            resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
     /**
@@ -999,11 +918,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeQuery(SQLStatement.GET_PLAYER_UUID.constructPPreparedStatement()
                                                         .setString(1, playerName),
-                            (rs) ->
+                            resultSet ->
                             {
                                 UUID playerUUID = null;
                                 int count = 0;
-                                while (rs.next())
+                                while (resultSet.next())
                                 {
                                     ++count;
                                     if (count > 1)
@@ -1011,7 +930,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                         playerUUID = null;
                                         break;
                                     }
-                                    playerUUID = UUID.fromString(rs.getString("playerUUID"));
+                                    playerUUID = UUID.fromString(resultSet.getString("playerUUID"));
                                 }
                                 return Optional.ofNullable(playerUUID);
                             }, Optional.empty());
@@ -1026,7 +945,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeQuery(SQLStatement.GET_PLAYER_NAME.constructPPreparedStatement()
                                                         .setString(1, playerUUID),
-                            (rs) -> Optional.ofNullable(rs.next() ? rs.getString("playerName") : null),
+                            resultSet -> Optional
+                                .ofNullable(resultSet.next() ? resultSet.getString("playerName") : null),
                             Optional.empty());
     }
 
@@ -1035,7 +955,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Override
     @NotNull
-    public Optional<DoorOwner> getOwnerOfDoor(final long doorUID)
+    public Optional<DoorOwner> getCreatorOfDoor(final long doorUID)
     {
         return executeQuery(SQLStatement.GET_DOOR_OWNER.constructPPreparedStatement().setLong(1, doorUID),
                             (resultSet -> Optional.of(new DoorOwner(doorUID,
@@ -1052,22 +972,23 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @NotNull
     public ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(final long chunkHash)
     {
-        return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructPPreparedStatement()
-                                                                      .setLong(1, chunkHash),
-                            (rs) ->
-                            {
-                                final ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
-                                while (rs.next())
-                                {
-                                    int locationHash = Util.simpleChunkSpaceLocationhash(rs.getInt("x"),
-                                                                                         rs.getInt("y"),
-                                                                                         rs.getInt("z"));
-                                    if (!doors.containsKey(locationHash))
-                                        doors.put(locationHash, new ArrayList<>());
-                                    doors.get(locationHash).add(rs.getLong("id"));
-                                }
-                                return doors;
-                            }, new ConcurrentHashMap<>());
+        return null;
+//        return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructPPreparedStatement()
+//                                                                      .setLong(1, chunkHash),
+//                            resultSet ->
+//                            {
+//                                final ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
+//                                while (resultSet.next())
+//                                {
+//                                    int locationHash = Util.simpleChunkSpaceLocationhash(resultSet.getInt("x"),
+//                                                                                         resultSet.getInt("y"),
+//                                                                                         resultSet.getInt("z"));
+//                                    if (!doors.containsKey(locationHash))
+//                                        doors.put(locationHash, new ArrayList<>());
+//                                    doors.get(locationHash).add(resultSet.getLong("id"));
+//                                }
+//                                return doors;
+//                            }, new ConcurrentHashMap<>());
     }
 
     /**
@@ -1079,44 +1000,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeQuery(SQLStatement.GET_DOOR_IDS_IN_CHUNK.constructPPreparedStatement()
                                                               .setLong(1, chunkHash),
-                            (rs) ->
+                            resultSet ->
                             {
                                 final List<Long> doors = new ArrayList<>();
-                                while (rs.next())
-                                    doors.add(rs.getLong("id"));
+                                while (resultSet.next())
+                                    doors.add(resultSet.getLong("id"));
                                 return doors;
                             }, new ArrayList<>());
     }
-
-
-
-    /*
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     */
 
     /**
      * {@inheritDoc}
@@ -1153,13 +1044,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public boolean updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos)
     {
-        return executeUpdate(SQLStatement.UPDATE_DOOR_POWER_BLOCK_LOC.constructPPreparedStatement()
-                                                                     .setInt(1, xPos)
-                                                                     .setInt(2, yPos)
-                                                                     .setInt(3, zPos)
-                                                                     .setLong(4, Util.simpleChunkHashFromLocation(xPos,
-                                                                                                                  zPos))
-                                                                     .setLong(5, doorUID)) > 0;
+        return false;
+//        return executeUpdate(SQLStatement.UPDATE_DOOR_POWER_BLOCK_LOC.constructPPreparedStatement()
+//                                                                     .setInt(1, xPos)
+//                                                                     .setInt(2, yPos)
+//                                                                     .setInt(3, zPos)
+//                                                                     .setLong(4, Util.simpleChunkHashFromLocation(xPos,
+//                                                                                                                  zPos))
+//                                                                     .setLong(5, doorUID)) > 0;
     }
 
     /**
@@ -1173,16 +1065,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         @Nullable final Integer currentFlag = executeQuery(SQLStatement.GET_DOOR_FLAG.constructPPreparedStatement()
                                                                                      .setLong(1, doorUID),
-                                                           (rs) -> rs.getInt(1));
+                                                           resultSet -> resultSet.getInt(1));
         if (currentFlag == null)
         {
             PLogger.get().logException(new SQLException("Could not get flag value of door: " + doorUID));
             return false;
         }
 
-        final int newFlag = BitFlag.changeFlag(DoorFlag.getFlagValue(flag), flagStatus, currentFlag);
+        final long newFlag = BitFlag.changeFlag(DoorFlag.getFlagValue(flag), flagStatus, currentFlag);
         return executeUpdate(SQLStatement.UPDATE_DOOR_FLAG.constructPPreparedStatement()
-                                                          .setInt(1, newFlag)
+                                                          .setLong(1, newFlag)
                                                           .setLong(2, doorUID)) > 0;
     }
 
@@ -1280,9 +1172,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         try (final PreparedStatement ps = pPreparedStatement.construct(conn, Statement.RETURN_GENERATED_KEYS))
         {
             ps.executeUpdate();
-            try (final ResultSet rs = ps.getGeneratedKeys())
+            try (final ResultSet resultSet = ps.getGeneratedKeys())
             {
-                return rs.getInt(1);
+                return resultSet.getInt(1);
             }
             catch (SQLException ex)
             {
@@ -1336,7 +1228,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             PLogger.get().logException(e);
         }
-        return null;
+        return fallback;
     }
 
     /**
@@ -1392,7 +1284,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             PLogger.get().logException(e);
         }
-        return null;
+        return fallback;
     }
 
     /**
@@ -1437,7 +1329,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeQuery(SQLStatement.GET_DOOR_OWNERS.constructPPreparedStatement()
                                                         .setLong(1, doorUID),
-                            (resultSet) ->
+                            resultSet ->
                             {
                                 final List<DoorOwner> ret = new ArrayList<>();
                                 while (resultSet.next())
@@ -1484,6 +1376,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public boolean addOwner(final long doorUID, final @NotNull IPPlayer player, final int permission)
     {
+        // TODO: Use transaction
         // permission level 0 is reserved for the creator, and negative values are not allowed.
         if (permission < 1)
             return false;
@@ -1503,10 +1396,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 return false;
             }
 
-            return executeQuery(conn, SQLStatement.GET_UNION_FROM_OWNER.constructPPreparedStatement()
-                                                                       .setLong(1, playerID)
-                                                                       .setLong(2, doorUID),
-                                (rs) -> addOrUpdateOwner(conn, rs, doorUID, playerID, permission), false);
+            return executeQuery(conn, SQLStatement.GET_DOOR_OWNER_PLAYER.constructPPreparedStatement()
+                                                                        .setLong(1, playerID)
+                                                                        .setLong(2, doorUID),
+                                rs -> addOrUpdateOwner(conn, rs, doorUID, playerID, permission), false);
         }
         catch (SQLException | NullPointerException e)
         {

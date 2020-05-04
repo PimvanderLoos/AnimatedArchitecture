@@ -7,11 +7,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class manages all {@link DoorType}s. Before a type can be used, it will have to be registered here.
@@ -23,9 +24,9 @@ public final class DoorTypeManager
     @NotNull
     private static final DoorTypeManager instance = new DoorTypeManager();
     @NotNull
-    private final Map<DoorType, DoorTypeInfo> doorTypesToID = new HashMap<>();
+    private final Map<DoorType, DoorTypeInfo> doorTypesToID = new ConcurrentHashMap<>();
     @NotNull
-    private final Map<Long, DoorType> doorTypesFromID = new HashMap<>();
+    private final Map<Long, DoorType> doorTypesFromID = new ConcurrentHashMap<>();
 
     private DoorTypeManager()
     {
@@ -132,7 +133,7 @@ public final class DoorTypeManager
      * @param doorType The {@link DoorType} to register.
      * @return True if registration was successful.
      */
-    public boolean registerDoorType(final @NotNull DoorType doorType)
+    public CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType)
     {
         return registerDoorType(doorType, true);
     }
@@ -144,16 +145,18 @@ public final class DoorTypeManager
      * @param isEnabled Whether or not this {@link DoorType} should be enabled or not. Default = true.
      * @return True if registration was successful.
      */
-    public boolean registerDoorType(final @NotNull DoorType doorType, final boolean isEnabled)
+    public CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType, final boolean isEnabled)
     {
-        long doorTypeID = BigDoors.get().getDatabaseManager().registerDoorType(doorType);
-        if (doorTypeID < 0)
-            return false;
-
-        doorTypesToID.put(doorType, new DoorTypeInfo(doorTypeID, isEnabled));
-        doorTypesFromID.put(doorTypeID, doorType);
-
-        return true;
+        CompletableFuture<Long> registrationResult = BigDoors.get().getDatabaseManager().registerDoorType(doorType);
+        return registrationResult.handle(
+            (doorTypeID, throwable) ->
+            {
+                if (doorTypeID < 1)
+                    return false;
+                doorTypesToID.put(doorType, new DoorTypeInfo(doorTypeID, isEnabled));
+                doorTypesFromID.put(doorTypeID, doorType);
+                return true;
+            });
     }
 
     /**

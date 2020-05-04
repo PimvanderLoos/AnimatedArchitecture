@@ -12,7 +12,9 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.Drawbridge;
-import nl.pim16aap2.bigdoors.doors.GarageDoor;
+import nl.pim16aap2.bigdoors.doors.Portcullis;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeClock;
@@ -55,6 +57,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @ExtendWith(MockitoExtension.class)
 public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
@@ -68,11 +71,15 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     private static final String DELETEDOORNAME = "deletemeh";
 
     @NotNull
+    private static final UUID worldUUID = UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360");
+    @NotNull
     private static final UUID player1UUID = UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935");
     @NotNull
     private static final UUID player2UUID = UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed");
     @NotNull
     private static final UUID player3UUID = UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f");
+    @NotNull
+    private static final UUID player4UUID = UUID.fromString("b9bb3938-e49e-4ff2-b74f-25df08e2eda3");
     @NotNull
     private static final String player1Name = "pim16aap2";
     @NotNull
@@ -82,7 +89,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     @NotNull
     private static final String player3Name = "thirdwheel";
     @NotNull
-    private static final UUID worldUUID = UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360");
+    private static final String player4Name = "TypeTester";
 
     @NotNull
     private static final IPWorld world = new TestPWorld(worldUUID);
@@ -93,6 +100,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     private static final IPPlayer player2 = new TestPPlayer(player2UUID, player2Name);
     @NotNull
     private static final IPPlayer player3 = new TestPPlayer(player3UUID, player3Name);
+    @NotNull
+    private static final IPPlayer player4 = new TestPPlayer(player4UUID, player4Name);
 
     private static AbstractDoorBase door1;
     private static AbstractDoorBase door2;
@@ -159,17 +168,15 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final @NotNull Vector3Di min = new Vector3Di(144, 75, 153);
                 final @NotNull Vector3Di max = new Vector3Di(144, 131, 167);
                 final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di powerBlock = new Vector3Di(101, 101, 101);
+                final @NotNull Vector3Di powerBlock = new Vector3Di(0, 0, 0);
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
                 final @NotNull PBlockFace currentDirection = PBlockFace.DOWN;
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         RotateDirection.EAST, doorOwner);
+                                                         RotateDirection.EAST, doorOwner, false);
                 final @NotNull BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen, currentDirection);
                 door1 = bigDoor;
             }
-            door1.setLock(false);
-
 
             {
                 final int doorUID = 2;
@@ -181,37 +188,34 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final @NotNull Vector3Di min = new Vector3Di(144, 75, 168);
                 final @NotNull Vector3Di max = new Vector3Di(144, 131, 182);
                 final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di powerBlock = new Vector3Di(102, 102, 102);
+                final @NotNull Vector3Di powerBlock = new Vector3Di(0, 0, 0);
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         RotateDirection.NONE, doorOwner);
+                                                         RotateDirection.valueOf(0), doorOwner, false);
                 final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, currentDirection,
                                                                       true);
                 door2 = drawbridge;
             }
-            door2.setLock(false);
-
 
             {
                 final int doorUID = 3;
                 final int autoOpen = 0;
-                final int autoClose = 0;
+                final int autoClose = 10;
+                final int blocksToMove = 8;
                 final boolean isOpen = false;
                 final @NotNull String name = "massive2";
                 final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
                 final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
                 final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di powerBlock = new Vector3Di(103, 103, 103);
+                final @NotNull Vector3Di powerBlock = new Vector3Di(0, 0, 0);
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player2);
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         RotateDirection.valueOf(0), doorOwner);
-                final @NotNull GarageDoor garageDoor = new GarageDoor(doorData, autoClose, autoOpen, true,
-                                                                      PBlockFace.UP);
-                door3 = garageDoor;
+                                                         RotateDirection.UP, doorOwner, false);
+                final @NotNull Portcullis portcullis = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
+                door3 = portcullis;
             }
-            door3.setLock(false);
         }
         catch (Exception e)
         {
@@ -291,33 +295,25 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     }
 
     private void registerDoorTypes()
+        throws ExecutionException, InterruptedException
     {
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get()));
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()));
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get()));
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeElevator.get()));
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeFlag.get()));
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeGarageDoor.get()));
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get()));
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get()));
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get()));
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get()));
-        try
-        {
-            // Introduce slight delay to make sure all types are properly registered.
-            Thread.sleep(100L);
-        }
-        catch (InterruptedException e)
-        {
-            PLogger.get().logException(e);
-        }
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeElevator.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeFlag.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeGarageDoor.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get()).get());
     }
 
     private void initDoorTypeTest()
     {
         AbstractDoorBase.DoorData doorData;
 
-        int doorUID = 4;
+        int doorUID = 15;
         final boolean isOpen = false;
         final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
         final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
@@ -332,9 +328,9 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         for (final @NotNull DoorType doorType : registeredDoorTypes)
         {
             final @NotNull String name = "DOORTYPETEST_" + doorType.toString();
-            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player2);
+            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player4);
             doorData = new AbstractDoorBase.DoorData(doorUID++, name, min, max, engine, powerBlock, world,
-                                                     isOpen, RotateDirection.EAST, doorOwner);
+                                                     isOpen, RotateDirection.EAST, doorOwner, false);
 
             final @NotNull Object[] typeData = new Object[doorType.getParameterCount()];
             int parameterIDX = 0;
@@ -362,21 +358,53 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     }
 
     /**
+     * Inserts all doors in {@link #typeTesting}.
+     */
+    private void insertDoorTypeTestDoors()
+    {
+        for (int idx = 0; idx < DoorTypeManager.get().getRegisteredDoorTypes().size(); ++idx)
+            Assert.assertTrue(storage.insert(typeTesting[idx]));
+    }
+
+    /**
+     * Verifies all doors in {@link #typeTesting}.
+     */
+    private void verifyDoorTypeTestDoors()
+        throws TooManyDoorsException
+    {
+        for (int idx = 0; idx < DoorTypeManager.get().getRegisteredDoorTypes().size(); ++idx)
+            testRetrieval(typeTesting[idx]);
+    }
+
+
+    /**
+     * Tests all doors in {@link #typeTesting}.
+     */
+    private void testDoorTypes()
+        throws TooManyDoorsException
+    {
+        initDoorTypeTest();
+        insertDoorTypeTestDoors();
+        verifyDoorTypeTestDoors();
+    }
+
+    /**
      * Runs all tests.
      */
     @Test
     public void runTests()
         throws TooManyDoorsException, InvocationTargetException, NoSuchMethodException, IllegalAccessException,
-               NoSuchFieldException, IOException
+               NoSuchFieldException, IOException, ExecutionException, InterruptedException
     {
         initStorage();
         registerDoorTypes();
-        initDoorTypeTest();
         insertDoors();
         verifyDoors();
-//        auxiliaryMethods();
-//        modifyDoors();
+        auxiliaryMethods();
+        modifyDoors();
 //        insertDoors(); // Insert the doors again to make sure the upgrade went smoothly.
+
+        testDoorTypes();
         // Make sure no errors were logged.
         waitForLogger();
         Assert.assertEquals(logFile.length(), 0);
@@ -395,9 +423,6 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertTrue(storage.insert(door1));
         Assert.assertTrue(storage.insert(door2));
         Assert.assertTrue(storage.insert(door3));
-
-        for (int idx = 0; idx < DoorTypeManager.get().getRegisteredDoorTypes().size(); ++idx)
-            Assert.assertTrue(storage.insert(typeTesting[idx]));
     }
 
     /**
@@ -435,9 +460,6 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         testRetrieval(door1);
         testRetrieval(door2);
         testRetrieval(door3);
-
-        for (int idx = 0; idx < DoorTypeManager.get().getRegisteredDoorTypes().size(); ++idx)
-            testRetrieval(typeTesting[idx]);
     }
 
     /**
@@ -457,8 +479,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertTrue(storage.getDoor(1).isPresent());
         Assert.assertEquals(door1, storage.getDoor(1).get());
         Assert.assertFalse(storage.getDoor(9999999).isPresent());
-        Assert.assertTrue(storage.getOwnerOfDoor(1L).isPresent());
-        Assert.assertEquals(door1.getDoorOwner(), storage.getOwnerOfDoor(1L).get());
+        Assert.assertTrue(storage.getCreatorOfDoor(1L).isPresent());
+        Assert.assertEquals(door1.getDoorOwner(), storage.getCreatorOfDoor(1L).get());
         Assert.assertTrue(storage.isBigDoorsWorld(worldUUID));
         Assert.assertFalse(storage.isBigDoorsWorld(UUID.randomUUID()));
 
@@ -584,10 +606,10 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         // Revert name change of player 2.
         storage.updatePlayerName(player2UUID.toString(), player2Name);
 
-        long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlockLoc().getX(),
-                                                          door1.getPowerBlockLoc().getZ());
-        Assert.assertNotNull(storage.getPowerBlockData(chunkHash));
-        Assert.assertEquals(3, storage.getPowerBlockData(chunkHash).size());
+//        long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlockLoc().getX(),
+//                                                          door1.getPowerBlockLoc().getZ());
+//        Assert.assertNotNull(storage.getPowerBlockData(chunkHash));
+//        Assert.assertEquals(3, storage.getPowerBlockData(chunkHash).size());
     }
 
     /**
@@ -619,110 +641,122 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
      */
     public void modifyDoors()
     {
-//        // Test changing autoCloseTime value.
-//        {
-//            final int testAutoCloseTime = 20;
-//            // Change the autoCloseTimer of the object of door 3.
-//            storage.updateDoorAutoClose(3, testAutoCloseTime);
-//            // Verify that door 3 in the database is no longer the same as the door 3 object.
-//            // This should be the case, because the auto close timer is 0 for the door 3 object.
-//            assertDoor3NotParity();
-//            door3.setAutoClose(testAutoCloseTime);
-//            Assert.assertEquals(door3, storage.getDoor(player2UUID, 3L).get());
-//
-//            // Reset the autoclose timer of both the object of door 3 and the database entry of door 3 and
-//            // verify data parity.
-//            door3.setAutoClose(0);
-//            storage.updateDoorAutoClose(3, 0);
-//            assertDoor3Parity();
-//        }
-
-//        // Test changing blocksToMove value.
-//        {
-//            final int testBlocksToMove = 20;
-//            // Change blocksToMove of the object of door 3.
-//            storage.updateDoorBlocksToMove(3, testBlocksToMove);
-//            // Verify that door 3 in the database is no longer the same as the door 3 object.
-//            // This should be the case, because the blocksToMove value is 0 for the door 3 object.
-//            assertDoor3NotParity();
-//            // Update the door 3 object to have the same blocksToMove value as the door 3 in the database
-//            // And verify that the door 3 in the database and the door 3 object are the same again.
-//            door3.setBlocksToMove(testBlocksToMove);
-//            assertDoor3Parity();
-//
-//            // Reset the blocksToMove value of both the object of door 3 and the database entry of door 3 and
-//            // verify data parity.
-//            door3.setBlocksToMove(0);
-//            storage.updateDoorBlocksToMove(3, 0);
-//            assertDoor3Parity();
-//        }
-
-//        // Test (un)locking.
-//        {
-//            // Set the lock status of the database entry of door 3 to true.
-//            storage.setLock(3L, true);
-//            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
-//            // This should be the case because the database entry of door 3 is now locked,
-//            // while the object of door 3 is not.
-//            assertDoor3NotParity();
-//            // Set the object of door 3 to locked so it matches the database entry of door 3. Then make sure
-//            // Both the object and the database entry of door 3 match.
-//            door3.setLock(true);
-//            assertDoor3Parity();
-//
-//            // Reset the lock status of both the database entry and the object of door 3 and verify they are
-//            // the same again.
-//            storage.setLock(3L, false);
-//            door3.setLock(false);
-//            assertDoor3Parity();
-//        }
-
-//        // Test rotate direction change
-//        {
-//            final @NotNull RotateDirection oldDir = door3.getOpenDir();
-//            final @NotNull RotateDirection newDir = RotateDirection.getOpposite(oldDir);
-//
-//            // Set the rotation direction of the database entry of door 3 to true.
-//            storage.updateDoorOpenDirection(3L, newDir);
-//            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
-//            // This should be the case because the rotate directions should differ.
-//            assertDoor3NotParity();
-//            // Change the rotation direction of the object of door 3 so that it matches the rotation direction
-//            // of the database entry of door 3.
-//            door3.setOpenDir(newDir);
-//            assertDoor3Parity();
-//
-//            // Reset the rotation direction of both the database entry and the object of door 3 and verify they are
-//            // the same again.
-//            storage.updateDoorOpenDirection(3L, oldDir);
-//            door3.setOpenDir(oldDir);
-//            assertDoor3Parity();
-//        }
-
-        // Test power block relocation.
+        // Test changing autoCloseTime value.
         {
-            // Create a new location that is not the same as the current power block location of door 3.
-            final @NotNull Vector3Di oldLoc = door3.getPowerBlockLoc();
-            final @NotNull Vector3Di newLoc = oldLoc.clone();
-            newLoc.setY((newLoc.getX() + 30) % 256);
-            Assert.assertNotSame(newLoc, oldLoc);
+            ITimerToggleableArchetype doorTimeToggle = (ITimerToggleableArchetype) door3;
+            final int door3AutoCloseTime = doorTimeToggle.getAutoCloseTimer();
+            final int testAutoCloseTime = 20;
 
-            // Set the power block location of the database entry of door 3 to the new location.
-            storage.updateDoorPowerBlockLoc(3L, newLoc.getX(), newLoc.getY(), newLoc.getZ());
-            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
-            // This should be the case because the power block locations should differ between them.
+            doorTimeToggle.setAutoCloseTimer(testAutoCloseTime);
+            // Change the autoCloseTimer of the object of door 3.
+            storage.updateTypeData(door3);
+            doorTimeToggle.setAutoCloseTimer(door3AutoCloseTime);
+
+            // Verify that door 3 in the database is no longer the same as the door 3 object.
+            // This should be the case, because the auto close timer is 0 for the door 3 object.
             assertDoor3NotParity();
-            // Move the powerBlock location of the object of door 3 so that it matches the database entry of door 3.
-            // Then make sure both the object and the database entry of door 3 match.
-            door3.setPowerBlockLocation(newLoc);
-            assertDoor3Parity();
 
-            // Reset the powerBlock location of both the database entry and the object of door 3 and verify they are the
-            // same again.
-            storage.updateDoorPowerBlockLoc(3L, oldLoc.getX(), oldLoc.getY(), oldLoc.getZ());
-            door3.setPowerBlockLocation(oldLoc);
+            doorTimeToggle.setAutoCloseTimer(testAutoCloseTime);
+            Assert.assertEquals(door3, storage.getDoor(player2UUID, 3L).get());
+
+            // Reset the autoclose timer of both the object of door 3 and the database entry of door 3 and
+            // verify data parity.
+            doorTimeToggle.setAutoCloseTimer(0);
+            storage.updateTypeData(door3);
             assertDoor3Parity();
         }
+
+        // Test changing blocksToMove value.
+        {
+            IBlocksToMoveArchetype doorBTM = (IBlocksToMoveArchetype) door3;
+            final int door3BlocksToMove = doorBTM.getBlocksToMove();
+            final int testBlocksToMove = 20;
+            // Change blocksToMove of the object of door 3.
+            doorBTM.setBlocksToMove(testBlocksToMove);
+            storage.updateTypeData(door3);
+            doorBTM.setBlocksToMove(door3BlocksToMove);
+
+            // Verify that door 3 in the database is no longer the same as the door 3 object.
+            // This should be the case, because the blocksToMove value is 0 for the door 3 object.
+            assertDoor3NotParity();
+            // Update the door 3 object to have the same blocksToMove value as the door 3 in the database
+            // And verify that the door 3 in the database and the door 3 object are the same again.
+            doorBTM.setBlocksToMove(testBlocksToMove);
+            assertDoor3Parity();
+
+            // Reset the blocksToMove value of both the object of door 3 and the database entry of door 3 and
+            // verify data parity.
+            doorBTM.setBlocksToMove(0);
+            storage.updateTypeData(door3);
+            assertDoor3Parity();
+        }
+
+        // Test (un)locking.
+        {
+            // Set the lock status of the database entry of door 3 to true.
+            storage.setLock(3L, true);
+            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
+            // This should be the case because the database entry of door 3 is now locked,
+            // while the object of door 3 is not.
+            assertDoor3NotParity();
+            // Set the object of door 3 to locked so it matches the database entry of door 3. Then make sure
+            // Both the object and the database entry of door 3 match.
+            door3.setLock(true);
+            assertDoor3Parity();
+
+            // Reset the lock status of both the database entry and the object of door 3 and verify they are
+            // the same again.
+            storage.setLock(3L, false);
+            door3.setLock(false);
+            assertDoor3Parity();
+        }
+
+        // Test rotate direction change
+        {
+            final @NotNull RotateDirection oldDir = door3.getOpenDir();
+            final @NotNull RotateDirection newDir = RotateDirection.getOpposite(oldDir);
+
+            // Set the rotation direction of the database entry of door 3 to true.
+            storage.updateDoorOpenDirection(3L, newDir);
+            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
+            // This should be the case because the rotate directions should differ.
+            assertDoor3NotParity();
+            // Change the rotation direction of the object of door 3 so that it matches the rotation direction
+            // of the database entry of door 3.
+            door3.setOpenDir(newDir);
+            assertDoor3Parity();
+
+            // Reset the rotation direction of both the database entry and the object of door 3 and verify they are
+            // the same again.
+            storage.updateDoorOpenDirection(3L, oldDir);
+            door3.setOpenDir(oldDir);
+            assertDoor3Parity();
+        }
+
+//        // Test power block relocation.
+//        {
+//            // Create a new location that is not the same as the current power block location of door 3.
+//            final @NotNull Vector3Di oldLoc = door3.getPowerBlockLoc();
+//            final @NotNull Vector3Di newLoc = oldLoc.clone();
+//            newLoc.setY((newLoc.getX() + 30) % 256);
+//            Assert.assertNotSame(newLoc, oldLoc);
+//
+//            // Set the power block location of the database entry of door 3 to the new location.
+//            storage.updateDoorPowerBlockLoc(3L, newLoc.getX(), newLoc.getY(), newLoc.getZ());
+//            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
+//            // This should be the case because the power block locations should differ between them.
+//            assertDoor3NotParity();
+//            // Move the powerBlock location of the object of door 3 so that it matches the database entry of door 3.
+//            // Then make sure both the object and the database entry of door 3 match.
+//            door3.setPowerBlockLocation(newLoc);
+//            assertDoor3Parity();
+//
+//            // Reset the powerBlock location of both the database entry and the object of door 3 and verify they are the
+//            // same again.
+//            storage.updateDoorPowerBlockLoc(3L, oldLoc.getX(), oldLoc.getY(), oldLoc.getZ());
+//            door3.setPowerBlockLocation(oldLoc);
+//            assertDoor3Parity();
+//        }
 
         // Test updating doors.
         {

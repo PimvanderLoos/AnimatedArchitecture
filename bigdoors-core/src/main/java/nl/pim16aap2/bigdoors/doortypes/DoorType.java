@@ -157,8 +157,7 @@ public class DoorType
      * @param typeData The type-specific data for the door.
      * @return A new {@link AbstractDoorBase} if one was instantiated successfully.
      */
-    public final Optional<AbstractDoorBase> constructDoor(final @NotNull
-                                                              AbstractDoorBase.DoorData doorData,
+    public final Optional<AbstractDoorBase> constructDoor(final @NotNull AbstractDoorBase.DoorData doorData,
                                                           final @NotNull Object[] typeData)
     {
         if (typeData.length != getParameters().size())

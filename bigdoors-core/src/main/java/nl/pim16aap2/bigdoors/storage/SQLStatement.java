@@ -11,55 +11,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public enum SQLStatement
 {
-    UPDATE_DOOR_OWNER_PERMISSION(
-        "UPDATE DoorOwnerPlayer SET permission=? WHERE playerID=? and doorUID=?;"),
 
-    GET_UNION_FROM_OWNER(
-        "SELECT * FROM DoorOwnerPlayer WHERE playerID=? AND doorUID=?;"),
-
-    GET_DOOR_SPECIFIC_PLAYER(
-        "SELECT D.*, P.playerUUID, P.playerName, U.permission \n" +
-            "FROM DoorBase as D INNER JOIN DoorOwnerPlayer AS U ON U.doorUID = D.id INNER JOIN Player AS P ON P.id = U.playerID \n" +
-            "WHERE P.playerUUID = ? AND D.id = ?;"),
-
-    DELETE_NAMED_DOOR_OF_PLAYER(
-        "DELETE FROM DoorBase \n" +
-            "WHERE DoorBase.id IN \n" +
-            "      (SELECT D.id \n" +
-            "       FROM DoorBase AS D INNER JOIN DoorOwnerPlayer AS U ON U.doorUID = D.id, \n" +
-            "            (SELECT P.id FROM Player as P WHERE P.playerUUID=?) AS R \n" +
-            "      WHERE D.name=? AND R.id = U.playerID);"),
-
-    UPDATE_DOOR_COORDS(
-        "UPDATE DoorBase SET xMin=?,yMin=?,zMin=?,xMax=?\n" +
-            ",yMax=?,zMax=? WHERE id =?;"),
-
-    UPDATE_DOOR_OPEN_DIR(
-        "UPDATE DoorBase SET openDirection=? WHERE id=?;"),
-
-    UPDATE_DOOR_POWER_BLOCK_LOC(
-        "UPDATE DoorBase SET powerBlockX=?, powerBlockY=?, powerBlockZ=?, \n" +
-            "chunkHash=? WHERE id=?;"),
-
-    GET_DOOR_FLAG(
-        "SELECT bitflag FROM DoorBase WHERE id=?;"),
-
-    UPDATE_DOOR_FLAG(
-        "UPDATE DoorBase SET bitflag=? WHERE id=?;"),
-
-    GET_LATEST_ROW_ADDITION(
-        "SELECT last_insert_rowid() AS lastId"),
-
-    INSERT_DOOR_OWNER(
-        "INSERT INTO DoorOwnerPlayer (permission, playerID, doorUID) VALUES (?,?,?);"),
-
-    REMOVE_DOOR_OWNER(
-        "DELETE \n" +
-            "FROM DoorOwnerPlayer \n" +
-            "WHERE DoorOwnerPlayer.id IN \n" +
-            "(SELECT U.id \n" +
-            "FROM DoorOwnerPlayer AS U INNER JOIN Player AS P on U.playerID=P.id \n" +
-            "WHERE P.playerUUID=? AND U.permission > '0' AND U.doorUID=?);"),
+//    UPDATE_DOOR_POWER_BLOCK_LOC(
+//        "UPDATE DoorBase SET powerBlockX = ?, powerBlockY = ?, powerBlockZ = ?, \n" +
+//            "chunkHash = ? WHERE id = ?;"),
 
 
     /*
@@ -71,39 +26,98 @@ public enum SQLStatement
 
 
      */
+    UPDATE_DOOR_OWNER_PERMISSION(
+        "UPDATE DoorOwnerPlayer SET permission = ? WHERE playerID = ? and doorUID = ?;"
+    ),
+
+    GET_DOOR_OWNER_PLAYER(
+        "SELECT * FROM DoorOwnerPlayer WHERE playerID = ? AND doorUID = ?;"
+    ),
+
+    GET_DOOR_SPECIFIC_PLAYER(
+        "SELECT D.*, P.playerUUID, P.playerName, U.permission \n" +
+            "FROM DoorBase as D INNER JOIN DoorOwnerPlayer AS U ON U.doorUID = D.id INNER JOIN Player AS P ON P.id = U.playerID \n" +
+            "WHERE P.playerUUID = ? AND D.id = ?;"
+    ),
+
+    DELETE_NAMED_DOOR_OF_PLAYER(
+        "DELETE FROM DoorBase \n" +
+            "WHERE DoorBase.id IN \n" +
+            "      (SELECT D.id \n" +
+            "       FROM DoorBase AS D INNER JOIN DoorOwnerPlayer AS U ON U.doorUID = D.id, \n" +
+            "            (SELECT P.id FROM Player as P WHERE P.playerUUID = ?) AS R \n" +
+            "      WHERE D.name = ? AND R.id = U.playerID);"
+    ),
+
+    UPDATE_DOOR_COORDS(
+        "UPDATE DoorBase SET xMin = ?,yMin = ?,zMin = ?,xMax = ?\n" +
+            ",yMax = ?,zMax = ? WHERE id = ?;"
+    ),
+
+    UPDATE_DOOR_OPEN_DIR(
+        "UPDATE DoorBase SET openDirection = ? WHERE id = ?;"
+    ),
+
+    GET_LATEST_ROW_ADDITION(
+        "SELECT last_insert_rowid() AS lastId;"
+    ),
+
+    INSERT_DOOR_OWNER(
+        "INSERT INTO DoorOwnerPlayer (permission, playerID, doorUID) VALUES (?,?,?);"
+    ),
+
+    REMOVE_DOOR_OWNER(
+        "DELETE \n" +
+            "FROM DoorOwnerPlayer \n" +
+            "WHERE DoorOwnerPlayer.id IN \n" +
+            "(SELECT O.id \n" +
+            "FROM DoorOwnerPlayer AS O INNER JOIN Player AS P on O.playerID = P.id \n" +
+            "WHERE P.playerUUID = ? AND O.permission > '0' AND O.doorUID = ?);"
+    ),
+
+    GET_DOOR_FLAG(
+        "SELECT bitflag FROM DoorBase WHERE id = ?;"
+    ),
+
+    UPDATE_DOOR_FLAG(
+        "UPDATE DoorBase SET bitflag = ? WHERE id = ?;"
+    ),
 
     GET_POWER_BLOCK_DATA_IN_CHUNK(
-        "SELECT * FROM PowerBlock WHERE chunkHash=?;"
+        "SELECT * FROM PowerBlock WHERE chunkHash = ?;"
     ),
 
     GET_DOOR_OWNER(
-        "SELECT * " +
-            "FROM DoorOwnerPlayer " +
+        "SELECT Player.*, DoorOwnerPlayer.doorUID, DoorOwnerPlayer.permission\n" +
+            "FROM DoorOwnerPlayer \n" +
+            "INNER JOIN Player ON Player.id = DoorOwnerPlayer.playerID\n" +
             "WHERE DoorOwnerPlayer.doorUID = ?;"
     ),
 
     GET_PLAYER_UUID(
         "SELECT P.playerUUID \n" +
             "FROM Player AS P \n" +
-            "WHERE P.playerName=?;"),
+            "WHERE P.playerName = ?;"
+    ),
 
     GET_PLAYER_NAME(
         "SELECT P.playerName \n" +
             "FROM Player AS P \n" +
-            "WHERE P.playerUUID=?;"),
+            "WHERE P.playerUUID = ?;"
+    ),
 
     UPDATE_PLAYER_NAME(
         "UPDATE Player \n" +
-            "SET playerName=? \n" +
-            "WHERE playerUUID=?;"
+            "SET playerName = ? \n" +
+            "WHERE playerUUID = ?;"
     ),
 
     GET_OWNER_COUNT_OF_DOOR(
-        "SELECT COUNT(*) AS total FROM DoorOwnerPlayer WHERE doorUID=?;"
+        "SELECT COUNT(*) AS total FROM DoorOwnerPlayer WHERE doorUID = ?;"
     ),
 
     GET_DOOR_COUNT_BY_NAME(
-        "SELECT COUNT(*) AS total FROM DoorBase WHERE name=?;"
+        "SELECT COUNT(*) AS total FROM DoorBase WHERE name = ?;"
     ),
 
     GET_PLAYER_DOOR_COUNT(
@@ -111,13 +125,13 @@ public enum SQLStatement
             "FROM DoorOwnerPlayer AS U \n" +
             "    INNER JOIN Player AS P on U.playerID = P.id \n" +
             "    INNER JOIN DoorBase AS D ON U.doorUID = D.id \n" +
-            "WHERE P.playerUUID=? AND D.name=?;"
+            "WHERE P.playerUUID = ? AND D.name = ?;"
     ),
 
     GET_DOOR_COUNT_FOR_PLAYER(
         "SELECT COUNT(*) AS total \n" +
             "FROM DoorOwnerPlayer AS U INNER JOIN Player AS P on U.playerID = P.id \n" +
-            "WHERE P.playerUUID=?;"
+            "WHERE P.playerUUID = ?;"
     ),
 
     IS_BIGDOORS_WORLD(
@@ -153,7 +167,7 @@ public enum SQLStatement
             "    INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "    INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
             "    INNER JOIN World ON DoorBase.world = World.id\n" +
-            "    WHERE DoorBase.id=? AND DoorOwnerPlayer.permission = 0;"
+            "    WHERE DoorBase.id = ? AND DoorOwnerPlayer.permission = 0;"
     ),
 
     /**
@@ -192,7 +206,7 @@ public enum SQLStatement
             "    INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "    INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
             "    INNER JOIN World ON DoorBase.world = World.id\n" +
-            "    WHERE DoorBase.name = ? And DoorOwnerPlayer.permission 0;"
+            "    WHERE DoorBase.name = ? And DoorOwnerPlayer.permission = 0;"
     ),
 
     GET_DOORS_OWNED_BY_PLAYER_WITH_LEVEL(
@@ -260,13 +274,13 @@ public enum SQLStatement
      * Obtains the ID value of the {@link DoorType} as described by its "typeTableName".
      */
     GET_DOOR_TYPE_ID(
-        "SELECT id FROM DoorType WHERE typeTableName = ?;"
+        "SELECT id FROM DoorType WHERE typeTableName = \"?\";"
     ),
 
     GET_DOOR_OWNERS(
         "SELECT O.doorUID, O.permission, P.playerUUID, P.playerName \n" +
             "FROM DoorOwnerPlayer AS O INNER JOIN Player AS P ON O.playerID = P.id \n" +
-            "WHERE doorUID=?;"
+            "WHERE doorUID = ?;"
     ),
 
     INSERT_DOOR_BASE(
@@ -293,29 +307,29 @@ public enum SQLStatement
             "         WHERE Player.playerUUID = ?),\n" +
             "        (SELECT seq\n" +
             "         FROM sqlite_sequence\n" +
-            "         WHERE sqlite_sequence.name =\"DoorBase\"));"
+            "         WHERE sqlite_sequence.name = \"DoorBase\"));"
     ),
 
     SELECT_MOST_RECENT_DOOR(
         "SELECT seq \n" +
             "    FROM sqlite_sequence \n" +
-            "    WHERE sqlite_sequence.name =\"DoorBase\";"
+            "    WHERE sqlite_sequence.name = \"DoorBase\";"
     ),
 
     LEGACY_ALTER_TABLE_ON(
-        "PRAGMA legacy_alter_table=ON;"
+        "PRAGMA legacy_alter_table = ON;"
     ),
 
     LEGACY_ALTER_TABLE_OFF(
-        "PRAGMA legacy_alter_table=OFF;"
+        "PRAGMA legacy_alter_table = OFF;"
     ),
 
     FOREIGN_KEYS_ON(
-        "PRAGMA foreign_keys=ON;"
+        "PRAGMA foreign_keys = ON;"
     ),
 
     FOREIGN_KEYS_OFF(
-        "PRAGMA foreign_keys=OFF;"
+        "PRAGMA foreign_keys = OFF;"
     ),
 
     CREATE_TABLE_WORLD(

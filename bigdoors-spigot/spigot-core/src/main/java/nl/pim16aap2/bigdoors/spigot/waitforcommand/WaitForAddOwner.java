@@ -1,14 +1,17 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
-import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Represents a delayed command to add another owner to a {@link AbstractDoorBase}.
@@ -38,6 +41,14 @@ public class WaitForAddOwner extends WaitForCommand
         throws CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
         abortSilently();
-        return subCommand.execute(player, door, args[1], subCommand.getPermissionFromArgs(player, args, 2));
+        try
+        {
+            return subCommand.execute(player, door, args[1], subCommand.getPermissionFromArgs(player, args, 2));
+        }
+        catch (ExecutionException | InterruptedException e)
+        {
+            PLogger.get().logException(e);
+        }
+        return false;
     }
 }

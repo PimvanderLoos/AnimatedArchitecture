@@ -94,9 +94,9 @@ public final class DatabaseManager extends Restartable
      * registration was not successful. If the {@link DoorType} already exists in the database, it will return the
      * existing identifier value. As long as the type does not change,
      */
-    public long registerDoorType(final @NotNull DoorType doorType)
+    public CompletableFuture<Long> registerDoorType(final @NotNull DoorType doorType)
     {
-        return db.registerDoorType(doorType);
+        return CompletableFuture.supplyAsync(() -> db.registerDoorType(doorType));
     }
 
     /**
@@ -153,18 +153,20 @@ public final class DatabaseManager extends Restartable
      * Inserts a {@link AbstractDoorBase} into the database.
      *
      * @param newDoor The new {@link AbstractDoorBase}.
+     * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public void addDoorBase(final @NotNull AbstractDoorBase newDoor)
+    public CompletableFuture<Boolean> addDoorBase(final @NotNull AbstractDoorBase newDoor)
     {
-        CompletableFuture.runAsync(
+        return CompletableFuture.supplyAsync(
             () ->
             {
-                db.insert(newDoor);
-                BigDoors.get().getPowerBlockManager().onDoorAddOrRemove(newDoor.getWorld().getUID(),
-                                                                        new Vector3Di(
-                                                                            newDoor.getPowerBlockLoc().getX(),
-                                                                            newDoor.getPowerBlockLoc().getY(),
-                                                                            newDoor.getPowerBlockLoc().getZ()));
+                boolean result = db.insert(newDoor);
+                if (result)
+                    BigDoors.get().getPowerBlockManager().onDoorAddOrRemove(newDoor.getWorld().getUID(), new Vector3Di(
+                        newDoor.getPowerBlockLoc().getX(),
+                        newDoor.getPowerBlockLoc().getY(),
+                        newDoor.getPowerBlockLoc().getZ()));
+                return result;
             }, threadPool);
     }
 
@@ -172,18 +174,20 @@ public final class DatabaseManager extends Restartable
      * Removes a {@link AbstractDoorBase} from the database.
      *
      * @param door The door.
+     * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public void removeDoor(final @NotNull AbstractDoorBase door)
+    public CompletableFuture<Boolean> removeDoor(final @NotNull AbstractDoorBase door)
     {
-        CompletableFuture.runAsync(
+        return CompletableFuture.supplyAsync(
             () ->
             {
-                db.removeDoor(door.getDoorUID());
-                BigDoors.get().getPowerBlockManager().onDoorAddOrRemove(door.getWorld().getUID(),
-                                                                        new Vector3Di(
-                                                                            door.getPowerBlockLoc().getX(),
-                                                                            door.getPowerBlockLoc().getY(),
-                                                                            door.getPowerBlockLoc().getZ()));
+                boolean result = db.removeDoor(door.getDoorUID());
+                if (result)
+                    BigDoors.get().getPowerBlockManager().onDoorAddOrRemove(door.getWorld().getUID(), new Vector3Di(
+                        door.getPowerBlockLoc().getX(),
+                        door.getPowerBlockLoc().getY(),
+                        door.getPowerBlockLoc().getZ()));
+                return result;
             }, threadPool);
     }
 
@@ -268,10 +272,11 @@ public final class DatabaseManager extends Restartable
      * Updates the name of a player in the database, to make sure the player's name and UUID don't go out of sync.
      *
      * @param player The Player.
+     * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public void updatePlayer(final @NotNull IPPlayer player)
+    public CompletableFuture<Boolean> updatePlayer(final @NotNull IPPlayer player)
     {
-        CompletableFuture
+        return CompletableFuture
             .supplyAsync(() -> db.updatePlayerName(player.getUUID().toString(), player.getName()), threadPool);
     }
 
@@ -426,13 +431,15 @@ public final class DatabaseManager extends Restartable
      * @param blockXMax The upper bound x coordinates.
      * @param blockYMax The upper bound y coordinates.
      * @param blockZMax The upper bound z coordinates.
+     * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public void updateDoorCoords(final long doorUID, final boolean isOpen, final int blockXMin, final int blockYMin,
-                                 final int blockZMin, final int blockXMax, final int blockYMax, final int blockZMax)
+    public CompletableFuture<Boolean> updateDoorCoords(final long doorUID, final boolean isOpen, final int blockXMin,
+                                                       final int blockYMin, final int blockZMin, final int blockXMax,
+                                                       final int blockYMax, final int blockZMax)
     {
-        CompletableFuture.runAsync(() -> db.updateDoorCoords(doorUID, isOpen,
-                                                             blockXMin, blockYMin, blockZMin,
-                                                             blockXMax, blockYMax, blockZMax), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.updateDoorCoords(doorUID, isOpen,
+                                                                       blockXMin, blockYMin, blockZMin,
+                                                                       blockXMax, blockYMax, blockZMax), threadPool);
     }
 
     /**
@@ -443,14 +450,14 @@ public final class DatabaseManager extends Restartable
      * @param permission The level of ownership.
      * @return True if owner addition was successful.
      */
-    public boolean addOwner(final @NotNull AbstractDoorBase door, final @NotNull IPPlayer player, final int permission)
+    public CompletableFuture<Boolean> addOwner(final @NotNull AbstractDoorBase door, final @NotNull IPPlayer player,
+                                               final int permission)
     {
         if (permission < 1 || permission > 2 || door.getPermission() != 0 ||
             door.getPlayerUUID().equals(player.getUUID()))
-            return false;
+            return CompletableFuture.completedFuture(false);
 
-        CompletableFuture.runAsync(() -> db.addOwner(door.getDoorUID(), player, permission), threadPool);
-        return true;
+        return CompletableFuture.supplyAsync(() -> db.addOwner(door.getDoorUID(), player, permission), threadPool);
     }
 
     /**
@@ -499,21 +506,24 @@ public final class DatabaseManager extends Restartable
      *
      * @param doorUID The UID of the {@link AbstractDoorBase}.
      * @param openDir The new opening direction.
+     * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public void updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir)
+    public CompletableFuture<Boolean> updateDoorOpenDirection(final long doorUID,
+                                                              final @NotNull RotateDirection openDir)
     {
-        CompletableFuture.runAsync(() -> db.updateDoorOpenDirection(doorUID, openDir), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.updateDoorOpenDirection(doorUID, openDir), threadPool);
     }
 
     /**
      * Updates the type-specific data of an {@link AbstractDoorBase}. The data will be provided by {@link
-     * DoorType#getDataSupplier()}.
+     * DoorType#getTypeData(AbstractDoorBase)}.
      *
      * @param door The {@link AbstractDoorBase} whose type-specific data will be updated.
+     * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public void updateDoorTypeData(final @NotNull AbstractDoorBase door)
+    public CompletableFuture<Boolean> updateDoorTypeData(final @NotNull AbstractDoorBase door)
     {
-        CompletableFuture.runAsync(() -> db.updateTypeData(door), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.updateTypeData(door), threadPool);
     }
 
     /**
@@ -521,10 +531,11 @@ public final class DatabaseManager extends Restartable
      *
      * @param doorUID       The UID of the {@link AbstractDoorBase}.
      * @param newLockStatus The new locked status.
+     * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public void setLock(final long doorUID, final boolean newLockStatus)
+    public CompletableFuture<Boolean> setLock(final long doorUID, final boolean newLockStatus)
     {
-        CompletableFuture.runAsync(() -> db.setLock(doorUID, newLockStatus), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.setLock(doorUID, newLockStatus), threadPool);
     }
 
     /**
@@ -532,11 +543,12 @@ public final class DatabaseManager extends Restartable
      *
      * @param doorUID The UID of the door.
      * @param newLoc  The new location.
+     * @return The future result of the operation. If the operation was successful this will be true.
      */
-    void updatePowerBlockLoc(final long doorUID, final @NotNull Vector3Di newLoc)
+    CompletableFuture<Boolean> updatePowerBlockLoc(final long doorUID, final @NotNull Vector3Di newLoc)
     {
-        CompletableFuture.runAsync(() -> db.updateDoorPowerBlockLoc(doorUID, newLoc.getX(), newLoc.getY(),
-                                                                    newLoc.getZ()), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.updateDoorPowerBlockLoc(doorUID, newLoc.getX(), newLoc.getY(),
+                                                                              newLoc.getZ()), threadPool);
     }
 
     /**

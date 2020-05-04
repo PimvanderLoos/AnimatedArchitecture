@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class SubCommandAddOwner extends SubCommand
@@ -39,7 +41,7 @@ public class SubCommandAddOwner extends SubCommand
 
     public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
                            final @NotNull String playerArg, final int permission)
-        throws CommandPlayerNotFoundException
+        throws CommandPlayerNotFoundException, ExecutionException, InterruptedException
     {
         final UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
         final IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
@@ -47,7 +49,7 @@ public class SubCommandAddOwner extends SubCommand
         // No need to check for permissions if the sender wasn't a player.
         if (!(sender instanceof Player))
         {
-            boolean success = BigDoors.get().getDatabaseManager().addOwner(door, player, permission);
+            boolean success = BigDoors.get().getDatabaseManager().addOwner(door, player, permission).get();
             plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
                                                     success ?
                                                     messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
@@ -64,11 +66,21 @@ public class SubCommandAddOwner extends SubCommand
                             commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
                             return;
                         }
-                        boolean success = BigDoors.get().getDatabaseManager().addOwner(door, player, permission);
-                        plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                                success ?
-                                                                messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
-                                                                messages.getString(Message.COMMAND_ADDOWNER_FAIL));
+                        boolean success = false;
+                        try
+                        {
+                            success = BigDoors.get().getDatabaseManager().addOwner(door, player, permission).get();
+                            plugin.getPLogger()
+                                  .sendMessageToTarget(sender, Level.INFO, success ?
+                                                                           messages.getString(
+                                                                               Message.COMMAND_ADDOWNER_SUCCESS) :
+                                                                           messages.getString(
+                                                                               Message.COMMAND_ADDOWNER_FAIL));
+                        }
+                        catch (ExecutionException | InterruptedException e)
+                        {
+                            PLogger.get().logException(e);
+                        }
                     });
         return true;
     }

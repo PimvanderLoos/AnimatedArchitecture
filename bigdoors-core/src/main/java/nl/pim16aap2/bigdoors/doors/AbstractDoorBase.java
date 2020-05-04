@@ -78,6 +78,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         isOpen = doorData.getIsOpen();
         openDir = doorData.getOpenDirection();
         doorOwner = doorData.getDoorOwner();
+        isLocked = doorData.getIsLocked();
 
         doorOpeningUtility = DoorOpeningUtility.get();
         onCoordsUpdate();
@@ -720,6 +721,7 @@ public abstract class AbstractDoorBase implements IDoorBase
                .append(engine.toString()).append("\n");
         builder.append("PowerBlock IPLocation: ").append(powerBlock.toString()).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");
+        builder.append("World: ").append(getWorld().getUID().toString()).append("\n");
         builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((isOpen ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
@@ -770,6 +772,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         private final RotateDirection openDirection;
         @NotNull
         private final DoorOwner doorOwner;
+        private final boolean isLocked;
 
         /**
          * Initializes all basic data of this door. This refers to all data required to put this door in a basic valid
@@ -789,7 +792,8 @@ public abstract class AbstractDoorBase implements IDoorBase
         public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,
                         final @NotNull Vector3Di max, final @NotNull Vector3Di engine,
                         final @NotNull Vector3Di powerBlock, final @NotNull IPWorld world, final boolean isOpen,
-                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner doorOwner)
+                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner doorOwner,
+                        final boolean isLocked)
         {
             this.uid = uid;
             this.name = name;
@@ -801,6 +805,7 @@ public abstract class AbstractDoorBase implements IDoorBase
             this.isOpen = isOpen;
             this.openDirection = openDirection;
             this.doorOwner = doorOwner;
+            this.isLocked = isLocked;
         }
 
         private long getUID()
@@ -841,6 +846,11 @@ public abstract class AbstractDoorBase implements IDoorBase
         private boolean getIsOpen()
         {
             return isOpen;
+        }
+
+        private boolean getIsLocked()
+        {
+            return isLocked;
         }
 
         @NotNull

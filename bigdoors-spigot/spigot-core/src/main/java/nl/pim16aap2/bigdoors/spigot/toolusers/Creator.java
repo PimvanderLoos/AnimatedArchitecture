@@ -159,7 +159,7 @@ public abstract class Creator extends ToolUser
 
             AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, doorName, min, max, engine,
                                                                                getPowerBlockLoc(), world,
-                                                                               isOpen, openDirection, owner);
+                                                                               isOpen, openDirection, owner, false);
 
             AbstractDoorBase door = type.getNewDoor(plugin.getPLogger(), doorUID, doorData);
             if (openDirection.equals(RotateDirection.NONE))

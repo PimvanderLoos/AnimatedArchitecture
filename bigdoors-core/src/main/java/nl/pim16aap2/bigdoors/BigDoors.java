@@ -107,6 +107,10 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: DoorTypes currently need to be registered before BigDoors is initialized, so that they are put in the config.
+//       However, registering DoorTypes requires the DatabaseManager to exist, but it doesn't until halfway through
+//       BigDoor's initialization. Either delay DoorType registrations until the manager is online, or get the manager
+//       online before all data is available and delay requests there.
 // TODO: Look into overriding Equals() properly for all the subtypes of the door.
 // TODO: Override toString for the subtypes of the doors. All the type's type-specific data should be printed as well.
 // TODO: Find a way to restrict access to all the "constructor" methods such as BigDoors#constructor(DoorData, Object[] ...)
@@ -262,6 +266,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Commands
  */
+// TODO: Respect CompletableFutures better.
 // TODO: Add /BDM [PlayerName (when online) || PlayerUUID || Server] to open a doorMenu for a specific player
 // TODO: Make invalid input stuff more informative (e.g. int, float etc).
 // TODO: Properly use flags for stuff. For example: "/bigdoors open testDoor -time 10" to open door "testDoor" in 10 seconds.

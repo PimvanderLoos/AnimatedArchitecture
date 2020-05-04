@@ -295,7 +295,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
 
             doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                     RotateDirection.EAST, doorOwner);
+                                                     RotateDirection.EAST, doorOwner, false);
         }
         final @NotNull BigDoor d01 = new BigDoor(doorData, 100, 0, PBlockFace.DOWN);
         final @NotNull Clock d02 = new Clock(doorData, false, PBlockFace.NORTH);
