@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -22,11 +23,12 @@ import java.util.Optional;
  * @author Pim
  * @see AbstractDoorBase
  */
-public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
+public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, ITimerToggleableArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
     protected int autoCloseTime = 0;
+    protected int autoOpenTime = 0;
     protected PBlockFace currentDirection;
 
     @NotNull
@@ -34,12 +36,18 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
                                                          final @NotNull Object... args)
         throws Exception
     {
-        final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) args[1]);
+        final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) args[2]);
         if (currentDirection == null)
             return Optional.empty();
-        return Optional.of(new BigDoor(doorData, (int) args[0], currentDirection));
-    }
 
+        final int autoCloseTimer = (int) args[0];
+        final int autoOpenTimer = (int) args[1];
+
+        return Optional.of(new BigDoor(doorData,
+                                       autoCloseTimer,
+                                       autoOpenTimer,
+                                       currentDirection));
+    }
 
     public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
         throws IllegalArgumentException
@@ -49,16 +57,18 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
                 "Trying to get the type-specific data for a BigDoor from type: " + door.getDoorType().toString());
 
         final @NotNull BigDoor bigDoor = (BigDoor) door;
-        return new Object[]{bigDoor.getAutoClose(), PBlockFace.getValue(bigDoor.getCurrentDirection())};
+        return new Object[]{bigDoor.getAutoCloseTimer(),
+                            bigDoor.getAutoOpenTimer(),
+                            PBlockFace.getValue(bigDoor.getCurrentDirection())};
     }
 
-
-    public BigDoor(final @NotNull DoorData doorData, final int autoCloseTimer,
+    public BigDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
                    final @NotNull PBlockFace currentDirection)
     {
         super(doorData);
-        setAutoClose(autoCloseTimer);
-        setCurrentDirection(currentDirection);
+        this.autoCloseTime = autoCloseTime;
+        this.autoOpenTime = autoOpenTime;
+        this.currentDirection = currentDirection;
     }
 
     @Deprecated
@@ -89,19 +99,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
      */
     @NotNull
     @Override
-    public PBlockFace calculateCurrentDirection()
-    {
-        return engine.getZ() != min.getZ() ? PBlockFace.NORTH :
-               engine.getX() != max.getX() ? PBlockFace.EAST :
-               engine.getZ() != max.getZ() ? PBlockFace.SOUTH :
-               engine.getX() != min.getX() ? PBlockFace.WEST : PBlockFace.NONE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
     public Vector2Di[] calculateChunkRange()
     {
         // Yeah, radius might be too big, but it doesn't really matter.
@@ -118,6 +115,17 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
     public void setDefaultOpenDirection()
     {
         setOpenDir(RotateDirection.CLOCKWISE);
+    }
+
+    /**
+     * Gets the side the {@link IDoorBase} is on relative to the engine.
+     *
+     * @return The side the {@link IDoorBase} is on relative to the engine
+     */
+    @NotNull
+    public PBlockFace getCurrentDirection()
+    {
+        return currentDirection;
     }
 
     /**
@@ -209,28 +217,45 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype
         if (!super.equals(o))
             return false;
 
-        System.out.println("000003");
-
-        if (getClass() != o.getClass())
-            return false;
-        System.out.println("000004");
-
         final @NotNull BigDoor other = (BigDoor) o;
-
-
-        if (getCurrentDirection() == null) System.out.println("000005");
-        if (other.getCurrentDirection() == null) System.out.println("000006");
-
-
-        if (getAutoClose() != other.getAutoClose()) System.out.println("000007");
-        if (!getCurrentDirection().equals(other.getCurrentDirection())) System.out.println("000008");
-
-        boolean isSameBigDoor = getCurrentDirection().equals(other.getCurrentDirection()) &&
-            getAutoClose() == other.getAutoClose();
-        System.out.println("isSameBigDoor: " + isSameBigDoor);
-
-
         return getCurrentDirection().equals(other.getCurrentDirection()) &&
-            getAutoClose() == other.getAutoClose();
+            getAutoCloseTimer() == other.getAutoCloseTimer() &&
+            getAutoOpenTimer() == other.getAutoOpenTimer();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoCloseTimer(int newValue)
+    {
+        autoCloseTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoCloseTimer()
+    {
+        return autoCloseTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoOpenTimer(int newValue)
+    {
+        autoOpenTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoOpenTimer()
+    {
+        return autoOpenTime;
     }
 }

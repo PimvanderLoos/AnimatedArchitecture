@@ -107,6 +107,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Look into overriding Equals() properly for all the subtypes of the door.
+// TODO: Override toString for the subtypes of the doors. All the type's type-specific data should be printed as well.
 // TODO: Find a way to restrict access to all the "constructor" methods such as BigDoors#constructor(DoorData, Object[] ...)
 //       Only the construct method from DoorType should have access to it, as it is inherently unsafe. Furthermore,
 //       that would allow phasing it out for a strict type-casting method in the future.
@@ -298,6 +300,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Make users explicitly specify the openDirection on door creation.
 // TODO: GarageDoorCreator: Fix having to double click last block.
 // TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
+// TODO: Adapt to the new creation style.
 
 /*
  * Openers / Movers

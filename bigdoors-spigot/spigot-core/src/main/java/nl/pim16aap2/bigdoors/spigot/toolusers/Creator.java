@@ -165,8 +165,6 @@ public abstract class Creator extends ToolUser
             if (openDirection.equals(RotateDirection.NONE))
                 door.setDefaultOpenDirection();
 
-            door.setAutoClose(-1);
-
             final int doorSize = door.getBlockCount();
             if (plugin.getConfigLoader().maxDoorSize() >= 0 && plugin.getConfigLoader().maxDoorSize() <= doorSize)
             {
@@ -179,7 +177,7 @@ public abstract class Creator extends ToolUser
                 {
                     if (sizeLimit >= 0 && sizeLimit <= doorSize)
                         sendAreaTooBigMessage(player, sizeLimit);
-                    else if (plugin.getVaultManager().buyDoor(player, type, doorSize))
+                    else if (plugin.getVaultManager().buyDoor(player, door.getDoorType(), doorSize))
                     {
                         BigDoors.get().getDatabaseManager().addDoorBase(door);
                         if (message != null)

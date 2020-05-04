@@ -9,12 +9,13 @@ import nl.pim16aap2.bigdoors.doors.IDoorBase;
  */
 public interface IPerpetualMoverArchetype extends IDoorBase
 {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    default boolean perpetualMovement()
-    {
-        return true;
-    }
+//    /**
+//     * Checks if this door should always be moving (clocks, windmills, etc).
+//     *
+//     * @return True if this door should always be active.
+//     */
+//    default boolean perpetualMovement()
+//    {
+//        return true;
+//    }
 }

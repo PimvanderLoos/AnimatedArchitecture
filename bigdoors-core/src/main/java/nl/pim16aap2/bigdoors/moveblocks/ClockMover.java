@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.doors.AbstractHorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.doors.Clock;
-import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.WorldTime;
@@ -48,7 +48,8 @@ public class ClockMover extends WindmillMover
      */
     private static final float HOURSUBSTEP = (float) Math.PI / 360;
 
-    public ClockMover(final @NotNull HorizontalAxisAlignedBase door, final @NotNull RotateDirection rotateDirection,
+    public ClockMover(final @NotNull AbstractHorizontalAxisAlignedBase door,
+                      final @NotNull RotateDirection rotateDirection,
                       final @Nullable IPPlayer player)
     {
         super(door, 0.0D, 0.0D, rotateDirection, player);

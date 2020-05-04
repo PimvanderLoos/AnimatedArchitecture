@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -24,15 +23,15 @@ public interface IDoorBase
      */
     boolean canSkipAnimation();
 
-    /**
-     * Checks if this door should always be moving (clocks, windmills, etc).
-     *
-     * @return True if this door should always be active.
-     */
-    default boolean perpetualMovement()
-    {
-        return false;
-    }
+//    /**
+//     * Checks if this door should always be moving (clocks, windmills, etc).
+//     *
+//     * @return True if this door should always be active.
+//     */
+//    default boolean perpetualMovement()
+//    {
+//        return false;
+//    }
 
     /**
      * Checks if the power block of a door is powered.
@@ -66,7 +65,7 @@ public interface IDoorBase
     void onRedstoneChange(final int newCurrent);
 
     /**
-     * Gets the direction the door would go given its {@link #getCurrentDirection()} and its {@link #isOpen()} status.
+     * Gets the direction the door would go given its current state..
      *
      * @return The direction the door would go if it were to be toggled.
      */
@@ -91,16 +90,16 @@ public interface IDoorBase
     @NotNull
     RotateDirection cycleOpenDirection();
 
-    /**
-     * Calculate the {@link PBlockFace} of the side the {@link IDoorBase} is on relative to its engine.
-     * <p>
-     * When taking a {@link BigDoor} as an example, it would return NORTH if the {@link IDoorBase} was positioned along
-     * the x-axis (North / South) and the engine was on the south-most point of the door.
-     *
-     * @return The {@link PBlockFace} of the side the {@link IDoorBase} is on relative to its engine.
-     */
-    @NotNull
-    PBlockFace calculateCurrentDirection();
+//    /**
+//     * Calculate the {@link PBlockFace} of the side the {@link IDoorBase} is on relative to its engine.
+//     * <p>
+//     * When taking a {@link BigDoor} as an example, it would return NORTH if the {@link IDoorBase} was positioned along
+//     * the x-axis (North / South) and the engine was on the south-most point of the door.
+//     *
+//     * @return The {@link PBlockFace} of the side the {@link IDoorBase} is on relative to its engine.
+//     */
+//    @NotNull
+//    PBlockFace calculateCurrentDirection();
 
     /**
      * Calculates the Min and Max coordinates of the range of Vector2Dis that this {@link IDoorBase} might interact
@@ -141,30 +140,22 @@ public interface IDoorBase
      */
     boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2Di chunk);
 
-    /**
-     * Gets the number of blocks this {@link IDoorBase} will try to move. As explained at {@link #setBlocksToMove(int)},
-     * the {@link IDoorBase} is not guaranteed to move as far as specified.
-     *
-     * @return The number of blocks the {@link IDoorBase} will try to move.
-     */
-    int getBlocksToMove();
-
-    /**
-     * Changes the number of blocks this {@link IDoorBase} will try to move when opened. Note that this is only a
-     * suggestion. It will never move more blocks than possible. Values less than 1 will let the {@link IDoorBase} move
-     * as many blocks as possible.
-     *
-     * @param newBTM The number of blocks the {@link IDoorBase} will try to move.
-     */
-    void setBlocksToMove(final int newBTM);
-
-    /**
-     * The the {@link EDoorType} of this door.
-     *
-     * @return The {@link EDoorType} of this door.
-     */
-    @NotNull
-    EDoorType getType();
+//    /**
+//     * Gets the number of blocks this {@link IDoorBase} will try to move. As explained at {@link #setBlocksToMove(int)},
+//     * the {@link IDoorBase} is not guaranteed to move as far as specified.
+//     *
+//     * @return The number of blocks the {@link IDoorBase} will try to move.
+//     */
+//    int getBlocksToMove();
+//
+//    /**
+//     * Changes the number of blocks this {@link IDoorBase} will try to move when opened. Note that this is only a
+//     * suggestion. It will never move more blocks than possible. Values less than 1 will let the {@link IDoorBase} move
+//     * as many blocks as possible.
+//     *
+//     * @param newBTM The number of blocks the {@link IDoorBase} will try to move.
+//     */
+//    void setBlocksToMove(final int newBTM);
 
     /**
      * Gets the name of this door.
@@ -246,21 +237,21 @@ public interface IDoorBase
      */
     void setOpenDir(final @NotNull RotateDirection newRotDir);
 
-    /**
-     * Gets amount of time (in seconds) this {@link IDoorBase} will wait before automatically trying to close after
-     * having been opened.
-     *
-     * @return The amount of time (in seconds) after which the {@link IDoorBase} will close automatically.
-     */
-    int getAutoClose();
-
-    /**
-     * Changes the amount of time (in seconds) this {@link IDoorBase} will wait before automatically trying to close
-     * after having been opened. Negative values disable auto-closing altogether.
-     *
-     * @param newVal Time (in seconds) after which the {@link IDoorBase} will close after opening.
-     */
-    void setAutoClose(final int newVal);
+//    /**
+//     * Gets amount of time (in seconds) this {@link IDoorBase} will wait before automatically trying to close after
+//     * having been opened.
+//     *
+//     * @return The amount of time (in seconds) after which the {@link IDoorBase} will close automatically.
+//     */
+//    int getAutoClose();
+//
+//    /**
+//     * Changes the amount of time (in seconds) this {@link IDoorBase} will wait before automatically trying to close
+//     * after having been opened. Negative values disable auto-closing altogether.
+//     *
+//     * @param newVal Time (in seconds) after which the {@link IDoorBase} will close after opening.
+//     */
+//    void setAutoClose(final int newVal);
 
     /**
      * Changes the open-status of this door. True if open, False if closed.
@@ -391,14 +382,13 @@ public interface IDoorBase
     @NotNull
     Vector3Di getDimensions();
 
-    /**
-     * Gets the side the {@link IDoorBase} is on relative to the engine. If invalidated or not calculated yet, {@link
-     * #calculateCurrentDirection()} is called to (re)calculate it.
-     *
-     * @return The side the {@link IDoorBase} is on relative to the engine
-     */
-    @NotNull
-    PBlockFace getCurrentDirection();
+//    /**
+//     * Gets the side the {@link IDoorBase} is on relative to the engine.
+//     *
+//     * @return The side the {@link IDoorBase} is on relative to the engine
+//     */
+//    @NotNull
+//    PBlockFace getCurrentDirection();
 
     /**
      * @return The simple hash of the chunk in which the power block resides.

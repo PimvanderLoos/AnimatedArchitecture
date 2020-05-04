@@ -209,6 +209,24 @@ public final class Util
     }
 
     /**
+     * Obtains a random integer value.
+     *
+     * @param min The lower bound (inclusive).
+     * @param max The lower bound (inclusive).
+     * @return A random integer value.
+     */
+    public static int getRandomNumber(int min, int max)
+    {
+
+        if (min >= max)
+        {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+
+        return rnd.nextInt((max - min) + 1) + min;
+    }
+
+    /**
      * Try to convert a string to a double. Use the default value in case of failure.
      *
      * @param input The string to be converted to a double.

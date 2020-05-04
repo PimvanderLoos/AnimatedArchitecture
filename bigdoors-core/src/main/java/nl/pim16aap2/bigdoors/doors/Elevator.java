@@ -23,7 +23,14 @@ public class Elevator extends Portcullis
                                                          final @NotNull Object... args)
         throws Exception
     {
-        return Optional.of(new Elevator(doorData, (int) args[0]));
+        final int blocksToMove = (int) args[0];
+        final int autoCloseTimer = (int) args[1];
+        final int autoOpenTimer = (int) args[2];
+
+        return Optional.of(new Elevator(doorData,
+                                        blocksToMove,
+                                        autoCloseTimer,
+                                        autoOpenTimer));
     }
 
     public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
@@ -34,12 +41,15 @@ public class Elevator extends Portcullis
                 "Trying to get the type-specific data for an Elevator from type: " + door.getDoorType().toString());
 
         final @NotNull Elevator elevator = (Elevator) door;
-        return new Object[]{elevator.getBlocksToMove()};
+        return new Object[]{elevator.blocksToMove,
+                            elevator.autoCloseTime,
+                            elevator.autoOpenTime};
     }
 
-    public Elevator(final @NotNull DoorData doorData, final int blocksToMove)
+    public Elevator(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
+                    final int autoOpenTime)
     {
-        super(doorData, blocksToMove);
+        super(doorData, blocksToMove, autoCloseTime, autoOpenTime);
     }
 
     @Deprecated
@@ -71,6 +81,15 @@ public class Elevator extends Portcullis
     @Override
     public boolean equals(final @Nullable Object o)
     {
-        return super.equals(o) && getClass() == o.getClass();
+        if (!super.equals(o))
+            return false;
+
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull Elevator other = (Elevator) o;
+        return blocksToMove == other.blocksToMove &&
+            autoOpenTime == other.autoOpenTime &&
+            autoCloseTime == other.autoCloseTime;
     }
 }

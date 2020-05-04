@@ -15,8 +15,9 @@ public final class DoorTypeDrawbridge extends DoorType
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(3);
+        List<Parameter> parameterTMP = new ArrayList<>(4);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
+        parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "currentDirection"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "modeUpDown"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);

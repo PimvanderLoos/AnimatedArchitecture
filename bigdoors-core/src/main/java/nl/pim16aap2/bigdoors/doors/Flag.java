@@ -23,7 +23,8 @@ import java.util.Optional;
  * @author Pim
  * @see AbstractDoorBase
  */
-public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Flag extends AbstractHorizontalAxisAlignedBase
+    implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
 
@@ -54,7 +55,9 @@ public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorAr
             return Optional.empty();
 
         final boolean onNorthSouthAxis = ((int) args[0]) == 1;
-        return Optional.of(new Flag(doorData, onNorthSouthAxis, flagDirection));
+        return Optional.of(new Flag(doorData,
+                                    onNorthSouthAxis,
+                                    flagDirection));
     }
 
     public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
@@ -65,14 +68,16 @@ public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorAr
                 "Trying to get the type-specific data for a Flag from type: " + door.getDoorType().toString());
 
         final @NotNull Flag flag = (Flag) door;
-        return new Object[]{flag.getOnNorthSouthAxis() ? 1 : 0, PBlockFace.getValue(flag.getFlagDirection())};
+        return new Object[]{flag.getOnNorthSouthAxis() ? 1 : 0,
+                            PBlockFace.getValue(flag.getFlagDirection())};
     }
 
-    public Flag(final @NotNull DoorData doorData, final boolean onNorthSouthAxis, final @NotNull PBlockFace hourArmSide)
+    public Flag(final @NotNull DoorData doorData, final boolean onNorthSouthAxis,
+                final @NotNull PBlockFace flagDirection)
     {
         super(doorData);
         this.onNorthSouthAxis = onNorthSouthAxis;
-        flagDirection = hourArmSide;
+        this.flagDirection = flagDirection;
     }
 
     @Deprecated
@@ -121,18 +126,18 @@ public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorAr
         return onNorthSouthAxis;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    public PBlockFace calculateCurrentDirection()
-    {
-        return engine.getZ() != min.getZ() ? PBlockFace.NORTH :
-               engine.getX() != max.getX() ? PBlockFace.EAST :
-               engine.getZ() != max.getZ() ? PBlockFace.SOUTH :
-               engine.getX() != min.getX() ? PBlockFace.WEST : PBlockFace.NONE;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @NotNull
+//    @Override
+//    public PBlockFace calculateCurrentDirection()
+//    {
+//        return engine.getZ() != min.getZ() ? PBlockFace.NORTH :
+//               engine.getX() != max.getX() ? PBlockFace.EAST :
+//               engine.getZ() != max.getZ() ? PBlockFace.SOUTH :
+//               engine.getX() != min.getX() ? PBlockFace.WEST : PBlockFace.NONE;
+//    }
 
     /**
      * {@inheritDoc}
@@ -144,6 +149,17 @@ public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorAr
     public void setDefaultOpenDirection()
     {
         setOpenDir(Util.getRotateDirection(getCurrentDirection()));
+    }
+
+    /**
+     * Gets the side the {@link IDoorBase} is on relative to the engine.
+     *
+     * @return The side the {@link IDoorBase} is on relative to the engine
+     */
+    @NotNull
+    public PBlockFace getCurrentDirection()
+    {
+        return flagDirection;
     }
 
     /**
@@ -184,6 +200,10 @@ public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorAr
             return false;
 
         final @NotNull Flag other = (Flag) o;
+
+        if (!flagDirection.equals(other.flagDirection)) System.out.println("FL: 1");
+        if (onNorthSouthAxis != other.onNorthSouthAxis) System.out.println("FL: 2");
+
         return flagDirection.equals(other.flagDirection) &&
             onNorthSouthAxis == other.onNorthSouthAxis;
     }

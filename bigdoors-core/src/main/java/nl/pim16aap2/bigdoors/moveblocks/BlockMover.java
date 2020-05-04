@@ -14,6 +14,7 @@ import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
@@ -431,7 +432,10 @@ public abstract class BlockMover implements IRestartable
                     public void run()
                     {
                         BigDoors.get().getDoorManager().setDoorAvailable(door.getDoorUID());
-                        BigDoors.get().getAutoCloseScheduler().scheduleAutoClose(player, door, time, skipAnimation);
+                        
+                        if (door instanceof ITimerToggleableArchetype)
+                            BigDoors.get().getAutoCloseScheduler()
+                                    .scheduleAutoClose(player, (ITimerToggleableArchetype) door, time, skipAnimation);
                     }
                 }, delay);
         }

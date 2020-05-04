@@ -65,7 +65,7 @@ public class DoorType
     @Override
     public String toString()
     {
-        return getPluginName() + ":" + getTypeName() + "-" + getVersion();
+        return getPluginName() + ":" + getTypeName() + ":" + getVersion();
     }
 
     /**

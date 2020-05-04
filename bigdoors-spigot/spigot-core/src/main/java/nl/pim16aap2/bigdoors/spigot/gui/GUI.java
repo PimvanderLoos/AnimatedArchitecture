@@ -287,7 +287,8 @@ public class GUI
     {
         ID(Message.GUI_SORTING_NUMERICAL, Comparator.comparing(AbstractDoorBase::getDoorUID)),
         NAME(Message.GUI_SORTING_ALPHABETICAL, Comparator.comparing(AbstractDoorBase::getName)),
-        TYPE(Message.GUI_SORTING_TYPICAL, Comparator.comparing(AbstractDoorBase::getType))
+        TYPE(Message.GUI_SORTING_TYPICAL, Comparator.comparing(abstractDoorBase ->
+                                                                   abstractDoorBase.getDoorType().getTypeName()))
             {
                 @Override
                 SortType next()

@@ -19,9 +19,10 @@ import java.util.Optional;
  * Represents a Windmill doorType.
  *
  * @author Pim
- * @see HorizontalAxisAlignedBase
+ * @see AbstractHorizontalAxisAlignedBase
  */
-public class Windmill extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Windmill extends AbstractHorizontalAxisAlignedBase
+    implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
@@ -164,7 +165,7 @@ public class Windmill extends HorizontalAxisAlignedBase implements IStationaryDo
         if (getClass() != o.getClass())
             return false;
 
-        final @NotNull Flag other = (Flag) o;
+        final @NotNull Windmill other = (Windmill) o;
         return onNorthSouthAxis == other.onNorthSouthAxis;
     }
 }

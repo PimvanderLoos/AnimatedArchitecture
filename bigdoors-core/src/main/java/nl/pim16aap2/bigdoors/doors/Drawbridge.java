@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -9,7 +10,6 @@ import nl.pim16aap2.bigdoors.moveblocks.BridgeMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -21,13 +21,22 @@ import java.util.Optional;
  * Represents a DrawBrige doorType.
  *
  * @author Pim
- * @see HorizontalAxisAlignedBase
+ * @see AbstractHorizontalAxisAlignedBase
  */
-public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoorArchetype
+public class Drawbridge extends AbstractHorizontalAxisAlignedBase
+    implements IMovingDoorArchetype, ITimerToggleableArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
-    protected int autoCloseTimer;
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoCloseTimer()}
+     */
+    protected int autoCloseTime;
+
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}
+     */
+    protected int autoOpenTime;
 
     /**
      * Describes the current direction the door is pointing in when taking the engine as center.
@@ -40,18 +49,24 @@ public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoor
      */
     protected boolean modeUp = true;
 
-
     @NotNull
     public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
                                                          final @NotNull Object... args)
         throws Exception
     {
-        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) args[1]);
+        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) args[2]);
         if (currentDirection == null)
             return Optional.empty();
 
-        final boolean modeUP = ((int) args[2]) == 1;
-        return Optional.of(new Drawbridge(doorData, (int) args[0], currentDirection, modeUP));
+        final int autoCloseTimer = (int) args[0];
+        final int autoOpenTimer = (int) args[1];
+
+        final boolean modeUP = ((int) args[3]) == 1;
+        return Optional.of(new Drawbridge(doorData,
+                                          autoCloseTimer,
+                                          autoOpenTimer,
+                                          currentDirection,
+                                          modeUP));
     }
 
     public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
@@ -62,15 +77,18 @@ public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoor
                 "Trying to get the type-specific data for a Drawbridge from type: " + door.getDoorType().toString());
 
         final @NotNull Drawbridge drawbridge = (Drawbridge) door;
-        return new Object[]{drawbridge.autoCloseTimer, PBlockFace.getValue(drawbridge.currentDirection),
+        return new Object[]{drawbridge.autoCloseTime,
+                            drawbridge.autoOpenTime,
+                            PBlockFace.getValue(drawbridge.currentDirection),
                             drawbridge.isModeUp() ? 1 : 0};
     }
 
-    public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTimer, final PBlockFace currentDirection,
-                      final boolean modeUp)
+    public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
+                      final PBlockFace currentDirection, final boolean modeUp)
     {
         super(doorData);
-        this.autoCloseTimer = autoCloseTimer;
+        this.autoOpenTime = autoOpenTime;
+        this.autoCloseTime = autoCloseTime;
         this.currentDirection = currentDirection;
         this.modeUp = modeUp;
     }
@@ -132,18 +150,6 @@ public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoor
     /**
      * {@inheritDoc}
      */
-    @NotNull
-    @Override
-    public PBlockFace calculateCurrentDirection()
-    {
-        if (!isOpen())
-            return PBlockFace.UP;
-        return PBlockFace.getOpposite(Util.getPBlockFace(getCurrentToggleDir()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setDefaultOpenDirection()
     {
@@ -161,6 +167,17 @@ public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoor
     public RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
+    }
+
+    /**
+     * Gets the side the {@link IDoorBase} is on relative to the engine.
+     *
+     * @return The side the {@link IDoorBase} is on relative to the engine
+     */
+    @NotNull
+    public PBlockFace getCurrentDirection()
+    {
+        return currentDirection;
     }
 
     /**
@@ -226,32 +243,54 @@ public class Drawbridge extends HorizontalAxisAlignedBase implements IMovingDoor
      * {@inheritDoc}
      */
     @Override
+    public void setAutoCloseTimer(int newValue)
+    {
+        autoCloseTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoCloseTimer()
+    {
+        return autoCloseTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoOpenTimer(int newValue)
+    {
+        autoOpenTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoOpenTimer()
+    {
+        return autoOpenTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean equals(@Nullable Object o)
     {
-        System.out.println("000013");
         if (!super.equals(o))
             return false;
-        System.out.println("000014");
+
         if (getClass() != o.getClass())
             return false;
 
         final @NotNull Drawbridge other = (Drawbridge) o;
-
-
-        if (currentDirection == null) System.out.println("000015");
-        if (other.currentDirection == null) System.out.println("000016");
-
-
-        if (autoCloseTimer != other.autoCloseTimer) System.out.println("000017");
-        if (modeUp != other.modeUp) System.out.println("000018");
-        if (!currentDirection.equals(other.currentDirection)) System.out.println("000019");
-
-        boolean isSameDrawbridge =
-            currentDirection.equals(other.currentDirection) && autoCloseTimer == other.autoCloseTimer &&
-                modeUp == other.modeUp;
-        System.out.println("isSameDrawbridge: " + isSameDrawbridge);
-
-        return currentDirection.equals(other.currentDirection) && autoCloseTimer == other.autoCloseTimer &&
+        return currentDirection.equals(other.currentDirection) &&
+            autoCloseTime == other.autoCloseTime &&
+            autoOpenTime == other.autoOpenTime &&
             modeUp == other.modeUp;
     }
 }

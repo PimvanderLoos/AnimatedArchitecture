@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -21,16 +23,27 @@ import java.util.Optional;
  * Represents a Sliding Door doorType.
  *
  * @author Pim
- * @see HorizontalAxisAlignedBase
+ * @see AbstractHorizontalAxisAlignedBase
  */
-public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype
+public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
+    implements IStationaryDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
     /**
-     * The number of blocks this door will try to move.
+     * See {@link IBlocksToMoveArchetype#getBlocksToMove}.
      */
     protected int blocksToMove;
+
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoCloseTimer()}.
+     */
+    protected int autoCloseTime;
+
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}.
+     */
+    protected int autoOpenTime;
 
 
     @NotNull
@@ -38,7 +51,14 @@ public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationar
                                                          final @NotNull Object... args)
         throws Exception
     {
-        return Optional.of(new SlidingDoor(doorData, (int) args[0]));
+        final int blocksToMove = (int) args[0];
+        final int autoCloseTimer = (int) args[1];
+        final int autoOpenTimer = (int) args[2];
+
+        return Optional.of(new SlidingDoor(doorData,
+                                           blocksToMove,
+                                           autoCloseTimer,
+                                           autoOpenTimer));
     }
 
     public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
@@ -49,13 +69,18 @@ public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationar
                 "Trying to get the type-specific data for an SlidingDoor from type: " + door.getDoorType().toString());
 
         final @NotNull SlidingDoor slidingDoor = (SlidingDoor) door;
-        return new Object[]{slidingDoor.getBlocksToMove()};
+        return new Object[]{slidingDoor.blocksToMove,
+                            slidingDoor.autoCloseTime,
+                            slidingDoor.autoOpenTime};
     }
 
-    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove)
+    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
+                       final int autoOpenTime)
     {
         super(doorData);
         this.blocksToMove = blocksToMove;
+        this.autoCloseTime = autoCloseTime;
+        this.autoOpenTime = autoOpenTime;
     }
 
     @Deprecated
@@ -79,6 +104,60 @@ public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationar
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBlocksToMove()
+    {
+        return blocksToMove;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBlocksToMove(int newBTM)
+    {
+        blocksToMove = newBTM;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoCloseTimer(int newValue)
+    {
+        autoCloseTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoCloseTimer()
+    {
+        return autoCloseTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoOpenTimer(int newValue)
+    {
+        autoOpenTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoOpenTimer()
+    {
+        return autoOpenTime;
     }
 
     /**

@@ -15,8 +15,10 @@ public final class DoorTypePortcullis extends DoorType
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(1);
+        List<Parameter> parameterTMP = new ArrayList<>(3);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "blocksToMove"));
+        parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
+        parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
 

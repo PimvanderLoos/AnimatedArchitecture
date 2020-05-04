@@ -197,6 +197,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             // Register this here so it can check for updates even when loaded on an incorrect version.
             updateManager = new UpdateManager(this, 58669);
 
+            databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), "doorDB.db"));
+            registerDoorTypes();
+
             Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
             validVersion = PlatformManagerSpigot.get().initPlatform(this);
 
@@ -214,8 +217,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
             config = ConfigLoaderSpigot.init(this, getPLogger());
             init();
-            databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), config.dbFile()));
-            registerDoorTypes();
 
             RedstoneListener.init(this);
             LoginResourcePackListener.init(this, config.resourcePack());
@@ -292,20 +293,19 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
             final @NotNull Vector3Di powerBlock = new Vector3Di(101, 101, 101);
             final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
-            final @NotNull PBlockFace currentDirection = PBlockFace.DOWN;
 
             doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                     RotateDirection.valueOf(0), doorOwner);
+                                                     RotateDirection.EAST, doorOwner);
         }
-        final @NotNull BigDoor d01 = new BigDoor(doorData, 100, PBlockFace.DOWN);
+        final @NotNull BigDoor d01 = new BigDoor(doorData, 100, 0, PBlockFace.DOWN);
         final @NotNull Clock d02 = new Clock(doorData, false, PBlockFace.NORTH);
-        final @NotNull Drawbridge d03 = new Drawbridge(doorData, 100, PBlockFace.EAST, true);
-        final @NotNull Elevator d04 = new Elevator(doorData, 100);
+        final @NotNull Drawbridge d03 = new Drawbridge(doorData, 100, 0, PBlockFace.EAST, true);
+        final @NotNull Elevator d04 = new Elevator(doorData, 10, 0, 0);
         final @NotNull Flag d05 = new Flag(doorData, true, PBlockFace.NORTH);
-        final @NotNull GarageDoor d06 = new GarageDoor(doorData, 10, true, PBlockFace.UP);
-        final @NotNull Portcullis d07 = new Portcullis(doorData, 10);
+        final @NotNull GarageDoor d06 = new GarageDoor(doorData, 0, 0, true, PBlockFace.UP);
+        final @NotNull Portcullis d07 = new Portcullis(doorData, 10, 0, 0);
         final @NotNull RevolvingDoor d08 = new RevolvingDoor(doorData, 8);
-        final @NotNull SlidingDoor d09 = new SlidingDoor(doorData, 10);
+        final @NotNull SlidingDoor d09 = new SlidingDoor(doorData, 10, 0, 0);
         final @NotNull Windmill d10 = new Windmill(doorData, false, 100);
 
 //        DatabaseManager.get().setStatementLogging(true);

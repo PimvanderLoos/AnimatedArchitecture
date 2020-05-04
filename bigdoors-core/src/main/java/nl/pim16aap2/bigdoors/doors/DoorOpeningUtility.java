@@ -9,9 +9,11 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -209,7 +211,9 @@ public final class DoorOpeningUtility
 
     /**
      * Gets the number of blocks this door can move in the given direction. If set, it won't go further than {@link
-     * AbstractDoorBase#getBlocksToMove()}
+     * IBlocksToMoveArchetype#getBlocksToMove()}.
+     * <p>
+     * TODO: This isn't used anywhere? Perhaps either centralize its usage or remove it.
      *
      * @param vec          Which direction to count the number of available blocks in.
      * @param player       The player for whom to check. May be null.
@@ -324,7 +328,7 @@ public final class DoorOpeningUtility
 
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
-        if (!EDoorType.isEnabled(door.getType()))
+        if (DoorTypeManager.get().isDoorTypeEnabled(door.getDoorType()))
             return DoorToggleResult.TYPEDISABLED;
 
         if (!chunksLoaded(door))
@@ -409,6 +413,6 @@ public final class DoorOpeningUtility
      */
     double getMultiplier(final @NotNull AbstractDoorBase door)
     {
-        return config.getMultiplier(door.getType());
+        return config.getMultiplier(door.getDoorType());
     }
 }

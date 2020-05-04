@@ -15,8 +15,9 @@ public final class DoorTypeGarageDoor extends DoorType
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(3);
+        List<Parameter> parameterTMP = new ArrayList<>(4);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
+        parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "northSouth"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "currentDirection"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);

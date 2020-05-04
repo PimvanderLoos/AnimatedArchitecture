@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -21,9 +22,10 @@ import java.util.Optional;
  * Represents a Garage Door doorType.
  *
  * @author Pim
- * @see HorizontalAxisAlignedBase
+ * @see AbstractHorizontalAxisAlignedBase
  */
-public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoorArchetype
+public class GarageDoor extends AbstractHorizontalAxisAlignedBase
+    implements IMovingDoorArchetype, ITimerToggleableArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
     /**
@@ -43,18 +45,34 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
     @NotNull
     protected PBlockFace currentDirection;
 
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoCloseTimer()}
+     */
+    protected int autoCloseTime;
+
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}
+     */
+    protected int autoOpenTime;
+
     @NotNull
     public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
                                                          final @NotNull Object... args)
         throws Exception
     {
-        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) args[2]);
+        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) args[3]);
         if (currentDirection == null)
             return Optional.empty();
 
-        final int autoClose = (int) args[0];
-        final boolean onNorthSouthAxis = ((int) args[1]) == 1;
-        return Optional.of(new GarageDoor(doorData, autoClose, onNorthSouthAxis, currentDirection));
+        final int autoCloseTimer = (int) args[0];
+        final int autoOpenTimer = (int) args[1];
+        final boolean onNorthSouthAxis = ((int) args[2]) == 1;
+
+        return Optional.of(new GarageDoor(doorData,
+                                          autoCloseTimer,
+                                          autoOpenTimer,
+                                          onNorthSouthAxis,
+                                          currentDirection));
     }
 
     public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
@@ -65,16 +83,19 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
                 "Trying to get the type-specific data for a GarageDoor from type: " + door.getDoorType().toString());
 
         final @NotNull GarageDoor garageDoor = (GarageDoor) door;
-        return new Object[]{garageDoor.getAutoClose(),
+        return new Object[]{garageDoor.autoCloseTime,
+                            garageDoor.autoOpenTime,
                             garageDoor.getOnNorthSouthAxis() ? 1 : 0,
                             PBlockFace.getValue(garageDoor.getCurrentDirection())};
     }
 
-    public GarageDoor(final @NotNull DoorData doorData, final int autoClose, final boolean onNorthSouthAxis,
+    public GarageDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
+                      final boolean onNorthSouthAxis,
                       final @NotNull PBlockFace currentDirection)
     {
         super(doorData);
-        setAutoClose(autoClose);
+        this.autoCloseTime = autoCloseTime;
+        this.autoOpenTime = autoOpenTime;
         this.onNorthSouthAxis = onNorthSouthAxis;
         this.currentDirection = currentDirection;
     }
@@ -102,6 +123,53 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
+    }
+
+    /**
+     * Gets the side the {@link IDoorBase} is on relative to the engine.
+     *
+     * @return The side the {@link IDoorBase} is on relative to the engine
+     */
+    @NotNull
+    public PBlockFace getCurrentDirection()
+    {
+        return currentDirection;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoCloseTimer(int newValue)
+    {
+        autoCloseTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoCloseTimer()
+    {
+        return autoCloseTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoOpenTimer(int newValue)
+    {
+        autoOpenTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoOpenTimer()
+    {
+        return autoOpenTime;
     }
 
     /**
@@ -149,22 +217,6 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
     public boolean isCloseable()
     {
         return isOpen();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    public PBlockFace calculateCurrentDirection()
-    {
-        if (!isOpen())
-            return PBlockFace.UP;
-
-        int dX = engine.getX() - min.getX();
-        int dZ = engine.getZ() - min.getZ();
-
-        return PBlockFace.faceFromDir(new Vector3Di(Integer.compare(0, dX), 0, Integer.compare(0, dZ)));
     }
 
     /**
@@ -218,7 +270,7 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
         {
             PLogger.get().logException(new IllegalArgumentException(
                 "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
-                    getType().name() + "\""));
+                    getDoorType().toString() + "\""));
             return false;
         }
 
@@ -308,11 +360,14 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
     {
         if (!super.equals(o))
             return false;
+
         if (getClass() != o.getClass())
             return false;
 
         final @NotNull GarageDoor other = (GarageDoor) o;
         return currentDirection.equals(other.currentDirection) &&
-            onNorthSouthAxis == other.onNorthSouthAxis;
+            onNorthSouthAxis == other.onNorthSouthAxis &&
+            autoOpenTime == other.autoOpenTime &&
+            autoCloseTime == other.autoCloseTime;
     }
 }

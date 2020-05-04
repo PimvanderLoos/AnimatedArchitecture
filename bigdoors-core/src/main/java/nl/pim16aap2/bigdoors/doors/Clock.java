@@ -20,9 +20,10 @@ import java.util.Optional;
  * Represents a Clock doorType.
  *
  * @author Pim
- * @see HorizontalAxisAlignedBase
+ * @see AbstractHorizontalAxisAlignedBase
  */
-public class Clock extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Clock extends AbstractHorizontalAxisAlignedBase
+    implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
@@ -122,16 +123,6 @@ public class Clock extends HorizontalAxisAlignedBase implements IStationaryDoorA
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean calculateNorthSouthAxis()
-    {
-        // A clock can be 2 blocks deep in only the X or the Z direction.
-        return dimensions.getX() == 1;
     }
 
     /**

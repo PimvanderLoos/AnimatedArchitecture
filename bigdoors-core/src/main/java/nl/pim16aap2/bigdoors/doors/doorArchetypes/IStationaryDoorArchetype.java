@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.doorArchetypes;
 
 import nl.pim16aap2.bigdoors.doors.IDoorBase;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -77,17 +76,5 @@ public interface IStationaryDoorArchetype extends IDoorBase
     default RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Always {@link PBlockFace#NONE} for this archetype.
-     */
-    @NotNull
-    @Override
-    default PBlockFace calculateCurrentDirection()
-    {
-        return PBlockFace.NONE;
     }
 }

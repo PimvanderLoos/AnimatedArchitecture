@@ -29,13 +29,13 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
      */
     private int quarterCircles = 1;
 
-
     @NotNull
     public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
                                                          final @NotNull Object... args)
         throws Exception
     {
-        return Optional.of(new RevolvingDoor(doorData, (int) args[0]));
+        final int qCircles = (int) args[0];
+        return Optional.of(new RevolvingDoor(doorData, qCircles));
     }
 
     public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
@@ -143,6 +143,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     {
         if (!super.equals(o))
             return false;
+        
         if (getClass() != o.getClass())
             return false;
 

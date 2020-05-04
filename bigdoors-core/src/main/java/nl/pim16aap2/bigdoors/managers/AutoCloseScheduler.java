@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.managers;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorActionEvent;
@@ -98,9 +98,9 @@ public class AutoCloseScheduler extends Restartable
      * @param skipAnimation Whether the door should be animated or not.
      */
     public void scheduleAutoClose(final @NotNull DoorActionCause cause, final @NotNull IPPlayer player,
-                                  final @NotNull AbstractDoorBase door, double speed, boolean skipAnimation)
+                                  final @NotNull ITimerToggleableArchetype door, double speed, boolean skipAnimation)
     {
-        int autoCloseTimer = door.getAutoClose();
+        int autoCloseTimer = door.getAutoCloseTimer();
         if (autoCloseTimer < 0 || !door.isOpen())
             return;
 
@@ -138,8 +138,8 @@ public class AutoCloseScheduler extends Restartable
      * @param speed         The speed at which the door should move.
      * @param skipAnimation Whether the door should be animated or not.
      */
-    public void scheduleAutoClose(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door, double speed,
-                                  boolean skipAnimation)
+    public void scheduleAutoClose(final @NotNull IPPlayer player, final @NotNull ITimerToggleableArchetype door,
+                                  double speed, boolean skipAnimation)
     {
         scheduleAutoClose(DoorActionCause.REDSTONE, player, door, speed, skipAnimation);
     }

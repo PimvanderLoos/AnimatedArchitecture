@@ -3,7 +3,8 @@ package nl.pim16aap2.bigdoors.spigot.config;
 import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
-import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,11 +51,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private final Set<Material> materialBlacklist;
     private final Map<ProtectionCompat, Boolean> hooksMap;
     private final List<ConfigEntry<?>> configEntries;
-    private final Map<EDoorType, String> doorPrices;
-    private final Map<EDoorType, Double> doorMultipliers;
+    private final Map<DoorType, String> doorPrices;
+    private final Map<DoorType, Double> doorMultipliers;
 
     private final String header;
-    private String dbFile;
     private int coolDown;
     private boolean makeBackup;
     private boolean allowStats;
@@ -85,8 +86,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         powerBlockTypesMap = EnumSet.noneOf(Material.class);
         materialBlacklist = EnumSet.noneOf(Material.class);
         hooksMap = new EnumMap<>(ProtectionCompat.class);
-        doorPrices = new EnumMap<>(EDoorType.class);
-        doorMultipliers = new EnumMap<>(EDoorType.class);
+        doorPrices = new HashMap<>();
+        doorMultipliers = new HashMap<>();
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
     }
@@ -172,8 +173,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Maximum number of doors a player can own. -1 = infinite."};
         String[] languageFileComment = {
             "Specify a language file to be used. Note that en_US.txt will get regenerated!"};
-        String[] dbFileComment = {
-            "Pick the name (and location if you want) of the database."};
         String[] checkForUpdatesComment = {
             "Allow this plugin to check for updates on startup. It will not download new versions!"};
         String[] downloadDelayComment = {
@@ -244,7 +243,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
         maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
         languageFile = addNewConfigEntry(config, "languageFile", "en_US", languageFileComment);
-        dbFile = addNewConfigEntry(config, "dbFile", "doorDB.db", dbFileComment);
         checkForUpdates = addNewConfigEntry(config, "checkForUpdates", true, checkForUpdatesComment);
         autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
         // Multiply by 60 to get the time in seconds. Also, it's capped to 10080 minutes, better known as 1 week.
@@ -273,15 +271,17 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                                         "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", null);
 
 
-        for (EDoorType type : EDoorType.cachedValues())
-            if (EDoorType.isEnabled(type))
-                doorMultipliers.put(type, addNewConfigEntry(config, "multiplierOf" + type, 0.0D,
-                                                            EDoorType.getValue(type) == 0 ? multiplierComment : null));
+        String[] usedMulitplierComment = multiplierComment;
+        String[] usedPricesComment = pricesComment;
+        for (final @NotNull DoorType type : DoorTypeManager.get().getEnabledDoorTypes())
+        {
+            doorMultipliers
+                .put(type, addNewConfigEntry(config, "multiplier_" + type.toString(), 0.0D, usedMulitplierComment));
+            doorPrices.put(type, addNewConfigEntry(config, "price_" + type.toString(), "0", usedPricesComment));
 
-        for (EDoorType type : EDoorType.cachedValues())
-            if (EDoorType.isEnabled(type))
-                doorPrices.put(type, addNewConfigEntry(config, "priceOf" + type.name(), "0",
-                                                       EDoorType.getValue(type) == 0 ? pricesComment : null));
+            usedMulitplierComment = null;
+            usedPricesComment = null;
+        }
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
         // This is a bit special, as it's public static (for SpigotUtil debug messages).
@@ -433,15 +433,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * {@inheritDoc}
      */
     @Override
-    public String dbFile()
-    {
-        return dbFile;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean dbBackup()
     {
         return makeBackup;
@@ -573,7 +564,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * {@inheritDoc}
      */
     @Override
-    public String getPrice(final @NotNull EDoorType type)
+    public String getPrice(final @NotNull DoorType type)
     {
         return doorPrices.get(type);
     }
@@ -582,7 +573,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * {@inheritDoc}
      */
     @Override
-    public double getMultiplier(final @NotNull EDoorType type)
+    public double getMultiplier(final @NotNull DoorType type)
     {
         return doorMultipliers.get(type);
     }

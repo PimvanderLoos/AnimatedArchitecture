@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
+import nl.pim16aap2.bigdoors.doors.AbstractHorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.doors.Windmill;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -23,7 +23,8 @@ public class WindmillMover extends BridgeMover
 
     private double step;
 
-    public WindmillMover(final @NotNull HorizontalAxisAlignedBase door, final double time, final double multiplier,
+    public WindmillMover(final @NotNull AbstractHorizontalAxisAlignedBase door, final double time,
+                         final double multiplier,
                          final @NotNull RotateDirection rotateDirection, final @Nullable IPPlayer player)
     {
         super(time, door, PBlockFace.NONE, rotateDirection, false, multiplier, player, door.getMinimum(),

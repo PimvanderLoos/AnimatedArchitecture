@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -39,20 +38,13 @@ public abstract class AbstractDoorBase implements IDoorBase
     private String name;
     private boolean isOpen;
     private RotateDirection openDir;
-    private int blocksToMove;
 
     private boolean isLocked;
-    private int autoClose = -1;
     private DoorOwner doorOwner;
 
     // "cached" values that only get calculated when first retrieved.
     private Vector2Di engineChunk = null;
     private Integer blockCount = null;
-
-    /**
-     * The direction from the engine to the other end of the door.
-     */
-    private PBlockFace currentDirection = null;
 
     /**
      * Min and Max Vector2Di coordinates of the range of Vector2Dis that this {@link AbstractDoorBase} might interact
@@ -61,10 +53,10 @@ public abstract class AbstractDoorBase implements IDoorBase
     private Vector2Di minChunkCoords = null, maxChunkCoords = null;
 
     @Deprecated
-    protected AbstractDoorBase(PLogger pLogger, long uid, DoorData doorData, EDoorType eDoorType)
+    protected AbstractDoorBase(final @NotNull PLogger pLogger, final long uid, final @NotNull DoorData doorData,
+                               final @NotNull EDoorType eDoorType)
     {
         System.out.println("USING DEPRECATED DOORBASE CONSTRUCTOR!");
-        eDoorType = null;
         doorOpeningUtility = null;
         IPWorld = null;
         doorUID = 0;
@@ -97,18 +89,6 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @return The {@link DoorType} of this door.
      */
     public abstract DoorType getDoorType();
-
-    /**
-     * The the {@link EDoorType} of this door.
-     *
-     * @return The {@link EDoorType} of this door.
-     */
-    @Override
-    @NotNull
-    public final EDoorType getType()
-    {
-        return null;
-    }
 
     /**
      * {@inheritDoc}
@@ -297,34 +277,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the number of blocks this {@link AbstractDoorBase} will try to move. As explained at {@link
-     * #setBlocksToMove(int)}, the {@link AbstractDoorBase} is not guaranteed to move as far as specified.
-     *
-     * @return The number of blocks the {@link AbstractDoorBase} will try to move.
-     */
-    @Override
-    public final int getBlocksToMove()
-    {
-        return blocksToMove;
-    }
-
-    /**
-     * Change the number of blocks this {@link AbstractDoorBase} will try to move when opened. Note that this is only a
-     * suggestion. It will never move more blocks than possible. Values less than 1 will let the {@link
-     * AbstractDoorBase} move as many blocks as possible.
-     * <p>
-     * Also calls {@link #invalidateChunkRange()}
-     *
-     * @param newBTM The number of blocks the {@link AbstractDoorBase} will try to move.
-     */
-    @Override
-    public final void setBlocksToMove(final int newBTM)
-    {
-        blocksToMove = newBTM;
-        invalidateChunkRange();
-    }
-
-    /**
      * Get the name of this door.
      *
      * @return The name of this door.
@@ -458,30 +410,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get amount of time (in seconds) this {@link AbstractDoorBase} will wait before automatically trying to close
-     * after having been opened.
-     *
-     * @return The amount of time (in seconds) after which the {@link AbstractDoorBase} will close automatically.
-     */
-    @Override
-    public final int getAutoClose()
-    {
-        return autoClose;
-    }
-
-    /**
-     * Change the amount of time (in seconds) this {@link AbstractDoorBase} will wait before automatically trying to
-     * close after having been opened. Negative values disable auto-closing altogether.
-     *
-     * @param newVal Time (in seconds) after which the {@link AbstractDoorBase} will close after opening.
-     */
-    @Override
-    public final void setAutoClose(final int newVal)
-    {
-        autoClose = newVal;
-    }
-
-    /**
      * Change the open-status of this door. True if open, False if closed.
      *
      * @param bool The new open-status of the door.
@@ -574,8 +502,11 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     /**
      * Invalidate Vector2DiRange for this door.
+     * <p>
+     * This function should be called whenever certain aspects change that affect the way/distance this door might move.
+     * E.g. the open direction.
      */
-    private void invalidateChunkRange()
+    protected void invalidateChunkRange()
     {
         maxChunkCoords = null;
         minChunkCoords = null;
@@ -605,7 +536,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         engineChunk = null;
         blockCount = null;
-        currentDirection = null;
         invalidateChunkRange();
     }
 
@@ -750,29 +680,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the side the {@link AbstractDoorBase} is on relative to the engine. If invalidated or not calculated yet,
-     * {@link #calculateCurrentDirection()} is called to (re)calculate it.
-     *
-     * @return The side the {@link AbstractDoorBase} is on relative to the engine
-     */
-    @Override
-    @NotNull
-    public final PBlockFace getCurrentDirection()
-    {
-        return currentDirection == null ? currentDirection = calculateCurrentDirection() : currentDirection;
-    }
-
-    /**
-     * Update the {@link #currentDirection} of this {@link AbstractDoorBase}.
-     *
-     * @param currentDirection The new {@link #currentDirection} of this {@link AbstractDoorBase}.
-     */
-    protected final void setCurrentDirection(final @NotNull PBlockFace currentDirection)
-    {
-        this.currentDirection = currentDirection;
-    }
-
-    /**
      * @return The simple hash of the chunk in which the power block resides.
      */
     @Override
@@ -809,17 +716,13 @@ public abstract class AbstractDoorBase implements IDoorBase
         builder.append(doorUID).append(": ").append(name).append("\n");
         builder.append("Type: ").append(getDoorType().toString()).append(". Permission: ").append(getPermission())
                .append("\n");
-        builder.append("Min: ").append(min.toString()).append(", Max: ")
-               .append(max.toString()).append(", Engine: ").append(engine.toString())
-               .append("\n");
+        builder.append("Min: ").append(min.toString()).append(", Max: ").append(max.toString()).append(", Engine: ")
+               .append(engine.toString()).append("\n");
         builder.append("PowerBlock IPLocation: ").append(powerBlock.toString()).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");
         builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((isOpen ? "Open.\n" : "Closed.\n"));
-        builder.append("OpenDir: ").append(openDir.toString()).append("; Current Dir: ").append(getCurrentDirection())
-               .append("\n");
-        builder.append("AutoClose: ").append(autoClose);
-        builder.append("; BlocksToMove: ").append(blocksToMove).append("\n");
+        builder.append("OpenDir: ").append(openDir.toString()).append("\n");
 
         return builder.toString();
     }
@@ -830,57 +733,16 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public boolean equals(Object o)
     {
-        System.out.println("000000");
         if (this == o)
             return true;
-        System.out.println("000001");
 
         if (o == null || getClass() != o.getClass())
             return false;
-        System.out.println("000002");
 
         AbstractDoorBase other = (AbstractDoorBase) o;
-
-        if (name == null) System.out.println("12");
-        if (min == null) System.out.println("13");
-        if (max == null) System.out.println("14");
-        if (getDoorType() == null) System.out.println("16");
-        if (doorOwner == null) System.out.println("17");
-        if (IPWorld == null) System.out.println("18");
-        if (IPWorld.getUID() == null) System.out.println("19");
-
-        if (other.name == null) System.out.println("20");
-        if (other.min == null) System.out.println("21");
-        if (other.max == null) System.out.println("22");
-        if (other.getDoorType() == null) System.out.println("24");
-        if (other.doorOwner == null) System.out.println("25");
-        if (other.IPWorld == null) System.out.println("26");
-        if (other.IPWorld.getUID() == null) System.out.println("27");
-
-        if (doorUID != other.doorUID) System.out.println("0");
-        if (!name.equals(other.name)) System.out.println("1");
-        if (!min.equals(other.min)) System.out.println("2");
-        if (!max.equals(other.max)) System.out.println("3");
-        if (!getDoorType().equals(other.getDoorType())) System.out.println("5");
-        if (isOpen != other.isOpen) System.out.println("6");
-        if (!doorOwner.equals(other.doorOwner)) System.out.println("7");
-        if (blocksToMove != other.blocksToMove) System.out.println("8");
-        if (isLocked != other.isLocked) System.out.println("9");
-        if (autoClose != other.autoClose) System.out.println("10");
-        if (!IPWorld.getUID().equals(other.IPWorld.getUID())) System.out.println("11");
-
-        boolean isSameDoorBase =
-            doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
-                getDoorType().equals(other.getDoorType()) && isOpen == other.isOpen &&
-                doorOwner.equals(other.doorOwner) &&
-                blocksToMove == other.blocksToMove && isLocked == other.isLocked && autoClose == other.autoClose &&
-                IPWorld.getUID().equals(other.IPWorld.getUID());
-        System.out.println("isSameDoorBase: " + isSameDoorBase);
-
         return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
             getDoorType().equals(other.getDoorType()) && isOpen == other.isOpen && doorOwner.equals(other.doorOwner) &&
-            blocksToMove == other.blocksToMove && isLocked == other.isLocked && autoClose == other.autoClose &&
-            IPWorld.getUID().equals(other.IPWorld.getUID());
+            isLocked == other.isLocked && IPWorld.getUID().equals(other.IPWorld.getUID());
     }
 
     /**
