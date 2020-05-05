@@ -120,10 +120,6 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Use reflection or something to hack Spigot's API-version to always use the currently-used API-version.
 // TODO: Add a new type of powerblock that locks/unlocks doors instead of toggling them.
 // TODO: Handle restartable interface options in DatabaseManager class.
-// TODO: Move ToolUsers from spigot-core to bigdoors-core. Also use the following system:
-//       - Use an "int step" or something to keep track of at which step in the creation process the user is.
-//       - Use an array of function pointers which can easily be used using the step integer.
-//       - Make sure it's very easy to extend the system.
 // TODO: Don't use the local maven files. Use this method instead: https://stackoverflow.com/a/4955695
 // TODO: Load everything on startup (including RedstoneListener (should be singleton)). Use the IRestartable interface to handle restarts instead.
 // TODO: Don't just play sound at the door's engine. Instead, play it more realistically (so not from a single point). Perhaps packets might help with this.
@@ -300,6 +296,12 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
  * Creators
  */
 // TODO: Make users explicitly specify the openDirection on door creation.
+// TODO: Use the openDirection to figure out the current direction for the types that need that. And if that's not
+//       possible, just ask the user.
+// TODO: Move ToolUsers from spigot-core to bigdoors-core. Also use the following system:
+//       - Use an "int step" or something to keep track of at which step in the creation process the user is.
+//       - Use an array of function pointers which can easily be used using the step integer.
+//       - Make sure it's very easy to extend the system.
 // TODO: GarageDoorCreator: Fix having to double click last block.
 // TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
 // TODO: Adapt to the new creation style.

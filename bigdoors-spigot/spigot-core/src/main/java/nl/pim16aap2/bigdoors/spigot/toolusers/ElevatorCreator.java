@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
 
-import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.Elevator;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -13,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating an {@link EDoorType#ELEVATOR}.
+ * Represents a user creating an {@link DoorTypeElevator}.
  *
  * @author Pim
  **/
@@ -22,7 +24,17 @@ public class ElevatorCreator extends Creator
     public ElevatorCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                            final @Nullable String name)
     {
-        super(plugin, player, name, EDoorType.ELEVATOR);
+        super(plugin, player, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
+    {
+        return new Elevator(doorData, 0, 0, 0);
     }
 
     /**

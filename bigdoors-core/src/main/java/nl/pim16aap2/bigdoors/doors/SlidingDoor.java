@@ -152,13 +152,14 @@ public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            setOpenDir(RotateDirection.NORTH);
+            return RotateDirection.NORTH;
         else
-            setOpenDir(RotateDirection.EAST);
+            return RotateDirection.EAST;
     }
 
     /**

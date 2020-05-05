@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -31,22 +30,20 @@ import java.util.logging.Level;
  **/
 public abstract class Creator extends ToolUser
 {
-    protected EDoorType type;
     protected String doorName;
     protected PBlockFace engineSide = null;
     protected boolean isOpen = false;
     protected Vector3Di one, two, engine;
     protected IPWorld world;
     /**
-     * The openDirection of the door. When set to {@link RotateDirection#NONE}, {@link
-     * AbstractDoorBase#setDefaultOpenDirection()} is used instead.
+     * The openDirection of the door. When set to null or {@link RotateDirection#NONE}, {@link
+     * AbstractDoorBase#getDefaultOpenDirection()} is used instead.
      */
     @Nullable
-    protected RotateDirection openDirection = RotateDirection.NONE;
+    protected RotateDirection openDirection = null;
 
     protected Creator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
-                      final @Nullable String doorName,
-                      final @NotNull EDoorType type)
+                      final @Nullable String doorName)
     {
         super(plugin, player);
         doorUID = -1;
@@ -55,7 +52,6 @@ public abstract class Creator extends ToolUser
         two = null;
         engine = null;
         engineSide = null;
-        this.type = type;
         init();
     }
 
@@ -155,15 +151,15 @@ public abstract class Creator extends ToolUser
                 return;
             }
 
-            DoorOwner owner = new DoorOwner(doorUID, player.getUniqueId(), player.getName(), 0);
+            final @NotNull DoorOwner owner = new DoorOwner(doorUID, player.getUniqueId(), player.getName(), 0);
 
-            AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, doorName, min, max, engine,
-                                                                               getPowerBlockLoc(), world,
-                                                                               isOpen, openDirection, owner, false);
-
-            AbstractDoorBase door = type.getNewDoor(plugin.getPLogger(), doorUID, doorData);
-            if (openDirection.equals(RotateDirection.NONE))
-                door.setDefaultOpenDirection();
+            final boolean isLocked = false;
+            final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, doorName, min,
+                                                                                              max, engine,
+                                                                                              getPowerBlockLoc(), world,
+                                                                                              isOpen, openDirection,
+                                                                                              owner, isLocked);
+            final @NotNull AbstractDoorBase door = create(doorData);
 
             final int doorSize = door.getBlockCount();
             if (plugin.getConfigLoader().maxDoorSize() >= 0 && plugin.getConfigLoader().maxDoorSize() <= doorSize)
@@ -190,6 +186,15 @@ public abstract class Creator extends ToolUser
         }
         super.finishUp();
     }
+
+    /**
+     * Instantiates the type of {@link AbstractDoorBase} this creator was made for.
+     *
+     * @param doorData The {@link AbstractDoorBase.DoorData} used to create the base door.
+     * @return The newly created {@link AbstractDoorBase}.
+     */
+    @NotNull
+    protected abstract AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData);
 
     /**
      * Changes the name that will be given to the object constructed in this {@link Creator}.

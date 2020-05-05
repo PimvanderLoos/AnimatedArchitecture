@@ -275,8 +275,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     /**
      * Registers all BigDoor's own door types.
-     *
-     * @return True if all doors were registered successfully.
      */
     private void registerDoorTypes()
     {

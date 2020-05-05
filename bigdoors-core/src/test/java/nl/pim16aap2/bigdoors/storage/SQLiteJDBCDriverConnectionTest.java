@@ -335,7 +335,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
             final @NotNull String name = "DOORTYPETEST_" + doorType.toString();
             final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player4);
             doorData = new AbstractDoorBase.DoorData(doorUID++, name, min, max, engine, powerBlock, world,
-                                                     isOpen, RotateDirection.EAST, doorOwner, isLocked);
+                                                     isOpen, RotateDirection.NONE, doorOwner, isLocked);
 
             final @NotNull Object[] typeData = new Object[doorType.getParameterCount()];
             int parameterIDX = 0;

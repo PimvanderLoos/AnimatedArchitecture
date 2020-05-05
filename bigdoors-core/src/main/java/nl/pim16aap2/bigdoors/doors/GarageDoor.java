@@ -186,13 +186,14 @@ public class GarageDoor extends AbstractHorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            setOpenDir(RotateDirection.EAST);
+            return RotateDirection.EAST;
         else
-            setOpenDir(RotateDirection.NORTH);
+            return RotateDirection.NORTH;
     }
 
     /**

@@ -37,6 +37,7 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     private String name;
     private boolean isOpen;
+    @Nullable
     private RotateDirection openDir;
 
     private boolean isLocked;
@@ -333,7 +334,8 @@ public abstract class AbstractDoorBase implements IDoorBase
     @NotNull
     public final RotateDirection getOpenDir()
     {
-        return openDir;
+        // TODO: Verify the open direction here. See IDoorBase#isValidOpenDirection
+        return openDir == null || openDir == RotateDirection.NONE ? openDir = getDefaultOpenDirection() : openDir;
     }
 
     /**
@@ -344,7 +346,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         if (newRotDir.equals(RotateDirection.NONE))
         {
-            setDefaultOpenDirection();
+            openDir = getDefaultOpenDirection();
             PLogger.get()
                    .logMessage("\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
             return;
@@ -672,7 +674,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         @NotNull
         private final IPWorld world;
         private final boolean isOpen; // TODO: Use the bitflag here instead.
-        @NotNull
+        @Nullable
         private final RotateDirection openDirection;
         @NotNull
         private final DoorOwner doorOwner;
@@ -696,7 +698,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,
                         final @NotNull Vector3Di max, final @NotNull Vector3Di engine,
                         final @NotNull Vector3Di powerBlock, final @NotNull IPWorld world, final boolean isOpen,
-                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner doorOwner,
+                        final @Nullable RotateDirection openDirection, final @NotNull DoorOwner doorOwner,
                         final boolean isLocked)
         {
             this.uid = uid;
@@ -757,7 +759,7 @@ public abstract class AbstractDoorBase implements IDoorBase
             return isLocked;
         }
 
-        @NotNull
+        @Nullable
         private RotateDirection getOpenDirection()
         {
             return openDirection;

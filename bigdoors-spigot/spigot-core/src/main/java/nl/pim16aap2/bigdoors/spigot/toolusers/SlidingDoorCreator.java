@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
-import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.SlidingDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -12,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link EDoorType#SLIDINGDOOR}.
+ * Represents a user creating a {@link DoorTypeSlidingDoor}.
  *
  * @author Pim
  **/
@@ -21,11 +23,21 @@ public class SlidingDoorCreator extends Creator
     public SlidingDoorCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                               final @Nullable String name)
     {
-        super(plugin, player, name, EDoorType.SLIDINGDOOR);
+        super(plugin, player, name);
         if (name == null)
             SpigotUtil.messagePlayer(player, messages.getString(Message.CREATOR_GENERAL_GIVENAME));
         else
             giveToolToPlayer();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
+    {
+        return new SlidingDoor(doorData, 0, 0, 0);
     }
 
     /**

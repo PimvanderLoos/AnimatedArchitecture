@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,131 +21,40 @@ public enum EDoorType
 {
     BIGDOOR(0, true, "-BD", Message.DOORTYPE_BIGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
             DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
-            DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_HORIZONTAL)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new BigDoor(pLogger, doorUID, doorData);
-            }
-        },
-
+            DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_HORIZONTAL),
+    
     DRAWBRIDGE(1, true, "-DB", Message.DOORTYPE_DRAWBRIDGE, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
-               DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new Drawbridge(pLogger, doorUID, doorData);
-            }
-        },
+               DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2),
 
     PORTCULLIS(2, true, "-PC", Message.DOORTYPE_PORTCULLIS, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT_VERTICAL,
-               DoorAttribute.BLOCKSTOMOVE)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new Portcullis(pLogger, doorUID, doorData);
-            }
-        },
+               DoorAttribute.BLOCKSTOMOVE),
 
-    ELEVATOR(3, true, "-EL", Message.DOORTYPE_ELEVATOR, EDoorType.PORTCULLIS.attributes)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new Elevator(pLogger, doorUID, doorData);
-            }
-        },
+    ELEVATOR(3, true, "-EL", Message.DOORTYPE_ELEVATOR, EDoorType.PORTCULLIS.attributes),
 
     SLIDINGDOOR(4, true, "-SD", Message.DOORTYPE_SLIDINGDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                 DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
                 DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT_HORIZONTAL,
-                DoorAttribute.BLOCKSTOMOVE)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new SlidingDoor(pLogger, doorUID, doorData);
-            }
-        },
+                DoorAttribute.BLOCKSTOMOVE),
 
     FLAG(5, true, "-FL", Message.DOORTYPE_FLAG, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
          DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-         DoorAttribute.REMOVEOWNER)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new Flag(pLogger, doorUID, doorData);
-            }
-        },
+         DoorAttribute.REMOVEOWNER),
 
     GARAGEDOOR(6, true, "-GD", Message.DOORTYPE_GARAGEDOOR, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
                DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER,
-               DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new GarageDoor(pLogger, doorUID, doorData);
-            }
-        },
+               DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2),
 
     WINDMILL(7, true, "-WM", Message.DOORTYPE_WINDMILL, DoorAttribute.LOCK, DoorAttribute.TOGGLE,
              DoorAttribute.INFO, DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER,
-             DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new Windmill(pLogger, doorUID, doorData);
-            }
-        },
+             DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_ROTATE_VERTICAL2),
 
-    REVOLVINGDOOR(8, true, "-RD", Message.DOORTYPE_REVOLVINGDOOR, EDoorType.BIGDOOR.attributes)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new RevolvingDoor(pLogger, doorUID, doorData);
-            }
-        },
+    REVOLVINGDOOR(8, true, "-RD", Message.DOORTYPE_REVOLVINGDOOR, EDoorType.BIGDOOR.attributes),
 
     CLOCK(9, true, "-CL", Message.DOORTYPE_CLOCK, DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO,
-          DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER)
-        {
-            @NotNull
-            @Override
-            public AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                               final @NotNull AbstractDoorBase.DoorData doorData)
-            {
-                return new Clock(pLogger, doorUID, doorData);
-            }
-        },
-
+          DoorAttribute.DELETE, DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.ADDOWNER, DoorAttribute.REMOVEOWNER),
     ;
 
     private static final List<EDoorType> cachedValues = Collections.unmodifiableList(Arrays.asList(EDoorType.values()));
@@ -276,18 +184,6 @@ public enum EDoorType
     {
         return type.enabled;
     }
-
-    /**
-     * Constructs a new {@link AbstractDoorBase} of this type.
-     *
-     * @param pLogger  The {@link PLogger} to be used for exception handling.
-     * @param doorUID  The UID of the {@link AbstractDoorBase} to instantiate.
-     * @param doorData The data required for basic door initialization.
-     * @return A new {@link AbstractDoorBase} of this type.
-     */
-    @NotNull
-    public abstract AbstractDoorBase getNewDoor(final @NotNull PLogger pLogger, final long doorUID,
-                                                final @NotNull AbstractDoorBase.DoorData doorData);
 }
 
 

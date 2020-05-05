@@ -78,10 +78,11 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
-        setOpenDir(RotateDirection.CLOCKWISE);
+        return RotateDirection.CLOCKWISE;
     }
 
     /**

@@ -54,7 +54,7 @@ public interface IDoorBase
      */
     boolean isCloseable();
 
-    // TODO: implement
+    // TODO: implement this.
     boolean isValidOpenDirection(final @NotNull RotateDirection openDir);
 
     /**
@@ -120,16 +120,14 @@ public interface IDoorBase
     Vector2Di[] calculateCurrentChunkRange();
 
     /**
-     * Find out the default open direction for the current setup and use {@link #setOpenDir(RotateDirection)} to set the
-     * open direction to the default one. Useful when trying to open a {@link IDoorBase} before an open direction was
-     * set.
+     * Find out the default open direction for the current setup and use.
      * <p>
      * There is no universal default because the default depends on the type and current orientation of the door.
-     * <p>
-     * The openDirection is guaranteed to not be null or NONE after running this method. A type may look for a direction
-     * that isn't blocked, but that is not guaranteed.
+     *
+     * @return The default {@link RotateDirection} for this {@link IDoorBase}.
      */
-    void setDefaultOpenDirection();
+    @NotNull
+    RotateDirection getDefaultOpenDirection();
 
     /**
      * Check if a provided Vector2Di is in range of the door. Range in this case refers to all Vector2Dis this {@link

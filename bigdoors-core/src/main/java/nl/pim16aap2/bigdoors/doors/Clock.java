@@ -112,13 +112,14 @@ public class Clock extends AbstractHorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            setOpenDir(engine.getX() == min.getX() ? RotateDirection.SOUTH : RotateDirection.NORTH);
+            return engine.getX() == min.getX() ? RotateDirection.SOUTH : RotateDirection.NORTH;
         else
-            setOpenDir(engine.getZ() == min.getZ() ? RotateDirection.EAST : RotateDirection.WEST);
+            return engine.getZ() == min.getZ() ? RotateDirection.EAST : RotateDirection.WEST;
     }
 
     /**

@@ -152,10 +152,11 @@ public class Portcullis extends AbstractDoorBase
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
-        setOpenDir(RotateDirection.UP);
+        return RotateDirection.UP;
     }
 
     /**

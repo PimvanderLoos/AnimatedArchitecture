@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
-import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.Portcullis;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -12,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link EDoorType#PORTCULLIS}.
+ * Represents a user creating a {@link DoorTypePortcullis}.
  *
  * @author Pim
  **/
@@ -21,7 +23,17 @@ public class PortcullisCreator extends Creator
     public PortcullisCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                              final @Nullable String name)
     {
-        super(plugin, player, name, EDoorType.PORTCULLIS);
+        super(plugin, player, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
+    {
+        return new Portcullis(doorData, 0, 0, 0);
     }
 
     /**

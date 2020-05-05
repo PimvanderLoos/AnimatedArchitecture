@@ -2,10 +2,12 @@ package nl.pim16aap2.bigdoors.spigot.toolusers;
 
 
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
@@ -21,16 +23,19 @@ import org.jetbrains.annotations.Nullable;
 public class BigDoorCreator extends Creator
 {
     public BigDoorCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
-                          final @Nullable String name,
-                          final @NotNull EDoorType type)
-    {
-        super(plugin, player, name, type);
-    }
-
-    public BigDoorCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                           final @Nullable String name)
     {
-        this(plugin, player, name, EDoorType.BIGDOOR);
+        super(plugin, player, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
+    {
+        return new BigDoor(doorData, 0, 0, PBlockFace.EAST);
     }
 
     /**

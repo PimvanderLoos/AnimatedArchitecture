@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.FlagMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -49,21 +48,6 @@ public class Flag extends AbstractHorizontalAxisAlignedBase
         super(doorData);
         this.onNorthSouthAxis = onNorthSouthAxis;
         this.flagDirection = flagDirection;
-    }
-
-    @Deprecated
-    protected Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                   final @NotNull EDoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-        onNorthSouthAxis = false;
-        flagDirection = null;
-    }
-
-    @Deprecated
-    protected Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
-    {
-        this(pLogger, doorUID, doorData, EDoorType.FLAG);
     }
 
     /**
@@ -116,10 +100,11 @@ public class Flag extends AbstractHorizontalAxisAlignedBase
      * Because flags do not actually open in any direction, the open direction simply the same as {@link
      * #getCurrentDirection()}.
      */
+    @NotNull
     @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
-        setOpenDir(Util.getRotateDirection(getCurrentDirection()));
+        return Util.getRotateDirection(getCurrentDirection());
     }
 
     /**
@@ -167,14 +152,11 @@ public class Flag extends AbstractHorizontalAxisAlignedBase
     {
         if (!super.equals(o))
             return false;
+        
         if (getClass() != o.getClass())
             return false;
 
         final @NotNull Flag other = (Flag) o;
-
-        if (!flagDirection.equals(other.flagDirection)) System.out.println("FL: 1");
-        if (onNorthSouthAxis != other.onNorthSouthAxis) System.out.println("FL: 2");
-
         return flagDirection.equals(other.flagDirection) &&
             onNorthSouthAxis == other.onNorthSouthAxis;
     }
