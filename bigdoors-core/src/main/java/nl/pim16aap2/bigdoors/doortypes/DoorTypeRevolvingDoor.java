@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.RevolvingDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.jetbrains.annotations.NotNull;
@@ -7,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public final class DoorTypeRevolvingDoor extends DoorType
 {
@@ -25,8 +27,7 @@ public final class DoorTypeRevolvingDoor extends DoorType
 
     private DoorTypeRevolvingDoor()
     {
-        super(Constants.PLUGINNAME, "RevolvingDoor", TYPE_VERSION, PARAMETERS, RevolvingDoor::constructor,
-              RevolvingDoor::dataSupplier);
+        super(Constants.PLUGINNAME, "RevolvingDoor", TYPE_VERSION, PARAMETERS);
     }
 
     /**
@@ -40,4 +41,32 @@ public final class DoorTypeRevolvingDoor extends DoorType
         return instance;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                     final @NotNull Object... typeData)
+    {
+        final int qCircles = (int) typeData[0];
+        return Optional.of(new RevolvingDoor(doorData,
+                                             qCircles));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    {
+        if (!(door instanceof RevolvingDoor))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for an RevolvingDoor from type: " +
+                    door.getDoorType().toString());
+
+        final @NotNull RevolvingDoor revolvingDoor = (RevolvingDoor) door;
+        return new Object[]{revolvingDoor.getQuarterCircles()};
+    }
 }

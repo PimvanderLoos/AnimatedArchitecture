@@ -15,8 +15,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * Represents a DrawBrige doorType.
  *
@@ -48,40 +46,6 @@ public class Drawbridge extends AbstractHorizontalAxisAlignedBase
      * TRUE)</b> or down <b>(= FALSE)</b>
      */
     protected boolean modeUp = true;
-
-    @NotNull
-    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
-                                                         final @NotNull Object... args)
-        throws Exception
-    {
-        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) args[2]);
-        if (currentDirection == null)
-            return Optional.empty();
-
-        final int autoCloseTimer = (int) args[0];
-        final int autoOpenTimer = (int) args[1];
-
-        final boolean modeUP = ((int) args[3]) == 1;
-        return Optional.of(new Drawbridge(doorData,
-                                          autoCloseTimer,
-                                          autoOpenTimer,
-                                          currentDirection,
-                                          modeUP));
-    }
-
-    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
-        throws IllegalArgumentException
-    {
-        if (!(door instanceof Drawbridge))
-            throw new IllegalArgumentException(
-                "Trying to get the type-specific data for a Drawbridge from type: " + door.getDoorType().toString());
-
-        final @NotNull Drawbridge drawbridge = (Drawbridge) door;
-        return new Object[]{drawbridge.autoCloseTime,
-                            drawbridge.autoOpenTime,
-                            PBlockFace.getValue(drawbridge.currentDirection),
-                            drawbridge.isModeUp() ? 1 : 0};
-    }
 
     public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
                       final PBlockFace currentDirection, final boolean modeUp)

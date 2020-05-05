@@ -6,8 +6,6 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * Represents an Elevator doorType.
  *
@@ -17,34 +15,6 @@ import java.util.Optional;
 public class Elevator extends Portcullis
 {
     private static final DoorType DOOR_TYPE = DoorTypeElevator.get();
-
-    @NotNull
-    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
-                                                         final @NotNull Object... args)
-        throws Exception
-    {
-        final int blocksToMove = (int) args[0];
-        final int autoCloseTimer = (int) args[1];
-        final int autoOpenTimer = (int) args[2];
-
-        return Optional.of(new Elevator(doorData,
-                                        blocksToMove,
-                                        autoCloseTimer,
-                                        autoOpenTimer));
-    }
-
-    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
-        throws IllegalArgumentException
-    {
-        if (!(door instanceof Elevator))
-            throw new IllegalArgumentException(
-                "Trying to get the type-specific data for an Elevator from type: " + door.getDoorType().toString());
-
-        final @NotNull Elevator elevator = (Elevator) door;
-        return new Object[]{elevator.blocksToMove,
-                            elevator.autoCloseTime,
-                            elevator.autoOpenTime};
-    }
 
     public Elevator(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
                     final int autoOpenTime)

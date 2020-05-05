@@ -12,8 +12,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * Represents a Revolving Door doorType.
  *
@@ -28,27 +26,6 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
      */
     private int quarterCircles = 1;
-
-    @NotNull
-    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
-                                                         final @NotNull Object... args)
-        throws Exception
-    {
-        final int qCircles = (int) args[0];
-        return Optional.of(new RevolvingDoor(doorData, qCircles));
-    }
-
-    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
-        throws IllegalArgumentException
-    {
-        if (!(door instanceof RevolvingDoor))
-            throw new IllegalArgumentException(
-                "Trying to get the type-specific data for an RevolvingDoor from type: " +
-                    door.getDoorType().toString());
-
-        final @NotNull RevolvingDoor revolvingDoor = (RevolvingDoor) door;
-        return new Object[]{revolvingDoor.getQuarterCircles()};
-    }
 
     public RevolvingDoor(final @NotNull DoorData doorData, final int quarterCircles)
     {
@@ -143,7 +120,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     {
         if (!super.equals(o))
             return false;
-        
+
         if (getClass() != o.getClass())
             return false;
 

@@ -17,8 +17,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * Represents a Sliding Door doorType.
  *
@@ -44,35 +42,6 @@ public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
      * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}.
      */
     protected int autoOpenTime;
-
-
-    @NotNull
-    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
-                                                         final @NotNull Object... args)
-        throws Exception
-    {
-        final int blocksToMove = (int) args[0];
-        final int autoCloseTimer = (int) args[1];
-        final int autoOpenTimer = (int) args[2];
-
-        return Optional.of(new SlidingDoor(doorData,
-                                           blocksToMove,
-                                           autoCloseTimer,
-                                           autoOpenTimer));
-    }
-
-    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
-        throws IllegalArgumentException
-    {
-        if (!(door instanceof SlidingDoor))
-            throw new IllegalArgumentException(
-                "Trying to get the type-specific data for an SlidingDoor from type: " + door.getDoorType().toString());
-
-        final @NotNull SlidingDoor slidingDoor = (SlidingDoor) door;
-        return new Object[]{slidingDoor.blocksToMove,
-                            slidingDoor.autoCloseTime,
-                            slidingDoor.autoOpenTime};
-    }
 
     public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
                        final int autoOpenTime)

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Portcullis;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.jetbrains.annotations.NotNull;
@@ -7,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public final class DoorTypePortcullis extends DoorType
 {
@@ -27,8 +29,7 @@ public final class DoorTypePortcullis extends DoorType
 
     private DoorTypePortcullis()
     {
-        super(Constants.PLUGINNAME, "Portcullis", TYPE_VERSION, PARAMETERS, Portcullis::constructor,
-              Portcullis::dataSupplier);
+        super(Constants.PLUGINNAME, "Portcullis", TYPE_VERSION, PARAMETERS);
     }
 
     /**
@@ -42,4 +43,38 @@ public final class DoorTypePortcullis extends DoorType
         return instance;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                     final @NotNull Object... typeData)
+    {
+        final int blocksToMove = (int) typeData[0];
+        final int autoCloseTimer = (int) typeData[1];
+        final int autoOpenTimer = (int) typeData[2];
+
+        return Optional.of(new Portcullis(doorData,
+                                          blocksToMove,
+                                          autoCloseTimer,
+                                          autoOpenTimer));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    {
+        if (!(door instanceof Portcullis))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for an Portcullis from type: " + door.getDoorType().toString());
+
+        final @NotNull Portcullis portcullis = (Portcullis) door;
+        return new Object[]{portcullis.getBlocksToMove(),
+                            portcullis.getAutoCloseTimer(),
+                            portcullis.getAutoOpenTimer()};
+    }
 }

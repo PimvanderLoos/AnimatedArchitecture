@@ -15,8 +15,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * Represents a Big Door doorType.
  *
@@ -30,37 +28,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     protected int autoCloseTime = 0;
     protected int autoOpenTime = 0;
     protected PBlockFace currentDirection;
-
-    @NotNull
-    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
-                                                         final @NotNull Object... args)
-        throws Exception
-    {
-        final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) args[2]);
-        if (currentDirection == null)
-            return Optional.empty();
-
-        final int autoCloseTimer = (int) args[0];
-        final int autoOpenTimer = (int) args[1];
-
-        return Optional.of(new BigDoor(doorData,
-                                       autoCloseTimer,
-                                       autoOpenTimer,
-                                       currentDirection));
-    }
-
-    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
-        throws IllegalArgumentException
-    {
-        if (!(door instanceof BigDoor))
-            throw new IllegalArgumentException(
-                "Trying to get the type-specific data for a BigDoor from type: " + door.getDoorType().toString());
-
-        final @NotNull BigDoor bigDoor = (BigDoor) door;
-        return new Object[]{bigDoor.getAutoCloseTimer(),
-                            bigDoor.getAutoOpenTimer(),
-                            PBlockFace.getValue(bigDoor.getCurrentDirection())};
-    }
 
     public BigDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
                    final @NotNull PBlockFace currentDirection)

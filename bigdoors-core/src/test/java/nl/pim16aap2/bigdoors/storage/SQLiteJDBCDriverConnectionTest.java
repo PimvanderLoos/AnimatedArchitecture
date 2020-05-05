@@ -314,7 +314,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         AbstractDoorBase.DoorData doorData;
 
         int doorUID = 15;
-        final boolean isOpen = false;
+        boolean isOpen = false;
+        boolean isLocked = true;
         final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
         final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
         final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
@@ -327,10 +328,14 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         int idx = 0;
         for (final @NotNull DoorType doorType : registeredDoorTypes)
         {
+            isOpen = !isOpen;
+            if (isOpen)
+                isLocked = !isLocked;
+
             final @NotNull String name = "DOORTYPETEST_" + doorType.toString();
             final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player4);
             doorData = new AbstractDoorBase.DoorData(doorUID++, name, min, max, engine, powerBlock, world,
-                                                     isOpen, RotateDirection.EAST, doorOwner, false);
+                                                     isOpen, RotateDirection.EAST, doorOwner, isLocked);
 
             final @NotNull Object[] typeData = new Object[doorType.getParameterCount()];
             int parameterIDX = 0;

@@ -14,8 +14,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * Represents a Clock doorType.
  *
@@ -47,30 +45,6 @@ public class Clock extends AbstractHorizontalAxisAlignedBase
      * work for {@link Clock}s that have arms that are more than 1 block deep.
      */
     protected PBlockFace hourArmSide;
-
-    @NotNull
-    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
-                                                         final @NotNull Object... args)
-        throws Exception
-    {
-        @Nullable final PBlockFace hourArmSide = PBlockFace.valueOf((int) args[1]);
-        if (hourArmSide == null)
-            return Optional.empty();
-
-        final boolean onNorthSouthAxis = ((int) args[0]) == 1;
-        return Optional.of(new Clock(doorData, onNorthSouthAxis, hourArmSide));
-    }
-
-    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
-        throws IllegalArgumentException
-    {
-        if (!(door instanceof Clock))
-            throw new IllegalArgumentException(
-                "Trying to get the type-specific data for a Clock from type: " + door.getDoorType().toString());
-
-        final @NotNull Clock clock = (Clock) door;
-        return new Object[]{clock.getOnNorthSouthAxis() ? 1 : 0, PBlockFace.getValue(clock.getHourArmSide())};
-    }
 
     public Clock(final @NotNull DoorData doorData, final boolean onNorthSouthAxis,
                  final @NotNull PBlockFace hourArmSide)

@@ -2,8 +2,6 @@ package nl.pim16aap2.bigdoors.doortypes;
 
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
-import nl.pim16aap2.bigdoors.util.Functional.CheckedBiFunction;
-import nl.pim16aap2.bigdoors.util.Functional.CheckedFunction;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +14,7 @@ import java.util.Optional;
  *
  * @author Pim
  */
-public class DoorType
+public abstract class DoorType
 {
     @NotNull
     protected final String pluginName;
@@ -26,41 +24,55 @@ public class DoorType
     @NotNull
     protected final List<Parameter> parameters;
     @NotNull
-    protected final CheckedBiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>, Exception> constructor;
-    @NotNull
-    protected final CheckedFunction<AbstractDoorBase, Object[], IllegalArgumentException> dataSupplier;
-    @NotNull
     protected final String translationName;
 
     /**
      * Constructs a new {@link DoorType}. Don't forget to register it using {@link DoorTypeManager#registerDoorType(DoorType)}.
      *
-     * @param pluginName   The name of the plugin that owns this {@link DoorType}.
-     * @param typeName     The name of this {@link DoorType}.
-     * @param typeVersion  The version of this {@link DoorType}. Note that changing the version results in a completely
-     *                     new {@link DoorType}, as far as the database is concerned. This fact can be used if the
-     *                     parameters of the constructor for this type need to be changed.
-     * @param parameters   List of {@link Parameter}s that describe which information is stored that is specific to this
-     *                     {@link DoorType}. Do not include {@link AbstractDoorBase.DoorData}.
-     * @param constructor  The factory method of the {@link DoorType}. This is what will be used to instantiate all
-     *                     obects of this {@link DoorType}. Note that the order of the objects is defined by {@link
-     *                     #parameters}.
-     * @param dataSupplier The supplier that is used to retrieve all the data defined in {@link #parameters}. These
-     *                     objects have to be in the same order!
+     * @param pluginName  The name of the plugin that owns this {@link DoorType}.
+     * @param typeName    The name of this {@link DoorType}.
+     * @param typeVersion The version of this {@link DoorType}. Note that changing the version results in a completely
+     *                    new {@link DoorType}, as far as the database is concerned. This fact can be used if the
+     *                    parameters of the constructor for this type need to be changed.
+     * @param parameters  List of {@link Parameter}s that describe which information is stored that is specific to this
+     *                    {@link DoorType}. Do not include {@link AbstractDoorBase.DoorData}.
      */
     protected DoorType(final @NotNull String pluginName, final @NotNull String typeName, final int typeVersion,
-                       final @NotNull List<Parameter> parameters,
-                       final @NotNull CheckedBiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>, Exception> constructor,
-                       final @NotNull CheckedFunction<AbstractDoorBase, Object[], IllegalArgumentException> dataSupplier)
+                       final @NotNull List<Parameter> parameters)
     {
         this.pluginName = pluginName;
         this.typeName = typeName;
         this.typeVersion = typeVersion;
         this.parameters = parameters;
-        this.constructor = constructor;
-        this.dataSupplier = dataSupplier;
         translationName = "DoorType_" + toString();
     }
+
+    /**
+     * Instantiates a new {@link AbstractDoorBase} associated with this type.
+     *
+     * @param doorData The {@link AbstractDoorBase.DoorData} to instantiate the base door.
+     * @param typeData The type-specific data for this {@link DoorType}. Must be in the order as defined by {@link
+     *                 #getParameters()}.
+     * @return A new {@link AbstractDoorBase} if one could be instantiated.
+     *
+     * @throws Exception
+     */
+    protected abstract Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                              final @NotNull Object... typeData)
+        throws Exception;
+
+    /**
+     * Generates the type-specific data for this door type. Note that the data must be ordered in the same way as {@link
+     * #getParameters()}.
+     *
+     * @param door The {@link AbstractDoorBase} to generate the data for.
+     * @return An array of objects containing the type-specific data.
+     *
+     * @throws Exception
+     */
+    @NotNull
+    protected abstract Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+        throws Exception;
 
     /**
      * Obtains the value of this type that represents the key in the translation system.
@@ -118,7 +130,7 @@ public class DoorType
 
     /**
      * Obtains all {@link Parameter}s used by this {@link DoorType}. Note that the order of the parameters must be the
-     * same as the objects listed in {@link #constructor}.
+     * same as the objects listed in {@link #instantiate(AbstractDoorBase.DoorData, Object...)}.
      *
      * @return A list of all {@link Parameter}s used by this {@link DoorType}.
      */
@@ -136,18 +148,6 @@ public class DoorType
     public final int getParameterCount()
     {
         return parameters.size();
-    }
-
-    /**
-     * Obtains the constructor for this {@link DoorType}. Note that the order of the array of objects must be the same
-     * as {@link #parameters}.
-     *
-     * @return The constructor used to construct an object of this {@link DoorType}.
-     */
-    @NotNull
-    protected final CheckedBiFunction<AbstractDoorBase.DoorData, Object[], Optional<AbstractDoorBase>, Exception> getConstructor()
-    {
-        return constructor;
     }
 
     /**
@@ -169,24 +169,13 @@ public class DoorType
         }
         try
         {
-            return getConstructor().apply(doorData, typeData);
+            return instantiate(doorData, typeData);
         }
         catch (Exception e)
         {
             PLogger.get().logException(e);
         }
         return Optional.empty();
-    }
-
-    /**
-     * Obtains the supplier of the data used by this {@link DoorType}.
-     *
-     * @return The data supplier of this {@link DoorType}.
-     */
-    @NotNull
-    protected final CheckedFunction<AbstractDoorBase, Object[], IllegalArgumentException> getDataSupplier()
-    {
-        return dataSupplier;
     }
 
     /**
@@ -199,7 +188,7 @@ public class DoorType
     {
         try
         {
-            return Optional.of(getDataSupplier().apply(door));
+            return Optional.of(generateTypeData(door));
         }
         catch (Exception e)
         {

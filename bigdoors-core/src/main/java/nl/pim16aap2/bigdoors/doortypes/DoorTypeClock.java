@@ -1,12 +1,16 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Clock;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public final class DoorTypeClock extends DoorType
 {
@@ -26,7 +30,7 @@ public final class DoorTypeClock extends DoorType
 
     private DoorTypeClock()
     {
-        super(Constants.PLUGINNAME, "Clock", TYPE_VERSION, PARAMETERS, Clock::constructor, Clock::dataSupplier);
+        super(Constants.PLUGINNAME, "Clock", TYPE_VERSION, PARAMETERS);
     }
 
     /**
@@ -40,4 +44,37 @@ public final class DoorTypeClock extends DoorType
         return instance;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                     final @NotNull Object... typeData)
+    {
+        @Nullable final PBlockFace hourArmSide = PBlockFace.valueOf((int) typeData[1]);
+        if (hourArmSide == null)
+            return Optional.empty();
+
+        final boolean onNorthSouthAxis = ((int) typeData[0]) == 1;
+        return Optional.of(new Clock(doorData,
+                                     onNorthSouthAxis,
+                                     hourArmSide));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    {
+        if (!(door instanceof Clock))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for a Clock from type: " + door.getDoorType().toString());
+
+        final @NotNull Clock clock = (Clock) door;
+        return new Object[]{clock.getOnNorthSouthAxis() ? 1 : 0,
+                            PBlockFace.getValue(clock.getHourArmSide())};
+    }
 }

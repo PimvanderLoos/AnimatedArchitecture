@@ -1,12 +1,16 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Flag;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public final class DoorTypeFlag extends DoorType
 {
@@ -26,7 +30,7 @@ public final class DoorTypeFlag extends DoorType
 
     private DoorTypeFlag()
     {
-        super(Constants.PLUGINNAME, "Flag", TYPE_VERSION, PARAMETERS, Flag::constructor, Flag::dataSupplier);
+        super(Constants.PLUGINNAME, "Flag", TYPE_VERSION, PARAMETERS);
     }
 
     /**
@@ -40,4 +44,37 @@ public final class DoorTypeFlag extends DoorType
         return instance;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                     final @NotNull Object... typeData)
+    {
+        @Nullable final PBlockFace flagDirection = PBlockFace.valueOf((int) typeData[1]);
+        if (flagDirection == null)
+            return Optional.empty();
+
+        final boolean onNorthSouthAxis = ((int) typeData[0]) == 1;
+        return Optional.of(new Flag(doorData,
+                                    onNorthSouthAxis,
+                                    flagDirection));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    {
+        if (!(door instanceof Flag))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for a Flag from type: " + door.getDoorType().toString());
+
+        final @NotNull Flag flag = (Flag) door;
+        return new Object[]{flag.getOnNorthSouthAxis() ? 1 : 0,
+                            PBlockFace.getValue(flag.getFlagDirection())};
+    }
 }

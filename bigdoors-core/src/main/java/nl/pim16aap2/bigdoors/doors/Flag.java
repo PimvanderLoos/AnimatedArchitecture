@@ -15,8 +15,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * Represents a Flag doorType.
  *
@@ -44,33 +42,6 @@ public class Flag extends AbstractHorizontalAxisAlignedBase
      */
     @NotNull
     protected final PBlockFace flagDirection;
-
-    @NotNull
-    public static Optional<AbstractDoorBase> constructor(final @NotNull DoorData doorData,
-                                                         final @NotNull Object... args)
-        throws Exception
-    {
-        @Nullable final PBlockFace flagDirection = PBlockFace.valueOf((int) args[1]);
-        if (flagDirection == null)
-            return Optional.empty();
-
-        final boolean onNorthSouthAxis = ((int) args[0]) == 1;
-        return Optional.of(new Flag(doorData,
-                                    onNorthSouthAxis,
-                                    flagDirection));
-    }
-
-    public static Object[] dataSupplier(final @NotNull AbstractDoorBase door)
-        throws IllegalArgumentException
-    {
-        if (!(door instanceof Flag))
-            throw new IllegalArgumentException(
-                "Trying to get the type-specific data for a Flag from type: " + door.getDoorType().toString());
-
-        final @NotNull Flag flag = (Flag) door;
-        return new Object[]{flag.getOnNorthSouthAxis() ? 1 : 0,
-                            PBlockFace.getValue(flag.getFlagDirection())};
-    }
 
     public Flag(final @NotNull DoorData doorData, final boolean onNorthSouthAxis,
                 final @NotNull PBlockFace flagDirection)

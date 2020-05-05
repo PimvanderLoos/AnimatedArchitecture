@@ -1,12 +1,16 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public final class DoorTypeBigDoor extends DoorType
 {
@@ -27,7 +31,7 @@ public final class DoorTypeBigDoor extends DoorType
 
     private DoorTypeBigDoor()
     {
-        super(Constants.PLUGINNAME, "BigDoor", TYPE_VERSION, PARAMETERS, BigDoor::constructor, BigDoor::dataSupplier);
+        super(Constants.PLUGINNAME, "BigDoor", TYPE_VERSION, PARAMETERS);
     }
 
     /**
@@ -39,5 +43,45 @@ public final class DoorTypeBigDoor extends DoorType
     public static DoorTypeBigDoor get()
     {
         return instance;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                     final @NotNull Object... typeData)
+        throws Exception
+    {
+        final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) typeData[2]);
+        if (currentDirection == null)
+            return Optional.empty();
+
+        final int autoCloseTimer = (int) typeData[0];
+        final int autoOpenTimer = (int) typeData[1];
+
+        return Optional.of(new BigDoor(doorData,
+                                       autoCloseTimer,
+                                       autoOpenTimer,
+                                       currentDirection));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+        throws Exception
+    {
+        if (!(door instanceof BigDoor))
+            throw new IllegalArgumentException(
+                "Trying to get the type-specific data for a BigDoor from type: " + door.getDoorType().toString());
+
+        final @NotNull BigDoor bigDoor = (BigDoor) door;
+        return new Object[]{bigDoor.getAutoCloseTimer(),
+                            bigDoor.getAutoOpenTimer(),
+                            PBlockFace.getValue(bigDoor.getCurrentDirection())};
     }
 }
