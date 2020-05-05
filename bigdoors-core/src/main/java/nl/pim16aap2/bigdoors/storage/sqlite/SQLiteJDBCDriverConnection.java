@@ -607,7 +607,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         if (doorTypeID == -1)
         {
             PLogger.get()
-                   .logException(new SQLException("Could find DoorType: " + door.getDoorType().toString()));
+                   .logException(new SQLException("Could not find DoorType: " + door.getDoorType().toString()));
             return false;
         }
 

@@ -172,9 +172,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Handles a change in redstone current for this door's powerblock.
-     *
-     * @param newCurrent The new current of the powerblock.
+     * {@inheritDoc}
      */
     @Override
     public final void onRedstoneChange(final int newCurrent)
@@ -203,22 +201,8 @@ public abstract class AbstractDoorBase implements IDoorBase
                                                final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax,
                                                final @Nullable IPPlayer initiator);
 
-
     /**
-     * Cycle the {@link RotateDirection} direction this {@link AbstractDoorBase} will open in. By default it'll set and
-     * return the opposite direction of the current direction.
-     *
-     * @return The new {@link RotateDirection} direction this {@link AbstractDoorBase} will open in.
-     */
-    @Override
-    @NotNull
-    public abstract RotateDirection cycleOpenDirection();
-
-    /**
-     * Calculates the Min and Max coordinates of the range of Vector2Dis that this {@link AbstractDoorBase} might
-     * currently exists in.
-     *
-     * @return 2 {@link Vector2Di}. Min and Max coordinates of Vector2Dis in current range.
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -232,24 +216,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Find out the default open direction for the current setup and use {@link #setOpenDir(RotateDirection)} to set the
-     * open direction to the default one. Useful when trying to open a {@link AbstractDoorBase} before an open direction
-     * was set.
-     * <p>
-     * There is no universal default because the default depends on the type and current orientation of the door.
-     * <p>
-     * The openDirection is guaranteed to not be null or NONE after running this method. A type may look for a direction
-     * that isn't blocked, but that is not guaranteed.
-     */
-    @Override
-    public abstract void setDefaultOpenDirection();
-
-    /**
-     * Check if a provided Vector2Di is in range of the door. Range in this case refers to all Vector2Dis this {@link
-     * AbstractDoorBase} could potentially occupy using animated blocks.
-     *
-     * @param chunk The chunk to check
-     * @return True if the Vector2Di is in range of the door.
+     * {@inheritDoc}
      */
     @Override
     public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2Di chunk)
@@ -278,9 +245,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the name of this door.
-     *
-     * @return The name of this door.
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -290,9 +255,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Change the name of the door.
-     *
-     * @param name The new name of this door.
+     * {@inheritDoc}
      */
     @Override
     public final void setName(final @NotNull String name)
@@ -301,9 +264,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the IPWorld this {@link AbstractDoorBase} exists in.
-     *
-     * @return The IPWorld this {@link AbstractDoorBase} exists in
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -313,9 +274,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the UID of the {@link AbstractDoorBase} as used in the database. Guaranteed to be unique and available.
-     *
-     * @return The UID of the {@link AbstractDoorBase} as used in the database.
+     * {@inheritDoc}
      */
     @Override
     public final long getDoorUID()
@@ -324,9 +283,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Check if the {@link AbstractDoorBase} is currently locked. When locked, doors cannot be opened.
-     *
-     * @return True if the {@link AbstractDoorBase} is locked
+     * {@inheritDoc}
      */
     @Override
     public final boolean isLocked()
@@ -335,9 +292,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Check if the {@link AbstractDoorBase} is currently open.
-     *
-     * @return True if the {@link AbstractDoorBase} is open
+     * {@inheritDoc}
      */
     @Override
     public final boolean isOpen()
@@ -346,12 +301,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the UUID of the current owner of the {@link AbstractDoorBase} if possible. Not that there can be multiple
-     * owners with varying permissions, so this method isn't guaranteed to return the owner.
-     * <p>
-     * Returns null if the owner of the {@link AbstractDoorBase} wasn't set.
-     *
-     * @return The UUID of the current owner if available
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -368,10 +318,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the permission level of the current owner of the door. If the owner wasn't set (as explained at {@link
-     * #getPlayerUUID()}, -1 is returned.
-     *
-     * @return The permission of the current owner if available, -1 otherwise
+     * {@inheritDoc}
      */
     @Override
     public final int getPermission()
@@ -390,11 +337,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Change the direction the {@link AbstractDoorBase} will open in.
-     * <p>
-     * Also calls {@link #invalidateChunkRange()}.
-     *
-     * @param newRotDir New {@link RotateDirection} direction the {@link AbstractDoorBase} will open in.
+     * {@inheritDoc}
      */
     @Override
     public final void setOpenDir(final @NotNull RotateDirection newRotDir)
@@ -411,9 +354,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Change the open-status of this door. True if open, False if closed.
-     *
-     * @param bool The new open-status of the door.
+     * {@inheritDoc}
      */
     @Override
     public final void setOpenStatus(final boolean bool)
@@ -452,11 +393,9 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Change the 'minimum' IPLocation of this {@link AbstractDoorBase} to a copy of the provided IPLocation.
+     * {@inheritDoc}
      * <p>
      * Triggers {@link #onCoordsUpdate()}.
-     *
-     * @param loc The new minimum IPLocation to copy
      */
     @Override
     public final void setMinimum(final @NotNull Vector3Di loc)
@@ -466,9 +405,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get a copy of the maximum IPLocation of this door.
-     *
-     * @return A copy of the maximum IPLocation of this door.
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -478,11 +415,9 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Change the 'maximum' IPLocation of this {@link AbstractDoorBase} to a copy of the provided IPLocation.
+     * {@inheritDoc}
      * <p>
      * Triggers {@link #onCoordsUpdate()}.
-     *
-     * @param loc The new maximum IPLocation to copy.
      */
     @Override
     public final void setMaximum(final @NotNull Vector3Di loc)
@@ -514,11 +449,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get the the Vector2Di coordinates of the min and max Vector2Dis that are in range of this door.
-     * <p>
-     * [0] contains the lower bound chunk coordinates, [1] contains the upper bound chunk coordinates.
-     *
-     * @return The Vector2Di coordinates of the min and max Vector2Dis in range of this door.
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -554,11 +485,9 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Changes the location of the engine.
+     * {@inheritDoc}
      * <p>
      * Triggers {@link #onCoordsUpdate()}.
-     *
-     * @param loc The new location of the engine location to copy.
      */
     @Override
     public final void setEngineLocation(final @NotNull Vector3Di loc)
@@ -568,11 +497,9 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Change the IPLocation of the power block to a copy of the provided IPLocation.
+     * {@inheritDoc}
      * <p>
      * Triggers {@link #onCoordsUpdate()}.
-     *
-     * @param loc The new location of the power block location to copy.
      */
     @Override
     public final void setPowerBlockLocation(final @NotNull Vector3Di loc)
@@ -582,9 +509,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Changes the lock status of this door. Locked doors cannot be opened.
-     *
-     * @param lock New lock status.
+     * {@inheritDoc}
      */
     @Override
     public final void setLock(final boolean lock)
@@ -593,9 +518,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Change the doorOwner of this door.
-     *
-     * @param doorOwner The new {@link DoorOwner} doorOwner of this door
+     * {@inheritDoc}
      */
     @Override
     public final void setDoorOwner(final @NotNull DoorOwner doorOwner)
@@ -604,9 +527,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Gets the owner of this door.
-     *
-     * @return The owner of this door.
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -616,9 +537,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Calculate in which Vector2Di the power block of this {@link AbstractDoorBase} resides in.
-     *
-     * @return The Vector2Di the power block of this {@link AbstractDoorBase} resides in.
+     * {@inheritDoc}
      */
     @NotNull
     private Vector2Di calculateEngineChunk()
@@ -627,12 +546,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Retrieve the Vector2Di the power block of this {@link AbstractDoorBase} resides in. If not
-     * calculated/invalidated, {@link #calculateEngineChunk()} is called to (re)calculate it.
-     * <p>
-     * It's calculated once and then stored until invalidated by {@link #invalidateCoordsDependents()}.
-     *
-     * @return The Vector2Di the power block of this {@link AbstractDoorBase} resides in.
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -652,12 +566,9 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Retrieve the total number of blocks this {@link AbstractDoorBase} is made out of. If not calculated/invalidated,
-     * {@link #calculateBlockCount()} is called to (re)calculate it.
+     * {@inheritDoc}
      * <p>
-     * It's calculated once and then stored until invalidated by {@link #invalidateCoordsDependents()}.
-     *
-     * @return Total number of blocks this {@link AbstractDoorBase} is made out of.
+     * It can be invalidated by {@link #invalidateCoordsDependents()}.
      */
     @Override
     public final int getBlockCount()
@@ -666,12 +577,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Gets the dimensions of this door.
-     * <p>
-     * If a door has a min and max X value of 120, for example, it would have a X-dimension of 0. If the min X value is
-     * 119 instead, it would have an X-dimension of 1.
-     *
-     * @return The dimensions of this door.
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -681,7 +587,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * @return The simple hash of the chunk in which the power block resides.
+     * {@inheritDoc}
      */
     @Override
     public final long getSimplePowerBlockChunkHash()
@@ -696,9 +602,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Get basic information of this door: uid, permission, and name.
-     *
-     * @return Basic {@link AbstractDoorBase} info
+     * {@inheritDoc}
      */
     @Override
     @NotNull
@@ -748,7 +652,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * POD class that stores all the data needed for basic door intialization.
+     * POD class that stores all the data needed for basic door initialization.
      *
      * @author Pim
      */

@@ -30,6 +30,7 @@ import nl.pim16aap2.bigdoors.doors.Portcullis;
 import nl.pim16aap2.bigdoors.doors.RevolvingDoor;
 import nl.pim16aap2.bigdoors.doors.SlidingDoor;
 import nl.pim16aap2.bigdoors.doors.Windmill;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeClock;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
@@ -149,12 +150,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private Messages messages;
     private DatabaseManager databaseManager = null;
 
-    private boolean validVersion;
+    private boolean validVersion = false;
     private CommandManager commandManager;
     private Map<UUID, WaitForCommand> cmdWaiters;
     private Map<UUID, ToolUser> toolUsers;
     private Map<UUID, GUI> playerGUIs;
-    private Set<IRestartable> restartables = new HashSet<>();
+    private final Set<IRestartable> restartables = new HashSet<>();
     private ProtectionCompatManagerSpigot protCompatMan;
     private LoginResourcePackListener rPackHandler;
     private VaultManager vaultManager;
@@ -166,13 +167,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private AbortableTaskManager abortableTaskManager;
 
     @NotNull
-    private IPLocationFactory locationFactory = new PLocationFactorySpigot();
+    private final IPLocationFactory locationFactory = new PLocationFactorySpigot();
     @NotNull
-    private IPWorldFactory worldFactory = new PWorldFactorySpigot();
+    private final IPWorldFactory worldFactory = new PWorldFactorySpigot();
     @NotNull
-    private IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
+    private final IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
     @NotNull
-    private ISoundEngine soundEngine = new PSoundEngineSpigot();
+    private final ISoundEngine soundEngine = new PSoundEngineSpigot();
     @NotNull
     private final IMessagingInterface messagingInterface = new MessagingInterfaceSpigot(this);
     @NotNull
@@ -210,6 +211,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                                    + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
                                             .split(",")[3])
                                    + "\"). This plugin will NOT be enabled!");
+                disablePlugin();
                 return;
             }
 
@@ -226,7 +228,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             {
                 PLogger.get().severe("Failed to load database! Found it in the state: " + databaseState.name() +
                                          ". Plugin initialization has been aborted!");
-                successfulInit = false;
+                disablePlugin();
                 return;
             }
 
@@ -253,7 +255,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
             pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
 
-            TEST();
+//            TEST();
         }
         catch (Exception exception)
         {
@@ -262,41 +264,81 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         }
     }
 
+    /**
+     * Disables this plugin.
+     */
+    private void disablePlugin()
+    {
+        successfulInit = false;
+        Bukkit.getPluginManager().disablePlugin(this);
+    }
+
+    /**
+     * Registers all BigDoor's own door types.
+     *
+     * @return True if all doors were registered successfully.
+     */
     private void registerDoorTypes()
     {
-        DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeClock.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeElevator.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeFlag.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeGarageDoor.get());
-        DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get());
+        for (DoorType type : new DoorType[]{DoorTypeBigDoor.get(), DoorTypeClock.get(), DoorTypeDrawbridge.get(),
+                                            DoorTypeElevator.get(), DoorTypeFlag.get(), DoorTypeGarageDoor.get(),
+                                            DoorTypePortcullis.get(), DoorTypeRevolvingDoor.get(),
+                                            DoorTypeSlidingDoor.get(), DoorTypeWindmill.get()})
+            registerDoorType(type);
+    }
+
+    /**
+     * Registers a {@link DoorType}
+     *
+     * @param type The {@link DoorType} to register.
+     */
+    private void registerDoorType(final @NotNull DoorType type)
+    {
+        DoorTypeManager.get().registerDoorType(type);
     }
 
     private void TEST()
     {
+        // Because the doortype registration is done asynchronously, it may not be ready yet when starting this test.
+        // Wait up to 1 second for them to finish (should be plenty of time).
+        int waitCycles = 0;
+        while (DoorTypeManager.get().getRegisteredDoorTypes().size() != 10)
+        {
+            try
+            {
+                Thread.sleep(100L);
+            }
+            catch (InterruptedException e)
+            {
+                PLogger.get().logException(e);
+                PLogger.get().severe("An error occurred! TEST aborted!");
+                return;
+            }
+            if (waitCycles++ == 10)
+            {
+                PLogger.get().severe("Timed out waiting for door types to be registered! TEST aborted!");
+                return;
+            }
+        }
+
         IPPlayer player1 = BigDoors.get().getPlatform().getPPlayerFactory()
                                    .create(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), "pim16aap2");
         IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
                                 .create(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360"));
 
-        AbstractDoorBase.DoorData doorData;
-        {
-            final int doorUID = 1;
-            final boolean isOpen = false;
-            final @NotNull String name = "massive1";
-            final @NotNull Vector3Di min = new Vector3Di(144, 75, 153);
-            final @NotNull Vector3Di max = new Vector3Di(144, 131, 167);
-            final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-            final @NotNull Vector3Di powerBlock = new Vector3Di(101, 101, 101);
-            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
+        final int doorUID = 1;
+        final boolean isOpen = false;
+        final @NotNull String name = "massive1";
+        final @NotNull Vector3Di min = new Vector3Di(144, 75, 153);
+        final @NotNull Vector3Di max = new Vector3Di(144, 131, 167);
+        final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
+        final @NotNull Vector3Di powerBlock = new Vector3Di(101, 101, 101);
+        final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
 
-            doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                     RotateDirection.EAST, doorOwner, false);
-        }
+        final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max,
+                                                                                          engine, powerBlock, world,
+                                                                                          isOpen, RotateDirection.EAST,
+                                                                                          doorOwner, false);
         final @NotNull BigDoor d01 = new BigDoor(doorData, 100, 0, PBlockFace.DOWN);
         final @NotNull Clock d02 = new Clock(doorData, false, PBlockFace.NORTH);
         final @NotNull Drawbridge d03 = new Drawbridge(doorData, 100, 0, PBlockFace.EAST, true);

@@ -308,6 +308,8 @@ public interface IDoorBase
 
     /**
      * Gets the the Vector2Di coordinates of the min and max Vector2Dis that are in range of this door.
+     * <p>
+     * [0] contains the lower bound chunk coordinates, [1] contains the upper bound chunk coordinates.
      *
      * @return The Vector2Di coordinates of the min and max Vector2Dis in range of this door.
      */

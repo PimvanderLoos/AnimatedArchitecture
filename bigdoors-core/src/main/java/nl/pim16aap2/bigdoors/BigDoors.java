@@ -109,16 +109,13 @@ import org.jetbrains.annotations.Nullable;
  */
 // TODO: DoorTypes currently need to be registered before BigDoors is initialized, so that they are put in the config.
 //       However, registering DoorTypes requires the DatabaseManager to exist, but it doesn't until halfway through
-//       BigDoor's initialization. Either delay DoorType registrations until the manager is online, or get the manager
-//       online before all data is available and delay requests there.
+//       BigDoor's initialization.
+//       Do not remove any invalid names from the list in the config, but store them in a map instead. Then match from
+//       that map when a new type is registered. If that value didn't exist yet, rewrite the config and add the value.
+//       When a type is unregistered, either remove them from the list and use the old value for the new one, or leave
+//       them there to avoid destroying user data.
 // TODO: Look into overriding Equals() properly for all the subtypes of the door.
 // TODO: Override toString for the subtypes of the doors. All the type's type-specific data should be printed as well.
-// TODO: Find a way to restrict access to all the "constructor" methods such as BigDoors#constructor(DoorData, Object[] ...)
-//       Only the construct method from DoorType should have access to it, as it is inherently unsafe. Furthermore,
-//       that would allow phasing it out for a strict type-casting method in the future.
-//       The same goes for the "dataSupplier" method. Centralizing it would allow getting rid of the code duplication
-//       checking if the class is correct and shit.
-// TODO: Clean up the duplicate JDocs in AbstractDoorBase. Check if the JDocs in IDoorBase are indeed exactly the same.
 // TODO: Make sure there aren't any errors on startup if the plugin folder doesn't exist.
 // TODO: Use reflection or something to hack Spigot's API-version to always use the currently-used API-version.
 // TODO: Add a new type of powerblock that locks/unlocks doors instead of toggling them.
