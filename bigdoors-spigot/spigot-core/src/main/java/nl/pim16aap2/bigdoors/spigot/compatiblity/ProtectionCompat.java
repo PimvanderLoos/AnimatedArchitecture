@@ -81,6 +81,19 @@ public enum ProtectionCompat
                 return GriefPreventionProtectionCompat.class;
             }
         },
+
+    LANDS("Lands")
+        {
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            @Nullable
+            public Class<? extends IProtectionCompat> getClass(final @NotNull String version)
+            {
+                return LandsProtectionCompat.class;
+            }
+        },
     ;
 
     private static final Map<String, ProtectionCompat> nameMap = new HashMap<>();
