@@ -1,4 +1,7 @@
 Alpha 0.1.8.17
+- Fixed bug with the latest version of Towny. Thanks, @Master, for the bug report!
+
+Alpha 0.1.8.17
 - Changed logging level of messages about no items being blacklisted or whitelisted from WARN to INFO. Thanks, @SlimeDog for the report!
 - Drawbridges will now figure out which way to open when created in their open-position (i.e. flat). Thanks, @BobbyMC for the report!
 - Fixed portcullises showing incorrect open direction options in the GUI. Thanks, @SlimeDog for the report!

@@ -106,15 +106,16 @@ public class ProtectionCompatManager implements Listener
      * player with the given UUID is not online, a fake-online player is created.
      *
      * @param playerUUID The {@link UUID} of the player to get.
+     * @param playerName The name of the player. Used in case the player isn't online.
      * @param world      The {@link World} the player is in.
      * @return An online {@link Player}. Either fake or real.
      * @see FakePlayerCreator
      */
-    private Player getPlayer(UUID playerUUID, World world)
+    private Player getPlayer(UUID playerUUID, String playerName, World world)
     {
         Player player = Bukkit.getPlayer(playerUUID);
         if (player == null)
-            player = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(playerUUID), world);
+            player = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(playerUUID), playerName, world);
         return player;
     }
 
@@ -122,16 +123,17 @@ public class ProtectionCompatManager implements Listener
      * Check if a player can break a block at a given location.
      *
      * @param playerUUID The {@link UUID} of the player to check for.
+     * @param playerName The name of the player. Used in case the player isn't online.
      * @param loc        The {@link Location} to check.
      * @return The name of the {@link IProtectionCompat} that objects, if any, or
      *         null if allowed by all compats.
      */
-    public String canBreakBlock(UUID playerUUID, Location loc)
+    public String canBreakBlock(UUID playerUUID, String playerName, Location loc)
     {
         if (protectionCompats.size() == 0)
             return null;
 
-        Player fakePlayer = getPlayer(playerUUID, loc.getWorld());
+        Player fakePlayer = getPlayer(playerUUID, playerName, loc.getWorld());
         if (canByPass(fakePlayer))
             return null;
 
@@ -154,17 +156,18 @@ public class ProtectionCompatManager implements Listener
      * Check if a player can break all blocks between two locations.
      *
      * @param playerUUID The {@link UUID} of the player to check for.
+     * @param playerName The name of the player. Used in case the player isn't online.
      * @param loc1       The start {@link Location} to check.
      * @param loc2       The end {@link Location} to check.
      * @return The name of the {@link IProtectionCompat} that objects, if any, or
      *         null if allowed by all compats.
      */
-    public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
+    public String canBreakBlocksBetweenLocs(UUID playerUUID, String playerName, Location loc1, Location loc2)
     {
         if (protectionCompats.size() == 0)
             return null;
 
-        Player fakePlayer = getPlayer(playerUUID, loc1.getWorld());
+        Player fakePlayer = getPlayer(playerUUID, playerName, loc1.getWorld());
         if (canByPass(fakePlayer))
             return null;
 

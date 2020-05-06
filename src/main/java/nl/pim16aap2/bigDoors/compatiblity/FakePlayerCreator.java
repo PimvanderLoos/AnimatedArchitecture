@@ -38,6 +38,7 @@ public class FakePlayerCreator
     private Constructor<?> EntityPlayerConstructor;
     private Constructor<?> PlayerInteractManagerConstructor;
     private Field uuid;
+    private Field playerNameVar;
 
     private final BigDoors plugin;
 
@@ -77,6 +78,9 @@ public class FakePlayerCreator
             uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
             uuid.setAccessible(true);
 
+            playerNameVar = GameProfile.class.getDeclaredField("name");
+            playerNameVar.setAccessible(true);
+
             World = getNMSClass("World");
             try
             {
@@ -98,12 +102,13 @@ public class FakePlayerCreator
     /**
      * Construct a fake-online {@link Player} from an {@link OfflinePlayer}.
      *
-     * @param oPlayer The {@link OfflinePlayer} to use as base for the fake online
-     *                {@link Player}.
-     * @param world   The world the fake {@link Player} is supposedly in.
+     * @param oPlayer    The {@link OfflinePlayer} to use as base for the fake online
+     *                   {@link Player}.
+     * @param playerName The name of the player.
+     * @param world      The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
-    public Player getFakePlayer(OfflinePlayer oPlayer, World world)
+    public Player getFakePlayer(OfflinePlayer oPlayer, String playerName, World world)
     {
         if (!success || oPlayer == null || world == null)
             return null;
@@ -114,6 +119,7 @@ public class FakePlayerCreator
         {
             Object coPlayer = CraftOfflinePlayer.cast(oPlayer);
             GameProfile gProfile = (GameProfile) getProfile.invoke(coPlayer);
+            playerNameVar.set(gProfile, playerName);
 
             Object craftServer = CraftWorld.cast(world);
             Object worldServer = getHandle.invoke(craftServer);

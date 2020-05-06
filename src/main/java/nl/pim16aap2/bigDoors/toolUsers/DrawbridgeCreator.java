@@ -222,7 +222,7 @@ public class DrawbridgeCreator extends ToolUser
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
-        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
+        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), player.getName(), loc);
         if (canBreakBlock != null)
         {
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);

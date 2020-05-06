@@ -23,7 +23,7 @@ public class PortcullisCreator extends ToolUser
     @Override
     protected void triggerGiveTool()
     {
-        giveToolToPlayer(messages.getString("CREATOR.PORTCULLIS.StickLore"    ).split("\n"),
+        giveToolToPlayer(messages.getString("CREATOR.PORTCULLIS.StickLore").split("\n"),
                          messages.getString("CREATOR.PORTCULLIS.StickReceived").split("\n"));
     }
 
@@ -57,7 +57,7 @@ public class PortcullisCreator extends ToolUser
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
         }
-        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), loc);
+        String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), player.getName(), loc);
         if (canBreakBlock != null)
         {
             Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);

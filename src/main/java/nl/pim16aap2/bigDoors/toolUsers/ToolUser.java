@@ -69,22 +69,25 @@ public abstract class ToolUser extends Abortable
     {
         if (isReadyToCreateDoor() && !aborting)
         {
-            World world     = one.getWorld();
-            Location min    = new Location(world, one.getBlockX(), one.getBlockY(), one.getBlockZ());
-            Location max    = new Location(world, two.getBlockX(), two.getBlockY(), two.getBlockZ());
-            Location engine = new Location(world, this.engine.getBlockX(), this.engine.getBlockY(), this.engine.getBlockZ());
-            Location powerB = new Location(world, this.engine.getBlockX(), this.engine.getBlockY() - 1, this.engine.getBlockZ());
+            World world = one.getWorld();
+            Location min = new Location(world, one.getBlockX(), one.getBlockY(), one.getBlockZ());
+            Location max = new Location(world, two.getBlockX(), two.getBlockY(), two.getBlockZ());
+            Location engine = new Location(world, this.engine.getBlockX(), this.engine.getBlockY(),
+                                           this.engine.getBlockZ());
+            Location powerB = new Location(world, this.engine.getBlockX(), this.engine.getBlockY() - 1,
+                                           this.engine.getBlockZ());
 
-            String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), min, max);
+            String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), player.getName(), min, max);
             if (canBreakBlock != null)
             {
-                Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
+                Util.messagePlayer(player,
+                                   messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
                 this.abort(false);
                 return;
             }
 
-            Door door = new Door(player.getUniqueId(), world, min, max, engine, name, isOpen, -1, false,
-                                 0, type, engineSide, powerB, openDir, -1);
+            Door door = new Door(player.getUniqueId(), player.getName(), world, min, max, engine, name, isOpen, -1,
+                                 false, 0, type, engineSide, powerB, openDir, -1);
 
             int doorSize = door.getBlockCount();
             int sizeLimit = Util.getLowestPositiveNumber(Util.getMaxDoorSizeForPlayer(player),

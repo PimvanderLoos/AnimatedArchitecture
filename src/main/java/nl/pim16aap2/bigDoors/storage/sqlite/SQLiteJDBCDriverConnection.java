@@ -300,7 +300,7 @@ public class SQLiteJDBCDriverConnection
 
                 // Disregard current open direction. It should be somewhat stored in the engineSide.
                 // When it is opened in the northern direction, the engineSide will be South, even when closed (= upright).
-                Door door = newDoorFromRS(rs, rs.getLong("id"), 0, null);
+                Door door = newDoorFromRS(rs, rs.getLong("id"), 0, null, null);
                 RotateDirection currentOpenDir = door.getOpenDir();
 
                 Opener opener = plugin.getDoorOpener(door.getType());
@@ -730,7 +730,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Construct a new door from a resultset.
-    private Door newDoorFromRS(final ResultSet rs, final long doorUID, final int permission, final UUID playerUUID)
+    private Door newDoorFromRS(final ResultSet rs, final long doorUID, final int permission, final UUID playerUUID, final String playerName)
     {
         try
         {
@@ -740,7 +740,7 @@ public class SQLiteJDBCDriverConnection
             Location engine = new Location(world, rs.getInt(DOOR_ENG_X),   rs.getInt(DOOR_ENG_Y),   rs.getInt(DOOR_ENG_Z));
             Location powerB = new Location(world, rs.getInt(DOOR_POWER_X), rs.getInt(DOOR_POWER_Y), rs.getInt(DOOR_POWER_Z));
 
-            Door door = new Door(playerUUID, world, min, max, engine, rs.getString(DOOR_NAME), (rs.getInt(DOOR_OPEN) == 1 ? true : false),
+            Door door = new Door(playerUUID, playerName, world, min, max, engine, rs.getString(DOOR_NAME), (rs.getInt(DOOR_OPEN) == 1 ? true : false),
                                  doorUID, (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission, DoorType.valueOf(rs.getInt(DOOR_TYPE)),
                                  DoorDirection.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB, RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)),
                                  rs.getInt(DOOR_AUTO_CLOSE));
@@ -836,18 +836,24 @@ public class SQLiteJDBCDriverConnection
         {
             conn = getConnection();
             int permission = -1;
+            String playerName;
 
             // If no player is specified, get the lowest tier permission and the original creator.
             if (playerUUID == null)
             {
                 permission = 2;
-                playerUUID = getOwnerOfDoor(conn, doorUID).getPlayerUUID();
+                DoorOwner doorOwner = getOwnerOfDoor(conn, doorUID);
+                playerUUID = doorOwner.getPlayerUUID();
+                playerName = doorOwner.getPlayerName();
             }
             else
             {
                 long playerID = getPlayerID(conn, playerUUID.toString());
+
                 if (playerID == -1)
                     return null;
+
+                playerName = getPlayerName(playerUUID);
 
                 // Select all doors from the sqlUnion table that have the previously found player as owner.
                 PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "' AND doorUID = '" + doorUID + "';");
@@ -867,7 +873,7 @@ public class SQLiteJDBCDriverConnection
             ResultSet rs3         = ps3.executeQuery();
 
             while (rs3.next())
-                door = newDoorFromRS(rs3, doorUID, permission, playerUUID);
+                door = newDoorFromRS(rs3, doorUID, permission, playerUUID, playerName);
 
             ps3.close();
             rs3.close();
@@ -912,6 +918,7 @@ public class SQLiteJDBCDriverConnection
             while (rs1.next())
             {
                 String foundPlayerUUID = null;
+                String playerName      = null;
                 int    permission      = -1;
                 PreparedStatement ps2  = conn.prepareStatement("SELECT * FROM sqlUnion WHERE doorUID = '" + rs1.getLong(DOOR_ID) + "';");
                 ResultSet rs2          = ps2.executeQuery();
@@ -921,14 +928,17 @@ public class SQLiteJDBCDriverConnection
                     PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM players WHERE id = '" + rs2.getInt(UNION_PLAYER_ID) + "';");
                     ResultSet rs3         = ps3.executeQuery();
                     while (rs3.next())
-                        foundPlayerUUID   = rs3.getString(PLAYERS_UUID);
+                    {
+                        foundPlayerUUID = rs3.getString(PLAYERS_UUID);
+                        playerName = rs3.getString(PLAYERS_NAME);
+                    }
                     ps3.close();
                     rs3.close();
                 }
                 ps2.close();
                 rs2.close();
 
-                doors.add(newDoorFromRS(rs1, rs1.getLong(DOOR_ID), permission, UUID.fromString(foundPlayerUUID)));
+                doors.add(newDoorFromRS(rs1, rs1.getLong(DOOR_ID), permission, UUID.fromString(foundPlayerUUID), playerName));
             }
             ps1.close();
             rs1.close();
@@ -961,6 +971,7 @@ public class SQLiteJDBCDriverConnection
         {
             conn = getConnection();
             long playerID = getPlayerID(conn, playerUUID);
+            String playerName = getPlayerName(UUID.fromString(playerUUID));
 
             PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM sqlUnion WHERE playerID = '" + playerID + "';");
             ResultSet rs2         = ps2.executeQuery();
@@ -973,7 +984,7 @@ public class SQLiteJDBCDriverConnection
                 while (rs3.next())
                 {
                     if ((name == null || rs3.getString(DOOR_NAME).equals(name)) && count >= start && count <= end)
-                        doors.add(newDoorFromRS(rs3, rs3.getLong(DOOR_ID), rs2.getInt(UNION_PERM), UUID.fromString(playerUUID)));
+                        doors.add(newDoorFromRS(rs3, rs3.getLong(DOOR_ID), rs2.getInt(UNION_PERM), UUID.fromString(playerUUID), playerName));
                     ++count;
                 }
                 ps3.close();

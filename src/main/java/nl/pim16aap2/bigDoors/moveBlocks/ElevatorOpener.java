@@ -121,8 +121,8 @@ public class ElevatorOpener implements Opener
 
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getNewMin(), door.getNewMax()) != null ||
-            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getMinimum(), door.getMinimum()) != null)
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getNewMin(), door.getNewMax()) != null ||
+            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getMinimum(), door.getMinimum()) != null)
             return DoorOpenResult.NOPERMISSION;
 
         if (blocksToMove != 0)

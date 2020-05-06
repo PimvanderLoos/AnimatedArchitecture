@@ -70,7 +70,7 @@ import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 public class BigDoors extends JavaPlugin implements Listener
 {
     private static BigDoors instance;
-    public static final boolean DEVBUILD = false;
+    public static final boolean DEVBUILD = true;
     private int buildNumber = -1;
 
     public static final int MINIMUMDOORDELAY = 15;
@@ -290,14 +290,14 @@ public class BigDoors extends JavaPlugin implements Listener
             tu.abortSilently();
     }
 
-    public String canBreakBlock(UUID playerUUID, Location loc)
+    public String canBreakBlock(UUID playerUUID, String playerName, Location loc)
     {
-        return protCompatMan.canBreakBlock(playerUUID, loc);
+        return protCompatMan.canBreakBlock(playerUUID, playerName, loc);
     }
 
-    public String canBreakBlocksBetweenLocs(UUID playerUUID, Location loc1, Location loc2)
+    public String canBreakBlocksBetweenLocs(UUID playerUUID, String playerName, Location loc1, Location loc2)
     {
-        return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, loc1, loc2);
+        return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, playerName, loc1, loc2);
     }
 
     public void restart()
