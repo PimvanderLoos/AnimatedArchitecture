@@ -35,6 +35,11 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Experimental
  */
+// TODO: Consider storing a serialized version of a door before removing its blocks and removing it before placing the blocks.
+//       This would make sure that blocks aren't lost in case of a server crash, which will be more important to avoid
+//       with the new perpetually moving objects. Just make sure to do it async and it should be fine. Also, it should
+//       be a configurable setting (e.g. to minimize disk writes). Maybe even have different levels, so you could use this
+//       system only for perpetually moving objects.
 // TODO: Consider being more strict in the data types used for the door types system. If the type is actually correctly
 //       defined, it's possible to cast it, right?
 // TODO: Look into allowing people to set a (estimated) max size in RAM for certain caches.
