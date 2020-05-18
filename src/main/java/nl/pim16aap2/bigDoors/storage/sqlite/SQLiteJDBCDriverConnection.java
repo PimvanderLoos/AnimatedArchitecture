@@ -1562,7 +1562,7 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Insert a new door in the db.
-    public void insert(final Door door)
+    public long insert(final Door door)
     {
         Connection conn = null;
         try
@@ -1623,15 +1623,17 @@ public class SQLiteJDBCDriverConnection
             String query = "SELECT last_insert_rowid() AS lastId";
             PreparedStatement ps2 = conn.prepareStatement(query);
             ResultSet rs2 = ps2.executeQuery();
-            Long doorID = rs2.getLong("lastId");
+            Long doorUID = rs2.getLong("lastId");
             ps2.close();
             rs2.close();
 
             Statement stmt3 = conn.createStatement();
             String sql3 = "INSERT INTO sqlUnion (permission, playerID, doorUID) " + "VALUES ('" + door.getPermission()
-                + "', '" + playerID + "', '" + doorID + "');";
+                + "', '" + playerID + "', '" + doorUID + "');";
             stmt3.executeUpdate(sql3);
             stmt3.close();
+
+            return doorUID;
         }
         catch (SQLException | NullPointerException e)
         {
@@ -1648,6 +1650,7 @@ public class SQLiteJDBCDriverConnection
                 logMessage("1163", e);
             }
         }
+        return -1;
     }
 
     // Insert a new door in the db.

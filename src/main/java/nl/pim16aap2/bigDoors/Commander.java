@@ -162,24 +162,24 @@ public class Commander
         }
     }
 
-    public void addDoor(Door newDoor)
+    public long addDoor(Door newDoor)
     {
-        db.insert(newDoor);
+        return db.insert(newDoor);
     }
 
-    public void addDoor(Door newDoor, Player player, int permission)
+    public long addDoor(Door newDoor, Player player, int permission)
     {
         if (newDoor.getPlayerUUID() != player.getUniqueId())
             newDoor.setPlayerUUID(player.getUniqueId());
         if (newDoor.getPermission() != permission)
             newDoor.setPermission(permission);
-        db.insert(newDoor);
+        return db.insert(newDoor);
     }
 
     // Add a door to the db of doors.
-    public void addDoor(Door newDoor, Player player)
+    public long addDoor(Door newDoor, Player player)
     {
-        addDoor(newDoor, player, 0);
+        return addDoor(newDoor, player, 0);
     }
 
     public boolean removeDoor(Player player, long doorUID)
