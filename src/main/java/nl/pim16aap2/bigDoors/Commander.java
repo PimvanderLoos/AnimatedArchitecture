@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.moveBlocks.BlockMover;
@@ -185,8 +186,18 @@ public class Commander
     {
         if (!hasPermissionForAction(player, doorUID, DoorAttribute.DELETE))
             return false;
-        db.removeDoor(doorUID);
+        removeDoor(doorUID);
         return true;
+    }
+
+    public void removeDoor(long doorUID)
+    {
+        db.removeDoor(doorUID);
+    }
+
+    public void removeDoorsFromWorld(World world)
+    {
+        db.removeDoorsFromWorld(world);
     }
 
     // Returns the number of doors owner by a player and with a specific name, if
@@ -209,6 +220,12 @@ public class Commander
     private ArrayList<Door> getDoors(String name)
     {
         return db.getDoors(name);
+    }
+
+    // Returns an ArrayList of doors that exist in a specific world.
+    public ArrayList<Door> getDoorsInWorld(World world)
+    {
+        return db.getDoorsInWorld(world);
     }
 
     // Returns an ArrayList of doors owner by a player and with a specific name, if
