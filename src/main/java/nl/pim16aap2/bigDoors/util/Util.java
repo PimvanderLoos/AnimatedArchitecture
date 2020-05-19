@@ -402,23 +402,17 @@ public final class Util
             xmat.equals(XMaterial.OAK_LOG) || xmat.equals(XMaterial.SPRUCE_LOG))
             return 1;
         if (mat.toString().endsWith("STAIRS"))
-        {
-//            Util.broadcastMessage("Material issa stair!");
             return 2;
-        }
-        if (xmat.equals(XMaterial.WHITE_STAINED_GLASS) || xmat.equals(XMaterial.YELLOW_STAINED_GLASS) ||
-            xmat.equals(XMaterial.PURPLE_STAINED_GLASS) || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS) ||
-            xmat.equals(XMaterial.GRAY_STAINED_GLASS) || xmat.equals(XMaterial.GREEN_STAINED_GLASS) ||
-            xmat.equals(XMaterial.BLACK_STAINED_GLASS) || xmat.equals(XMaterial.LIME_STAINED_GLASS) ||
-            xmat.equals(XMaterial.BLUE_STAINED_GLASS) || xmat.equals(XMaterial.BROWN_STAINED_GLASS) ||
-            xmat.equals(XMaterial.CYAN_STAINED_GLASS) || xmat.equals(XMaterial.RED_STAINED_GLASS) ||
-            xmat.equals(XMaterial.MAGENTA_STAINED_GLASS) || xmat.equals(XMaterial.WHITE_STAINED_GLASS_PANE) ||
-            xmat.equals(XMaterial.YELLOW_STAINED_GLASS_PANE) || xmat.equals(XMaterial.PURPLE_STAINED_GLASS_PANE) ||
-            xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.GRAY_STAINED_GLASS_PANE) ||
-            xmat.equals(XMaterial.GREEN_STAINED_GLASS_PANE) || xmat.equals(XMaterial.BLACK_STAINED_GLASS_PANE) ||
-            xmat.equals(XMaterial.LIME_STAINED_GLASS_PANE) || xmat.equals(XMaterial.BLUE_STAINED_GLASS_PANE) ||
-            xmat.equals(XMaterial.BROWN_STAINED_GLASS_PANE) || xmat.equals(XMaterial.CYAN_STAINED_GLASS_PANE) ||
-            xmat.equals(XMaterial.RED_STAINED_GLASS_PANE) || xmat.equals(XMaterial.MAGENTA_STAINED_GLASS_PANE))
+        // Panes only have to rotate on 1.13+.
+        // On versions before, rotating it only changes its color...
+        if ((BigDoors.get().is1_13()) &&
+            (xmat.equals(XMaterial.WHITE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.YELLOW_STAINED_GLASS_PANE) ||
+             xmat.equals(XMaterial.PURPLE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE) ||
+             xmat.equals(XMaterial.GRAY_STAINED_GLASS_PANE) || xmat.equals(XMaterial.GREEN_STAINED_GLASS_PANE) ||
+             xmat.equals(XMaterial.BLACK_STAINED_GLASS_PANE) || xmat.equals(XMaterial.LIME_STAINED_GLASS_PANE) ||
+             xmat.equals(XMaterial.BLUE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.BROWN_STAINED_GLASS_PANE) ||
+             xmat.equals(XMaterial.CYAN_STAINED_GLASS_PANE) || xmat.equals(XMaterial.RED_STAINED_GLASS_PANE) ||
+             xmat.equals(XMaterial.MAGENTA_STAINED_GLASS_PANE)))
             return 3;
         if (xmat.equals(XMaterial.ANVIL))
             return 4;
