@@ -426,6 +426,7 @@ public class CommandHandler implements CommandExecutor
                     plugin.addGUIUser(new GUI(plugin, player));
                 break;
 
+            case "reload":
             case "restart":
                 if (player != null && !player.hasPermission("bigdoors.admin.restart"))
                     break;

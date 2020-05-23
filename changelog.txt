@@ -1,7 +1,7 @@
 Alpha 0.1.8.18
 - Fixed bug with the latest version of Towny. Thanks, @Master, for the bug report!
 - Added some methods to the Commander to make extending this plugin a bit easier (specifically for instances).
-- Fixed stained glass (panes and blocks) changing colors in rotating door types (e.g. Doors). Thanks, @MrLoenkie, for the bug report!
+- Fixed stained glass (panes and blocks) changing colors in rotating door types (e.g. Doors) in 1.12. Thanks, @MrLoenkie, for the bug report!
 
 Alpha 0.1.8.17
 - Changed logging level of messages about no items being blacklisted or whitelisted from WARN to INFO. Thanks, @SlimeDog for the report!
