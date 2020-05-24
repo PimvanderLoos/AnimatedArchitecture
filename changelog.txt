@@ -1,3 +1,6 @@
+Alpha 0.1.8.19
+- Fixed crash on startup if the custom translation file contained invalid lines. Thanks, @taoxiaobai, for the bug report!
+
 Alpha 0.1.8.18
 - Fixed bug with the latest version of Towny. Thanks, @Master, for the bug report!
 - Added some methods to the Commander to make extending this plugin a bit easier (specifically for instances).

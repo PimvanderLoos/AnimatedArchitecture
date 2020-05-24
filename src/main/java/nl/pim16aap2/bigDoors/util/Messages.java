@@ -48,15 +48,25 @@ public class Messages
 
             while ((sCurrentLine = br.readLine()) != null)
             {
-                // Ignore comments.
-                if (sCurrentLine.startsWith("#"))
+                // Ignore comments and empty lines.
+                if (sCurrentLine.startsWith("#") || sCurrentLine.isEmpty())
                     continue;
-                String key, value;
                 String[] parts = sCurrentLine.split("=", 2);
-                key    = parts[0];
-                value  = parts[1].replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-                String[] newLineSplitter = value.split("\\\\n");
+                String key = parts[0];
+                String value;
 
+                // If there is no equals sign in the line, there will only be 1 part.
+                // In all other cases there will be 2 parts (empty lines are skipped).
+                if (parts.length == 1)
+                {
+                    plugin.getMyLogger().myLogger(Level.WARNING,
+                                                  "Invalid syntax for translation: \"" + sCurrentLine + "\"");
+                    value = "Invalid translation";
+                }
+                else
+                    value = parts[1].replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+
+                String[] newLineSplitter = value.split("\\\\n");
                 String values = newLineSplitter[0];
 
                 for (int idx = 1; idx < newLineSplitter.length; ++idx)
