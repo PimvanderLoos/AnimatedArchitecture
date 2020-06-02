@@ -9,9 +9,9 @@ import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
-import nl.pim16aap2.bigdoors.util.BitFlag;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Functional.CheckedFunction;
+import nl.pim16aap2.bigdoors.util.IBitFlag;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -356,7 +356,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                        rs.getInt("engineZ"));
                 final Vector3Di powerBlock = new Vector3Di(rs.getInt("powerBlockX"), rs.getInt("powerBlockY"),
                                                            rs.getInt("powerBlockZ"));
-                final boolean isOpen = BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), rs.getInt("bitflag"));
+                final boolean isOpen = IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), rs.getInt("bitflag"));
 
                 final RotateDirection openDir = RotateDirection.valueOf(rs.getInt("openDirection"));
                 if (openDir == null)
@@ -372,7 +372,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                   .getNewDoor(pLogger, doorOwner.getDoorUID(), doorData);
 
             door.setName(rs.getString("name"));
-            door.setLock(BitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), rs.getInt("bitflag")));
+            door.setLock(IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), rs.getInt("bitflag")));
             door.setDoorOwner(doorOwner);
             door.setAutoClose(rs.getInt("autoClose"));
             door.setBlocksToMove(rs.getInt("blocksToMove"));
@@ -824,7 +824,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return false;
         }
 
-        final int newFlag = BitFlag.changeFlag(DoorFlag.getFlagValue(flag), flagStatus, currentFlag);
+        final int newFlag = IBitFlag.changeFlag(DoorFlag.getFlagValue(flag), flagStatus, currentFlag);
         return executeUpdate(SQLStatement.UPDATE_DOOR_FLAG.constructPPreparedStatement()
                                                           .setInt(1, newFlag)
                                                           .setLong(2, doorUID)) > 0;

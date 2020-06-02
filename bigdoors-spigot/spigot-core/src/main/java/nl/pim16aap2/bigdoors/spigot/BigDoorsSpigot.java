@@ -115,7 +115,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private static long MAINTHREADID = -1;
     @NotNull
     private static final BigDoors BIGDOORS = BigDoors.get();
-    
+
     private final PLogger pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
 
     private ToolVerifier tf;
@@ -157,16 +157,19 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @NotNull
     private final IPowerBlockRedstoneManager powerblockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
+    public BigDoorsSpigot()
+    {
+        INSTANCE = this;
+        BIGDOORS.setBigDoorsPlatform(this);
+        MAINTHREADID = Thread.currentThread().getId();
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void onEnable()
     {
-        INSTANCE = this;
-        BIGDOORS.setBigDoorsPlatform(this);
-        MAINTHREADID = Thread.currentThread().getId();
-
         try
         {
             // Register this here so it can check for updates even when loaded on an incorrect version.

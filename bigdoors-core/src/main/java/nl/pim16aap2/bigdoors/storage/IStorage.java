@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.util.BitFlag;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.IBitFlag;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
@@ -332,8 +332,8 @@ public interface IStorage
     default int getFlag(final @NotNull AbstractDoorBase door)
     {
         int flag = 0;
-        flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), door.isOpen(), flag);
-        flag = BitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), door.isLocked(), flag);
+        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), door.isOpen(), flag);
+        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), door.isLocked(), flag);
         return flag;
     }
 
@@ -393,7 +393,7 @@ public interface IStorage
      *
      * @author Pim
      */
-    enum DoorFlag implements BitFlag
+    enum DoorFlag implements IBitFlag
     {
         /**
          * Consider a door to be opened if this flag is enabled.

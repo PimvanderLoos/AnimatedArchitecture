@@ -5,7 +5,7 @@ package nl.pim16aap2.bigdoors.util;
  *
  * @author Pim
  */
-public interface BitFlag
+public interface IBitFlag
 {
     /**
      * Sets the value of a flag to either on or off.

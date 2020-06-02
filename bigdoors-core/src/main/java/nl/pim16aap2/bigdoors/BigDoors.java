@@ -10,62 +10,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /*
- * Moonshoots
- */
-// TODO: Make blocks massive
-// TODO: Implement perpetual motion (for flags, clocks, ??).
-// TODO: Allow custom sounds. Every type should have its own sound file. This file should describe the name of the
-//       sounds in the resource pack and the length of the sound. It should contain both movement and finish sounds.
-// TODO: Look into https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Chunk.html#getChunkSnapshot to verify if a door
-//       can be opened and while I'm at it, also to construct the FBlocks. This way, that stuff can all be done
-//       async.
-// TODO: Perhaps use a separate table for every type of door. That would allow more specialzed storage. More research
-//       is required, though. https://stackoverflow.com/a/3579462
-
-
-/*
- * Modules
- */
-// TODO: Put Config-related stuff in BigDoorsUtil and don't use Bukkit stuff for reading it. Just give it a regular file.
-//       Make the ConfigLoader abstract and extend a Spigot-specific config in SpigotUtil with Spigot-Specific options
-//       such as resource packs.
-// TODO: Every version submodule (e.g. spigot-v1_14_R1) should depend on spigot-core and be compiled as a separate jar.
-//       Load these version-specific submodules from a folder on startup.
-
-/*
  * Experimental
  */
-// TODO: Look into allowing people to set a (estimated) max size in RAM for certain caches.
-//       Example: https://www.javaworld.com/article/2074458/estimating-java-object-sizes-with-instrumentation.html
-//       Simpler example: https://stackoverflow.com/questions/52353/in-java-what-is-the-best-way-to-determine-the-size-of-an-object#
-//       Another: https://javamagic.blog/2018/07/11/how-to-find-size-of-java-object-in-memory-using-jol/
-//       Also: https://www.baeldung.com/java-size-of-object
+// TODO: Consider being more strict in the data types used for the door types system. If the type is actually correctly
+//       defined, it's possible to cast it, right?
 // TODO: Fix violation of LSP for doorAttributes. Instead of having a switch per type in the GUI, override a return in the DoorAttribute enum.
-// TODO: Data is duplicated a lot! Currently, the falling block has the IBlockData, and so does PBlockData. If the block can rotate, it has it twice, even!
-//       This is a huge waste of Ram. The falling block should be the only place to store the block data.
-// TODO: Instead of killing the FBlock, rotating it and then respawning it, rotate the FBlockData and then send the
-//       appropriate packets to the appropriate players. This can also be done async, so no more sync scheduling needed.
-// TODO: Add command to upload error log to pastebin or something similar.
-// TODO: Add config option to limit logging file size: https://kodejava.org/how-do-i-limit-the-size-of-log-file/
-// TODO: Look into previously-blacklisted material. Torches, for example, work just fine in 1.13.
-//       They just need to be removed first and placed last. So-called "greylisting"
-// TODO: Figure out a way to use Interfaces or something to generate 2 separate builds: Premium and non-premium.
 // TODO: Look into Aikar's command system to replace my command system: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
-// TODO: Get rid of the DoorType enum. Instead, allow dynamic registration of door types.
-// TODO: Stop naming all animatable objects "doors". An elevator is hardly a door.
-// TODO: Special PBlockData subclass for every type of opener. This is a messy system.
-// TODO: Use Spigot Premium's placeholders: https://www.spigotmc.org/wiki/premium-resource-placeholders-identifiers/
-//       Then send the placeholder to my site on startup. Why? As evidence the buyer has, in fact, downloaded the plugin.
-//       This could be useful in case of a PayPal chargeback.
-// TODO: Implement admin command to show database statistics (player count, door count, owner count, etc).
 // TODO: Consider storing original locations in the database. Then use the OpenDirection as the direction to go when in
 //       the original position. Then you cannot make regular doors go in a full circle anymore.
-// TODO: Instead of placing all blocks one by one and sending packets to the players about it, use this method instead:
-//       https://www.spigotmc.org/threads/efficiently-change-large-area-of-blocks.262341/#post-2585360
 // TODO: Write script (python? might be fun to switch it up) to build plugin.yml on compilation.
-// TODO: Create a system that allows a set of default messages for creators (with placeholders for the types), but also
-//       allows overriding for custom types. Then people who really want to, can write fully custom messages for every
-//       type, but the messages system will be much cleaner by default.
 // TODO: For storing player permissions, consider storing them in the database when a player leaves.
 //       Then ONLY use those whenever that player is offline. Just use the online permissions otherwise.
 // TODO: When initializing the plugin, initialize vital functions first (database, etc). Because some
@@ -82,18 +35,11 @@ import org.jetbrains.annotations.Nullable;
 //       otherwise the default value. Also distinguish between goal and actual.
 // TODO: Create method in DoorBase for checking distance. Take Vector3D for distance and direction.
 // TODO: Having both openDirection and rotateDirection is stupid. Check DoorBase#getNewLocations for example.
-// TODO: Don't use Location for the locations. Use vectors instead.
 // TODO: Cache value of DoorBase#getSimplePowerBlockChunkHash().
 // TODO: Use the IGetNewLocation code to check new pos etc.
 // TODO: Statically store GNL's in each door type.
-// TODO: Add getCloseDirection() method. This is NOT!!! the opposite of the openDirection once the original coordinates
-//       are stored in the database. It should be the direction back to the original position.
-// TODO: Add DoorBase#isValidOpenDirection. Can be useful for creation and validation.
 // TODO: Store calculated stuff such as blocksInDirection in object-scope variables, so they don't have to be
 //       calculated more than once.
-// TODO: Make interface of of DoorBase, so interfaces can provide default implementations (e.g. StationaryDoor,
-//       AxisAligned?, PerpetualMovement?).
-// TODO: Look into nested interfaces for AbstractDoorBase. It might be possible to make them protected that way.
 // TODO: Implement this type: https://www.filt3rs.net/sites/default/files/study/_3VIS%20-%20318%20Fer-211%20visera%20proyectable%20visor%20fachada%20basculante.jpg
 //       Perhaps simply allow the drawbridge to go "North" even when flat in northern direction, so it goes down.
 // TODO: Allow players to change the autoCloseTimer to an autoOpenTimer or something like that.
@@ -105,13 +51,42 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Instead of bitflags, consider using EnumSets. Much cleaner. https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html
+// TODO: Consider using the cumbersome method of achieving const-correctness using interfaces (only return the const interface in regular getters).
+//       This doesn't have to be used everywhere, but it's nice to use for stuff like returning positions and locations
+//       to make sure it doesn't have to create a copy.
+// TODO: Restrict setters where appropriate.
+// TODO: Don't use 'final' in function parameters. It doesn't do anything (fuck you, Javba).
+// TODO: Get rid of "Collections.unmodifiableList(new ArrayList<>());" everywhere. It's dumb. Just use
+//       "Collections.emptyList()" instead. Or just return "new ArrayList<>(0)". This doesn't have any overhead but it's
+//       still modifiable. (to avoid mix-'n-match).
+// TODO: Everything that should be accessible by other plugins should be initialized in the constructor, not in onEnable.
+//       This will ensure it's initialized in time, as Spigot doesn't start enabling plugins until they're all constructed.
+// TODO: Look into Java's ResourceBundle and MessageFormat classes for localisation handling.
+//       More info: https://docs.oracle.com/javase/7/docs/api/java/util/ResourceBundle.html
+//                  https://docs.oracle.com/javase/7/docs/api/java/text/MessageFormat.html
+// TODO: Add more basic options to the messages system. For example:
+//       - Add different strings for singular and plural objects.
+//       - Add different versions of the same word for different circumstances ("the door" vs "door"). Especially useful in languages that use genders (f.e. German).
+// TODO: Use static unmodifiable lists as "null object". Return these from functions that can return empty lists.
+//       This should also replace Optionals. Also, look into Collections#emptyList() (it doesn't create new objects).
+//       Note that this list will be unmodifiable. If the list might be modified later on, use "new Arraylist(0)". This
+//       won't initialize anything either (minimizing overhead), but it will be modifiable. This might actually be
+//       preferable, since it won't mix modifiable (when not empty) and unmodifiable (when empty), which is confusing.
+// TODO: Look into this: https://www.jetbrains.com/help/idea/parametersarenonnullbydefault-annotation.html
+// TODO: DoorTypes currently need to be registered before BigDoors is initialized, so that they are put in the config.
+//       However, registering DoorTypes requires the DatabaseManager to exist, but it doesn't until halfway through
+//       BigDoor's initialization.
+//       Do not remove any invalid names from the list in the config, but store them in a map instead. Then match from
+//       that map when a new type is registered. If that value didn't exist yet, rewrite the config and add the value.
+//       When a type is unregistered, either remove them from the list and use the old value for the new one, or leave
+//       them there to avoid destroying user data.
+// TODO: Look into overriding Equals() properly for all the subtypes of the door.
+// TODO: Override toString for the subtypes of the doors. All the type's type-specific data should be printed as well.
+// TODO: Make sure there aren't any errors on startup if the plugin folder doesn't exist.
 // TODO: Use reflection or something to hack Spigot's API-version to always use the currently-used API-version.
 // TODO: Add a new type of powerblock that locks/unlocks doors instead of toggling them.
 // TODO: Handle restartable interface options in DatabaseManager class.
-// TODO: Move ToolUsers from spigot-core to bigdoors-core. Also use the following system:
-//       - Use an "int step" or something to keep track of at which step in the creation process the user is.
-//       - Use an array of function pointers which can easily be used using the step integer.
-//       - Make sure it's very easy to extend the system.
 // TODO: Don't use the local maven files. Use this method instead: https://stackoverflow.com/a/4955695
 // TODO: Load everything on startup (including RedstoneListener (should be singleton)). Use the IRestartable interface to handle restarts instead.
 // TODO: Don't just play sound at the door's engine. Instead, play it more realistically (so not from a single point). Perhaps packets might help with this.
@@ -130,7 +105,7 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Get rid of ugly 1.14 hack for checking for forceloaded chunks.
 // TODO: Allow wand material selection in config.
 // TODO: Get rid of code duplication in ProtectionCompatManager.
-// TODO: Force users to register permissions for stuff like the number / max size of doors in the config or something. 
+// TODO: Force users to register permissions for stuff like the number / max size of doors in the config or something.
 //       This would make it much more efficient to check the max number/size of doors for a user in most cases.
 // TODO: Make sure permission checking for offline users isn't done on the main thread.
 // TODO: Make timeout for CommandWaiters and Creators configurable and put variable in messages.
@@ -187,11 +162,9 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * GUI
  */
-// TODO: Look into using player heads for GUI buttons. Example: https://minecraft-heads.com/player-heads/alphabet/2762-arrow-left
 // TODO: Make GUI options always use the correct subCommand.
-// TODO: Create ItemManager that stores repeatedly used items (such as door creation books and doorInfo stuff).
-// TODO: Store 2 player objects: 1) Subject (the owner of all the doors), and 2) InventoryHolder (who is looking at the inventory).
-// TODO: Update items in inventory instead of opening a completely new inventory. No longer requires dirty code to check is it's refreshing etc. Bweugh.
+// TODO: Update items in inventory instead of opening a completely new inventory.
+//       No longer requires dirty code to check is it's refreshing etc. Bweugh.
 // TODO: Use some NMS stuff to change the name of a GUI without reopening it:
 //       https://www.spigotmc.org/threads/how-to-set-the-title-of-an-open-inventory-itemgui.95572/#post-1049250
 // TODO: Use a less stupid way to check for interaction: https://www.spigotmc.org/threads/quick-tip-how-to-check-if-a-player-is-interacting-with-your-custom-gui.225871/
@@ -208,37 +181,15 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
-// TODO: Do not allow modifying properties of a door while it is busy.
-// TODO: Rewrite everything. Create a completely new schema as well. This plugin has outgrown the current one.
-//       Use the items below for more information on the layout. The philosophy of the new design is to store everything
-//       and make sure no data should be inferred. For example, the drawbridge type shouldn't have to figure out which
-//       way it is looking based on coordinates.
-// TODO: Consider creating groups of users, which would make it easy to add an entire group of users as co-owner of a door.
-//       Remember that when removing a player from a group, the player should also be removed as co-owner from all doors
-//       as well, as long as they are not in another group that is also a co-owner of this door.
-//       Alternatively, consider splitting the DoorOwner table into DoorOwnerPlayer and DoorOwnerGroup, so that when you
-//       add a player to a group that is an owner of a door, you don't have to modify everything. Would make queries
-//       more difficult, though.
-// TODO: Consider adding folders. This would require a "Folders" table with an owner, ID, and a folder name as well as
-//       a table that links up doors with folders.
-// TODO: Create new table for DoorTypes: {ID (AI) | PLUGIN | TYPENAME | VERSION}, with UNIQUE(PLUGIN, TYPENAME, VERSION).
-//       Then use FK from doors to doortypes. Useful for allowing custom door types.
-//       The version value is used so other plugins can update their types' database values when needed.
-//       They would retrieve the number of doors of that type (e.g. getNumberOfType("BigDoors", "Drawbridge", "1");)
-//       and if that number is >0, loop over all existing entries for that version on startup, update them as needed,
-//       and add them to the database as the new type (e.g. "BigDoors", "Drawbridge", "2").
-// TODO: Create a system of creating new tables dynamically for new door types that contain additional information
-//       that is not required for other types (e.g. blocksToMove).
-// TODO: Store engineChunkHash in the database, so stuff can be done when the chunk of a door is loaded. Also make sure
-//       to move the engine location for movable doors (sliding, etc).
-// TODO: Look into creating a separate table for worlds and put an FK to them in the doors table. This should save a bit
-//       of space, but more importantly, it makes it easier to implement worlds that do not have UUIDs (e.g. Forge).
-// TODO: Store UUIDs as 16 byte binary blobs to save space: https://stackoverflow.com/a/17278095
-// TODO: Move database upgrades out of the main SQL class. Perhaps create some kind of upgrade routine interface. 
+// TODO: (not SQL-related), make isLocked part of DoorData
 
 /*
  * Commands
  */
+// TODO: Make sure onTabComplete works. Perhaps switch to using a Suffix Tree instead of a map?
+//       Though bukkit just uses brute force to iterate over the entryset, so that might be overkill?
+//       https://en.wikipedia.org/wiki/Suffix_tree
+// TODO: Respect CompletableFutures better.
 // TODO: Add /BDM [PlayerName (when online) || PlayerUUID || Server] to open a doorMenu for a specific player
 // TODO: Make invalid input stuff more informative (e.g. int, float etc).
 // TODO: Properly use flags for stuff. For example: "/bigdoors open testDoor -time 10" to open door "testDoor" in 10 seconds.
@@ -274,58 +225,28 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Creators
  */
-// TODO: Make users explicitly specify the openDirection on door creation.
+// TODO: Use the openDirection to figure out the current direction for the types that need that. And if that's not
+//       possible, just ask the user.
 // TODO: GarageDoorCreator: Fix having to double click last block.
 // TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
 
 /*
  * Openers / Movers
  */
-// TODO: When a door is modified in a way that leaves it in an 'impossible' state, make sure to first return to the proper state.
-//       So, if a door is currently open to the west and the opendir is changed to east and it is toggled again,
-//       toggle it to the east again first, even though the closedir would normally be the opposite of the opendir
-//       (therefore close to the west).
-// TODO: FIX DRABRIDGES! THEY ARE BROKEN!
-// TODO: RevolvingDoor: The final location of the blocks is not the original location. You can see this issue when
-//       using a revolving door with an off-center rotation point.
 // TODO: Figure out what to do with the player sometimes being nullable and notnull at other times. Make a clear decision.
 // TODO: Get rid of the weird speed multipliers in the CustomEntityFallingBlock_VX_XX_RX classes.
-// TODO: Make the getOpenDirection function of the openers static, so the Creators can check which direction to pick.
-//       Then set the direction in the creator.
-// TODO: Rotate Sea Pickle and turtle egg.
-// TODO: Replace current time/speed/tickRate system. It's a mess.
-// TODO: Get rid of all material related stuff in these classes. isAllowedBlock should be abstracted away.
-// TODO: Do block deleting + placing in two passes: For removal: First remove all "attached" blocks such as torches.
-//       Then do the rest on the second pass. For placing: Place all non-"attached" blocks on the first pass. Then
-//       place all "attached" blocks on the second pass and at the same time verify all connected blocks (fences, etc)
-//       are properly connected to each other.
-// TODO: Test and finish flag type.
-// TODO: Rewrite parts of the drawBridge opener and mover. The upDown etc stuff should not be used.
-// TODO: ElevatorOpener and PortcullisOpener should respect setOpenDirection and min/max world height (0, 256).
 // TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the
 //       x,y,z values, but the entire block and blocksMoved. Then they can figure it out for themselves.
-// TODO: Make some kind of interface TravelingDoor, that includes the updateCoords and getNewLocation methods.
-//       Then movers that don't actually move the object (flag, windmill) don't need to include those methods.
-// TODO: Move rotation/respawning block code out of runnables. Perhaps even into BLockMover. Same goes for termination conditions.
-// TODO: Windmill: Remove magic values in endCount and Step variables in WindmillMover::animateEntities();
-// TODO: Windmill: Allow setting rotational speed (seconds per rotation).
 // TODO: Clamp angles to [-2PI ; 2PI].
-// TODO: Either use time or ticks. Not both.
 // TODO: Make sure the new types don't just open instantly without a provided time parameter.
 // TODO: Rename variables in updateCoords to avoid confusion. Perhaps a complete removal altogether would be nice as well.
 // TODO: Get rid of the GNL interface etc. The movers class can handle it on its own using Function interface.
 // TODO: Move getBlocksMoved() to Mover.
-// TODO: Allow blocks with inventories to be moved.
-// TODO: Do not allow setting of invalid rotation directions. If a garage door is positioned along the z axis, only North and South are valid options.
-// TODO: Instead of creating and running the runnables in the animateEntities method, create the runnable earlier and store it. Then call animateEntities()
-//       from BlockMover. Then let BlockMover extend Restartable and/or abortable, so that the it can cancel all movers etc on restart, so this code doesn't have to be part
-//       of the runnable anymore. Much cleaner.
 // TODO: Make setDefaultOpenDirection() smarter by checking which side is actually available.
 // TODO: Movers: updateCoords should be final and use the DoorBase::getNewLocations method to get the new min/max.
 // TODO: GarageDoor: The pivot point offset (where it starts pivoting), should depend on the radius. The higher the radius of the block compared
 //       to the total radius, the smaller the offset should be. This way, the final blocks will line up better with the final position.
 //       radius = maxRadius -> offset = 0. Should probably only look at the last 3 blocks. e.g.: offset = Min((offset / 4) * (totalRadius - radius)).
-// TODO: Drawbridge: Cleanup #getNewLocation().
 // TODO: When checking if a door's chunks are loaded, use the door's chunkRange variables.
 // TODO: Instead of having methods to open/close/toggle animated objects, have a single method that receives
 //       a redstone value or something. Then each animated object can determine how to handle it on its own.
@@ -334,28 +255,9 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Update NS variables in the movers so they don't mean "active along north/south axis" but rather
 //       "engine aligned with north/south axis", which effectively means the opposite. Also, obtain the variable from
 //       the door.
-// TODO: Potentially implement BlockMover#animateEntities in BlockMover. Then use function pointers to calculate everything.
 // TODO: Highlight all blocking blocks if BlocksToMove is set.
-// TODO: When a block is "blocking" a door from being opened, check if there isn't a corresponding gap in the door to be opened.
-// TODO: Reduce code duplication in the blockmovers (specifically animateEntities).
-// TODO: Make RevolvingDoorMover and CylindricalMover more closely related.
-// TODO: Make sure all types respect their multiplier.
-// TODO: Get rid of the stupid .101 multiplier for vectors. Use proper normalization and shit instead.
-//       Look at this: https://github.com/InventivetalentDev/AdvancedSlabs/blob/ad2932d5293fa913b9a0670a0bc8ea52f1e27e0d/Plugin/src/main/java/org.inventivetalent.advancedslabs/movement/path/types/CircularSwitchController.java#L85
-// TODO: Properly keep track of who opened a door, instead of just passing along the owner's UUID.
-// TODO: Add PerpetualMover BlockMover. Then use an interface for the functions, which the individual movers can set.
-//       Also have a rotation method.
-// TODO: Don't use locations for GNL's, just use positions instead (cross-world stuff isn't possible anyway).
-// TODO: Limit the number of doors that can be active in a world at any given time. Maybe also limit the number per chunk.
-//       Figure out a way to deal with redstone activation. Perhaps try again after a certain amount of time?
-// TODO: Rotate blocks for garage doors, wind mills, clocks, and revolving doors.
 // TODO: When trying to activate a door in an unloaded chunk, load the chunk and instantly toggle the door (skip the animation).
 //       Extension: Add config option to send an error message to the player instead (so abort activation altogether).
-// TODO: Variable door depth.
-// TODO: Add a doortype that allows sliding doors to go diagonally. Might be possible to modify sliding doors as well.
-// TODO: New door type: Diagonal doors.
-// TODO: New door type: Folding doors.
-// TODO: Magic carpets? Flat flags.
 
 /*
 
@@ -389,6 +291,10 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: https://github.com/seeseemelk/MockBukkit
 // TODO: Make sure to test database upgrade to v11. Make this future-proof somehow. Perhaps store the old v10 creation
 //       stuff somewhere.
+// TODO: Write a completely standalone implementation of the API, which can be used not only to test all core stuff,
+//       but also for development. If the jar is launched on its own, it should load up this implementation.
+//       This would allow developing without using the Spigot server, which takes a bit of time to launch for every
+//       change made to the core, slowing down development.
 
 
 /**
