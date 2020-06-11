@@ -272,6 +272,8 @@ public class GUI
         int position = 9;
         for (DoorAttribute attr : DoorType.getAttributes(door.getType()))
         {
+            if (!plugin.getCommander().hasPermissionNodeForAction(player, attr))
+                continue;
             GUIItem item = getGUIItem(door, attr);
             if (item != null)
                 items.put(position++, item);

@@ -891,7 +891,10 @@ public class CommandHandler implements CommandExecutor
                     return false;
                 Door door = plugin.getCommander().getDoor(args[0], player);
                 if (door == null)
+                {
+                    Util.messagePlayer(player, ChatColor.RED, "No door found by that name!");
                     return true;
+                }
                 long doorUID = door.getDoorUID();
                 if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.RELOCATEPOWERBLOCK))
                     startPowerBlockRelocator(player, doorUID);

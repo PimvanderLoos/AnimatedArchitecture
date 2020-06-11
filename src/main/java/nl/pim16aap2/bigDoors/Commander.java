@@ -295,6 +295,12 @@ public class Commander
         return db.getDoor(playerUUID, doorUID);
     }
 
+    public boolean hasPermissionNodeForAction(Player player, DoorAttribute atr)
+    {
+        return player.hasPermission(DoorAttribute.getUserPermission(atr)) ||
+               player.hasPermission(DoorAttribute.getAdminPermission(atr));
+    }
+
     public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr)
     {
         return hasPermissionForAction(player, doorUID, atr, true);
@@ -302,14 +308,7 @@ public class Commander
 
     public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr, boolean printMessage)
     {
-        if (player.isOp())
-            return true;
-
-        String permissionNode = "bigdoors.admin.bypass."
-            + ((atr == DoorAttribute.DIRECTION_ROTATE || atr == DoorAttribute.DIRECTION_STRAIGHT) ? "direction" :
-                atr.name().toLowerCase());
-
-        if (player.hasPermission(permissionNode))
+        if (player.isOp() || hasPermissionNodeForAction(player, atr))
             return true;
 
         int playerPermission = getPermission(player.getUniqueId().toString(), doorUID);

@@ -132,7 +132,7 @@ permissions:
     description: Gives the user access to all user-level commands of this plugin.
     children:
       bigdoors.user.addowner: true
-      bigdoors.user.movepowerblock: true
+      bigdoors.user.relocatepowerblock: true
       bigdoors.user.delete: true
       bigdoors.user.info: true
       bigdoors.user.inspectpowerblock: true
@@ -141,6 +141,7 @@ permissions:
       bigdoors.user.setautoclosetime: true
       bigdoors.user.setblockstomove: true
       bigdoors.user.toggle: true
+      bigdoors.user.lock: true
   bigdoors.admin.*:
     description: Gives the user access to all admin-level commands of this plugin.
     children:
@@ -208,6 +209,9 @@ permissions:
     default: true
   bigdoors.user.opendoor:
     description: Allows a user to open, close, or toggle a door that they own.
+    default: true
+  bigdoors.user.lock:
+    description: Allows a user to (un)lock a door that they own.
     default: true
   bigdoors.admin.filldoor:
     description: Allows a user to fill in a door with stone blocks, regardless of whether they are allowed to build there or if there is already something there.
