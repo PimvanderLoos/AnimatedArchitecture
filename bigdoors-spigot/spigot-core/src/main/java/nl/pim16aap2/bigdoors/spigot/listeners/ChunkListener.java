@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorEventType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -91,8 +92,8 @@ public class ChunkListener implements Listener
                             {
                                 if (door instanceof IPerpetualMoverArchetype && door.isPowerBlockActive())
                                     BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                            .create(door, DoorActionCause.PERPETUALMOVEMENT, DoorActionType.TOGGLE,
-                                                    null);
+                                            .create(DoorEventType.PREPARE, door, DoorActionCause.PERPETUALMOVEMENT,
+                                                    DoorActionType.TOGGLE, null);
                             })
                 )));
     }

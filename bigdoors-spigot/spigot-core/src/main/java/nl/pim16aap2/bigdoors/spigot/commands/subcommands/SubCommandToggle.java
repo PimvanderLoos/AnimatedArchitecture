@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorActionEventSpigot;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -53,10 +53,11 @@ public class SubCommandToggle extends SubCommand
         CompletableFuture<Optional<AbstractDoorBase>> futureDoor = CompletableFuture.completedFuture(Optional.of(door));
 
         plugin.callDoorActionEvent(player == null ?
-                                   new DoorActionEventSpigot(futureDoor, DoorActionCause.SERVER, actionType,
-                                                             door.getDoorOwner().getPlayer(), time) :
-                                   new DoorActionEventSpigot(futureDoor, DoorActionCause.PLAYER, actionType, player,
-                                                             time));
+                                   new DoorEventTogglePrepare(futureDoor, DoorActionCause.SERVER, actionType,
+                                                              door.getDoorOwner().getPlayer(), time) :
+                                   new DoorEventTogglePrepare(futureDoor, DoorActionCause.PLAYER, actionType,
+                                                              player,
+                                                              time));
     }
 
     public void execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door, final double time)

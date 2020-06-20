@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorActionEventSpigot;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
@@ -116,8 +116,8 @@ public class RedstoneListener extends Restartable implements Listener
                     // TODO: Less stupid system.
                     CompletableFuture<Optional<AbstractDoorBase>> futureDoor = CompletableFuture
                         .completedFuture(Optional.of(door));
-                    plugin.callDoorActionEvent(new DoorActionEventSpigot(futureDoor, DoorActionCause.REDSTONE,
-                                                                         DoorActionType.TOGGLE, null));
+                    plugin.callDoorActionEvent(new DoorEventTogglePrepare(futureDoor, DoorActionCause.REDSTONE,
+                                                                          DoorActionType.TOGGLE, null));
                 }));
     }
 

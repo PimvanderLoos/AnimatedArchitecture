@@ -2,27 +2,21 @@ package nl.pim16aap2.bigdoors.events.dooraction;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.events.IPCancellable;
 import nl.pim16aap2.bigdoors.events.PEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Represents an action that is going to be applied to a door.
- *
- * @author Pim
- */
-public interface IDoorActionEvent extends PEvent, IPCancellable
+public interface IDoorEvent extends PEvent
 {
     /**
-     * Gets the door that is to be toggled.
+     * Gets the door that is the subject of this event.
      *
      * @return The door.
      */
     @NotNull
-    CompletableFuture<Optional<AbstractDoorBase>> getFutureDoor();
+    CompletableFuture<Optional<AbstractDoorBase>> getDoor();
 
     /**
      * Gets what caused the door action request to be created.
@@ -36,13 +30,13 @@ public interface IDoorActionEvent extends PEvent, IPCancellable
      * Gets the UUID of the player responsible for this door action. This either means the player who directly requested
      * this action or, if it was requested indirectly, the original creator of the door.
      *
-     * @return The UUID of the player that is responsible for this door.
+     * @return The UUID of the player that is responsible for this event.
      */
     @NotNull
     Optional<IPPlayer> getResponsible();
 
     /**
-     * Gets the type of action action requested.
+     * Gets the type of the requested action.
      *
      * @return The type of the requested action.
      */
@@ -50,28 +44,18 @@ public interface IDoorActionEvent extends PEvent, IPCancellable
     DoorActionType getActionType();
 
     /**
-     * Checks if the door should skip its animation and open instantly.
+     * Checks if the event requested the door to skip its animation and open instantly.
      *
-     * @return True if the door should open instantly.
+     * @return True if the event requested the door to skip its animation and open instantly.
      */
     boolean skipAnimation();
 
     /**
-     * Gets the number of seconds the door will try to take to open.
+     * Gets requested duration of the animation. This may differ from the final duration based on other factors (such as
+     * speed limits).
      *
-     * @return The number of seconds the door will try to take to open.
+     * @return The requested duration of the animation (in seconds).
      */
     double getTime();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    boolean isCancelled();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    void setCancelled(boolean cancel);
 }
+

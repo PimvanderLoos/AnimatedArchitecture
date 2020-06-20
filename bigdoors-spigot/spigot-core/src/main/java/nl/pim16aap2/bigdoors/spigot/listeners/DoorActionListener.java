@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorActionEventSpigot;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -17,9 +17,9 @@ public final class DoorActionListener implements Listener
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onDoorAction(final @NotNull DoorActionEventSpigot doorActionEvent)
+    public void onDoorAction(final @NotNull DoorEventTogglePrepare doorActionEvent)
     {
-        DoorOpener.get().animateDoorAsync(doorActionEvent.getFutureDoor(), doorActionEvent.getCause(),
+        DoorOpener.get().animateDoorAsync(doorActionEvent.getDoor(), doorActionEvent.getCause(),
                                           doorActionEvent.getResponsible().orElse(null), doorActionEvent.getTime(),
                                           doorActionEvent.skipAnimation(), doorActionEvent.getActionType());
     }

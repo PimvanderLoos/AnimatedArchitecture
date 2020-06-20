@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorActionEvent;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
@@ -127,11 +127,11 @@ public interface IBigDoorsPlatform
     IDoorActionEventFactory getDoorActionEventFactory();
 
     /**
-     * Calls a {@link IDoorActionEvent}.
+     * Calls a {@link IDoorEvent}.
      *
-     * @param doorActionEvent The {@link IDoorActionEvent} to call.
+     * @param doorActionEvent The {@link IDoorEvent} to call.
      */
-    void callDoorActionEvent(final @NotNull IDoorActionEvent doorActionEvent);
+    void callDoorActionEvent(final @NotNull IDoorEvent doorActionEvent);
 
     /**
      * Checks if a thread is the main thread.

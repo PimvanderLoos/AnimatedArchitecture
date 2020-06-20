@@ -6,7 +6,8 @@ import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorActionEvent;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorEventType;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
@@ -118,9 +119,10 @@ public class AutoCloseScheduler extends Restartable
                 if (door.isOpen())
                 {
                     BigDoors.get().getDoorManager().setDoorAvailable(door.getDoorUID());
-                    IDoorActionEvent event = BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                     .create(DatabaseManager.get().getDoor(door.getDoorUID()), cause,
-                                                             DoorActionType.CLOSE, player, speed, skipAnimation);
+                    IDoorEvent event = BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                               .create(DoorEventType.PREPARE,
+                                                       DatabaseManager.get().getDoor(door.getDoorUID()),
+                                                       cause, DoorActionType.CLOSE, player, speed, skipAnimation);
                     BigDoors.get().getPlatform().callDoorActionEvent(event);
                 }
                 deleteTimer(door.getDoorUID());

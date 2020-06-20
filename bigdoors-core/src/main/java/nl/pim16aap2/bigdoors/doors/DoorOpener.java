@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Represents the class that can open, close, and toggle doors.
@@ -57,23 +56,10 @@ public final class DoorOpener
         final @Nullable IPPlayer initiator, final double time, final boolean skipAnimation,
         final @NotNull DoorActionType doorActionType)
     {
-        return CompletableFuture.supplyAsync(
-            () ->
-            {
-                Optional<AbstractDoorBase> optionalDoor;
-                try
-                {
-                    optionalDoor = futureDoor.get();
-                }
-                catch (InterruptedException | ExecutionException e)
-                {
-                    PLogger.get().logException(e);
-                    optionalDoor = Optional.empty();
-                }
-                return optionalDoor.map(
-                    (door) -> animateDoorOnMainThread(door, cause, initiator, time, skipAnimation, doorActionType))
-                                   .orElse(DoorToggleResult.ERROR);
-            });
+        return futureDoor.thenApply(
+            optionalDoor -> optionalDoor.map(
+                door -> animateDoorOnMainThread(door, cause, initiator, time, skipAnimation, doorActionType))
+                                        .orElse(DoorToggleResult.ERROR));
     }
 
     /**
