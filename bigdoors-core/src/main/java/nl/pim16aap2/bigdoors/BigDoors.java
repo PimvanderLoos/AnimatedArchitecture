@@ -51,6 +51,12 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Create a system that allows external plugins to register custom tick stuff for the falling blocks. For every tick,
+//       all the registered custom tick methods will be executed. Either give the custom ticker the falling block itself,
+//       or just position (old and new)/velocity/whatever else is needed. Additionally, maybe add a kinda of async ticker
+//       as well, which will be executed by the mover after processing each animated block. Might need a better name than
+//       "async", though, to indicate it's actually executed by the mover. Perhaps they should register a builder for the
+//       ticker so that they can store custom per-entity data.
 // TODO: Instead of bitflags, consider using EnumSets. Much cleaner. https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html
 // TODO: Consider using the cumbersome method of achieving const-correctness using interfaces (only return the const interface in regular getters).
 //       This doesn't have to be used everywhere, but it's nice to use for stuff like returning positions and locations
@@ -181,7 +187,9 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
-// TODO: (not SQL-related), make isLocked part of DoorData
+// TODO: (not SQL-related), make isLocked part of DoorData.
+// TODO: Make sure that trying to use unregistered doortypes is handled gracefully.
+//       This includes: Toggling, Creating, Commands, and GUI.
 
 /*
  * Commands
