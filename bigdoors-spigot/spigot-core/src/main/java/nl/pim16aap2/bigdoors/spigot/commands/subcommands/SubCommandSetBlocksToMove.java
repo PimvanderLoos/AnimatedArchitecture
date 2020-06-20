@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
@@ -49,10 +50,17 @@ public class SubCommandSetBlocksToMove extends SubCommand
                            final @NotNull String blocksToMoveArg)
         throws IllegalArgumentException
     {
+        if (!(door instanceof IBlocksToMoveArchetype))
+            throw new IllegalArgumentException(
+                "Doors of type: " + door.getDoorType().toString() + " do not have the \"blocksToMove\" property!");
+
+        IBlocksToMoveArchetype doorBTM = (IBlocksToMoveArchetype) door;
+
         int blocksToMove = CommandManager.getIntegerFromArg(blocksToMoveArg);
         if (!(sender instanceof Player))
         {
-            BigDoors.get().getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
+            doorBTM.setBlocksToMove(blocksToMove);
+            BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
             sendResultMessage(sender, blocksToMove);
             return true;
         }
@@ -67,7 +75,9 @@ public class SubCommandSetBlocksToMove extends SubCommand
                     commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
                     return;
                 }
-                BigDoors.get().getDatabaseManager().setDoorBlocksToMove(door.getDoorUID(), blocksToMove);
+
+                doorBTM.setBlocksToMove(blocksToMove);
+                BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
                 sendResultMessage(sender, blocksToMove);
             });
         return true;

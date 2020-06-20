@@ -32,16 +32,19 @@ public class RevolvingDoorMover extends BlockMover
     /**
      * The number of quarter circles to turn.
      */
-    private static final int quarterCircles = 2;
+    private final int quarterCircles;
 
     private double step = 0;
     private double endStepSum = 0;
 
     public RevolvingDoorMover(final @NotNull AbstractDoorBase door, final double time, final double multiplier,
-                              final @NotNull RotateDirection rotateDirection, final @Nullable IPPlayer player)
+                              final @NotNull RotateDirection rotateDirection, final @Nullable IPPlayer player,
+                              final int quarterCircles)
     {
         super(door, 30, false, PBlockFace.UP, RotateDirection.NONE, -1, player, door.getMinimum(),
               door.getMaximum());
+
+        this.quarterCircles = quarterCircles;
 
         this.time = time;
         this.rotateDirection = rotateDirection;

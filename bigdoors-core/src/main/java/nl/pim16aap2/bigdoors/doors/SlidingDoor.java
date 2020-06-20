@@ -1,7 +1,11 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -17,19 +21,112 @@ import org.jetbrains.annotations.Nullable;
  * Represents a Sliding Door doorType.
  *
  * @author Pim
- * @see HorizontalAxisAlignedBase
+ * @see AbstractHorizontalAxisAlignedBase
  */
-public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype
+public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
+    implements IStationaryDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
+    private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
+
+    /**
+     * See {@link IBlocksToMoveArchetype#getBlocksToMove}.
+     */
+    protected int blocksToMove;
+
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoCloseTimer()}.
+     */
+    protected int autoCloseTime;
+
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}.
+     */
+    protected int autoOpenTime;
+
+    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
+                       final int autoOpenTime)
+    {
+        super(doorData);
+        this.blocksToMove = blocksToMove;
+        this.autoCloseTime = autoCloseTime;
+        this.autoOpenTime = autoOpenTime;
+    }
+
+    @Deprecated
     protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                          final @NotNull DoorType type)
+                          final @NotNull EDoorType type)
     {
         super(pLogger, doorUID, doorData, type);
     }
 
+    @Deprecated
     protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.SLIDINGDOOR);
+        this(pLogger, doorUID, doorData, EDoorType.SLIDINGDOOR);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public DoorType getDoorType()
+    {
+        return DOOR_TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBlocksToMove()
+    {
+        return blocksToMove;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBlocksToMove(int newBTM)
+    {
+        blocksToMove = newBTM;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoCloseTimer(int newValue)
+    {
+        autoCloseTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoCloseTimer()
+    {
+        return autoCloseTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoOpenTimer(int newValue)
+    {
+        autoOpenTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoOpenTimer()
+    {
+        return autoOpenTime;
     }
 
     /**
@@ -55,13 +152,14 @@ public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationar
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            setOpenDir(RotateDirection.NORTH);
+            return RotateDirection.NORTH;
         else
-            setOpenDir(RotateDirection.EAST);
+            return RotateDirection.EAST;
     }
 
     /**
@@ -123,5 +221,20 @@ public class SlidingDoor extends HorizontalAxisAlignedBase implements IStationar
         doorOpeningUtility.registerBlockMover(
             new SlidingMover(time, this, skipAnimation, blocksToMove, currentToggleDir,
                              doorOpeningUtility.getMultiplier(this), initiator, newMin, newMax));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (!super.equals(o))
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull SlidingDoor other = (SlidingDoor) o;
+        return blocksToMove == other.blocksToMove;
     }
 }

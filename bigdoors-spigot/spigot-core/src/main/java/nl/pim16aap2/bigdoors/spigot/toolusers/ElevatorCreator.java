@@ -1,19 +1,21 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.Elevator;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating an {@link DoorType#ELEVATOR}.
+ * Represents a user creating an {@link DoorTypeElevator}.
  *
  * @author Pim
  **/
@@ -22,7 +24,17 @@ public class ElevatorCreator extends Creator
     public ElevatorCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                            final @Nullable String name)
     {
-        super(plugin, player, name, DoorType.ELEVATOR);
+        super(plugin, player, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
+    {
+        return new Elevator(doorData, 0, 0, 0);
     }
 
     /**

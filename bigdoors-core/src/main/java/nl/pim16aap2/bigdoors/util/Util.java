@@ -34,9 +34,6 @@ public final class Util
      */
     private static Random rnd = new Random();
 
-    @NotNull
-    private static final Pattern QUESTION_MARK = Pattern.compile("\\?");
-
     private static final Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
     private static final Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
 
@@ -64,10 +61,10 @@ public final class Util
      * @param statement The String.
      * @return The number of question marks in the String.
      */
-    public static int getQuestionMarkCount(final @NotNull String statement)
+    public static int countPatternOccurrences(final @NotNull Pattern pattern, final @NotNull String statement)
     {
         int found = 0;
-        final Matcher matcher = QUESTION_MARK.matcher(statement);
+        final Matcher matcher = pattern.matcher(statement);
         while (matcher.find())
             ++found;
         return found;
@@ -209,6 +206,24 @@ public final class Util
         for (int idx = 0; idx != length; ++idx)
             sb.append(chars.charAt(srnd.nextInt(chars.length())));
         return sb.toString();
+    }
+
+    /**
+     * Obtains a random integer value.
+     *
+     * @param min The lower bound (inclusive).
+     * @param max The lower bound (inclusive).
+     * @return A random integer value.
+     */
+    public static int getRandomNumber(int min, int max)
+    {
+
+        if (min >= max)
+        {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+
+        return rnd.nextInt((max - min) + 1) + min;
     }
 
     /**

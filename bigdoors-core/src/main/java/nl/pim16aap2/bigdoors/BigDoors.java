@@ -12,12 +12,24 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Experimental
  */
+// TODO: Consider storing a serialized version of a door before removing its blocks and removing it before placing the blocks.
+//       This would make sure that blocks aren't lost in case of a server crash, which will be more important to avoid
+//       with the new perpetually moving objects. Just make sure to do it async and it should be fine. Also, it should
+//       be a configurable setting (e.g. to minimize disk writes). Maybe even have different levels, so you could use this
+//       system only for perpetually moving objects.
 // TODO: Consider being more strict in the data types used for the door types system. If the type is actually correctly
 //       defined, it's possible to cast it, right?
+// TODO: Look into allowing people to set a (estimated) max size in RAM for certain caches.
+//       Example: https://www.javaworld.com/article/2074458/estimating-java-object-sizes-with-instrumentation.html
+//       Simpler example: https://stackoverflow.com/questions/52353/in-java-what-is-the-best-way-to-determine-the-size-of-an-object#
+//       Another: https://javamagic.blog/2018/07/11/how-to-find-size-of-java-object-in-memory-using-jol/
+//       Also: https://www.baeldung.com/java-size-of-object
 // TODO: Fix violation of LSP for doorAttributes. Instead of having a switch per type in the GUI, override a return in the DoorAttribute enum.
 // TODO: Look into Aikar's command system to replace my command system: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
 // TODO: Consider storing original locations in the database. Then use the OpenDirection as the direction to go when in
 //       the original position. Then you cannot make regular doors go in a full circle anymore.
+// TODO: Instead of placing all blocks one by one and sending packets to the players about it, use this method instead:
+//       https://www.spigotmc.org/threads/efficiently-change-large-area-of-blocks.262341/#post-2585360
 // TODO: Write script (python? might be fun to switch it up) to build plugin.yml on compilation.
 // TODO: For storing player permissions, consider storing them in the database when a player leaves.
 //       Then ONLY use those whenever that player is offline. Just use the online permissions otherwise.
@@ -51,6 +63,16 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: DoorTypes currently need to be registered before BigDoors is initialized, so that they are put in the config.
+//       However, registering DoorTypes requires the DatabaseManager to exist, but it doesn't until halfway through
+//       BigDoor's initialization.
+//       Do not remove any invalid names from the list in the config, but store them in a map instead. Then match from
+//       that map when a new type is registered. If that value didn't exist yet, rewrite the config and add the value.
+//       When a type is unregistered, either remove them from the list and use the old value for the new one, or leave
+//       them there to avoid destroying user data.
+// TODO: Look into overriding Equals() properly for all the subtypes of the door.
+// TODO: Override toString for the subtypes of the doors. All the type's type-specific data should be printed as well.
+// TODO: Make sure there aren't any errors on startup if the plugin folder doesn't exist.
 // TODO: Create a system that allows external plugins to register custom tick stuff for the falling blocks. For every tick,
 //       all the registered custom tick methods will be executed. Either give the custom ticker the falling block itself,
 //       or just position (old and new)/velocity/whatever else is needed. Additionally, maybe add a kinda of async ticker
@@ -190,6 +212,45 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: (not SQL-related), make isLocked part of DoorData.
 // TODO: Make sure that trying to use unregistered doortypes is handled gracefully.
 //       This includes: Toggling, Creating, Commands, and GUI.
+// TODO: Use batch statements to reduce the number of transactions for door inserts. More info:
+//       https://stackoverflow.com/questions/9601030/transaction-in-java-sqlite3
+//       Some more info about general optimizations:
+//       https://www.whoishostingthis.com/compare/sqlite/optimize/
+//       Or maybe insert into views using triggers?
+// TODO: Look into triggers to potentially improve stuff.
+// TODO: Allow storing lists/arrays. Perhaps do this dynamically via creating yet more dynamic tables? Sorry, future me!
+// TODO: Store the locked variable as a flag. Also (not SQL-related), make it part of DoorData.
+// TODO: Implement a doorUpdate method that updates both the doorBase and the door-specific data.
+// TODO: Implement multiple powerblocks per door.
+// TODO: Not using any additional data is completely fine! Right now the DoorType system assumes a strict minimum of 1
+//       additional data value.
+// TODO: Look into this stuff:
+//       https://www.sqlite.org/lang_analyze.html
+//       https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setReadOnly%28boolean%29
+// TODO: Allow deleting door types.
+// TODO: Allow retrieving all doors from a certain type.
+// TODO: Allow updating a DoorType. This should not change the UID of the door. In the DoorBase table, only the column
+//       "doorType" should be modified. All entries in the typeSpecific table should be passed to some kind of update
+//       function that takes the array of Objects and returns a new array of Objects that should be put in the new
+//       type-specific table. All this should be done off the main thread and the database should be locked until it's done.
+// TODO: Be consistent in UUID usage. Either use Strings everywhere or UUIDs everywhere, not the current mix.
+// TODO: When registering DoorTypes, make sure to take into account that the database might be upgrading itself on
+//       another thread. If this is the case, wait until the upgrades have finished before registering them.
+//       Just return a CompletableFuture<Boolean> instead of a boolean from the register method.
+// TODO: Cache functions in PPreparedStatement.
+// TODO: Do not allow modifying properties of a door while it is busy.
+// TODO: Consider creating groups of users, which would make it easy to add an entire group of users as co-owner of a door.
+//       Remember that when removing a player from a group, the player should also be removed as co-owner from all doors
+//       as well, as long as they are not in another group that is also a co-owner of this door.
+//       Alternatively, consider splitting the DoorOwner table into DoorOwnerPlayer and DoorOwnerGroup, so that when you
+//       add a player to a group that is an owner of a door, you don't have to modify everything. Would make queries
+//       more difficult, though.
+// TODO: Consider adding folders. This would require a "Folders" table with an owner, ID, and a folder name as well as
+//       a table that links up doors with folders.
+// TODO: Store engineChunkHash in the database, so stuff can be done when the chunk of a door is loaded. Also make sure
+//       to move the engine location for movable doors (sliding, etc).
+// TODO: Maybe store UUIDs as 16 byte binary blobs to save space: https://stackoverflow.com/a/17278095
+// TODO: Move database upgrades out of the main SQL class. Perhaps create some kind of upgrade routine interface.
 
 /*
  * Commands
@@ -235,12 +296,28 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
  */
 // TODO: Use the openDirection to figure out the current direction for the types that need that. And if that's not
 //       possible, just ask the user.
+// TODO: Make users explicitly specify the openDirection on door creation.
+// TODO: Use the openDirection to figure out the current direction for the types that need that. And if that's not
+//       possible, just ask the user.
+// TODO: Move ToolUsers from spigot-core to bigdoors-core. Also use the following system:
+//       - Use an "int step" or something to keep track of at which step in the creation process the user is.
+//       - Use an array of function pointers which can easily be used using the step integer.
+//       - Make sure it's very easy to extend the system.
 // TODO: GarageDoorCreator: Fix having to double click last block.
 // TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
+// TODO: Adapt to the new creation style.
 
 /*
  * Openers / Movers
  */
+// TODO: The perpetual movers (revolving door, windmill) should also have a mode where they can be opened and closed like regular doors.
+// TODO: When a door is modified in a way that leaves it in an 'impossible' state, make sure to first return to the proper state.
+//       So, if a door is currently open to the west and the opendir is changed to east and it is toggled again,
+//       toggle it to the east again first, even though the closedir would normally be the opposite of the opendir
+//       (therefore close to the west).
+// TODO: FIX DRABRIDGES! THEY ARE BROKEN!
+// TODO: RevolvingDoor: The final location of the blocks is not the original location. You can see this issue when
+//       using a revolving door with an off-center rotation point.
 // TODO: Figure out what to do with the player sometimes being nullable and notnull at other times. Make a clear decision.
 // TODO: Get rid of the weird speed multipliers in the CustomEntityFallingBlock_VX_XX_RX classes.
 // TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the

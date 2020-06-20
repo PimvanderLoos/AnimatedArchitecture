@@ -18,11 +18,34 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.BigDoor;
+import nl.pim16aap2.bigdoors.doors.Clock;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
+import nl.pim16aap2.bigdoors.doors.Drawbridge;
+import nl.pim16aap2.bigdoors.doors.Elevator;
+import nl.pim16aap2.bigdoors.doors.Flag;
+import nl.pim16aap2.bigdoors.doors.GarageDoor;
+import nl.pim16aap2.bigdoors.doors.Portcullis;
+import nl.pim16aap2.bigdoors.doors.RevolvingDoor;
+import nl.pim16aap2.bigdoors.doors.SlidingDoor;
+import nl.pim16aap2.bigdoors.doors.Windmill;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeClock;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeRevolvingDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorActionEvent;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorManager;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
@@ -85,7 +108,10 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bstats.bukkit.Metrics;
@@ -124,12 +150,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private Messages messages;
     private DatabaseManager databaseManager = null;
 
-    private boolean validVersion;
+    private boolean validVersion = false;
     private CommandManager commandManager;
     private Map<UUID, WaitForCommand> cmdWaiters;
     private Map<UUID, ToolUser> toolUsers;
     private Map<UUID, GUI> playerGUIs;
-    private Set<IRestartable> restartables = new HashSet<>();
+    private final Set<IRestartable> restartables = new HashSet<>();
     private ProtectionCompatManagerSpigot protCompatMan;
     private LoginResourcePackListener rPackHandler;
     private VaultManager vaultManager;
@@ -141,13 +167,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private AbortableTaskManager abortableTaskManager;
 
     @NotNull
-    private IPLocationFactory locationFactory = new PLocationFactorySpigot();
+    private final IPLocationFactory locationFactory = new PLocationFactorySpigot();
     @NotNull
-    private IPWorldFactory worldFactory = new PWorldFactorySpigot();
+    private final IPWorldFactory worldFactory = new PWorldFactorySpigot();
     @NotNull
-    private IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
+    private final IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
     @NotNull
-    private ISoundEngine soundEngine = new PSoundEngineSpigot();
+    private final ISoundEngine soundEngine = new PSoundEngineSpigot();
     @NotNull
     private final IMessagingInterface messagingInterface = new MessagingInterfaceSpigot(this);
     @NotNull
@@ -175,6 +201,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             // Register this here so it can check for updates even when loaded on an incorrect version.
             updateManager = new UpdateManager(this, 58669);
 
+            databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), "doorDB.db"));
+            registerDoorTypes();
+
             Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
             validVersion = PlatformManagerSpigot.get().initPlatform(this);
 
@@ -185,6 +214,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                                    + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
                                             .split(",")[3])
                                    + "\"). This plugin will NOT be enabled!");
+                disablePlugin();
                 return;
             }
 
@@ -192,7 +222,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
             config = ConfigLoaderSpigot.init(this, getPLogger());
             init();
-            databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), config.dbFile()));
+
             RedstoneListener.init(this);
             LoginResourcePackListener.init(this, config.resourcePack());
 
@@ -201,7 +231,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             {
                 PLogger.get().severe("Failed to load database! Found it in the state: " + databaseState.name() +
                                          ". Plugin initialization has been aborted!");
-                successfulInit = false;
+                disablePlugin();
                 return;
             }
 
@@ -227,12 +257,113 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             loadCommands();
 
             pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
+
+//            TEST();
         }
         catch (Exception exception)
         {
             successfulInit = false;
             pLogger.logException(exception);
         }
+    }
+
+    /**
+     * Disables this plugin.
+     */
+    private void disablePlugin()
+    {
+        successfulInit = false;
+        Bukkit.getPluginManager().disablePlugin(this);
+    }
+
+    /**
+     * Registers all BigDoor's own door types.
+     */
+    private void registerDoorTypes()
+    {
+        for (DoorType type : new DoorType[]{DoorTypeBigDoor.get(), DoorTypeClock.get(), DoorTypeDrawbridge.get(),
+                                            DoorTypeElevator.get(), DoorTypeFlag.get(), DoorTypeGarageDoor.get(),
+                                            DoorTypePortcullis.get(), DoorTypeRevolvingDoor.get(),
+                                            DoorTypeSlidingDoor.get(), DoorTypeWindmill.get()})
+            registerDoorType(type);
+    }
+
+    /**
+     * Registers a {@link DoorType}
+     *
+     * @param type The {@link DoorType} to register.
+     */
+    private void registerDoorType(final @NotNull DoorType type)
+    {
+        DoorTypeManager.get().registerDoorType(type);
+    }
+
+    private void TEST()
+    {
+        // Because the doortype registration is done asynchronously, it may not be ready yet when starting this test.
+        // Wait up to 1 second for them to finish (should be plenty of time).
+        int waitCycles = 0;
+        while (DoorTypeManager.get().getRegisteredDoorTypes().size() != 10)
+        {
+            try
+            {
+                Thread.sleep(100L);
+            }
+            catch (InterruptedException e)
+            {
+                PLogger.get().logException(e);
+                PLogger.get().severe("An error occurred! TEST aborted!");
+                return;
+            }
+            if (waitCycles++ == 10)
+            {
+                PLogger.get().severe("Timed out waiting for door types to be registered! TEST aborted!");
+                return;
+            }
+        }
+
+        IPPlayer player1 = BigDoors.get().getPlatform().getPPlayerFactory()
+                                   .create(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), "pim16aap2");
+        IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
+                                .create(UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360"));
+
+        final int doorUID = 1;
+        final boolean isOpen = false;
+        final @NotNull String name = "massive1";
+        final @NotNull Vector3Di min = new Vector3Di(144, 75, 153);
+        final @NotNull Vector3Di max = new Vector3Di(144, 131, 167);
+        final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
+        final @NotNull Vector3Di powerBlock = new Vector3Di(101, 101, 101);
+        final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
+
+        final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max,
+                                                                                          engine, powerBlock, world,
+                                                                                          isOpen, RotateDirection.EAST,
+                                                                                          doorOwner, false);
+        final @NotNull BigDoor d01 = new BigDoor(doorData, 100, 0, PBlockFace.DOWN);
+        final @NotNull Clock d02 = new Clock(doorData, false, PBlockFace.NORTH);
+        final @NotNull Drawbridge d03 = new Drawbridge(doorData, 100, 0, PBlockFace.EAST, true);
+        final @NotNull Elevator d04 = new Elevator(doorData, 10, 0, 0);
+        final @NotNull Flag d05 = new Flag(doorData, true, PBlockFace.NORTH);
+        final @NotNull GarageDoor d06 = new GarageDoor(doorData, 0, 0, true, PBlockFace.UP);
+        final @NotNull Portcullis d07 = new Portcullis(doorData, 10, 0, 0);
+        final @NotNull RevolvingDoor d08 = new RevolvingDoor(doorData, 8);
+        final @NotNull SlidingDoor d09 = new SlidingDoor(doorData, 10, 0, 0);
+        final @NotNull Windmill d10 = new Windmill(doorData, false, 100);
+
+//        DatabaseManager.get().setStatementLogging(true);
+        DatabaseManager.get().addDoorBase(d01);
+        DatabaseManager.get().addDoorBase(d02);
+        DatabaseManager.get().addDoorBase(d03);
+        DatabaseManager.get().addDoorBase(d04);
+        DatabaseManager.get().addDoorBase(d05);
+        DatabaseManager.get().addDoorBase(d06);
+        DatabaseManager.get().addDoorBase(d07);
+        DatabaseManager.get().addDoorBase(d08);
+        DatabaseManager.get().addDoorBase(d09);
+        DatabaseManager.get().addDoorBase(d10);
+        for (int idx = 0; idx < 15000; ++idx)
+            DatabaseManager.get().addDoorBase(d01);
     }
 
     public static BigDoorsSpigot get()
@@ -309,6 +440,16 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         }
         commandManager.registerCommand(commandBigDoors);
         commandManager.registerCommand(new CommandMenu(this, commandManager));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NotNull
+    public File getDataDirectory()
+    {
+        return getDataFolder();
     }
 
     /**

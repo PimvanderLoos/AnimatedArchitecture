@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.Windmill;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
@@ -10,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link DoorType#WINDMILL}.
+ * Represents a user creating a {@link DoorTypeWindmill}.
  *
  * @author Pim
  **/
@@ -19,8 +21,17 @@ public class WindmillCreator extends BigDoorCreator
     public WindmillCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                            final @Nullable String name)
     {
-        super(plugin, player, name, DoorType.WINDMILL);
-        type = DoorType.WINDMILL;
+        super(plugin, player, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
+    {
+        return new Windmill(doorData, false, 0);
     }
 
     /**

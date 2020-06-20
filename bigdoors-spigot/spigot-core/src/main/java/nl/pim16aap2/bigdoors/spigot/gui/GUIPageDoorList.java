@@ -2,7 +2,8 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.gui.GUI.SortType;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
@@ -118,10 +119,13 @@ class GUIPageDoorList implements IGUIPage
         for (int idx = 0; idx < endCount; ++idx)
         {
             AbstractDoorBase currentDoor = gui.getDoor(offset + idx);
-            DoorType doorType = currentDoor.getType();
+            DoorType doorType = currentDoor.getDoorType();
             lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(currentDoor.getDoorUID())));
-            lore.add(messages.getString(DoorType.getMessage(doorType)));
-            GUIItem item = new GUIItem(GUI.DOORTYPES[DoorType.getValue(doorType)], currentDoor.getName(), lore, 1);
+//            lore.add(messages.getString(EDoorType.getMessage(EDoorType)));
+            lore.add(doorType.getTypeName());
+            GUIItem item = new GUIItem(
+                GUI.DOORTYPES[(int) (long) DoorTypeManager.get().getDoorType(doorType).orElse(0L)],
+                currentDoor.getName(), lore, 1);
             item.setDoor(currentDoor);
             gui.addItem(idx + 9, item);
             lore.clear();

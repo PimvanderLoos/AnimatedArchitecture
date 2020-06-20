@@ -1,18 +1,20 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.Portcullis;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorType;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link DoorType#PORTCULLIS}.
+ * Represents a user creating a {@link DoorTypePortcullis}.
  *
  * @author Pim
  **/
@@ -21,7 +23,17 @@ public class PortcullisCreator extends Creator
     public PortcullisCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                              final @Nullable String name)
     {
-        super(plugin, player, name, DoorType.PORTCULLIS);
+        super(plugin, player, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
+    {
+        return new Portcullis(doorData, 0, 0, 0);
     }
 
     /**

@@ -2,6 +2,9 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.GarageDoorMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -17,19 +20,130 @@ import org.jetbrains.annotations.Nullable;
  * Represents a Garage Door doorType.
  *
  * @author Pim
- * @see HorizontalAxisAlignedBase
+ * @see AbstractHorizontalAxisAlignedBase
  */
-public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoorArchetype
+public class GarageDoor extends AbstractHorizontalAxisAlignedBase
+    implements IMovingDoorArchetype, ITimerToggleableArchetype
 {
-    protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                         final @NotNull DoorType type)
+    private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
+    /**
+     * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
+     * axis
+     * <b>(= FALSE)</b>.
+     * <p>
+     * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
+     * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
+     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     */
+    protected final boolean onNorthSouthAxis;
+
+    /**
+     * Gets the side the flag is on flag relative to it rotation point ("engine", i.e. the point).
+     */
+    @NotNull
+    protected PBlockFace currentDirection;
+
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoCloseTimer()}
+     */
+    protected int autoCloseTime;
+
+    /**
+     * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}
+     */
+    protected int autoOpenTime;
+
+    public GarageDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
+                      final boolean onNorthSouthAxis,
+                      final @NotNull PBlockFace currentDirection)
     {
-        super(pLogger, doorUID, doorData, type);
+        super(doorData);
+        this.autoCloseTime = autoCloseTime;
+        this.autoOpenTime = autoOpenTime;
+        this.onNorthSouthAxis = onNorthSouthAxis;
+        this.currentDirection = currentDirection;
     }
 
+    @Deprecated
+    protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                         final @NotNull EDoorType type)
+    {
+        super(pLogger, doorUID, doorData, type);
+        currentDirection = null;
+        onNorthSouthAxis = false;
+    }
+
+    @Deprecated
     protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.GARAGEDOOR);
+        this(pLogger, doorUID, doorData, EDoorType.GARAGEDOOR);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public DoorType getDoorType()
+    {
+        return DOOR_TYPE;
+    }
+
+    /**
+     * Gets the side the {@link IDoorBase} is on relative to the engine.
+     *
+     * @return The side the {@link IDoorBase} is on relative to the engine
+     */
+    @NotNull
+    public PBlockFace getCurrentDirection()
+    {
+        return currentDirection;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoCloseTimer(int newValue)
+    {
+        autoCloseTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoCloseTimer()
+    {
+        return autoCloseTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAutoOpenTimer(int newValue)
+    {
+        autoOpenTime = newValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getAutoOpenTimer()
+    {
+        return autoOpenTime;
+    }
+
+    /**
+     * Checks if this {@link Clock} is on the North/South axis or not. See {@link #onNorthSouthAxis}.
+     *
+     * @return True if this door is animated along the North/South axis.
+     */
+    public boolean getOnNorthSouthAxis()
+    {
+        return onNorthSouthAxis;
     }
 
     /**
@@ -74,27 +188,12 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
      */
     @NotNull
     @Override
-    public PBlockFace calculateCurrentDirection()
-    {
-        if (!isOpen())
-            return PBlockFace.UP;
-
-        int dX = engine.getX() - min.getX();
-        int dZ = engine.getZ() - min.getZ();
-
-        return PBlockFace.faceFromDir(new Vector3Di(Integer.compare(0, dX), 0, Integer.compare(0, dZ)));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            setOpenDir(RotateDirection.EAST);
+            return RotateDirection.EAST;
         else
-            setOpenDir(RotateDirection.NORTH);
+            return RotateDirection.NORTH;
     }
 
     /**
@@ -134,9 +233,9 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
         }
         catch (Exception e)
         {
-            pLogger.logException(new IllegalArgumentException(
+            PLogger.get().logException(new IllegalArgumentException(
                 "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
-                    getType().name() + "\""));
+                    getDoorType().toString() + "\""));
             return false;
         }
 
@@ -216,5 +315,24 @@ public class GarageDoor extends HorizontalAxisAlignedBase implements IMovingDoor
         doorOpeningUtility.registerBlockMover(
             new GarageDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), skipAnimation,
                                 getCurrentDirection(), getCurrentToggleDir(), initiator, newMin, newMax));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final @Nullable Object o)
+    {
+        if (!super.equals(o))
+            return false;
+
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull GarageDoor other = (GarageDoor) o;
+        return currentDirection.equals(other.currentDirection) &&
+            onNorthSouthAxis == other.onNorthSouthAxis &&
+            autoOpenTime == other.autoOpenTime &&
+            autoCloseTime == other.autoCloseTime;
     }
 }

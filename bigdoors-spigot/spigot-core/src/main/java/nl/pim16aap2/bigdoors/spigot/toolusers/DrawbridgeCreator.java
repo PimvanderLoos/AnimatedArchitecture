@@ -1,20 +1,22 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.Drawbridge;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link DoorType#DRAWBRIDGE}.
+ * Represents a user creating a {@link DoorTypeDrawbridge}.
  *
  * @author Pim
  **/
@@ -23,7 +25,17 @@ public class DrawbridgeCreator extends Creator
     public DrawbridgeCreator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
                              final @Nullable String name)
     {
-        super(plugin, player, name, DoorType.DRAWBRIDGE);
+        super(plugin, player, name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
+    {
+        return new Drawbridge(doorData, 0, 0, PBlockFace.EAST, true);
     }
 
     /**

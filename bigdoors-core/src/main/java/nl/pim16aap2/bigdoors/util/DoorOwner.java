@@ -32,6 +32,20 @@ public class DoorOwner
      * Constructor of {@link DoorOwner}.
      *
      * @param doorUID    The UID of the DoorBase.
+     * @param permission The permission level at which the player owns the door.
+     * @param player     The playuer that owns the given door.
+     */
+    public DoorOwner(final long doorUID, final int permission, final @NotNull IPPlayer player)
+    {
+        this.doorUID = doorUID;
+        this.permission = permission;
+        this.player = player;
+    }
+
+    /**
+     * Constructor of {@link DoorOwner}.
+     *
+     * @param doorUID    The UID of the DoorBase.
      * @param playerUUID The UUID of the player that owns the given door.
      * @param playerName The name of the player that owns the given door.
      * @param permission The permission level at which the player owns the door.
@@ -39,9 +53,7 @@ public class DoorOwner
     public DoorOwner(final long doorUID, final @NotNull UUID playerUUID, final @NotNull String playerName,
                      final int permission)
     {
-        this.doorUID = doorUID;
-        this.permission = permission;
-        player = BigDoors.get().getPlatform().getPPlayerFactory().create(playerUUID, playerName);
+        this(doorUID, permission, BigDoors.get().getPlatform().getPPlayerFactory().create(playerUUID, playerName));
     }
 
     /**

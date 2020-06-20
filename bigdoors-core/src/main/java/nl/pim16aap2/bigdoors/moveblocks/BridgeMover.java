@@ -6,9 +6,9 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.AbstractHorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.doors.Drawbridge;
-import nl.pim16aap2.bigdoors.doors.HorizontalAxisAlignedBase;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotEast;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotNorth;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotSouth;
@@ -46,12 +46,12 @@ public class BridgeMover extends BlockMover
      * @param door            The {@link AbstractDoorBase}.
      * @param time            The amount of time (in seconds) the door will try to toggle itself in.
      * @param skipAnimation   If the door should be opened instantly (i.e. skip animation) or not.
-     * @param upDown          Whether the {@link DoorType#DRAWBRIDGE} should go up or down.
+     * @param upDown          Whether the {@link EDoorType#DRAWBRIDGE} should go up or down.
      * @param rotateDirection The direction the {@link AbstractDoorBase} will move.
      * @param multiplier      The speed multiplier.
      * @param player          The player who opened this door.
      */
-    public BridgeMover(final double time, final @NotNull HorizontalAxisAlignedBase door,
+    public BridgeMover(final double time, final @NotNull AbstractHorizontalAxisAlignedBase door,
                        final @NotNull PBlockFace upDown, final @NotNull RotateDirection rotateDirection,
                        final boolean skipAnimation, final double multiplier, final @Nullable IPPlayer player,
                        final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax)

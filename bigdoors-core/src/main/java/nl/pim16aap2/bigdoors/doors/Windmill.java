@@ -3,6 +3,8 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.WindmillMover;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -15,19 +17,78 @@ import org.jetbrains.annotations.Nullable;
  * Represents a Windmill doorType.
  *
  * @author Pim
- * @see HorizontalAxisAlignedBase
+ * @see AbstractHorizontalAxisAlignedBase
  */
-public class Windmill extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Windmill extends AbstractHorizontalAxisAlignedBase
+    implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
-    protected Windmill(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                       final @NotNull DoorType type)
+    private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
+
+    /**
+     * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
+     * axis
+     * <b>(= FALSE)</b>.
+     * <p>
+     * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
+     * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
+     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     */
+    protected final boolean onNorthSouthAxis;
+
+    /**
+     * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
+     */
+    private int quarterCircles = 1;
+
+    public Windmill(final @NotNull DoorData doorData, final boolean onNorthSouthAxis, final int quarterCircles)
     {
-        super(pLogger, doorUID, doorData, type);
+        super(doorData);
+        this.onNorthSouthAxis = onNorthSouthAxis;
+        this.quarterCircles = quarterCircles;
     }
 
+    @Deprecated
+    protected Windmill(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
+                       final @NotNull EDoorType type)
+    {
+        super(pLogger, doorUID, doorData, type);
+        onNorthSouthAxis = false;
+    }
+
+    @Deprecated
     protected Windmill(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
     {
-        this(pLogger, doorUID, doorData, DoorType.WINDMILL);
+        this(pLogger, doorUID, doorData, EDoorType.WINDMILL);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public DoorType getDoorType()
+    {
+        return DOOR_TYPE;
+    }
+
+    /**
+     * Checks if this {@link Clock} is on the North/South axis or not. See {@link #onNorthSouthAxis}.
+     *
+     * @return True if this door is animated along the North/South axis.
+     */
+    public boolean getOnNorthSouthAxis()
+    {
+        return onNorthSouthAxis;
+    }
+
+    /**
+     * Gets the number of quarter circles this door will rotate.
+     *
+     * @return The number of quarter circles this door will rotate.
+     */
+    public int getQuarterCircles()
+    {
+        return quarterCircles;
     }
 
     /**
@@ -46,13 +107,14 @@ public class Windmill extends HorizontalAxisAlignedBase implements IStationaryDo
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
         if (onNorthSouthAxis())
-            setOpenDir(RotateDirection.NORTH);
+            return RotateDirection.NORTH;
         else
-            setOpenDir(RotateDirection.EAST);
+            return RotateDirection.EAST;
     }
 
     /**
@@ -68,5 +130,20 @@ public class Windmill extends HorizontalAxisAlignedBase implements IStationaryDo
 
         doorOpeningUtility.registerBlockMover(new WindmillMover(this, fixedTime, doorOpeningUtility.getMultiplier(this),
                                                                 getCurrentToggleDir(), initiator));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final @Nullable Object o)
+    {
+        if (!super.equals(o))
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull Windmill other = (Windmill) o;
+        return onNorthSouthAxis == other.onNorthSouthAxis;
     }
 }

@@ -10,8 +10,18 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorActionEvent;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+
 public interface IBigDoorsPlatform
 {
+    /**
+     * Gets the directory where all data will stored.
+     *
+     * @return The directory where all data will stored.
+     */
+    @NotNull
+    File getDataDirectory();
+
     /**
      * Gets the instance of the {@link IPLocationFactory} for this platform.
      *

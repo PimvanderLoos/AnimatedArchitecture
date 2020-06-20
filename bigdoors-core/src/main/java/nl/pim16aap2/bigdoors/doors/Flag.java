@@ -3,10 +3,11 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.moveblocks.FlagMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -19,17 +20,34 @@ import org.jetbrains.annotations.Nullable;
  * @author Pim
  * @see AbstractDoorBase
  */
-public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Flag extends AbstractHorizontalAxisAlignedBase
+    implements IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
-    protected Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                   final @NotNull DoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-    }
+    private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
 
-    protected Flag(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
+    /**
+     * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
+     * axis
+     * <b>(= FALSE)</b>.
+     * <p>
+     * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
+     * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
+     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     */
+    protected final boolean onNorthSouthAxis;
+
+    /**
+     * Gets the side the flag is on flag relative to it rotation point ("engine", i.e. the point).
+     */
+    @NotNull
+    protected final PBlockFace flagDirection;
+
+    public Flag(final @NotNull DoorData doorData, final boolean onNorthSouthAxis,
+                final @NotNull PBlockFace flagDirection)
     {
-        this(pLogger, doorUID, doorData, DoorType.FLAG);
+        super(doorData);
+        this.onNorthSouthAxis = onNorthSouthAxis;
+        this.flagDirection = flagDirection;
     }
 
     /**
@@ -37,13 +55,44 @@ public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorAr
      */
     @NotNull
     @Override
-    public PBlockFace calculateCurrentDirection()
+    public DoorType getDoorType()
     {
-        return engine.getZ() != min.getZ() ? PBlockFace.NORTH :
-               engine.getX() != max.getX() ? PBlockFace.EAST :
-               engine.getZ() != max.getZ() ? PBlockFace.SOUTH :
-               engine.getX() != min.getX() ? PBlockFace.WEST : PBlockFace.NONE;
+        return DOOR_TYPE;
     }
+
+    /**
+     * Gets the side the flag is on relative to its rotation point. See {@link #flagDirection}.
+     *
+     * @return The side of the rotation point (pole) that the flag is on.
+     */
+    @NotNull
+    public PBlockFace getFlagDirection()
+    {
+        return flagDirection;
+    }
+
+    /**
+     * Checks if this {@link Clock} is on the North/South axis or not. See {@link #onNorthSouthAxis}.
+     *
+     * @return True if this door is animated along the North/South axis.
+     */
+    public boolean getOnNorthSouthAxis()
+    {
+        return onNorthSouthAxis;
+    }
+
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @NotNull
+//    @Override
+//    public PBlockFace calculateCurrentDirection()
+//    {
+//        return engine.getZ() != min.getZ() ? PBlockFace.NORTH :
+//               engine.getX() != max.getX() ? PBlockFace.EAST :
+//               engine.getZ() != max.getZ() ? PBlockFace.SOUTH :
+//               engine.getX() != min.getX() ? PBlockFace.WEST : PBlockFace.NONE;
+//    }
 
     /**
      * {@inheritDoc}
@@ -51,10 +100,22 @@ public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorAr
      * Because flags do not actually open in any direction, the open direction simply the same as {@link
      * #getCurrentDirection()}.
      */
+    @NotNull
     @Override
-    public void setDefaultOpenDirection()
+    public RotateDirection getDefaultOpenDirection()
     {
-        setOpenDir(Util.getRotateDirection(getCurrentDirection()));
+        return Util.getRotateDirection(getCurrentDirection());
+    }
+
+    /**
+     * Gets the side the {@link IDoorBase} is on relative to the engine.
+     *
+     * @return The side the {@link IDoorBase} is on relative to the engine
+     */
+    @NotNull
+    public PBlockFace getCurrentDirection()
+    {
+        return flagDirection;
     }
 
     /**
@@ -81,5 +142,22 @@ public class Flag extends HorizontalAxisAlignedBase implements IStationaryDoorAr
     {
         doorOpeningUtility.registerBlockMover(
             new FlagMover(60, this, doorOpeningUtility.getMultiplier(this), initiator));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final @Nullable Object o)
+    {
+        if (!super.equals(o))
+            return false;
+        
+        if (getClass() != o.getClass())
+            return false;
+
+        final @NotNull Flag other = (Flag) o;
+        return flagDirection.equals(other.flagDirection) &&
+            onNorthSouthAxis == other.onNorthSouthAxis;
     }
 }

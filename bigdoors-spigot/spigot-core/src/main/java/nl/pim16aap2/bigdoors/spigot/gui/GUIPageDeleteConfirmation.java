@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandDelete;
@@ -111,7 +110,8 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
         lore.add(messages.getString(Message.GUI_BUTTON_INFO));
         lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(gui.getDoor().getDoorUID())));
-        lore.add(messages.getString(DoorType.getMessage(gui.getDoor().getType())));
+//        lore.add(messages.getString(EDoorType.getMessage(gui.getDoor().getType())));
+        lore.add(gui.getDoor().getDoorType().getTranslationName());
         gui.addItem(4,
                     new GUIItem(GUI.CURRDOORMAT, gui.getDoor().getName() + ": " + gui.getDoor().getDoorUID(), lore, 1));
     }

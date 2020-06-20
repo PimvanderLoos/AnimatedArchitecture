@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 /**
  * Represents storage of all door related stuff.
@@ -19,6 +21,30 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public interface IStorage
 {
+
+    Pattern VALID_TABLE_NAME = Pattern.compile("^[a-zA-Z0-9_]*$");
+
+    /**
+     * Checks if a specific String would make for a valid name for a table.
+     *
+     * @param str The String to check.
+     * @return True if this String is valid as a table name.
+     */
+    static boolean isValidTableName(final @NotNull String str)
+    {
+        return VALID_TABLE_NAME.matcher(str).find();
+    }
+
+    /**
+     * Registeres an {@link DoorType} in the database.
+     *
+     * @param doorType The {@link DoorType}.
+     * @return The identifier value assigned to the {@link DoorType} during registration. A value less than 1 means that
+     * registration was not successful. If the {@link DoorType} already exists in the database, it will return the
+     * existing identifier value. As long as the type does not change,
+     */
+    long registerDoorType(final @NotNull DoorType doorType);
+
     /**
      * Gets the level of ownership a given player has over a given door.
      *
@@ -150,7 +176,8 @@ public interface IStorage
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
     @NotNull
-    Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID, final @NotNull String doorName,
+    Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID,
+                                              final @NotNull String doorName,
                                               final int maxPermission);
 
     /**
@@ -199,7 +226,7 @@ public interface IStorage
      * @return The original creator of a door.
      */
     @NotNull
-    Optional<DoorOwner> getOwnerOfDoor(final long doorUID);
+    Optional<DoorOwner> getCreatorOfDoor(final long doorUID);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
@@ -223,15 +250,6 @@ public interface IStorage
     List<Long> getDoorsInChunk(final long chunkHash);
 
     /**
-     * Changes the blocksToMove value of a door.
-     *
-     * @param doorUID      The door to modify.
-     * @param blocksToMove The new number of blocks this door will try to move.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorBlocksToMove(final long doorUID, final int blocksToMove);
-
-    /**
      * Updates the coordinates of a door.
      *
      * @param doorUID The UID of the door to update.
@@ -246,15 +264,6 @@ public interface IStorage
      */
     boolean updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin, final int zMin,
                              final int xMax, final int yMax, final int zMax);
-
-    /**
-     * Changes the blocksToMove value of a door.
-     *
-     * @param doorUID   The door to modify.
-     * @param autoClose The new auto close timer of this door.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorAutoClose(final long doorUID, final int autoClose);
 
     /**
      * Changes the blocksToMove value of a door.
@@ -294,6 +303,33 @@ public interface IStorage
     boolean insert(final @NotNull AbstractDoorBase door);
 
     /**
+     * Updates the type-specific data of an {@link AbstractDoorBase} in the database. This data is provided by {@link
+     * DoorType#getTypeData(AbstractDoorBase)} ()}.
+     *
+     * @param door The door whose type-specific data should be updated.
+     * @return True if the update was successful.
+     */
+    boolean updateTypeData(final @NotNull AbstractDoorBase door);
+
+    /**
+     * Deletes a {@link DoorType} and all {@link AbstractDoorBase}s of this type from the database.
+     * <p>
+     * Note that the {@link DoorType} has to be registered before it can be deleted! It doesn't need to be enabled,
+     * though.
+     *
+     * @param doorType The {@link DoorType} to delete.
+     * @return True if deletion was successful.
+     */
+    boolean deleteDoorType(final @NotNull DoorType doorType);
+
+    /**
+     * Enables or disables logging of statements sent to the database.
+     *
+     * @param enabled True to enable statement logging, false to disable.
+     */
+    void setStatementLogging(final boolean enabled);
+
+    /**
      * Removes an owner of a door. Note that the original creator (= permission level 0) can never be removed.
      *
      * @param doorUID    The UID of the door to modify.
@@ -329,9 +365,9 @@ public interface IStorage
      * @param door The {@link AbstractDoorBase}.
      * @return The flag value of a {@link AbstractDoorBase}.
      */
-    default int getFlag(final @NotNull AbstractDoorBase door)
+    default long getFlag(final @NotNull AbstractDoorBase door)
     {
-        int flag = 0;
+        long flag = 0;
         flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), door.isOpen(), flag);
         flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), door.isLocked(), flag);
         return flag;
@@ -419,9 +455,9 @@ public interface IStorage
         /**
          * The bit value of the flag.
          */
-        private final int flagValue;
+        private final long flagValue;
 
-        DoorFlag(final int flagValue)
+        DoorFlag(final long flagValue)
         {
             this.flagValue = flagValue;
         }
@@ -432,7 +468,7 @@ public interface IStorage
          * @param flag The {@link DoorFlag}.
          * @return The flag value of a {@link DoorFlag}.
          */
-        public static int getFlagValue(final @NotNull DoorFlag flag)
+        public static long getFlagValue(final @NotNull DoorFlag flag)
         {
             return flag.flagValue;
         }

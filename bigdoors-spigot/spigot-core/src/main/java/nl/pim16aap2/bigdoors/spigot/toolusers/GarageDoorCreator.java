@@ -1,7 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.GarageDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -9,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a user creating a {@link DoorType#GARAGEDOOR}.
+ * Represents a user creating a {@link DoorTypeGarageDoor}.
  *
  * @author Pim
  **/
@@ -19,7 +22,16 @@ public class GarageDoorCreator extends BigDoorCreator
                              final @Nullable String name)
     {
         super(plugin, player, name);
-        type = DoorType.GARAGEDOOR;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
+    {
+        return new GarageDoor(doorData, 0, 0, false, PBlockFace.EAST);
     }
 
     // TODO: When an "open" garage door (i.e. flat against the ceiling) is created,

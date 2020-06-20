@@ -4,7 +4,9 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.bigdoors.api.IRestartable;
-import nl.pim16aap2.bigdoors.doors.DoorType;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -16,9 +18,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Manages all interactions with Vault.
@@ -38,7 +40,7 @@ public final class VaultManager implements IRestartable
     private VaultManager()
     {
         menu = new HashMap<>();
-        flatPrices = new EnumMap<>(DoorType.class);
+        flatPrices = new HashMap<>();
         vaultEnabled = isVaultInstalled() && setupEconomy() && setupPermissions();
         if (!vaultEnabled) // TODO: Don't throw an exception here, it's completely fine if Vault isn't installed!
             PLogger.get().logException(new IllegalStateException("Failed to enable Vault!"));
@@ -98,7 +100,7 @@ public final class VaultManager implements IRestartable
         Double price;
         try
         {
-            price = Double.parseDouble(plugin.getConfigLoader().getPrice(DoorType.BIGDOOR));
+            price = Double.parseDouble(plugin.getConfigLoader().getPrice(type));
             flatPrices.put(type, price);
         }
         catch (Exception unhandled)
@@ -112,7 +114,7 @@ public final class VaultManager implements IRestartable
      */
     private void init()
     {
-        for (DoorType type : DoorType.cachedValues())
+        for (DoorType type : DoorTypeManager.get().getEnabledDoorTypes())
             getFlatPrice(type);
     }
 
@@ -150,9 +152,9 @@ public final class VaultManager implements IRestartable
     }
 
     /**
-     * Gets the price of {@link DoorType} for a specific number of blocks.
+     * Gets the price of {@link EDoorType} for a specific number of blocks.
      *
-     * @param type       The {@link DoorType}.
+     * @param type       The {@link EDoorType}.
      * @param blockCount The number of blocks.
      * @return The price of this {@link DoorType} with this number of blocks.
      */
@@ -160,9 +162,16 @@ public final class VaultManager implements IRestartable
     {
         if (!vaultEnabled)
             return 0;
+        Optional<Long> typeID = DoorTypeManager.get().getDoorType(type);
+        if (!typeID.isPresent())
+        {
+            PLogger.get()
+                   .logException(new IllegalStateException("Trying to calculate the price for an unregistered door!"));
+            return 0;
+        }
 
         // Try cache first
-        final long priceID = blockCount * 100L + DoorType.getValue(type);
+        final long priceID = blockCount * 100L + typeID.get();
         if (menu.containsKey(priceID))
             return menu.get(priceID);
 
