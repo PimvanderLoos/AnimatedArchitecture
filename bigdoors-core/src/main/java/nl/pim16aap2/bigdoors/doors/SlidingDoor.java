@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -211,7 +212,8 @@ public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
-                                      final @NotNull Vector3Di newMax, final @Nullable IPPlayer initiator)
+                                      final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull DoorActionType actionType)
     {
         RotateDirection currentToggleDir = getCurrentToggleDir();
         int blocksToMove =
@@ -220,7 +222,7 @@ public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
 
         doorOpeningUtility.registerBlockMover(
             new SlidingMover(time, this, skipAnimation, blocksToMove, currentToggleDir,
-                             doorOpeningUtility.getMultiplier(this), initiator, newMin, newMax));
+                             doorOpeningUtility.getMultiplier(this), initiator, newMin, newMax, cause, actionType));
     }
 
     /**

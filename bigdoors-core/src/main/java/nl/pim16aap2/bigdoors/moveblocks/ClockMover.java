@@ -4,12 +4,13 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.AbstractHorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.doors.Clock;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -49,10 +50,10 @@ public class ClockMover extends WindmillMover
     private static final float HOURSUBSTEP = (float) Math.PI / 360;
 
     public ClockMover(final @NotNull AbstractHorizontalAxisAlignedBase door,
-                      final @NotNull RotateDirection rotateDirection,
-                      final @Nullable IPPlayer player)
+                      final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
+                      final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, 0.0D, 0.0D, rotateDirection, player);
+        super(door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
         isHourArm = NS ? this::isHourArmNS : this::isHourArmEW;
     }
 

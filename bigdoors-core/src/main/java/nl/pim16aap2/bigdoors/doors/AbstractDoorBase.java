@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
@@ -124,7 +125,8 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Attempts to toggle a door.
+     * Attempts to toggle a door. Think twice before using this method. Instead, please look at {@link
+     * DoorOpener#animateDoorAsync(AbstractDoorBase, DoorActionCause, IPPlayer, double, boolean, DoorActionType)}.
      *
      * @param cause         What caused this action.
      * @param initiator     The player that initiated the DoorAction.
@@ -138,15 +140,23 @@ public abstract class AbstractDoorBase implements IDoorBase
     final DoorToggleResult toggle(final @NotNull DoorActionCause cause, final @NotNull IPPlayer initiator,
                                   final double time, boolean skipAnimation, final @NotNull DoorActionType actionType)
     {
-        if (openDir.equals(RotateDirection.NONE))
+        if (openDir == RotateDirection.NONE)
         {
             IllegalStateException e = new IllegalStateException("OpenDir cannot be NONE!");
             PLogger.get().logException(e);
             throw e;
         }
 
+        IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                                       .createPrepareEvent(this, cause, actionType, initiator, time,
+                                                                           skipAnimation);
+        BigDoors.get().getPlatform().callDoorActionEvent(prepareEvent);
+        if (prepareEvent.isCancelled())
+            return doorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, initiator);
+
+
         if (skipAnimation && !canSkipAnimation())
-            doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, initiator);
+            return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, initiator);
 
         DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
@@ -168,7 +178,12 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (!doorOpeningUtility.canBreakBlocksBetweenLocs(this, newMin, newMax, initiator))
             return doorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause, initiator);
 
-        registerBlockMover(cause, time, skipAnimation, newMin, newMax, initiator);
+        registerBlockMover(cause, time, skipAnimation, newMin, newMax, initiator, actionType);
+
+        BigDoors.get().getPlatform().callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                                                 .createStartEvent(this, cause, actionType, initiator,
+                                                                                   time, skipAnimation));
+
         return DoorToggleResult.SUCCESS;
     }
 
@@ -196,11 +211,12 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @param newMin        The new minimum IPLocation this door will have after the toggle.
      * @param newMax        The new maximmum IPLocation this door will have after the toggle.
      * @param initiator     The {@link IPPlayer} responsilbe for the door action.
+     * @param actionType    The type of action that will be performed by the BlockMover.
      */
-    protected abstract void registerBlockMover(final @NotNull DoorActionCause cause,
-                                               final double time, final boolean skipAnimation,
-                                               final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax,
-                                               final @Nullable IPPlayer initiator);
+    protected abstract void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                               final boolean skipAnimation, final @NotNull Vector3Di newMin,
+                                               final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
+                                               final @NotNull DoorActionType actionType);
 
     /**
      * {@inheritDoc}

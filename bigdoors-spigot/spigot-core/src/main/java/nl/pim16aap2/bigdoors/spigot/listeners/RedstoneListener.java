@@ -1,11 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -111,14 +109,8 @@ public class RedstoneListener extends Restartable implements Listener
         BigDoors.get().getPowerBlockManager().doorsFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getUID()).whenComplete(
             (doorList, throwable) -> doorList.forEach(
-                door ->
-                {
-                    // TODO: Less stupid system.
-                    CompletableFuture<Optional<AbstractDoorBase>> futureDoor = CompletableFuture
-                        .completedFuture(Optional.of(door));
-                    plugin.callDoorActionEvent(new DoorEventTogglePrepare(futureDoor, DoorActionCause.REDSTONE,
-                                                                          DoorActionType.TOGGLE, null));
-                }));
+                door -> DoorOpener.get().animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
+                                                          DoorActionType.TOGGLE)));
     }
 
     /**

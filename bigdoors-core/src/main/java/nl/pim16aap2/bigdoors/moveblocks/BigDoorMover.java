@@ -6,6 +6,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotEast;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotNorth;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotSouth;
@@ -19,7 +21,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class BigDoorMover extends BlockMover
 {
@@ -37,10 +38,12 @@ public class BigDoorMover extends BlockMover
 
     public BigDoorMover(final @NotNull RotateDirection rotDirection, final double time,
                         final @NotNull PBlockFace currentDirection, final @NotNull AbstractDoorBase door,
-                        final boolean skipAnimation, final double multiplier, @Nullable final IPPlayer player,
-                        final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax)
+                        final boolean skipAnimation, final double multiplier, @NotNull final IPPlayer player,
+                        final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax,
+                        final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, currentDirection, rotDirection, -1, player, finalMin, finalMax);
+        super(door, time, skipAnimation, currentDirection, rotDirection, -1, player, finalMin, finalMax, cause,
+              actionType);
 
         turningPoint = door.getEngine();
         rotationCenter = new Vector3Dd(turningPoint.getX() + 0.5, yMin, turningPoint.getZ() + 0.5);

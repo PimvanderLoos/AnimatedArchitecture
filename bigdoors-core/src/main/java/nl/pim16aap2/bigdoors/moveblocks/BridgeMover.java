@@ -9,6 +9,8 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.AbstractHorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.doors.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotEast;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotNorth;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotSouth;
@@ -22,7 +24,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
 
@@ -53,10 +54,11 @@ public class BridgeMover extends BlockMover
      */
     public BridgeMover(final double time, final @NotNull AbstractHorizontalAxisAlignedBase door,
                        final @NotNull PBlockFace upDown, final @NotNull RotateDirection rotateDirection,
-                       final boolean skipAnimation, final double multiplier, final @Nullable IPPlayer player,
-                       final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax)
+                       final boolean skipAnimation, final double multiplier, final @NotNull IPPlayer player,
+                       final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax,
+                       final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, upDown, rotateDirection, -1, player, finalMin, finalMax);
+        super(door, time, skipAnimation, upDown, rotateDirection, -1, player, finalMin, finalMax, cause, actionType);
 
         NS = door.onNorthSouthAxis();
 

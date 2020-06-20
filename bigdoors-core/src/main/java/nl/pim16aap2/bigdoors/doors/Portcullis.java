@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.VerticalMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -211,13 +212,14 @@ public class Portcullis extends AbstractDoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
-                                      final @NotNull Vector3Di newMax, final @Nullable IPPlayer initiator)
+                                      final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull DoorActionType actionType)
     {
 
         int blocksToMove = newMin.getY() - min.getY();
         doorOpeningUtility.registerBlockMover(
             new VerticalMover(time, this, skipAnimation, blocksToMove, doorOpeningUtility.getMultiplier(this),
-                              initiator, newMin, newMax));
+                              initiator, newMin, newMax, cause, actionType));
     }
 
     /**

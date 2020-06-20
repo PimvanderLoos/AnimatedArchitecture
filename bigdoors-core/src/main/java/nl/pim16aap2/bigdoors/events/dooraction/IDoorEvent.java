@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.events.PEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public interface IDoorEvent extends PEvent
 {
@@ -16,7 +15,7 @@ public interface IDoorEvent extends PEvent
      * @return The door.
      */
     @NotNull
-    CompletableFuture<Optional<AbstractDoorBase>> getDoor();
+    AbstractDoorBase getDoor();
 
     /**
      * Gets what caused the door action request to be created.

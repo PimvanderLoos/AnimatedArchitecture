@@ -14,7 +14,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
@@ -133,7 +133,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     }
 
     @Override
-    public void callDoorActionEvent(@NotNull IDoorEventTogglePrepare doorActionEvent)
+    public void callDoorActionEvent(@NotNull IDoorEvent doorActionEvent)
     {
 
     }

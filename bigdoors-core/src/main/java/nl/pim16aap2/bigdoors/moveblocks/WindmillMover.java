@@ -5,12 +5,13 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.AbstractHorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.doors.Windmill;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a {@link BlockMover} for {@link Windmill}s.
@@ -25,10 +26,11 @@ public class WindmillMover extends BridgeMover
 
     public WindmillMover(final @NotNull AbstractHorizontalAxisAlignedBase door, final double time,
                          final double multiplier,
-                         final @NotNull RotateDirection rotateDirection, final @Nullable IPPlayer player)
+                         final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
+                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
         super(time, door, PBlockFace.NONE, rotateDirection, false, multiplier, player, door.getMinimum(),
-              door.getMaximum());
+              door.getMaximum(), cause, actionType);
     }
 
     /**

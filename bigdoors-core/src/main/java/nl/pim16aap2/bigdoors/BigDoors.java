@@ -63,6 +63,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: InterruptedException should not be caught, it should be rethrown. Either avoid it altogether, or handle it
+//       properly.
 // TODO: DoorTypes currently need to be registered before BigDoors is initialized, so that they are put in the config.
 //       However, registering DoorTypes requires the DatabaseManager to exist, but it doesn't until halfway through
 //       BigDoor's initialization.

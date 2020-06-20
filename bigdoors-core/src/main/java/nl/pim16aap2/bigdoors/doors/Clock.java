@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeClock;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.ClockMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -128,9 +129,11 @@ public class Clock extends AbstractHorizontalAxisAlignedBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
-                                      final @NotNull Vector3Di newMax, final @Nullable IPPlayer initiator)
+                                      final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull DoorActionType actionType)
     {
-        doorOpeningUtility.registerBlockMover(new ClockMover(this, getCurrentToggleDir(), initiator));
+        doorOpeningUtility
+            .registerBlockMover(new ClockMover(this, getCurrentToggleDir(), initiator, cause, actionType));
     }
 
     /**

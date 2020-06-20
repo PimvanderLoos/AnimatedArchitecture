@@ -62,7 +62,8 @@ public class SubCommandSetAutoCloseTime extends SubCommand
             doorWithTimer.setAutoCloseTimer(time);
             BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
             BigDoors.get().getAutoCloseScheduler()
-                    .scheduleAutoClose(door.getDoorOwner().getPlayer(), doorWithTimer, time, false);
+                    .scheduleAutoClose(door.getDoorOwner().getPlayer(),
+                                       (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time, false);
             sendResultMessage(sender, time);
             return true;
         }
@@ -79,7 +80,9 @@ public class SubCommandSetAutoCloseTime extends SubCommand
                 }
                 doorWithTimer.setAutoCloseTimer(time);
                 BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
-                plugin.getAutoCloseScheduler().scheduleAutoClose(player, doorWithTimer, time, false);
+                plugin.getAutoCloseScheduler()
+                      .scheduleAutoClose(player, (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time,
+                                         false);
                 sendResultMessage(sender, time);
             });
         return true;

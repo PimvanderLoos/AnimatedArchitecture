@@ -15,6 +15,8 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
@@ -40,6 +42,10 @@ public abstract class BlockMover implements IRestartable
     protected final AbstractDoorBase door;
     @NotNull
     protected final IPPlayer player;
+    @NotNull
+    final DoorActionCause cause;
+    @NotNull
+    final DoorActionType actionType;
     protected final IFallingBlockFactory fallingBlockFactory;
     protected double time;
     protected boolean skipAnimation;
@@ -102,7 +108,8 @@ public abstract class BlockMover implements IRestartable
     protected BlockMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
                          final @NotNull PBlockFace currentDirection, final @NotNull RotateDirection openDirection,
                          final int blocksMoved, final @NotNull IPPlayer player, final @NotNull Vector3Di finalMin,
-                         final @NotNull Vector3Di finalMax)
+                         final @NotNull Vector3Di finalMax, final @NotNull DoorActionCause cause,
+                         final @NotNull DoorActionType actionType)
     {
         BigDoors.get().getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
         world = door.getWorld();
@@ -117,6 +124,8 @@ public abstract class BlockMover implements IRestartable
         savedBlocks = new ArrayList<>();
         this.finalMin = finalMin;
         this.finalMax = finalMax;
+        this.cause = cause;
+        this.actionType = actionType;
 
         xMin = door.getMinimum().getX();
         yMin = door.getMinimum().getY();
@@ -421,6 +430,10 @@ public abstract class BlockMover implements IRestartable
 
         savedBlocks.clear();
 
+        BigDoors.get().getPlatform().callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                                                 .createEndEvent(door, cause, actionType, player,
+                                                                                 time, skipAnimation));
+
         if (!onDisable)
         {
             int delay = Math
@@ -432,10 +445,11 @@ public abstract class BlockMover implements IRestartable
                     public void run()
                     {
                         BigDoors.get().getDoorManager().setDoorAvailable(door.getDoorUID());
-                        
+
                         if (door instanceof ITimerToggleableArchetype)
                             BigDoors.get().getAutoCloseScheduler()
-                                    .scheduleAutoClose(player, (ITimerToggleableArchetype) door, time, skipAnimation);
+                                    .scheduleAutoClose(player, (AbstractDoorBase & ITimerToggleableArchetype) door,
+                                                       time, skipAnimation);
                     }
                 }, delay);
         }

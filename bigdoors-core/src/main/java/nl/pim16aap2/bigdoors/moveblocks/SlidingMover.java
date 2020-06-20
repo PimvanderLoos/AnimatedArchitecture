@@ -6,6 +6,8 @@ import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.SlidingDoor;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -32,10 +34,12 @@ public class SlidingMover extends BlockMover
 
     public SlidingMover(final double time, final @NotNull AbstractDoorBase door, final boolean skipAnimation,
                         final int blocksToMove, final @NotNull RotateDirection openDirection, final double multiplier,
-                        final @Nullable IPPlayer player, final @NotNull Vector3Di finalMin,
-                        final @NotNull Vector3Di finalMax)
+                        final @NotNull IPPlayer player, final @NotNull Vector3Di finalMin,
+                        final @NotNull Vector3Di finalMax, final @NotNull DoorActionCause cause,
+                        final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, PBlockFace.UP, openDirection, blocksToMove, player, finalMin, finalMax);
+        super(door, time, skipAnimation, PBlockFace.UP, openDirection, blocksToMove, player, finalMin, finalMax, cause,
+              actionType);
 
         NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 

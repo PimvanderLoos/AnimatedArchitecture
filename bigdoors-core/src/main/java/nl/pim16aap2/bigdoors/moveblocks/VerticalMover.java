@@ -7,6 +7,8 @@ import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Elevator;
 import nl.pim16aap2.bigdoors.doors.Portcullis;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -29,11 +31,12 @@ public class VerticalMover extends BlockMover
     private PBlockData firstBlockData = null;
 
     public VerticalMover(final double time, final @NotNull AbstractDoorBase door, final boolean skipAnimation,
-                         final int blocksToMove, final double multiplier, final @Nullable IPPlayer player,
-                         final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax)
+                         final int blocksToMove, final double multiplier, final @NotNull IPPlayer player,
+                         final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax,
+                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
         super(door, time, skipAnimation, PBlockFace.UP, RotateDirection.NONE, blocksToMove, player, finalMin,
-              finalMax);
+              finalMax, cause, actionType);
 
         double speed = 1;
         double pcMult = multiplier;

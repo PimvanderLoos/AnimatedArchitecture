@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 public final class DoorOpener
 {
     @NotNull
-    private static DoorOpener instance = new DoorOpener();
+    private static final DoorOpener instance = new DoorOpener();
 
     private DoorOpener()
     {
@@ -39,7 +39,7 @@ public final class DoorOpener
     }
 
     /**
-     * Toggles, opens, or closes a door asynchronously.
+     * Toggles, opens, or closes a door. Can be called (a)synchronously.
      *
      * @param futureDoor     The door to toggle.
      * @param cause          What caused this action.
@@ -60,6 +60,26 @@ public final class DoorOpener
             optionalDoor -> optionalDoor.map(
                 door -> animateDoorOnMainThread(door, cause, initiator, time, skipAnimation, doorActionType))
                                         .orElse(DoorToggleResult.ERROR));
+    }
+
+    /**
+     * Toggles, opens, or closes a door. Can be called (a)synchronously.
+     *
+     * @param door           The door to toggle.
+     * @param cause          What caused this action.
+     * @param initiator      The player that initiated the DoorAction.
+     * @param time           The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
+     *                       is limited, so at a certain point lower values will not increase door speed.
+     * @param skipAnimation  If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param doorActionType Whether the door should be toggled, opened, or closed.
+     * @return The result of the toggle.
+     */
+    @NotNull
+    public DoorToggleResult animateDoorAsync(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+                                             final @Nullable IPPlayer initiator, final double time,
+                                             final boolean skipAnimation, final @NotNull DoorActionType doorActionType)
+    {
+        return animateDoorOnMainThread(door, cause, initiator, time, skipAnimation, doorActionType);
     }
 
     /**
@@ -111,6 +131,7 @@ public final class DoorOpener
     {
         IPExecutor<DoorToggleResult> mainThreadExecutor = BigDoors.get().getPlatform().newPExecutor();
 
+        // TODO: Shouldn't this be a CompletableFuture or something?
         DoorToggleResult result = mainThreadExecutor
             .supplyOnMainThread(() -> animateDoorSync(door, cause, initiator, time,
                                                       skipAnimation, doorActionType));

@@ -36,6 +36,11 @@ public enum DoorToggleResult
     ERROR(Message.ERROR_TOGGLEFAILURE),
 
     /**
+     * The door could not be toggled because it was cancelled.
+     */
+    CANCELLED(Message.ERROR_TOGGLECANCELLED),
+
+    /**
      * The door exceeded the size limit.
      */
     TOOBIG(Message.ERROR_DOORTOOBIG),
@@ -70,7 +75,9 @@ public enum DoorToggleResult
     /**
      * The door could not be toggled because its type was disabled at compile time.
      */
-    TYPEDISABLED(Message.ERROR_DOORTYPEDISABLED);
+    TYPEDISABLED(Message.ERROR_DOORTYPEDISABLED),
+    ;
+
 
     /**
      * The {@link Message} associated with the {@link DoorToggleResult}.

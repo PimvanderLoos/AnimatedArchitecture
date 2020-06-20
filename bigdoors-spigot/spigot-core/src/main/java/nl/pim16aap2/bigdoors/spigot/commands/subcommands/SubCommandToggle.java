@@ -3,12 +3,12 @@ package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -18,10 +18,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -47,17 +47,9 @@ public class SubCommandToggle extends SubCommand
     private void toggleDoor(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
                             final double time)
     {
-        IPPlayer player = sender instanceof Player ? SpigotAdapter.wrapPlayer((Player) sender) : null;
-
-        // TODO: Less stupid system.
-        CompletableFuture<Optional<AbstractDoorBase>> futureDoor = CompletableFuture.completedFuture(Optional.of(door));
-
-        plugin.callDoorActionEvent(player == null ?
-                                   new DoorEventTogglePrepare(futureDoor, DoorActionCause.SERVER, actionType,
-                                                              door.getDoorOwner().getPlayer(), time) :
-                                   new DoorEventTogglePrepare(futureDoor, DoorActionCause.PLAYER, actionType,
-                                                              player,
-                                                              time));
+        final @Nullable IPPlayer player = sender instanceof Player ? SpigotAdapter.wrapPlayer((Player) sender) : null;
+        final @NotNull DoorActionCause cause = player == null ? DoorActionCause.SERVER : DoorActionCause.PLAYER;
+        DoorOpener.get().animateDoorAsync(door, cause, player, time, false, DoorActionType.TOGGLE);
     }
 
     public void execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door, final double time)

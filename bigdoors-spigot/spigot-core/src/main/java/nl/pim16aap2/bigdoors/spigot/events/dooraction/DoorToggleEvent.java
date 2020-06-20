@@ -10,34 +10,43 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 abstract class DoorToggleEvent extends Event implements IDoorEvent
 {
     /**
-     * The UID of the door this action will be applied to.
+     * The door this action will be applied to.
      */
-    protected final CompletableFuture<Optional<AbstractDoorBase>> futureDoor;
+    protected final AbstractDoorBase door;
 
     /**
      * What initiated this DoorAction event.
      */
     @NotNull
     protected final DoorActionCause cause;
+
+    /**
+     * The type of action that is requested.
+     */
     @NotNull
     protected final DoorActionType actionType;
+
+    /**
+     * The {@link IPPlayer} that is held responsible for this action. This is either the player that iniatiated the
+     * action (e.g. via a command), or the original creator of the door, in case the initiator is not available (e.g.
+     * redstone).
+     */
     @NotNull
     protected final Optional<IPPlayer> responsible;
     protected boolean isCancelled = false;
     protected final double time;
     protected final boolean skipAnimation;
 
-    DoorToggleEvent(final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor,
-                    final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType,
-                    final @Nullable IPPlayer responsible, final double time, final boolean skipAnimation)
+    DoorToggleEvent(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+                    final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible, final double time,
+                    final boolean skipAnimation)
     {
-        super(true);
-        this.futureDoor = futureDoor;
+        super(false);
+        this.door = door;
         this.cause = cause;
         this.actionType = actionType;
         this.responsible = Optional.ofNullable(responsible);
@@ -50,9 +59,9 @@ abstract class DoorToggleEvent extends Event implements IDoorEvent
      */
     @Override
     @NotNull
-    public CompletableFuture<Optional<AbstractDoorBase>> getDoor()
+    public AbstractDoorBase getDoor()
     {
-        return futureDoor;
+        return door;
     }
 
     /**

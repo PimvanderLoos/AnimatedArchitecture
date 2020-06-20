@@ -6,6 +6,8 @@ import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.GarageDoor;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
@@ -14,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
 
@@ -37,10 +38,12 @@ public class GarageDoorMover extends BlockMover
 
     public GarageDoorMover(final @NotNull AbstractDoorBase door, final double time, final double multiplier,
                            final boolean skipAnimation, final @NotNull PBlockFace currentDirection,
-                           final @NotNull RotateDirection rotateDirection, final @Nullable IPPlayer player,
-                           final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax)
+                           final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
+                           final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax,
+                           final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, currentDirection, rotateDirection, -1, player, finalMin, finalMax);
+        super(door, time, skipAnimation, currentDirection, rotateDirection, -1, player, finalMin, finalMax, cause,
+              actionType);
 
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);

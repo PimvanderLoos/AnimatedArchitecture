@@ -41,7 +41,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeRevolvingDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorManager;
@@ -834,19 +834,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      * {@inheritDoc}
      */
     @Override
-    public void callDoorActionEvent(final @NotNull IDoorEventTogglePrepare doorActionEvent)
+    public void callDoorActionEvent(final @NotNull IDoorEvent doorActionEvent)
     {
-        if (!(doorActionEvent instanceof DoorEventTogglePrepare))
-        {
-            PLogger.get().logException(new IllegalArgumentException(
-                "Trying to log a " + doorActionEvent.getClass().getName() + " as a Spigot event! Event aborted!"));
-            return;
-        }
-        // Asynchronous events may not be called from the main thread.
+        // Synchronous events may only be called from the main thread.
         if (isMainThread(Thread.currentThread().getId()))
-            BigDoors.get().getPlatform().newPExecutor().runAsync(
-                () -> Bukkit.getPluginManager().callEvent((DoorEventTogglePrepare) doorActionEvent));
-        else
             Bukkit.getPluginManager().callEvent((DoorEventTogglePrepare) doorActionEvent);
+        else
+            BigDoors.get().getPlatform().newPExecutor().runSync(
+                () -> Bukkit.getPluginManager().callEvent((DoorEventTogglePrepare) doorActionEvent));
     }
 }
