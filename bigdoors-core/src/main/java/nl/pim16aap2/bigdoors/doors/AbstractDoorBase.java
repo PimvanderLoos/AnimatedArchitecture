@@ -56,16 +56,6 @@ public abstract class AbstractDoorBase implements IDoorBase
      */
     private Vector2Di minChunkCoords = null, maxChunkCoords = null;
 
-    @Deprecated
-    protected AbstractDoorBase(final @NotNull PLogger pLogger, final long uid, final @NotNull DoorData doorData,
-                               final @NotNull EDoorType eDoorType)
-    {
-        System.out.println("USING DEPRECATED DOORBASE CONSTRUCTOR!");
-        doorOpeningUtility = null;
-        IPWorld = null;
-        doorUID = 0;
-    }
-
     /**
      * Constructs a new {@link AbstractDoorBase}.
      */

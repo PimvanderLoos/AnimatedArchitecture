@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,13 +18,6 @@ public abstract class AbstractHorizontalAxisAlignedBase extends AbstractDoorBase
      * If this door is positioned along the North/South axis or null if it hasn't been calculated yet.
      */
     private boolean northSouthAxis;
-
-    @Deprecated
-    protected AbstractHorizontalAxisAlignedBase(final @NotNull PLogger pLogger, final long doorUID,
-                                                final @NotNull DoorData doorData, final @NotNull EDoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-    }
 
     protected AbstractHorizontalAxisAlignedBase(final @NotNull DoorData doorData)
     {

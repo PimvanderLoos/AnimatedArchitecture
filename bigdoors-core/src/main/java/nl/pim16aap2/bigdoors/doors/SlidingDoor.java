@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.SlidingMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -51,19 +50,6 @@ public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
         this.blocksToMove = blocksToMove;
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
-    }
-
-    @Deprecated
-    protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                          final @NotNull EDoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-    }
-
-    @Deprecated
-    protected SlidingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
-    {
-        this(pLogger, doorUID, doorData, EDoorType.SLIDINGDOOR);
     }
 
     /**

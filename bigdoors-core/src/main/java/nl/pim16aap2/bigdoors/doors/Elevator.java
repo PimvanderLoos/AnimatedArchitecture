@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,19 +19,6 @@ public class Elevator extends Portcullis
                     final int autoOpenTime)
     {
         super(doorData, blocksToMove, autoCloseTime, autoOpenTime);
-    }
-
-    @Deprecated
-    protected Elevator(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                       final @NotNull EDoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-    }
-
-    @Deprecated
-    protected Elevator(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
-    {
-        this(pLogger, doorUID, doorData, EDoorType.ELEVATOR);
     }
 
     /**

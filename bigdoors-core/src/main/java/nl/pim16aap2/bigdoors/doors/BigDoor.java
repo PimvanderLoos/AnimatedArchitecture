@@ -39,19 +39,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         this.currentDirection = currentDirection;
     }
 
-    @Deprecated
-    protected BigDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                      final @NotNull EDoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-    }
-
-    @Deprecated
-    protected BigDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
-    {
-        this(pLogger, doorUID, doorData, EDoorType.BIGDOOR);
-    }
-
     /**
      * {@inheritDoc}
      */

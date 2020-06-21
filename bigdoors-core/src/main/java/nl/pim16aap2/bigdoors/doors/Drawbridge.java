@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -56,19 +55,6 @@ public class Drawbridge extends AbstractHorizontalAxisAlignedBase
         this.autoCloseTime = autoCloseTime;
         this.currentDirection = currentDirection;
         this.modeUp = modeUp;
-    }
-
-    @Deprecated
-    protected Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                         final @NotNull EDoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-    }
-
-    @Deprecated
-    protected Drawbridge(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
-    {
-        this(pLogger, doorUID, doorData, EDoorType.DRAWBRIDGE);
     }
 
     /**

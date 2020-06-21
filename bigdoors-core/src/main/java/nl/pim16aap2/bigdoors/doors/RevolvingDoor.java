@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorTypeRevolvingDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.RevolvingDoorMover;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -32,19 +31,6 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     {
         super(doorData);
         this.quarterCircles = quarterCircles;
-    }
-
-    @Deprecated
-    protected RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                            final @NotNull EDoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-    }
-
-    @Deprecated
-    protected RevolvingDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
-    {
-        this(pLogger, doorUID, doorData, EDoorType.REVOLVINGDOOR);
     }
 
     /**

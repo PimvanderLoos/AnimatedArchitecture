@@ -65,21 +65,6 @@ public class GarageDoor extends AbstractHorizontalAxisAlignedBase
         this.currentDirection = currentDirection;
     }
 
-    @Deprecated
-    protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                         final @NotNull EDoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-        currentDirection = null;
-        onNorthSouthAxis = false;
-    }
-
-    @Deprecated
-    protected GarageDoor(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
-    {
-        this(pLogger, doorUID, doorData, EDoorType.GARAGEDOOR);
-    }
-
     /**
      * {@inheritDoc}
      */

@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.ClockMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -53,20 +52,6 @@ public class Clock extends AbstractHorizontalAxisAlignedBase
         super(doorData);
         this.onNorthSouthAxis = onNorthSouthAxis;
         this.hourArmSide = hourArmSide;
-    }
-
-    @Deprecated
-    protected Clock(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData,
-                    final @NotNull EDoorType type)
-    {
-        super(pLogger, doorUID, doorData, type);
-        onNorthSouthAxis = false;
-    }
-
-    @Deprecated
-    protected Clock(final @NotNull PLogger pLogger, final long doorUID, final @NotNull DoorData doorData)
-    {
-        this(pLogger, doorUID, doorData, EDoorType.CLOCK);
     }
 
     /**
