@@ -54,6 +54,11 @@
             <id>mockito-core</id>
             <url>https://mvnrepository.com/artifact/org.mockito/mockito-core</url>
         </repository>
+
+        <repository>
+            <id>lombok</id>
+            <url>https://mvnrepository.com/artifact/org.projectlombok/lombok</url>
+        </repository>
     </repositories>
 
     <dependencies>
