@@ -37,7 +37,7 @@ public class WaitForRemoveOwner extends WaitForCommand
             {
                 StringBuilder builder = new StringBuilder();
                 for (DoorOwner owner : ownerList)
-                    builder.append(owner.getPlayerName()).append(", ");
+                    builder.append(owner.getPlayer().getName()).append(", ");
                 SpigotUtil.messagePlayer(player, builder.toString());
             }
         );
