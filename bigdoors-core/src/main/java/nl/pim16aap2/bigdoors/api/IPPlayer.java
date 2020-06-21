@@ -9,6 +9,8 @@ import java.util.UUID;
  *
  * @author Pim
  */
+// TODO: This might be better suited as an abstract class, as the implementation of the basic stuff is always going to
+//       be the same (equals, hashCode, getName, etc).
 public interface IPPlayer
 {
     /**

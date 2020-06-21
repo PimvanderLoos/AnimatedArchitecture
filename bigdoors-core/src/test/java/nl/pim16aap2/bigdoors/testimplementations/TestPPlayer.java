@@ -31,4 +31,38 @@ public final class TestPPlayer implements IPPlayer
     {
         return uuid;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        return String.format("%s (%s)", getUUID().toString(), getName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+        return getUUID().equals(((TestPPlayer) o).getUUID());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        return getUUID().hashCode();
+    }
 }

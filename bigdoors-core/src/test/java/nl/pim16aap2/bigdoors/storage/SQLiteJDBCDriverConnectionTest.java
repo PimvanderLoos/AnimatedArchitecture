@@ -450,6 +450,9 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         if (test.get().size() != 1)
             Assert.fail("TOO MANY DOORS FOUND FOR DOOR WITH name \"" + door.getName() + "\"!");
 
+        if (!door.getDoorOwner().equals(test.get().get(0).getDoorOwner()))
+            Assert.fail("DOOR OWNERS DO NOT MATCH!");
+
         if (!door.equals(test.get().get(0)))
             Assert.fail(
                 "Data of retrieved door is not the same! ID = " + door.getDoorUID() + ", name = " + door.getName() +
