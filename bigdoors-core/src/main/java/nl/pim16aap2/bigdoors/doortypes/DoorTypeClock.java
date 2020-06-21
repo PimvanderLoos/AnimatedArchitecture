@@ -74,7 +74,7 @@ public final class DoorTypeClock extends DoorType
                 "Trying to get the type-specific data for a Clock from type: " + door.getDoorType().toString());
 
         final @NotNull Clock clock = (Clock) door;
-        return new Object[]{clock.getOnNorthSouthAxis() ? 1 : 0,
+        return new Object[]{clock.isNorthSouthAligned() ? 1 : 0,
                             PBlockFace.getValue(clock.getHourArmSide())};
     }
 }

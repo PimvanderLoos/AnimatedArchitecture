@@ -69,7 +69,7 @@ public final class DoorTypeWindmill extends DoorType
                 "Trying to get the type-specific data for a Windmill from type: " + door.getDoorType().toString());
 
         final @NotNull Windmill windmill = (Windmill) door;
-        return new Object[]{windmill.getOnNorthSouthAxis() ? 1 : 0,
+        return new Object[]{windmill.isNorthSouthAligned() ? 1 : 0,
                             windmill.getQuarterCircles()};
     }
 }

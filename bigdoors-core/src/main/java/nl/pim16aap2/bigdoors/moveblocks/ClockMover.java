@@ -2,8 +2,9 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.AbstractHorizontalAxisAlignedBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Clock;
+import nl.pim16aap2.bigdoors.doors.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -19,7 +20,7 @@ import java.util.function.Function;
  *
  * @author Pim
  */
-public class ClockMover extends WindmillMover
+public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends WindmillMover<T>
 {
     /**
      * Method to determine if a given {@link PBlockData} is part of the little hand or the big hand of a clock.
@@ -49,9 +50,9 @@ public class ClockMover extends WindmillMover
      */
     private static final float HOURSUBSTEP = (float) Math.PI / 360;
 
-    public ClockMover(final @NotNull AbstractHorizontalAxisAlignedBase door,
-                      final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
-                      final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+    public ClockMover(final @NotNull T door, final @NotNull RotateDirection rotateDirection,
+                      final @NotNull IPPlayer player, final @NotNull DoorActionCause cause,
+                      final @NotNull DoorActionType actionType)
     {
         super(door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
         isHourArm = NS ? this::isHourArmNS : this::isHourArmEW;

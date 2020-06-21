@@ -74,7 +74,7 @@ public final class DoorTypePortcullis extends DoorType
 
         final @NotNull Portcullis portcullis = (Portcullis) door;
         return new Object[]{portcullis.getBlocksToMove(),
-                            portcullis.getAutoCloseTimer(),
-                            portcullis.getAutoOpenTimer()};
+                            portcullis.getAutoCloseTime(),
+                            portcullis.getAutoOpenTime()};
     }
 }

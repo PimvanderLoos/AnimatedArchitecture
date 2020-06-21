@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
@@ -21,26 +23,31 @@ import org.jetbrains.annotations.Nullable;
  * Represents a Sliding Door doorType.
  *
  * @author Pim
- * @see AbstractHorizontalAxisAlignedBase
  */
-public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
+public class SlidingDoor extends AbstractDoorBase
     implements IStationaryDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
     /**
-     * See {@link IBlocksToMoveArchetype#getBlocksToMove}.
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int blocksToMove;
 
     /**
-     * See {@link ITimerToggleableArchetype#getAutoCloseTimer()}.
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
     /**
-     * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}.
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
 
     public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
@@ -60,60 +67,6 @@ public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getBlocksToMove()
-    {
-        return blocksToMove;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setBlocksToMove(int newBTM)
-    {
-        blocksToMove = newBTM;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAutoCloseTimer(int newValue)
-    {
-        autoCloseTime = newValue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getAutoCloseTimer()
-    {
-        return autoCloseTime;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAutoOpenTimer(int newValue)
-    {
-        autoOpenTime = newValue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getAutoOpenTimer()
-    {
-        return autoOpenTime;
     }
 
     /**
@@ -143,10 +96,7 @@ public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
     @Override
     public RotateDirection getDefaultOpenDirection()
     {
-        if (onNorthSouthAxis())
-            return RotateDirection.NORTH;
-        else
-            return RotateDirection.EAST;
+        return RotateDirection.NORTH;
     }
 
     /**
@@ -202,12 +152,12 @@ public class SlidingDoor extends AbstractHorizontalAxisAlignedBase
                                       final @NotNull DoorActionType actionType)
     {
         RotateDirection currentToggleDir = getCurrentToggleDir();
-        int blocksToMove =
+        int finalBlocksToMove =
             (currentToggleDir.equals(RotateDirection.NORTH) || currentToggleDir.equals(RotateDirection.SOUTH)) ?
             newMin.getZ() - min.getZ() : newMin.getX() - min.getX();
 
         doorOpeningUtility.registerBlockMover(
-            new SlidingMover(time, this, skipAnimation, blocksToMove, currentToggleDir,
+            new SlidingMover(time, this, skipAnimation, finalBlocksToMove, currentToggleDir,
                              doorOpeningUtility.getMultiplier(this), initiator, newMin, newMax, cause, actionType));
     }
 

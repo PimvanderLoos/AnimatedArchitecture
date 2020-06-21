@@ -81,9 +81,9 @@ public final class DoorTypeGarageDoor extends DoorType
                 "Trying to get the type-specific data for a GarageDoor from type: " + door.getDoorType().toString());
 
         final @NotNull GarageDoor garageDoor = (GarageDoor) door;
-        return new Object[]{garageDoor.getAutoCloseTimer(),
-                            garageDoor.getAutoOpenTimer(),
-                            garageDoor.getOnNorthSouthAxis() ? 1 : 0,
+        return new Object[]{garageDoor.getAutoCloseTime(),
+                            garageDoor.getAutoOpenTime(),
+                            garageDoor.isNorthSouthAligned() ? 1 : 0,
                             PBlockFace.getValue(garageDoor.getCurrentDirection())};
     }
 }

@@ -21,7 +21,7 @@ public final class DoorActionListener implements Listener
     {
         DoorOpener.get().animateDoorAsync(doorActionEvent.getDoor(), doorActionEvent.getCause(),
                                           doorActionEvent.getResponsible().orElse(null), doorActionEvent.getTime(),
-                                          doorActionEvent.skipAnimation(), doorActionEvent.getActionType());
+                                          doorActionEvent.isAnimationSkipped(), doorActionEvent.getActionType());
     }
 
     /**

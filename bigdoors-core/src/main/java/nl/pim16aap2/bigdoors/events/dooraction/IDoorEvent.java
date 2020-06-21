@@ -47,7 +47,7 @@ public interface IDoorEvent extends PEvent
      *
      * @return True if the event requested the door to skip its animation and open instantly.
      */
-    boolean skipAnimation();
+    boolean isAnimationSkipped();
 
     /**
      * Gets requested duration of the animation. This may differ from the final duration based on other factors (such as

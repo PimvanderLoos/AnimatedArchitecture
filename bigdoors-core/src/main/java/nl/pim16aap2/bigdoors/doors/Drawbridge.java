@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
@@ -19,42 +21,67 @@ import org.jetbrains.annotations.Nullable;
  * Represents a DrawBrige doorType.
  *
  * @author Pim
- * @see AbstractHorizontalAxisAlignedBase
  */
-public class Drawbridge extends AbstractHorizontalAxisAlignedBase
-    implements IMovingDoorArchetype, ITimerToggleableArchetype
+public class Drawbridge extends AbstractDoorBase
+    implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
+    @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
     /**
-     * See {@link ITimerToggleableArchetype#getAutoCloseTimer()}
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
     /**
-     * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
 
     /**
      * Describes the current direction the door is pointing in when taking the engine as center.
+     *
+     * @return The side the {@link IDoorBase} is on relative to the engine
      */
+    @Getter
     protected PBlockFace currentDirection;
 
     /**
      * Describes if this drawbridge's vertical position points (when taking the engine Y value as center) up <b>(=
      * TRUE)</b> or down <b>(= FALSE)</b>
+     *
+     * @return True if this {@link Drawbridge}'s vertical stance points up.
      */
-    protected boolean modeUp = true;
+    @Getter
+    protected boolean modeUp;
+
+    /**
+     * Describes if the {@link Drawbridge} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
+     * axis
+     * <b>(= FALSE)</b>.
+     * <p>
+     * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
+     * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
+     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     *
+     * @return True if this door is animated along the North/South axis.
+     */
+    @Getter(onMethod = @__({@Override}))
+    protected final boolean northSouthAligned;
 
     public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
-                      final PBlockFace currentDirection, final boolean modeUp)
+                      final PBlockFace currentDirection, final boolean modeUp, final boolean northSouthAligned)
     {
         super(doorData);
         this.autoOpenTime = autoOpenTime;
         this.autoCloseTime = autoCloseTime;
         this.currentDirection = currentDirection;
         this.modeUp = modeUp;
+        this.northSouthAligned = northSouthAligned;
     }
 
     /**
@@ -65,16 +92,6 @@ public class Drawbridge extends AbstractHorizontalAxisAlignedBase
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
-    }
-
-    /**
-     * Checks if the vertical stance of this {@link Drawbridge} is up or down, as seen from the engine's y-value.
-     *
-     * @return True if this {@link Drawbridge}'s vertical stance points up.
-     */
-    public boolean isModeUp()
-    {
-        return modeUp;
     }
 
     /**
@@ -105,7 +122,7 @@ public class Drawbridge extends AbstractHorizontalAxisAlignedBase
     @Override
     public RotateDirection getDefaultOpenDirection()
     {
-        if (onNorthSouthAxis())
+        if (isNorthSouthAligned())
             return RotateDirection.EAST;
         else
             return RotateDirection.NORTH;
@@ -122,17 +139,6 @@ public class Drawbridge extends AbstractHorizontalAxisAlignedBase
     }
 
     /**
-     * Gets the side the {@link IDoorBase} is on relative to the engine.
-     *
-     * @return The side the {@link IDoorBase} is on relative to the engine
-     */
-    @NotNull
-    public PBlockFace getCurrentDirection()
-    {
-        return currentDirection;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -142,7 +148,7 @@ public class Drawbridge extends AbstractHorizontalAxisAlignedBase
         RotateDirection currentToggleDir = getCurrentToggleDir();
         if (isOpen())
         {
-            if (onNorthSouthAxis())
+            if (isNorthSouthAligned())
             {
                 newMax.setY(newMin.getY() + dimensions.getX());
                 int newX = vec.getX() > 0 ? newMin.getX() : newMax.getX();
@@ -159,7 +165,7 @@ public class Drawbridge extends AbstractHorizontalAxisAlignedBase
         }
         else
         {
-            if (onNorthSouthAxis()) // On Z-axis, i.e. Z doesn't change
+            if (isNorthSouthAligned()) // On Z-axis, i.e. Z doesn't change
             {
                 newMax.setY(newMin.getY());
                 newMin.add(currentToggleDir.equals(RotateDirection.WEST) ? -dimensions.getY() : 0, 0, 0);
@@ -190,42 +196,6 @@ public class Drawbridge extends AbstractHorizontalAxisAlignedBase
         doorOpeningUtility.registerBlockMover(
             new BridgeMover(time, this, upDown, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
                 .getMultiplier(this), initiator, newMin, newMax, cause, actionType));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAutoCloseTimer(int newValue)
-    {
-        autoCloseTime = newValue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getAutoCloseTimer()
-    {
-        return autoCloseTime;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAutoOpenTimer(int newValue)
-    {
-        autoOpenTime = newValue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getAutoOpenTimer()
-    {
-        return autoOpenTime;
     }
 
     /**

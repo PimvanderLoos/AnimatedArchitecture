@@ -200,7 +200,7 @@ public abstract class BlockMover implements IRestartable
     private void applyRotationOnCurrentThread()
     {
         for (final PBlockData blockData : savedBlocks)
-            if (blockData.canRot())
+            if (blockData.isRotatable())
             {
                 final INMSBlock newBlock = blockData.getBlock();
                 newBlock.rotateBlock(openDirection);
@@ -390,11 +390,11 @@ public abstract class BlockMover implements IRestartable
      * Places the block of a {@link PBlockData}.
      *
      * @param pBlockData The {@link PBlockData}.
-     * @param firstPass  Whether or not this is the first pass. See {@link PBlockData#deferPlacement()};
+     * @param firstPass  Whether or not this is the first pass. See {@link PBlockData#isPlacementDeferred()};
      */
     private void putSavedBlock(final @NotNull PBlockData pBlockData, final boolean firstPass)
     {
-        if (pBlockData.deferPlacement() && firstPass)
+        if (pBlockData.isPlacementDeferred() && firstPass)
             return;
 
         pBlockData.killFBlock();
@@ -493,7 +493,7 @@ public abstract class BlockMover implements IRestartable
      */
     private void toggleOpen(AbstractDoorBase door)
     {
-        door.setOpenStatus(!door.isOpen());
+        door.setOpen(!door.isOpen());
     }
 
     /**

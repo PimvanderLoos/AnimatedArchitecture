@@ -80,8 +80,8 @@ public final class DoorTypeBigDoor extends DoorType
                 "Trying to get the type-specific data for a BigDoor from type: " + door.getDoorType().toString());
 
         final @NotNull BigDoor bigDoor = (BigDoor) door;
-        return new Object[]{bigDoor.getAutoCloseTimer(),
-                            bigDoor.getAutoOpenTimer(),
+        return new Object[]{bigDoor.getAutoCloseTime(),
+                            bigDoor.getAutoOpenTime(),
                             PBlockFace.getValue(bigDoor.getCurrentDirection())};
     }
 }

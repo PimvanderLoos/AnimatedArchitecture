@@ -46,7 +46,7 @@ public class EventListeners implements Listener
         try
         {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null &&
-                plugin.getTF().isTool(event.getPlayer().getInventory().getItemInMainHand()))
+                plugin.getToolVerifier().isTool(event.getPlayer().getInventory().getItemInMainHand()))
             {
                 plugin.getToolUser(event.getPlayer()).ifPresent(
                     TU ->
@@ -123,7 +123,7 @@ public class EventListeners implements Listener
     {
         try
         {
-            if (plugin.getTF().isTool(event.getItemDrop().getItemStack()))
+            if (plugin.getToolVerifier().isTool(event.getItemDrop().getItemStack()))
             {
                 if (isToolUser(event.getPlayer()))
                     event.setCancelled(true);
@@ -148,7 +148,7 @@ public class EventListeners implements Listener
     {
         try
         {
-            if (!plugin.getTF().isTool(event.getCurrentItem()))
+            if (!plugin.getToolVerifier().isTool(event.getCurrentItem()))
                 return;
             if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) ||
                 !event.getClickedInventory().getType().equals(InventoryType.PLAYER))
@@ -183,7 +183,7 @@ public class EventListeners implements Listener
             event.getNewItems().forEach(
                 (K, V) ->
                 {
-                    if (plugin.getTF().isTool(V))
+                    if (plugin.getToolVerifier().isTool(V))
                         event.setCancelled(true);
                 });
         }
@@ -203,7 +203,7 @@ public class EventListeners implements Listener
     {
         try
         {
-            if (!plugin.getTF().isTool(event.getItem()))
+            if (!plugin.getToolVerifier().isTool(event.getItem()))
                 return;
 
             Inventory src = event.getSource();

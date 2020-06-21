@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
@@ -18,10 +19,9 @@ import org.jetbrains.annotations.Nullable;
  * Represents a Clock doorType.
  *
  * @author Pim
- * @see AbstractHorizontalAxisAlignedBase
  */
-public class Clock extends AbstractHorizontalAxisAlignedBase
-    implements IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Clock extends AbstractDoorBase
+    implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
@@ -33,46 +33,32 @@ public class Clock extends AbstractHorizontalAxisAlignedBase
      * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
      * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
      * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     *
+     * @return True if this clock is situated along the north/south axis.
      */
-    protected final boolean onNorthSouthAxis;
+    @Getter(onMethod = @__({@Override}))
+    protected final boolean northSouthAligned;
 
     /**
      * Describes on which side the hour arm is. If the clock is situated along the North/South axis see {@link
-     * #onNorthSouthAxis}, then the hour arm can either be on the {@link PBlockFace#WEST} or the {@link PBlockFace#EAST}
-     * side.
+     * #northSouthAligned}, then the hour arm can either be on the {@link PBlockFace#WEST} or the {@link
+     * PBlockFace#EAST} side.
      * <p>
      * This is stored as a direction rather than an integer value (for example the X/Z axis value) so that it could also
      * work for {@link Clock}s that have arms that are more than 1 block deep.
+     *
+     * @return The side of the hour arm relative to the minute arm.
      */
+    @Getter
+    @NotNull
     protected PBlockFace hourArmSide;
 
-    public Clock(final @NotNull DoorData doorData, final boolean onNorthSouthAxis,
+    public Clock(final @NotNull DoorData doorData, final boolean northSouthAligned,
                  final @NotNull PBlockFace hourArmSide)
     {
         super(doorData);
-        this.onNorthSouthAxis = onNorthSouthAxis;
+        this.northSouthAligned = northSouthAligned;
         this.hourArmSide = hourArmSide;
-    }
-
-    /**
-     * Gets the side of the {@link Clock} that the hour arm is on. See {@link #hourArmSide}.
-     *
-     * @return The side of the {@link Clock} that the hour arm is on
-     */
-    @NotNull
-    public PBlockFace getHourArmSide()
-    {
-        return hourArmSide;
-    }
-
-    /**
-     * Checks if this {@link Clock} is on the North/South axis or not. See {@link #onNorthSouthAxis}.
-     *
-     * @return True if this door is animated along the North/South axis.
-     */
-    public boolean getOnNorthSouthAxis()
-    {
-        return onNorthSouthAxis;
     }
 
     /**
@@ -102,7 +88,7 @@ public class Clock extends AbstractHorizontalAxisAlignedBase
     @Override
     public RotateDirection getDefaultOpenDirection()
     {
-        if (onNorthSouthAxis())
+        if (isNorthSouthAligned())
             return engine.getX() == min.getX() ? RotateDirection.SOUTH : RotateDirection.NORTH;
         else
             return engine.getZ() == min.getZ() ? RotateDirection.EAST : RotateDirection.WEST;
@@ -133,6 +119,6 @@ public class Clock extends AbstractHorizontalAxisAlignedBase
             return false;
 
         final @NotNull Clock other = (Clock) o;
-        return hourArmSide.equals(other.hourArmSide) && onNorthSouthAxis == other.onNorthSouthAxis;
+        return hourArmSide.equals(other.hourArmSide) && northSouthAligned == other.northSouthAligned;
     }
 }

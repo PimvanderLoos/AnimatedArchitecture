@@ -340,15 +340,6 @@ public final class DoorOpeningUtility
         return DoorToggleResult.SUCCESS;
     }
 
-//    /**
-//     * Checks if the {@link org.bukkit.Chunk}s a {@link AbstractDoorBase} might interact with are loaded. If they aren't
-//     * loaded try to load them.
-//     *
-//     * @param door The {@link AbstractDoorBase}.
-//     * @return True if all {@link org.bukkit.Chunk}s this {@link AbstractDoorBase} might interact with are loaded or
-//     * have been loaded.
-//     */
-
     /**
      * Checks if all chunks in range of the door (see {@link AbstractDoorBase#getChunkRange()}) are loaded.
      * <p>

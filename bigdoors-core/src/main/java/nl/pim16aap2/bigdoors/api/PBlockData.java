@@ -1,8 +1,11 @@
 package nl.pim16aap2.bigdoors.api;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the data of an animated block.
@@ -11,13 +14,59 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class PBlockData
 {
-    private INMSBlock block;
-    private final boolean canRot;
+    /**
+     * Gets the rotated {@link INMSBlock} if it exists. If this block cannot rotate, this value does not exist.
+     *
+     * @return The rotated {@link INMSBlock} if it exists.
+     */
+    @Getter
+    @NotNull
+    private final INMSBlock block;
+
+    /**
+     * Checks if this block can rotate.
+     *
+     * @return True if this block can rotate.
+     */
+    @Getter
+    private final boolean rotatable;
+    /**
+     * The number of blocks between this block and the rotation point.
+     */
+    @Getter
     private final float radius;
+
+    /**
+     * The {@link ICustomCraftFallingBlock} that is being be animated.
+     *
+     * @param fBlock The new {@link ICustomCraftFallingBlock} that will be animated. Note that just updating the value
+     * won't change anything in-game.
+     * @return Gets the {@link ICustomCraftFallingBlock} that is being be animated.
+     */
+    @Getter
+    @Setter
+    @Nullable
     private ICustomCraftFallingBlock fBlock;
     private final IPLocation startLocation;
-    private float startAngle;
-    private final boolean deferredPlacement;
+
+    /**
+     * The angle the block had in regards to the rotation point when it was first spawned.
+     */
+    @Getter
+    private final float startAngle;
+
+    /**
+     * Checks if placement of this block should be deferred to the second pass or not.
+     * <p>
+     * On the first pass, "standalone" blocks such as stone will be placed, while other blocks such as torches, will be
+     * skipped.
+     * <p>
+     * On the second pass, all the other blocks will be placed. This makes sure that torches aren't just dropped.
+     *
+     * @return True if this block should be placed on the second pass, otherwise false.
+     */
+    @Getter
+    private final boolean placementDeferred;
 
     /**
      * Constructs of {@link PBlockData}.
@@ -27,39 +76,20 @@ public final class PBlockData
      * @param newBlock          If this block can be rotated, this contains the rotated {@link INMSBlock}.
      * @param startLocation     The location the block was spawned at initially.
      * @param startAngle        The angle the block had in regards to the rotation point when it was first spawned.
-     * @param deferredPlacement Whether or not placement should be deferred until all standalone blocks are placed.
+     * @param placementDeferred Whether or not placement should be deferred until all standalone blocks are placed.
      *                          Useful for torches, for example (so they don't fall off immediately).
      */
     public PBlockData(final @NotNull ICustomCraftFallingBlock newFBlock, final float radius,
                       final @NotNull INMSBlock newBlock, final @NotNull IPLocation startLocation,
-                      final float startAngle, final boolean deferredPlacement)
+                      final float startAngle, final boolean placementDeferred)
     {
         block = newBlock;
         fBlock = newFBlock;
         this.radius = radius;
-        canRot = newBlock.canRotate();
+        rotatable = newBlock.canRotate();
         this.startLocation = startLocation;
         this.startAngle = startAngle;
-        this.deferredPlacement = deferredPlacement;
-    }
-
-    /**
-     * Gets the {@link ICustomCraftFallingBlock} that is being be animated.
-     */
-    @NotNull
-    public ICustomCraftFallingBlock getFBlock()
-    {
-        return fBlock;
-    }
-
-    /**
-     * Changes the {@link ICustomCraftFallingBlock} that is being be animated.
-     *
-     * @param block The new {@link ICustomCraftFallingBlock} that will be animated.
-     */
-    public void setFBlock(final @NotNull ICustomCraftFallingBlock block)
-    {
-        fBlock = block;
+        this.placementDeferred = placementDeferred;
     }
 
     /**
@@ -71,36 +101,6 @@ public final class PBlockData
             fBlock.remove();
     }
 
-    /**
-     * Gets the number of blocks between this block and the rotation point.
-     *
-     * @return The number of blocks between this block and the rotation point.
-     */
-    public float getRadius()
-    {
-        return radius;
-    }
-
-    /**
-     * Gets the rotated {@link INMSBlock} if it exists. If this block cannot rotate, this value does not exist.
-     *
-     * @return The rotated {@link INMSBlock} if it exists.
-     */
-    @NotNull
-    public INMSBlock getBlock()
-    {
-        return block;
-    }
-
-    /**
-     * Checks if this block can rotate.
-     *
-     * @return True if this block can rotate.
-     */
-    public boolean canRot()
-    {
-        return canRot;
-    }
 
     /**
      * Gets the location the block was first spawned at.
@@ -114,21 +114,6 @@ public final class PBlockData
         return BigDoors.get().getPlatform().getPLocationFactory()
                        .create(startLocation.getWorld(), startLocation.getX(), startLocation.getY(),
                                startLocation.getZ());
-    }
-
-    /**
-     * Checks if placement of this block should be deferred to the second pass or not.
-     * <p>
-     * On the first pass, "standalone" blocks such as stone will be placed, while other blocks such as torches, will be
-     * skipped.
-     * <p>
-     * On the second pass, all the other blocks will be placed. This makes sure that torches aren't just dropped.
-     *
-     * @return True if this block should be placed on the second pass, otherwise false.
-     */
-    public boolean deferPlacement()
-    {
-        return deferredPlacement;
     }
 
     /**
@@ -165,20 +150,10 @@ public final class PBlockData
     /**
      * Gets the z-coordinate of the location the block was first spawned at.
      *
-     * @return The 1-coordinate of the location the block was first spawned at.
+     * @return The z-coordinate of the location the block was first spawned at.
      */
     public double getStartZ()
     {
         return startLocation.getZ();
-    }
-
-    /**
-     * Gets the angle the block had in regards to the rotation point when it was first spawned.
-     *
-     * @return The angle the block had in regards to the rotation point when it was first spawned.
-     */
-    public float getStartAngle()
-    {
-        return startAngle;
     }
 }

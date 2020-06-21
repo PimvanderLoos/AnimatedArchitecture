@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class Vector3Dd implements Cloneable
 {
+    @Getter
     private double x, y, z;
 
     public Vector3Dd(double x, double y, double z)
@@ -85,21 +87,6 @@ public final class Vector3Dd implements Cloneable
     {
         z += val;
         return this;
-    }
-
-    public double getX()
-    {
-        return x;
-    }
-
-    public double getY()
-    {
-        return y;
-    }
-
-    public double getZ()
-    {
-        return z;
     }
 
     public Vector3Dd setX(double newVal)

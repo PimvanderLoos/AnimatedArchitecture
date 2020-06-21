@@ -74,7 +74,7 @@ public final class DoorTypeSlidingDoor extends DoorType
 
         final @NotNull SlidingDoor slidingDoor = (SlidingDoor) door;
         return new Object[]{slidingDoor.getBlocksToMove(),
-                            slidingDoor.getAutoCloseTimer(),
-                            slidingDoor.getAutoOpenTimer()};
+                            slidingDoor.getAutoCloseTime(),
+                            slidingDoor.getAutoOpenTime()};
     }
 }

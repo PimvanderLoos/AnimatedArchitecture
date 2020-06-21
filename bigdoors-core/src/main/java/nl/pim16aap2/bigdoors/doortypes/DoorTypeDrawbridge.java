@@ -24,6 +24,7 @@ public final class DoorTypeDrawbridge extends DoorType
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "currentDirection"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "modeUpDown"));
+        parameterTMP.add(new Parameter(ParameterType.INTEGER, "northSouthAligned"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
 
@@ -62,11 +63,13 @@ public final class DoorTypeDrawbridge extends DoorType
         final int autoOpenTimer = (int) typeData[1];
 
         final boolean modeUP = ((int) typeData[3]) == 1;
+        final boolean northSouthAligned = ((int) typeData[4]) == 1;
         return Optional.of(new Drawbridge(doorData,
                                           autoCloseTimer,
                                           autoOpenTimer,
                                           currentDirection,
-                                          modeUP));
+                                          modeUP,
+                                          northSouthAligned));
     }
 
     /**
@@ -81,9 +84,10 @@ public final class DoorTypeDrawbridge extends DoorType
                 "Trying to get the type-specific data for a Drawbridge from type: " + door.getDoorType().toString());
 
         final @NotNull Drawbridge drawbridge = (Drawbridge) door;
-        return new Object[]{drawbridge.getAutoCloseTimer(),
-                            drawbridge.getAutoOpenTimer(),
+        return new Object[]{drawbridge.getAutoCloseTime(),
+                            drawbridge.getAutoOpenTime(),
                             PBlockFace.getValue(drawbridge.getCurrentDirection()),
-                            drawbridge.isModeUp() ? 1 : 0};
+                            drawbridge.isModeUp() ? 1 : 0,
+                            drawbridge.isNorthSouthAligned() ? 1 : 0};
     }
 }

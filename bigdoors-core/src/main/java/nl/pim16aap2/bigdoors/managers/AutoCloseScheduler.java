@@ -102,7 +102,7 @@ public class AutoCloseScheduler extends Restartable
         final @NotNull DoorActionCause cause, final @NotNull IPPlayer player,
         final T door, double speed, boolean skipAnimation)
     {
-        int autoCloseTimer = door.getAutoCloseTimer();
+        int autoCloseTimer = door.getAutoCloseTime();
         if (autoCloseTimer < 0 || !door.isOpen())
             return;
 

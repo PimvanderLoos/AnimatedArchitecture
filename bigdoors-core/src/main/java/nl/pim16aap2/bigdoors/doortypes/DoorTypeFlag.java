@@ -74,7 +74,7 @@ public final class DoorTypeFlag extends DoorType
                 "Trying to get the type-specific data for a Flag from type: " + door.getDoorType().toString());
 
         final @NotNull Flag flag = (Flag) door;
-        return new Object[]{flag.getOnNorthSouthAxis() ? 1 : 0,
+        return new Object[]{flag.isNorthSouthAligned() ? 1 : 0,
                             PBlockFace.getValue(flag.getFlagDirection())};
     }
 }

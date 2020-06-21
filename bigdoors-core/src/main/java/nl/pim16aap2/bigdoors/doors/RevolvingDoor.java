@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -21,10 +22,13 @@ import org.jetbrains.annotations.Nullable;
 public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
-
+    
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
+     *
+     * @return The number of quarter circles this door will rotate.
      */
+    @Getter
     private int quarterCircles = 1;
 
     public RevolvingDoor(final @NotNull DoorData doorData, final int quarterCircles)
@@ -41,16 +45,6 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
-    }
-
-    /**
-     * Gets the number of quarter circles this door will rotate.
-     *
-     * @return The number of quarter circles this door will rotate.
-     */
-    public int getQuarterCircles()
-    {
-        return quarterCircles;
     }
 
     /**

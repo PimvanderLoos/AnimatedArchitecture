@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
@@ -29,18 +31,24 @@ public class Portcullis extends AbstractDoorBase
     private static final DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
     /**
-     * See {@link IBlocksToMoveArchetype#getBlocksToMove}.
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int blocksToMove;
 
     /**
-     * See {@link ITimerToggleableArchetype#getAutoCloseTimer()}.
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
     /**
-     * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}.
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
 
     public Portcullis(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
@@ -60,60 +68,6 @@ public class Portcullis extends AbstractDoorBase
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getBlocksToMove()
-    {
-        return blocksToMove;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setBlocksToMove(int newBTM)
-    {
-        blocksToMove = newBTM;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAutoCloseTimer(int newValue)
-    {
-        autoCloseTime = newValue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getAutoCloseTimer()
-    {
-        return autoCloseTime;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAutoOpenTimer(int newValue)
-    {
-        autoOpenTime = newValue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getAutoOpenTimer()
-    {
-        return autoOpenTime;
     }
 
     /**
@@ -175,21 +129,6 @@ public class Portcullis extends AbstractDoorBase
         newMax.setY(max.getY() + blocksToMove * vec.getY());
         newMax.setZ(max.getZ());
         return true;
-
-//        Vector3D vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-//
-//        int blocksToMove = getBlocksToMove() > 0 ? getBlocksToMove() :
-//                           1 + Math.abs(vec.getX() * dimensions.getX() + vec.getY() * dimensions.getY() +
-//                                            vec.getZ() * dimensions.getZ());
-//
-//        newMin.setX(min.getBlockX() + blocksToMove * vec.getX());
-//        newMin.setY(min.getBlockY() + blocksToMove * vec.getY());
-//        newMin.setZ(min.getBlockZ() + blocksToMove * vec.getZ());
-//
-//        newMax.setX(max.getBlockX() + blocksToMove * vec.getX());
-//        newMax.setY(max.getBlockY() + blocksToMove * vec.getY());
-//        newMax.setZ(max.getBlockZ() + blocksToMove * vec.getZ());
-//        return true;
     }
 
     /**

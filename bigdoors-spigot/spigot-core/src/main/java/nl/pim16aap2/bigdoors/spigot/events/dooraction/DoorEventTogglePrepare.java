@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -19,39 +21,28 @@ public class DoorEventTogglePrepare extends DoorToggleEvent implements IDoorEven
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
+    private boolean isCancelled = false;
+
+    /**
      * Constructs a door action event.
      *
-     * @param door          The door.
-     * @param cause         What caused the action.
-     * @param actionType    The type of action.
-     * @param responsible   Who is responsible for this door. If null, the door's owner will be used.
-     * @param time          The number of seconds the door will take to open. Note that there are other factors that
-     *                      affect the total time as well.
-     * @param skipAnimation If true, the door will skip the animation and open instantly.
+     * @param door             The door.
+     * @param cause            What caused the action.
+     * @param actionType       The type of action.
+     * @param responsible      Who is responsible for this door. If null, the door's owner will be used.
+     * @param time             The number of seconds the door will take to open. Note that there are other factors that
+     *                         affect the total time as well.
+     * @param animationSkipped If true, the door will skip the animation and open instantly.
      */
     public DoorEventTogglePrepare(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
                                   final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
-                                  final double time, final boolean skipAnimation)
+                                  final double time, final boolean animationSkipped)
     {
-        super(door, cause, actionType, responsible, time, skipAnimation);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isCancelled()
-    {
-        return isCancelled;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setCancelled(boolean cancel)
-    {
-        isCancelled = cancel;
+        super(door, cause, actionType, responsible, time, animationSkipped);
     }
 
     /**

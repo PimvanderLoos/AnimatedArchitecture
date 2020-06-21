@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
@@ -144,11 +145,21 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     private final PLogger pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
 
-    private ToolVerifier tf;
-    private ConfigLoaderSpigot config;
+    @Getter
+    private ToolVerifier toolVerifier;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
+    private ConfigLoaderSpigot configLoader;
     private Metrics metrics;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     private Messages messages;
-    private DatabaseManager databaseManager = null;
 
     private boolean validVersion = false;
     private CommandManager commandManager;
@@ -158,36 +169,89 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final Set<IRestartable> restartables = new HashSet<>();
     private ProtectionCompatManagerSpigot protCompatMan;
     private LoginResourcePackListener rPackHandler;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter
     private VaultManager vaultManager;
-    private AutoCloseScheduler autoCloseScheduler;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter
     private HeadManager headManager;
     private UpdateManager updateManager;
-    private PowerBlockManager powerBlockManager;
+
     private boolean successfulInit = true;
+
+    @Getter
+    @NotNull
     private AbortableTaskManager abortableTaskManager;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     @NotNull
-    private final IPLocationFactory locationFactory = new PLocationFactorySpigot();
+    private final IPLocationFactory pLocationFactory = new PLocationFactorySpigot();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     @NotNull
-    private final IPWorldFactory worldFactory = new PWorldFactorySpigot();
+    private final IPWorldFactory pWorldFactory = new PWorldFactorySpigot();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     @NotNull
     private final ISoundEngine soundEngine = new PSoundEngineSpigot();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IMessagingInterface messagingInterface = new MessagingInterfaceSpigot(this);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IChunkManager chunkManager = ChunkManagerSpigot.get();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IDoorActionEventFactory doorActionEventFactory = new DoorActionEventFactorySpigot();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     @NotNull
-    private final IPowerBlockRedstoneManager powerblockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
+    private final IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
     public BigDoorsSpigot()
     {
         INSTANCE = this;
         BIGDOORS.setBigDoorsPlatform(this);
         MAINTHREADID = Thread.currentThread().getId();
+
+        abortableTaskManager = AbortableTaskManager.init(this);
     }
 
     /**
@@ -201,7 +265,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             // Register this here so it can check for updates even when loaded on an incorrect version.
             updateManager = new UpdateManager(this, 58669);
 
-            databaseManager = DatabaseManager.init(this, config, new File(super.getDataFolder(), "doorDB.db"));
+            DatabaseManager.init(this, configLoader, new File(super.getDataFolder(), "doorDB.db"));
             registerDoorTypes();
 
             Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
@@ -218,15 +282,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                 return;
             }
 
-            abortableTaskManager = AbortableTaskManager.init(this);
-
-            config = ConfigLoaderSpigot.init(this, getPLogger());
+            configLoader = ConfigLoaderSpigot.init(this, getPLogger());
             init();
 
             RedstoneListener.init(this);
-            LoginResourcePackListener.init(this, config.resourcePack());
+            LoginResourcePackListener.init(this, configLoader.resourcePack());
 
-            final IStorage.DatabaseState databaseState = databaseManager.getDatabaseState();
+            final IStorage.DatabaseState databaseState = DatabaseManager.get().getDatabaseState();
             if (databaseState != IStorage.DatabaseState.OK)
             {
                 PLogger.get().severe("Failed to load database! Found it in the state: " + databaseState.name() +
@@ -236,9 +298,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             }
 
             DoorManager.init(this);
-            tf = new ToolVerifier(messages, this);
+            toolVerifier = new ToolVerifier(messages, this);
             vaultManager = VaultManager.init(this);
-            autoCloseScheduler = AutoCloseScheduler.init(this);
+            AutoCloseScheduler.init(this);
 
             headManager = HeadManager.init(this, getConfigLoader());
 
@@ -248,12 +310,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
             protCompatMan = ProtectionCompatManagerSpigot.init(this);
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
-            DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), config, protCompatMan);
+            DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), configLoader, protCompatMan);
 
             Bukkit.getPluginManager().registerEvents(DoorActionListener.get(), this);
-            powerBlockManager = PowerBlockManager.init(this, config, databaseManager, getPLogger());
-            Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
-
+            Bukkit.getPluginManager().registerEvents(WorldListener.init(PowerBlockManager
+                                                                            .init(this, configLoader,
+                                                                                  DatabaseManager.get(),
+                                                                                  getPLogger())), this);
             loadCommands();
 
             pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
@@ -342,7 +405,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                                                                                           doorOwner, false);
         final @NotNull BigDoor d01 = new BigDoor(doorData, 100, 0, PBlockFace.DOWN);
         final @NotNull Clock d02 = new Clock(doorData, false, PBlockFace.NORTH);
-        final @NotNull Drawbridge d03 = new Drawbridge(doorData, 100, 0, PBlockFace.EAST, true);
+        final @NotNull Drawbridge d03 = new Drawbridge(doorData, 100, 0, PBlockFace.EAST, true, true);
         final @NotNull Elevator d04 = new Elevator(doorData, 10, 0, 0);
         final @NotNull Flag d05 = new Flag(doorData, true, PBlockFace.NORTH);
         final @NotNull GarageDoor d06 = new GarageDoor(doorData, 0, 0, true, PBlockFace.UP);
@@ -376,7 +439,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         if (!validVersion)
             return;
 
-        config.restart();
+        configLoader.restart();
         getPLogger().setConsoleLogging(getConfigLoader().consoleLogging());
         messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         toolUsers = new HashMap<>();
@@ -385,7 +448,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
         // Load stats collector if allowed, otherwise unload it if needed or simply
         // don't load it in the first place.
-        if (config.allowStats())
+        if (configLoader.allowStats())
         {
             pLogger.info("Enabling stats! Thanks, it really helps!");
             if (metrics == null)
@@ -457,26 +520,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      */
     @Override
     @NotNull
-    public IPLocationFactory getPLocationFactory()
-    {
-        return locationFactory;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public IPWorldFactory getPWorldFactory()
-    {
-        return worldFactory;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
     public IPBlockDataFactory getPBlockDataFactory()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getPBlockDataFactory();
@@ -502,23 +545,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return PlatformManagerSpigot.get().getSpigotPlatform().getBlockAnalyzer();
     }
 
-    @Override
-    @NotNull
-    public IChunkManager getChunkManager()
-    {
-        return chunkManager;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public IPPlayerFactory getPPlayerFactory()
-    {
-        return pPlayerFactory;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -526,36 +552,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public boolean isMainThread(final long compareThread)
     {
         return compareThread == MAINTHREADID;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public IPowerBlockRedstoneManager getPowerBlockRedstoneManager()
-    {
-        return powerblockRedstoneManager;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public ISoundEngine getSoundEngine()
-    {
-        return soundEngine;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public IMessagingInterface getMessagingInterface()
-    {
-        return messagingInterface;
     }
 
     /**
@@ -612,7 +608,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         if (!validVersion)
             return;
 
-        config.restart();
+        configLoader.restart();
 
         shutdown();
         playerGUIs.forEach((key, value) -> value.close());
@@ -668,12 +664,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public BigDoorsSpigot getPlugin()
     {
         return this;
-    }
-
-    @NotNull
-    public AutoCloseScheduler getAutoCloseScheduler()
-    {
-        return autoCloseScheduler;
     }
 
     @NotNull
@@ -738,60 +728,11 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         toolUsers.remove(player.getUniqueId());
     }
 
-    @NotNull
-    public AbortableTaskManager getAbortableTaskManager()
-    {
-        return abortableTaskManager;
-    }
-
     // Get the logger.
     @NotNull
     public PLogger getPLogger()
     {
         return PLogger.get();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public Messages getMessages()
-    {
-        return messages;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public IDoorActionEventFactory getDoorActionEventFactory()
-    {
-        return doorActionEventFactory;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public ConfigLoaderSpigot getConfigLoader()
-    {
-        return config;
-    }
-
-    @NotNull
-    public VaultManager getVaultManager()
-    {
-        return vaultManager;
-    }
-
-    // Get the ToolVerifier.
-    @NotNull
-    public ToolVerifier getTF()
-    {
-        return tf;
     }
 
     /**
@@ -822,12 +763,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                 ret += "[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n";
         }
         return ret;
-    }
-
-    @NotNull
-    public HeadManager getHeadManager()
-    {
-        return headManager;
     }
 
     /**

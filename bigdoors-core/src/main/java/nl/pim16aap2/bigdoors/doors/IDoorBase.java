@@ -256,7 +256,7 @@ public interface IDoorBase
      *
      * @param bool The new open-status of the door.
      */
-    void setOpenStatus(final boolean bool);
+    void setOpen(final boolean bool);
 
     /**
      * Gets a copy of the power block location of this door.
@@ -331,9 +331,9 @@ public interface IDoorBase
     /**
      * Changes the lock status of this door. Locked doors cannot be opened.
      *
-     * @param lock New lock status.
+     * @param locked New lock status.
      */
-    void setLock(final boolean lock);
+    void setLocked(final boolean locked);
 
     /**
      * Changes the doorOwner of this door.

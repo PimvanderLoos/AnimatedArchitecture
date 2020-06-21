@@ -59,7 +59,7 @@ public class SubCommandSetAutoCloseTime extends SubCommand
         int time = CommandManager.getIntegerFromArg(timeArg);
         if (!(sender instanceof Player))
         {
-            doorWithTimer.setAutoCloseTimer(time);
+            doorWithTimer.setAutoCloseTime(time);
             BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
             BigDoors.get().getAutoCloseScheduler()
                     .scheduleAutoClose(door.getDoorOwner().getPlayer(),
@@ -78,11 +78,11 @@ public class SubCommandSetAutoCloseTime extends SubCommand
                     commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
                     return;
                 }
-                doorWithTimer.setAutoCloseTimer(time);
+                doorWithTimer.setAutoCloseTime(time);
                 BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
-                plugin.getAutoCloseScheduler()
-                      .scheduleAutoClose(player, (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time,
-                                         false);
+                BigDoors.get().getAutoCloseScheduler()
+                        .scheduleAutoClose(player, (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time,
+                                           false);
                 sendResultMessage(sender, time);
             });
         return true;

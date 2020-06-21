@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
@@ -17,10 +18,9 @@ import org.jetbrains.annotations.Nullable;
  * Represents a Windmill doorType.
  *
  * @author Pim
- * @see AbstractHorizontalAxisAlignedBase
  */
-public class Windmill extends AbstractHorizontalAxisAlignedBase
-    implements IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Windmill extends AbstractDoorBase
+    implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
@@ -32,18 +32,24 @@ public class Windmill extends AbstractHorizontalAxisAlignedBase
      * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
      * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
      * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     *
+     * @return True if this door is animated along the North/South axis.
      */
-    protected final boolean onNorthSouthAxis;
+    @Getter(onMethod = @__({@Override}))
+    protected final boolean northSouthAligned;
 
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
+     *
+     * @return The number of quarter circles this door will rotate.
      */
+    @Getter
     private int quarterCircles = 1;
 
-    public Windmill(final @NotNull DoorData doorData, final boolean onNorthSouthAxis, final int quarterCircles)
+    public Windmill(final @NotNull DoorData doorData, final boolean northSouthAligned, final int quarterCircles)
     {
         super(doorData);
-        this.onNorthSouthAxis = onNorthSouthAxis;
+        this.northSouthAligned = northSouthAligned;
         this.quarterCircles = quarterCircles;
     }
 
@@ -58,26 +64,6 @@ public class Windmill extends AbstractHorizontalAxisAlignedBase
     }
 
     /**
-     * Checks if this {@link Clock} is on the North/South axis or not. See {@link #onNorthSouthAxis}.
-     *
-     * @return True if this door is animated along the North/South axis.
-     */
-    public boolean getOnNorthSouthAxis()
-    {
-        return onNorthSouthAxis;
-    }
-
-    /**
-     * Gets the number of quarter circles this door will rotate.
-     *
-     * @return The number of quarter circles this door will rotate.
-     */
-    public int getQuarterCircles()
-    {
-        return quarterCircles;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @NotNull
@@ -85,7 +71,7 @@ public class Windmill extends AbstractHorizontalAxisAlignedBase
     public RotateDirection cycleOpenDirection()
     {
         // This type goes exactly the other way as most usual axis aligned ones.
-        if (!onNorthSouthAxis())
+        if (!isNorthSouthAligned())
             return getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
         return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.SOUTH : RotateDirection.NORTH;
     }
@@ -97,7 +83,7 @@ public class Windmill extends AbstractHorizontalAxisAlignedBase
     @Override
     public RotateDirection getDefaultOpenDirection()
     {
-        if (onNorthSouthAxis())
+        if (isNorthSouthAligned())
             return RotateDirection.NORTH;
         else
             return RotateDirection.EAST;
@@ -131,6 +117,6 @@ public class Windmill extends AbstractHorizontalAxisAlignedBase
             return false;
 
         final @NotNull Windmill other = (Windmill) o;
-        return onNorthSouthAxis == other.onNorthSouthAxis;
+        return northSouthAligned == other.northSouthAligned;
     }
 }

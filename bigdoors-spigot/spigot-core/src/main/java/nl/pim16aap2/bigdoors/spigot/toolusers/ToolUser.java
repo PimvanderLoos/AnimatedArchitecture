@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.toolusers;
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.AbortableTask;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -117,7 +117,7 @@ public abstract class ToolUser extends AbortableTask
         player.getInventory().forEach(
             K ->
             {
-                if (plugin.getTF().isTool(K))
+                if (plugin.getToolVerifier().isTool(K))
                     K.setAmount(0);
             });
     }

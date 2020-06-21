@@ -35,7 +35,7 @@ public class DrawbridgeCreator extends Creator
     @Override
     protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
     {
-        return new Drawbridge(doorData, 0, 0, PBlockFace.EAST, true);
+        return new Drawbridge(doorData, 0, 0, PBlockFace.EAST, true, true);
     }
 
     /**

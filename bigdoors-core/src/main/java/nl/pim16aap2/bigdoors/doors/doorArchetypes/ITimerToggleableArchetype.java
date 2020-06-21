@@ -10,11 +10,11 @@ import nl.pim16aap2.bigdoors.doors.IDoorBase;
 public interface ITimerToggleableArchetype extends IDoorBase
 {
     /**
-     * Changes the autoCloseTimer value. See {@link #getAutoCloseTimer()}.
+     * Changes the autoCloseTimer value. See {@link #getAutoCloseTime()}.
      *
      * @param newValue The new value of the autoCloseTimer.
      */
-    void setAutoCloseTimer(final int newValue);
+    void setAutoCloseTime(final int newValue);
 
     /**
      * Gets the value of the autoCloseTimer. This value describes the number of seconds after a door was opened that a
@@ -22,14 +22,14 @@ public interface ITimerToggleableArchetype extends IDoorBase
      *
      * @return The number of seconds the door will wait before automatically closing.
      */
-    int getAutoCloseTimer();
+    int getAutoCloseTime();
 
     /**
-     * Changes the autoCloseTimer value. See {@link #getAutoOpenTimer()}.
+     * Changes the autoCloseTimer value. See {@link #getAutoOpenTime()}.
      *
      * @param newValue The new value of the autoOpenTimer.
      */
-    void setAutoOpenTimer(final int newValue);
+    void setAutoOpenTime(final int newValue);
 
     /**
      * Gets the value of the autoOpenTimer. This value describes the number of seconds after a door was closed that a
@@ -37,5 +37,5 @@ public interface ITimerToggleableArchetype extends IDoorBase
      *
      * @return The number of seconds the door will wait before automatically opening.
      */
-    int getAutoOpenTimer();
+    int getAutoOpenTime();
 }

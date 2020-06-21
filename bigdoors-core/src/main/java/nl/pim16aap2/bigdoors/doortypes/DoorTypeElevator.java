@@ -74,7 +74,7 @@ public final class DoorTypeElevator extends DoorType
 
         final @NotNull Elevator elevator = (Elevator) door;
         return new Object[]{elevator.getBlocksToMove(),
-                            elevator.getAutoCloseTimer(),
-                            elevator.getAutoOpenTimer()};
+                            elevator.getAutoCloseTime(),
+                            elevator.getAutoOpenTime()};
     }
 }

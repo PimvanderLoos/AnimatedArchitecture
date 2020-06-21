@@ -6,9 +6,9 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.AbstractHorizontalAxisAlignedBase;
 import nl.pim16aap2.bigdoors.doors.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.doors.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotEast;
@@ -32,7 +32,7 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
-public class BridgeMover extends BlockMover
+public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends BlockMover
 {
     private final IGetNewLocation gnl;
     protected final boolean NS;
@@ -52,15 +52,16 @@ public class BridgeMover extends BlockMover
      * @param multiplier      The speed multiplier.
      * @param player          The player who opened this door.
      */
-    public BridgeMover(final double time, final @NotNull AbstractHorizontalAxisAlignedBase door,
-                       final @NotNull PBlockFace upDown, final @NotNull RotateDirection rotateDirection,
-                       final boolean skipAnimation, final double multiplier, final @NotNull IPPlayer player,
-                       final @NotNull Vector3Di finalMin, final @NotNull Vector3Di finalMax,
+    public BridgeMover(final double time, final @NotNull T door, final @NotNull PBlockFace upDown,
+                       final @NotNull RotateDirection rotateDirection, final boolean skipAnimation,
+                       final double multiplier,
+                       final @NotNull IPPlayer player, final @NotNull Vector3Di finalMin,
+                       final @NotNull Vector3Di finalMax,
                        final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
         super(door, time, skipAnimation, upDown, rotateDirection, -1, player, finalMin, finalMax, cause, actionType);
 
-        NS = door.onNorthSouthAxis();
+        NS = door.isNorthSouthAligned();
 
         final int xLen = Math.abs(door.getMaximum().getX() - door.getMinimum().getX());
         final int yLen = Math.abs(door.getMaximum().getY() - door.getMinimum().getY());

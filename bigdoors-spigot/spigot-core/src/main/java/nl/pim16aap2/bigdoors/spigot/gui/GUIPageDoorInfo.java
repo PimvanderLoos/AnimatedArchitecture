@@ -79,7 +79,7 @@ public class GUIPageDoorInfo implements IGUIPage
                 switch (attr)
                 {
                     case LOCK:
-                        door.setLock(!door.isLocked());
+                        door.setLocked(!door.isLocked());
                         BigDoors.get().getDatabaseManager().setLock(door.getDoorUID(), door.isLocked());
                         gui.updateItem(interactionIDX, createGUIItemOfAttribute(door, DoorAttribute.LOCK));
                         break;

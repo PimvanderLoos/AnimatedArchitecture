@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.Value;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
@@ -30,20 +32,51 @@ import java.util.UUID;
  */
 public abstract class AbstractDoorBase implements IDoorBase
 {
-    protected final long doorUID;
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
+    private final long doorUID;
     @NotNull
     protected final DoorOpeningUtility doorOpeningUtility;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     @NotNull
-    protected final nl.pim16aap2.bigdoors.api.IPWorld IPWorld;
+    protected final IPWorld world;
 
     protected Vector3Di min, max, engine, powerBlock, dimensions;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     private String name;
-    private boolean isOpen;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
+    private boolean open;
     @Nullable
     private RotateDirection openDir;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     private boolean isLocked;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     private DoorOwner doorOwner;
 
     // "cached" values that only get calculated when first retrieved.
@@ -68,8 +101,8 @@ public abstract class AbstractDoorBase implements IDoorBase
         max = doorData.getMax();
         engine = doorData.getEngine();
         powerBlock = doorData.getPowerBlock();
-        IPWorld = doorData.getWorld();
-        isOpen = doorData.isOpen();
+        world = doorData.getWorld();
+        open = doorData.isOpen();
         openDir = doorData.getOpenDirection();
         doorOwner = doorData.getDoorOwner();
         isLocked = doorData.isLocked();
@@ -258,62 +291,6 @@ public abstract class AbstractDoorBase implements IDoorBase
      */
     @Override
     @NotNull
-    public final String getName()
-    {
-        return name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final void setName(final @NotNull String name)
-    {
-        this.name = name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public final IPWorld getWorld()
-    {
-        return IPWorld;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final long getDoorUID()
-    {
-        return doorUID;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final boolean isLocked()
-    {
-        return isLocked;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final boolean isOpen()
-    {
-        return isOpen;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
     public final UUID getPlayerUUID()
     {
         if (doorOwner == null)
@@ -361,15 +338,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         }
         openDir = newRotDir;
         invalidateChunkRange();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final void setOpenStatus(final boolean bool)
-    {
-        isOpen = bool;
     }
 
     /**
@@ -521,34 +489,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     /**
      * {@inheritDoc}
      */
-    @Override
-    public final void setLock(final boolean lock)
-    {
-        isLocked = lock;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final void setDoorOwner(final @NotNull DoorOwner doorOwner)
-    {
-        this.doorOwner = doorOwner;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NotNull
-    public final DoorOwner getDoorOwner()
-    {
-        return doorOwner;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @NotNull
     private Vector2Di calculateEngineChunk()
     {
@@ -637,7 +577,7 @@ public abstract class AbstractDoorBase implements IDoorBase
                .append(getSimplePowerBlockChunkHash()).append("\n");
         builder.append("World: ").append(getWorld().getUID().toString()).append("\n");
         builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
-        builder.append("This door is ").append((isOpen ? "Open.\n" : "Closed.\n"));
+        builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
 
         return builder.toString();
@@ -646,6 +586,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     /**
      * {@inheritDoc}
      */
+    // TODO: Hashcode. Just the UID? Or actually calculate it?
     @Override
     public boolean equals(Object o)
     {
@@ -657,8 +598,8 @@ public abstract class AbstractDoorBase implements IDoorBase
 
         AbstractDoorBase other = (AbstractDoorBase) o;
         return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
-            getDoorType().equals(other.getDoorType()) && isOpen == other.isOpen && doorOwner.equals(other.doorOwner) &&
-            isLocked == other.isLocked && IPWorld.getUID().equals(other.IPWorld.getUID());
+            getDoorType().equals(other.getDoorType()) && open == other.open && doorOwner.equals(other.doorOwner) &&
+            isLocked == other.isLocked && world.getUID().equals(other.world.getUID());
     }
 
     /**

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
@@ -14,9 +15,28 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     private static final String VERSION = "v1_15_R1";
     private static final SpigotPlatform_V1_15_R1 instance = new SpigotPlatform_V1_15_R1();
 
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     private IFallingBlockFactory fallingBlockFactory;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     private IPBlockDataFactory pBlockDataFactory;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     private IBlockAnalyzer blockAnalyzer;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Getter(onMethod = @__({@Override}))
     private IGlowingBlockSpawner glowingBlockSpawner;
 
     private SpigotPlatform_V1_15_R1()
@@ -54,45 +74,5 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
         fallingBlockFactory = new FallingBlockFactory_V1_15_R1();
         pBlockDataFactory = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.PBlockDataFactorySpigot_V1_15_R1();
         blockAnalyzer = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.BlockAnalyzer_V1_15_R1();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    public IFallingBlockFactory getFallingBlockFactory()
-    {
-        return fallingBlockFactory;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    public IPBlockDataFactory getPBlockDataFactory()
-    {
-        return pBlockDataFactory;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    public IBlockAnalyzer getBlockAnalyzer()
-    {
-        return blockAnalyzer;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    public IGlowingBlockSpawner getGlowingBlockSpawner()
-    {
-        return glowingBlockSpawner;
     }
 }

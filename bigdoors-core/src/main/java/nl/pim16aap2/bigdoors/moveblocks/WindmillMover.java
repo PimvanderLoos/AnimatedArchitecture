@@ -3,7 +3,8 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.AbstractHorizontalAxisAlignedBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.Windmill;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -18,14 +19,13 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-public class WindmillMover extends BridgeMover
+public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends BridgeMover<T>
 {
     protected static final double EPS = 2 * Double.MIN_VALUE;
 
     private double step;
 
-    public WindmillMover(final @NotNull AbstractHorizontalAxisAlignedBase door, final double time,
-                         final double multiplier,
+    public WindmillMover(final @NotNull T door, final double time, final double multiplier,
                          final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
                          final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {

@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
@@ -21,10 +23,9 @@ import org.jetbrains.annotations.Nullable;
  * Represents a Garage Door doorType.
  *
  * @author Pim
- * @see AbstractHorizontalAxisAlignedBase
  */
-public class GarageDoor extends AbstractHorizontalAxisAlignedBase
-    implements IMovingDoorArchetype, ITimerToggleableArchetype
+public class GarageDoor extends AbstractDoorBase
+    implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
     /**
@@ -35,33 +36,42 @@ public class GarageDoor extends AbstractHorizontalAxisAlignedBase
      * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
      * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
      * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     *
+     * @return True if this door is animated along the North/South axis.
      */
-    protected final boolean onNorthSouthAxis;
+    @Getter(onMethod = @__({@Override}))
+    protected final boolean northSouthAligned;
 
     /**
      * Gets the side the flag is on flag relative to it rotation point ("engine", i.e. the point).
+     *
+     * @return The side the {@link IDoorBase} is on relative to the engine
      */
+    @Getter
     @NotNull
     protected PBlockFace currentDirection;
 
     /**
-     * See {@link ITimerToggleableArchetype#getAutoCloseTimer()}
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
     /**
-     * See {@link ITimerToggleableArchetype#getAutoOpenTimer()}
+     * {@inheritDoc}
      */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
 
     public GarageDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
-                      final boolean onNorthSouthAxis,
-                      final @NotNull PBlockFace currentDirection)
+                      final boolean northSouthAligned, final @NotNull PBlockFace currentDirection)
     {
         super(doorData);
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
-        this.onNorthSouthAxis = onNorthSouthAxis;
+        this.northSouthAligned = northSouthAligned;
         this.currentDirection = currentDirection;
     }
 
@@ -73,63 +83,6 @@ public class GarageDoor extends AbstractHorizontalAxisAlignedBase
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
-    }
-
-    /**
-     * Gets the side the {@link IDoorBase} is on relative to the engine.
-     *
-     * @return The side the {@link IDoorBase} is on relative to the engine
-     */
-    @NotNull
-    public PBlockFace getCurrentDirection()
-    {
-        return currentDirection;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAutoCloseTimer(int newValue)
-    {
-        autoCloseTime = newValue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getAutoCloseTimer()
-    {
-        return autoCloseTime;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAutoOpenTimer(int newValue)
-    {
-        autoOpenTime = newValue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getAutoOpenTimer()
-    {
-        return autoOpenTime;
-    }
-
-    /**
-     * Checks if this {@link Clock} is on the North/South axis or not. See {@link #onNorthSouthAxis}.
-     *
-     * @return True if this door is animated along the North/South axis.
-     */
-    public boolean getOnNorthSouthAxis()
-    {
-        return onNorthSouthAxis;
     }
 
     /**
@@ -154,29 +107,11 @@ public class GarageDoor extends AbstractHorizontalAxisAlignedBase
     /**
      * {@inheritDoc}
      */
-    @Override
-    public boolean isOpenable()
-    {
-        return !isOpen();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isCloseable()
-    {
-        return isOpen();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @NotNull
     @Override
     public RotateDirection getDefaultOpenDirection()
     {
-        if (onNorthSouthAxis())
+        if (isNorthSouthAligned())
             return RotateDirection.EAST;
         else
             return RotateDirection.NORTH;
@@ -319,7 +254,7 @@ public class GarageDoor extends AbstractHorizontalAxisAlignedBase
 
         final @NotNull GarageDoor other = (GarageDoor) o;
         return currentDirection.equals(other.currentDirection) &&
-            onNorthSouthAxis == other.onNorthSouthAxis &&
+            northSouthAligned == other.northSouthAligned &&
             autoOpenTime == other.autoOpenTime &&
             autoCloseTime == other.autoCloseTime;
     }

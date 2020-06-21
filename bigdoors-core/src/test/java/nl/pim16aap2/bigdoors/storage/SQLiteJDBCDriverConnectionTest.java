@@ -164,6 +164,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final int autoOpen = 0;
                 final int autoClose = 0;
                 final boolean isOpen = false;
+                final boolean isLocked = false;
                 final @NotNull String name = "massive1";
                 final @NotNull Vector3Di min = new Vector3Di(144, 75, 153);
                 final @NotNull Vector3Di max = new Vector3Di(144, 131, 167);
@@ -173,7 +174,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final @NotNull PBlockFace currentDirection = PBlockFace.DOWN;
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         RotateDirection.EAST, doorOwner, false);
+                                                         RotateDirection.EAST, doorOwner, isLocked);
                 final @NotNull BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen, currentDirection);
                 door1 = bigDoor;
             }
@@ -182,7 +183,10 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final int doorUID = 2;
                 final int autoOpen = 0;
                 final int autoClose = 0;
+                final boolean modeUp = true;
                 final boolean isOpen = false;
+                final boolean isLocked = false;
+                final boolean northSouth = true;
                 final @NotNull String name = "massive2";
                 final @NotNull PBlockFace currentDirection = PBlockFace.DOWN;
                 final @NotNull Vector3Di min = new Vector3Di(144, 75, 168);
@@ -192,9 +196,9 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         RotateDirection.valueOf(0), doorOwner, false);
+                                                         RotateDirection.valueOf(0), doorOwner, isLocked);
                 final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, currentDirection,
-                                                                      true);
+                                                                      modeUp, northSouth);
                 door2 = drawbridge;
             }
 
@@ -204,6 +208,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final int autoClose = 10;
                 final int blocksToMove = 8;
                 final boolean isOpen = false;
+                final boolean isLocked = false;
                 final @NotNull String name = "massive2";
                 final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
                 final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
@@ -212,7 +217,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player2);
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         RotateDirection.UP, doorOwner, false);
+                                                         RotateDirection.UP, doorOwner, isLocked);
                 final @NotNull Portcullis portcullis = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
                 door3 = portcullis;
             }
@@ -652,24 +657,24 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         // Test changing autoCloseTime value.
         {
             ITimerToggleableArchetype doorTimeToggle = (ITimerToggleableArchetype) door3;
-            final int door3AutoCloseTime = doorTimeToggle.getAutoCloseTimer();
+            final int door3AutoCloseTime = doorTimeToggle.getAutoCloseTime();
             final int testAutoCloseTime = 20;
 
-            doorTimeToggle.setAutoCloseTimer(testAutoCloseTime);
+            doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
             // Change the autoCloseTimer of the object of door 3.
             storage.updateTypeData(door3);
-            doorTimeToggle.setAutoCloseTimer(door3AutoCloseTime);
+            doorTimeToggle.setAutoCloseTime(door3AutoCloseTime);
 
             // Verify that door 3 in the database is no longer the same as the door 3 object.
             // This should be the case, because the auto close timer is 0 for the door 3 object.
             assertDoor3NotParity();
 
-            doorTimeToggle.setAutoCloseTimer(testAutoCloseTime);
+            doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
             Assert.assertEquals(door3, storage.getDoor(player2UUID, 3L).get());
 
             // Reset the autoclose timer of both the object of door 3 and the database entry of door 3 and
             // verify data parity.
-            doorTimeToggle.setAutoCloseTimer(0);
+            doorTimeToggle.setAutoCloseTime(0);
             storage.updateTypeData(door3);
             assertDoor3Parity();
         }
@@ -709,13 +714,13 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
             assertDoor3NotParity();
             // Set the object of door 3 to locked so it matches the database entry of door 3. Then make sure
             // Both the object and the database entry of door 3 match.
-            door3.setLock(true);
+            door3.setLocked(true);
             assertDoor3Parity();
 
             // Reset the lock status of both the database entry and the object of door 3 and verify they are
             // the same again.
             storage.setLock(3L, false);
-            door3.setLock(false);
+            door3.setLocked(false);
             assertDoor3Parity();
         }
 
