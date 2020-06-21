@@ -193,8 +193,8 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public final void onRedstoneChange(final int newCurrent)
     {
-        IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory().create(getDoorOwner().getPlayerUUID(),
-                                                                                  getDoorOwner().getPlayerName());
+        IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory().create(getDoorOwner().getPlayer().getUUID(),
+                                                                                  getDoorOwner().getPlayer().getName());
         if (newCurrent == 0 && isCloseable())
             toggle(DoorActionCause.REDSTONE, player, 0.0D, false, DoorActionType.CLOSE);
         else if (newCurrent > 0 && isOpenable())
@@ -331,7 +331,7 @@ public abstract class AbstractDoorBase implements IDoorBase
             PLogger.get().logException(npe);
             throw npe;
         }
-        return doorOwner.getPlayerUUID();
+        return doorOwner.getPlayer().getUUID();
     }
 
     /**

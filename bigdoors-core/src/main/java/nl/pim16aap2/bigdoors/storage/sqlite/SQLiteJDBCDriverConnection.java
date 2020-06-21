@@ -517,8 +517,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         throws SQLException
     {
         conn.setAutoCommit(false);
-        final @NotNull String playerUUID = door.getDoorOwner().getPlayerUUID().toString();
-        final @NotNull String playerName = door.getDoorOwner().getPlayerName();
+        final @NotNull String playerUUID = door.getDoorOwner().getPlayer().getUUID().toString();
+        final @NotNull String playerName = door.getDoorOwner().getPlayer().getName();
         final @NotNull String worldUUID = door.getWorld().getUID().toString();
 
         executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_WORLD.constructPPreparedStatement().setString(1, worldUUID));
@@ -641,11 +641,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private long getPlayerID(final @NotNull Connection conn, final @NotNull DoorOwner doorOwner)
     {
         executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_PLAYER.constructPPreparedStatement()
-                                                                .setString(1, doorOwner.getPlayerUUID().toString())
-                                                                .setString(2, doorOwner.getPlayerName()));
+                                                                .setString(1,
+                                                                           doorOwner.getPlayer().getUUID().toString())
+                                                                .setString(2, doorOwner.getPlayer().getName()));
 
         return executeQuery(conn, SQLStatement.GET_PLAYER_ID.constructPPreparedStatement()
-                                                            .setString(1, doorOwner.getPlayerUUID().toString()),
+                                                            .setString(1, doorOwner.getPlayer().getUUID().toString()),
                             rs -> rs.next() ? rs.getLong("id") : -1, -1L);
     }
 

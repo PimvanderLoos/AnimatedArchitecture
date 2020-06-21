@@ -106,8 +106,9 @@ public final class DoorOpener
         }
 
         if (initiator == null)
-            initiator = BigDoors.get().getPlatform().getPPlayerFactory().create(door.getDoorOwner().getPlayerUUID(),
-                                                                                door.getDoorOwner().getPlayerName());
+            initiator = BigDoors.get().getPlatform().getPPlayerFactory()
+                                .create(door.getDoorOwner().getPlayer().getUUID(),
+                                        door.getDoorOwner().getPlayer().getName());
 
         return door.toggle(cause, initiator, time, skipAnimation, doorActionType);
     }

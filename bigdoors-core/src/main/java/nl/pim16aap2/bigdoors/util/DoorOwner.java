@@ -48,28 +48,6 @@ public class DoorOwner
     }
 
     /**
-     * Get the UUID of the player.
-     *
-     * @return The UUID of the player.
-     */
-    @NotNull
-    public UUID getPlayerUUID()
-    {
-        return player.getUUID();
-    }
-
-    /**
-     * Get the name of the player.
-     *
-     * @return The name of the player.
-     */
-    @NotNull
-    public String getPlayerName()
-    {
-        return player.getName();
-    }
-
-    /**
      * Get a basic overview of this door owner. Useful for debugging.
      */
     @NotNull
@@ -77,8 +55,8 @@ public class DoorOwner
     public String toString()
     {
         return "doorUID: " + doorUID +
-            ". playerUUID: " + getPlayerUUID().toString() +
+            ". playerUUID: " + getPlayer().getUUID().toString() +
             ". Permission: " + permission +
-            ". PlayerName: " + getPlayerName();
+            ". PlayerName: " + getPlayer().getName();
     }
 }
