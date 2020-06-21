@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.AllArgsConstructor;
+import lombok.Value;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -69,7 +71,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      */
     protected AbstractDoorBase(final @NotNull DoorData doorData)
     {
-        doorUID = doorData.getUID();
+        doorUID = doorData.getUid();
 
         name = doorData.getName();
         min = doorData.getMin();
@@ -77,10 +79,10 @@ public abstract class AbstractDoorBase implements IDoorBase
         engine = doorData.getEngine();
         powerBlock = doorData.getPowerBlock();
         IPWorld = doorData.getWorld();
-        isOpen = doorData.getIsOpen();
+        isOpen = doorData.isOpen();
         openDir = doorData.getOpenDirection();
         doorOwner = doorData.getDoorOwner();
-        isLocked = doorData.getIsLocked();
+        isLocked = doorData.isLocked();
 
         doorOpeningUtility = DoorOpeningUtility.get();
         onCoordsUpdate();
@@ -674,123 +676,61 @@ public abstract class AbstractDoorBase implements IDoorBase
      *
      * @author Pim
      */
-    public static final class DoorData
+    @Value
+    @AllArgsConstructor
+    public static class DoorData
     {
-        private final long uid;
-        @NotNull
-        private final String name;
-        @NotNull
-        private final Vector3Di min;
-        @NotNull
-        private final Vector3Di max;
-        @NotNull
-        private final Vector3Di engine;
-        @NotNull
-        private final Vector3Di powerBlock; // TODO: Use a list of powerblocks.
-        @NotNull
-        private final IPWorld world;
-        private final boolean isOpen; // TODO: Use the bitflag here instead.
-        @Nullable
-        private final RotateDirection openDirection;
-        @NotNull
-        private final DoorOwner doorOwner;
-        private final boolean isLocked;
-
         /**
-         * Initializes all basic data of this door. This refers to all data required to put this door in a basic valid
-         * state. It can then infer further details from this data (such as NorthSouthAxis and dimensions).
-         *
-         * @param uid           The UID of this door.
-         * @param name          The name of this door.
-         * @param min           The IPLocation with the coordinates closest to the origin.
-         * @param max           The IPLocation with the coordinates furthest away from the origin.
-         * @param engine        The IPLocation of the engine.
-         * @param powerBlock    The IPLocation of the powerblock.
-         * @param world         The IPWorld this door is in.
-         * @param isOpen        Whether or not this door is currently open.
-         * @param openDirection The open direction of this door.
-         * @param doorOwner     The {@link DoorOwner} of this door.
+         * The UID of this door.
          */
-        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,
-                        final @NotNull Vector3Di max, final @NotNull Vector3Di engine,
-                        final @NotNull Vector3Di powerBlock, final @NotNull IPWorld world, final boolean isOpen,
-                        final @Nullable RotateDirection openDirection, final @NotNull DoorOwner doorOwner,
-                        final boolean isLocked)
-        {
-            this.uid = uid;
-            this.name = name;
-            this.min = min;
-            this.max = max;
-            this.engine = engine;
-            this.powerBlock = powerBlock;
-            this.world = world;
-            this.isOpen = isOpen;
-            this.openDirection = openDirection;
-            this.doorOwner = doorOwner;
-            this.isLocked = isLocked;
-        }
-
-        private long getUID()
-        {
-            return uid;
-        }
-
+        long uid;
+        /**
+         * The name of this door.
+         */
         @NotNull
-        private Vector3Di getMin()
-        {
-            return min;
-        }
-
+        String name;
+        /**
+         * The location with the coordinates closest to the origin.
+         */
         @NotNull
-        private Vector3Di getMax()
-        {
-            return max;
-        }
-
+        Vector3Di min;
+        /**
+         * The location with the coordinates furthest away from the origin.
+         */
         @NotNull
-        private Vector3Di getEngine()
-        {
-            return engine;
-        }
-
+        Vector3Di max;
+        /**
+         * The location of the engine.
+         */
         @NotNull
-        private Vector3Di getPowerBlock()
-        {
-            return powerBlock;
-        }
-
+        Vector3Di engine;
+        /**
+         * The location of the powerblock.
+         */
         @NotNull
-        private IPWorld getWorld()
-        {
-            return world;
-        }
-
-        private boolean getIsOpen()
-        {
-            return isOpen;
-        }
-
-        private boolean getIsLocked()
-        {
-            return isLocked;
-        }
-
+        Vector3Di powerBlock; // TODO: Use a list of powerblocks.
+        /**
+         * The {@link IPWorld} this door is in.
+         */
+        @NotNull
+        IPWorld world;
+        /**
+         * Whether or not this door is currently open.
+         */
+        boolean isOpen; // TODO: Use the bitflag here instead.
+        /**
+         * The open direction of this door.
+         */
         @Nullable
-        private RotateDirection getOpenDirection()
-        {
-            return openDirection;
-        }
-
+        RotateDirection openDirection;
+        /**
+         * The {@link DoorOwner} of this door.
+         */
         @NotNull
-        private String getName()
-        {
-            return name;
-        }
-
-        @NotNull
-        private DoorOwner getDoorOwner()
-        {
-            return doorOwner;
-        }
+        DoorOwner doorOwner;
+        /**
+         * Whether or not this door is currently locked.
+         */
+        boolean isLocked;
     }
 }
