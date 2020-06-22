@@ -20,7 +20,7 @@ public interface IProtectionCompatManager
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
     @NotNull
-    Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocation loc);
+    Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc);
 
     /**
      * Check if a player can break all blocks between two locations.

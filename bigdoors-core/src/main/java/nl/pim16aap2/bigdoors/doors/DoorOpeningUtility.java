@@ -145,8 +145,8 @@ public final class DoorOpeningUtility
      * If the player is not allowed to break the block(s), they'll receive a message about this.
      *
      * @param door      The {@link AbstractDoorBase} being opened.
-     * @param pos1      The first IPLocation of the area to check.
-     * @param pos2      The second IPLocation of the area to check.
+     * @param pos1      The first position of the area to check.
+     * @param pos2      The second position of the area to check.
      * @param initiator Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
@@ -173,7 +173,7 @@ public final class DoorOpeningUtility
      * @param curMax The upper lower bound position of the door (blocks in this area are skipped).
      * @param player The {@link IPPlayer} to notify of violations. May be null.
      * @param world  The world to check the blocks in.
-     * @return True if the IPLocation is not empty.
+     * @return True if the area is not empty.
      */
     public boolean isLocationEmpty(final @NotNull IVector3DiConst newMin, final @NotNull IVector3DiConst newMax,
                                    final @NotNull IVector3DiConst curMin, final @NotNull IVector3DiConst curMax,
@@ -201,7 +201,7 @@ public final class DoorOpeningUtility
                             return false;
 
                         glowingBlockSpawner
-                            .spawnGlowinBlock(player, world.getUID(), 10, xAxis, yAxis, zAxis, PColor.RED);
+                            .spawnGlowingBlock(player, world.getUID(), 10, xAxis, yAxis, zAxis, PColor.RED);
                         isEmpty = false;
                     }
                 }
@@ -219,8 +219,8 @@ public final class DoorOpeningUtility
      * @param vec          Which direction to count the number of available blocks in.
      * @param player       The player for whom to check. May be null.
      * @param world        The world to check the blocks in.
-     * @param curMin       The current lower bound IPLocation of the door (blocks in this area are skipped).
-     * @param curMax       The upper lower bound IPLocation of the door (blocks in this area are skipped).
+     * @param curMin       The current lower bound position of the door (blocks in this area are skipped).
+     * @param curMax       The upper lower bound position of the door (blocks in this area are skipped).
      * @param blocksToMove The number of blocks to try move.
      * @return Gets the number of blocks this door can move in the given direction.
      */

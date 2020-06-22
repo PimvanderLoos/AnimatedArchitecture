@@ -2,9 +2,9 @@ package nl.pim16aap2.bigdoors.spigot.v1_14_R1;
 
 import net.minecraft.server.v1_14_R1.Vec3D;
 import net.minecraft.server.v1_14_R1.WorldServer;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -43,7 +43,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
      * This method creates an intermediate {@link Location}. To avoid this, use {@link #teleport(IVector3DdConst)}
      */
     @Override
-    public boolean teleport(final @NotNull IPLocation newLocation)
+    public boolean teleport(final @NotNull IPLocationConst newLocation)
     {
         return super.teleport(SpigotAdapter.getBukkitLocation(newLocation));
     }
@@ -51,7 +51,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
     /**
      * {@inheritDoc}
      * <p>
-     * This method does not construct a new intermediate {@link Location}, unlike {@link #teleport(IPLocation)}.
+     * This method does not construct a new intermediate {@link Location}, unlike {@link #teleport(IPLocationConst)}.
      */
     @Override
     public boolean teleport(final @NotNull IVector3DdConst newPosition)
@@ -71,13 +71,10 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
 
     /** {@inheritDoc} */
     @Override
-    public @NotNull IPLocation getPLocation()
+    @NotNull
+    public IPLocation getPLocation()
     {
-        Location bukkitLocation = super.getLocation();
-        return BigDoors.get().getPlatform().getPLocationFactory().create(bukkitLocation.getWorld().getUID(),
-                                                                         bukkitLocation.getX(),
-                                                                         bukkitLocation.getY(),
-                                                                         bukkitLocation.getZ());
+        return SpigotAdapter.wrapLocation(super.getLocation());
     }
 
     /** {@inheritDoc} */

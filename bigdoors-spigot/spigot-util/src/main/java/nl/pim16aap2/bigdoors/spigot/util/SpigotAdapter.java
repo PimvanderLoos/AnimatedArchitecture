@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
@@ -46,7 +47,7 @@ public final class SpigotAdapter
      * @return The Spigot location.
      */
     @NotNull
-    public static Location getBukkitLocation(final @NotNull IPLocation pLocation)
+    public static Location getBukkitLocation(final @NotNull IPLocationConst pLocation)
     {
         if (pLocation instanceof PLocationSpigot)
             return ((PLocationSpigot) pLocation).getBukkitLocation();

@@ -124,12 +124,12 @@ public class GarageDoor extends AbstractDoorBase
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
         RotateDirection rotateDirection = getCurrentToggleDir();
-        int minX = min.getX();
-        int minY = min.getY();
-        int minZ = min.getZ();
-        int maxX = max.getX();
-        int maxY = max.getY();
-        int maxZ = max.getZ();
+        int minX = minimum.getX();
+        int minY = minimum.getY();
+        int minZ = minimum.getZ();
+        int maxX = maximum.getX();
+        int maxY = maximum.getY();
+        int maxZ = maximum.getZ();
         int xLen = dimensions.getX();
         int yLen = dimensions.getY();
         int zLen = dimensions.getZ();
@@ -149,7 +149,7 @@ public class GarageDoor extends AbstractDoorBase
 
         if (getCurrentDirection().equals(PBlockFace.UP))
         {
-            minY = maxY = max.getY() + 1;
+            minY = maxY = maximum.getY() + 1;
 
             minX += rotateVec.getX();
             maxX += (1 + yLen) * rotateVec.getX();

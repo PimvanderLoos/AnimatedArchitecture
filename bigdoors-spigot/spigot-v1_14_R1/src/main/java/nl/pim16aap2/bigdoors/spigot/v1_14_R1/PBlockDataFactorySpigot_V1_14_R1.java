@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -18,7 +19,7 @@ public class PBlockDataFactorySpigot_V1_14_R1 implements IPBlockDataFactory
     /** {@inheritDoc} */
     @NotNull
     @Override
-    public Optional<PBlockData> create(final @NotNull IPLocation startLocation, final boolean bottom,
+    public Optional<PBlockData> create(final @NotNull IPLocationConst startLocation, final boolean bottom,
                                        final float radius, final float startAngle)
     {
         final World bukkitWorld = SpigotAdapter.getBukkitWorld(startLocation.getWorld());

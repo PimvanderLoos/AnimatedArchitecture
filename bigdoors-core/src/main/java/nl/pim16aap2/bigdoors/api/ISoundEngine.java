@@ -19,7 +19,8 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(final @NotNull IPLocation loc, final @NotNull PSound sound, final float volume, final float pitch);
+    void playSound(final @NotNull IPLocationConst loc, final @NotNull PSound sound, final float volume,
+                   final float pitch);
 
     /**
      * Play a sound for all players in a range of 15 blocks around the provided location.

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
-import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,6 +23,6 @@ public interface IPBlockDataFactory
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
     @NotNull
-    Optional<PBlockData> create(final @NotNull IPLocation loc, final boolean bottom, final float radius,
+    Optional<PBlockData> create(final @NotNull IPLocationConst loc, final boolean bottom, final float radius,
                                 final float startAngle);
 }

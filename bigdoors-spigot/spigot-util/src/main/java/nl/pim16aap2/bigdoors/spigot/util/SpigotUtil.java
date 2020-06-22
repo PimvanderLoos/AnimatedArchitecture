@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -33,7 +35,9 @@ public final class SpigotUtil
 {
     private static final Map<PBlockFace, BlockFace> toBlockFace = new EnumMap<>(PBlockFace.class);
     private static final Map<BlockFace, PBlockFace> toPBlockFace = new EnumMap<>(BlockFace.class);
-    public static boolean printDebugMessages = false;
+    @Getter
+    @Setter
+    private static boolean printDebugMessages = false;
 
     static
     {

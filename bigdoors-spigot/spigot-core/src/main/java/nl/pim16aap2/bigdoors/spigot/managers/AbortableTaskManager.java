@@ -84,7 +84,7 @@ public final class AbortableTaskManager
     public void startPowerBlockRelocator(final @NotNull Player player, final @NotNull AbstractDoorBase door)
     {
         final int time = 20 * 20; // Give the user 20 seconds.
-        startTimerForAbortableTask(new PowerBlockRelocator(plugin, player, door, door.getPowerBlockLoc(), time), time);
+        startTimerForAbortableTask(new PowerBlockRelocator(plugin, player, door, door.getPowerBlock(), time), time);
     }
 
     /**

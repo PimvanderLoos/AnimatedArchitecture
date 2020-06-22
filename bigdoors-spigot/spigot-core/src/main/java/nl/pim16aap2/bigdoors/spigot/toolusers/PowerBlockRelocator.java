@@ -40,9 +40,9 @@ public class PowerBlockRelocator extends ToolUser
         giveToolToPlayer();
 
         glowingBlock = plugin.getGlowingBlockSpawner()
-                             .spawnGlowinBlock(SpigotAdapter.wrapPlayer(player), player.getWorld().getUID(), time,
-                                               door.getPowerBlockLoc().getX(), door.getPowerBlockLoc().getY(),
-                                               door.getPowerBlockLoc().getZ(), PColor.GOLD);
+                             .spawnGlowingBlock(SpigotAdapter.wrapPlayer(player), player.getWorld().getUID(), time,
+                                                door.getPowerBlock().getX(), door.getPowerBlock().getY(),
+                                                door.getPowerBlock().getZ(), PColor.GOLD);
     }
 
     /** {@inheritDoc} */
@@ -91,7 +91,7 @@ public class PowerBlockRelocator extends ToolUser
             glowingBlock.kill();
 
         plugin.getGlowingBlockSpawner()
-              .spawnGlowinBlock(pPlayer, loc.getWorld().getUID(), 10, loc.getBlockX(),
-                                loc.getBlockY(), loc.getBlockZ(), PColor.GOLD);
+              .spawnGlowingBlock(pPlayer, loc.getWorld().getUID(), 10, loc.getBlockX(),
+                                 loc.getBlockY(), loc.getBlockZ(), PColor.GOLD);
     }
 }

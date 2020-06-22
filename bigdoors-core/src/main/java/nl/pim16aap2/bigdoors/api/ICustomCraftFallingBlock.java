@@ -17,7 +17,7 @@ public interface ICustomCraftFallingBlock
      * @param newLocation The location that the entity will be reported to.
      * @return True if the teleport was successful.
      */
-    boolean teleport(final @NotNull IPLocation newLocation);
+    boolean teleport(final @NotNull IPLocationConst newLocation);
 
     /**
      * Teleports the entity to the provided position.

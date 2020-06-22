@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
-import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -32,7 +32,7 @@ public interface IFallingBlockFactory
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
     @NotNull
-    ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocation loc, final @NotNull INMSBlock block);
+    ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocationConst loc, final @NotNull INMSBlock block);
 
     /**
      * Creates a {@link INMSBlock} based on the block at the provided location.
@@ -41,5 +41,5 @@ public interface IFallingBlockFactory
      * @return The {@link INMSBlock} of the block at the provided location.
      */
     @NotNull
-    INMSBlock nmsBlockFactory(final @NotNull IPLocation loc);
+    INMSBlock nmsBlockFactory(final @NotNull IPLocationConst loc);
 }

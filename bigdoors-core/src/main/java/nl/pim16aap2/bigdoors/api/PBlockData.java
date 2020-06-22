@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.api;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +46,15 @@ public final class PBlockData
     @Setter
     @Nullable
     private ICustomCraftFallingBlock fBlock;
-    private final IPLocation startLocation;
+
+    /**
+     * Gets the location the block was first spawned at.
+     *
+     * @return The location the block was first spawned at.
+     */
+    @Getter
+    @NotNull
+    private final IPLocationConst startLocation;
 
     /**
      * The angle the block had in regards to the rotation point when it was first spawned.
@@ -80,7 +87,7 @@ public final class PBlockData
      *                          Useful for torches, for example (so they don't fall off immediately).
      */
     public PBlockData(final @NotNull ICustomCraftFallingBlock newFBlock, final float radius,
-                      final @NotNull INMSBlock newBlock, final @NotNull IPLocation startLocation,
+                      final @NotNull INMSBlock newBlock, final @NotNull IPLocationConst startLocation,
                       final float startAngle, final boolean placementDeferred)
     {
         block = newBlock;
@@ -99,21 +106,6 @@ public final class PBlockData
     {
         if (fBlock != null)
             fBlock.remove();
-    }
-
-
-    /**
-     * Gets the location the block was first spawned at.
-     *
-     * @return The location the block was first spawned at.
-     */
-    @NotNull
-    public IPLocation getStartLocation()
-    {
-        // Return a new object, so it's not a reference.
-        return BigDoors.get().getPlatform().getPLocationFactory()
-                       .create(startLocation.getWorld(), startLocation.getX(), startLocation.getY(),
-                               startLocation.getZ());
     }
 
     /**

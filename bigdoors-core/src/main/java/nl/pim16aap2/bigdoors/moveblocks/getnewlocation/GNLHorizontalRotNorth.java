@@ -26,11 +26,8 @@ public class GNLHorizontalRotNorth implements IGetNewLocation
     @Override
     public IPLocation getNewLocation(final double radius, final double xPos, final double yPos, final double zPos)
     {
-        IPLocation oldPos = locationFactory.create(world, xPos, yPos, zPos);
-        IPLocation newPos = oldPos;
-
-        newPos.setX(oldPos.getX() + (rotDir == RotateDirection.CLOCKWISE ? radius : -radius));
-        newPos.setY(oldPos.getY());
+        IPLocation newPos = locationFactory.create(world, xPos, yPos, zPos);
+        newPos.setX(newPos.getX() + (rotDir == RotateDirection.CLOCKWISE ? radius : -radius));
         newPos.setZ(zMax);
         return newPos;
     }

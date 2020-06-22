@@ -19,7 +19,7 @@ public interface IBlockAnalyzer
      * @param location The location of the block.
      * @return True if this block should be placed on the second pass, false otherwise.
      */
-    boolean placeOnSecondPass(final @NotNull IPLocation location);
+    boolean placeOnSecondPass(final @NotNull IPLocationConst location);
 
     /**
      * Check if a block if air or liquid (water, lava).
@@ -27,7 +27,7 @@ public interface IBlockAnalyzer
      * @param location The location of the block.
      * @return True if it is air or liquid.
      */
-    boolean isAirOrLiquid(final @NotNull IPLocation location);
+    boolean isAirOrLiquid(final @NotNull IPLocationConst location);
 
     /**
      * Check if a block is on the blacklist of types/materials that is not allowed for animations.
@@ -35,7 +35,7 @@ public interface IBlockAnalyzer
      * @param location The location of the block.
      * @return True if the block can be used for animations.
      */
-    boolean isAllowedBlock(final @NotNull IPLocation location);
+    boolean isAllowedBlock(final @NotNull IPLocationConst location);
 
 
     /**

@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IRestartable;
@@ -178,7 +179,7 @@ public abstract class BlockMover implements IRestartable
      */
     private void respawnBlock(final @NotNull PBlockData blockData, final @NotNull INMSBlock newBlock)
     {
-        final IPLocation loc = blockData.getFBlock().getPLocation();
+        final IPLocationConst loc = blockData.getFBlock().getPLocation();
         final IVector3DdConst veloc = blockData.getFBlock().getPVelocity();
 
         final ICustomCraftFallingBlock fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);

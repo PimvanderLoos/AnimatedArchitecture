@@ -81,7 +81,7 @@ public interface IDoorBase
      *
      * @param newMin Used to store the new minimum coordinates.
      * @param newMax Used to store the new maximum coordinates.
-     * @return True if the new locations are available.
+     * @return True if the new positions are available.
      */
     boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax);
 
@@ -224,7 +224,7 @@ public interface IDoorBase
      * @return The position of the power block of this door.
      */
     @NotNull
-    IVector3DiConst getPowerBlockLoc();
+    IVector3DiConst getPowerBlock();
 
     /**
      * Gets the position of the engine of this door.
@@ -275,18 +275,18 @@ public interface IDoorBase
     Vector2Di[] getChunkRange();
 
     /**
-     * Changes the location of the engine.
+     * Changes the position of the engine.
      *
-     * @param loc The new location of the engine.
+     * @param loc The new position of the engine.
      */
-    void setEngineLocation(final @NotNull IVector3DiConst loc);
+    void setEnginePosition(final @NotNull IVector3DiConst loc);
 
     /**
-     * Changes the location of the power block.
+     * Changes the position of the power block.
      *
-     * @param loc The new location of the power block.
+     * @param loc The new position of the power block.
      */
-    void setPowerBlockLocation(final @NotNull IVector3DiConst loc);
+    void setPowerBlockPosition(final @NotNull IVector3DiConst loc);
 
     /**
      * Changes the lock status of this door. Locked doors cannot be opened.
@@ -340,7 +340,7 @@ public interface IDoorBase
      * @return The dimensions of this door.
      */
     @NotNull
-    Vector3Di getDimensions();
+    IVector3DiConst getDimensions();
 
     /**
      * @return The simple hash of the chunk in which the power block resides.

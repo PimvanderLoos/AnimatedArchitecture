@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
@@ -187,8 +188,8 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         final @NotNull IVector3DdConst startLocation = block.getStartPosition();
-        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
-                                                            startLocation.getY(), startLocation.getZ());
+        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+                                                                 startLocation.getY(), startLocation.getZ());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 

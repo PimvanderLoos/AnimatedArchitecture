@@ -83,9 +83,9 @@ public class Clock extends AbstractDoorBase
     public RotateDirection getDefaultOpenDirection()
     {
         if (isNorthSouthAligned())
-            return engine.getX() == min.getX() ? RotateDirection.SOUTH : RotateDirection.NORTH;
+            return engine.getX() == minimum.getX() ? RotateDirection.SOUTH : RotateDirection.NORTH;
         else
-            return engine.getZ() == min.getZ() ? RotateDirection.EAST : RotateDirection.WEST;
+            return engine.getZ() == minimum.getZ() ? RotateDirection.EAST : RotateDirection.WEST;
     }
 
     /** {@inheritDoc} */

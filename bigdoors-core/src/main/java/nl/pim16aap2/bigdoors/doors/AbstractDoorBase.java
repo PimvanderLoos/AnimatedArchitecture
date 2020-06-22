@@ -45,7 +45,10 @@ public abstract class AbstractDoorBase implements IDoorBase
     @NotNull
     protected final IPWorld world;
 
-    protected Vector3Di min, max, engine, powerBlock, dimensions;
+    /** {@inheritDoc} */
+    @Getter(onMethod = @__({@Override}))
+    @NotNull
+    protected Vector3Di minimum, maximum, engine, powerBlock, dimensions;
 
     /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
@@ -87,8 +90,8 @@ public abstract class AbstractDoorBase implements IDoorBase
         doorUID = doorData.getUid();
 
         name = doorData.getName();
-        min = doorData.getMin();
-        max = doorData.getMax();
+        minimum = doorData.getMin();
+        maximum = doorData.getMax();
         engine = doorData.getEngine();
         powerBlock = doorData.getPowerBlock();
         world = doorData.getWorld();
@@ -96,6 +99,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         openDir = doorData.getOpenDirection();
         doorOwner = doorData.getDoorOwner();
         isLocked = doorData.isLocked();
+        dimensions = calculateDimensions();
 
         doorOpeningUtility = DoorOpeningUtility.get();
         onCoordsUpdate();
@@ -112,8 +116,8 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public boolean isPowerBlockActive()
     {
-        Vector3Di powerBlockChunkSpaceCoords = Util.getChunkSpacePosition(getPowerBlockLoc());
-        Vector2Di powerBlockChunk = Util.getChunkCoords(getPowerBlockLoc());
+        Vector3Di powerBlockChunkSpaceCoords = Util.getChunkSpacePosition(getPowerBlock());
+        Vector2Di powerBlockChunk = Util.getChunkCoords(getPowerBlock());
         if (BigDoors.get().getPlatform().getChunkManager().load(getWorld(), powerBlockChunk) ==
             IChunkManager.ChunkLoadResult.FAIL)
         {
@@ -125,7 +129,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         // TODO: Make sure that all corners around the block are also loaded (to check redstone).
         //       Might have to load up to 3 chunks.
         return BigDoors.get().getPlatform().getPowerBlockRedstoneManager()
-                       .isBlockPowered(getWorld(), getPowerBlockLoc());
+                       .isBlockPowered(getWorld(), getPowerBlock());
     }
 
     /** {@inheritDoc} */
@@ -182,7 +186,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (!getPotentialNewCoordinates(newMin, newMax))
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, initiator);
 
-        if (!doorOpeningUtility.isLocationEmpty(newMin, newMax, min, max,
+        if (!doorOpeningUtility.isLocationEmpty(newMin, newMax, minimum, maximum,
                                                 cause.equals(DoorActionCause.PLAYER) ? initiator : null, getWorld()))
             return doorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, initiator);
 
@@ -217,8 +221,8 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @param time          The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
      *                      is limited, so at a certain point lower values will not increase door speed.
      * @param skipAnimation If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @param newMin        The new minimum IPLocation this door will have after the toggle.
-     * @param newMax        The new maximmum IPLocation this door will have after the toggle.
+     * @param newMin        The new minimum position this door will have after the toggle.
+     * @param newMax        The new maximmum position this door will have after the toggle.
      * @param initiator     The {@link IPPlayer} responsilbe for the door action.
      * @param actionType    The type of action that will be performed by the BlockMover.
      */
@@ -232,8 +236,8 @@ public abstract class AbstractDoorBase implements IDoorBase
     @NotNull
     public Vector2Di[] calculateCurrentChunkRange()
     {
-        Vector2Di minChunk = Util.getChunkCoords(min);
-        Vector2Di maxChunk = Util.getChunkCoords(max);
+        Vector2Di minChunk = Util.getChunkCoords(minimum);
+        Vector2Di maxChunk = Util.getChunkCoords(maximum);
 
         return new Vector2Di[]{new Vector2Di(minChunk.getX(), minChunk.getY()),
                                new Vector2Di(maxChunk.getX(), maxChunk.getY())};
@@ -312,30 +316,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         invalidateChunkRange();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    @NotNull
-    public final IVector3DiConst getPowerBlockLoc()
-    {
-        return powerBlock;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @NotNull
-    public final IVector3DiConst getEngine()
-    {
-        return engine;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @NotNull
-    public final IVector3DiConst getMinimum()
-    {
-        return min;
-    }
-
     /**
      * {@inheritDoc}
      * <p>
@@ -344,16 +324,8 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public final void setMinimum(final @NotNull IVector3DiConst pos)
     {
-        min = new Vector3Di(pos);
+        minimum = new Vector3Di(pos);
         onCoordsUpdate();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @NotNull
-    public final Vector3Di getMaximum()
-    {
-        return max.clone();
     }
 
     /**
@@ -364,7 +336,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public final void setMaximum(final @NotNull IVector3DiConst pos)
     {
-        max = new Vector3Di(pos);
+        maximum = new Vector3Di(pos);
         onCoordsUpdate();
     }
 
@@ -375,7 +347,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     private void onCoordsUpdate()
     {
         invalidateCoordsDependents();
-        updateCoordsDependents();
+        dimensions = calculateDimensions();
     }
 
     /**
@@ -412,16 +384,15 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     /**
-     * Update variables that depend on the coordinates of the {@link AbstractDoorBase} when those are modified.
-     * <p>
-     * Only applies to variables that are guaranteed to always be available if the {@link AbstractDoorBase} is in a
-     * valid state.
+     * Calculates the dimensions of the door based on its current min/max coordinates.
+     *
+     * @return The current dimensions.
      */
-    protected void updateCoordsDependents()
+    protected Vector3Di calculateDimensions()
     {
-        dimensions = new Vector3Di(max.getX() - min.getX(),
-                                   max.getY() - min.getY(),
-                                   max.getZ() - min.getZ());
+        return new Vector3Di(maximum.getX() - minimum.getX(),
+                             maximum.getY() - minimum.getY(),
+                             maximum.getZ() - minimum.getZ());
     }
 
     /**
@@ -430,7 +401,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setEngineLocation(final @NotNull IVector3DiConst pos)
+    public final void setEnginePosition(final @NotNull IVector3DiConst pos)
     {
         engine = new Vector3Di(pos);
         onCoordsUpdate();
@@ -442,7 +413,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setPowerBlockLocation(final @NotNull IVector3DiConst pos)
+    public final void setPowerBlockPosition(final @NotNull IVector3DiConst pos)
     {
         powerBlock = new Vector3Di(pos);
         onCoordsUpdate();
@@ -486,14 +457,6 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     /** {@inheritDoc} */
     @Override
-    @NotNull
-    public final Vector3Di getDimensions()
-    {
-        return dimensions.clone();
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public final long getSimplePowerBlockChunkHash()
     {
         if (powerBlock == null)
@@ -523,9 +486,10 @@ public abstract class AbstractDoorBase implements IDoorBase
         builder.append(doorUID).append(": ").append(name).append("\n");
         builder.append("Type: ").append(getDoorType().toString()).append(". Permission: ").append(getPermission())
                .append("\n");
-        builder.append("Min: ").append(min.toString()).append(", Max: ").append(max.toString()).append(", Engine: ")
+        builder.append("Min: ").append(minimum.toString()).append(", Max: ").append(maximum.toString())
+               .append(", Engine: ")
                .append(engine.toString()).append("\n");
-        builder.append("PowerBlock IPLocation: ").append(powerBlock.toString()).append(". Hash: ")
+        builder.append("PowerBlock position: ").append(powerBlock.toString()).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");
         builder.append("World: ").append(getWorld().getUID().toString()).append("\n");
         builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
@@ -547,7 +511,8 @@ public abstract class AbstractDoorBase implements IDoorBase
             return false;
 
         AbstractDoorBase other = (AbstractDoorBase) o;
-        return doorUID == other.doorUID && name.equals(other.name) && min.equals(other.min) && max.equals(other.max) &&
+        return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) && maximum
+            .equals(other.maximum) &&
             getDoorType().equals(other.getDoorType()) && open == other.open && doorOwner.equals(other.doorOwner) &&
             isLocked == other.isLocked && world.getUID().equals(other.world.getUID());
     }

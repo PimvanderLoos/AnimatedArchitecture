@@ -115,13 +115,13 @@ public class SlidingDoor extends AbstractDoorBase
         int blocksToMove = getBlocksToMove() > 0 ? getBlocksToMove() :
                            1 + Math.abs(vec.getX() * dimensions.getX() + vec.getZ() * dimensions.getZ());
 
-        newMin.setX(min.getX() + blocksToMove * vec.getX());
-        newMin.setY(min.getY());
-        newMin.setZ(min.getZ() + blocksToMove * vec.getZ());
+        newMin.setX(minimum.getX() + blocksToMove * vec.getX());
+        newMin.setY(minimum.getY());
+        newMin.setZ(minimum.getZ() + blocksToMove * vec.getZ());
 
-        newMax.setX(max.getX() + blocksToMove * vec.getX());
-        newMax.setY(max.getY());
-        newMax.setZ(max.getZ() + blocksToMove * vec.getZ());
+        newMax.setX(maximum.getX() + blocksToMove * vec.getX());
+        newMax.setY(maximum.getY());
+        newMax.setZ(maximum.getZ() + blocksToMove * vec.getZ());
         return true;
     }
 
@@ -135,7 +135,7 @@ public class SlidingDoor extends AbstractDoorBase
         RotateDirection currentToggleDir = getCurrentToggleDir();
         int finalBlocksToMove =
             (currentToggleDir.equals(RotateDirection.NORTH) || currentToggleDir.equals(RotateDirection.SOUTH)) ?
-            newMin.getZ() - min.getZ() : newMin.getX() - min.getX();
+            newMin.getZ() - minimum.getZ() : newMin.getX() - minimum.getX();
 
         doorOpeningUtility.registerBlockMover(
             new SlidingMover(time, this, skipAnimation, finalBlocksToMove, currentToggleDir,

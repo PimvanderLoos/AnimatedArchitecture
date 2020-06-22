@@ -40,8 +40,8 @@ public class SubCommandInfo extends SubCommand
     private void highlightBlock(final @NotNull IVector3DiConst loc, final @NotNull IPWorld world,
                                 final @NotNull IPPlayer player, final @NotNull PColor color)
     {
-        plugin.getGlowingBlockSpawner().spawnGlowinBlock(player, world.getUID(), 15,
-                                                         loc.getX(), loc.getY(), loc.getZ(), color);
+        plugin.getGlowingBlockSpawner().spawnGlowingBlock(player, world.getUID(), 15,
+                                                          loc.getX(), loc.getY(), loc.getZ(), color);
     }
 
     public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door)
@@ -55,7 +55,7 @@ public class SubCommandInfo extends SubCommand
             try
             {
                 final IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
-                highlightBlock(door.getPowerBlockLoc(), door.getWorld(), player, PColor.GOLD);
+                highlightBlock(door.getPowerBlock(), door.getWorld(), player, PColor.GOLD);
                 highlightBlock(door.getEngine(), door.getWorld(), player, PColor.DARK_PURPLE);
                 highlightBlock(door.getMinimum(), door.getWorld(), player, PColor.BLUE);
                 highlightBlock(door.getMaximum(), door.getWorld(), player, PColor.RED);

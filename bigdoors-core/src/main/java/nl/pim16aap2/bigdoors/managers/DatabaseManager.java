@@ -160,9 +160,9 @@ public final class DatabaseManager extends Restartable
                 boolean result = db.insert(newDoor);
                 if (result)
                     BigDoors.get().getPowerBlockManager().onDoorAddOrRemove(newDoor.getWorld().getUID(), new Vector3Di(
-                        newDoor.getPowerBlockLoc().getX(),
-                        newDoor.getPowerBlockLoc().getY(),
-                        newDoor.getPowerBlockLoc().getZ()));
+                        newDoor.getPowerBlock().getX(),
+                        newDoor.getPowerBlock().getY(),
+                        newDoor.getPowerBlock().getZ()));
                 return result;
             }, threadPool);
     }
@@ -181,9 +181,9 @@ public final class DatabaseManager extends Restartable
                 boolean result = db.removeDoor(door.getDoorUID());
                 if (result)
                     BigDoors.get().getPowerBlockManager().onDoorAddOrRemove(door.getWorld().getUID(), new Vector3Di(
-                        door.getPowerBlockLoc().getX(),
-                        door.getPowerBlockLoc().getY(),
-                        door.getPowerBlockLoc().getZ()));
+                        door.getPowerBlock().getX(),
+                        door.getPowerBlock().getY(),
+                        door.getPowerBlock().getZ()));
                 return result;
             }, threadPool);
     }

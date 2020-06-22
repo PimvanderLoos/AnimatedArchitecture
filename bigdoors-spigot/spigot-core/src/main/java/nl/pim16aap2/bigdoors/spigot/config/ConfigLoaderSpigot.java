@@ -283,7 +283,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         // This is a bit special, as it's public static (for SpigotUtil debug messages).
         debug = addNewConfigEntry(config, "DEBUG", false, debugComment);
         if (debug)
-            SpigotUtil.printDebugMessages = true;
+            SpigotUtil.setPrintDebugMessages(true);
 
         writeConfig();
         printInfo();

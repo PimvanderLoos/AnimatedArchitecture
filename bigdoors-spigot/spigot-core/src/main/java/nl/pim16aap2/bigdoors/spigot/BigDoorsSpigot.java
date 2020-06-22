@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
-import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
@@ -534,7 +534,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @NotNull
-    public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocation loc)
+    public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc)
     {
         return protCompatMan.canBreakBlock(player, loc);
     }

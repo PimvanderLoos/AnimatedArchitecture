@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
@@ -148,7 +148,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     /** {@inheritDoc} */
     @Override
     @NotNull
-    public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocation pLoc)
+    public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst pLoc)
     {
         if (protectionCompats.isEmpty())
             return Optional.empty();

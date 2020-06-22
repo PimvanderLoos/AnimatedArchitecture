@@ -103,21 +103,12 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
         teams.forEach((K, V) -> V.unregister());
         teams.clear();
     }
-
+    
     /** {@inheritDoc} */
     @Override
     @Nullable
-    public IGlowingBlock spawnGlowinBlock(final @NotNull IPPlayer player, final @NotNull UUID world, final int time,
-                                          final double x, final double y, final double z)
-    {
-        return spawnGlowinBlock(player, world, time, x, y, z, PColor.WHITE);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @Nullable
-    public IGlowingBlock spawnGlowinBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,
-                                          final double x, final double y, final double z, final @NotNull PColor pColor)
+    public IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,
+                                           final double x, final double y, final double z, final @NotNull PColor pColor)
     {
 
         final ChatColor color = SpigotUtil.toBukkitColor(pColor);

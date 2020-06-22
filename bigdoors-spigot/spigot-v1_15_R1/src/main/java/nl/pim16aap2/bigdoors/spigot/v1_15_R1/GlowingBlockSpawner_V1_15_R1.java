@@ -134,17 +134,8 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
     /** {@inheritDoc} */
     @Override
     @Nullable
-    public IGlowingBlock spawnGlowinBlock(final @NotNull IPPlayer player, final @NotNull UUID world, final int time,
-                                          final double x, final double y, final double z)
-    {
-        return spawnGlowinBlock(player, world, time, x, y, z, PColor.WHITE);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @Nullable
-    public IGlowingBlock spawnGlowinBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,
-                                          final double x, final double y, final double z, final @NotNull PColor color)
+    public IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,
+                                           final double x, final double y, final double z, final @NotNull PColor color)
     {
         final Player player = Bukkit.getPlayer(pPlayer.getUUID());
         final World bukkitWorld = Bukkit.getWorld(world);

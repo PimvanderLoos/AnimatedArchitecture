@@ -104,13 +104,13 @@ public class Portcullis extends AbstractDoorBase
         int blocksToMove = getBlocksToMove() > 0 ? getBlocksToMove() :
                            1 + Math.abs(vec.getY() * dimensions.getY());
 
-        newMin.setX(min.getX());
-        newMin.setY(min.getY() + blocksToMove * vec.getY());
-        newMin.setZ(min.getZ());
+        newMin.setX(minimum.getX());
+        newMin.setY(minimum.getY() + blocksToMove * vec.getY());
+        newMin.setZ(minimum.getZ());
 
-        newMax.setX(max.getX());
-        newMax.setY(max.getY() + blocksToMove * vec.getY());
-        newMax.setZ(max.getZ());
+        newMax.setX(maximum.getX());
+        newMax.setY(maximum.getY() + blocksToMove * vec.getY());
+        newMax.setZ(maximum.getZ());
         return true;
     }
 
@@ -122,7 +122,7 @@ public class Portcullis extends AbstractDoorBase
                                       final @NotNull DoorActionType actionType)
     {
 
-        int blocksToMove = newMin.getY() - min.getY();
+        int blocksToMove = newMin.getY() - minimum.getY();
         doorOpeningUtility.registerBlockMover(
             new VerticalMover(time, this, skipAnimation, blocksToMove, doorOpeningUtility.getMultiplier(this),
                               initiator, newMin, newMax, cause, actionType));

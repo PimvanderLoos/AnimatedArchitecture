@@ -176,7 +176,7 @@ public class Drawbridge extends AbstractDoorBase
                                       final @NotNull DoorActionType actionType)
     {
         PBlockFace upDown =
-            Math.abs(min.getY() - max.getY()) > 0 ? PBlockFace.DOWN : PBlockFace.UP;
+            Math.abs(minimum.getY() - maximum.getY()) > 0 ? PBlockFace.DOWN : PBlockFace.UP;
 
         doorOpeningUtility.registerBlockMover(
             new BridgeMover(time, this, upDown, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
