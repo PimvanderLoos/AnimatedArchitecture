@@ -5,13 +5,15 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.jetbrains.annotations.NotNull;
 
-public interface IPLocation extends Cloneable
+/**
+ * Represents a mutable position in a world.
+ *
+ * @author Pim
+ */
+public interface IPLocation extends IPLocationConst, Cloneable
 {
-    /**
-     * Gets the world of this location.
-     *
-     * @return The world of this location.
-     */
+    /** {@inheritDoc} */
+    @Override
     @NotNull
     IPWorld getWorld();
 
@@ -22,61 +24,36 @@ public interface IPLocation extends Cloneable
      */
     void setWorld(final @NotNull IPWorld other);
 
-    /**
-     * Gets the chunk coordinates of the chunk this location is in.
-     *
-     * @return The chunk coordinates of this location.
-     */
+    /** {@inheritDoc} */
+    @Override
     @NotNull
     Vector2Di getChunk();
 
-    /**
-     * Gets the X value of this location.
-     *
-     * @return The X value of this location.
-     */
+    /** {@inheritDoc} */
+    @Override
     int getBlockX();
 
-    /**
-     * Gets the Y value of this location.
-     *
-     * @return The Y value of this location.
-     */
+    /** {@inheritDoc} */
+    @Override
     int getBlockY();
 
-    /**
-     * Gets the Z value of this location.
-     *
-     * @return The Z value of this location.
-     */
+    /** {@inheritDoc} */
+    @Override
     int getBlockZ();
 
-    /**
-     * Gets the X value of this location.
-     *
-     * @return The X value of this location.
-     */
+    /** {@inheritDoc} */
+    @Override
     double getX();
 
-    /**
-     * Gets the Y value of this location.
-     *
-     * @return The Y value of this location.
-     */
+    /** {@inheritDoc} */
+    @Override
     double getY();
 
-    /**
-     * Gets the Z value of this location.
-     *
-     * @return The Z value of this location.
-     */
+    /** {@inheritDoc} */
+    @Override
     double getZ();
 
-    /**
-     * Changes the x coordinate.
-     *
-     * @param newVal The new coordinate.
-     */
+    /** {@inheritDoc} */
     void setX(double newVal);
 
     /**
@@ -122,18 +99,12 @@ public interface IPLocation extends Cloneable
     @NotNull
     IPLocation add(final @NotNull IVector3DdConst vector);
 
-    /**
-     * Gets the position (so no world) in integers as a String.
-     *
-     * @return The position in integers as a String.
-     */
+    /** {@inheritDoc} */
+    @Override
     String toIntPositionString();
 
-    /**
-     * Gets the position (so no world) in double as a String.
-     *
-     * @return The position in double as a String.
-     */
+    /** {@inheritDoc} */
+    @Override
     String toDoublePositionString();
 
     /** {@inheritDoc} */
