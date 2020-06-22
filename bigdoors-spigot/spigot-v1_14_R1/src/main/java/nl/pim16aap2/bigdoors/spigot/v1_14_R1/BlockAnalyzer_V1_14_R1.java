@@ -811,27 +811,21 @@ public final class BlockAnalyzer_V1_14_R1 implements IBlockAnalyzer
         return isAllowedBlockStatic(getMaterial(location));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean placeOnSecondPass(final @NotNull IPLocation location)
     {
         return placeOnSecondPassStatic(location);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isAirOrLiquid(final @NotNull IPLocation location)
     {
         return isAirOrLiquidStatic(location);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isAllowedBlock(final @NotNull IPLocation location)
     {

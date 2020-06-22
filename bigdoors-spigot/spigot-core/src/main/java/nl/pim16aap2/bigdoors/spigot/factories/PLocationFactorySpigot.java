@@ -18,9 +18,7 @@ import java.util.UUID;
  */
 public class PLocationFactorySpigot implements IPLocationFactory
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(final @NotNull IPWorld world, final double x, final double y, final double z)
@@ -28,9 +26,7 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return new PLocationSpigot(world, x, y, z);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(@NotNull IPWorld world, @NotNull Vector3Di position)
@@ -38,9 +34,7 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return create(world, position.getX(), position.getY(), position.getZ());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(@NotNull IPWorld world, @NotNull Vector3Dd position)
@@ -48,9 +42,7 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return create(world, position.getX(), position.getY(), position.getZ());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(@NotNull UUID worldUUID, double x, double y, double z)
@@ -58,9 +50,7 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldUUID), x, y, z);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(@NotNull UUID worldUUID, @NotNull Vector3Di position)
@@ -68,9 +58,7 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return create(worldUUID, position.getX(), position.getY(), position.getZ());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(@NotNull UUID worldUUID, @NotNull Vector3Dd position)

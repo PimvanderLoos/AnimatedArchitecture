@@ -100,9 +100,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             loadFromPluginName(p.getName());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {
@@ -147,9 +145,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         return Optional.ofNullable(bukkitPlayer);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocation pLoc)
@@ -182,9 +178,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         return Optional.empty();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,

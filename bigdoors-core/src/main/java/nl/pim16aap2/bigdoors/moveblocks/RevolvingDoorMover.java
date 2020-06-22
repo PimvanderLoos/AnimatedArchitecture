@@ -114,9 +114,7 @@ public class RevolvingDoorMover extends BlockMover
         return getGoalPosCounterClockwise(block.getRadius(), block.getStartAngle(), block.getStartY(), stepSum);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
@@ -130,9 +128,7 @@ public class RevolvingDoorMover extends BlockMover
         return locationFactory.create(world, newPos.getX(), newPos.getY(), newPos.getZ());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
@@ -142,9 +138,7 @@ public class RevolvingDoorMover extends BlockMover
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void executeAnimationStep(int ticks)
     {
@@ -160,9 +154,7 @@ public class RevolvingDoorMover extends BlockMover
             }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
@@ -171,9 +163,7 @@ public class RevolvingDoorMover extends BlockMover
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
     {

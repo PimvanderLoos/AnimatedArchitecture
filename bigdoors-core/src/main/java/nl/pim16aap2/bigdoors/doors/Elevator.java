@@ -21,9 +21,7 @@ public class Elevator extends Portcullis
         super(doorData, blocksToMove, autoCloseTime, autoOpenTime);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -31,9 +29,7 @@ public class Elevator extends Portcullis
         return DOOR_TYPE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(final @Nullable Object o)
     {

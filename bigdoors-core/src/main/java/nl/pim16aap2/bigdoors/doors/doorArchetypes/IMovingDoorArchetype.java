@@ -9,27 +9,21 @@ import nl.pim16aap2.bigdoors.doors.IDoorBase;
  */
 public interface IMovingDoorArchetype extends IDoorBase
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     default boolean canSkipAnimation()
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     default boolean isOpenable()
     {
         return !isOpen();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     default boolean isCloseable()
     {

@@ -8,9 +8,7 @@ import java.util.UUID;
 
 public class TestPWorldFactory implements IPWorldFactory
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPWorld create(@NotNull UUID worldUUID)

@@ -28,9 +28,7 @@ public class ClockCreator extends BigDoorCreator
         super(plugin, player, name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
@@ -38,18 +36,14 @@ public class ClockCreator extends BigDoorCreator
         return new Clock(doorData, false, PBlockFace.EAST);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isReadyToConstructDoor()
     {
         return one != null && two != null && engine != null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
@@ -68,9 +62,7 @@ public class ClockCreator extends BigDoorCreator
         return validX && validY && validZ;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void updateEngineLoc()
     {
@@ -98,18 +90,14 @@ public class ClockCreator extends BigDoorCreator
             ((!NS && zDepth == 2) || (NS && xDepth == 2));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_CLOCK_STEP1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getToolLore()
@@ -117,9 +105,7 @@ public class ClockCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_CLOCK_STICKLORE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getInitMessage()
@@ -127,9 +113,7 @@ public class ClockCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_CLOCK_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickLore()
@@ -137,9 +121,7 @@ public class ClockCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_CLOCK_STICKLORE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickReceived()
@@ -147,9 +129,7 @@ public class ClockCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_CLOCK_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep1()
@@ -157,9 +137,7 @@ public class ClockCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_CLOCK_STEP1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep2()
@@ -167,9 +145,7 @@ public class ClockCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_CLOCK_STEP2);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep3()
@@ -177,9 +153,7 @@ public class ClockCreator extends BigDoorCreator
         return "";
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getSuccessMessage()

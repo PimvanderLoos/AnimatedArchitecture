@@ -20,9 +20,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocation loc, final @NotNull INMSBlock block)
@@ -40,9 +38,7 @@ public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
         return ret;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public INMSBlock nmsBlockFactory(final @NotNull IPLocation loc)

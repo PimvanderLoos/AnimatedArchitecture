@@ -30,23 +30,17 @@ public class Portcullis extends AbstractDoorBase
 {
     private static final DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int blocksToMove;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
@@ -60,9 +54,7 @@ public class Portcullis extends AbstractDoorBase
         this.autoOpenTime = autoOpenTime;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -70,9 +62,7 @@ public class Portcullis extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
@@ -80,9 +70,7 @@ public class Portcullis extends AbstractDoorBase
         return getOpenDir().equals(RotateDirection.UP) ? RotateDirection.DOWN : RotateDirection.UP;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()
@@ -90,9 +78,7 @@ public class Portcullis extends AbstractDoorBase
         return calculateCurrentChunkRange();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getDefaultOpenDirection()
@@ -100,9 +86,7 @@ public class Portcullis extends AbstractDoorBase
         return RotateDirection.UP;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
@@ -110,9 +94,7 @@ public class Portcullis extends AbstractDoorBase
         return isOpen() ? RotateDirection.DOWN : RotateDirection.UP;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
@@ -131,9 +113,7 @@ public class Portcullis extends AbstractDoorBase
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
@@ -147,9 +127,7 @@ public class Portcullis extends AbstractDoorBase
                               initiator, newMin, newMax, cause, actionType));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(@Nullable Object o)
     {

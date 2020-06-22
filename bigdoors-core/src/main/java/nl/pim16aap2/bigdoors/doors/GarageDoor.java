@@ -51,16 +51,12 @@ public class GarageDoor extends AbstractDoorBase
     @NotNull
     protected PBlockFace currentDirection;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
@@ -75,9 +71,7 @@ public class GarageDoor extends AbstractDoorBase
         this.currentDirection = currentDirection;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -85,9 +79,7 @@ public class GarageDoor extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()
@@ -104,9 +96,7 @@ public class GarageDoor extends AbstractDoorBase
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getDefaultOpenDirection()
@@ -117,9 +107,7 @@ public class GarageDoor extends AbstractDoorBase
             return RotateDirection.NORTH;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
@@ -130,9 +118,7 @@ public class GarageDoor extends AbstractDoorBase
         return RotateDirection.getOpposite(Util.getRotateDirection(getCurrentDirection()));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
@@ -222,9 +208,7 @@ public class GarageDoor extends AbstractDoorBase
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
@@ -240,9 +224,7 @@ public class GarageDoor extends AbstractDoorBase
                                 actionType));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(final @Nullable Object o)
     {

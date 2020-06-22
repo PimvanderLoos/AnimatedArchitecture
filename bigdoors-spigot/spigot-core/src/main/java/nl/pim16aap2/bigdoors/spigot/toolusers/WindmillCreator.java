@@ -24,9 +24,7 @@ public class WindmillCreator extends BigDoorCreator
         super(plugin, player, name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
@@ -34,18 +32,14 @@ public class WindmillCreator extends BigDoorCreator
         return new Windmill(doorData, false, 0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void updateEngineLoc()
     {
         // No updating of the engine location is required for this type.
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected Vector3Di getPowerBlockLoc()
@@ -53,9 +47,7 @@ public class WindmillCreator extends BigDoorCreator
         return engine;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
@@ -68,9 +60,7 @@ public class WindmillCreator extends BigDoorCreator
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
@@ -83,9 +73,7 @@ public class WindmillCreator extends BigDoorCreator
         return (xDepth == 0 ^ zDepth == 0 ^ yDepth == 0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getInitMessage()
@@ -93,9 +81,7 @@ public class WindmillCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_WINDMILL_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickLore()
@@ -103,9 +89,7 @@ public class WindmillCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_WINDMILL_STICKLORE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickReceived()
@@ -113,9 +97,7 @@ public class WindmillCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_WINDMILL_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep1()
@@ -123,9 +105,7 @@ public class WindmillCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_WINDMILL_STEP1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep2()
@@ -133,9 +113,7 @@ public class WindmillCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_WINDMILL_STEP2);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep3()
@@ -143,9 +121,7 @@ public class WindmillCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_WINDMILL_STEP3);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getSuccessMessage()

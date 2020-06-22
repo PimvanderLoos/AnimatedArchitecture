@@ -20,9 +20,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class PSoundEngineSpigot implements ISoundEngine
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void playSound(final @NotNull IPLocation loc, final @NotNull PSound sound, final float volume,
                           final float pitch)
@@ -31,9 +29,7 @@ public class PSoundEngineSpigot implements ISoundEngine
             .playSound(SpigotAdapter.getBukkitLocation(loc), PSound.getSoundName(sound), volume, pitch));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void playSound(final @NotNull Vector3Di pos, final @NotNull IPWorld world, final @NotNull PSound sound,
                           final float volume, final float pitch)
@@ -42,9 +38,7 @@ public class PSoundEngineSpigot implements ISoundEngine
                              PSound.getSoundName(sound), volume, pitch);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void playSound(final @NotNull Vector3Dd pos, final @NotNull IPWorld world, final @NotNull PSound sound,
                           final float volume, final float pitch)
@@ -53,9 +47,7 @@ public class PSoundEngineSpigot implements ISoundEngine
                              PSound.getSoundName(sound), volume, pitch);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void playSound(double x, double y, double z, final @NotNull IPWorld world, final @NotNull PSound sound,
                           final float volume, final float pitch)

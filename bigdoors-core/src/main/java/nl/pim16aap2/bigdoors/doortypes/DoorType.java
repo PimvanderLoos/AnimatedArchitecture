@@ -85,9 +85,7 @@ public abstract class DoorType
         return translationName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public final String toString()

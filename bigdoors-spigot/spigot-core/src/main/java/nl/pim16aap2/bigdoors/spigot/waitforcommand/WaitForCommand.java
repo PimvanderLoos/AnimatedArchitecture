@@ -29,9 +29,7 @@ public abstract class WaitForCommand extends AbortableTask
         plugin.addCommandWaiter(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final void abort(final boolean onDisable)
     {
@@ -44,9 +42,7 @@ public abstract class WaitForCommand extends AbortableTask
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final void abortSilently()
     {

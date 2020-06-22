@@ -148,16 +148,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Getter
     private ToolVerifier toolVerifier;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private ConfigLoaderSpigot configLoader;
     private Metrics metrics;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private Messages messages;
 
@@ -170,15 +166,11 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private ProtectionCompatManagerSpigot protCompatMan;
     private LoginResourcePackListener rPackHandler;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter
     private VaultManager vaultManager;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter
     private HeadManager headManager;
     private UpdateManager updateManager;
@@ -189,58 +181,42 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @NotNull
     private AbortableTaskManager abortableTaskManager;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IPLocationFactory pLocationFactory = new PLocationFactorySpigot();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IPWorldFactory pWorldFactory = new PWorldFactorySpigot();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final ISoundEngine soundEngine = new PSoundEngineSpigot();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IMessagingInterface messagingInterface = new MessagingInterfaceSpigot(this);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IChunkManager chunkManager = ChunkManagerSpigot.get();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IDoorActionEventFactory doorActionEventFactory = new DoorActionEventFactorySpigot();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
@@ -254,9 +230,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         abortableTaskManager = AbortableTaskManager.init(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void onEnable()
     {
@@ -505,9 +479,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         commandManager.registerCommand(new CommandMenu(this, commandManager));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public File getDataDirectory()
@@ -515,9 +487,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return getDataFolder();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPBlockDataFactory getPBlockDataFactory()
@@ -525,9 +495,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return PlatformManagerSpigot.get().getSpigotPlatform().getPBlockDataFactory();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IFallingBlockFactory getFallingBlockFactory()
@@ -535,9 +503,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return PlatformManagerSpigot.get().getSpigotPlatform().getFallingBlockFactory();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IBlockAnalyzer getBlockAnalyzer()
@@ -545,18 +511,14 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return PlatformManagerSpigot.get().getSpigotPlatform().getBlockAnalyzer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isMainThread(final long compareThread)
     {
         return compareThread == MAINTHREADID;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public <T> IPExecutor<T> newPExecutor()
@@ -585,18 +547,14 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return protCompatMan.canBreakBlocksBetweenLocs(player, pos1, pos2, world);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void registerRestartable(final @NotNull IRestartable restartable)
     {
         restartables.add(restartable);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
     {
@@ -622,9 +580,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         restartables.forEach(IRestartable::restart);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void onDisable()
     {
@@ -765,9 +721,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return ret;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void callDoorActionEvent(final @NotNull IDoorEvent doorActionEvent)
     {

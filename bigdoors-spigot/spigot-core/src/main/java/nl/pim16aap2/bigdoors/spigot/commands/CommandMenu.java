@@ -22,9 +22,7 @@ public class CommandMenu extends SubCommandMenu
         init(help, argsHelp, minArgCount, command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, @NotNull String[] args)
@@ -33,9 +31,7 @@ public class CommandMenu extends SubCommandMenu
         return super.onCommand(sender, cmd, label, args);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getHelp(final @NotNull CommandSender sender)
@@ -43,9 +39,7 @@ public class CommandMenu extends SubCommandMenu
         return SpigotUtil.helpFormat(name, super.getHelp(sender));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public CommandData getCommandData()
@@ -53,9 +47,7 @@ public class CommandMenu extends SubCommandMenu
         return command;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getPermission()
@@ -63,9 +55,7 @@ public class CommandMenu extends SubCommandMenu
         return CommandData.getPermission(command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getName()

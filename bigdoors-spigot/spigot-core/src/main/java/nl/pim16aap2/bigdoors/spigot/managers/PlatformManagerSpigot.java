@@ -79,9 +79,7 @@ public final class PlatformManagerSpigot
     {
         ERROR
             {
-                /**
-                 * {@inheritDoc}
-                 */
+                /** {@inheritDoc} */
                 @Override
                 @Nullable
                 public ISpigotPlatform getPlatform()
@@ -91,9 +89,7 @@ public final class PlatformManagerSpigot
             },
         v1_14_R1
             {
-                /**
-                 * {@inheritDoc}
-                 */
+                /** {@inheritDoc} */
                 @Override
                 @NotNull
                 public ISpigotPlatform getPlatform()
@@ -103,9 +99,7 @@ public final class PlatformManagerSpigot
             },
         v1_15_R1
             {
-                /**
-                 * {@inheritDoc}
-                 */
+                /** {@inheritDoc} */
                 @Override
                 @NotNull
                 public ISpigotPlatform getPlatform()

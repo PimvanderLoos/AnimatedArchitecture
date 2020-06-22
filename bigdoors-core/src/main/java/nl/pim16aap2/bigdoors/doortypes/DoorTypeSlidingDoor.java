@@ -43,9 +43,7 @@ public final class DoorTypeSlidingDoor extends DoorType
         return instance;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
@@ -61,9 +59,7 @@ public final class DoorTypeSlidingDoor extends DoorType
                                            autoOpenTimer));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)

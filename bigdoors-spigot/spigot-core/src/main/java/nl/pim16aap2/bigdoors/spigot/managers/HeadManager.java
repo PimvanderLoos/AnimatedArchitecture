@@ -107,18 +107,14 @@ public final class HeadManager extends Restartable
             });
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void restart()
     {
         headMap.reInit(config.headCacheTimeout());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {

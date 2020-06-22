@@ -39,9 +39,7 @@ public final class PLocationSpigot implements IPLocation
         world = new PWorldSpigot(location.getWorld());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPWorld getWorld()
@@ -49,9 +47,7 @@ public final class PLocationSpigot implements IPLocation
         return world;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Vector2Di getChunk()
@@ -59,90 +55,70 @@ public final class PLocationSpigot implements IPLocation
         return new Vector2Di(location.getBlockX() << 4, location.getBlockZ() << 4);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getBlockX()
     {
         return location.getBlockX();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getBlockY()
     {
         return location.getBlockY();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getBlockZ()
     {
         return location.getBlockZ();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getX()
     {
         return location.getX();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getY()
     {
         return location.getY();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getZ()
     {
         return location.getZ();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void setX(double newVal)
     {
         location.setX(newVal);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void setY(double newVal)
     {
         location.setY(newVal);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void setZ(double newVal)
     {
         location.setZ(newVal);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation add(final double x, final double y, final double z)
@@ -151,9 +127,7 @@ public final class PLocationSpigot implements IPLocation
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation add(final @NotNull Vector3Di vector)
@@ -161,9 +135,7 @@ public final class PLocationSpigot implements IPLocation
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation add(final @NotNull Vector3Dd vector)
@@ -182,36 +154,28 @@ public final class PLocationSpigot implements IPLocation
         return location;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString()
     {
         return getWorld().toString() + ": " + getX() + ":" + getY() + ":" + getZ();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toIntPositionString()
     {
         return String.format("(%d;%d;%d)", getBlockX(), getBlockY(), getBlockZ());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toDoublePositionString()
     {
         return String.format("(%.2f;%.2f;%.2f)", getX(), getY(), getZ());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o)
     {
@@ -225,18 +189,14 @@ public final class PLocationSpigot implements IPLocation
         return location.equals(other.getBukkitLocation());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode()
     {
         return location.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public PLocationSpigot clone()

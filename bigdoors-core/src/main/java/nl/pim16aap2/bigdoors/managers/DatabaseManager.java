@@ -123,17 +123,13 @@ public final class DatabaseManager extends Restartable
         return db.getDatabaseState();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void restart()
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {

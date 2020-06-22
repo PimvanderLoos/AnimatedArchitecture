@@ -35,9 +35,7 @@ public interface IPWorld extends Cloneable
     @NotNull
     WorldTime getTime();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     IPWorld clone();
 }

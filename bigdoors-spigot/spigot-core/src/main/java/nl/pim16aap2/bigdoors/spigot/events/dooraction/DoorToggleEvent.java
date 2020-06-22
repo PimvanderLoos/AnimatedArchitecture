@@ -14,43 +14,31 @@ import java.util.Optional;
 
 abstract class DoorToggleEvent extends Event implements IDoorEvent
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final AbstractDoorBase door;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final DoorActionCause cause;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final DoorActionType actionType;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final Optional<IPPlayer> responsible;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     protected final double time;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     protected final boolean animationSkipped;
 

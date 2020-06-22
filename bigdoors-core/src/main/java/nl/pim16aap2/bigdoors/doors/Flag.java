@@ -58,9 +58,7 @@ public class Flag extends AbstractDoorBase
         this.flagDirection = flagDirection;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -95,9 +93,7 @@ public class Flag extends AbstractDoorBase
         return getOpenDir();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
@@ -108,9 +104,7 @@ public class Flag extends AbstractDoorBase
             new FlagMover(60, this, doorOpeningUtility.getMultiplier(this), initiator, cause, actionType));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(final @Nullable Object o)
     {

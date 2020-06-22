@@ -37,9 +37,7 @@ public final class PPlayerSpigot implements IPPlayer
         this(player.getUniqueId(), player.getName());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public UUID getUUID()
@@ -47,9 +45,7 @@ public final class PPlayerSpigot implements IPPlayer
         return uuid;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public String getName()
@@ -68,18 +64,14 @@ public final class PPlayerSpigot implements IPPlayer
         return Bukkit.getPlayer(uuid);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString()
     {
         return String.format("%s (%s)", getUUID().toString(), getName());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o)
     {
@@ -92,18 +84,14 @@ public final class PPlayerSpigot implements IPPlayer
         return getUUID().equals(((PPlayerSpigot) o).getUUID());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode()
     {
         return getUUID().hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public PPlayerSpigot clone()
     {

@@ -58,9 +58,7 @@ public class SuperCommand implements ICommand
         commandManager.registerCommandShortcut(subCommand);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)
@@ -97,9 +95,7 @@ public class SuperCommand implements ICommand
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getHelp(final @NotNull CommandSender sender)
@@ -117,9 +113,7 @@ public class SuperCommand implements ICommand
         return builder.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     private String getHelpOfSubCommand(final @NotNull CommandSender sender, final @NotNull SubCommand subCommand)
     {
@@ -128,9 +122,7 @@ public class SuperCommand implements ICommand
         return SpigotUtil.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args), help);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getPermission()
@@ -138,9 +130,7 @@ public class SuperCommand implements ICommand
         return CommandData.getPermission(command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getName()
@@ -148,18 +138,14 @@ public class SuperCommand implements ICommand
         return CommandData.getCommandName(command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getMinArgCount()
     {
         return minArgCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public CommandData getCommandData()

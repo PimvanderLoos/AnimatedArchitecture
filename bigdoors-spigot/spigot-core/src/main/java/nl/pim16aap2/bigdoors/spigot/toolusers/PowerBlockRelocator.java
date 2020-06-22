@@ -44,27 +44,21 @@ public class PowerBlockRelocator extends ToolUser
                                                door.getPowerBlockLoc().getZ(), PColor.GOLD);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_PBRELOCATOR_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolLore()
     {
         return messages.getString(Message.CREATOR_PBRELOCATOR_STICKLORE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void triggerFinishUp()
     {
@@ -78,9 +72,7 @@ public class PowerBlockRelocator extends ToolUser
         finishUp();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void selector(final @NotNull Location loc)
     {

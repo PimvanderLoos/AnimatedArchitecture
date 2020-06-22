@@ -83,9 +83,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)

@@ -183,18 +183,14 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int size()
     {
         return map.size();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isEmpty()
     {
@@ -216,9 +212,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean containsValue(Object value)
     {
@@ -240,9 +234,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         return newVal.value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public V remove(Object key)
     {
@@ -250,45 +242,35 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         return timedValue == null ? null : timedValue.value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void putAll(Map m)
     {
         map.putAll(m);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void clear()
     {
         map.clear();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Set keySet()
     {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Collection values()
     {
         return map.values();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public java.util.Set entrySet()
     {
@@ -304,9 +286,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         reInit(timeOut, SMALLESTTIMEUNIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {

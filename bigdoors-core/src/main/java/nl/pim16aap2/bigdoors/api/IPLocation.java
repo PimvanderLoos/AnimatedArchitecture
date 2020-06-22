@@ -129,9 +129,7 @@ public interface IPLocation extends Cloneable
      */
     String toDoublePositionString();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     IPLocation clone();
 }

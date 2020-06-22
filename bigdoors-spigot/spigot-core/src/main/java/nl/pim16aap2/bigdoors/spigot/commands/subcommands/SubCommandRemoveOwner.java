@@ -104,9 +104,7 @@ public class SubCommandRemoveOwner extends SubCommand
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)
@@ -125,9 +123,7 @@ public class SubCommandRemoveOwner extends SubCommand
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getHelp(@NotNull CommandSender sender)
@@ -135,27 +131,21 @@ public class SubCommandRemoveOwner extends SubCommand
         return help;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getHelpArguments()
     {
         return helpArgs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getMinArgCount()
     {
         return minArgCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public CommandData getCommandData()
@@ -163,9 +153,7 @@ public class SubCommandRemoveOwner extends SubCommand
         return command;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getPermission()
@@ -173,9 +161,7 @@ public class SubCommandRemoveOwner extends SubCommand
         return CommandData.getPermission(command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getName()

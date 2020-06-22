@@ -107,9 +107,7 @@ public class BigDoorMover extends BlockMover
                 .broadcastMessage("INIT BIGDOOR! endCount = " + endCount + ", time = " + super.time);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
@@ -119,9 +117,7 @@ public class BigDoorMover extends BlockMover
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void executeAnimationStep(final int ticks)
     {
@@ -151,18 +147,14 @@ public class BigDoorMover extends BlockMover
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return gnl.getNewLocation(radius, xAxis, yAxis, zAxis);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {

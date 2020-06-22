@@ -40,9 +40,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
         success = true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
@@ -51,9 +49,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
         return griefPrevention.allowBreak(player, block, loc, blockBreakEvent) == null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
                                              final @NotNull Location loc2)
@@ -76,18 +72,14 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean success()
     {
         return success;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public String getName()

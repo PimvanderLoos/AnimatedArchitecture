@@ -44,9 +44,7 @@ public final class DoorTypeClock extends DoorType
         return instance;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
@@ -62,9 +60,7 @@ public final class DoorTypeClock extends DoorType
                                      hourArmSide));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)

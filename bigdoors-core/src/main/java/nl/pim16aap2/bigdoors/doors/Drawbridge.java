@@ -28,16 +28,12 @@ public class Drawbridge extends AbstractDoorBase
     @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
@@ -84,9 +80,7 @@ public class Drawbridge extends AbstractDoorBase
         this.northSouthAligned = northSouthAligned;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -94,9 +88,7 @@ public class Drawbridge extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()
@@ -115,9 +107,7 @@ public class Drawbridge extends AbstractDoorBase
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getDefaultOpenDirection()
@@ -128,9 +118,7 @@ public class Drawbridge extends AbstractDoorBase
             return RotateDirection.NORTH;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
@@ -138,9 +126,7 @@ public class Drawbridge extends AbstractDoorBase
         return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
@@ -181,9 +167,7 @@ public class Drawbridge extends AbstractDoorBase
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
@@ -198,9 +182,7 @@ public class Drawbridge extends AbstractDoorBase
                 .getMultiplier(this), initiator, newMin, newMax, cause, actionType));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(@Nullable Object o)
     {

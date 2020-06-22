@@ -76,9 +76,7 @@ public class VerticalMover extends BlockMover
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
@@ -88,9 +86,7 @@ public class VerticalMover extends BlockMover
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void prepareAnimation()
     {
@@ -98,9 +94,7 @@ public class VerticalMover extends BlockMover
         firstBlockData = savedBlocks.get(0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void executeAnimationStep(final int ticks)
     {
@@ -135,9 +129,7 @@ public class VerticalMover extends BlockMover
             mbd.getFBlock().setVelocity(vec);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {

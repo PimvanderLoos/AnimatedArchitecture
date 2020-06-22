@@ -53,9 +53,7 @@ public class Windmill extends AbstractDoorBase
         this.quarterCircles = quarterCircles;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -63,9 +61,7 @@ public class Windmill extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
@@ -76,9 +72,7 @@ public class Windmill extends AbstractDoorBase
         return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.SOUTH : RotateDirection.NORTH;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getDefaultOpenDirection()
@@ -89,9 +83,7 @@ public class Windmill extends AbstractDoorBase
             return RotateDirection.EAST;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
@@ -105,9 +97,7 @@ public class Windmill extends AbstractDoorBase
                                                                 getCurrentToggleDir(), initiator, cause, actionType));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(final @Nullable Object o)
     {

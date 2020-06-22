@@ -37,9 +37,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         success = plotSquaredPlugin != null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
@@ -97,9 +95,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_ROAD.getTranslated());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
                                              final @NotNull Location loc2)
@@ -142,18 +138,14 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean success()
     {
         return success;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getName()

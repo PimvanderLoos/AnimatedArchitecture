@@ -90,9 +90,7 @@ public final class Messages extends Restartable
         populateMessageMap();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void restart()
     {
@@ -100,9 +98,7 @@ public final class Messages extends Restartable
         populateMessageMap();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {

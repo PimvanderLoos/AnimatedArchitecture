@@ -28,9 +28,7 @@ public class DrawbridgeCreator extends Creator
         super(plugin, player, name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
@@ -38,18 +36,14 @@ public class DrawbridgeCreator extends Creator
         return new Drawbridge(doorData, 0, 0, PBlockFace.EAST, true, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isReadyToConstructDoor()
     {
         return one != null && two != null && engine != null && engineSide != null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
@@ -185,18 +179,14 @@ public class DrawbridgeCreator extends Creator
         return engineSide != null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolLore()
     {
@@ -224,9 +214,7 @@ public class DrawbridgeCreator extends Creator
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
@@ -240,9 +228,7 @@ public class DrawbridgeCreator extends Creator
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void selector(final @NotNull Location loc)
     {
@@ -310,9 +296,7 @@ public class DrawbridgeCreator extends Creator
             setIsDone(true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getInitMessage()
@@ -320,9 +304,7 @@ public class DrawbridgeCreator extends Creator
         return messages.getString(Message.CREATOR_DRAWBRIDGE_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickLore()
@@ -330,9 +312,7 @@ public class DrawbridgeCreator extends Creator
         return messages.getString(Message.CREATOR_DRAWBRIDGE_STICKLORE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickReceived()
@@ -340,9 +320,7 @@ public class DrawbridgeCreator extends Creator
         return messages.getString(Message.CREATOR_DRAWBRIDGE_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep1()
@@ -350,9 +328,7 @@ public class DrawbridgeCreator extends Creator
         return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep2()
@@ -360,9 +336,7 @@ public class DrawbridgeCreator extends Creator
         return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP2);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep3()
@@ -370,9 +344,7 @@ public class DrawbridgeCreator extends Creator
         return messages.getString(Message.CREATOR_DRAWBRIDGE_STEP3);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getSuccessMessage()

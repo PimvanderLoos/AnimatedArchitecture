@@ -176,9 +176,7 @@ public class SubCommandNew extends SubCommand
                   .whenComplete((maxDoors, throwable) -> initiateDoorCreation(player, name, type, maxDoors));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)
@@ -201,9 +199,7 @@ public class SubCommandNew extends SubCommand
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public String getHelp(final @NotNull CommandSender sender)
@@ -211,9 +207,7 @@ public class SubCommandNew extends SubCommand
         return help;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public String getHelpArguments()
@@ -221,18 +215,14 @@ public class SubCommandNew extends SubCommand
         return argsHelp;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getMinArgCount()
     {
         return minArgCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public CommandData getCommandData()
@@ -240,9 +230,7 @@ public class SubCommandNew extends SubCommand
         return command;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public String getPermission()
@@ -250,9 +238,7 @@ public class SubCommandNew extends SubCommand
         return CommandData.getPermission(command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public String getName()

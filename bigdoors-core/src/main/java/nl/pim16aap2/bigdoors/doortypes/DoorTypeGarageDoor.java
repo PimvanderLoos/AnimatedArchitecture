@@ -46,9 +46,7 @@ public final class DoorTypeGarageDoor extends DoorType
         return instance;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
@@ -69,9 +67,7 @@ public final class DoorTypeGarageDoor extends DoorType
                                           currentDirection));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)

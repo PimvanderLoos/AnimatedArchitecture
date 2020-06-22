@@ -91,9 +91,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
         return blockData;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean canRotate()
     {
@@ -101,9 +99,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
             bukkitBlockData instanceof MultipleFacing;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void rotateBlock(final @NotNull RotateDirection rotDir)
     {
@@ -274,9 +270,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
         return blockData.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void deleteOriginalBlock()
     {

@@ -119,27 +119,21 @@ public class FlagMover extends BlockMover
         return new Vector3Dd(block.getStartX(), block.getStartY(), block.getStartZ() + zOff);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         return block.getStartPosition();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void executeAnimationStep(final int ticks)
     {
@@ -151,9 +145,7 @@ public class FlagMover extends BlockMover
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {

@@ -23,9 +23,7 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getVersion()
@@ -44,9 +42,7 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
         return instance;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void init(final @NotNull BigDoorsSpigotAbstract plugin)
     {
@@ -56,9 +52,7 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
         blockAnalyzer = new BlockAnalyzer_V1_14_R1();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public IFallingBlockFactory getFallingBlockFactory()
@@ -66,9 +60,7 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
         return fallingBlockFactory;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public IPBlockDataFactory getPBlockDataFactory()
@@ -76,9 +68,7 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
         return pBlockDataFactory;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public IBlockAnalyzer getBlockAnalyzer()
@@ -86,9 +76,7 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
         return blockAnalyzer;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public IGlowingBlockSpawner getGlowingBlockSpawner()

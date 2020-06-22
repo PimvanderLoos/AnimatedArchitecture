@@ -38,9 +38,7 @@ public final class PWorldSpigot implements IPWorld
         this.world = world;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public UUID getUID()
@@ -48,9 +46,7 @@ public final class PWorldSpigot implements IPWorld
         return uuid;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean exists()
     {
@@ -68,9 +64,7 @@ public final class PWorldSpigot implements IPWorld
         return world;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public WorldTime getTime()
@@ -78,9 +72,7 @@ public final class PWorldSpigot implements IPWorld
         return new WorldTime(world == null ? 0 : world.getTime());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString()
     {
@@ -88,9 +80,7 @@ public final class PWorldSpigot implements IPWorld
         return uuid.toString() + worldName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o)
     {
@@ -103,18 +93,14 @@ public final class PWorldSpigot implements IPWorld
         return getUID().equals(((IPWorld) o).getUID());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode()
     {
         return getUID().hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public PWorldSpigot clone()

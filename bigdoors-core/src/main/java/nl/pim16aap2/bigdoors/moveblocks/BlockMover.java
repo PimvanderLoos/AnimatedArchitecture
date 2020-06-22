@@ -147,27 +147,21 @@ public abstract class BlockMover implements IRestartable
                            soundDescription.getPitch());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void restart()
     {
         shutdown();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {
         abort();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public void abort()
     {
         if (moverTask != null)

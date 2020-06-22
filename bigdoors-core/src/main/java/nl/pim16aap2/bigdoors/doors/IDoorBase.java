@@ -409,9 +409,7 @@ public interface IDoorBase
     @Override
     String toString();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     boolean equals(Object o);
 }

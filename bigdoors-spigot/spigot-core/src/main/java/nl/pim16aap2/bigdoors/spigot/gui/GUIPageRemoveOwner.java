@@ -48,9 +48,7 @@ public class GUIPageRemoveOwner implements IGUIPage
         refresh();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void kill()
     {
@@ -63,18 +61,14 @@ public class GUIPageRemoveOwner implements IGUIPage
             futureDoorOwners.cancel(true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public PageType getPageType()
     {
         return PageType.REMOVEOWNER;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void handleInput(int interactionIDX)
     {
@@ -178,9 +172,7 @@ public class GUIPageRemoveOwner implements IGUIPage
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void refresh()
     {

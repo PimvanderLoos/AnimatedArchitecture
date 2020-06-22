@@ -36,9 +36,7 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
         super(door, cause, actionType, responsible, time, skipAnimation);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public HandlerList getHandlers()

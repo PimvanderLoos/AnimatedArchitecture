@@ -31,9 +31,7 @@ public final class TestPlatform implements IBigDoorsPlatform
         // TODO: INIT STUFF. Perhaps add a #getDataFolder() to IBigDoorsPlatform.
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public File getDataDirectory()

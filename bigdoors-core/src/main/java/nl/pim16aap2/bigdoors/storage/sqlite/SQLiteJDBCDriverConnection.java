@@ -121,9 +121,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isSingleThreaded()
     {
@@ -371,9 +369,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return typeData;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     // TODO: Clean up this method. Split it up into smaller ones or something. This is getting too confusing.
     @Override
     public long registerDoorType(final @NotNull DoorType doorType)
@@ -428,9 +424,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return result.get().key();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean deleteDoorType(final @NotNull DoorType doorType)
     {
@@ -455,9 +449,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return result == 2; // TODO: This isn't particularly safe. If it's 1, for example, which data is still there??
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean updateTypeData(final @NotNull AbstractDoorBase door)
     {
@@ -588,9 +580,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return doorUID;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     // TODO: Return the UID of the door.
     @Override
     public boolean insert(final @NotNull AbstractDoorBase door)
@@ -723,9 +713,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return doors.isEmpty() ? Optional.empty() : Optional.of(doors);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<AbstractDoorBase> getDoor(final long doorUID)
@@ -735,9 +723,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             this::getDoor, Optional.empty());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<AbstractDoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID)
@@ -748,9 +734,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             this::getDoor, Optional.empty());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getPermission(final @NotNull String playerUUID, final long doorUID)
     {
@@ -760,9 +744,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             resultSet -> resultSet.next() ? resultSet.getInt("permission") : -1, -1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean removeDoor(final long doorUID)
     {
@@ -770,9 +752,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                      .setLong(1, doorUID)) > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean removeDoors(final @NotNull String playerUUID, final @NotNull String doorName)
     {
@@ -781,9 +761,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                      .setString(2, doorName)) > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isBigDoorsWorld(final @NotNull UUID worldUUID)
     {
@@ -792,9 +770,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             ResultSet::next, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getDoorCountForPlayer(final @NotNull UUID playerUUID)
     {
@@ -803,9 +779,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getDoorCountForPlayer(final @NotNull UUID playerUUID, final @NotNull String doorName)
     {
@@ -815,9 +789,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getDoorCountByName(final @NotNull String doorName)
     {
@@ -826,9 +798,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getOwnerCountOfDoor(final long doorUID)
     {
@@ -837,9 +807,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             resultSet -> resultSet.next() ? resultSet.getInt("total") : -1, -1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID,
@@ -853,9 +821,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             this::getDoors, Optional.empty());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID,
@@ -864,9 +830,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return getDoors(playerUUID.toString(), name, 0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<List<AbstractDoorBase>> getDoors(final @NotNull String name)
@@ -876,9 +840,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             this::getDoors, Optional.empty());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID, int maxPermission)
@@ -889,9 +851,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             this::getDoors, Optional.empty());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID)
@@ -899,9 +859,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return getDoors(playerUUID.toString(), 0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean updatePlayerName(final @NotNull String playerUUID, final @NotNull String playerName)
     {
@@ -910,9 +868,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                             .setString(2, playerUUID)) > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<UUID> getPlayerUUID(final @NotNull String playerName)
@@ -937,9 +893,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             }, Optional.empty());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<String> getPlayerName(final @NotNull String playerUUID)
@@ -951,9 +905,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             Optional.empty());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Optional<DoorOwner> getCreatorOfDoor(final long doorUID)
@@ -966,9 +918,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             Optional.empty());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(final long chunkHash)
@@ -992,9 +942,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 //                            }, new ConcurrentHashMap<>());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public List<Long> getDoorsInChunk(final long chunkHash)
@@ -1010,9 +958,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             }, new ArrayList<>());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin,
                                     final int zMin, final int xMax, final int yMax, final int zMax)
@@ -1028,9 +974,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return result && changeDoorFlag(doorUID, DoorFlag.ISOPEN, isOpen);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir)
     {
@@ -1039,9 +983,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                               .setLong(2, doorUID)) > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos)
     {
@@ -1079,9 +1021,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                           .setLong(2, doorUID)) > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean setLock(final long doorUID, final boolean newLockStatus)
     {
@@ -1301,18 +1241,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         PLogger.get().info("Executed statement:\n" + pPreparedStatement.toString() + "\n");
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void setStatementLogging(final boolean enabled)
     {
         logStatements = enabled;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean removeOwner(final long doorUID, final @NotNull String playerUUID)
     {
@@ -1321,9 +1257,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                            .setLong(2, doorUID)) > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public List<DoorOwner> getOwnersOfDoor(final long doorUID)
@@ -1371,9 +1305,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                  .setLong(3, doorUID)) > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean addOwner(final long doorUID, final @NotNull IPPlayer player, final int permission)
     {
@@ -1409,9 +1341,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public DatabaseState getDatabaseState()
     {

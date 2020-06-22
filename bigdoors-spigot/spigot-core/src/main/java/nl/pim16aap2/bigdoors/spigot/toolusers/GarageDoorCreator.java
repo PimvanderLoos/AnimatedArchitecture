@@ -24,9 +24,7 @@ public class GarageDoorCreator extends BigDoorCreator
         super(plugin, player, name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
@@ -40,9 +38,7 @@ public class GarageDoorCreator extends BigDoorCreator
     // Selected axis. I.e. if xSel == xMin, xEng = xMin - 1. If xSel == xMax,
     // xEng = xMax + 1.
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void updateEngineLoc()
     {
@@ -51,9 +47,7 @@ public class GarageDoorCreator extends BigDoorCreator
 
     // TODO: Allow creation of "open" garagedoors (i.e. flat against the ceiling).
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
@@ -68,9 +62,7 @@ public class GarageDoorCreator extends BigDoorCreator
         return (xDepth == 0 ^ zDepth == 0) && yDepth > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getInitMessage()
@@ -78,9 +70,7 @@ public class GarageDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_GARAGEDOOR_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickLore()
@@ -88,9 +78,7 @@ public class GarageDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_GARAGEDOOR_STICKLORE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickReceived()
@@ -98,9 +86,7 @@ public class GarageDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_GARAGEDOOR_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep1()
@@ -108,9 +94,7 @@ public class GarageDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_GARAGEDOOR_STEP1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep2()
@@ -118,9 +102,7 @@ public class GarageDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_GARAGEDOOR_STEP2);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep3()
@@ -128,9 +110,7 @@ public class GarageDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_GARAGEDOOR_STEP3);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getSuccessMessage()

@@ -20,9 +20,7 @@ public class DoorEventTogglePrepare extends DoorToggleEvent implements IDoorEven
 {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private boolean isCancelled = false;
@@ -45,9 +43,7 @@ public class DoorEventTogglePrepare extends DoorToggleEvent implements IDoorEven
         super(door, cause, actionType, responsible, time, animationSkipped);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public HandlerList getHandlers()

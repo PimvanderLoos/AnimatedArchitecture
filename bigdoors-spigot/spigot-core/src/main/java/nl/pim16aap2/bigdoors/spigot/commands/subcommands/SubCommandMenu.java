@@ -25,9 +25,7 @@ public class SubCommandMenu extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)

@@ -15,27 +15,19 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     private static final String VERSION = "v1_15_R1";
     private static final SpigotPlatform_V1_15_R1 instance = new SpigotPlatform_V1_15_R1();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private IFallingBlockFactory fallingBlockFactory;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private IPBlockDataFactory pBlockDataFactory;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private IBlockAnalyzer blockAnalyzer;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private IGlowingBlockSpawner glowingBlockSpawner;
 
@@ -43,9 +35,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getVersion()
@@ -64,9 +54,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
         return instance;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void init(final @NotNull BigDoorsSpigotAbstract plugin)
     {

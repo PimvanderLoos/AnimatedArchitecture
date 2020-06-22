@@ -13,9 +13,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface IStationaryDoorArchetype extends IDoorBase
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     default boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
@@ -29,9 +27,7 @@ public interface IStationaryDoorArchetype extends IDoorBase
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     default Vector2Di[] calculateChunkRange()
@@ -39,27 +35,21 @@ public interface IStationaryDoorArchetype extends IDoorBase
         return calculateCurrentChunkRange();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     default boolean canSkipAnimation()
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     default boolean isOpenable()
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     default boolean isCloseable()
     {

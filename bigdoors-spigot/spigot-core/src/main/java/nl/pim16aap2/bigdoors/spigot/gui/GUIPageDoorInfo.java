@@ -42,9 +42,7 @@ public class GUIPageDoorInfo implements IGUIPage
         refresh();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void kill()
     {
@@ -52,9 +50,7 @@ public class GUIPageDoorInfo implements IGUIPage
             futurePermissionCheck.cancel(true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public PageType getPageType()
     {
@@ -123,9 +119,7 @@ public class GUIPageDoorInfo implements IGUIPage
             });
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void handleInput(int interactionIDX)
     {
@@ -187,9 +181,7 @@ public class GUIPageDoorInfo implements IGUIPage
 //            createGUIItemOfAttribute(gui.getDoor(), attr).ifPresent(I -> gui.addItem(position.addAndGet(1), I));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void refresh()
     {

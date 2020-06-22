@@ -14,9 +14,7 @@ import java.util.UUID;
  */
 public class PPlayerFactorySpigot implements IPPlayerFactory
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPPlayer create(final @NotNull UUID playerUUID, final @NotNull String playerName)

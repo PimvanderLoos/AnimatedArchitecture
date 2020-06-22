@@ -234,18 +234,14 @@ public final class PowerBlockManager extends Restartable
         powerBlockWorld.checkBigDoorsWorldStatus();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void restart()
     {
         powerBlockWorlds.values().forEach(PowerBlockWorld::restart);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {
@@ -328,18 +324,14 @@ public final class PowerBlockManager extends Restartable
             databaseManager.isBigDoorsWorld(world).whenComplete((result, throwable) -> isBigDoorsWorld = result);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void restart()
         {
             powerBlockChunks.restart();
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void shutdown()
         {

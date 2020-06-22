@@ -29,16 +29,12 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
@@ -61,9 +57,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         this.currentDirection = currentDirection;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -71,9 +65,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         return DOOR_TYPE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()
@@ -85,9 +77,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getDefaultOpenDirection()
@@ -95,9 +85,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         return RotateDirection.CLOCKWISE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
@@ -106,9 +94,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
@@ -116,9 +102,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
@@ -161,9 +145,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
@@ -176,9 +158,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                              initiator, newMin, newMax, cause, actionType));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(final @Nullable Object o)
     {

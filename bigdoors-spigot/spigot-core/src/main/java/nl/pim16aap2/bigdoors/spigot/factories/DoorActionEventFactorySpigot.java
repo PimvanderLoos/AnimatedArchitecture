@@ -16,9 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
@@ -30,9 +28,7 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
         return new DoorEventTogglePrepare(door, cause, actionType, responsible, time, skipAnimation);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
@@ -44,9 +40,7 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
         return new DoorEventToggleStart(door, cause, actionType, responsible, time, skipAnimation);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,

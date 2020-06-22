@@ -37,9 +37,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
         this.quarterCircles = quarterCircles;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -47,9 +45,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
         return DOOR_TYPE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getDefaultOpenDirection()
@@ -57,9 +53,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
         return RotateDirection.CLOCKWISE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
@@ -67,9 +61,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
@@ -78,9 +70,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
                RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
@@ -95,9 +85,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
                                    initiator, quarterCircles, cause, actionType));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(@Nullable Object o)
     {

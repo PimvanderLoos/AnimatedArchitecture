@@ -29,23 +29,17 @@ public class SlidingDoor extends AbstractDoorBase
 {
     private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int blocksToMove;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
@@ -59,9 +53,7 @@ public class SlidingDoor extends AbstractDoorBase
         this.autoOpenTime = autoOpenTime;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -69,9 +61,7 @@ public class SlidingDoor extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()
@@ -89,9 +79,7 @@ public class SlidingDoor extends AbstractDoorBase
                                new Vector2Di(getChunk().getX() + distanceX, getChunk().getY() + distanceZ)};
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getDefaultOpenDirection()
@@ -99,9 +87,7 @@ public class SlidingDoor extends AbstractDoorBase
         return RotateDirection.NORTH;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
@@ -111,9 +97,7 @@ public class SlidingDoor extends AbstractDoorBase
                getOpenDir().equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
@@ -121,9 +105,7 @@ public class SlidingDoor extends AbstractDoorBase
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
@@ -142,9 +124,7 @@ public class SlidingDoor extends AbstractDoorBase
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
@@ -161,9 +141,7 @@ public class SlidingDoor extends AbstractDoorBase
                              doorOpeningUtility.getMultiplier(this), initiator, newMin, newMax, cause, actionType));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(@Nullable Object o)
     {

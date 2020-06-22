@@ -30,9 +30,7 @@ public class SlidingDoorCreator extends Creator
             giveToolToPlayer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
@@ -40,9 +38,7 @@ public class SlidingDoorCreator extends Creator
         return new SlidingDoor(doorData, 0, 0, 0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isReadyToConstructDoor()
     {
@@ -60,27 +56,21 @@ public class SlidingDoorCreator extends Creator
         engine = new Vector3Di(xMid, yMin, zMid);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void selector(final @NotNull Location loc)
     {
@@ -106,27 +96,21 @@ public class SlidingDoorCreator extends Creator
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_SLIDINGDOOR_STEP1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolLore()
     {
         return messages.getString(Message.CREATOR_SLIDINGDOOR_STICKLORE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getInitMessage()
@@ -134,9 +118,7 @@ public class SlidingDoorCreator extends Creator
         return messages.getString(Message.CREATOR_SLIDINGDOOR_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickLore()
@@ -144,9 +126,7 @@ public class SlidingDoorCreator extends Creator
         return messages.getString(Message.CREATOR_SLIDINGDOOR_STICKLORE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickReceived()
@@ -154,9 +134,7 @@ public class SlidingDoorCreator extends Creator
         return messages.getString(Message.CREATOR_SLIDINGDOOR_INIT);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep1()
@@ -164,9 +142,7 @@ public class SlidingDoorCreator extends Creator
         return messages.getString(Message.CREATOR_SLIDINGDOOR_STEP1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep2()
@@ -174,9 +150,7 @@ public class SlidingDoorCreator extends Creator
         return messages.getString(Message.CREATOR_SLIDINGDOOR_STEP2);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep3()
@@ -184,9 +158,7 @@ public class SlidingDoorCreator extends Creator
         return "";
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getSuccessMessage()

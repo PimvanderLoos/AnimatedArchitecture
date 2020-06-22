@@ -183,9 +183,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         return new Vector3Dd(posX + 0.5, posY, posZ);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
@@ -195,9 +193,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void executeAnimationStep(final int ticks)
     {
@@ -222,9 +218,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
@@ -235,9 +229,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
@@ -245,9 +237,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         return gnl.getNewLocation(radius, xAxis, yAxis, zAxis);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
     {

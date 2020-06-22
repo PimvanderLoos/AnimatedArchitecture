@@ -32,49 +32,37 @@ import java.util.UUID;
  */
 public abstract class AbstractDoorBase implements IDoorBase
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private final long doorUID;
     @NotNull
     protected final DoorOpeningUtility doorOpeningUtility;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final IPWorld world;
 
     protected Vector3Di min, max, engine, powerBlock, dimensions;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private String name;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private boolean open;
     @Nullable
     private RotateDirection openDir;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private boolean isLocked;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private DoorOwner doorOwner;
@@ -118,9 +106,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      */
     public abstract DoorType getDoorType();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isPowerBlockActive()
     {
@@ -140,9 +126,7 @@ public abstract class AbstractDoorBase implements IDoorBase
                        .isBlockPowered(getWorld(), getPowerBlockLoc());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isValidOpenDirection(final @NotNull RotateDirection openDir)
     {
@@ -212,9 +196,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         return DoorToggleResult.SUCCESS;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final void onRedstoneChange(final int newCurrent)
     {
@@ -243,9 +225,7 @@ public abstract class AbstractDoorBase implements IDoorBase
                                                final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
                                                final @NotNull DoorActionType actionType);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public Vector2Di[] calculateCurrentChunkRange()
@@ -257,9 +237,7 @@ public abstract class AbstractDoorBase implements IDoorBase
                                new Vector2Di(maxChunk.getX(), maxChunk.getY())};
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2Di chunk)
     {
@@ -286,9 +264,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final UUID getPlayerUUID()
@@ -303,18 +279,14 @@ public abstract class AbstractDoorBase implements IDoorBase
         return doorOwner.getPlayer().getUUID();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final int getPermission()
     {
         return doorOwner == null ? -1 : doorOwner.getPermission();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final RotateDirection getOpenDir()
@@ -323,9 +295,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         return openDir == null || openDir == RotateDirection.NONE ? openDir = getDefaultOpenDirection() : openDir;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final void setOpenDir(final @NotNull RotateDirection newRotDir)
     {
@@ -340,9 +310,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         invalidateChunkRange();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final Vector3Di getPowerBlockLoc()
@@ -350,9 +318,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         return powerBlock.clone();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final Vector3Di getEngine()
@@ -360,9 +326,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         return engine.clone();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final Vector3Di getMinimum()
@@ -382,9 +346,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         onCoordsUpdate();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final Vector3Di getMaximum()
@@ -426,9 +388,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         minChunkCoords = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final Vector2Di[] getChunkRange()
@@ -486,18 +446,14 @@ public abstract class AbstractDoorBase implements IDoorBase
         onCoordsUpdate();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     private Vector2Di calculateEngineChunk()
     {
         return Util.getChunkCoords(engine);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final Vector2Di getChunk()
@@ -526,9 +482,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         return blockCount == null ? blockCount = calculateBlockCount() : blockCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final Vector3Di getDimensions()
@@ -536,9 +490,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         return dimensions.clone();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final long getSimplePowerBlockChunkHash()
     {
@@ -551,9 +503,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         return Util.simpleChunkHashFromLocation(powerBlock.getX(), powerBlock.getZ());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     @NotNull
     public final String getBasicInfo()
@@ -583,9 +533,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         return builder.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     // TODO: Hashcode. Just the UID? Or actually calculate it?
     @Override
     public boolean equals(Object o)

@@ -61,9 +61,7 @@ public class Clock extends AbstractDoorBase
         this.hourArmSide = hourArmSide;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -71,9 +69,7 @@ public class Clock extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
@@ -81,9 +77,7 @@ public class Clock extends AbstractDoorBase
         return getOpenDir();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getDefaultOpenDirection()
@@ -94,9 +88,7 @@ public class Clock extends AbstractDoorBase
             return engine.getZ() == min.getZ() ? RotateDirection.EAST : RotateDirection.WEST;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull Vector3Di newMin,
@@ -107,9 +99,7 @@ public class Clock extends AbstractDoorBase
             .registerBlockMover(new ClockMover(this, getCurrentToggleDir(), initiator, cause, actionType));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(@Nullable Object o)
     {

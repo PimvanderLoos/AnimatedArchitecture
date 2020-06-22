@@ -145,18 +145,14 @@ public class AutoCloseScheduler extends Restartable
         scheduleAutoClose(DoorActionCause.REDSTONE, player, door, speed, skipAnimation);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void restart()
     {
         shutdown();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {
