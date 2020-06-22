@@ -8,7 +8,8 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import nl.pim16aap2.bigdoors.util.vector.IVector2DiConst;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -124,20 +125,22 @@ public final class PowerBlockManager extends Restartable
      * @return All {@link AbstractDoorBase}s that have a powerblock at a location in a world.
      */
     @NotNull
-    public CompletableFuture<List<AbstractDoorBase>> doorsFromPowerBlockLoc(final @NotNull Vector3Di loc,
+    public CompletableFuture<List<AbstractDoorBase>> doorsFromPowerBlockLoc(final @NotNull IVector3DiConst loc,
                                                                             final @NotNull UUID worldUUID)
     {
-        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
             return CompletableFuture.completedFuture(EMPTYDOORLIST);
         }
-        List<Long> doorUIDs = powerBlockWorld.getPowerBlocks(loc);
+
+        // TODO: Rewrite this mess.
+        final @NotNull List<Long> doorUIDs = powerBlockWorld.getPowerBlocks(loc);
         return CompletableFuture.supplyAsync(
             () ->
             {
-                List<AbstractDoorBase> doorBases = new ArrayList<>();
+                final @NotNull List<AbstractDoorBase> doorBases = new ArrayList<>();
                 doorUIDs.forEach(
                     U ->
                     {
@@ -165,7 +168,7 @@ public final class PowerBlockManager extends Restartable
      */
     public boolean isBigDoorsWorld(final @NotNull UUID worldUUID)
     {
-        PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
@@ -181,11 +184,11 @@ public final class PowerBlockManager extends Restartable
      * @param oldPos The old position.
      * @param newPos The new position.
      */
-    public void updatePowerBlockLoc(final @NotNull AbstractDoorBase door, final @NotNull Vector3Di oldPos,
-                                    final @NotNull Vector3Di newPos)
+    public void updatePowerBlockLoc(final @NotNull AbstractDoorBase door, final @NotNull IVector3DiConst oldPos,
+                                    final @NotNull IVector3DiConst newPos)
     {
         databaseManager.updatePowerBlockLoc(door.getDoorUID(), newPos);
-        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getUID());
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getUID());
         if (powerBlockWorld == null)
         {
             pLogger.logMessage("Failed to load power blocks for world: \"" +
@@ -204,9 +207,9 @@ public final class PowerBlockManager extends Restartable
      * @param worldUUID The world of the door.
      * @param pos       The position of the door's power block.
      */
-    public void onDoorAddOrRemove(final @NotNull UUID worldUUID, final @NotNull Vector3Di pos)
+    public void onDoorAddOrRemove(final @NotNull UUID worldUUID, final @NotNull IVector3DiConst pos)
     {
-        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
@@ -222,9 +225,9 @@ public final class PowerBlockManager extends Restartable
      * @param worldUUID The UUID of the world.
      * @param chunk     The location (x,z) of the chunk in chunk-space.
      */
-    public void invalidateChunk(final @NotNull UUID worldUUID, final @NotNull Vector2Di chunk)
+    public void invalidateChunk(final @NotNull UUID worldUUID, final @NotNull IVector2DiConst chunk)
     {
-        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
@@ -292,7 +295,7 @@ public final class PowerBlockManager extends Restartable
          * @return All UIDs of doors whose power blocks are in the given location.
          */
         @NotNull
-        private List<Long> getPowerBlocks(final @NotNull Vector3Di loc)
+        private List<Long> getPowerBlocks(final @NotNull IVector3DiConst loc)
         {
             if (!isBigDoorsWorld())
                 return EMPTYUIDLIST;
@@ -309,7 +312,7 @@ public final class PowerBlockManager extends Restartable
          *
          * @param pos The position.
          */
-        private void invalidatePosition(final @NotNull Vector3Di pos)
+        private void invalidatePosition(final @NotNull IVector3DiConst pos)
         {
             powerBlockChunks.remove(Util.simpleChunkHashFromLocation(pos.getX(), pos.getZ()));
         }
@@ -355,7 +358,7 @@ public final class PowerBlockManager extends Restartable
          * <p>
          * Value: List of UIDs of all doors whose power block occupy this space.
          */
-        private Map<Integer, List<Long>> powerBlocks;
+        private Map<Integer, List<Long>> powerBlocks; // TODO: Make notnull
 
         private PowerBlockChunk(final long chunkHash)
         {
@@ -370,7 +373,7 @@ public final class PowerBlockManager extends Restartable
          * @return All UIDs of doors whose power blocks are in the given location.
          */
         @NotNull
-        private List<Long> getPowerBlocks(final @NotNull Vector3Di loc)
+        private List<Long> getPowerBlocks(final @NotNull IVector3DiConst loc)
         {
             if (!isPowerBlockChunk())
                 return EMPTYUIDLIST;

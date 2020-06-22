@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.api;
 
+import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 public interface IPLocation extends Cloneable
@@ -14,6 +14,13 @@ public interface IPLocation extends Cloneable
      */
     @NotNull
     IPWorld getWorld();
+
+    /**
+     * Updates the world of this location.
+     *
+     * @param other The new world of this location.
+     */
+    void setWorld(final @NotNull IPWorld other);
 
     /**
      * Gets the chunk coordinates of the chunk this location is in.
@@ -104,7 +111,7 @@ public interface IPLocation extends Cloneable
      * @return This current IPLocation.
      */
     @NotNull
-    IPLocation add(final @NotNull Vector3Di vector);
+    IPLocation add(final @NotNull IVector3DiConst vector);
 
     /**
      * Adds values to the coordinates of this location.
@@ -113,7 +120,7 @@ public interface IPLocation extends Cloneable
      * @return This current IPLocation.
      */
     @NotNull
-    IPLocation add(final @NotNull Vector3Dd vector);
+    IPLocation add(final @NotNull IVector3DdConst vector);
 
     /**
      * Gets the position (so no world) in integers as a String.

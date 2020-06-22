@@ -6,8 +6,8 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -60,7 +60,7 @@ public final class SpigotAdapter
      * @return The bukkit vector.
      */
     @NotNull
-    public static Vector getBukkitVector(final @NotNull Vector3Di vector)
+    public static Vector getBukkitVector(final @NotNull IVector3DiConst vector)
     {
         return new Vector(vector.getX(), vector.getY(), vector.getZ());
     }
@@ -96,7 +96,7 @@ public final class SpigotAdapter
      * @return The bukkit vector.
      */
     @NotNull
-    public static Vector getBukkitVector(final @NotNull Vector3Dd vector)
+    public static Vector getBukkitVector(final @NotNull IVector3DdConst vector)
     {
         return new Vector(vector.getX(), vector.getY(), vector.getZ());
     }

@@ -774,8 +774,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         // Test updating doors.
         {
             // Create some new locations and verify they're different from the old min/max values.
-            final @NotNull Vector3Di oldMin = door3.getMinimum();
-            final @NotNull Vector3Di oldMax = door3.getMaximum();
+            final @NotNull Vector3Di oldMin = new Vector3Di(door3.getMinimum());
+            final @NotNull Vector3Di oldMax = new Vector3Di(door3.getMaximum());
             final @NotNull Vector3Di newMin = oldMin.clone().add(0, 20, 10);
             final @NotNull Vector3Di newMax = oldMax.clone().add(40, 0, 20);
             Assert.assertNotSame(oldMin, newMin);

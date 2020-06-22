@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.util;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -99,7 +99,7 @@ public final class SpigotUtil
                                      final @NotNull PBlockFace direction, final @NotNull World world)
     {
         int startX, startY, startZ, endX, endY, endZ, countX = 0, countY = 0, countZ = 0;
-        Vector3Di vec = PBlockFace.getDirection(direction);
+        IVector3DiConst vec = PBlockFace.getDirection(direction);
         maxDist = Math.abs(maxDist);
 
         startX = vec.getX() == 0 ? min.getBlockX() : vec.getX() == 1 ? max.getBlockX() + 1 : min.getBlockX() - 1;

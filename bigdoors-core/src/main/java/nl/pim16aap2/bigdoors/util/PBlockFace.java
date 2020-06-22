@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +25,7 @@ public enum PBlockFace
     NONE(6, new Vector3Di(0, 0, 0)),
     ;
 
-    private static Map<Vector3Di, PBlockFace> dirs = new HashMap<>();
+    private static Map<IVector3DiConst, PBlockFace> dirs = new HashMap<>();
     private static Map<Integer, PBlockFace> vals = new HashMap<>();
 
     static
@@ -40,10 +41,10 @@ public enum PBlockFace
      * The vector of this {@link PBlockFace}. For example, {@link PBlockFace#UP} would be (0,1,0), as it's direction is
      * positive in the y-axis and 0 in every other direction.
      */
-    private final Vector3Di directionVector;
+    private final IVector3DiConst directionVector;
     private final int val;
 
-    PBlockFace(final int val, final @NotNull Vector3Di directionVector)
+    PBlockFace(final int val, final @NotNull IVector3DiConst directionVector)
     {
         this.val = val;
         this.directionVector = directionVector;
@@ -103,7 +104,7 @@ public enum PBlockFace
      * @return The vector of the direction.
      */
     @NotNull
-    public static Vector3Di getDirection(final @NotNull PBlockFace myFace)
+    public static IVector3DiConst getDirection(final @NotNull PBlockFace myFace)
     {
         return myFace.directionVector;
     }
@@ -273,7 +274,7 @@ public enum PBlockFace
      * @return The {@link PBlockFace} associated with this {@link PBlockFace#directionVector}.
      */
     @NotNull
-    public static PBlockFace faceFromDir(final @NotNull Vector3Di dir)
+    public static PBlockFace faceFromDir(final @NotNull IVector3DiConst dir)
     {
         return dirs.get(dir);
     }

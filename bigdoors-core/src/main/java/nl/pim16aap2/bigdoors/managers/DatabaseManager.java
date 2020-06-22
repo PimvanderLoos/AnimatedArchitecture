@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -541,7 +542,7 @@ public final class DatabaseManager extends Restartable
      * @param newLoc  The new location.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    CompletableFuture<Boolean> updatePowerBlockLoc(final long doorUID, final @NotNull Vector3Di newLoc)
+    CompletableFuture<Boolean> updatePowerBlockLoc(final long doorUID, final @NotNull IVector3DiConst newLoc)
     {
         return CompletableFuture.supplyAsync(() -> db.updateDoorPowerBlockLoc(doorUID, newLoc.getX(), newLoc.getY(),
                                                                               newLoc.getZ()), threadPool);

@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -36,7 +37,7 @@ public class SubCommandInfo extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    private void highlightBlock(final @NotNull Vector3Di loc, final @NotNull IPWorld world,
+    private void highlightBlock(final @NotNull IVector3DiConst loc, final @NotNull IPWorld world,
                                 final @NotNull IPPlayer player, final @NotNull PColor color)
     {
         plugin.getGlowingBlockSpawner().spawnGlowinBlock(player, world.getUID(), 15,

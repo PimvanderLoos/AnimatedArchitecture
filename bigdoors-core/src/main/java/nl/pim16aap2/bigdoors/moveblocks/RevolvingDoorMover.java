@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
 
@@ -132,7 +133,7 @@ public class RevolvingDoorMover extends BlockMover
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IVector3DdConst startLocation = block.getStartPosition();
         final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
                                                             startLocation.getY(), startLocation.getZ());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);

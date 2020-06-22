@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.RevolvingDoorMover;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
-    
+
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
      *
@@ -73,8 +73,8 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull Vector3Di newMin,
-                                      final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
+                                      final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
                                       final @NotNull DoorActionType actionType)
     {
         // TODO: Get rid of this.

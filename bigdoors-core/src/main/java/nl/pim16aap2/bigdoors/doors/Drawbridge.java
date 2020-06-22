@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -130,7 +131,7 @@ public class Drawbridge extends AbstractDoorBase
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
-        Vector3Di vec = PBlockFace.getDirection(getCurrentDirection());
+        IVector3DiConst vec = PBlockFace.getDirection(getCurrentDirection());
         RotateDirection currentToggleDir = getCurrentToggleDir();
         if (isOpen())
         {
@@ -170,8 +171,8 @@ public class Drawbridge extends AbstractDoorBase
     /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull Vector3Di newMin,
-                                      final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
+                                      final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
                                       final @NotNull DoorActionType actionType)
     {
         PBlockFace upDown =

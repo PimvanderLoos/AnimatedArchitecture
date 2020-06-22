@@ -12,7 +12,7 @@ public interface IBlockAnalyzer
     /**
      * Checks if placement of this block should be deferred to the second pass or not.
      * <p>
-     * See {@link PBlockData#deferPlacement()}
+     * See {@link PBlockData#isPlacementDeferred()}
      * <p>
      * This method assume
      *

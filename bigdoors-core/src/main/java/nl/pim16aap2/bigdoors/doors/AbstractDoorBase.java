@@ -176,8 +176,8 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (doorOpeningUtility.isTooBig(this))
             return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, initiator);
 
-        Vector3Di newMin = getMinimum();
-        Vector3Di newMax = getMaximum();
+        Vector3Di newMin = new Vector3Di(getMinimum());
+        Vector3Di newMax = new Vector3Di(getMaximum());
 
         if (!getPotentialNewCoordinates(newMin, newMax))
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, initiator);
@@ -223,8 +223,8 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @param actionType    The type of action that will be performed by the BlockMover.
      */
     protected abstract void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                               final boolean skipAnimation, final @NotNull Vector3Di newMin,
-                                               final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
+                                               final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
+                                               final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
                                                final @NotNull DoorActionType actionType);
 
     /** {@inheritDoc} */
@@ -315,25 +315,25 @@ public abstract class AbstractDoorBase implements IDoorBase
     /** {@inheritDoc} */
     @Override
     @NotNull
-    public final Vector3Di getPowerBlockLoc()
+    public final IVector3DiConst getPowerBlockLoc()
     {
-        return powerBlock.clone();
+        return powerBlock;
     }
 
     /** {@inheritDoc} */
     @Override
     @NotNull
-    public final Vector3Di getEngine()
+    public final IVector3DiConst getEngine()
     {
-        return engine.clone();
+        return engine;
     }
 
     /** {@inheritDoc} */
     @Override
     @NotNull
-    public final Vector3Di getMinimum()
+    public final IVector3DiConst getMinimum()
     {
-        return min.clone();
+        return min;
     }
 
     /**
@@ -458,7 +458,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     /** {@inheritDoc} */
     @Override
     @NotNull
-    public final Vector2Di getChunk()
+    public final IVector2DiConst getChunk()
     {
         return engineChunk == null ? engineChunk = calculateEngineChunk() : engineChunk;
     }

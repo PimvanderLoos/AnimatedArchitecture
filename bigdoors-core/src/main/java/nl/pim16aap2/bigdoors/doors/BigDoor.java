@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.moveblocks.BigDoorMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -128,7 +129,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                 return false;
         }
 
-        Vector3Di newVec = PBlockFace.getDirection(newDir);
+        IVector3DiConst newVec = PBlockFace.getDirection(newDir);
         int xMin = Math.min(engine.getX(), engine.getX() + dimensions.getZ() * newVec.getX());
         int xMax = Math.max(engine.getX(), engine.getX() + dimensions.getZ() * newVec.getX());
 
@@ -148,8 +149,8 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull Vector3Di newMin,
-                                      final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
+                                      final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
                                       final @NotNull DoorActionType actionType)
     {
         doorOpeningUtility.registerBlockMover(

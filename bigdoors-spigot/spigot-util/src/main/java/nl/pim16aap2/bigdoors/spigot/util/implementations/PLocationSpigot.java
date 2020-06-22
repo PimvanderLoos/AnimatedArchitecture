@@ -1,10 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +23,10 @@ public final class PLocationSpigot implements IPLocation
 {
     @NotNull
     private Location location;
+
+    /** {@inheritDoc} */
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
     @NotNull
     private IPWorld world;
 
@@ -35,16 +41,8 @@ public final class PLocationSpigot implements IPLocation
     public PLocationSpigot(final @NotNull Location location)
     {
         Objects.requireNonNull(location.getWorld());
-        this.location = location;
+        this.location = location.clone();
         world = new PWorldSpigot(location.getWorld());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @NotNull
-    public IPWorld getWorld()
-    {
-        return world;
     }
 
     /** {@inheritDoc} */
@@ -130,7 +128,7 @@ public final class PLocationSpigot implements IPLocation
     /** {@inheritDoc} */
     @Override
     @NotNull
-    public IPLocation add(final @NotNull Vector3Di vector)
+    public IPLocation add(final @NotNull IVector3DiConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
@@ -138,7 +136,7 @@ public final class PLocationSpigot implements IPLocation
     /** {@inheritDoc} */
     @Override
     @NotNull
-    public IPLocation add(final @NotNull Vector3Dd vector)
+    public IPLocation add(final @NotNull IVector3DdConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
@@ -204,8 +202,8 @@ public final class PLocationSpigot implements IPLocation
         try
         {
             PLocationSpigot cloned = (PLocationSpigot) super.clone();
-            location = location.clone();
-            world = world.clone();
+            cloned.location = location.clone();
+            cloned.world = world.clone();
             return cloned;
         }
         catch (CloneNotSupportedException e)

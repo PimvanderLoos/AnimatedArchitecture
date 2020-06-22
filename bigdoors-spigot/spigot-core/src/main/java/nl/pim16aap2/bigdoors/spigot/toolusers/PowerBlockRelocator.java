@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -23,14 +24,14 @@ public class PowerBlockRelocator extends ToolUser
 {
     protected Location newLoc = null;
     @NotNull
-    private final Vector3Di oldLoc;
+    private final IVector3DiConst oldLoc;
     @NotNull
     private final AbstractDoorBase door;
     @Nullable
     private final IGlowingBlock glowingBlock;
 
     public PowerBlockRelocator(final @NotNull BigDoorsSpigot plugin, final @NotNull Player player,
-                               final @NotNull AbstractDoorBase door, final @NotNull Vector3Di oldLoc,
+                               final @NotNull AbstractDoorBase door, final @NotNull IVector3DiConst oldLoc,
                                final int time)
     {
         super(plugin, player);
@@ -46,14 +47,16 @@ public class PowerBlockRelocator extends ToolUser
 
     /** {@inheritDoc} */
     @Override
-    protected @NotNull String getToolReceivedMessage()
+    @NotNull
+    protected String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_PBRELOCATOR_INIT);
     }
 
     /** {@inheritDoc} */
     @Override
-    protected @NotNull String getToolLore()
+    @NotNull
+    protected String getToolLore()
     {
         return messages.getString(Message.CREATOR_PBRELOCATOR_STICKLORE);
     }

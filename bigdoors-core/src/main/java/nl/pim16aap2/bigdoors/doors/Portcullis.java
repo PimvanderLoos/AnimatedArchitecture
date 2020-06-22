@@ -14,6 +14,7 @@ import nl.pim16aap2.bigdoors.moveblocks.VerticalMover;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -98,7 +99,7 @@ public class Portcullis extends AbstractDoorBase
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
-        Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+        IVector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
 
         int blocksToMove = getBlocksToMove() > 0 ? getBlocksToMove() :
                            1 + Math.abs(vec.getY() * dimensions.getY());
@@ -116,8 +117,8 @@ public class Portcullis extends AbstractDoorBase
     /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull Vector3Di newMin,
-                                      final @NotNull Vector3Di newMax, final @NotNull IPPlayer initiator,
+                                      final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
                                       final @NotNull DoorActionType actionType)
     {
 

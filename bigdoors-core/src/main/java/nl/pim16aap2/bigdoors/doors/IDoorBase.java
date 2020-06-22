@@ -255,7 +255,7 @@ public interface IDoorBase
      * @return A copy of the maximum position of this door.
      */
     @NotNull
-    Vector3Di getMaximum();
+    IVector3DiConst getMaximum();
 
     /**
      * Changes the 'maximum' position of this {@link IDoorBase}.
@@ -319,7 +319,7 @@ public interface IDoorBase
      * @return The Vector2Di the power block of this {@link IDoorBase} resides in.
      */
     @NotNull
-    Vector2Di getChunk();
+    IVector2DiConst getChunk();
 
     /**
      * Retrieve the total number of blocks this {@link IDoorBase} is made out of. If invalidated or not calculated *

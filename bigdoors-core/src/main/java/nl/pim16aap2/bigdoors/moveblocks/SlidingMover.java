@@ -12,8 +12,9 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,8 +35,8 @@ public class SlidingMover extends BlockMover
 
     public SlidingMover(final double time, final @NotNull AbstractDoorBase door, final boolean skipAnimation,
                         final int blocksToMove, final @NotNull RotateDirection openDirection, final double multiplier,
-                        final @NotNull IPPlayer player, final @NotNull Vector3Di finalMin,
-                        final @NotNull Vector3Di finalMax, final @NotNull DoorActionCause cause,
+                        final @NotNull IPPlayer player, final @NotNull IVector3DiConst finalMin,
+                        final @NotNull IVector3DiConst finalMax, final @NotNull DoorActionCause cause,
                         final @NotNull DoorActionType actionType)
     {
         super(door, time, skipAnimation, PBlockFace.UP, openDirection, blocksToMove, player, finalMin, finalMax, cause,
@@ -99,7 +100,7 @@ public class SlidingMover extends BlockMover
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IVector3DdConst startLocation = block.getStartPosition();
         final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
                                                             startLocation.getY(), startLocation.getZ());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
