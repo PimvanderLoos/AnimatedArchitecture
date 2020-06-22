@@ -3,6 +3,8 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.vector.IVector2DiConst;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -74,6 +76,8 @@ public interface IDoorBase
 
     /**
      * Finds the new minimum and maximum coordinates of this door that would be the result of toggling it.
+     * <p>
+     * Note that the variables themselves are changed.
      *
      * @param newMin Used to store the new minimum coordinates.
      * @param newMax Used to store the new maximum coordinates.
@@ -89,17 +93,6 @@ public interface IDoorBase
      */
     @NotNull
     RotateDirection cycleOpenDirection();
-
-//    /**
-//     * Calculate the {@link PBlockFace} of the side the {@link IDoorBase} is on relative to its engine.
-//     * <p>
-//     * When taking a {@link BigDoor} as an example, it would return NORTH if the {@link IDoorBase} was positioned along
-//     * the x-axis (North / South) and the engine was on the south-most point of the door.
-//     *
-//     * @return The {@link PBlockFace} of the side the {@link IDoorBase} is on relative to its engine.
-//     */
-//    @NotNull
-//    PBlockFace calculateCurrentDirection();
 
     /**
      * Calculates the Min and Max coordinates of the range of Vector2Dis that this {@link IDoorBase} might interact
@@ -130,30 +123,13 @@ public interface IDoorBase
     RotateDirection getDefaultOpenDirection();
 
     /**
-     * Check if a provided Vector2Di is in range of the door. Range in this case refers to all Vector2Dis this {@link
-     * IDoorBase} could potentially occupy using animated blocks.
+     * Check if a provided {@link IVector2DiConst} is in range of the door. Range in this case refers to all Vector2Dis
+     * this {@link IDoorBase} could potentially occupy using animated blocks.
      *
      * @param chunk The chunk to check
-     * @return True if the Vector2Di is in range of the door.
+     * @return True if the {@link IVector2DiConst} is in range of the door.
      */
-    boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2Di chunk);
-
-//    /**
-//     * Gets the number of blocks this {@link IDoorBase} will try to move. As explained at {@link #setBlocksToMove(int)},
-//     * the {@link IDoorBase} is not guaranteed to move as far as specified.
-//     *
-//     * @return The number of blocks the {@link IDoorBase} will try to move.
-//     */
-//    int getBlocksToMove();
-//
-//    /**
-//     * Changes the number of blocks this {@link IDoorBase} will try to move when opened. Note that this is only a
-//     * suggestion. It will never move more blocks than possible. Values less than 1 will let the {@link IDoorBase} move
-//     * as many blocks as possible.
-//     *
-//     * @param newBTM The number of blocks the {@link IDoorBase} will try to move.
-//     */
-//    void setBlocksToMove(final int newBTM);
+    boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull IVector2DiConst chunk);
 
     /**
      * Gets the name of this door.
@@ -235,22 +211,6 @@ public interface IDoorBase
      */
     void setOpenDir(final @NotNull RotateDirection newRotDir);
 
-//    /**
-//     * Gets amount of time (in seconds) this {@link IDoorBase} will wait before automatically trying to close after
-//     * having been opened.
-//     *
-//     * @return The amount of time (in seconds) after which the {@link IDoorBase} will close automatically.
-//     */
-//    int getAutoClose();
-//
-//    /**
-//     * Changes the amount of time (in seconds) this {@link IDoorBase} will wait before automatically trying to close
-//     * after having been opened. Negative values disable auto-closing altogether.
-//     *
-//     * @param newVal Time (in seconds) after which the {@link IDoorBase} will close after opening.
-//     */
-//    void setAutoClose(final int newVal);
-
     /**
      * Changes the open-status of this door. True if open, False if closed.
      *
@@ -259,50 +219,50 @@ public interface IDoorBase
     void setOpen(final boolean bool);
 
     /**
-     * Gets a copy of the power block location of this door.
+     * Gets the position of power block of this door.
      *
-     * @return A copy of the power block location of this door.
+     * @return The position of the power block of this door.
      */
     @NotNull
-    Vector3Di getPowerBlockLoc();
+    IVector3DiConst getPowerBlockLoc();
 
     /**
-     * Gets a copy of the engine location of this door.
+     * Gets the position of the engine of this door.
      *
-     * @return A copy of the engine location of this door.
+     * @return The position of the engine block of this door.
      */
     @NotNull
-    Vector3Di getEngine();
+    IVector3DiConst getEngine();
 
     /**
-     * Gets a copy of the minimum location of this door.
+     * Gets the minimum position of this door.
      *
-     * @return A copy of the minimum location of this door.
+     * @return The minimum coordinates of this door.
      */
     @NotNull
-    Vector3Di getMinimum();
+    IVector3DiConst getMinimum();
 
     /**
-     * Changes the 'minimum' location of this {@link IDoorBase}.
+     * Changes the 'minimum' position of this {@link IDoorBase}.
      *
-     * @param loc The new minimum location.
+     * @param pos The new minimum position.
      */
-    void setMinimum(final @NotNull Vector3Di loc);
+    void setMinimum(final @NotNull IVector3DiConst pos);
 
     /**
-     * Gets a copy of the maximum location of this door.
+     * Gets a copy of the maximum position of this door.
      *
-     * @return A copy of the maximum location of this door.
+     * @return A copy of the maximum position of this door.
      */
     @NotNull
     Vector3Di getMaximum();
 
     /**
-     * Changes the 'maximum' location of this {@link IDoorBase}.
+     * Changes the 'maximum' position of this {@link IDoorBase}.
      *
-     * @param loc The new maximum.
+     * @param loc The new maximum position of this door.
      */
-    void setMaximum(final @NotNull Vector3Di loc);
+    void setMaximum(final @NotNull IVector3DiConst loc);
 
     /**
      * Gets the the Vector2Di coordinates of the min and max Vector2Dis that are in range of this door.
@@ -319,14 +279,14 @@ public interface IDoorBase
      *
      * @param loc The new location of the engine.
      */
-    void setEngineLocation(final @NotNull Vector3Di loc);
+    void setEngineLocation(final @NotNull IVector3DiConst loc);
 
     /**
      * Changes the location of the power block.
      *
      * @param loc The new location of the power block.
      */
-    void setPowerBlockLocation(final @NotNull Vector3Di loc);
+    void setPowerBlockLocation(final @NotNull IVector3DiConst loc);
 
     /**
      * Changes the lock status of this door. Locked doors cannot be opened.
@@ -381,14 +341,6 @@ public interface IDoorBase
      */
     @NotNull
     Vector3Di getDimensions();
-
-//    /**
-//     * Gets the side the {@link IDoorBase} is on relative to the engine.
-//     *
-//     * @return The side the {@link IDoorBase} is on relative to the engine
-//     */
-//    @NotNull
-//    PBlockFace getCurrentDirection();
 
     /**
      * @return The simple hash of the chunk in which the power block resides.

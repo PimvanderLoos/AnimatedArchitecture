@@ -18,6 +18,8 @@ import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector2DiConst;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -239,7 +241,7 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     /** {@inheritDoc} */
     @Override
-    public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2Di chunk)
+    public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull IVector2DiConst chunk)
     {
         if (!otherWorld.equals(getWorld()))
             return false;
@@ -340,9 +342,9 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setMinimum(final @NotNull Vector3Di loc)
+    public final void setMinimum(final @NotNull IVector3DiConst pos)
     {
-        min = loc.clone();
+        min = new Vector3Di(pos);
         onCoordsUpdate();
     }
 
@@ -360,9 +362,9 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setMaximum(final @NotNull Vector3Di loc)
+    public final void setMaximum(final @NotNull IVector3DiConst pos)
     {
-        max = loc.clone();
+        max = new Vector3Di(pos);
         onCoordsUpdate();
     }
 
@@ -428,9 +430,9 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setEngineLocation(final @NotNull Vector3Di loc)
+    public final void setEngineLocation(final @NotNull IVector3DiConst pos)
     {
-        engine = loc.clone();
+        engine = new Vector3Di(pos);
         onCoordsUpdate();
     }
 
@@ -440,9 +442,9 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setPowerBlockLocation(final @NotNull Vector3Di loc)
+    public final void setPowerBlockLocation(final @NotNull IVector3DiConst pos)
     {
-        powerBlock = loc.clone();
+        powerBlock = new Vector3Di(pos);
         onCoordsUpdate();
     }
 
