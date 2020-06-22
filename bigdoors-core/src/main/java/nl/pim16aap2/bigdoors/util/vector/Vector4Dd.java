@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,54 +10,48 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-public final class Vector4Dd implements Cloneable
+@Data
+@AllArgsConstructor
+public final class Vector4Dd implements IVector4DdConst, Cloneable
 {
     @Getter
     private double x, y, z, w;
 
-    public Vector4Dd(double x, double y, double z, double w)
+    public Vector4Dd(final @NotNull IVector4DdConst other)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
+        x = other.getX();
+        y = other.getY();
+        z = other.getZ();
+        w = other.getW();
     }
 
-    public Vector4Dd(final @NotNull Vector4Dd other)
+    public Vector4Dd add(final @NotNull IVector4DdConst other)
     {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-        w = other.w;
-    }
-
-    public Vector4Dd add(final @NotNull Vector4Dd other)
-    {
-        add(other.x, other.y, other.z, other.w);
+        add(other.getX(), other.getY(), other.getZ(), other.getW());
         return this;
     }
 
-    public Vector4Dd subtract(final @NotNull Vector4Dd other)
+    public Vector4Dd subtract(final @NotNull IVector4DdConst other)
     {
-        add(-other.x, -other.y, -other.z, -other.w);
+        add(-other.getX(), -other.getY(), -other.getZ(), -other.getW());
         return this;
     }
 
-    public Vector4Dd multiply(final @NotNull Vector4Dd other)
+    public Vector4Dd multiply(final @NotNull IVector4DdConst other)
     {
-        x *= other.x;
-        y *= other.y;
-        z *= other.z;
-        w *= other.w;
+        x *= other.getX();
+        y *= other.getY();
+        z *= other.getZ();
+        w *= other.getW();
         return this;
     }
 
-    public Vector4Dd divide(final @NotNull Vector4Dd other)
+    public Vector4Dd divide(final @NotNull IVector4DdConst other)
     {
-        x /= other.x;
-        y /= other.y;
-        z /= other.z;
-        w /= other.w;
+        x /= other.getX();
+        y /= other.getY();
+        z /= other.getZ();
+        w /= other.getW();
         return this;
     }
 
@@ -175,7 +171,7 @@ public final class Vector4Dd implements Cloneable
         if (getClass() != o.getClass())
             return false;
         Vector4Dd other = (Vector4Dd) o;
-        return x == other.x && y == other.y && z == other.z && w == other.w;
+        return x == other.getX() && y == other.getY() && z == other.getZ() && w == other.getW();
     }
 
     public Vector4Dd normalize()

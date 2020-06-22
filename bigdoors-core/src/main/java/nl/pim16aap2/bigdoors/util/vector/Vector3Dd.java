@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,50 +10,45 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-public final class Vector3Dd implements Cloneable
+@Data
+@AllArgsConstructor
+public final class Vector3Dd implements IVector3DdConst, Cloneable
 {
     @Getter
     private double x, y, z;
 
-    public Vector3Dd(double x, double y, double z)
+    public Vector3Dd(final @NotNull IVector3DdConst other)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        x = other.getX();
+        y = other.getY();
+        z = other.getZ();
     }
 
-    public Vector3Dd(final @NotNull Vector3Dd other)
+    public Vector3Dd add(final @NotNull IVector3DdConst other)
     {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-    }
-
-    public Vector3Dd add(final @NotNull Vector3Dd other)
-    {
-        add(other.x, other.y, other.z);
+        add(other.getX(), other.getY(), other.getZ());
         return this;
     }
 
-    public Vector3Dd subtract(final @NotNull Vector3Dd other)
+    public Vector3Dd subtract(final @NotNull IVector3DdConst other)
     {
-        add(-other.x, -other.y, -other.z);
+        add(-other.getX(), -other.getY(), -other.getZ());
         return this;
     }
 
-    public Vector3Dd multiply(final @NotNull Vector3Dd other)
+    public Vector3Dd multiply(final @NotNull IVector3DdConst other)
     {
-        x *= other.x;
-        y *= other.y;
-        z *= other.z;
+        x *= other.getX();
+        y *= other.getY();
+        z *= other.getZ();
         return this;
     }
 
-    public Vector3Dd divide(final @NotNull Vector3Dd other)
+    public Vector3Dd divide(final @NotNull IVector3DdConst other)
     {
-        x /= other.x;
-        y /= other.y;
-        z /= other.z;
+        x /= other.getX();
+        y /= other.getY();
+        z /= other.getZ();
         return this;
     }
 
@@ -143,19 +140,6 @@ public final class Vector3Dd implements Cloneable
         hash = 19 * hash + Double.valueOf(y).hashCode();
         hash = 19 * hash + Double.valueOf(z).hashCode();
         return hash;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-        Vector3Dd other = (Vector3Dd) o;
-        return x == other.x && y == other.y && z == other.z;
     }
 
     public Vector3Dd normalize()

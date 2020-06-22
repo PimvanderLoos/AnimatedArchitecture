@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,54 +10,48 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-public final class Vector4Di implements Cloneable
+@Data
+@AllArgsConstructor
+public final class Vector4Di implements IVector4DiConst, Cloneable
 {
     @Getter
     private int x, y, z, w;
 
-    public Vector4Di(int x, int y, int z, int w)
+    public Vector4Di(final @NotNull IVector4DiConst other)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
+        x = other.getX();
+        y = other.getY();
+        z = other.getZ();
+        w = other.getW();
     }
 
-    public Vector4Di(final @NotNull Vector4Di other)
+    public Vector4Di add(final @NotNull IVector4DiConst other)
     {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-        w = other.w;
-    }
-
-    public Vector4Di add(final @NotNull Vector4Di other)
-    {
-        add(other.x, other.y, other.z, other.w);
+        add(other.getX(), other.getY(), other.getZ(), other.getW());
         return this;
     }
 
-    public Vector4Di subtract(final @NotNull Vector4Di other)
+    public Vector4Di subtract(final @NotNull IVector4DiConst other)
     {
-        add(-other.x, -other.y, -other.z, -other.w);
+        add(-other.getX(), -other.getY(), -other.getZ(), -other.getW());
         return this;
     }
 
-    public Vector4Di multiply(final @NotNull Vector4Di other)
+    public Vector4Di multiply(final @NotNull IVector4DiConst other)
     {
-        x *= other.x;
-        y *= other.y;
-        z *= other.y;
-        w *= other.y;
+        x *= other.getX();
+        y *= other.getY();
+        z *= other.getY();
+        w *= other.getY();
         return this;
     }
 
-    public Vector4Di divide(final @NotNull Vector4Di other)
+    public Vector4Di divide(final @NotNull IVector4DiConst other)
     {
-        x /= other.x;
-        y /= other.y;
-        z /= other.y;
-        w /= other.y;
+        x /= other.getX();
+        y /= other.getY();
+        z /= other.getY();
+        w /= other.getY();
         return this;
     }
 
@@ -175,7 +171,7 @@ public final class Vector4Di implements Cloneable
         if (getClass() != o.getClass())
             return false;
         Vector4Di other = (Vector4Di) o;
-        return x == other.x && y == other.y && z == other.z && w == other.w;
+        return x == other.getX() && y == other.getY() && z == other.getZ() && w == other.getW();
     }
 
     public Vector4Di normalize()

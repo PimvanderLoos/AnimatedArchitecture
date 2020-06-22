@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,46 +10,42 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-public final class Vector2Di implements Cloneable
+@Data
+@AllArgsConstructor
+public final class Vector2Di implements IVector2DiConst, Cloneable
 {
     @Getter
     private int x, y;
 
-    public Vector2Di(int x, int y)
+    public Vector2Di(final @NotNull IVector2DiConst other)
     {
-        this.x = x;
-        this.y = y;
-    }
-
-    public Vector2Di(final @NotNull Vector2Di other)
-    {
-        x = other.x;
-        y = other.y;
+        x = other.getX();
+        y = other.getY();
     }
 
     public Vector2Di add(final @NotNull Vector2Di other)
     {
-        add(other.x, other.y);
+        add(other.getX(), other.getY());
         return this;
     }
 
     public Vector2Di subtract(final @NotNull Vector2Di other)
     {
-        add(-other.x, -other.y);
+        add(-other.getX(), -other.getY());
         return this;
     }
 
     public Vector2Di multiply(final @NotNull Vector2Di other)
     {
-        x *= other.x;
-        y *= other.y;
+        x *= other.getX();
+        y *= other.getY();
         return this;
     }
 
     public Vector2Di divide(final @NotNull Vector2Di other)
     {
-        x /= other.x;
-        y /= other.y;
+        x /= other.getX();
+        y /= other.getY();
         return this;
     }
 
@@ -135,7 +133,7 @@ public final class Vector2Di implements Cloneable
         if (getClass() != o.getClass())
             return false;
         Vector2Di other = (Vector2Di) o;
-        return x == other.x && y == other.y;
+        return x == other.getX() && y == other.getY();
     }
 
     public Vector2Di normalize()

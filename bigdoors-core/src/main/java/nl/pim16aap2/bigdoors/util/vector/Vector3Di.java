@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,50 +10,45 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-public final class Vector3Di implements Cloneable
+@Data
+@AllArgsConstructor
+public final class Vector3Di implements IVector3DiConst, Cloneable
 {
     @Getter
     private int x, y, z;
 
-    public Vector3Di(int x, int y, int z)
+    public Vector3Di(final @NotNull IVector3DiConst other)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        x = other.getX();
+        y = other.getY();
+        z = other.getZ();
     }
 
-    public Vector3Di(final @NotNull Vector3Di other)
+    public Vector3Di add(final @NotNull IVector3DiConst other)
     {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-    }
-
-    public Vector3Di add(final @NotNull Vector3Di other)
-    {
-        add(other.x, other.y, other.z);
+        add(other.getX(), other.getY(), other.getZ());
         return this;
     }
 
-    public Vector3Di subtract(final @NotNull Vector3Di other)
+    public Vector3Di subtract(final @NotNull IVector3DiConst other)
     {
-        add(-other.x, -other.y, -other.z);
+        add(-other.getX(), -other.getY(), -other.getZ());
         return this;
     }
 
-    public Vector3Di multiply(final @NotNull Vector3Di other)
+    public Vector3Di multiply(final @NotNull IVector3DiConst other)
     {
-        x *= other.x;
-        y *= other.y;
-        z *= other.z;
+        x *= other.getX();
+        y *= other.getY();
+        z *= other.getZ();
         return this;
     }
 
-    public Vector3Di divide(final @NotNull Vector3Di other)
+    public Vector3Di divide(final @NotNull IVector3DiConst other)
     {
-        x /= other.x;
-        y /= other.y;
-        z /= other.z;
+        x /= other.getX();
+        y /= other.getY();
+        z /= other.getZ();
         return this;
     }
 
@@ -155,7 +152,7 @@ public final class Vector3Di implements Cloneable
         if (getClass() != o.getClass())
             return false;
         Vector3Di other = (Vector3Di) o;
-        return x == other.x && y == other.y && z == other.z;
+        return x == other.getX() && y == other.getY() && z == other.getZ();
     }
 
     public Vector3Di normalize()
