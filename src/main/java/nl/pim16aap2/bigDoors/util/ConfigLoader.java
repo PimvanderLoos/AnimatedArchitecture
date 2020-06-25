@@ -76,6 +76,8 @@ public class ConfigLoader
                           "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1");
         RESOURCEPACKS.put(MCVersion.v1_15,
                           "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-1_15.zip?dl=1");
+        RESOURCEPACKS.put(MCVersion.v1_16,
+                          "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-1_15.zip?dl=1");
     }
 
     public ConfigLoader(BigDoors plugin)
