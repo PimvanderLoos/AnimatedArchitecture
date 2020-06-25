@@ -2,6 +2,7 @@ Alpha 0.1.8.19
 - Fixed crash on startup if the custom translation file contained invalid lines. Thanks, @taoxiaobai, for the bug report!
 - Fixed GUI bypassing user permissions regarding door attributes. Thanks, @PirateCraft, for the bug report!
 - Added "bigdoors.user.lock" permission node for (un)locking doors.
+- Added initial support for version 1.16 of minecraft.
 
 Alpha 0.1.8.18
 - Fixed bug with the latest version of Towny. Thanks, @Master, for the bug report!
