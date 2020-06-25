@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import br.net.fabiozumbi12.RedProtect.Bukkit.RedProtect;
+import br.net.fabiozumbi12.RedProtect.Bukkit.Region;
+import br.net.fabiozumbi12.RedProtect.Bukkit.API.RedProtectAPI;
 import nl.pim16aap2.bigDoors.BigDoors;
 
 /**
@@ -39,7 +41,17 @@ public class RedProtectProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        return RedProtect.get().getAPI().getRegion(loc).canBuild(player);
+        try
+        {
+            final RedProtectAPI rpAPI = redProtect.getAPI();
+            final Region rpRegion = rpAPI.getRegion(loc);
+            return rpRegion.canBuild(player);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
@@ -48,9 +60,6 @@ public class RedProtectProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
-        if (loc1.getWorld() != loc2.getWorld())
-            return false;
-
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());

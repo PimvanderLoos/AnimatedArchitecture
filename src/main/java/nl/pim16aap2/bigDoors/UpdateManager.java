@@ -66,24 +66,25 @@ public final class UpdateManager
 
     public void checkForUpdates()
     {
-        updater.requestUpdateCheck().whenComplete(
-           (result, throwable) ->
-           {
-               boolean updateAvailable = updateAvailable();
-               if (updateAvailable)
-                   plugin.getMyLogger().info("A new update is available: " + plugin.getUpdateManager().getNewestVersion());
+        updater.requestUpdateCheck().whenComplete((result, throwable) ->
+        {
+            boolean updateAvailable = updateAvailable();
+            if (updateAvailable)
+                plugin.getMyLogger().info("A new update is available: " + plugin.getUpdateManager().getNewestVersion());
 
-               if (downloadUpdates && updateAvailable && result.getAge() >= plugin.getConfigLoader().downloadDelay())
-               {
-                   updateDownloaded = updater.downloadUpdate();
-                   if (updateDownloaded)
-                       plugin.getMyLogger().info("Update downloaded! Restart to apply it! " +
-                           "New version is " + updater.getLastResult().getNewestVersion() +
-                           ", Currently running " + plugin.getDescription().getVersion() + (BigDoors.DEVBUILD ? " (but a DEV-build)" : ""));
-                   else
-                       plugin.getMyLogger().info("Failed to download latest version! You can download it manually at: " + updater.getDownloadUrl());
-               }
-           });
+            if (downloadUpdates && updateAvailable && result.getAge() >= plugin.getConfigLoader().downloadDelay())
+            {
+                updateDownloaded = updater.downloadUpdate();
+                if (updateDownloaded)
+                    plugin.getMyLogger()
+                        .info("Update downloaded! Restart to apply it! " + "New version is "
+                            + updater.getLastResult().getNewestVersion() + ", Currently running "
+                            + plugin.getDescription().getVersion() + (BigDoors.DEVBUILD ? " (but a DEV-build)" : ""));
+                else
+                    plugin.getMyLogger().info("Failed to download latest version! You can download it manually at: "
+                        + updater.getDownloadUrl());
+            }
+        });
     }
 
     private void initUpdater()

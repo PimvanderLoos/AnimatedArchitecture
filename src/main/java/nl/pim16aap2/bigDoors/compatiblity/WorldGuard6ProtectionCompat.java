@@ -75,9 +75,6 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
-        if (loc1.getWorld() != loc2.getWorld())
-            return false;
-
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());

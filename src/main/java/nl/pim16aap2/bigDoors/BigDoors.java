@@ -353,7 +353,10 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         String ret = "";
         if (DEVBUILD)
+        {
             ret += "[BigDoors] Warning: You are running a devbuild!\n";
+            ret += "[BigDoors] Remember to check for new updates regularly!\n";
+        }
         if (updateManager.updateAvailable())
         {
             if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())

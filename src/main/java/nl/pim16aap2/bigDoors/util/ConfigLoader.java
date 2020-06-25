@@ -523,9 +523,6 @@ public class ConfigLoader
 
     public boolean autoDLUpdate()
     {
-        if (BigDoors.DEVBUILD) // Setting override.
-            return true;
-
         return autoDLUpdate;
     }
 
@@ -539,9 +536,6 @@ public class ConfigLoader
      */
     public long downloadDelay()
     {
-        if (BigDoors.DEVBUILD) // Setting override.
-            return 0L;
-
         return downloadDelay;
     }
 

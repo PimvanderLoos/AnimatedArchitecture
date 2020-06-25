@@ -48,7 +48,11 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
 
     private boolean canBreakBlock(LocalPlayer player, Location loc)
     {
-        return worldGuard.getPlatform().getRegionContainer().createQuery().testState(BukkitAdapter.adapt(loc), player, com.sk89q.worldguard.protection.flags.Flags.BUILD);
+        return worldGuard
+                .getPlatform()
+                .getRegionContainer()
+                .createQuery()
+                .testState(BukkitAdapter.adapt(loc), player, com.sk89q.worldguard.protection.flags.Flags.BUILD);
     }
 
     private LocalPlayer getLocalPlayer(Player player)
@@ -71,9 +75,6 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
-        if (loc1.getWorld() != loc2.getWorld())
-            return false;
-
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());

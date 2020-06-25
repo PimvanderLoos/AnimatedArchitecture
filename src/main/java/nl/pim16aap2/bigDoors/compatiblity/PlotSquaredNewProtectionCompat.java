@@ -69,8 +69,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 
     // Check if a given player is allowed to build in a given plot.
     // Adapted from: https://github.com/IntellectualSites/PlotSquared/blob/breaking/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L981
-    private boolean canBreakBlock(Player player, PlotArea area,
-                                  Plot plot, Location loc)
+    private boolean canBreakBlock(Player player, PlotArea area, Plot plot, Location loc)
     {
         if (plot != null)
         {
@@ -107,9 +106,6 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
-        if (loc1.getWorld() != loc2.getWorld())
-            return false;
-
         com.github.intellectualsites.plotsquared.plot.object.Location psLocation = BukkitUtil.getLocation(loc1);
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());

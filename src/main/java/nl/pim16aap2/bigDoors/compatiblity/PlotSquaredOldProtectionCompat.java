@@ -107,9 +107,6 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
-        if (loc1.getWorld() != loc2.getWorld())
-            return false;
-
         if (!plotSquared.isPlotWorld(loc1.getWorld()))
             return true;
 

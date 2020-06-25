@@ -38,7 +38,9 @@ public class LandsProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        return landsAddon.getLandChunk(loc).canAction(player.getUniqueId(), RoleSetting.BLOCK_BREAK);
+        return landsAddon
+                .getLandChunk(loc)
+                .canAction(player.getUniqueId(), RoleSetting.BLOCK_BREAK);
     }
 
     /**
@@ -47,9 +49,6 @@ public class LandsProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
-        if (loc1.getWorld() != loc2.getWorld())
-            return false;
-
         UUID playerUUID = player.getUniqueId();
         World world = loc1.getWorld();
 
@@ -66,7 +65,6 @@ public class LandsProtectionCompat implements IProtectionCompat
                     continue;
                 if (!landChunk.canAction(playerUUID, RoleSetting.BLOCK_BREAK))
                     return false;
-
             }
         return true;
     }

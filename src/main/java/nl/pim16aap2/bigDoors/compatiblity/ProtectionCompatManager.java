@@ -28,7 +28,7 @@ public class ProtectionCompatManager implements Listener
     private static final String BYPASSPERMISSION = "bigdoors.admin.bypasscompat";
 
     private final ArrayList<IProtectionCompat> protectionCompats;
-    private FakePlayerCreator fakePlayerCreator;
+    private final FakePlayerCreator fakePlayerCreator;
     private final BigDoors plugin;
 
     /**
@@ -87,10 +87,8 @@ public class ProtectionCompatManager implements Listener
     {
         try
         {
-            CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() ->
-            {
-                return plugin.getVaultManager().hasPermission(oPlayer, BYPASSPERMISSION, world);
-            });
+            CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(
+                    () -> plugin.getVaultManager().hasPermission(oPlayer, BYPASSPERMISSION, world));
 
             return future.get();
         }
@@ -130,7 +128,7 @@ public class ProtectionCompatManager implements Listener
      */
     public String canBreakBlock(UUID playerUUID, String playerName, Location loc)
     {
-        if (protectionCompats.size() == 0)
+        if (protectionCompats.isEmpty())
             return null;
 
         Player fakePlayer = getPlayer(playerUUID, playerName, loc.getWorld());
@@ -164,7 +162,10 @@ public class ProtectionCompatManager implements Listener
      */
     public String canBreakBlocksBetweenLocs(UUID playerUUID, String playerName, Location loc1, Location loc2)
     {
-        if (protectionCompats.size() == 0)
+        if (protectionCompats.isEmpty())
+            return null;
+
+        if (!loc1.getWorld().equals(loc2.getWorld()))
             return null;
 
         Player fakePlayer = getPlayer(playerUUID, playerName, loc1.getWorld());
