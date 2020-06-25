@@ -3,7 +3,6 @@ package nl.pim16aap2.bigDoors.handlers;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -22,7 +21,9 @@ public class ChunkUnloadHandler implements Listener
     public ChunkUnloadHandler(BigDoors plugin)
     {
         this.plugin = plugin;
-        useTheForce = BigDoors.getMCVersion().equals(MCVersion.v1_14) || BigDoors.getMCVersion().equals(MCVersion.v1_15);
+        useTheForce = BigDoors.getMCVersion().equals(MCVersion.v1_14) ||
+                      BigDoors.getMCVersion().equals(MCVersion.v1_15) ||
+                      BigDoors.getMCVersion().equals(MCVersion.v1_16);
         init();
     }
 
@@ -50,7 +51,8 @@ public class ChunkUnloadHandler implements Listener
         catch (NoSuchMethodException | SecurityException e)
         {
             success = false;
-            plugin.getMyLogger().logMessage("Serious error encountered! Unloading chunks with active doors IS UNSAFE!", true, true);
+            plugin.getMyLogger().logMessage("Serious error encountered! Unloading chunks with active doors IS UNSAFE!",
+                                            true, true);
             plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
             e.printStackTrace();
         }
@@ -62,18 +64,20 @@ public class ChunkUnloadHandler implements Listener
         // If this class couldn't figure out reflection properly, give up.
         if (!success)
         {
-            plugin.getMyLogger().warn("ChunkUnloadHandler was not able to initialize properly! Please contact pim16aap2.");
+            plugin.getMyLogger()
+                .warn("ChunkUnloadHandler was not able to initialize properly! Please contact pim16aap2.");
             return;
         }
 
-        // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14), there's no need to interfere.
+        // If another plugin has already cancelled this event (or, forceLoaded this
+        // chunk in 1.14), there's no need to interfere.
         if (isChunkUnloadCancelled(event))
             return;
 
-        // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
-        plugin.getCommander().getBlockMovers()
-              .filter(BM -> BM.getDoor().chunkInRange(event.getChunk()))
-              .forEach(BM -> BM.getDoor().setCanGo(false));
+        // Abort all currently active BlockMovers that (might) interact with the chunk
+        // that is being unloaded.
+        plugin.getCommander().getBlockMovers().filter(BM -> BM.getDoor().chunkInRange(event.getChunk()))
+            .forEach(BM -> BM.getDoor().setCanGo(false));
     }
 
     private boolean isChunkUnloadCancelled(ChunkUnloadEvent event)
@@ -86,7 +90,8 @@ public class ChunkUnloadHandler implements Listener
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
-            plugin.getMyLogger().logMessage("Serious error encountered! Unloading chunks with active doors IS UNSAFE!", true, true);
+            plugin.getMyLogger().logMessage("Serious error encountered! Unloading chunks with active doors IS UNSAFE!",
+                                            true, true);
             plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
             e.printStackTrace();
             return false;
