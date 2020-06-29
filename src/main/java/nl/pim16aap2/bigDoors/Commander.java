@@ -132,13 +132,7 @@ public class Commander
         try
         {
             long doorUID = Long.parseLong(doorStr);
-            if (player == null)
-                return db.getDoor(null, doorUID);
-
-            Door ret = db.getDoor(player.getUniqueId(), doorUID);
-            if (ret == null)
-                return db.getDoor(null, doorUID);
-            return ret;
+            return db.getDoor(player == null ? null : player.getUniqueId(), doorUID);
         }
         // If it can't convert to a long, get all doors from the player with the
         // provided name.

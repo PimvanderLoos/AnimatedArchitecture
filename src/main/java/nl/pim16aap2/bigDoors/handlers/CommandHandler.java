@@ -85,7 +85,7 @@ public class CommandHandler implements CommandExecutor
         Player player = sender instanceof Player ? (Player) sender : null;
         // Get a new instance of the door to make sure the locked / unlocked status is
         // recent.
-        Door newDoor = plugin.getCommander().getDoor(Long.toString(door.getDoorUID()), player);
+        Door newDoor = plugin.getCommander().getDoor(player.getUniqueId(), door.getDoorUID());
 
         if (newDoor == null)
         {

@@ -127,7 +127,7 @@ public class ConfigLoader
                                              + RESOURCEPACKS.get(MCVersion.v1_11) + "\'",
                                          "The resource pack for 1.13.x/1.14.x is: \'"
                                              + RESOURCEPACKS.get(MCVersion.v1_13) + "\'",
-                                         "The resource pack for 1.15.x is:        \'"
+                                         "The resource pack for 1.15.x/1.16.x is:        \'"
                                              + RESOURCEPACKS.get(MCVersion.v1_15) + "\'" };
         String[] multiplierComment = { "These multipliers affect the opening/closing speed of their respective door types.",
                                        "Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
