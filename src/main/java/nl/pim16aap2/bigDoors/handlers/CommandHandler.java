@@ -82,10 +82,10 @@ public class CommandHandler implements CommandExecutor
             return;
         }
 
-        Player player = sender instanceof Player ? (Player) sender : null;
         // Get a new instance of the door to make sure the locked / unlocked status is
         // recent.
-        Door newDoor = plugin.getCommander().getDoor(player.getUniqueId(), door.getDoorUID());
+        Door newDoor = plugin.getCommander().getDoor(sender instanceof Player ? ((Player) sender).getUniqueId() : null,
+                                                     door.getDoorUID());
 
         if (newDoor == null)
         {
@@ -496,7 +496,6 @@ public class CommandHandler implements CommandExecutor
                     return true;
                 }
                 // TODO: Print help menu!
-                Util.broadcastMessage("FAIL");
                 return true;
 
             case "removeowner":
