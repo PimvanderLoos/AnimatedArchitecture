@@ -1,5 +1,8 @@
-Alpha 0.1.8.20
+Alpha 0.1.8.21
 - 
+
+Alpha 0.1.8.20
+- Fixed NPE when trying to open/close/toggle doors as a non-player. Thanks, @SlimeDog, for the bug report!
 
 Alpha 0.1.8.19
 - Added initial support for version 1.16 of minecraft.
