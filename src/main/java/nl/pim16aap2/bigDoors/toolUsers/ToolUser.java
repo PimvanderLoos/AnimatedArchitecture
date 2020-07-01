@@ -77,7 +77,8 @@ public abstract class ToolUser extends Abortable
             Location powerB = new Location(world, this.engine.getBlockX(), this.engine.getBlockY() - 1,
                                            this.engine.getBlockZ());
 
-            String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), player.getName(), min, max);
+            String canBreakBlock = plugin.canBreakBlocksBetweenLocs(player.getUniqueId(), player.getName(), 
+                                                                    world, min, max);
             if (canBreakBlock != null)
             {
                 Util.messagePlayer(player,

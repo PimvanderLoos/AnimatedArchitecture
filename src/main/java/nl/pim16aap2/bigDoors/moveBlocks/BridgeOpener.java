@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.moveBlocks;
 
+import java.util.Optional;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
@@ -39,26 +40,31 @@ public class BridgeOpener implements Opener
         }
     }
 
+    private DoorDirection getOpposite(final DoorDirection curDir)
+    {
+        switch (curDir)
+        {
+        case EAST:
+            return DoorDirection.WEST;
+        case NORTH:
+            return DoorDirection.SOUTH;
+        case SOUTH:
+            return DoorDirection.NORTH;
+        case WEST:
+            return DoorDirection.EAST;
+        }
+        throw new IllegalArgumentException("Unable to get opposite direction of: " + curDir.name());
+    }
+
     @Override
     public boolean isRotateDirectionValid(Door door)
     {
-        if (door.getOpenDir().equals(RotateDirection.NONE) || door.getOpenDir().equals(RotateDirection.CLOCKWISE) ||
-            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) ||
-            door.getOpenDir().equals(RotateDirection.UP) || door.getOpenDir().equals(RotateDirection.DOWN))
-            return false;
-
-        // When the rotation point is positioned on the NORTH/SOUTH axis,
-        // the engine must be either on the EAST or the WEST side.
-        boolean NS = door.getEngSide().equals(DoorDirection.EAST) || door.getEngSide().equals(DoorDirection.WEST);
-        boolean north = door.getOpenDir().equals(RotateDirection.NORTH);
-        boolean east = door.getOpenDir().equals(RotateDirection.EAST);
-        boolean south = door.getOpenDir().equals(RotateDirection.SOUTH);
-        boolean west = door.getOpenDir().equals(RotateDirection.WEST);
-
         // When rotation point is positioned along the NORTH/SOUTH axis, it can only
-        // rotate
-        // EAST or WEST. Or the other way round.
-        return ((NS && east) || (NS && west)) || ((!NS && north) || (!NS && south));
+        // rotate EAST or WEST. Or the other way round.
+        boolean NS = door.getEngSide().equals(DoorDirection.EAST) || door.getEngSide().equals(DoorDirection.WEST);
+        if (NS)
+            return door.getOpenDir().equals(RotateDirection.EAST) || door.getOpenDir().equals(RotateDirection.WEST);
+        return door.getOpenDir().equals(RotateDirection.NORTH) || door.getOpenDir().equals(RotateDirection.SOUTH);
     }
 
     @Override
@@ -202,7 +208,7 @@ public class BridgeOpener implements Opener
 
     private DoorDirection getShadowDirection(Door door)
     {
-        if (door.getOpenDir() == null || door.getOpenDir().equals(RotateDirection.NONE))
+        if (door.getOpenDir() == null)
             return null;
 
         RotateDirection upDown = getUpDown(door);
@@ -210,16 +216,33 @@ public class BridgeOpener implements Opener
         if (upDown == null || cDir == null)
             return null;
 
-        boolean NS = cDir == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
-
         if (upDown.equals(RotateDirection.UP))
             return door.getEngSide();
+
+        if (isRotateDirectionValid(door))
+        {
+            Optional<DoorDirection> newDir = Util.getDoorDirection(door.getOpenDir())
+                .map(dir -> door.isOpen() ? getOpposite(dir) : dir);
+            if (newDir.isPresent())
+                return newDir.get();
+        }
+
+        boolean NS = cDir == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
         if (door.getOpenDir().equals(RotateDirection.CLOCKWISE) && !door.isOpen() ||
             door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen())
             return NS ? DoorDirection.SOUTH : DoorDirection.EAST;
         if (door.getOpenDir().equals(RotateDirection.CLOCKWISE) && door.isOpen() ||
             door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
             return NS ? DoorDirection.NORTH : DoorDirection.WEST;
+
+        if (door.getOpenDir().equals(RotateDirection.NONE) && !door.isOpen())
+        {
+            if (NS)
+                return isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
+                    isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH : null;
+            return isNewPosFree(door, upDown, DoorDirection.WEST) ? DoorDirection.WEST :
+                isNewPosFree(door, upDown, DoorDirection.EAST) ? DoorDirection.EAST : null;
+        }
         return null;
     }
 
@@ -227,25 +250,10 @@ public class BridgeOpener implements Opener
     private DoorDirection getOpenDirection(Door door)
     {
         RotateDirection upDown = getUpDown(door);
-        DoorDirection cDir = getCurrentDirection(door);
-        boolean NS = cDir == DoorDirection.NORTH || cDir == DoorDirection.SOUTH;
-
-        if (upDown.equals(RotateDirection.UP))
-            return isNewPosFree(door, upDown, door.getEngSide()) ? door.getEngSide() : null;
-
-        if (door.getOpenDir().equals(RotateDirection.CLOCKWISE) && !door.isOpen() ||
-            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen())
-            return NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH :
-                !NS && isNewPosFree(door, upDown, DoorDirection.EAST) ? DoorDirection.EAST : null;
-        if (door.getOpenDir().equals(RotateDirection.CLOCKWISE) && door.isOpen() ||
-            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
-            return NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
-                !NS && isNewPosFree(door, upDown, DoorDirection.WEST) ? DoorDirection.WEST : null;
-
-        return NS && isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
-            !NS && isNewPosFree(door, upDown, DoorDirection.EAST) ? DoorDirection.EAST :
-            NS && isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH :
-            !NS && isNewPosFree(door, upDown, DoorDirection.WEST) ? DoorDirection.WEST : null;
+        DoorDirection openDir = getShadowDirection(door);
+        if (upDown == null || openDir == null)
+            return null;
+        return isNewPosFree(door, upDown, openDir) ? openDir : null;
     }
 
     // Get the "current direction". In this context this means on which side of the
@@ -354,7 +362,7 @@ public class BridgeOpener implements Opener
             }
 
             plugin.getMyLogger().logMessage(
-                                            "Updating openDirection of sliding door " + door.getName() + " to "
+                                            "Updating openDirection of drawbridge " + door.getName() + " to "
                                                 + newRotDir.name() + ". If this is undesired, change it via the GUI.",
                                             true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDir);
@@ -372,8 +380,10 @@ public class BridgeOpener implements Opener
 
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getNewMin(), door.getNewMax()) != null ||
-            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getMinimum(), door.getMinimum()) != null)
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
+                                             door.getNewMin(), door.getNewMax()) != null ||
+            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
+                                             door.getMinimum(), door.getMinimum()) != null)
             return DoorOpenResult.NOPERMISSION;
 
         if (fireDoorEventTogglePrepare(door, instantOpen))

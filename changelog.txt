@@ -1,5 +1,5 @@
 Alpha 0.1.8.21
-- 
+- Fixed drawbridges not respecting the defined OpenDirection value. Thanks, @Death By, for the bug report!
 
 Alpha 0.1.8.20
 - Fixed NPE when trying to open/close/toggle doors as a non-player. Thanks, @SlimeDog, for the bug report!

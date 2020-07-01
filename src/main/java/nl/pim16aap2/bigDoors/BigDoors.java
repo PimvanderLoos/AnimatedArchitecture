@@ -12,6 +12,7 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -297,9 +298,10 @@ public class BigDoors extends JavaPlugin implements Listener
         return protCompatMan.canBreakBlock(playerUUID, playerName, loc);
     }
 
-    public String canBreakBlocksBetweenLocs(UUID playerUUID, String playerName, Location loc1, Location loc2)
+    public String canBreakBlocksBetweenLocs(UUID playerUUID, String playerName, World world, Location loc1,
+                                            Location loc2)
     {
-        return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, playerName, loc1, loc2);
+        return protCompatMan.canBreakBlocksBetweenLocs(playerUUID, playerName, world, loc1, loc2);
     }
 
     public void restart()
@@ -680,7 +682,6 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         Opener opener = getDoorOpener(door.getType());
         return opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(door, time, instantOpen);
-//        return getDoorOpener(door.getType()).openDoor(door, time, instantOpen, false);
     }
 
     // Toggle a door from a doorUID and instantly or not.

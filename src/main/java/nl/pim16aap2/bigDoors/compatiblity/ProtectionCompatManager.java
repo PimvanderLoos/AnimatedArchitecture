@@ -76,19 +76,19 @@ public class ProtectionCompatManager implements Listener
     }
 
     /**
-     * Circuitous way of checking if an offline player has a given permission in a given
-     * world or not.
+     * Circuitous way of checking if an offline player has a given permission in a
+     * given world or not.
      *
      * @param oPlayer The offline player to check.
-     * @param world The world to check the permission in.
+     * @param world   The world to check the permission in.
      * @return The if the player has the bypass permission node in this world.
      */
     private boolean offlinePlayerHasPermission(OfflinePlayer oPlayer, String world)
     {
         try
         {
-            CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(
-                    () -> plugin.getVaultManager().hasPermission(oPlayer, BYPASSPERMISSION, world));
+            CompletableFuture<Boolean> future = CompletableFuture
+                .supplyAsync(() -> plugin.getVaultManager().hasPermission(oPlayer, BYPASSPERMISSION, world));
 
             return future.get();
         }
@@ -104,7 +104,8 @@ public class ProtectionCompatManager implements Listener
      * player with the given UUID is not online, a fake-online player is created.
      *
      * @param playerUUID The {@link UUID} of the player to get.
-     * @param playerName The name of the player. Used in case the player isn't online.
+     * @param playerName The name of the player. Used in case the player isn't
+     *                   online.
      * @param world      The {@link World} the player is in.
      * @return An online {@link Player}. Either fake or real.
      * @see FakePlayerCreator
@@ -121,7 +122,8 @@ public class ProtectionCompatManager implements Listener
      * Check if a player can break a block at a given location.
      *
      * @param playerUUID The {@link UUID} of the player to check for.
-     * @param playerName The name of the player. Used in case the player isn't online.
+     * @param playerName The name of the player. Used in case the player isn't
+     *                   online.
      * @param loc        The {@link Location} to check.
      * @return The name of the {@link IProtectionCompat} that objects, if any, or
      *         null if allowed by all compats.
@@ -143,7 +145,8 @@ public class ProtectionCompatManager implements Listener
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
+                plugin.getMyLogger()
+                    .warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
                 e.printStackTrace();
                 plugin.getMyLogger().logMessageToLogFile(compat.getName() + "\n" + Util.exceptionToString(e));
             }
@@ -154,23 +157,25 @@ public class ProtectionCompatManager implements Listener
      * Check if a player can break all blocks between two locations.
      *
      * @param playerUUID The {@link UUID} of the player to check for.
-     * @param playerName The name of the player. Used in case the player isn't online.
+     * @param playerName The name of the player. Used in case the player isn't
+     *                   online.
      * @param loc1       The start {@link Location} to check.
      * @param loc2       The end {@link Location} to check.
      * @return The name of the {@link IProtectionCompat} that objects, if any, or
      *         null if allowed by all compats.
      */
-    public String canBreakBlocksBetweenLocs(UUID playerUUID, String playerName, Location loc1, Location loc2)
+    public String canBreakBlocksBetweenLocs(UUID playerUUID, String playerName, World world, Location loc1,
+                                            Location loc2)
     {
         if (protectionCompats.isEmpty())
             return null;
 
-        if (!loc1.getWorld().equals(loc2.getWorld()))
-            return null;
-
-        Player fakePlayer = getPlayer(playerUUID, playerName, loc1.getWorld());
+        Player fakePlayer = getPlayer(playerUUID, playerName, world);
         if (canByPass(fakePlayer))
             return null;
+
+        loc1.setWorld(world);
+        loc2.setWorld(world);
 
         for (IProtectionCompat compat : protectionCompats)
             try
@@ -180,7 +185,8 @@ public class ProtectionCompatManager implements Listener
             }
             catch (Exception e)
             {
-                plugin.getMyLogger().warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
+                plugin.getMyLogger()
+                    .warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
                 e.printStackTrace();
                 plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
             }
@@ -250,8 +256,9 @@ public class ProtectionCompatManager implements Listener
 
             if (compatClass == null)
             {
-                plugin.getMyLogger().logMessage("Could not find compatibility class for: \"" + ProtectionCompat.getName(compat) + "\". "
-                    + "This most likely means that this version is not supported!", true, false);
+                plugin.getMyLogger()
+                    .logMessage("Could not find compatibility class for: \"" + ProtectionCompat.getName(compat) + "\". "
+                        + "This most likely means that this version is not supported!", true, false);
                 return;
             }
 
@@ -263,10 +270,10 @@ public class ProtectionCompatManager implements Listener
         }
         catch (NoClassDefFoundError e)
         {
-            plugin.getMyLogger().logMessageToConsole("NoClassDefFoundError: "
-                    + "Failed to initialize \"" + compatName + "\" compatibility hook!");
-            plugin.getMyLogger().logMessageToConsole(
-                    "Now resuming normal startup with \"" + compatName + "\" Compatibility Hook disabled!");
+            plugin.getMyLogger().logMessageToConsole("NoClassDefFoundError: " + "Failed to initialize \"" + compatName
+                + "\" compatibility hook!");
+            plugin.getMyLogger().logMessageToConsole("Now resuming normal startup with \"" + compatName
+                + "\" Compatibility Hook disabled!");
         }
         catch (NullPointerException e)
         {
@@ -274,10 +281,9 @@ public class ProtectionCompatManager implements Listener
         }
         catch (Exception e)
         {
-            plugin.getMyLogger().logMessageToConsole(
-                    "Failed to initialize \"" + compatName + "\" compatibility hook!");
-            plugin.getMyLogger().logMessageToConsole(
-                    "Now resuming normal startup with \"" + compatName + "\" Compatibility Hook disabled!");
+            plugin.getMyLogger().logMessageToConsole("Failed to initialize \"" + compatName + "\" compatibility hook!");
+            plugin.getMyLogger().logMessageToConsole("Now resuming normal startup with \"" + compatName
+                + "\" Compatibility Hook disabled!");
             plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
         }
     }

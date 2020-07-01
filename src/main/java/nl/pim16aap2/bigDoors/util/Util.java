@@ -3,7 +3,10 @@ package nl.pim16aap2.bigDoors.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.SecureRandom;
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -24,6 +27,26 @@ public final class Util
 {
     private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
     private static final Set<Material> BLACKLIST = EnumSet.noneOf(Material.class);
+    private static final Map<DoorDirection, RotateDirection> doorDirectionMapper = new EnumMap<>(DoorDirection.class);
+    private static final Map<RotateDirection, DoorDirection> rotateDirectionMapper = new EnumMap<>(RotateDirection.class);
+    static
+    {
+        doorDirectionMapper.put(DoorDirection.NORTH, RotateDirection.NORTH);
+        doorDirectionMapper.put(DoorDirection.EAST, RotateDirection.EAST);
+        doorDirectionMapper.put(DoorDirection.SOUTH, RotateDirection.SOUTH);
+        doorDirectionMapper.put(DoorDirection.WEST, RotateDirection.WEST);
+
+        rotateDirectionMapper.put(RotateDirection.NORTH, DoorDirection.NORTH);
+        rotateDirectionMapper.put(RotateDirection.EAST, DoorDirection.EAST);
+        rotateDirectionMapper.put(RotateDirection.SOUTH, DoorDirection.SOUTH);
+        rotateDirectionMapper.put(RotateDirection.WEST, DoorDirection.WEST);
+    }
+
+    private Util()
+    {
+        // STAY OUT!
+        throw new IllegalAccessError();
+    }
 
     public static void processConfig(ConfigLoader configLoader)
     {
@@ -43,6 +66,16 @@ public final class Util
             if (!Util.isAllowedBlockBackDoor(mat))
                 BLACKLIST.add(mat);
         }
+    }
+
+    public static Optional<DoorDirection> getDoorDirection(RotateDirection rot)
+    {
+        return Optional.ofNullable(rot == null ? null : rotateDirectionMapper.get(rot));
+    }
+
+    public static Optional<RotateDirection> getRotateDirection(DoorDirection dir)
+    {
+        return Optional.ofNullable(dir == null ? null : doorDirectionMapper.get(dir));
     }
 
     // Send a message to a player in a specific color.
