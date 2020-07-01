@@ -968,31 +968,30 @@ public class CommandHandler implements CommandExecutor
 
     public void delDoor(Player player, String doorName)
     {
-        long doorUID = 0;
+        long doorUID = -1;
         try
         {
             doorUID = Long.parseLong(doorName);
         }
         catch (NumberFormatException e)
         {
-        }
-
-        long doorCount = countDoors(player, doorName);
-        if (doorCount == 0)
-        {
-            Util.messagePlayer(player, ChatColor.RED, "No door found by that name!");
-            return;
-        }
-        else if (doorCount == 1)
-        {
-            doorUID = plugin.getCommander().getDoor(doorName, player).getDoorUID();
-        }
-        else
-        {
-            Util.messagePlayer(player, ChatColor.RED,
-                               "More than one door found with that name! Please use their ID instead:");
-            listDoors(player, doorName);
-            return;
+            long doorCount = countDoors(player, doorName);
+            if (doorCount == 0)
+            {
+                Util.messagePlayer(player, ChatColor.RED, "No door found by that name!");
+                return;
+            }
+            else if (doorCount == 1)
+            {
+                doorUID = plugin.getCommander().getDoor(doorName, player).getDoorUID();
+            }
+            else
+            {
+                Util.messagePlayer(player, ChatColor.RED,
+                                   "More than one door found with that name! Please use their ID instead:");
+                listDoors(player, doorName);
+                return;
+            }
         }
 
         if (plugin.getCommander().removeDoor(player, doorUID))
