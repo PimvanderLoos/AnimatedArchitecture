@@ -676,9 +676,11 @@ public class BigDoors extends JavaPlugin implements Listener
      */
 
     // (Instantly?) Toggle a door with a given time.
-    private DoorOpenResult toggleDoor(Door door, double time, boolean instantOpen)
+    public DoorOpenResult toggleDoor(Door door, double time, boolean instantOpen)
     {
-        return getDoorOpener(door.getType()).openDoor(door, time, instantOpen, false);
+        Opener opener = getDoorOpener(door.getType());
+        return opener == null ? DoorOpenResult.TYPEDISABLED : opener.openDoor(door, time, instantOpen);
+//        return getDoorOpener(door.getType()).openDoor(door, time, instantOpen, false);
     }
 
     // Toggle a door from a doorUID and instantly or not.
