@@ -58,15 +58,15 @@ public class PortcullisOpener implements Opener
     @Override
     public DoorOpenResult shadowToggle(Door door)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
+            return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
         if (door.getOpenDir().equals(RotateDirection.NONE))
         {
             plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
-            return DoorOpenResult.NODIRECTION;
+            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
 
         // For the blocks to shadow move the door, prefer to use the BTM variable, but
@@ -90,18 +90,18 @@ public class PortcullisOpener implements Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
                 plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
+            return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         if (!chunksLoaded(door))
         {
             plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         // Make sure the doorSize does not exceed the total doorSize.
@@ -111,18 +111,18 @@ public class PortcullisOpener implements Opener
         {
             plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         int blocksToMove = getBlocksToMove(door);
 
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), 
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
                                              door.getNewMin(), door.getNewMax()) != null ||
-            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), 
+            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
                                              door.getMinimum(), door.getMinimum()) != null)
-            return DoorOpenResult.NOPERMISSION;
+            return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (blocksToMove != 0)
         {
@@ -137,11 +137,8 @@ public class PortcullisOpener implements Opener
             }
 
             if (fireDoorEventTogglePrepare(door, instantOpen))
-                return DoorOpenResult.CANCELLED;
+                return abort(DoorOpenResult.CANCELLED, door.getDoorUID());
 
-            // Change door availability so it cannot be opened again (just temporarily,
-            // don't worry!).
-            plugin.getCommander().setDoorBusy(door.getDoorUID());
             plugin.getCommander()
                 .addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
                                                  plugin.getConfigLoader().pcMultiplier()));

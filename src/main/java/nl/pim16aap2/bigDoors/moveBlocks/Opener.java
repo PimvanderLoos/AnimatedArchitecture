@@ -25,6 +25,14 @@ public interface Opener
 
     public DoorOpenResult shadowToggle(Door door);
 
+    default DoorOpenResult abort(DoorOpenResult reason, long doorUID)
+    {
+        // If the door was busy, this new attempt should leave that alone.
+        if (reason != DoorOpenResult.BUSY)
+            BigDoors.get().getCommander().setDoorAvailable(doorUID);
+        return reason;
+    }
+
     RotateDirection getRotateDirection(Door door);
 
     boolean isRotateDirectionValid(Door door);

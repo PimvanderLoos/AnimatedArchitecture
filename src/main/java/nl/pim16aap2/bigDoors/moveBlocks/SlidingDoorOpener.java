@@ -78,18 +78,18 @@ public class SlidingDoorOpener implements Opener
     @Override
     public DoorOpenResult shadowToggle(Door door)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             plugin.getMyLogger().myLogger(Level.INFO,
                                           "Sliding door " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
+            return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         RotateDirection openDirection = door.getOpenDir();
         if (door.getOpenDir().equals(RotateDirection.NONE) || openDirection == null)
         {
             plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
-            return DoorOpenResult.NODIRECTION;
+            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
 
         boolean NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
@@ -149,18 +149,18 @@ public class SlidingDoorOpener implements Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
                 plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
+            return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         if (!chunksLoaded(door))
         {
             plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         // Make sure the doorSize does not exceed the total doorSize.
@@ -170,7 +170,7 @@ public class SlidingDoorOpener implements Opener
         {
             plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         MovementSpecification blocksToMove = getBlocksToMove(door);
@@ -201,18 +201,15 @@ public class SlidingDoorOpener implements Opener
 
             // The door's owner does not have permission to move the door into the new
             // position (e.g. worldguard doens't allow it.
-            if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), 
-                                                 newMin, newMax) != null ||
-                plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), 
+            if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), newMin,
+                                                 newMax) != null ||
+                plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
                                                  door.getMinimum(), door.getMinimum()) != null)
-                return DoorOpenResult.NOPERMISSION;
+                return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
             if (fireDoorEventTogglePrepare(door, instantOpen))
-                return DoorOpenResult.CANCELLED;
+                return abort(DoorOpenResult.CANCELLED, door.getDoorUID());
 
-            // Change door availability so it cannot be opened again (just temporarily,
-            // don't worry!).
-            plugin.getCommander().setDoorBusy(door.getDoorUID());
             plugin.getCommander()
                 .addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen,
                                                 blocksToMove.getBlocks(), blocksToMove.getRotateDirection(),

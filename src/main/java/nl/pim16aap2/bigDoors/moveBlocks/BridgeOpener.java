@@ -284,17 +284,17 @@ public class BridgeOpener implements Opener
     @Override
     public DoorOpenResult shadowToggle(Door door)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
+            return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
         DoorDirection openDirection = getShadowDirection(door);
         final RotateDirection upDown = getUpDown(door);
         if (door.getOpenDir().equals(RotateDirection.NONE) || openDirection == null || upDown == null)
         {
             plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
-            return DoorOpenResult.NODIRECTION;
+            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
         BridgeMover.updateCoords(door, openDirection, upDown, 0, true);
         return DoorOpenResult.SUCCESS;
@@ -309,18 +309,18 @@ public class BridgeOpener implements Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
                 plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
+            return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         if (!chunksLoaded(door))
         {
             plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for bridge " + door.getName() + " is not loaded!",
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         DoorDirection currentDirection = getCurrentDirection(door);
@@ -329,7 +329,7 @@ public class BridgeOpener implements Opener
             plugin.getMyLogger()
                 .logMessage("Current direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!",
                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         RotateDirection upDown = getUpDown(door);
@@ -338,7 +338,7 @@ public class BridgeOpener implements Opener
             plugin.getMyLogger()
                 .logMessage("UpDown direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!",
                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         DoorDirection openDirection = getOpenDirection(door);
@@ -346,7 +346,7 @@ public class BridgeOpener implements Opener
         {
             plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.getName() + " ("
                 + door.getDoorUID() + ")!", true, false);
-            return DoorOpenResult.NODIRECTION;
+            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
         if (!isRotateDirectionValid(door))
         {
@@ -375,7 +375,7 @@ public class BridgeOpener implements Opener
         {
             plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         // The door's owner does not have permission to move the door into the new
@@ -384,14 +384,11 @@ public class BridgeOpener implements Opener
                                              door.getNewMin(), door.getNewMax()) != null ||
             plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
                                              door.getMinimum(), door.getMinimum()) != null)
-            return DoorOpenResult.NOPERMISSION;
+            return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (fireDoorEventTogglePrepare(door, instantOpen))
-            return DoorOpenResult.CANCELLED;
+            return abort(DoorOpenResult.CANCELLED, door.getDoorUID());
 
-        // Change door availability so it cannot be opened again (just temporarily,
-        // don't worry!).
-        plugin.getCommander().setDoorBusy(door.getDoorUID());
         plugin.getCommander().addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection,
                                                             instantOpen, plugin.getConfigLoader().dbMultiplier()));
         fireDoorEventToggleStart(door, instantOpen);

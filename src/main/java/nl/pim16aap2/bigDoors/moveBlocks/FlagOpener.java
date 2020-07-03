@@ -69,18 +69,18 @@ public class FlagOpener implements Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
                 plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
+            return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         if (!chunksLoaded(door))
         {
             plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         // Make sure the doorSize does not exceed the total doorSize.
@@ -90,14 +90,14 @@ public class FlagOpener implements Opener
         {
             plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), 
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
                                              door.getMinimum(), door.getMinimum()) != null)
-            return DoorOpenResult.NOPERMISSION;
+            return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (!isRotateDirectionValid(door))
         {

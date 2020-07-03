@@ -214,17 +214,17 @@ public class DoorOpener implements Opener
     @Override
     public DoorOpenResult shadowToggle(Door door)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
+            return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
         DoorDirection currentDirection = getCurrentDirection(door);
         RotateDirection rotDirection = getShadowRotationDirection(door, currentDirection);
         if (door.getOpenDir().equals(RotateDirection.NONE) || currentDirection == null || rotDirection == null)
         {
             plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
-            return DoorOpenResult.NODIRECTION;
+            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
         CylindricalMover.updateCoords(door, currentDirection, rotDirection, 0, true);
 
@@ -241,18 +241,18 @@ public class DoorOpener implements Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        if (plugin.getCommander().isDoorBusy(door.getDoorUID()))
+        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
                 plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
-            return DoorOpenResult.BUSY;
+            return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         if (!chunksLoaded(door))
         {
             plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         DoorDirection currentDirection = getCurrentDirection(door);
@@ -261,7 +261,7 @@ public class DoorOpener implements Opener
             plugin.getMyLogger()
                 .logMessage("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!",
                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         RotateDirection rotDirection = getRotationDirection(door, currentDirection);
@@ -270,7 +270,7 @@ public class DoorOpener implements Opener
             plugin.getMyLogger()
                 .logMessage("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!",
                             true, false);
-            return DoorOpenResult.NODIRECTION;
+            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
 
         if (!isRotateDirectionValid(door))
@@ -317,23 +317,20 @@ public class DoorOpener implements Opener
         {
             plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
                                             true, false);
-            return DoorOpenResult.ERROR;
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), 
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
                                              door.getNewMin(), door.getNewMax()) != null ||
-            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), 
+            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
                                              door.getMinimum(), door.getMinimum()) != null)
-            return DoorOpenResult.NOPERMISSION;
+            return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (fireDoorEventTogglePrepare(door, instantOpen))
-            return DoorOpenResult.CANCELLED;
+            return abort(DoorOpenResult.CANCELLED, door.getDoorUID());
 
-        // Change door availability so it cannot be opened again (just temporarily,
-        // don't worry!).
-        plugin.getCommander().setDoorBusy(door.getDoorUID());
         plugin.getCommander()
             .addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint,
                                                 currentDirection, door, instantOpen,

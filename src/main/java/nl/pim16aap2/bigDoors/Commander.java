@@ -48,12 +48,6 @@ public class Commander
         db.prepareForV2();
     }
 
-    // Check if a door is busy
-    public boolean isDoorBusy(long doorUID)
-    {
-        return busyDoors.containsKey(doorUID);
-    }
-
     public void emptyBusyDoors()
     {
         busyDoors.clear();
@@ -64,10 +58,31 @@ public class Commander
         busyDoors.forEach((K, V) -> V.putBlocks(true));
     }
 
-    // Change the busy-status of a door.
-    public void setDoorBusy(long doorUID)
+    // Check if a door is busy
+    public boolean isDoorBusy(long doorUID)
     {
-        busyDoors.put(doorUID, DUMMYMOVER);
+        return busyDoors.containsKey(doorUID);
+    }
+
+    /**
+     * Checks if a door is currently busy. If it is not, it will be registered as
+     * such using a placeholder.
+     *
+     * @param doorUID The UID of the door to check and potentially register as busy.
+     * @return True if the door is already busy and therefore not registered as
+     *         such.
+     */
+    public boolean isDoorBusyRegisterIfNot(long doorUID)
+    {
+        // putIfAbsent returns the result of ConcurrentHashMap#put(key, value)
+        // if the key did not exist in the map yet. Otherwise, it returns the
+        // mapping of the key.
+        // Likewise, the result of #put returns the previous mapping of the
+        // key if that existed, and null otherwise.
+        // Combined with the fact that null cannot be used as key or as value,
+        // a return result of null means that the key was not yet in the
+        // list (but is now).
+        return busyDoors.putIfAbsent(doorUID, DUMMYMOVER) != null;
     }
 
     // Set the availability of the door.
