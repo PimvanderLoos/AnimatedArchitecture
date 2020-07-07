@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.pim16aap2</groupId>
     <artifactId>BigDoors</artifactId>
-    <version>0.1.8.21-ALPHA</version>
+    <version>0.1.8.22-ALPHA</version>
 
     <repositories>
         <repository>

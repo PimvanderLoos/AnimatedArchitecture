@@ -1,4 +1,7 @@
+Alpha 0.1.8.22
+
 Alpha 0.1.8.21
+- Fixed concurrency issue where a door could be toggled more than once under specific circumstances.
 - Fixed drawbridges not respecting the defined OpenDirection value. Thanks, @Death By, for the bug report!
 - Fixed being unable to delete any doors as a player when using the door's UID.
 
