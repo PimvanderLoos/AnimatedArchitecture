@@ -280,7 +280,7 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             logger.myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
             if (metrics == null)
-                metrics = new Metrics(this);
+                metrics = new Metrics(this, 2887);
         }
         else
         {

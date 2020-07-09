@@ -1,5 +1,7 @@
 Alpha 0.1.8.22
+- Abort initialization in certain invalid environments.
 - Added information about why a command failed if the plugin failed to initialize properly.
+- Updated bStats.
 
 Alpha 0.1.8.21
 - Fixed concurrency issue where a door could be toggled more than once under specific circumstances.
