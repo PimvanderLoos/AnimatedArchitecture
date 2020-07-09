@@ -215,8 +215,9 @@ public class SlidingDoorOpener implements Opener
                                                 blocksToMove.getBlocks(), blocksToMove.getRotateDirection(),
                                                 plugin.getConfigLoader().sdMultiplier()));
             fireDoorEventToggleStart(door, instantOpen);
+            return DoorOpenResult.SUCCESS;
         }
-        return DoorOpenResult.SUCCESS;
+        return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
     }
 
     private int getBlocksInDir(Door door, RotateDirection slideDir)

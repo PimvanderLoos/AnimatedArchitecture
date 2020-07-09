@@ -146,8 +146,9 @@ public class ElevatorOpener implements Opener
                 .addBlockMover(new VerticalMover(plugin, door.getWorld(), time, door, instantOpen, blocksToMove,
                                                  plugin.getConfigLoader().elMultiplier()));
             fireDoorEventToggleStart(door, instantOpen);
+            return DoorOpenResult.SUCCESS;
         }
-        return DoorOpenResult.SUCCESS;
+        return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
     }
 
     private int getBlocksInDir(Door door, RotateDirection upDown)
