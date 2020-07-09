@@ -67,7 +67,7 @@ public class MyLogger
             myLogger(level, msg);
 
         // Don't write stuff to the logfile if this is disabled in the config.
-        if (!plugin.getConfigLoader().enableFileLogging())
+        if (plugin.getConfigLoader() != null && !plugin.getConfigLoader().enableFileLogging())
             return;
 
         try

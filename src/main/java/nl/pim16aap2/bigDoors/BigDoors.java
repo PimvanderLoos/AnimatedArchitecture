@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -41,6 +42,7 @@ import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.ChunkUnloadHandler;
 import nl.pim16aap2.bigDoors.handlers.CommandHandler;
 import nl.pim16aap2.bigDoors.handlers.EventHandlers;
+import nl.pim16aap2.bigDoors.handlers.FailureCommandHandler;
 import nl.pim16aap2.bigDoors.handlers.GUIHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginResourcePackHandler;
@@ -91,6 +93,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private DoorOpener doorOpener;
     private BridgeOpener bridgeOpener;
     private CommandHandler commandHandler;
+    private FailureCommandHandler failureCommandHandler;
     private SlidingDoorOpener slidingDoorOpener;
     private PortcullisOpener portcullisOpener;
     private RedstoneHandler redstoneHandler;
@@ -124,6 +127,15 @@ public class BigDoors extends JavaPlugin implements Listener
         buildNumber = readBuildNumber();
         overrideVersion();
 
+        // Don't use GeyserMC
+        if (getServer().getPluginManager().getPlugin("Geyser-Spigot") != null)
+        {
+            logger.logMessage("It appears you're trying to load this plugin with GeyserMC installed! "
+                + "This is not supported and this plugin will disable itself!", true, true);
+            setDisabled("This plugin is disabled because geyserMC is not supported!");
+            return;
+        }
+
         try
         {
             readConfigValues();
@@ -131,6 +143,7 @@ public class BigDoors extends JavaPlugin implements Listener
         catch (Exception e)
         {
             logger.logMessageToConsoleOnly("Failed to read config file. Plugin disabled!");
+            setDisabled("This plugin is disabled because it failed to read config file!");
             return;
         }
 
@@ -151,6 +164,7 @@ public class BigDoors extends JavaPlugin implements Listener
                 logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! (\""
                     + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3])
                     + "\"). This plugin will NOT be enabled!", true, true);
+                setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date?");
                 return;
             }
 
@@ -180,30 +194,7 @@ public class BigDoors extends JavaPlugin implements Listener
             portcullisOpener = new PortcullisOpener(this);
             slidingDoorOpener = new SlidingDoorOpener(this);
 
-            registerCommand("recalculatepowerblocks");
-            registerCommand("killbigdoorsentities");
-            registerCommand("inspectpowerblockloc");
-            registerCommand("changepowerblockloc");
-            registerCommand("setautoclosetime");
-            registerCommand("shadowtoggledoor");
-            registerCommand("setdoorrotation");
-            registerCommand("setblockstomove");
-            registerCommand("newportcullis");
-            registerCommand("toggledoor");
-            registerCommand("pausedoors");
-            registerCommand("closedoor");
-            registerCommand("doordebug");
-            registerCommand("listdoors");
-            registerCommand("stopdoors");
-            registerCommand("bdcancel");
-            registerCommand("filldoor");
-            registerCommand("doorinfo");
-            registerCommand("opendoor");
-            registerCommand("nameDoor");
-            registerCommand("bigdoors");
-            registerCommand("newdoor");
-            registerCommand("deldoor");
-            registerCommand("bdm");
+            registerCommands(commandHandler);
 
             liveDevelopmentLoad();
         }
@@ -211,14 +202,44 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             exception.printStackTrace();
             logger.logMessage(Util.exceptionToString(exception), true, true);
+            setDisabled("This plugin is disabled because an unknown error occurred during startup, please check the logs!");
         }
 
         isEnabled = true;
     }
 
-    private void registerCommand(String command)
-    { // TODO: Don't register a billion new CommandHandlers here. It makes no sense.
-        getCommand(command).setExecutor(new CommandHandler(this));
+    private void registerCommands(CommandExecutor commandExecutor)
+    {
+        getCommand("recalculatepowerblocks").setExecutor(commandExecutor);
+        getCommand("killbigdoorsentities").setExecutor(commandExecutor);
+        getCommand("inspectpowerblockloc").setExecutor(commandExecutor);
+        getCommand("changepowerblockloc").setExecutor(commandExecutor);
+        getCommand("setautoclosetime").setExecutor(commandExecutor);
+        getCommand("shadowtoggledoor").setExecutor(commandExecutor);
+        getCommand("setdoorrotation").setExecutor(commandExecutor);
+        getCommand("setblockstomove").setExecutor(commandExecutor);
+        getCommand("newportcullis").setExecutor(commandExecutor);
+        getCommand("toggledoor").setExecutor(commandExecutor);
+        getCommand("pausedoors").setExecutor(commandExecutor);
+        getCommand("closedoor").setExecutor(commandExecutor);
+        getCommand("doordebug").setExecutor(commandExecutor);
+        getCommand("listdoors").setExecutor(commandExecutor);
+        getCommand("stopdoors").setExecutor(commandExecutor);
+        getCommand("bdcancel").setExecutor(commandExecutor);
+        getCommand("filldoor").setExecutor(commandExecutor);
+        getCommand("doorinfo").setExecutor(commandExecutor);
+        getCommand("opendoor").setExecutor(commandExecutor);
+        getCommand("nameDoor").setExecutor(commandExecutor);
+        getCommand("bigdoors").setExecutor(commandExecutor);
+        getCommand("newdoor").setExecutor(commandExecutor);
+        getCommand("deldoor").setExecutor(commandExecutor);
+        getCommand("bdm").setExecutor(commandExecutor);
+    }
+
+    private void setDisabled(String reason)
+    {
+        failureCommandHandler = new FailureCommandHandler(reason);
+        registerCommands(failureCommandHandler);
     }
 
     private void init()
@@ -369,6 +390,8 @@ public class BigDoors extends JavaPlugin implements Listener
             else if (updateManager.updateAvailable())
                 ret += "[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n";
         }
+        if (failureCommandHandler != null)
+            ret += "[BigDoors] " + failureCommandHandler.getError();
         return ret;
     }
 
@@ -630,7 +653,7 @@ public class BigDoors extends JavaPlugin implements Listener
         }
         else if (version.equals("v1_16_R1"))
         {
-            is1_13 = true; // Yeah, it's actually 1.15, but it still needs to use new stuff.
+            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
             fabf = new FallingBlockFactory_V1_16_R1();
             headManager = new SkullCreator_V1_16_R1(this);
         }

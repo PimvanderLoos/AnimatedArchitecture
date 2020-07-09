@@ -25,7 +25,10 @@ public class LoginMessageHandler implements Listener
         // Normally, only send to those with permission, so they can disable it.
         // But when it's a devbuild, also send it to everyone who's OP, to make it
         // a bit harder to get around the message.
-        if (player.hasPermission("bigdoors.admin") || player.isOp() && BigDoors.DEVBUILD)
+        // The "version" node is a bit random, but just "bigdoors.admin" wouldn't
+        // work and I don't really want to create a custom node.
+        // Because it's part of "bigdoors.admin.*", it'll suffice.
+        if (player.hasPermission("bigdoors.admin.version") || player.isOp() && BigDoors.DEVBUILD)
             // Slight delay so the player actually receives the message;
             new BukkitRunnable()
             {
