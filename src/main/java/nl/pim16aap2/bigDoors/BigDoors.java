@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -279,8 +280,7 @@ public class BigDoors extends JavaPlugin implements Listener
         if (config.allowStats())
         {
             logger.myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
-            if (metrics == null)
-                metrics = new Metrics(this, 2887);
+            setupMetrics();
         }
         else
         {
@@ -367,6 +367,29 @@ public class BigDoors extends JavaPlugin implements Listener
 
         toolUsers.clear();
         cmdWaiters.clear();
+    }
+
+    private void setupMetrics()
+    {
+        if (metrics != null)
+            return;
+
+        metrics = new Metrics(this, 2887);
+
+        metrics.addCustomChart(new Metrics.AdvancedPie("doors_per_type", () ->
+        {
+            DoorType[] doorTypes = DoorType.values();
+            Map<String, Integer> output = new HashMap<>(doorTypes.length - 1);
+            Map<DoorType, Integer> stats = db.getDatabaseStatistics();
+            for (DoorType type : doorTypes)
+            {
+                // Makes no sense to log flags
+                if (type == DoorType.FLAG)
+                    continue;
+                output.put(DoorType.getFriendlyName(type), stats.getOrDefault(type, 0));
+            }
+            return output;
+        }));
     }
 
     public String getUpdateURL()

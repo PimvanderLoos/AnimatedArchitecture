@@ -38,12 +38,14 @@ public enum DoorType
     FLAG        (5, "-FL", "GENERAL.DOORTYPE.Flag", "bigdoors.user.createdoor.flag",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER});
+                                      DoorAttribute.REMOVEOWNER})
+    ;
 
     private int    val;
     private String flag;
     private String nameKey;
     private String permission;
+    private String friendlyName;
     private static Map<Integer, DoorType> valMap  = new HashMap<>();
     private static Map<String,  DoorType> flagMap = new HashMap<>();
     private DoorAttribute[] attributes;
@@ -55,14 +57,16 @@ public enum DoorType
         this.nameKey = nameKey;
         this.permission = permission;
         this.attributes = attributes;
+        friendlyName = this.name().substring(0, 1) + this.name().substring(1).toLowerCase();
     }
 
-    public static int             getValue      (DoorType type) {  return type.val;           }
-    public static String          getNameKey    (DoorType type) {  return type.nameKey;       }
-    public static String          getPermission (DoorType type) {  return type.permission;    }
-    public static DoorType        valueOf       (int type)      {  return valMap.get(type);   }
-    public static DoorType        valueOfFlag   (String flag)   {  return flagMap.get(flag);  }
-    public static DoorAttribute[] getAttributes (DoorType type) {  return type.attributes;    }
+    public static int             getValue       (DoorType type) {  return type.val;           }
+    public static String          getNameKey     (DoorType type) {  return type.nameKey;       }
+    public static String          getPermission  (DoorType type) {  return type.permission;    }
+    public static DoorType        valueOf        (int type)      {  return valMap.get(type);   }
+    public static DoorType        valueOfFlag    (String flag)   {  return flagMap.get(flag);  }
+    public static DoorAttribute[] getAttributes  (DoorType type) {  return type.attributes;    }
+    public static String          getFriendlyName(DoorType type) {  return type.friendlyName;  }
 
     static
     {

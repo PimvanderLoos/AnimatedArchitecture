@@ -10,7 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -718,6 +720,34 @@ public class SQLiteJDBCDriverConnection
         }
 
         return ret;
+    }
+
+    // Gets a histogram of number of doors per type.
+    public Map<DoorType, Integer> getDatabaseStatistics()
+    {
+        Map<DoorType, Integer> stats = new EnumMap<>(DoorType.class);
+
+        try (Connection conn = getConnection();
+            PreparedStatement ps = conn
+                .prepareStatement("SELECT type, COUNT(type) AS count FROM doors GROUP BY type ORDER BY type;");
+            ResultSet rs = ps.executeQuery();)
+        {
+            while (rs.next())
+            {
+                DoorType type = DoorType.valueOf(rs.getInt("type"));
+                if (type == null)
+                    continue;
+
+                int count = rs.getInt("count");
+                stats.put(type, count);
+            }
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("747", e);
+        }
+
+        return stats;
     }
 
     // Construct a new door from a resultset.
