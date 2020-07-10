@@ -5,6 +5,7 @@ Alpha 0.1.8.22
 - Fixed portcullisses and sliding doors getting 'stuck' when they could not find a direction to go in.
 - Added configurable, global blocksToMove limit for doors such as sliding doors. This should help avoid unnecessary stress for servers caused by malicious players. Thanks, @Jim for the suggestion!
 - Fixed Sliding Doors not properly reporting their old and new locations to the protection manager, allowing you to completely bypass it in certain situations. Thanks @jim, for your report and your help!
+- Fixed GUI-related NPE. Thanks, @JMCY26, for the bug report!
 
 Alpha 0.1.8.21
 - Fixed concurrency issue where a door could be toggled more than once under specific circumstances.

@@ -387,16 +387,15 @@ public class GUI
         }
         else
         {
-            if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(),
-                                                              items.get(interactionIDX).getDoorAttribute()))
+            DoorAttribute attribute = items.get(interactionIDX).getDoorAttribute();
+            if (attribute == null)
+                return;
+
+            if (!plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(), attribute))
             {
                 update();
                 return;
             }
-
-            DoorAttribute attribute = items.get(interactionIDX).getDoorAttribute();
-            if (attribute == null)
-                return;
 
             switch (attribute)
             {

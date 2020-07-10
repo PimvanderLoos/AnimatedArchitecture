@@ -306,6 +306,8 @@ public class Commander
 
     public boolean hasPermissionNodeForAction(Player player, DoorAttribute atr)
     {
+        if (atr == null)
+            return false;
         return player.hasPermission(DoorAttribute.getUserPermission(atr)) ||
                player.hasPermission(DoorAttribute.getAdminPermission(atr));
     }
