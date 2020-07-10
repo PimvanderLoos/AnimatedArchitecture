@@ -422,7 +422,7 @@ public class CommandHandler implements CommandExecutor
                 break;
 
             case "menu":
-                if (player != null)
+                if (player != null && player.hasPermission("bigdoors.user.gui"))
                     plugin.addGUIUser(new GUI(plugin, player));
                 break;
 

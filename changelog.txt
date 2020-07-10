@@ -6,6 +6,8 @@ Alpha 0.1.8.22
 - Added configurable, global blocksToMove limit for doors such as sliding doors. This should help avoid unnecessary stress for servers caused by malicious players. Thanks, @Jim for the suggestion!
 - Fixed Sliding Doors not properly reporting their old and new locations to the protection manager, allowing you to completely bypass it in certain situations. Thanks @jim, for your report and your help!
 - Fixed GUI-related NPE. Thanks, @JMCY26, for the bug report!
+- Fixed being able to access "/bigdoors menu" even if you didn't have permission to access the menu. Thanks, @AntiMaid, for the report!
+- Permissions are no longer enabled by default. Opt-out permissions are simply too confusing and annoying.
 
 Alpha 0.1.8.21
 - Fixed concurrency issue where a door could be toggled more than once under specific circumstances.

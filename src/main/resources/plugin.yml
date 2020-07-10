@@ -4,7 +4,7 @@ version: Alpha 0.1.8.22
 author: pim16aap2
 api-version: 1.13
 loadbefore: [PlotSquared]
-softdepend: [WorldGuard, Vault, GriefPrevention, Towny, Lands, RedProtect, Geyser-Spigot]
+softdepend: [WorldGuard, Vault, GriefPrevention, Towny, Lands, RedProtect, Geyser-Spigot, ViaRewind]
 commands:
   bigdoors:
     description: Basic command
@@ -176,43 +176,43 @@ permissions:
       bigdoors.user.createdoor.slidingdoor: true
   bigdoors.user:
     description: Gives access to basic commands required for basic usage.
-    default: true
+    default: false
   bigdoors.user.gui:
     description: Gives access to BigDoor's GUI and other basic commands required for basic usage.
-    default: true
+    default: false
   bigdoors.user.addowner:
     description: Allows a player to add additional owners to a door.
-    default: true
+    default: false
   bigdoors.user.deletedoor:
     description: Allows a user to delete a door they own.
-    default: true
+    default: false
   bigdoors.user.doorinfo:
     description: Allows a user to retrieve the information of a door.
-    default: true
+    default: false
   bigdoors.user.inspectpowerblock:
     description: Allows the player to find out which doors are attached to a given power block.
-    default: true
+    default: false
   bigdoors.user.relocatepowerblock:
     description: Allows the player to relocate a power block.
-    default: true
+    default: false
   bigdoors.user.listdoors:
     description: Allows a player to retrieve a list of all the doors they own.
-    default: true
+    default: false
   bigdoors.user.removeowner:
     description: Allows the user to remove another owner from a door if their permission lever is higher than theirs.
-    default: true
+    default: false
   bigdoors.user.setautoclosetime:
     description: Allows a user to change the auto close timer of a door.
-    default: true
+    default: false
   bigdoors.user.setblockstomove:
     description: Allows a user to specify the number of blocks a door will try to move.
-    default: true
+    default: false
   bigdoors.user.opendoor:
     description: Allows a user to open, close, or toggle a door that they own.
-    default: true
+    default: false
   bigdoors.user.lock:
     description: Allows a user to (un)lock a door that they own.
-    default: true
+    default: false
   bigdoors.admin.filldoor:
     description: Allows a user to fill in a door with stone blocks, regardless of whether they are allowed to build there or if there is already something there.
     default: op
@@ -239,7 +239,7 @@ permissions:
     default: op
   bigdoorsdebug.isweariampim16aap2:
     description: Do not use this!
-    default: op
+    default: false
   bigdoors.admin.bypass.lock: 
     description: Allows a user to (un)lock a door not owned by them.
     default: false
