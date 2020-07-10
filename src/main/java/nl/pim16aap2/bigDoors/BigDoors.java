@@ -4,11 +4,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -81,6 +87,13 @@ public class BigDoors extends JavaPlugin implements Listener
     private int buildNumber = -1;
 
     public static final int MINIMUMDOORDELAY = 15;
+
+    // TODO: Maybe use a whitelist instead?
+    private static final Set<String> BLACKLISTED_SERVERS = Collections
+        .unmodifiableSet(new HashSet<>(Arrays.asList("CatServer", "Mohist", "Magma")));
+
+    private static final List<String> BLACKLISTED_PLUGINS = Collections
+        .unmodifiableList(new ArrayList<>(Arrays.asList("Geyser-Spigot", "ViaRewind")));
 
     private ToolVerifier tf;
     private SQLiteJDBCDriverConnection db;
@@ -218,23 +231,16 @@ public class BigDoors extends JavaPlugin implements Listener
      * Note that it doesn't check if the version is valid. That is done somewhere
      * else and I couldn't be bothered to rewrite it.
      *
-     * @param disableReason A {@link MutableObject} whose value will be the reason
-     *                      why the environment is invalid if that is the case.
-     * @return True if the current environment is invalid.
+     * @return The name of the invalid environment, if one could be found.
      */
     private Optional<String> isCurrentEnvironmentInvalid()
     {
-        if (getServer().getPluginManager().getPlugin("Geyser-Spigot") != null)
-            return Optional.of("GeyserMC");
+        for (final String pluginName : BLACKLISTED_PLUGINS)
+            if (getServer().getPluginManager().getPlugin(pluginName) != null)
+                return Optional.of(pluginName);
 
-        // TODO: Maybe use a whitelist instead?
-        final String bukkitName = Bukkit.getName();
-        if (bukkitName.equals("CatServer"))
-            return Optional.of("CatServer");
-        if (bukkitName.equals("Mohist"))
-            return Optional.of("Mohist");
-        if (bukkitName.equals("Magma"))
-            return Optional.of("Magma");
+        if (BigDoors.BLACKLISTED_SERVERS.contains(Bukkit.getName()))
+            return Optional.of(Bukkit.getName());
 
         return Optional.empty();
     }
