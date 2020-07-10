@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -128,12 +129,13 @@ public class BigDoors extends JavaPlugin implements Listener
         buildNumber = readBuildNumber();
         overrideVersion();
 
-        // Don't use GeyserMC
-        if (getServer().getPluginManager().getPlugin("Geyser-Spigot") != null)
+        Optional<String> disableReason = isCurrentEnvironmentInvalid();
+        if (disableReason.isPresent())
         {
-            logger.logMessage("It appears you're trying to load this plugin with GeyserMC installed! "
-                + "This is not supported and this plugin will disable itself!", true, true);
-            setDisabled("This plugin is disabled because geyserMC is not supported!");
+            String error = "This plugin is disabled because it is running in an invalid environment: "
+                + disableReason.get();
+            logger.logMessage(error, true, true);
+            setDisabled(error);
             return;
         }
 
@@ -207,6 +209,34 @@ public class BigDoors extends JavaPlugin implements Listener
         }
 
         isEnabled = true;
+    }
+
+    /**
+     * Checks if the current environment is invalid. This plugin should not attempt
+     * initialization in an invalid environment.
+     *
+     * Note that it doesn't check if the version is valid. That is done somewhere
+     * else and I couldn't be bothered to rewrite it.
+     *
+     * @param disableReason A {@link MutableObject} whose value will be the reason
+     *                      why the environment is invalid if that is the case.
+     * @return True if the current environment is invalid.
+     */
+    private Optional<String> isCurrentEnvironmentInvalid()
+    {
+        if (getServer().getPluginManager().getPlugin("Geyser-Spigot") != null)
+            return Optional.of("GeyserMC");
+
+        // TODO: Maybe use a whitelist instead?
+        final String bukkitName = Bukkit.getName();
+        if (bukkitName.equals("CatServer"))
+            return Optional.of("CatServer");
+        if (bukkitName.equals("Mohist"))
+            return Optional.of("Mohist");
+        if (bukkitName.equals("Magma"))
+            return Optional.of("Magma");
+
+        return Optional.empty();
     }
 
     private void registerCommands(CommandExecutor commandExecutor)
