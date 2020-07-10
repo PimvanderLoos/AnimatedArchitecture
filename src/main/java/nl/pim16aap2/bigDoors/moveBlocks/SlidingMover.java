@@ -55,7 +55,10 @@ public class SlidingMover implements BlockMover
         this.door = door;
         fabf = plugin.getFABF();
         this.instantOpen = instantOpen;
-        this.blocksToMove = blocksToMove;
+
+        // North and West direction move negatively along the Z/X axis.
+        this.blocksToMove = (openDirection.equals(RotateDirection.NORTH) ||
+                             openDirection.equals(RotateDirection.WEST)) ? -blocksToMove : blocksToMove;
         this.openDirection = openDirection;
         NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 

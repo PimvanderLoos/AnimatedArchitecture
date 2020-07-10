@@ -174,6 +174,9 @@ public class ProtectionCompatManager implements Listener
         if (canByPass(fakePlayer))
             return null;
 
+        loc1 = loc1.clone();
+        loc2 = loc2.clone();
+
         loc1.setWorld(world);
         loc2.setWorld(world);
 

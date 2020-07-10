@@ -45,7 +45,7 @@ public class RedProtectProtectionCompat implements IProtectionCompat
         {
             final RedProtectAPI rpAPI = redProtect.getAPI();
             final Region rpRegion = rpAPI.getRegion(loc);
-            return rpRegion.canBuild(player);
+            return rpRegion == null || rpRegion.canBuild(player);
         }
         catch (Exception e)
         {

@@ -211,7 +211,8 @@ public class SlidingDoorOpener implements Opener
             if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), newMin,
                                                  newMax) != null ||
                 plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
-                                                 door.getMinimum(), door.getMinimum()) != null)
+                                                 door.getMinimum(), door.getMaximum()) != null)
+
                 return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
             if (fireDoorEventTogglePrepare(door, instantOpen))
@@ -347,7 +348,7 @@ public class SlidingDoorOpener implements Opener
 
         MovementSpecification(int blocks, RotateDirection rotateDirection)
         {
-            this.blocks = blocks;
+            this.blocks = Math.abs(blocks);
             this.rotateDirection = rotateDirection;
         }
 
