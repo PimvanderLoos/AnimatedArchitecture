@@ -312,17 +312,12 @@ public class ConfigLoader
                 if (mat.isSolid())
                     powerBlockTypesMap.add(mat);
                 else
-                {
-                    plugin.getMyLogger()
-                        .logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true,
-                                    false);
-                    it.remove();
-                }
+                    plugin.getMyLogger().logMessage("Failed to add material: \"" + str + "\". Only solid materials are "
+                        + "allowed to be powerblocks!", true, false);
             }
             catch (Exception e)
             {
                 plugin.getMyLogger().logMessage("Failed to parse material: \"" + str + "\"", true, false);
-                it.remove();
             }
         }
 
@@ -379,20 +374,14 @@ public class ConfigLoader
             try
             {
                 Material mat = Material.valueOf(str);
-                if (mat.isSolid())
+                if (mat != null)
                     materials.add(mat);
                 else
-                {
-                    plugin.getMyLogger()
-                        .logMessage("Failed to add material: \"" + str + "\". Only solid materials are allowed!", true,
-                                    false);
-                    it.remove();
-                }
+                    plugin.getMyLogger().logMessageToConsoleOnly("Failed to parse material: \"" + str + "\"");
             }
             catch (Exception e)
             {
                 plugin.getMyLogger().logMessageToConsoleOnly("Failed to parse material: \"" + str + "\"");
-                it.remove();
             }
         }
 
