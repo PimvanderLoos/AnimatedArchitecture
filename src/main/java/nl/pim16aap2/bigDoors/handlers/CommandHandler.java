@@ -638,7 +638,12 @@ public class CommandHandler implements CommandExecutor
                 try
                 {
                     int blocksToMove = Integer.parseInt(args[1]);
-                    setDoorBlocksToMove(player, door.getDoorUID(), blocksToMove);
+                    if (blocksToMove > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
+                        plugin.getMyLogger()
+                            .returnToSender(sender, Level.WARNING, ChatColor.RED,
+                                            BigDoors.get().getMessages().getString("GENERAL.InvalidBlocksToMoveRange"));
+                    else
+                        setDoorBlocksToMove(player, door.getDoorUID(), blocksToMove);
                     return true;
                 }
                 catch (Exception e)

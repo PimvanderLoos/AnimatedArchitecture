@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.waitForCommand;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.BigDoors;
@@ -13,7 +14,7 @@ public class WaitForSetBlocksToMove extends WaitForCommand
     public WaitForSetBlocksToMove(BigDoors plugin, Player player, long doorUID)
     {
         super(plugin);
-        this.player  = player;
+        this.player = player;
         command = "setblockstomove";
         this.doorUID = doorUID;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Init"));
@@ -30,10 +31,19 @@ public class WaitForSetBlocksToMove extends WaitForCommand
             try
             {
                 int blocksToMove = Integer.parseInt(args[0]);
+
+                if (blocksToMove > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
+                {
+                    player.sendMessage(ChatColor.RED
+                        + BigDoors.get().getMessages().getString("GENERAL.InvalidBlocksToMoveRange"));
+                    return true;
+                }
+
                 plugin.getCommandHandler().setDoorBlocksToMove(player, doorUID, blocksToMove);
                 plugin.removeCommandWaiter(this);
                 if (blocksToMove > 0)
-                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Success") + blocksToMove);
+                    Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Success")
+                        + blocksToMove);
                 else
                     Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetBlocksToMove.Disabled"));
                 isFinished = true;

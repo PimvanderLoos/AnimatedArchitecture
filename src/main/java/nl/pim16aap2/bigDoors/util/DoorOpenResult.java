@@ -12,6 +12,7 @@ public enum DoorOpenResult
     ALREADYCLOSED ("GENERAL.DoorAlreadyClosed"),
     TYPEDISABLED  ("GENERAL.DoorTypeDisabled"),
     CANCELLED     ("GENERAL.ToggleCancelled"),
+    BLOCKSTOMOVEINVALID ("GENERAL.InvalidBlocksToMoveRange"),
     ;
 
     private String message;

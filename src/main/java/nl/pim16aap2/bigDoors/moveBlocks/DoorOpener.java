@@ -228,7 +228,7 @@ public class DoorOpener implements Opener
         }
         CylindricalMover.updateCoords(door, currentDirection, rotDirection, 0, true);
 
-        return DoorOpenResult.SUCCESS;
+        return abort(DoorOpenResult.SUCCESS, door.getDoorUID());
     }
 
     @Override

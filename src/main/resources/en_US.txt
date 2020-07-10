@@ -23,6 +23,7 @@ GENERAL.MoreThan1DoorFound=&cMore than 1 door with that name found! Please use i
 GENERAL.IsBusy=&cYou are already in a creation / relocation / inspector process.
 GENERAL.NotBusy=&cYou are not creating any doors right now! Please initiate the creation process in the GUI! /BDM
 GENERAL.NoDoorTypeCreationPermission=&cYou do not have permission to create a door of this type!
+GENERAL.InvalidBlocksToMoveRange=&cIntended blocks to move distance is outside of the allowed range!
 GENERAL.DOORTYPE.Door=Door
 GENERAL.DOORTYPE.DrawBridge=Drawbridge
 GENERAL.DOORTYPE.Portcullis=Portcullis

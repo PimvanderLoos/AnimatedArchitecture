@@ -77,7 +77,7 @@ public class PortcullisOpener implements Opener
         multiplier *= door.isOpen() ? -1 : 1; // The portcullis type is closed by default.
 
         VerticalMover.updateCoords(door, null, null, moved * multiplier, true);
-        return DoorOpenResult.SUCCESS;
+        return abort(DoorOpenResult.SUCCESS, door.getDoorUID());
     }
 
     @Override
@@ -115,6 +115,12 @@ public class PortcullisOpener implements Opener
         }
 
         int blocksToMove = getBlocksToMove(door);
+        if (blocksToMove > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
+        {
+            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds blocksToMove limit: "
+                + blocksToMove + ". Limit = " + BigDoors.get().getConfigLoader().getMaxBlocksToMove(), true, false);
+            return abort(DoorOpenResult.BLOCKSTOMOVEINVALID, door.getDoorUID());
+        }
 
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.

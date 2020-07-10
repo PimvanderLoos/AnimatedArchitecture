@@ -56,7 +56,7 @@ public class MyLogger
         if (sender instanceof Player)
             Util.messagePlayer((Player) sender, color + str);
         else
-            myLogger(level, str);
+            myLogger(level, ChatColor.stripColor(str));
     }
 
     // Log a message to the log file. Can print to console and/or

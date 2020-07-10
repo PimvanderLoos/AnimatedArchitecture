@@ -47,6 +47,7 @@ public class ConfigLoader
     private boolean enableRedstone;
     private int commandWaiterTimeout;
     private boolean enableFileLogging;
+    private int maxBlocksToMove;
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
@@ -146,6 +147,8 @@ public class ConfigLoader
                                    "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!" };
         String[] commandWaiterTimeoutComment = { "Amount of time (measured in seconds) until a command waiter times out.",
                                                  "Don't forget to update the language file if you change this!" };
+        String[] maxBlocksToMoveComment = { "The maximum number of blocks a door can move. This only applies to doors that move in a straight line (e.g. sliding door).",
+                                            "Values less than 1 are invalid. " };
 
 //        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
 //                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
@@ -170,6 +173,9 @@ public class ConfigLoader
 
         maxDoorCount = config.getInt("maxDoorCount", -1);
         configOptionsList.add(new ConfigOption("maxDoorCount", maxDoorCount, maxDoorCountComment));
+
+        maxBlocksToMove = Math.max(1, config.getInt("maxBlocksToMove", 100));
+        configOptionsList.add(new ConfigOption("maxBlocksToMove", maxBlocksToMove, maxBlocksToMoveComment));
 
         languageFile = config.getString("languageFile", "en_US");
         configOptionsList.add(new ConfigOption("languageFile", languageFile, languageFileComment));
@@ -562,6 +568,11 @@ public class ConfigLoader
             return true;
 
         return checkForUpdates;
+    }
+    
+    public int getMaxBlocksToMove()
+    {
+        return maxBlocksToMove;
     }
 
     public int headCacheTimeout()

@@ -117,6 +117,6 @@ public class FlagOpener implements Opener
 //        plugin.getCommander().addBlockMover(new FlagMover(plugin, door.getWorld(), 60, door));
 //        fireDoorEventToggleStart(door, false);
 
-        return DoorOpenResult.SUCCESS;
+        return abort(DoorOpenResult.SUCCESS, door.getDoorUID());
     }
 }

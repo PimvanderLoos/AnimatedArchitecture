@@ -297,7 +297,7 @@ public class BridgeOpener implements Opener
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
         BridgeMover.updateCoords(door, openDirection, upDown, 0, true);
-        return DoorOpenResult.SUCCESS;
+        return abort(DoorOpenResult.SUCCESS, door.getDoorUID());
     }
 
     @Override

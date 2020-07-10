@@ -103,7 +103,7 @@ public class SlidingDoorOpener implements Opener
 
         SlidingMover.updateCoords(door, null, null, moved * multiplier, NS, true);
 
-        return DoorOpenResult.SUCCESS;
+        return abort(DoorOpenResult.SUCCESS, door.getDoorUID());
     }
 
     @Override
@@ -174,6 +174,13 @@ public class SlidingDoorOpener implements Opener
         }
 
         MovementSpecification blocksToMove = getBlocksToMove(door);
+        if (blocksToMove.getBlocks() > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
+        {
+            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds blocksToMove limit: "
+                + blocksToMove.getBlocks() + ". Limit = " + BigDoors.get().getConfigLoader().getMaxBlocksToMove(), true,
+                                            false);
+            return abort(DoorOpenResult.BLOCKSTOMOVEINVALID, door.getDoorUID());
+        }
 
         if (blocksToMove.getBlocks() != 0)
         {
@@ -323,21 +330,13 @@ public class SlidingDoorOpener implements Opener
         int maxVal = Math.max(Math.abs(blocksNorth), Math.max(blocksEast, Math.max(blocksSouth, Math.abs(blocksWest))));
 
         if (Math.abs(blocksNorth) == maxVal)
-        {
             return new MovementSpecification(blocksNorth, RotateDirection.NORTH);
-        }
         if (blocksEast == maxVal)
-        {
             return new MovementSpecification(blocksEast, RotateDirection.EAST);
-        }
         if (blocksSouth == maxVal)
-        {
             return new MovementSpecification(blocksSouth, RotateDirection.SOUTH);
-        }
         if (Math.abs(blocksWest) == maxVal)
-        {
             return new MovementSpecification(blocksWest, RotateDirection.WEST);
-        }
         return new MovementSpecification(0, RotateDirection.NONE);
     }
 
