@@ -129,6 +129,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private UpdateManager updateManager;
     private static final MCVersion mcVersion = BigDoors.calculateMCVersion();
     private boolean isEnabled = false;
+    private final List<String> loginMessages = new ArrayList<>();
 
     @Override
     public void onEnable()
@@ -142,16 +143,6 @@ public class BigDoors extends JavaPlugin implements Listener
         buildNumber = readBuildNumber();
         overrideVersion();
 
-        Optional<String> disableReason = isCurrentEnvironmentInvalid();
-        if (disableReason.isPresent())
-        {
-            String error = "This plugin is disabled because it is running in an invalid environment: "
-                + disableReason.get();
-            logger.logMessage(error, true, true);
-            setDisabled(error);
-            return;
-        }
-
         try
         {
             readConfigValues();
@@ -163,11 +154,26 @@ public class BigDoors extends JavaPlugin implements Listener
             return;
         }
 
+        Optional<String> disableReason = isCurrentEnvironmentInvalid();
+        if (disableReason.isPresent())
+        {
+            if (!getConfigLoader().unsafeMode())
+            {
+                String error = "This plugin is disabled because it is running in an invalid environment: "
+                    + disableReason.get();
+                logger.logMessage(error, true, true);
+                setDisabled(error);
+                return;
+            }
+            loginMessages.add("You are trying to load this plugin in an unsupported environment: \""
+                + disableReason.get() + "\"!!!");
+        }
+
         logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
 
         if (DEVBUILD)
             logger.logMessageToConsoleOnly("WARNING! You are running a devbuild (build: " + buildNumber + ")! "
-                + "Update checking + downloading has been enabled (overrides config options)!");
+                + "Update checking has been enabled (overrides config option)!");
 
         try
         {
@@ -435,23 +441,24 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public String getLoginMessage()
     {
-        String ret = "";
+        StringBuilder sb = new StringBuilder();
         if (DEVBUILD)
         {
-            ret += "[BigDoors] Warning: You are running a devbuild!\n";
-            ret += "[BigDoors] Remember to check for new updates regularly!\n";
+            sb.append("[BigDoors] Warning: You are running a devbuild!\n");
+            sb.append("[BigDoors] Remember to check for new updates regularly!\n");
         }
         if (updateManager.updateAvailable())
         {
             if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
-                ret += "[BigDoors] A new update (" + updateManager.getNewestVersion() + ") has been downloaded! "
-                    + "Restart your server to apply the update!\n";
+                sb.append("[BigDoors] A new update (" + updateManager.getNewestVersion() + ") has been downloaded! "
+                    + "Restart your server to apply the update!\n");
             else if (updateManager.updateAvailable())
-                ret += "[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n";
+                sb.append("[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n");
         }
         if (failureCommandHandler != null)
-            ret += "[BigDoors] " + failureCommandHandler.getError();
-        return ret;
+            sb.append("[BigDoors] " + failureCommandHandler.getError() + "\n");
+        loginMessages.forEach(str -> sb.append("[BigDoors] " + str + "\n"));
+        return sb.toString();
     }
 
     public UpdateManager getUpdateManager()
@@ -609,6 +616,22 @@ public class BigDoors extends JavaPlugin implements Listener
         // Load the settings from the config file.
         config = new ConfigLoader(this);
         locale = config.languageFile();
+
+        if (config.unsafeMode())
+        {
+            logger.warn("╔═══════════════════════════════════════════════════════╗");
+            logger.warn("║                                                       ║");
+            logger.warn("║                    !!  WARNING  !!                    ║");
+            logger.warn("║                                                       ║");
+            logger.warn("║                                                       ║");
+            logger.warn("║            You have enabled \"unsafe mode\"!            ║");
+            logger.warn("║                                                       ║");
+            logger.warn("║   THIS IS NOT SUPPORTED! USE THIS AT YOUR OWN RISK!   ║");
+            logger.warn("║                                                       ║");
+            logger.warn("╚═══════════════════════════════════════════════════════╝");
+
+            loginMessages.add("You are running this plugin in unsafe mode! THIS IS NOT SUPPORTED!");
+        }
     }
 
     // This function simply loads these classes to make my life a bit less hell-ish

@@ -3,6 +3,7 @@
  */
 package nl.pim16aap2.bigDoors.handlers;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -32,8 +33,8 @@ public class FailureCommandHandler implements CommandExecutor
         {
             Player player = (Player) sender;
             // Why .version? See LoginMessageHandler.
-            player.sendMessage(((player.isOp() || player.hasPermission("bigdoors.admin.version")) ? error :
-                "An error occurred, please contact a server admin!"));
+            player.sendMessage(ChatColor.YELLOW + ((player.isOp() || player.hasPermission("bigdoors.admin.version")) ?
+                error : "An error occurred, please contact a server admin!"));
         }
 
         return true;

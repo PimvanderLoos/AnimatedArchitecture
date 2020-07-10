@@ -48,6 +48,7 @@ public class ConfigLoader
     private int commandWaiterTimeout;
     private boolean enableFileLogging;
     private int maxBlocksToMove;
+    private boolean unsafeMode;
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
@@ -152,6 +153,18 @@ public class ConfigLoader
 
 //        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
 //                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
+
+//        String[] unsafeModeComment = { "Abort initialization if the plugin detects you are running it in an invalid environment.",
+//                                       "Disabling this is NOT SUPPORTED and you WILL run into issues. ",
+//                                       "By disabling this option you agree that you will not complain if any issues arise and that it is completely",
+//                                       "your own responsibility.",
+//                                       "If you need to disable this option you are doing it wrong and you should rethink your life choices." };
+
+        String[] unsafeModeComment = { "Only load this plugin in supported environments.",
+                                       "Enabling this is NOT SUPPORTED and you WILL run into issues. ",
+                                       "By enabling this option you agree that you will not complain if any issues arise and that it is completely",
+                                       "your own responsibility.",
+                                       "If you need to enable this option you are doing it wrong and you should rethink your life choices." };
 
         String[] debugComment = { "Don't use this. Just leave it on false." };
         String[] enableFileLoggingComment = { "Whether to write stuff to BigDoor's own log file. Please keep this enabled if you want to receive support." };
@@ -264,6 +277,9 @@ public class ConfigLoader
         configOptionsList.add(new ConfigOption("enableFileLogging", enableFileLogging, enableFileLoggingComment));
 
         // This is a bit special, as it's public static (for util debug messages).
+        unsafeMode = config.getBoolean("unsafeMode", false);
+        configOptionsList.add(new ConfigOption("unsafeMode", unsafeMode, unsafeModeComment));
+
         ConfigLoader.DEBUG = config.getBoolean("DEBUG", false);
         configOptionsList.add(new ConfigOption("DEBUG", ConfigLoader.DEBUG, debugComment));
 
@@ -569,7 +585,7 @@ public class ConfigLoader
 
         return checkForUpdates;
     }
-    
+
     public int getMaxBlocksToMove()
     {
         return maxBlocksToMove;
@@ -648,5 +664,17 @@ public class ConfigLoader
     public boolean enableFileLogging()
     {
         return enableFileLogging;
+    }
+
+    /**
+     * Checks if the plugin should abort initialization if it detects an invalid
+     * environment on startup.
+     *
+     * @return False if the plugin should abort initialization in invalid
+     *         environments.
+     */
+    public boolean unsafeMode()
+    {
+        return unsafeMode;
     }
 }
