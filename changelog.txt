@@ -1,13 +1,13 @@
 Alpha 0.1.8.22
 - Abort initialization in certain invalid environments. This can be bypassed, but doing so is NOT SUPPORTED!!
 - Added information about why a command failed if the plugin failed to initialize properly.
-- Fixed portcullisses and sliding doors getting 'stuck' when they could not find a direction to go in.
+- Fixed portcullises and sliding doors getting 'stuck' when they could not find a direction to go in.
 - Added configurable, global blocksToMove limit for doors such as sliding doors. This should help avoid unnecessary stress for servers caused by malicious players. Thanks, @Jim for the suggestion!
-- Fixed Sliding Doors not properly reporting their old and new locations to the protection manager, allowing you to completely bypass it in certain situations. Thanks @jim, for your report and your help!
+- Fixed Sliding Doors not properly reporting their old and new locations to the protection manager, allowing you to completely bypass it in certain situations. Thanks, @jim, for your report and your help!
 - Fixed GUI-related NPE. Thanks, @JMCY26, for the bug report!
 - Fixed being able to access "/bigdoors menu" even if you didn't have permission to access the menu. Thanks, @AntiMaid, for the report!
 - Permissions are no longer enabled by default. Opt-out permissions are simply too confusing and annoying.
-- The config will no longer ignore and remove non-solid blocks from its white/black lists (powerblocks can only be solid blocks still). This is needed because some non-solid blocks can be animated these days. Thanks, @NiGHTS, for the bug report!
+- The config will no longer ignore and remove non-solid blocks from its white/blacklists (powerblocks can only be solid blocks still). This is needed because some non-solid blocks can be animated these days. Thanks, @NiGHTS, for the bug report!
 
 Alpha 0.1.8.21
 - Fixed concurrency issue where a door could be toggled more than once under specific circumstances.
