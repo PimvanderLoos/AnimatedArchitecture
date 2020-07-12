@@ -113,7 +113,7 @@ public class ConfigLoader
         String[] dbFileComment = { "Pick the name (and location if you want) of the database." };
         String[] checkForUpdatesComment = { "Allow this plugin to check for updates on startup. It will not download new versions!" };
         String[] downloadDelayComment = { "Time (in minutes) to delay auto downloading updates after their release.",
-                                          "Setting it to 1440 means that updates will be downloaded 24h after their release.",
+                                          "Setting it to 2160 means that updates will be downloaded 36h after their release.",
                                           "This is useful, as it will mean that the update won't get downloaded if I decide to pull it for some reason",
                                           "(within the specified timeframe, of course). Note that updates cannot be deferred for more than 1 week (10080 minutes)." };
         String[] autoDLUpdateComment = { "Allow this plugin to automatically download new updates. They will be applied on restart." };
@@ -202,7 +202,7 @@ public class ConfigLoader
         autoDLUpdate = config.getBoolean("auto-update", true);
         configOptionsList.add(new ConfigOption("auto-update", autoDLUpdate, autoDLUpdateComment));
 
-        downloadDelay = Math.min(10080, config.getLong("downloadDelay", 1440));
+        downloadDelay = Math.min(10080, config.getLong("downloadDelay", 2160));
         configOptionsList.add(new ConfigOption("downloadDelay", downloadDelay, downloadDelayComment));
         downloadDelay *= 60; // Convert to seconds after adding the option to the config.
 
