@@ -704,6 +704,9 @@ public final class Util
         case ACACIA_PRESSURE_PLATE:
         case DARK_OAK_PRESSURE_PLATE:
 
+        case STRUCTURE_BLOCK:
+        case STRUCTURE_VOID:
+
             /* 1.14 start */
 
         case DANDELION:
@@ -746,6 +749,10 @@ public final class Util
         case BEEHIVE:
         case BEE_NEST:
             /* 1.15 end */
+
+            /* 1.16 start */
+        case BAMBOO_SAPLING:
+            /* 1.16 end */
 
             return false;
         default:

@@ -1,3 +1,7 @@
+Alpha 0.1.8.23
+- Added full support for 1.16's new blocks so you no longer have to manually add them to the whitelist. Thanks, @thedarkonekiller, for the bug report!
+- Permissions now default to OPs again.
+
 Alpha 0.1.8.22
 - Abort initialization in certain invalid environments. This can be bypassed, but doing so is NOT SUPPORTED!!
 - Added information about why a command failed if the plugin failed to initialize properly.
