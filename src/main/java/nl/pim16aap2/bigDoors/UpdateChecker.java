@@ -1,14 +1,18 @@
 package nl.pim16aap2.bigDoors;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,19 +31,10 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 /**
  * A utility class to assist in checking for updates for plugins uploaded to
- * <a href="https://spigotmc.org/resources/">SpigotMC</a>. Before any members of
- * this class are accessed, {@link #init(JavaPlugin, int, PLogger)} must be
- * invoked by the plugin, preferrably in its {@link JavaPlugin#onEnable()}
- * method, though that is not a requirement.
- * <p>
- * This class performs asynchronous queries to
- * <a href="https://spiget.org">SpiGet</a>, an REST server which is updated
- * periodically. If the results of {@link #requestUpdateCheck()} are
- * inconsistent with what is published on SpigotMC, it may be due to SpiGet's
- * cache. Results will be updated in due time.
- * <p>
- * Some modifications were made to support downloading of updates and storing
- * the age of an update.
+ * <a href="https://github.com">GitHub</a>. Before any members of this class are
+ * accessed, {@link #init(JavaPlugin)} must be invoked by the plugin,
+ * preferrably in its {@link JavaPlugin#onEnable()} method, though that is not a
+ * requirement.
  *
  * @author Parker Hawke - 2008Choco
  */
@@ -64,77 +59,112 @@ public final class UpdateChecker
         return (secondSplit.length > firstSplit.length) ? second : first;
     };
 
-    private static final String USER_AGENT = "BigDoors-update-checker";
-    private static final String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
+    private static final URL UPDATE_URL;
+    static
+    {
+        final String urlStr = "https://api.github.com/repos/PimvanderLoos/BigDoors_Releases/releases/latest";
+        URL url = null;
+        try
+        {
+            url = new URL(urlStr);
+        }
+        catch (IOException e)
+        {
+            BigDoors.get().getMyLogger().severe("Failed to construct URL from: \"" + urlStr
+                + "\".\nPlease contact Pim about the stacktrace below:");
+            e.printStackTrace();
+        }
+        UPDATE_URL = url;
+    }
+
     private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
-    private final String downloadURL;
 
     private static UpdateChecker instance;
 
     private UpdateResult lastResult = null;
 
     private final BigDoors plugin;
-    private final int pluginID;
     private final VersionScheme versionScheme;
 
-    private UpdateChecker(final BigDoors plugin, final int pluginID, final VersionScheme versionScheme)
+    private UpdateChecker(final BigDoors plugin, final VersionScheme versionScheme)
     {
         this.plugin = plugin;
-        this.pluginID = pluginID;
         this.versionScheme = versionScheme;
-        downloadURL = "https://api.spiget.org/v2/resources/" + pluginID + "/download";
     }
 
     /**
-     * Requests an update check to SpiGet. This request is asynchronous and may not
-     * complete immediately as an HTTP GET request is published to the SpiGet API.
+     * Requests an update check to GitHub. This request is asynchronous and may not
+     * complete immediately as an HTTP GET request is published to the GitHub API.
      *
      * @return a future update result
      */
     public CompletableFuture<UpdateResult> requestUpdateCheck()
     {
+        if (UPDATE_URL == null)
+            return CompletableFuture.completedFuture(new UpdateResult(UpdateReason.UNKNOWN_ERROR));
+
         return CompletableFuture.supplyAsync(() ->
         {
             int responseCode = -1;
             try
             {
-                URL url = new URL(String.format(UPDATE_URL, pluginID));
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.addRequestProperty("User-Agent", USER_AGENT);
+                HttpURLConnection connection = (HttpURLConnection) UPDATE_URL.openConnection();
 
-                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+                InputStreamReader iSReader = new InputStreamReader(connection.getInputStream());
                 responseCode = connection.getResponseCode();
 
-                JsonElement element = new JsonParser().parse(reader);
+                // GSon doesn't like it when the json string doesn't start and end with square
+                // brackets. So, read the json text and add some square brackets before feeding
+                // it to GSon.
+                BufferedReader reader = new BufferedReader(iSReader);
+                StringBuilder sb = new StringBuilder();
+                String str;
+                while ((str = reader.readLine()) != null)
+                    sb.append(str);
+
+                String jsonStr = "[" + sb.toString() + "]";
+
+                JsonElement element = new JsonParser().parse(jsonStr);
                 if (!element.isJsonArray())
                     return new UpdateResult(UpdateReason.INVALID_JSON);
 
                 reader.close();
 
-                JsonObject versionObject = element.getAsJsonArray().get(0).getAsJsonObject();
+                JsonObject latestRelease = element.getAsJsonArray().get(0).getAsJsonObject();
+                long age = UpdateChecker.getAgeInSeconds(latestRelease.get("published_at").getAsString());
 
-                long age = -1;
-                String ageString = versionObject.get("releaseDate").getAsString();
-                try
+                String jarUrl = "", hashUrl = "";
+                for (JsonElement asset : latestRelease.get("assets").getAsJsonArray())
                 {
-                    age = getAge(Long.parseLong(ageString));
-                }
-                catch (NumberFormatException e)
-                {
-                    plugin.getMyLogger()
-                        .logMessageToLogFile("Failed to obtain age of update from ageString: \"" + ageString + "\"");
+                    JsonObject asset_object = asset.getAsJsonObject();
+                    String downloadUrl = asset_object.get("browser_download_url").getAsString();
+                    if (downloadUrl.endsWith("jar"))
+                        jarUrl = downloadUrl;
+                    else if (downloadUrl.endsWith("256"))
+                        hashUrl = downloadUrl;
                 }
 
-                String current = plugin.getDescription().getVersion(), newest = versionObject.get("name").getAsString();
-                String latest = versionScheme.compareVersions(current, newest);
+                String hash = Util.readSHA256FromURL(new URL(hashUrl));
+                if (hash.isEmpty())
+                    return new UpdateResult(UpdateReason.INVALID_HASH);
 
-                if (latest == null)
+                String current = Util.getCleanedVersionString();
+                String available = Util.getCleanedVersionString(latestRelease.get("name").getAsString());
+                String highest = versionScheme.compareVersions(current, available);
+
+                if (highest == null)
                     return new UpdateResult(UpdateReason.UNSUPPORTED_VERSION_SCHEME);
-                else if (latest.equals(current))
-                    return new UpdateResult(current.equals(newest) ? UpdateReason.UP_TO_DATE :
-                        UpdateReason.UNRELEASED_VERSION, current, age);
-                else if (latest.equals(newest))
-                    return new UpdateResult(UpdateReason.NEW_UPDATE, latest, age);
+
+                // If the latest version is the same as the current version, the plugin is
+                // up-to-date. However, if the current (and therefore also highest) is not the
+                // same as the available version, then this means that the current version
+                // is higher than the latest available version.
+                else if (highest.equals(current))
+                    return new UpdateResult(current.equals(available) ? UpdateReason.UP_TO_DATE :
+                        UpdateReason.UNRELEASED_VERSION, current, age, jarUrl, hash);
+
+                else if (highest.equals(available))
+                    return new UpdateResult(UpdateReason.NEW_UPDATE, highest, age, jarUrl, hash);
             }
             catch (IOException e)
             {
@@ -147,18 +177,6 @@ public final class UpdateChecker
 
             return new UpdateResult(responseCode == 401 ? UpdateReason.UNAUTHORIZED_QUERY : UpdateReason.UNKNOWN_ERROR);
         });
-    }
-
-    /**
-     * Gets the difference in seconds between a given time and the current time.
-     *
-     * @param updateTime A moment in time to compare the current time to.
-     * @return The difference in seconds between a given time and the current time.
-     */
-    private long getAge(final long updateTime)
-    {
-        long currentTime = Instant.now().getEpochSecond();
-        return currentTime - updateTime;
     }
 
     /**
@@ -183,84 +201,45 @@ public final class UpdateChecker
     }
 
     /**
-     * Gets the url to download the latest version from.
-     *
-     * @return The url to download the latest version from.
-     */
-    public String getDownloadUrl()
-    {
-        return downloadURL;
-    }
-
-    /**
      * Downloads the latest update.
      *
+     * @param result The result of an update check.
+     *
      * @return True if the download was successful.
+     * @throws IOException
      */
-    public boolean downloadUpdate()
+    public boolean downloadUpdate(final UpdateResult result) throws IOException
     {
         boolean downloadSuccessfull = false;
-        try
+        File updateFolder = Bukkit.getUpdateFolderFile();
+        if (!updateFolder.exists())
+            if (!updateFolder.mkdirs())
+                throw new IOException("Failed to create update folder!");
+        File updateFile = new File(updateFolder + "/" + plugin.getName() + ".jar");
+
+        try (InputStream in = new URL(result.getDownloadUrl()).openStream())
         {
-            File updateFolder = Bukkit.getUpdateFolderFile();
-            if (!updateFolder.exists())
-                if (!updateFolder.mkdirs())
-                    throw new RuntimeException("Failed to create update folder!");
-
-            String fileName = plugin.getName() + ".jar";
-            File updateFile = new File(updateFolder + "/" + fileName);
-
-            // Follow any and all redirects until we've finally found the actual file.
-            String location = downloadURL;
-            HttpURLConnection httpConnection = null;
-            for (;;)
-            {
-                URL url = new URL(location);
-                httpConnection = (HttpURLConnection) url.openConnection();
-                httpConnection.setInstanceFollowRedirects(false);
-                httpConnection.setRequestProperty("User-Agent", "BigDoorsUpdater");
-                String redirectLocation = httpConnection.getHeaderField("Location");
-                if (redirectLocation == null)
-                    break;
-                location = redirectLocation;
-                httpConnection.disconnect();
-            }
-
-            if (httpConnection == null)
-            {
-                plugin.getMyLogger().logMessageToLogFile("Failed to construct connection: " + location);
-                return false;
-            }
-
-            if (httpConnection.getResponseCode() != 200)
-            {
-                plugin.getMyLogger()
-                    .logMessageToLogFile(Util.exceptionToString(new RuntimeException("Download returned status #"
-                        + httpConnection.getResponseCode() + "\n for URL: " + downloadURL)));
-                return false;
-            }
-
-            int grabSize = 4096;
-            BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
-            FileOutputStream fos = new FileOutputStream(updateFile);
-            BufferedOutputStream bout = new BufferedOutputStream(fos, grabSize);
-
-            byte[] data = new byte[grabSize];
-            int grab;
-            while ((grab = in.read(data, 0, grabSize)) >= 0)
-                bout.write(data, 0, grab);
-
-            bout.flush();
-            bout.close();
-            in.close();
-            fos.flush();
-            fos.close();
-            downloadSuccessfull = true;
+            Files.copy(in, updateFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            return downloadSuccessfull;
         }
+
+        if (!updateFile.exists())
+            throw new IOException("Failed to save file!");
+
+        String checksum = Util.getSHA256(updateFile);
+        downloadSuccessfull = result.getChecksum().equals(checksum);
+        if (!downloadSuccessfull)
+        {
+            plugin.getMyLogger().severe("Checksum of downloaded file did not match expected checksum!");
+            plugin.getMyLogger().severe("Expected: " + result.getChecksum());
+            plugin.getMyLogger().severe("Found: " + checksum);
+            updateFile.delete();
+        }
+
         return downloadSuccessfull;
     }
 
@@ -270,21 +249,13 @@ public final class UpdateChecker
      * method will act similarly to {@link #get()} (which is recommended after
      * initialization).
      *
-     * @param plugin        the plugin for which to check updates. Cannot be null
-     * @param pluginID      the ID of the plugin as identified in the SpigotMC
-     *                      resource link. For example,
-     *                      "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/"
-     *                      would expect "12038" as a value. The value must be
-     *                      greater than 0
-     * @param versionScheme a custom version scheme parser. Cannot be null
-     * @param logger        The {@link PLogger} to use for logging.
+     * @param plugin        The plugin for which to check updates. Cannot be null
+     * @param versionScheme a custom version scheme parser. Cannot be null.
      * @return the UpdateChecker instance
      */
-    public static UpdateChecker init(final BigDoors plugin, final int pluginID, final VersionScheme versionScheme)
+    public static UpdateChecker init(final BigDoors plugin, final VersionScheme versionScheme)
     {
-        Preconditions.checkArgument(pluginID > 0, "Plugin ID must be greater than 0");
-
-        return (instance == null) ? instance = new UpdateChecker(plugin, pluginID, versionScheme) : instance;
+        return (instance == null) ? instance = new UpdateChecker(plugin, versionScheme) : instance;
     }
 
     /**
@@ -293,24 +264,17 @@ public final class UpdateChecker
      * method will act similarly to {@link #get()} (which is recommended after
      * initialization).
      *
-     * @param plugin   the plugin for which to check updates. Cannot be null
-     * @param pluginID the ID of the plugin as identified in the SpigotMC resource
-     *                 link. For example,
-     *                 "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/"
-     *                 would expect "12038" as a value. The value must be greater
-     *                 than 0
-     * @param logger   The {@link PLogger} to use for logging.
+     * @param plugin The plugin for which to check updates. Cannot be null
      * @return the UpdateChecker instance
      */
-    public static UpdateChecker init(final BigDoors plugin, final int pluginID)
+    public static UpdateChecker init(final BigDoors plugin)
     {
-        return init(plugin, pluginID, VERSION_SCHEME_DECIMAL);
+        return init(plugin, VERSION_SCHEME_DECIMAL);
     }
 
     /**
-     * Gets the initialized instance of UpdateChecker. If
-     * {@link #init(JavaPlugin, int, PLogger)} has not yet been invoked, this method
-     * will throw an exception.
+     * Gets the initialized instance of UpdateChecker. If {@link #init(JavaPlugin)}
+     * has not yet been invoked, this method will throw an exception.
      *
      * @return the UpdateChecker instance
      */
@@ -323,14 +287,28 @@ public final class UpdateChecker
 
     /**
      * Checks whether the UpdateChecker has been initialized or not (if
-     * {@link #init(JavaPlugin, int, PLogger)} has been invoked) and {@link #get()}
-     * is safe to use.
+     * {@link #init(JavaPlugin)} has been invoked) and {@link #get()} is safe to
+     * use.
      *
      * @return true if initialized, false otherwise
      */
     public static boolean isInitialized()
     {
         return instance != null;
+    }
+
+    /**
+     * Gets the difference in seconds between a given time and the current time.
+     *
+     * @param updateTime A moment in time to compare the current time to. Must be
+     *                   ISO 8601.
+     * @return The difference in seconds between a given time and the current time.
+     */
+    private static long getAgeInSeconds(final String time)
+    {
+        TemporalAccessor temporalAccessor = DateTimeFormatter.ISO_INSTANT.parse(time);
+        Date date = Date.from(Instant.from(temporalAccessor));
+        return ((new Date()).getTime() - date.getTime()) / 1000;
     }
 
     /**
@@ -366,17 +344,22 @@ public final class UpdateChecker
         NEW_UPDATE, // The only reason that requires an update
 
         /**
-         * A successful connection to the SpiGet API could not be established.
+         * A successful connection to the GitHub API could not be established.
          */
         COULD_NOT_CONNECT,
 
         /**
-         * The JSON retrieved from SpiGet was invalid or malformed.
+         * The JSON retrieved from GitHub was invalid or malformed.
          */
         INVALID_JSON,
 
         /**
-         * A 401 error was returned by the SpiGet API.
+         * The retrieved hash was not valid.
+         */
+        INVALID_HASH,
+
+        /**
+         * A 401 error was returned by the GitHub API.
          */
         UNAUTHORIZED_QUERY,
 
@@ -414,16 +397,21 @@ public final class UpdateChecker
         private final UpdateReason reason;
         private final String newestVersion;
         private final long age;
+        private final String url;
+        private final String sha256;
 
         { // An actual use for initializer blocks. This is madness!
             lastResult = this;
         }
 
-        private UpdateResult(final UpdateReason reason, final String newestVersion, final long age)
+        private UpdateResult(final UpdateReason reason, final String newestVersion, final long age, final String url,
+            final String sha256)
         {
             this.reason = reason;
             this.newestVersion = newestVersion;
             this.age = age;
+            this.url = url;
+            this.sha256 = sha256;
         }
 
         private UpdateResult(final UpdateReason reason)
@@ -434,6 +422,8 @@ public final class UpdateChecker
             this.reason = reason;
             newestVersion = plugin.getDescription().getVersion();
             age = -1;
+            url = "";
+            sha256 = "";
         }
 
         /**
@@ -476,6 +466,26 @@ public final class UpdateChecker
         public long getAge()
         {
             return age;
+        }
+
+        /**
+         * Gets the URL where the jar can be downloaded from.
+         *
+         * @return The URL where the jar can be found.
+         */
+        public String getDownloadUrl()
+        {
+            return url;
+        }
+
+        /**
+         * Gets the sha256 checksum of the jar file.
+         *
+         * @return The sha256 checksum of the jar file.
+         */
+        public String getChecksum()
+        {
+            return sha256;
         }
     }
 }

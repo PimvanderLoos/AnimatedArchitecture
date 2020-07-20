@@ -1,15 +1,21 @@
 package nl.pim16aap2.bigDoors.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.security.SecureRandom;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,6 +25,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+
+import com.google.common.hash.Hashing;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
@@ -158,6 +166,52 @@ public final class Util
         for (int idx = 0; idx != length; ++idx)
             sb.append(chars.charAt(srnd.nextInt(chars.length())));
         return sb.toString();
+    }
+
+    public static String readSHA256FromURL(final URL url)
+    {
+        try (Scanner scanner = new Scanner(url.openStream()))
+        {
+            String hash = scanner.nextLine();
+            return hash.length() == 64 ? hash : "";
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private static final Pattern VERSION_CLEANUP = Pattern.compile("\\d+(\\.\\d+)+");
+
+    /**
+     * Gets the 'cleaned' version number of the current version. E.g. "Alpha
+     * 0.1.8.22 (b620)" would return "0.1.8.22".
+     *
+     * @return The 'cleaned' version number of this version.
+     */
+    public static String getCleanedVersionString()
+    {
+        return getCleanedVersionString(BigDoors.get().getDescription().getVersion());
+    }
+
+    /**
+     * Gets the 'cleaned' version number of the specified version. E.g. "Alpha
+     * 0.1.8.22 (b620)" would return "0.1.8.22".
+     *
+     * @return The 'cleaned' version number of this version.
+     */
+    public static String getCleanedVersionString(String version)
+    {
+        Matcher matcher = VERSION_CLEANUP.matcher(version);
+        if (!matcher.find())
+            return "";
+        return matcher.group(0);
+    }
+
+    public static String getSHA256(final File file) throws IOException
+    {
+        return com.google.common.io.Files.hash(file, Hashing.sha256()).toString();
     }
 
     public static String nameFromUUID(UUID playerUUID)

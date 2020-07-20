@@ -125,6 +125,12 @@ public class MyLogger
         logMessage(str, false, false);
     }
 
+    public void severe(String str)
+    {
+        myLogger(Level.SEVERE, str);
+        logMessage(str, false, false);
+    }
+
     public static void logMessage(Level level, String pluginName, String message)
     {
         Bukkit.getLogger().log(level, "[" + pluginName + "] " + message);

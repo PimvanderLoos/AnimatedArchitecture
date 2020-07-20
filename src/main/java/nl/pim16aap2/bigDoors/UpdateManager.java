@@ -3,10 +3,13 @@
  */
 package nl.pim16aap2.bigDoors;
 
+import java.io.IOException;
+
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigDoors.UpdateChecker.UpdateReason;
+import nl.pim16aap2.bigDoors.util.Util;
 
 /**
  *
@@ -22,10 +25,10 @@ public final class UpdateManager
     private UpdateChecker updater;
     private BukkitTask updateRunner = null;
 
-    public UpdateManager(final BigDoors plugin, final int pluginID)
+    public UpdateManager(final BigDoors plugin)
     {
         this.plugin = plugin;
-        updater = UpdateChecker.init(plugin, pluginID);
+        updater = UpdateChecker.init(plugin);
     }
 
     public void setEnabled(final boolean newCheckForUpdates, final boolean newDownloadUpdates)
@@ -66,23 +69,39 @@ public final class UpdateManager
 
     public void checkForUpdates()
     {
-        updater.requestUpdateCheck().whenComplete((result, throwable) ->
+        plugin.getMyLogger().info("Checking for updates...");
+        updater.requestUpdateCheck().whenCompleteAsync((result, throwable) ->
         {
             boolean updateAvailable = updateAvailable();
-            if (updateAvailable)
-                plugin.getMyLogger().info("A new update is available: " + plugin.getUpdateManager().getNewestVersion());
+            if (!updateAvailable)
+            {
+                plugin.getMyLogger().info("No new updates available.");
+                return;
+            }
+
+            plugin.getMyLogger().info("A new update is available: " + plugin.getUpdateManager().getNewestVersion());
 
             if (downloadUpdates && updateAvailable && result.getAge() >= plugin.getConfigLoader().downloadDelay())
             {
-                updateDownloaded = updater.downloadUpdate();
+                try
+                {
+                    updateDownloaded = updater.downloadUpdate(result);
+                }
+                catch (IOException e)
+                {
+                    updateDownloaded = false;
+                    plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+                }
                 if (updateDownloaded)
                     plugin.getMyLogger()
                         .info("Update downloaded! Restart to apply it! " + "New version is "
                             + updater.getLastResult().getNewestVersion() + ", Currently running "
-                            + plugin.getDescription().getVersion() + (BigDoors.DEVBUILD ? " (but a DEV-build)" : ""));
+                            + plugin.getDescription().getVersion()
+                            + ((BigDoors.DEVBUILD && result.getReason() == UpdateReason.UP_TO_DATE) ?
+                                " (but a DEV-build)" : ""));
                 else
                     plugin.getMyLogger().info("Failed to download latest version! You can download it manually at: "
-                        + updater.getDownloadUrl());
+                        + result.getDownloadUrl());
             }
         });
     }

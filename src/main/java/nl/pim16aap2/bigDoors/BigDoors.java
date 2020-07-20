@@ -138,7 +138,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         logFile = new File(getDataFolder(), "log.txt");
         logger = new MyLogger(this, logFile);
-        updateManager = new UpdateManager(this, 58669);
+        updateManager = new UpdateManager(this);
 
         buildNumber = readBuildNumber();
         overrideVersion();
