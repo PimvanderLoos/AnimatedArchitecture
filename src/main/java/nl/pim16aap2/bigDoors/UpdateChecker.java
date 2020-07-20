@@ -85,11 +85,13 @@ public final class UpdateChecker
 
     private final BigDoors plugin;
     private final VersionScheme versionScheme;
+    private final File updateFile;
 
     private UpdateChecker(final BigDoors plugin, final VersionScheme versionScheme)
     {
         this.plugin = plugin;
         this.versionScheme = versionScheme;
+        updateFile = new File(Bukkit.getUpdateFolderFile() + "/" + plugin.getName() + ".jar");
     }
 
     /**
@@ -108,49 +110,48 @@ public final class UpdateChecker
             int responseCode = -1;
             try
             {
-                HttpURLConnection connection = (HttpURLConnection) UPDATE_URL.openConnection();
+                final HttpURLConnection connection = (HttpURLConnection) UPDATE_URL.openConnection();
 
-                InputStreamReader iSReader = new InputStreamReader(connection.getInputStream());
+                final InputStreamReader iSReader = new InputStreamReader(connection.getInputStream());
                 responseCode = connection.getResponseCode();
 
                 // GSon doesn't like it when the json string doesn't start and end with square
                 // brackets. So, read the json text and add some square brackets before feeding
                 // it to GSon.
-                BufferedReader reader = new BufferedReader(iSReader);
-                StringBuilder sb = new StringBuilder();
-                String str;
-                while ((str = reader.readLine()) != null)
-                    sb.append(str);
+                final BufferedReader reader = new BufferedReader(iSReader);
+                final StringBuilder jsonStr = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null)
+                    jsonStr.append(line);
 
-                String jsonStr = "[" + sb.toString() + "]";
+                iSReader.close();
+                reader.close();
 
-                JsonElement element = new JsonParser().parse(jsonStr);
+                final JsonElement element = new JsonParser().parse("[" + jsonStr.toString() + "]");
                 if (!element.isJsonArray())
                     return new UpdateResult(UpdateReason.INVALID_JSON);
 
-                reader.close();
-
-                JsonObject latestRelease = element.getAsJsonArray().get(0).getAsJsonObject();
-                long age = UpdateChecker.getAgeInSeconds(latestRelease.get("published_at").getAsString());
+                final JsonObject latestRelease = element.getAsJsonArray().get(0).getAsJsonObject();
+                final long age = UpdateChecker.getAgeInSeconds(latestRelease.get("published_at").getAsString());
 
                 String jarUrl = "", hashUrl = "";
-                for (JsonElement asset : latestRelease.get("assets").getAsJsonArray())
+                for (final JsonElement asset : latestRelease.get("assets").getAsJsonArray())
                 {
-                    JsonObject asset_object = asset.getAsJsonObject();
-                    String downloadUrl = asset_object.get("browser_download_url").getAsString();
+                    final JsonObject asset_object = asset.getAsJsonObject();
+                    final String downloadUrl = asset_object.get("browser_download_url").getAsString();
                     if (downloadUrl.endsWith("jar"))
                         jarUrl = downloadUrl;
                     else if (downloadUrl.endsWith("256"))
                         hashUrl = downloadUrl;
                 }
 
-                String hash = Util.readSHA256FromURL(new URL(hashUrl));
+                final String hash = Util.readSHA256FromURL(new URL(hashUrl));
                 if (hash.isEmpty())
                     return new UpdateResult(UpdateReason.INVALID_HASH);
 
-                String current = Util.getCleanedVersionString();
-                String available = Util.getCleanedVersionString(latestRelease.get("name").getAsString());
-                String highest = versionScheme.compareVersions(current, available);
+                final String current = Util.getCleanedVersionString();
+                final String available = Util.getCleanedVersionString(latestRelease.get("name").getAsString());
+                final String highest = versionScheme.compareVersions(current, available);
 
                 if (highest == null)
                     return new UpdateResult(UpdateReason.UNSUPPORTED_VERSION_SCHEME);
@@ -201,7 +202,9 @@ public final class UpdateChecker
     }
 
     /**
-     * Downloads the latest update.
+     * Downloads the latest update. If an update has already been downloaded, the
+     * new file will only be downloaded in case the existing update's checksum does
+     * not match the checksum found in the {@link UpdateResult}.
      *
      * @param result The result of an update check.
      *
@@ -210,12 +213,13 @@ public final class UpdateChecker
      */
     public boolean downloadUpdate(final UpdateResult result) throws IOException
     {
-        boolean downloadSuccessfull = false;
-        File updateFolder = Bukkit.getUpdateFolderFile();
+        final File updateFolder = Bukkit.getUpdateFolderFile();
         if (!updateFolder.exists())
             if (!updateFolder.mkdirs())
                 throw new IOException("Failed to create update folder!");
-        File updateFile = new File(updateFolder + "/" + plugin.getName() + ".jar");
+
+        if (updateFile.exists() && result.getChecksum().equals(Util.getSHA256(updateFile)))
+            return true;
 
         try (InputStream in = new URL(result.getDownloadUrl()).openStream())
         {
@@ -224,14 +228,14 @@ public final class UpdateChecker
         catch (IOException e)
         {
             plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
-            return downloadSuccessfull;
+            return false;
         }
 
         if (!updateFile.exists())
             throw new IOException("Failed to save file!");
 
-        String checksum = Util.getSHA256(updateFile);
-        downloadSuccessfull = result.getChecksum().equals(checksum);
+        final String checksum = Util.getSHA256(updateFile);
+        boolean downloadSuccessfull = result.getChecksum().equals(checksum);
         if (!downloadSuccessfull)
         {
             plugin.getMyLogger().severe("Checksum of downloaded file did not match expected checksum!");

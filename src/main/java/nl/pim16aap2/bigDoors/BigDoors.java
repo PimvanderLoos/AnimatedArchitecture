@@ -131,11 +131,14 @@ public class BigDoors extends JavaPlugin implements Listener
     private boolean isEnabled = false;
     private final List<String> loginMessages = new ArrayList<>();
 
+    public BigDoors()
+    {
+        instance = this;
+    }
+
     @Override
     public void onEnable()
     {
-        instance = this;
-
         logFile = new File(getDataFolder(), "log.txt");
         logger = new MyLogger(this, logFile);
         updateManager = new UpdateManager(this);
