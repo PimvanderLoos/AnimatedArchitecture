@@ -21,10 +21,15 @@ public class PortcullisOpener implements Opener
         this.plugin = plugin;
     }
 
+    protected boolean isRotateDirectionValid(RotateDirection openDirection)
+    {
+        return openDirection.equals(RotateDirection.UP) || openDirection.equals(RotateDirection.DOWN);
+    }
+
     @Override
     public boolean isRotateDirectionValid(Door door)
     {
-        return door.getOpenDir().equals(RotateDirection.UP) || door.getOpenDir().equals(RotateDirection.DOWN);
+        return isRotateDirectionValid(door.getOpenDir());
     }
 
     @Override
@@ -185,11 +190,33 @@ public class PortcullisOpener implements Opener
         return blocksUp;
     }
 
+    private RotateDirection getCurrentDirection(Door door)
+    {
+        if (!door.isOpen())
+            return door.getOpenDir();
+
+        if (door.getOpenDir().equals(RotateDirection.UP))
+            return RotateDirection.DOWN;
+
+        if (door.getOpenDir().equals(RotateDirection.DOWN))
+            return RotateDirection.UP;
+
+        return RotateDirection.NONE;
+    }
+
     private int getBlocksToMove(Door door)
     {
-        int blocksUp = getBlocksInDir(door, RotateDirection.UP);
-        int blocksDown = getBlocksInDir(door, RotateDirection.DOWN);
-        int blocksToMove = blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
+        int blocksToMove;
+        RotateDirection openDir = getCurrentDirection(door);
+        if (isRotateDirectionValid(openDir))
+            blocksToMove = getBlocksInDir(door, openDir);
+        else
+        {
+            int blocksUp = getBlocksInDir(door, RotateDirection.UP);
+            int blocksDown = getBlocksInDir(door, RotateDirection.DOWN);
+            blocksToMove = blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
+        }
+
         door.setNewMin(new Location(door.getWorld(), door.getMinimum().getBlockX(),
                                     door.getMinimum().getBlockY() + blocksToMove, door.getMinimum().getBlockZ()));
         door.setNewMax(new Location(door.getWorld(), door.getMaximum().getBlockX(),

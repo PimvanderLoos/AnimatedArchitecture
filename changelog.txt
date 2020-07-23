@@ -3,6 +3,7 @@ Alpha 0.1.8.23
 - Permissions now default to OPs again.
 - Removed Spiget in favor of GitHub releases, as Spiget proved to be too unreliable. 
 - Renamed "bigdoors.user" permission node to "bigdoors.user.base", so that "bigdoors.user.*" will include the most important permissions as well.
+- A portcullis will now respect its open direction, even if there is no space to go in that direction. Thanks, @xph11, for the bug report!
 
 Alpha 0.1.8.22
 - Abort initialization in certain invalid environments. This can be bypassed, but doing so is NOT SUPPORTED!!
