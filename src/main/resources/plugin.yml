@@ -9,7 +9,7 @@ commands:
   bigdoors:
     description: Basic command
     usage: /BigDoors
-    permission: bigdoors.user
+    permission: bigdoors.user.base
   bdm:
     description: Alias of /BigDoors, Opens the BigDoors GUI.
     usage: /BDM
@@ -17,8 +17,8 @@ commands:
   namedoor:
     description: Create a new door named "doorName".
     usage: /NameDoor <doorName || doorUID> 
-    permission: bigdoors.user
-    permission-message: You do not have the bigdoors.user permission node.
+    permission: bigdoors.user.base
+    permission-message: You do not have the bigdoors.user.base permission node.
   setblockstomove:
     description: Change the number of blocks the door will attempt to move in the provided direction.
     usage: /SetBlocksToMove <doorName || doorUID> <time>
@@ -32,13 +32,13 @@ commands:
   setdoorrotation:
     description: Change door rotation of a given door.
     usage: /SetDoorRotation <doorName || doorUID> <CLOCK || COUNTER || ANY>
-    permission: bigdoors.user
-    permission-message: You do not have the bigdoors.user permission node.
+    permission: bigdoors.user.base
+    permission-message: You do not have the bigdoors.user.base permission node.
   bdcancel:
     description: Cancels the door creation process.
     usage: /bdcancel
-    permission: bigdoors.user
-    permission-message: You do not have the bigdoors.user permission node.
+    permission: bigdoors.user.base
+    permission-message: You do not have the bigdoors.user.base permission node.
   pausedoors:
     description: Pauses all door movement until used again.
     usage: /PauseDoors
@@ -50,8 +50,8 @@ commands:
   newdoor:
     description: Create a new door from selection with name "doorName". Defaults to door. Use flags to make other types.
     usage: /NewDoor [-pc || -db || -bd] <doorName> 
-    permission: bigdoors.user
-    permission-message: You do not have the bigdoors.user permission node.
+    permission: bigdoors.user.base
+    permission-message: You do not have the bigdoors.user.base permission node.
   newportcullis:
     description: Create a new portcullis from selection with name "portcullisName".
     usage: /NewPortcullis <portcullisName>
@@ -131,6 +131,7 @@ permissions:
   bigdoors.user.*:
     description: Gives the user access to all user-level commands of this plugin.
     children:
+      bigdoors.user.base: true
       bigdoors.user.addowner: true
       bigdoors.user.relocatepowerblock: true
       bigdoors.user.delete: true
@@ -151,7 +152,7 @@ permissions:
       bigdoors.admin.stopdoors: true
       bigdoors.admin.version: true
       bigdoors.admin.toggledoor: true
-      bigdoors.admin.bypass.*: false
+      bigdoors.admin.bypass.*: true
       
   bigdoors.admin.bypass.*:
     description: Gives the user access to door attributes (toggle, delete, etc) of doors they do not own.
@@ -174,8 +175,8 @@ permissions:
       bigdoors.user.createdoor.drawbridge: true
       bigdoors.user.createdoor.portcullis: true
       bigdoors.user.createdoor.slidingdoor: true
-  bigdoors.user:
-    description: Gives access to basic commands required for basic usage.
+  bigdoors.user.base:
+    description: Gives access to base commands required for basic usage.
     default: op
   bigdoors.user.gui:
     description: Gives access to BigDoor's GUI and other basic commands required for basic usage.
