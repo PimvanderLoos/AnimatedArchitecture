@@ -20,7 +20,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class DoorOpener
 {
-    @NotNull
     private static final DoorOpener instance = new DoorOpener();
 
     private DoorOpener()

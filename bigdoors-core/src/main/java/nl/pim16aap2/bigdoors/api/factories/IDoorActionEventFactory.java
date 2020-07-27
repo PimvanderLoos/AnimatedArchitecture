@@ -8,8 +8,10 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Represents a class that can create {@link IDoorEvent}s.
@@ -28,13 +30,17 @@ public interface IDoorActionEventFactory
      * @param time          The number of seconds the door will take to open. Note that there are other factors that
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
+     * @param newMinimum    The new minimum coordinates of the door after the toggle.
+     * @param newMaximum    The new maximum coordinates of the door after the toggle.
      */
     @NotNull
     IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
                                                final @NotNull DoorActionCause cause,
                                                final @NotNull DoorActionType actionType,
-                                               final @Nullable IPPlayer responsible, final double time,
-                                               final boolean skipAnimation);
+                                               final @NotNull Optional<IPPlayer> responsible, final double time,
+                                               final boolean skipAnimation,
+                                               final @NotNull IVector3DiConst newMinimum,
+                                               final @NotNull IVector3DiConst newMaximum);
 
     /**
      * Constructs a {@link IDoorEventToggleStart}.
@@ -46,13 +52,17 @@ public interface IDoorActionEventFactory
      * @param time          The number of seconds the door will take to open. Note that there are other factors that
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
+     * @param newMinimum    The new minimum coordinates of the door after the toggle.
+     * @param newMaximum    The new maximum coordinates of the door after the toggle.
      */
     @NotNull
     IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
                                            final @NotNull DoorActionCause cause,
                                            final @NotNull DoorActionType actionType,
-                                           final @Nullable IPPlayer responsible, final double time,
-                                           final boolean skipAnimation);
+                                           final @NotNull Optional<IPPlayer> responsible, final double time,
+                                           final boolean skipAnimation,
+                                           final @NotNull IVector3DiConst newMinimum,
+                                           final @NotNull IVector3DiConst newMaximum);
 
     /**
      * Constructs a {@link IDoorEventToggleEnd}.
@@ -68,6 +78,6 @@ public interface IDoorActionEventFactory
     @NotNull
     IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,
                                        final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType,
-                                       final @Nullable IPPlayer responsible, final double time,
+                                       final @NotNull Optional<IPPlayer> responsible, final double time,
                                        final boolean skipAnimation);
 }

@@ -2,12 +2,12 @@ package nl.pim16aap2.bigdoors.events.dooraction;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.events.PEvent;
+import nl.pim16aap2.bigdoors.events.IPEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public interface IDoorEvent extends PEvent
+public interface IDoorEvent extends IPEvent
 {
     /**
      * Gets the door that is the subject of this event.

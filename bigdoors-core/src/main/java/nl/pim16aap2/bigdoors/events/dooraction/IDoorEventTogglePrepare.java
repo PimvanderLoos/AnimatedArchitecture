@@ -10,6 +10,6 @@ import nl.pim16aap2.bigdoors.events.IPCancellable;
  *
  * @author Pim
  */
-public interface IDoorEventTogglePrepare extends IDoorEvent, IPCancellable
+public interface IDoorEventTogglePrepare extends IDoorEventToggleStart, IPCancellable
 {
 }

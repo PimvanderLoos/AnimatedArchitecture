@@ -7,10 +7,11 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
- * Represents an action that is going to be applied to a door.
+ * Implementation of {@link IDoorEventToggleEnd} for the Spigot platform.
  *
  * @author Pim
  */
@@ -30,7 +31,7 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      */
     public DoorEventToggleEnd(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
-                              final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
+                              final @NotNull DoorActionType actionType, final @NotNull Optional<IPPlayer> responsible,
                               final double time, final boolean skipAnimation)
     {
         super(door, cause, actionType, responsible, time, skipAnimation);

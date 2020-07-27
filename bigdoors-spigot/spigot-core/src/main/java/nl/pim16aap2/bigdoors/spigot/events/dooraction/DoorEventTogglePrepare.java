@@ -7,16 +7,18 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
- * Represents an action that is going to be applied to a door.
+ * Implementation of {@link IDoorEventTogglePrepare} for the Spigot platform.
  *
  * @author Pim
  */
-public class DoorEventTogglePrepare extends DoorToggleEvent implements IDoorEventTogglePrepare
+public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoorEventTogglePrepare
 {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
@@ -35,12 +37,16 @@ public class DoorEventTogglePrepare extends DoorToggleEvent implements IDoorEven
      * @param time             The number of seconds the door will take to open. Note that there are other factors that
      *                         affect the total time as well.
      * @param animationSkipped If true, the door will skip the animation and open instantly.
+     * @param newMinimum       The new minimum coordinates of the door after the toggle.
+     * @param newMaximum       The new maximum coordinates of the door after the toggle.
      */
     public DoorEventTogglePrepare(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
-                                  final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
-                                  final double time, final boolean animationSkipped)
+                                  final @NotNull DoorActionType actionType,
+                                  final @NotNull Optional<IPPlayer> responsible, final double time,
+                                  final boolean animationSkipped, final @NotNull IVector3DiConst newMinimum,
+                                  final @NotNull IVector3DiConst newMaximum)
     {
-        super(door, cause, actionType, responsible, time, animationSkipped);
+        super(door, cause, actionType, responsible, time, animationSkipped, newMinimum, newMaximum);
     }
 
     /** {@inheritDoc} */

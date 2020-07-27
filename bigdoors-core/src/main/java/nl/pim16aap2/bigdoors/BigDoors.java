@@ -94,6 +94,13 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Make a decision about using null in parameters. You could make a point that instead of value vs null, you can
+//       value vs empty Optional vs null. However, Optionals make it more clear when an object might not be present
+//       and they shouldn't be null anyway. On the other hand, the biggest reason I want it right now is because
+//       the initiator type is incomplete. It is Optional because it's either a player, or not a player.
+//       However, an Initiator class will be constructed in the future, using abstraction for stuff like permission
+//       checking and message parsing, so that won't ever be null or Optional anyway. Maybe it's best to conform
+//       to the standards for my CV?
 // TODO: Allow directly opening the GUI for a door.
 // TODO: Make sure that portals don't break when set. Also, they should rotate.
 // TODO: Try to make sure that items like stairs maintain their connection state (so angles move like angles.

@@ -81,7 +81,8 @@ public interface IDoorBase
      *
      * @param newMin Used to store the new minimum coordinates.
      * @param newMax Used to store the new maximum coordinates.
-     * @return True if the new positions are available.
+     * @return True if the new coordinates were found successfully. In case no valid coordinates could be found, False
+     * is returned instead.
      */
     boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax);
 

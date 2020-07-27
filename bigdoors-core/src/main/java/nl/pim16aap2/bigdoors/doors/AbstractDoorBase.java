@@ -25,6 +25,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -162,14 +163,6 @@ public abstract class AbstractDoorBase implements IDoorBase
             throw e;
         }
 
-        IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                       .createPrepareEvent(this, cause, actionType, initiator, time,
-                                                                           skipAnimation);
-        BigDoors.get().getPlatform().callDoorActionEvent(prepareEvent);
-        if (prepareEvent.isCancelled())
-            return doorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, initiator);
-
-
         if (skipAnimation && !canSkipAnimation())
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, initiator);
 
@@ -186,6 +179,15 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (!getPotentialNewCoordinates(newMin, newMax))
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, initiator);
 
+        IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                                       .createPrepareEvent(this, cause, actionType,
+                                                                           Optional.of(initiator), time,
+                                                                           skipAnimation, newMin, newMax);
+        BigDoors.get().getPlatform().callDoorActionEvent(prepareEvent);
+        if (prepareEvent.isCancelled())
+            return doorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, initiator);
+
+
         if (!doorOpeningUtility.isLocationEmpty(newMin, newMax, minimum, maximum,
                                                 cause.equals(DoorActionCause.PLAYER) ? initiator : null, getWorld()))
             return doorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, initiator);
@@ -196,8 +198,9 @@ public abstract class AbstractDoorBase implements IDoorBase
         registerBlockMover(cause, time, skipAnimation, newMin, newMax, initiator, actionType);
 
         BigDoors.get().getPlatform().callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                                 .createStartEvent(this, cause, actionType, initiator,
-                                                                                   time, skipAnimation));
+                                                                 .createStartEvent(this, cause, actionType,
+                                                                                   Optional.of(initiator), time,
+                                                                                   skipAnimation, newMin, newMax));
 
         return DoorToggleResult.SUCCESS;
     }

@@ -78,7 +78,7 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.spigot.events.dooraction.BigDoorsSpigotEvent;
 import nl.pim16aap2.bigdoors.spigot.factories.DoorActionEventFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PLocationFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PPlayerFactorySpigot;
@@ -724,13 +724,25 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     /** {@inheritDoc} */
     @Override
-    public void callDoorActionEvent(final @NotNull IDoorEvent doorActionEvent)
+    public void callDoorActionEvent(final @NotNull IDoorEvent doorEvent)
     {
-        // Synchronous events may only be called from the main thread.
-        if (isMainThread(Thread.currentThread().getId()))
-            Bukkit.getPluginManager().callEvent((DoorEventTogglePrepare) doorActionEvent);
+        if (!(doorEvent instanceof BigDoorsSpigotEvent))
+        {
+            getPLogger().logException(new IllegalArgumentException(
+                "Event " + doorEvent.getEventName() +
+                    ", is not a Spigot event, but it was called on the Spigot platform!"));
+            return;
+        }
+
+        // Async events can only be called asynchronously and Sync events can only be called from the main thread.
+        final boolean isMainThread = isMainThread(Thread.currentThread().getId());
+        if (isMainThread && doorEvent.isAsynchronous())
+            BigDoors.get().getPlatform().newPExecutor()
+                    .runAsync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent));
+        else if ((!isMainThread) && (!doorEvent.isAsynchronous()))
+            BigDoors.get().getPlatform().newPExecutor()
+                    .runSync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent));
         else
-            BigDoors.get().getPlatform().newPExecutor().runSync(
-                () -> Bukkit.getPluginManager().callEvent((DoorEventTogglePrepare) doorActionEvent));
+            Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent);
     }
 }

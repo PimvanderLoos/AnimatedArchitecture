@@ -1,21 +1,34 @@
 package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
- * Represents an action that is going to be applied to a door.
+ * Implementation of {@link IDoorEventToggleStart} for the Spigot platform.
  *
  * @author Pim
  */
 public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventToggleStart
 {
+    /** {@inheritDoc} */
+    @Getter(onMethod = @__({@Override}))
+    @NotNull
+    IVector3DiConst newMinimum;
+
+    /** {@inheritDoc} */
+    @Getter(onMethod = @__({@Override}))
+    @NotNull
+    IVector3DiConst newMaximum;
+
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     /**
@@ -28,12 +41,17 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
      * @param time          The number of seconds the door will take to open. Note that there are other factors that
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
+     * @param newMinimum    The new minimum coordinates of the door after the toggle.
+     * @param newMaximum    The new maximum coordinates of the door after the toggle.
      */
     public DoorEventToggleStart(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
-                                final @NotNull DoorActionType actionType, final @Nullable IPPlayer responsible,
-                                final double time, final boolean skipAnimation)
+                                final @NotNull DoorActionType actionType, final @NotNull Optional<IPPlayer> responsible,
+                                final double time, final boolean skipAnimation,
+                                final @NotNull IVector3DiConst newMinimum, final @NotNull IVector3DiConst newMaximum)
     {
         super(door, cause, actionType, responsible, time, skipAnimation);
+        this.newMinimum = newMinimum;
+        this.newMaximum = newMaximum;
     }
 
     /** {@inheritDoc} */
