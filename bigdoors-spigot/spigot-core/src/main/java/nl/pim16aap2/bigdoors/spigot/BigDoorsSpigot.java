@@ -78,7 +78,7 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
-import nl.pim16aap2.bigdoors.spigot.events.dooraction.BigDoorsSpigotEvent;
+import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
 import nl.pim16aap2.bigdoors.spigot.factories.DoorActionEventFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PLocationFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PPlayerFactorySpigot;
