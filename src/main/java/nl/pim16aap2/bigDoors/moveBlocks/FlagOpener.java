@@ -6,7 +6,9 @@ import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
+import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
+import nl.pim16aap2.bigDoors.util.Vector2D;
 
 public class FlagOpener implements Opener
 {
@@ -15,6 +17,15 @@ public class FlagOpener implements Opener
     public FlagOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Pair<Vector2D, Vector2D> getChunkRange(Door door)
+    {
+        return getCurrentChunkRange(door);
     }
 
     @Override
@@ -37,17 +48,8 @@ public class FlagOpener implements Opener
     // loaded.
     private boolean chunksLoaded(Door door)
     {
-        // Return true if the chunk at the max and at the min of the chunks were loaded
-        // correctly.
-        if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \"" + door.getName().toString() + "\"", true,
-                                            false);
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!",
-                                            true, false);
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!",
-                                            true, false);
+        if (!hasValidCoordinates(door))
+            return false;
 
         return door.getWorld().getChunkAt(door.getMaximum()).load() &&
                door.getWorld().getChunkAt(door.getMinimum()).isLoaded();

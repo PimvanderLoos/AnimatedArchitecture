@@ -4,13 +4,17 @@ import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.ChunkUtils;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
+import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
+import nl.pim16aap2.bigDoors.util.Vector2D;
 
 public class DoorOpener implements Opener
 {
@@ -19,6 +23,36 @@ public class DoorOpener implements Opener
     public DoorOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Pair<Vector2D, Vector2D> getChunkRange(Door door)
+    {
+        return getChunkRange(door, getNewDirection(door));
+    }
+
+    private Pair<Vector2D, Vector2D> getChunkRange(Door door, DoorDirection newDirection)
+    {
+        if (newDirection == null)
+        {
+            plugin.getMyLogger().warn("Failed to obtain good chunk range for door: " + door.getDoorUID()
+                + "! Using current range instead!");
+            return getCurrentChunkRange(door);
+        }
+
+        Location newMin = new Location(null, 0, 0, 0);
+        Location newMax = new Location(null, 0, 0, 0);
+
+        getNewLocations(newMin, newMax, door, newDirection);
+        return getChunkRange(door, newMin, newMax);
+    }
+
+    private Pair<Vector2D, Vector2D> getChunkRange(Door door, Location newMin, Location newMax)
+    {
+        return ChunkUtils.getChunkRangeBetweenSortedCoords(newMin, door.getMinimum(), newMax, door.getMaximum());
     }
 
     @Override
@@ -41,60 +75,97 @@ public class DoorOpener implements Opener
         return rotateDir != null ? rotateDir : RotateDirection.CLOCKWISE;
     }
 
-    // Check if the block on the north/east/south/west side of the location is free.
-    private boolean isPosFree(Door door, DoorDirection direction)
+    private void getNewLocations(Location min, Location max, Door door, DoorDirection newDirection)
     {
         Location engLoc = door.getEngine();
-        int endX = 0, endY = 0, endZ = 0;
-        int startX = 0, startY = 0, startZ = 0;
+        int startX = engLoc.getBlockX();
+        int startY = door.getMinimum().getBlockY();
+        int startZ = engLoc.getBlockZ();
+
+        int endX = engLoc.getBlockX();
+        int endY = door.getMaximum().getBlockY();
+        int endZ = engLoc.getBlockZ();
+
         int xLen = door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
         int zLen = door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
+        World world = door.getWorld();
 
-        switch (direction)
+        switch (newDirection)
         {
         case NORTH:
-            startX = engLoc.getBlockX();
-            startY = engLoc.getBlockY();
             startZ = engLoc.getBlockZ() - xLen;
-            endX = engLoc.getBlockX();
-            endY = door.getMaximum().getBlockY();
             endZ = engLoc.getBlockZ() - 1;
             break;
         case EAST:
             startX = engLoc.getBlockX() + 1;
-            startY = engLoc.getBlockY();
-            startZ = engLoc.getBlockZ();
             endX = engLoc.getBlockX() + zLen;
-            endY = door.getMaximum().getBlockY();
             endZ = engLoc.getBlockZ();
             break;
         case SOUTH:
-            startX = engLoc.getBlockX();
-            startY = engLoc.getBlockY();
             startZ = engLoc.getBlockZ() + 1;
-            endX = engLoc.getBlockX();
-            endY = door.getMaximum().getBlockY();
             endZ = engLoc.getBlockZ() + xLen;
             break;
         case WEST:
             startX = engLoc.getBlockX() - zLen;
-            startY = engLoc.getBlockY();
-            startZ = engLoc.getBlockZ();
             endX = engLoc.getBlockX() - 1;
-            endY = door.getMaximum().getBlockY();
-            endZ = engLoc.getBlockZ();
             break;
         }
 
-        for (int xAxis = startX; xAxis <= endX; ++xAxis)
-            for (int yAxis = startY; yAxis <= endY; ++yAxis)
-                for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
-                    if (!Util.isAirOrWater(engLoc.getWorld().getBlockAt(xAxis, yAxis, zAxis).getType()))
-                        return false;
-        door.setNewMin(new Location(door.getWorld(), startX, startY, startZ));
-        door.setNewMax(new Location(door.getWorld(), endX, endY, endZ));
+        min.setWorld(world);
+        min.setX(startX);
+        min.setY(startY);
+        min.setZ(startZ);
 
+        max.setWorld(world);
+        max.setX(endX);
+        max.setY(endY);
+        max.setZ(endZ);
+    }
+
+    // Check if the block on the north/east/south/west side of the location is free.
+    private boolean isPosFree(Door door, DoorDirection direction)
+    {
+        Location newMin = new Location(null, 0, 0, 0);
+        Location newMax = new Location(null, 0, 0, 0);
+        getNewLocations(newMin, newMax, door, direction);
+
+        World world = door.getWorld();
+        for (int xAxis = newMin.getBlockX(); xAxis <= newMax.getBlockX(); ++xAxis)
+            for (int yAxis = newMin.getBlockY(); yAxis <= newMax.getBlockY(); ++yAxis)
+                for (int zAxis = newMin.getBlockZ(); zAxis <= newMax.getBlockZ(); ++zAxis)
+                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+                        return false;
+
+        door.setNewMin(newMin);
+        door.setNewMax(newMax);
         return true;
+    }
+
+    private DoorDirection getNewDirection(Door door)
+    {
+        DoorDirection currentDir = getCurrentDirection(door);
+        RotateDirection openDir = door.getOpenDir();
+        openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
+            openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE : openDir;
+
+        if (!isRotateDirectionValid(door))
+            return null;
+
+        switch (currentDir)
+        {
+        case NORTH:
+            return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.EAST : DoorDirection.WEST;
+
+        case EAST:
+            return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.NORTH : DoorDirection.SOUTH;
+
+        case SOUTH:
+            return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.WEST : DoorDirection.EAST;
+
+        case WEST:
+            return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.SOUTH : DoorDirection.NORTH;
+        }
+        return null;
     }
 
     // Determine which direction the door is going to rotate. Clockwise or
@@ -195,17 +266,8 @@ public class DoorOpener implements Opener
     // loaded.
     private boolean chunksLoaded(Door door)
     {
-        // Return true if the chunk at the max and at the min of the chunks were loaded
-        // correctly.
-        if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \"" + door.getName().toString() + "\"", true,
-                                            false);
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!",
-                                            true, false);
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!",
-                                            true, false);
+        if (!hasValidCoordinates(door))
+            return false;
 
         return door.getWorld().getChunkAt(door.getMaximum()).load() &&
                door.getWorld().getChunkAt(door.getMinimum()).isLoaded();

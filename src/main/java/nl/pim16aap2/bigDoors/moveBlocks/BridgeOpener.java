@@ -9,10 +9,13 @@ import org.bukkit.World;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.ChunkUtils;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
+import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
+import nl.pim16aap2.bigDoors.util.Vector2D;
 
 public class BridgeOpener implements Opener
 {
@@ -21,6 +24,35 @@ public class BridgeOpener implements Opener
     public BridgeOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Pair<Vector2D, Vector2D> getChunkRange(Door door)
+    {
+        if (!door.isOpen())
+            return getCurrentChunkRange(door);
+
+        DoorDirection doorDirection = getOpenDirection(door);
+        if (doorDirection == null)
+        {
+            plugin.getMyLogger().warn("Failed to obtain good chunk range for door: " + door.getDoorUID()
+                + "! Using current range instead!");
+            return getCurrentChunkRange(door);
+        }
+
+        return getChunkRange(door, RotateDirection.DOWN, doorDirection);
+    }
+
+    private Pair<Vector2D, Vector2D> getChunkRange(Door door, RotateDirection upDown, DoorDirection cardinal)
+    {
+        Location newMin = new Location(null, 0, 0, 0);
+        Location newMax = new Location(null, 0, 0, 0);
+
+        getNewLocations(newMin, newMax, door, upDown, cardinal);
+        return ChunkUtils.getChunkRangeBetweenCoords(newMin, newMax);
     }
 
     private RotateDirection getOppositeAsRotate(final DoorDirection curDir)
@@ -75,8 +107,7 @@ public class BridgeOpener implements Opener
         return getOppositeAsRotate(door.getEngSide());
     }
 
-    // Check if the new position is free.
-    private boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
+    private void getNewLocations(Location min, Location max, Door door, RotateDirection upDown, DoorDirection cardinal)
     {
         int startX = 0, startY = 0, startZ = 0;
         int endX = 0, endY = 0, endZ = 0;
@@ -185,15 +216,33 @@ public class BridgeOpener implements Opener
                 break;
             }
 
-        for (int xAxis = startX; xAxis <= endX; ++xAxis)
-            for (int yAxis = startY; yAxis <= endY; ++yAxis)
-                for (int zAxis = startZ; zAxis <= endZ; ++zAxis)
+        min.setWorld(world);
+        min.setX(startX);
+        min.setY(startY);
+        min.setZ(startZ);
+
+        max.setWorld(world);
+        max.setX(endX);
+        max.setY(endY);
+        max.setZ(endZ);
+    }
+
+    // Check if the new position is free.
+    private boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
+    {
+        Location newMin = new Location(null, 0, 0, 0);
+        Location newMax = new Location(null, 0, 0, 0);
+        getNewLocations(newMin, newMax, door, upDown, cardinal);
+
+        World world = door.getWorld();
+        for (int xAxis = newMin.getBlockX(); xAxis <= newMax.getBlockX(); ++xAxis)
+            for (int yAxis = newMin.getBlockY(); yAxis <= newMax.getBlockY(); ++yAxis)
+                for (int zAxis = newMin.getBlockZ(); zAxis <= newMax.getBlockZ(); ++zAxis)
                     if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
                         return false;
 
-        door.setNewMin(new Location(door.getWorld(), startX, startY, startZ));
-        door.setNewMax(new Location(door.getWorld(), endX, endY, endZ));
-
+        door.setNewMin(newMin);
+        door.setNewMax(newMax);
         return true;
     }
 
@@ -206,7 +255,7 @@ public class BridgeOpener implements Opener
         return RotateDirection.UP;
     }
 
-    private DoorDirection getShadowDirection(Door door)
+    private DoorDirection getOpenDirection(Door door)
     {
         if (door.getOpenDir() == null)
             return null;
@@ -246,16 +295,6 @@ public class BridgeOpener implements Opener
         return null;
     }
 
-    // Figure out which way the bridge should go.
-    private DoorDirection getOpenDirection(Door door)
-    {
-        RotateDirection upDown = getUpDown(door);
-        DoorDirection openDir = getShadowDirection(door);
-        if (upDown == null || openDir == null)
-            return null;
-        return isNewPosFree(door, upDown, openDir) ? openDir : null;
-    }
-
     // Get the "current direction". In this context this means on which side of the
     // drawbridge the engine is.
     private DoorDirection getCurrentDirection(Door door)
@@ -265,17 +304,8 @@ public class BridgeOpener implements Opener
 
     private boolean chunksLoaded(Door door)
     {
-        // Return true if the chunk at the max and at the min of the chunks were loaded
-        // correctly.
-        if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \"" + door.getName().toString() + "\"", true,
-                                            false);
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!",
-                                            true, false);
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!",
-                                            true, false);
+        if (!hasValidCoordinates(door))
+            return false;
 
         return door.getWorld().getChunkAt(door.getMaximum()).load() &&
                door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
@@ -289,7 +319,7 @@ public class BridgeOpener implements Opener
             plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
-        DoorDirection openDirection = getShadowDirection(door);
+        DoorDirection openDirection = getOpenDirection(door);
         final RotateDirection upDown = getUpDown(door);
         if (door.getOpenDir().equals(RotateDirection.NONE) || openDirection == null || upDown == null)
         {
@@ -342,7 +372,7 @@ public class BridgeOpener implements Opener
         }
 
         DoorDirection openDirection = getOpenDirection(door);
-        if (openDirection == null)
+        if (openDirection == null || !isNewPosFree(door, upDown, openDirection))
         {
             plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.getName() + " ("
                 + door.getDoorUID() + ")!", true, false);

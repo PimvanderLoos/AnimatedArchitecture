@@ -9,8 +9,10 @@ import org.bukkit.World;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
+import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
+import nl.pim16aap2.bigDoors.util.Vector2D;
 
 public class PortcullisOpener implements Opener
 {
@@ -19,6 +21,15 @@ public class PortcullisOpener implements Opener
     public PortcullisOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Pair<Vector2D, Vector2D> getChunkRange(Door door)
+    {
+        return getCurrentChunkRange(door);
     }
 
     protected boolean isRotateDirectionValid(RotateDirection openDirection)
@@ -44,17 +55,8 @@ public class PortcullisOpener implements Opener
     // loaded.
     private boolean chunksLoaded(Door door)
     {
-        // Return true if the chunk at the max and at the min of the chunks were loaded
-        // correctly.
-        if (door.getWorld() == null)
-            plugin.getMyLogger().logMessage("World is null for door \"" + door.getName().toString() + "\"", true,
-                                            false);
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!",
-                                            true, false);
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-            plugin.getMyLogger().logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!",
-                                            true, false);
+        if (!hasValidCoordinates(door))
+            return false;
 
         return door.getWorld().getChunkAt(door.getMaximum()).load() &&
                door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
@@ -120,7 +122,7 @@ public class PortcullisOpener implements Opener
         }
 
         int blocksToMove = getBlocksToMove(door);
-        if (blocksToMove > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
+        if (Math.abs(blocksToMove) > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
         {
             plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds blocksToMove limit: "
                 + blocksToMove + ". Limit = " + BigDoors.get().getConfigLoader().getMaxBlocksToMove(), true, false);
