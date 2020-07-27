@@ -39,3 +39,4 @@ build.number
 log.xml
 config.xml.resolved
 Jars/
+updateMirror.sh
