@@ -107,7 +107,7 @@ public class GarageDoorMover extends BlockMover
      */
     protected void init()
     {
-        super.endCount = 20 * (int) super.time;
+        super.endCount = (int) (20 * super.time);
         step = getBlocksMoved() / ((float) super.endCount);
         super.soundActive = new PSoundDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);

@@ -100,7 +100,7 @@ public class BigDoorMover extends BlockMover
      */
     protected void init()
     {
-        super.endCount = 20 * (int) super.time;
+        super.endCount = (int) (20 * super.time);
         step = (Math.PI / 2.0f) / super.endCount * stepMultiplier;
         halfEndCount = super.endCount / 2;
         super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);

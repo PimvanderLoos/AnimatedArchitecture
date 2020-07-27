@@ -75,7 +75,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
     {
         // If NS, the clock rotates along the z axis (north south), so the hands are distributed along the x axis.
         // The engine location determines what the front side of the clock is and the little hand is the front side.
-        return (int) block.getStartLocation().getX() == door.getEngine().getX();
+        return ((int) block.getStartLocation().getX()) == door.getEngine().getX();
     }
 
     /**
@@ -87,7 +87,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
     {
         // If NS, the clock rotates along the z axis (north south), so the hands are distributed along the x axis.
         // The engine location determines what the front side of the clock is and the little hand is the front side.
-        return (int) block.getStartLocation().getZ() == door.getEngine().getZ();
+        return ((int) block.getStartLocation().getZ()) == door.getEngine().getZ();
     }
 
     /** {@inheritDoc} */

@@ -37,7 +37,7 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     @Override
     protected void init()
     {
-        super.endCount = 20 * 20 * (int) super.time;
+        super.endCount = (int) (20 * 20 * super.time);
         step = (Math.PI / 2.0) / (20.0f * super.time * 2.0f);
     }
 
@@ -62,7 +62,6 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     {
         double stepSum = step * ticks;
         for (final PBlockData block : savedBlocks)
-            // TODO: Store separate list to avoid checking this constantly.
             if (Math.abs(block.getRadius()) > EPS)
             {
                 final Vector3Dd vec = getVector.apply(block, stepSum).subtract(block.getFBlock().getPosition());

@@ -108,7 +108,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
      */
     protected void init()
     {
-        super.endCount = 20 * (int) super.time;
+        super.endCount = (int) (20 * super.time);
         halfEndCount = super.endCount / 2;
         step = (Math.PI / 2.0f) / super.endCount;
         super.soundActive = new PSoundDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
