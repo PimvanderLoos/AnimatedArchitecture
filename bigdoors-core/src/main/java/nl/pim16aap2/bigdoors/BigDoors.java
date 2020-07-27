@@ -38,6 +38,29 @@ import org.jetbrains.annotations.Nullable;
 //       separate thread. If anything fails, make sure to try to unload everything properly.
 //       Only keep something loaded to inform users about the issue and to handle command attempts
 //       gracefully.
+// TODO: Consider adding linked doors that will toggle upon activation of any of the existing doors.
+//       Need to figure out how to deal with the new powerblock system, though. Perhaps let the doors
+//       share a powerblock? Might be tricky to do in an efficient manner.
+// TODO: Consider switching to tight instance-control for doors. This would mean that each door can have at most
+//       1 instance. All setters would have to be synchronized or disabled. Perhaps use a manager with weak references.
+//       This would have the advantage that you cannot have out-of-date versions of a door, (for example in a GUI).
+//       There are some issues regarding what should and should not be loaded, though. For example, should ALL owners
+//       be loaded into a door at all times? Or should there be a separate system to retrieve that data?
+//       Also, when mass-selecting doors (e.g. all doors part of a certain group), how would that work with the cache?
+//       Ideally, it wouldn't have to construct all those doors when retrieving it, but the database has no reason to
+//       know about the door manager's existence. Perhaps _all_ door creation should then be routed via a factory of
+//       some kind? Only this factory should be allowed to create new doors, so everything would have to be routed
+//       through it regardless. The factory can then check if the door already has an instance. What to do if the instance
+//       is different from the data in the db, though? Should that (out-of-sync instances) even be possible? If not,
+//       when should they be updated? And how?
+//       Design Pattern: https://en.wikipedia.org/wiki/Multiton_pattern
+// TODO: Consider using some kind of component system in the doors. You'd have to add something like
+//       ComponentBoolean("NS", Clock::getNS); A separate ComponentManager (initialized statically per-type)
+//       should then handle the creation of the objects array as well as the parsing of it. The parsing should happens
+//       just via the constructor (use reflection or something to track down the right constructor).
+//       This would make door definition much more friendly.
+//       The database might be able to use the components as well. Perhaps each component should have an ID?
+//       Then it could just store "PreparedStatement::setString" (for example). Or they all just use setObject, also fine.
 
 /*
  * Doors
@@ -59,10 +82,22 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Consider letting IPerpetualMoverArchetype implement IStationaryDoorArchetype. There shouldn't be any situation
 //       where a perpetualMovement isn't also stationary.
 // TODO: Allow 3D doors and drawbridges.
+// TODO: Allow excluding specific block locations for toggling doors. These locations should not be
+//       included in any animation, even though they are part of a door area. This also requires the
+//       feature where doors check for gaps in their old position to match any existing blocks in the
+//       new position. Just use a creator or something to allow excluding/including blocks using
+//       left/right click (include only works for previously excluded blocks). Then use either
+//       guardian beams or glowing blocks for the edges of the door, and red glowing blocks to show
+//       which blocks have been excluded so far.
+//       Store them as a list or something in the database (in the top level table).
 
 /*
  * General
  */
+// TODO: Allow directly opening the GUI for a door.
+// TODO: Make sure that portals don't break when set. Also, they should rotate.
+// TODO: Try to make sure that items like stairs maintain their connection state (so angles move like angles.
+// TODO: Use "synchronized" to avoid timing/scheduling issues.
 // TODO: InterruptedException should not be caught, it should be rethrown. Either avoid it altogether, or handle it
 //       properly.
 // TODO: DoorTypes currently need to be registered before BigDoors is initialized, so that they are put in the config.
@@ -211,6 +246,9 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: Allow renaming doors.
+// TODO: Allow transfer of door ownership.
+// TODO: Make sure you can remove yourself as (co)owner.
 // TODO: (not SQL-related), make isLocked part of DoorData.
 // TODO: Make sure that trying to use unregistered doortypes is handled gracefully.
 //       This includes: Toggling, Creating, Commands, and GUI.
