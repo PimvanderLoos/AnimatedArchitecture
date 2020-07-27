@@ -173,6 +173,7 @@ public class Commander
 
     public long addDoor(Door newDoor)
     {
+        plugin.getPBCache().invalidate(Util.chunkHashFromLocation(newDoor.getPowerBlockLoc()));
         return db.insert(newDoor);
     }
 
@@ -182,6 +183,7 @@ public class Commander
             newDoor.setPlayerUUID(player.getUniqueId());
         if (newDoor.getPermission() != permission)
             newDoor.setPermission(permission);
+        plugin.getPBCache().invalidate(Util.chunkHashFromLocation(newDoor.getPowerBlockLoc()));
         return db.insert(newDoor);
     }
 
@@ -201,12 +203,13 @@ public class Commander
 
     public void removeDoor(long doorUID)
     {
-        db.removeDoor(doorUID);
+        long hash = db.removeDoor(doorUID);
+        plugin.getPBCache().invalidate(hash);
     }
 
     public void removeDoorsFromWorld(World world)
     {
-        db.removeDoorsFromWorld(world);
+        db.removeDoorsFromWorld(world).forEach(hash -> plugin.getPBCache().invalidate(hash));
     }
 
     // Returns the number of doors owner by a player and with a specific name, if

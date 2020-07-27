@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -781,16 +782,29 @@ public class SQLiteJDBCDriverConnection
     }
 
     // Remove a door with a given ID.
-    public void removeDoor(final long doorID)
+    public long removeDoor(final long doorID)
     {
+        long hash = 0;
         Connection conn = null;
         try
         {
             conn = getConnection();
-            String deleteDoor = "DELETE FROM doors WHERE id = '" + doorID + "';";
-            PreparedStatement ps = conn.prepareStatement(deleteDoor);
-            ps.executeUpdate();
-            ps.close();
+            conn.setAutoCommit(false);
+            PreparedStatement ps0 = conn.prepareStatement("SELECT chunkHash FROM doors WHERE id = ?;");
+            ps0.setLong(1, doorID);
+            ResultSet rs0 = ps0.executeQuery();
+            if (rs0.next())
+            {
+                hash = rs0.getLong("chunkHash");
+                String deleteDoor = "DELETE FROM doors WHERE id = '" + doorID + "';";
+                PreparedStatement ps = conn.prepareStatement(deleteDoor);
+                ps.executeUpdate();
+                ps.close();
+            }
+
+            ps0.close();
+            rs0.close();
+            conn.commit();
         }
         catch (SQLException | NullPointerException e)
         {
@@ -807,20 +821,36 @@ public class SQLiteJDBCDriverConnection
                 logMessage("311", e);
             }
         }
+        return hash;
     }
 
     // Remove all doors from a given world.
-    public void removeDoorsFromWorld(final World world)
+    public List<Long> removeDoorsFromWorld(final World world)
     {
+        List<Long> hashes = new ArrayList<>();
         Connection conn = null;
         try
         {
             conn = getConnection();
+            conn.setAutoCommit(false);
+
+            PreparedStatement ps0 = conn.prepareStatement("SELECT chunkHash doors WHERE world = ?;");
+            ps0.setString(1, world.getUID().toString());
+            ResultSet rs0 = ps0.executeQuery();
+
+            while (rs0.next())
+                hashes.add(rs0.getLong("chunkHash"));
+
+            ps0.close();
+            rs0.close();
+
             PreparedStatement ps = conn.prepareStatement("DELETE FROM doors WHERE world = ?;");
             ps.setString(1, world.getUID().toString());
 
             ps.executeUpdate();
             ps.close();
+
+            conn.commit();
         }
         catch (SQLException | NullPointerException e)
         {
@@ -837,6 +867,7 @@ public class SQLiteJDBCDriverConnection
                 logMessage("807", e);
             }
         }
+        return hashes;
     }
 
     // Remove a door with a given name, owned by a certain player.
