@@ -8,6 +8,9 @@ import org.bukkit.World;
 import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.util.ChunkUtils;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.Mode;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.Result;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Pair;
@@ -49,15 +52,13 @@ public class ElevatorOpener implements Opener
         return RotateDirection.UP;
     }
 
-    // Check if the chunks at the minimum and maximum locations of the door are
-    // loaded.
-    private boolean chunksLoaded(Door door)
+    private Result chunksLoaded(Door door)
     {
         if (!hasValidCoordinates(door))
-            return false;
+            return Result.FAIL;
 
-        return door.getWorld().getChunkAt(door.getMaximum()).load() &&
-               door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
+        Mode mode = plugin.getConfigLoader().loadChunksForToggle() ? Mode.ATTEMPT_LOAD : Mode.VERIFY_LOADED;
+        return ChunkUtils.checkChunks(door.getWorld(), getCurrentChunkRange(door), mode);
     }
 
     @Override
@@ -102,12 +103,15 @@ public class ElevatorOpener implements Opener
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
-        if (!chunksLoaded(door))
+        final Result chunkLoadResult = chunksLoaded(door);
+        if (chunkLoadResult == Result.FAIL)
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
+            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunks for door " + door.getName() + " are not loaded!",
                                             true, false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
+        if (chunkLoadResult == Result.REQUIRED_LOAD)
+            instantOpen = true;
 
         // Make sure the doorSize does not exceed the total doorSize.
         // If it does, open the door instantly.

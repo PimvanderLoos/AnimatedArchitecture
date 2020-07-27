@@ -3,7 +3,11 @@
  */
 package nl.pim16aap2.bigDoors.util;
 
+import java.util.function.Function;
+
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 /**
  *
@@ -56,5 +60,78 @@ public final class ChunkUtils
         maxZ = maxZ >> 4;
 
         return new Pair<>(new Vector2D(minX, minZ), new Vector2D(maxX, maxZ));
+    }
+
+    public static Result checkChunks(final World world, final Pair<Vector2D, Vector2D> chunkRange, final Mode mode)
+    {
+        Function<Chunk, Result> modeFun;
+        switch (mode)
+        {
+        case VERIFY_LOADED:
+            modeFun = ChunkUtils::verifyLoaded;
+            break;
+        case ATTEMPT_LOAD:
+            modeFun = ChunkUtils::attemptLoad;
+            break;
+        default:
+            throw new UnsupportedOperationException();
+        }
+
+        boolean requiredLoad = false;
+        for (int x = chunkRange.getFirst().getX(); x <= chunkRange.getSecond().getX(); ++x)
+            for (int z = chunkRange.getFirst().getY(); z <= chunkRange.getSecond().getY(); ++z)
+            {
+                final Result result = modeFun.apply(world.getChunkAt(x, z));
+                if (result == Result.REQUIRED_LOAD)
+                    requiredLoad = true;
+                else if (result == Result.FAIL)
+                    return Result.FAIL;
+            }
+        return requiredLoad ? Result.REQUIRED_LOAD : Result.PASS;
+    }
+
+    private static Result attemptLoad(final Chunk chunk)
+    {
+        if (chunk.isLoaded())
+            return Result.PASS;
+        return chunk.load(false) ? Result.REQUIRED_LOAD : Result.FAIL;
+    }
+
+    private static Result verifyLoaded(final Chunk chunk)
+    {
+        return chunk.isLoaded() ? Result.PASS : Result.FAIL;
+    }
+
+    public enum Mode
+    {
+        /**
+         * Verifies that chunks are loaded. If not, it will not attempt to load it and
+         * abort the process instead.
+         */
+        VERIFY_LOADED,
+
+        /**
+         * Attempts to load any potentially unloaded chunks.
+         */
+        ATTEMPT_LOAD,
+    }
+
+    public enum Result
+    {
+        /**
+         * All chunks are loaded.
+         */
+        PASS,
+
+        /**
+         * The process failed. For example, it could not load any chunks even though it
+         * had to.
+         */
+        FAIL,
+
+        /**
+         * The process successfully loaded 1 or more chunks.
+         */
+        REQUIRED_LOAD
     }
 }

@@ -9,6 +9,8 @@ import org.bukkit.World;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.ChunkUtils;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.Mode;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.Result;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Pair;
@@ -67,9 +69,6 @@ public class DoorOpener implements Opener
     {
         if (isRotateDirectionValid(door))
             return door.getOpenDir();
-
-        if (!chunksLoaded(door))
-            return RotateDirection.NONE;
 
         RotateDirection rotateDir = getRotationDirection(door, getCurrentDirection(door));
         return rotateDir != null ? rotateDir : RotateDirection.CLOCKWISE;
@@ -262,15 +261,13 @@ public class DoorOpener implements Opener
             door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? DoorDirection.WEST : null;
     }
 
-    // Check if the chunks at the minimum and maximum locations of the door are
-    // loaded.
-    private boolean chunksLoaded(Door door)
+    private Result chunksLoaded(Door door)
     {
         if (!hasValidCoordinates(door))
-            return false;
+            return Result.FAIL;
 
-        return door.getWorld().getChunkAt(door.getMaximum()).load() &&
-               door.getWorld().getChunkAt(door.getMinimum()).isLoaded();
+        Mode mode = plugin.getConfigLoader().loadChunksForToggle() ? Mode.ATTEMPT_LOAD : Mode.VERIFY_LOADED;
+        return ChunkUtils.checkChunks(door.getWorld(), getCurrentChunkRange(door), mode);
     }
 
     @Override
@@ -310,12 +307,15 @@ public class DoorOpener implements Opener
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
-        if (!chunksLoaded(door))
+        final Result chunkLoadResult = chunksLoaded(door);
+        if (chunkLoadResult == Result.FAIL)
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunk for door " + door.getName() + " is not loaded!",
+            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunks for door " + door.getName() + " are not loaded!",
                                             true, false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
+        if (chunkLoadResult == Result.REQUIRED_LOAD)
+            instantOpen = true;
 
         DoorDirection currentDirection = getCurrentDirection(door);
         if (currentDirection == null)

@@ -69,6 +69,9 @@ import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocatio
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 import nl.pim16aap2.bigDoors.toolUsers.ToolVerifier;
+import nl.pim16aap2.bigDoors.util.ChunkUtils;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.Mode;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.Result;
 import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.DoorType;
@@ -784,6 +787,22 @@ public class BigDoors extends JavaPlugin implements Listener
     /*
      * API Starts here.
      */
+
+    /**
+     * Checks if all chunks a door could interact with if it were to be toggled
+     * right now. Depending on how much is known about the door (e.g. open
+     * direction, blocksToMove) and its type, the result can be more or less
+     * reliable.
+     *
+     * @param door The door for which to check which chunks it could interact with.
+     * @return True if all chunks the door could interact with are currently loaded.
+     */
+    public boolean areChunksLoadedForDoor(Door door)
+    {
+        Opener opener = getDoorOpener(door.getType());
+        return ChunkUtils.checkChunks(door.getWorld(), opener.getCurrentChunkRange(door),
+                                      Mode.VERIFY_LOADED) == Result.PASS;
+    }
 
     // (Instantly?) Toggle a door with a given time.
     public DoorOpenResult toggleDoor(Door door, double time, boolean instantOpen)

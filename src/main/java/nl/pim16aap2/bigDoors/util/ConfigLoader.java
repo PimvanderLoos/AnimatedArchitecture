@@ -49,6 +49,7 @@ public class ConfigLoader
     private boolean enableFileLogging;
     private int maxBlocksToMove;
     private boolean unsafeMode;
+    private boolean loadChunksForToggle;
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
@@ -150,6 +151,9 @@ public class ConfigLoader
                                                  "Don't forget to update the language file if you change this!" };
         String[] maxBlocksToMoveComment = { "The maximum number of blocks a door can move. This only applies to doors that move in a straight line (e.g. sliding door).",
                                             "Values less than 1 are invalid. " };
+        String[] loadChunksForToggleComment = { "Try to load chunks when a door is toggled. When set to false, doors will not be toggled if more than 1 chunk needs to be loaded.",
+                                                "When set to true, the plugin will try to load all chunks the door will interact with before toggling. If more than 1 chunk ",
+                                                "needs to be loaded, the door will skip its animation to avoid spawning a bunch of entities no one can see anyway." };
 
 //        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
 //                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
@@ -272,6 +276,9 @@ public class ConfigLoader
         commandWaiterTimeout = config.getInt("commandWaiterTimeout", 40);
         configOptionsList
             .add(new ConfigOption("commandWaiterTimeout", commandWaiterTimeout, commandWaiterTimeoutComment));
+
+        loadChunksForToggle = config.getBoolean("loadChunksForToggle", true);
+        configOptionsList.add(new ConfigOption("loadChunksForToggle", loadChunksForToggle, loadChunksForToggleComment));
 
         enableFileLogging = config.getBoolean("enableFileLogging", true);
         configOptionsList.add(new ConfigOption("enableFileLogging", enableFileLogging, enableFileLoggingComment));
@@ -618,6 +625,11 @@ public class ConfigLoader
     public int commandWaiterTimeout()
     {
         return commandWaiterTimeout;
+    }
+
+    public boolean loadChunksForToggle()
+    {
+        return loadChunksForToggle;
     }
 
     /**
