@@ -4,14 +4,18 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.Util;
 
 public class PowerBlockRelocator extends ToolUser
 {
-    public PowerBlockRelocator(BigDoors plugin, Player player, long doorUID)
+    private final Door door;
+
+    public PowerBlockRelocator(BigDoors plugin, Player player, Door door)
     {
         super(plugin, player, null, null);
-        this.doorUID = doorUID;
+        this.door = door;
+        doorUID = door.getDoorUID();
         Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Init"));
         triggerGiveTool();
     }
@@ -19,7 +23,7 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     protected void triggerGiveTool()
     {
-        giveToolToPlayer(messages.getString("CREATOR.PBRELOCATOR.StickLore"    ).split("\n"),
+        giveToolToPlayer(messages.getString("CREATOR.PBRELOCATOR.StickLore").split("\n"),
                          messages.getString("CREATOR.PBRELOCATOR.StickReceived").split("\n"));
     }
 
@@ -34,14 +38,29 @@ public class PowerBlockRelocator extends ToolUser
         finishUp(null);
     }
 
+    private boolean verifyDistance(Location loc)
+    {
+        if (plugin.getConfigLoader().maxPowerBlockDistance() < 0)
+            return true;
+
+        double distance = door.getEngine().toVector().distance(loc.toVector());
+        return distance <= plugin.getConfigLoader().maxPowerBlockDistance();
+    }
+
     // Take care of the selection points.
     @Override
     public void selector(Location loc)
     {
+        if (!verifyDistance(loc))
+        {
+            Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.LocationTooFar"));
+            return;
+        }
+
         if (plugin.getCommander().isPowerBlockLocationValid(loc))
         {
             done = true;
-            one  = loc;
+            one = loc;
             setIsDone(true);
         }
         else

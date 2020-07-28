@@ -415,7 +415,7 @@ public class GUI
                 update();
                 break;
             case RELOCATEPOWERBLOCK:
-                plugin.getCommandHandler().startPowerBlockRelocator(player, door.getDoorUID());
+                plugin.getCommandHandler().startPowerBlockRelocator(player, door);
                 close();
                 break;
             case DIRECTION_STRAIGHT:

@@ -349,9 +349,9 @@ public class CommandHandler implements CommandExecutor
         abortable.abort();
     }
 
-    public void startPowerBlockRelocator(Player player, long doorUID)
+    public void startPowerBlockRelocator(Player player, Door door)
     {
-        startTimerForAbortable(new PowerBlockRelocator(plugin, player, doorUID),
+        startTimerForAbortable(new PowerBlockRelocator(plugin, player, door),
                                plugin.getConfigLoader().commandWaiterTimeout() * 20);
     }
 
@@ -899,9 +899,9 @@ public class CommandHandler implements CommandExecutor
                     Util.messagePlayer(player, ChatColor.RED, "No door found by that name!");
                     return true;
                 }
-                long doorUID = door.getDoorUID();
-                if (plugin.getCommander().hasPermissionForAction(player, doorUID, DoorAttribute.RELOCATEPOWERBLOCK))
-                    startPowerBlockRelocator(player, doorUID);
+                if (plugin.getCommander().hasPermissionForAction(player, door.getDoorUID(),
+                                                                 DoorAttribute.RELOCATEPOWERBLOCK))
+                    startPowerBlockRelocator(player, door);
                 return true;
             }
 

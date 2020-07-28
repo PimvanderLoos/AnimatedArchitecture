@@ -50,6 +50,7 @@ public class ConfigLoader
     private int maxBlocksToMove;
     private boolean unsafeMode;
     private boolean loadChunksForToggle;
+    private int maxPowerBlockDistance;
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
@@ -124,6 +125,8 @@ public class ConfigLoader
                                         "For example, If you'd want to allow doors of 20 by 10 blocks, you'd need a limit of at least 200.",
                                         "This is a global limit that not even OPs can bypass. Use permissions for more fine-grained control.",
                                         "Use -1 to disable this limit." };
+        String[] maxPowerBlockDistanceComment = { "The maximum distance between a door's engine and its powerblock. Like maxDoorSize, this is a global limit. ",
+                                                  "Not even OPs can bypass it! Use -1 to disable this limit." };
         String[] resourcePackComment = { "This plugin uses a support resource pack for things suchs as sound.",
                                          "Different packs will be used for different versions of Minecraft:",
                                          "The resource pack for 1.11.x/1.12.x is: \'"
@@ -224,6 +227,10 @@ public class ConfigLoader
 
         maxDoorSize = config.getInt("maxDoorSize", -1);
         configOptionsList.add(new ConfigOption("maxDoorSize", maxDoorSize, maxDoorSizeComment));
+
+        maxPowerBlockDistance = config.getInt("maxPowerBlockDistance", -1);
+        configOptionsList
+            .add(new ConfigOption("maxPowerBlockDistance", maxPowerBlockDistance, maxPowerBlockDistanceComment));
 
         resourcePackEnabled = config.getBoolean("resourcePackEnabled", true);
         configOptionsList.add(new ConfigOption("resourcePackEnabled", resourcePackEnabled, resourcePackComment));
@@ -630,6 +637,11 @@ public class ConfigLoader
     public boolean loadChunksForToggle()
     {
         return loadChunksForToggle;
+    }
+
+    public int maxPowerBlockDistance()
+    {
+        return maxPowerBlockDistance;
     }
 
     /**
