@@ -1,6 +1,7 @@
 Alpha 0.1.8.24
 - Fixed powerblock cache not being invalidated when creating a new door (so you couldn't use it). Cache is now also invalidated when removing doors. Thanks, @PirateCraft, for the bug report!
-- Exposed some methods to check which chunks a door might interact with when opening.
+- Exposed some methods to check which chunks a door might interact with when opening and if they are currently loaded or not.
+- Added new config option "loadChunksForToggle" that determines how the plugin handles unloaded chunks. When set to true, it will load any necessary chunks and move the blocks without animation. When set to false, it will abort the toggle attempt (and not load any chunks).
 
 Alpha 0.1.8.23
 - Added full support for 1.16's new blocks so you no longer have to manually add them to the whitelist. Thanks, @thedarkonekiller, for the bug report!

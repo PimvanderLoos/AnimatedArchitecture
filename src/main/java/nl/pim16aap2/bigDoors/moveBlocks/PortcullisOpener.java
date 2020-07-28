@@ -2,13 +2,11 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.util.ChunkUtils;
 import nl.pim16aap2.bigDoors.util.ChunkUtils.Mode;
 import nl.pim16aap2.bigDoors.util.ChunkUtils.Result;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
@@ -54,15 +52,6 @@ public class PortcullisOpener implements Opener
         return RotateDirection.UP;
     }
 
-    private Result chunksLoaded(Door door)
-    {
-        if (!hasValidCoordinates(door))
-            return Result.FAIL;
-
-        Mode mode = plugin.getConfigLoader().loadChunksForToggle() ? Mode.ATTEMPT_LOAD : Mode.VERIFY_LOADED;
-        return ChunkUtils.checkChunks(door.getWorld(), getCurrentChunkRange(door), mode);
-    }
-
     @Override
     public DoorOpenResult shadowToggle(Door door)
     {
@@ -96,7 +85,7 @@ public class PortcullisOpener implements Opener
 
     // Open a door.
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
+    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, Mode mode)
     {
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
@@ -105,12 +94,11 @@ public class PortcullisOpener implements Opener
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
-        final Result chunkLoadResult = chunksLoaded(door);
+        final Result chunkLoadResult = chunksLoaded(door, mode);
         if (chunkLoadResult == Result.FAIL)
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunks for door " + door.getName() + " are not loaded!",
-                                            true, false);
-            return abort(DoorOpenResult.ERROR, door.getDoorUID());
+            plugin.getMyLogger().logMessage("Chunks for door " + door.getName() + " are not loaded!", true, false);
+            return abort(DoorOpenResult.CHUNKSNOTLOADED, door.getDoorUID());
         }
         if (chunkLoadResult == Result.REQUIRED_LOAD)
             instantOpen = true;

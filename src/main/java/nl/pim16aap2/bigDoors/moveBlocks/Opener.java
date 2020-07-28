@@ -9,6 +9,8 @@ import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
 import nl.pim16aap2.bigDoors.events.DoorEventTogglePrepare;
 import nl.pim16aap2.bigDoors.events.DoorEventToggleStart;
 import nl.pim16aap2.bigDoors.util.ChunkUtils;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.Mode;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.Result;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -19,25 +21,11 @@ public interface Opener
 {
     default boolean hasValidCoordinates(Door door)
     {
-        if (door.getWorld() == null)
-        {
-            BigDoors.get().getMyLogger().logMessage("World is null for door \"" + door.getName().toString() + "\"",
-                                                    true, false);
-            return false;
-        }
-        if (door.getWorld().getChunkAt(door.getMaximum()) == null)
-        {
-            BigDoors.get().getMyLogger()
-                .logMessage("Chunk at maximum for door \"" + door.getName().toString() + "\" is null!", true, false);
-            return false;
-        }
-        if (door.getWorld().getChunkAt(door.getMinimum()) == null)
-        {
-            BigDoors.get().getMyLogger()
-                .logMessage("Chunk at minimum for door \"" + door.getName().toString() + "\" is null!", true, false);
-            return false;
-        }
-        return true;
+        if (door.getWorld() != null)
+            return true;
+
+        BigDoors.get().getMyLogger().logMessage("World is null for door \"" + door.getName() + "\"", true, false);
+        return false;
     }
 
     /**
@@ -59,19 +47,33 @@ public interface Opener
      * @return A pair of coordinates in chunk-space (hence 2d) containing the
      *         lower-bound coordinates first and the upper bound second.
      */
-    public default Pair<Vector2D, Vector2D> getCurrentChunkRange(Door door)
+    default Pair<Vector2D, Vector2D> getCurrentChunkRange(Door door)
     {
         return ChunkUtils.getChunkRangeBetweenCoords(door.getMinimum(), door.getMaximum());
     }
 
-    public DoorOpenResult openDoor(Door door, double time);
+    DoorOpenResult openDoor(Door door, double time);
 
     default DoorOpenResult openDoor(Door door, double time, boolean instantOpen)
     {
         return openDoor(door, time, instantOpen, false);
     }
 
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent);
+    default Result chunksLoaded(Door door, Mode mode)
+    {
+        if (!hasValidCoordinates(door))
+            return Result.FAIL;
+
+        return ChunkUtils.checkChunks(door.getWorld(), getCurrentChunkRange(door), mode);
+    }
+
+    public default DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
+    {
+        Mode mode = BigDoors.get().getConfigLoader().loadChunksForToggle() ? Mode.ATTEMPT_LOAD : Mode.VERIFY_LOADED;
+        return openDoor(door, time, instantOpen, silent, mode);
+    }
+
+    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, Mode mode);
 
     public DoorOpenResult shadowToggle(Door door);
 

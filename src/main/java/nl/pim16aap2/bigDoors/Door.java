@@ -205,10 +205,7 @@ public class Door
         if (chunkLoc != null)
             return chunkLoc;
 
-        Chunk chunk = world.getBlockAt((int) engine.getX(), (int) engine.getY(),
-                                              (int) engine.getZ()).getChunk();
-        chunkLoc = new Location(world, chunk.getX(), 0, chunk.getZ());
-
+        chunkLoc = new Location(world, engine.getBlockX() >> 4, 0, engine.getBlockZ() >> 4);
         return chunkLoc;
     }
 

@@ -3,9 +3,9 @@
  */
 package nl.pim16aap2.bigDoors.util;
 
-import java.util.function.Function;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -15,6 +15,21 @@ import org.bukkit.World;
  */
 public final class ChunkUtils
 {
+    private static final Method isChunkGeneratedMethod;
+    static
+    {
+        Method isChunkGeneratedMethodTmp = null;
+        try
+        {
+            isChunkGeneratedMethodTmp = World.class.getMethod("isChunkGenerated​", int.class, int.class);
+        }
+        catch (NoSuchMethodException e)
+        {
+            // ignore
+        }
+        isChunkGeneratedMethod = isChunkGeneratedMethodTmp;
+    }
+
     private ChunkUtils()
     {
         // STAY OUT!
@@ -64,7 +79,7 @@ public final class ChunkUtils
 
     public static Result checkChunks(final World world, final Pair<Vector2D, Vector2D> chunkRange, final Mode mode)
     {
-        Function<Chunk, Result> modeFun;
+        TriFunction<World, Integer, Integer, Result> modeFun;
         switch (mode)
         {
         case VERIFY_LOADED:
@@ -81,7 +96,7 @@ public final class ChunkUtils
         for (int x = chunkRange.first.getX(); x <= chunkRange.second.getX(); ++x)
             for (int z = chunkRange.first.getY(); z <= chunkRange.second.getY(); ++z)
             {
-                final Result result = modeFun.apply(world.getChunkAt(x, z));
+                final Result result = modeFun.apply(world, x, z);
                 if (result == Result.REQUIRED_LOAD)
                     requiredLoad = true;
                 else if (result == Result.FAIL)
@@ -90,16 +105,46 @@ public final class ChunkUtils
         return requiredLoad ? Result.REQUIRED_LOAD : Result.PASS;
     }
 
-    private static Result attemptLoad(final Chunk chunk)
+    /**
+     * This will check if the chunk has been generated on versions of Spigot that
+     * have "World#isChunkGenerated(int, int)".
+     *
+     * @param chunkX The x-coordinate of the chunk (in chunk-space).
+     * @param chunkZ The z-coordinate of the chunk (in chunk-space).
+     * @return False if the chunk was definitely not generated, otherwise true
+     *         (including when errors occur).
+     */
+    private static boolean isChunkGenerated(final World world, final Integer chunkX, final Integer chunkZ)
     {
-        if (chunk.isLoaded())
-            return Result.PASS;
-        return chunk.load(false) ? Result.REQUIRED_LOAD : Result.FAIL;
+        if (isChunkGeneratedMethod == null)
+            return true;
+
+        try
+        {
+            return (boolean) isChunkGeneratedMethod.invoke(world, chunkX, chunkZ);
+        }
+        catch (InvocationTargetException | IllegalAccessException e)
+        {
+            e.printStackTrace();
+            return true;
+        }
     }
 
-    private static Result verifyLoaded(final Chunk chunk)
+    private static Result attemptLoad(World world, final Integer chunkX, final Integer chunkZ)
     {
-        return chunk.isLoaded() ? Result.PASS : Result.FAIL;
+        if (verifyLoaded(world, chunkX, chunkZ) == Result.PASS)
+            return Result.PASS;
+
+        if (!isChunkGenerated(world, chunkX, chunkZ))
+            return Result.FAIL;
+
+        world.getChunkAt(chunkX, chunkZ);
+        return Result.REQUIRED_LOAD;
+    }
+
+    private static Result verifyLoaded(World world, final Integer chunkX, final Integer chunkZ)
+    {
+        return world.isChunkLoaded(chunkX, chunkZ) ? Result.PASS : Result.FAIL;
     }
 
     public enum Mode

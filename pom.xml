@@ -36,7 +36,7 @@
         </repository>
 
         <repository>
-            <id>redprotect-repo</id>
+            <id>redprotect-repo2</id>
             <url>https://raw.github.com/FabioZumbi12/RedProtect/mvn-repo/</url>
         </repository>
 

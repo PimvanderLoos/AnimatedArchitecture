@@ -13,6 +13,7 @@ public enum DoorOpenResult
     TYPEDISABLED  ("GENERAL.DoorTypeDisabled"),
     CANCELLED     ("GENERAL.ToggleCancelled"),
     BLOCKSTOMOVEINVALID ("GENERAL.InvalidBlocksToMoveRange"),
+    CHUNKSNOTLOADED     ("GENERAL.ChunksNotLoaded"),
     ;
 
     private String message;

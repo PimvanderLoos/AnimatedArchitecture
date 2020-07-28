@@ -2,7 +2,6 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import java.util.logging.Level;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -261,15 +260,6 @@ public class DoorOpener implements Opener
             door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? DoorDirection.WEST : null;
     }
 
-    private Result chunksLoaded(Door door)
-    {
-        if (!hasValidCoordinates(door))
-            return Result.FAIL;
-
-        Mode mode = plugin.getConfigLoader().loadChunksForToggle() ? Mode.ATTEMPT_LOAD : Mode.VERIFY_LOADED;
-        return ChunkUtils.checkChunks(door.getWorld(), getCurrentChunkRange(door), mode);
-    }
-
     @Override
     public DoorOpenResult shadowToggle(Door door)
     {
@@ -298,7 +288,7 @@ public class DoorOpener implements Opener
 
     // Open a door.
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
+    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, Mode mode)
     {
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
@@ -307,12 +297,11 @@ public class DoorOpener implements Opener
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
-        final Result chunkLoadResult = chunksLoaded(door);
+        final Result chunkLoadResult = chunksLoaded(door, mode);
         if (chunkLoadResult == Result.FAIL)
         {
-            plugin.getMyLogger().logMessage(ChatColor.RED + "Chunks for door " + door.getName() + " are not loaded!",
-                                            true, false);
-            return abort(DoorOpenResult.ERROR, door.getDoorUID());
+            plugin.getMyLogger().logMessage("Chunks for door " + door.getName() + " are not loaded!", true, false);
+            return abort(DoorOpenResult.CHUNKSNOTLOADED, door.getDoorUID());
         }
         if (chunkLoadResult == Result.REQUIRED_LOAD)
             instantOpen = true;
