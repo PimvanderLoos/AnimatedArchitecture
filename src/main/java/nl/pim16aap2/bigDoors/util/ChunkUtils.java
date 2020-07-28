@@ -78,8 +78,8 @@ public final class ChunkUtils
         }
 
         boolean requiredLoad = false;
-        for (int x = chunkRange.getFirst().getX(); x <= chunkRange.getSecond().getX(); ++x)
-            for (int z = chunkRange.getFirst().getY(); z <= chunkRange.getSecond().getY(); ++z)
+        for (int x = chunkRange.first.getX(); x <= chunkRange.second.getX(); ++x)
+            for (int z = chunkRange.first.getY(); z <= chunkRange.second.getY(); ++z)
             {
                 final Result result = modeFun.apply(world.getChunkAt(x, z));
                 if (result == Result.REQUIRED_LOAD)
