@@ -77,9 +77,9 @@ public final class ChunkUtils
         return new Pair<>(new Vector2D(minX, minZ), new Vector2D(maxX, maxZ));
     }
 
-    public static Result checkChunks(final World world, final Pair<Vector2D, Vector2D> chunkRange, final Mode mode)
+    public static ChunkLoadResult checkChunks(final World world, final Pair<Vector2D, Vector2D> chunkRange, final ChunkLoadMode mode)
     {
-        TriFunction<World, Integer, Integer, Result> modeFun;
+        TriFunction<World, Integer, Integer, ChunkLoadResult> modeFun;
         switch (mode)
         {
         case VERIFY_LOADED:
@@ -96,13 +96,13 @@ public final class ChunkUtils
         for (int x = chunkRange.first.getX(); x <= chunkRange.second.getX(); ++x)
             for (int z = chunkRange.first.getY(); z <= chunkRange.second.getY(); ++z)
             {
-                final Result result = modeFun.apply(world, x, z);
-                if (result == Result.REQUIRED_LOAD)
+                final ChunkLoadResult result = modeFun.apply(world, x, z);
+                if (result == ChunkLoadResult.REQUIRED_LOAD)
                     requiredLoad = true;
-                else if (result == Result.FAIL)
-                    return Result.FAIL;
+                else if (result == ChunkLoadResult.FAIL)
+                    return ChunkLoadResult.FAIL;
             }
-        return requiredLoad ? Result.REQUIRED_LOAD : Result.PASS;
+        return requiredLoad ? ChunkLoadResult.REQUIRED_LOAD : ChunkLoadResult.PASS;
     }
 
     /**
@@ -130,24 +130,24 @@ public final class ChunkUtils
         }
     }
 
-    private static Result attemptLoad(World world, final Integer chunkX, final Integer chunkZ)
+    private static ChunkLoadResult attemptLoad(World world, final Integer chunkX, final Integer chunkZ)
     {
-        if (verifyLoaded(world, chunkX, chunkZ) == Result.PASS)
-            return Result.PASS;
+        if (verifyLoaded(world, chunkX, chunkZ) == ChunkLoadResult.PASS)
+            return ChunkLoadResult.PASS;
 
         if (!isChunkGenerated(world, chunkX, chunkZ))
-            return Result.FAIL;
+            return ChunkLoadResult.FAIL;
 
         world.getChunkAt(chunkX, chunkZ);
-        return Result.REQUIRED_LOAD;
+        return ChunkLoadResult.REQUIRED_LOAD;
     }
 
-    private static Result verifyLoaded(World world, final Integer chunkX, final Integer chunkZ)
+    private static ChunkLoadResult verifyLoaded(World world, final Integer chunkX, final Integer chunkZ)
     {
-        return world.isChunkLoaded(chunkX, chunkZ) ? Result.PASS : Result.FAIL;
+        return world.isChunkLoaded(chunkX, chunkZ) ? ChunkLoadResult.PASS : ChunkLoadResult.FAIL;
     }
 
-    public enum Mode
+    public enum ChunkLoadMode
     {
         /**
          * Verifies that chunks are loaded. If not, it will not attempt to load it and
@@ -161,7 +161,7 @@ public final class ChunkUtils
         ATTEMPT_LOAD,
     }
 
-    public enum Result
+    public enum ChunkLoadResult
     {
         /**
          * All chunks are loaded.

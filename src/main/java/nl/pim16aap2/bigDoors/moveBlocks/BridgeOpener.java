@@ -9,8 +9,8 @@ import org.bukkit.World;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.ChunkUtils;
-import nl.pim16aap2.bigDoors.util.ChunkUtils.Mode;
-import nl.pim16aap2.bigDoors.util.ChunkUtils.Result;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.ChunkLoadMode;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.ChunkLoadResult;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Pair;
@@ -329,7 +329,7 @@ public class BridgeOpener implements Opener
     }
 
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, Mode mode)
+    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, ChunkLoadMode mode)
     {
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
@@ -338,13 +338,13 @@ public class BridgeOpener implements Opener
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
-        final Result chunkLoadResult = chunksLoaded(door, mode);
-        if (chunkLoadResult == Result.FAIL)
+        final ChunkLoadResult chunkLoadResult = chunksLoaded(door, mode);
+        if (chunkLoadResult == ChunkLoadResult.FAIL)
         {
             plugin.getMyLogger().logMessage("Chunks for bridge " + door.getName() + " are not loaded!", true, false);
             return abort(DoorOpenResult.CHUNKSNOTLOADED, door.getDoorUID());
         }
-        if (chunkLoadResult == Result.REQUIRED_LOAD)
+        if (chunkLoadResult == ChunkLoadResult.REQUIRED_LOAD)
             instantOpen = true;
 
         DoorDirection currentDirection = getCurrentDirection(door);

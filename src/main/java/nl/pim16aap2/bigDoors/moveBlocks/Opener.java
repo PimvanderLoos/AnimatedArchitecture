@@ -9,8 +9,8 @@ import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
 import nl.pim16aap2.bigDoors.events.DoorEventTogglePrepare;
 import nl.pim16aap2.bigDoors.events.DoorEventToggleStart;
 import nl.pim16aap2.bigDoors.util.ChunkUtils;
-import nl.pim16aap2.bigDoors.util.ChunkUtils.Mode;
-import nl.pim16aap2.bigDoors.util.ChunkUtils.Result;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.ChunkLoadMode;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.ChunkLoadResult;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -59,21 +59,21 @@ public interface Opener
         return openDoor(door, time, instantOpen, false);
     }
 
-    default Result chunksLoaded(Door door, Mode mode)
+    default ChunkLoadResult chunksLoaded(Door door, ChunkLoadMode mode)
     {
         if (!hasValidCoordinates(door))
-            return Result.FAIL;
+            return ChunkLoadResult.FAIL;
 
         return ChunkUtils.checkChunks(door.getWorld(), getCurrentChunkRange(door), mode);
     }
 
     public default DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        Mode mode = BigDoors.get().getConfigLoader().loadChunksForToggle() ? Mode.ATTEMPT_LOAD : Mode.VERIFY_LOADED;
+        ChunkLoadMode mode = BigDoors.get().getConfigLoader().loadChunksForToggle() ? ChunkLoadMode.ATTEMPT_LOAD : ChunkLoadMode.VERIFY_LOADED;
         return openDoor(door, time, instantOpen, silent, mode);
     }
 
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, Mode mode);
+    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, ChunkLoadMode mode);
 
     public DoorOpenResult shadowToggle(Door door);
 

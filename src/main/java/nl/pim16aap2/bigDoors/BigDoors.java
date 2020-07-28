@@ -69,8 +69,8 @@ import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocatio
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 import nl.pim16aap2.bigDoors.toolUsers.ToolVerifier;
-import nl.pim16aap2.bigDoors.util.ChunkUtils.Mode;
-import nl.pim16aap2.bigDoors.util.ChunkUtils.Result;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.ChunkLoadMode;
+import nl.pim16aap2.bigDoors.util.ChunkUtils.ChunkLoadResult;
 import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.DoorType;
@@ -799,7 +799,7 @@ public class BigDoors extends JavaPlugin implements Listener
     public boolean areChunksLoadedForDoor(Door door)
     {
         Opener opener = getDoorOpener(door.getType());
-        return opener == null ? false : opener.chunksLoaded(door, Mode.VERIFY_LOADED) == Result.PASS;
+        return opener == null ? false : opener.chunksLoaded(door, ChunkLoadMode.VERIFY_LOADED) == ChunkLoadResult.PASS;
     }
 
     // (Instantly?) Toggle a door with a given time.
