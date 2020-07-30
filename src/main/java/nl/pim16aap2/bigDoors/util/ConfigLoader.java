@@ -51,6 +51,7 @@ public class ConfigLoader
     private boolean unsafeMode;
     private boolean loadChunksForToggle;
     private int maxPowerBlockDistance;
+    private boolean skipUnloadedAutoCloseToggle;
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
@@ -157,6 +158,11 @@ public class ConfigLoader
         String[] loadChunksForToggleComment = { "Try to load chunks when a door is toggled. When set to false, doors will not be toggled if more than 1 chunk needs to be loaded.",
                                                 "When set to true, the plugin will try to load all chunks the door will interact with before toggling. If more than 1 chunk ",
                                                 "needs to be loaded, the door will skip its animation to avoid spawning a bunch of entities no one can see anyway." };
+        String[] skipUnloadedAutoCloseToggleComment = { "Skip toggles in unloaded chunks if the door has an autoCloseTimer set. ",
+                                                        "This avoids loading chunks only to load them again a little bit later for the autoCloseTimer. ",
+                                                        "The autoCloseTimer itself is not affected, so the timer can still toggle doors regardless of ",
+                                                        "this specific setting. ",
+                                                        "Note that this setting has not effect if \"loadChunksForToggle\" is disabled." };
 
 //        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
 //                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
@@ -286,6 +292,10 @@ public class ConfigLoader
 
         loadChunksForToggle = config.getBoolean("loadChunksForToggle", true);
         configOptionsList.add(new ConfigOption("loadChunksForToggle", loadChunksForToggle, loadChunksForToggleComment));
+
+        skipUnloadedAutoCloseToggle = config.getBoolean("skipUnloadedAutoCloseToggle", true);
+        configOptionsList.add(new ConfigOption("skipUnloadedAutoCloseToggle", skipUnloadedAutoCloseToggle,
+                                               skipUnloadedAutoCloseToggleComment));
 
         enableFileLogging = config.getBoolean("enableFileLogging", true);
         configOptionsList.add(new ConfigOption("enableFileLogging", enableFileLogging, enableFileLoggingComment));
@@ -642,6 +652,11 @@ public class ConfigLoader
     public int maxPowerBlockDistance()
     {
         return maxPowerBlockDistance;
+    }
+
+    public boolean skipUnloadedAutoCloseToggle()
+    {
+        return skipUnloadedAutoCloseToggle;
     }
 
     /**

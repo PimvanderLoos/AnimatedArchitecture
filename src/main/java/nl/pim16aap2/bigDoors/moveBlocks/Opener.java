@@ -69,7 +69,16 @@ public interface Opener
 
     public default DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
-        ChunkLoadMode mode = BigDoors.get().getConfigLoader().loadChunksForToggle() ? ChunkLoadMode.ATTEMPT_LOAD : ChunkLoadMode.VERIFY_LOADED;
+        ChunkLoadMode mode = BigDoors.get().getConfigLoader().loadChunksForToggle() ? ChunkLoadMode.ATTEMPT_LOAD :
+            ChunkLoadMode.VERIFY_LOADED;
+
+        // When "skipUnloadedAutoCloseToggle" is enabled, doors will not try to load
+        // chunks if they have an autoCloseTimer. This only affects closed doors,
+        // because opened doors cannot initiate an autoCloseTimer.
+        if (mode == ChunkLoadMode.ATTEMPT_LOAD && (!door.isOpen()) &&
+            BigDoors.get().getConfigLoader().skipUnloadedAutoCloseToggle() && door.getAutoClose() > 0)
+            mode = ChunkLoadMode.VERIFY_LOADED;
+
         return openDoor(door, time, instantOpen, silent, mode);
     }
 
