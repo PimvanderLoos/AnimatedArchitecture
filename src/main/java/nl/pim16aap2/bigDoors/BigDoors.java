@@ -348,6 +348,16 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         return instance;
     }
+    
+    public boolean isEnabled()
+    {
+        return isEnabled;
+    }
+    
+    public int getBuild()
+    {
+        return buildNumber;
+    }
 
     public void onPlayerLogout(final Player player)
     {
