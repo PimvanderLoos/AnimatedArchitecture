@@ -51,6 +51,7 @@ public class ConfigLoader
     private boolean unsafeMode;
     private boolean loadChunksForToggle;
     private int maxPowerBlockDistance;
+    private int maxAutoCloseTimer;
     private boolean skipUnloadedAutoCloseToggle;
 
     private HashSet<Material> powerBlockTypesMap;
@@ -128,6 +129,8 @@ public class ConfigLoader
                                         "Use -1 to disable this limit." };
         String[] maxPowerBlockDistanceComment = { "The maximum distance between a door's engine and its powerblock. Like maxDoorSize, this is a global limit. ",
                                                   "Not even OPs can bypass it! Use -1 to disable this limit." };
+        String[] maxAutocloseTimerComment = { "The maximum value of an autoCloseTimer (specified in ticks). ",
+                                              "A value of 6000 is 5 minutes. Use a negative value to allow unlimited values. " };
         String[] resourcePackComment = { "This plugin uses a support resource pack for things suchs as sound.",
                                          "Different packs will be used for different versions of Minecraft:",
                                          "The resource pack for 1.11.x/1.12.x is: \'"
@@ -237,6 +240,9 @@ public class ConfigLoader
         maxPowerBlockDistance = config.getInt("maxPowerBlockDistance", -1);
         configOptionsList
             .add(new ConfigOption("maxPowerBlockDistance", maxPowerBlockDistance, maxPowerBlockDistanceComment));
+
+        maxAutoCloseTimer = config.getInt("maxAutoCloseTimer", 6000);
+        configOptionsList.add(new ConfigOption("maxAutoCloseTimer", maxAutoCloseTimer, maxAutocloseTimerComment));
 
         resourcePackEnabled = config.getBoolean("resourcePackEnabled", true);
         configOptionsList.add(new ConfigOption("resourcePackEnabled", resourcePackEnabled, resourcePackComment));
@@ -652,6 +658,11 @@ public class ConfigLoader
     public int maxPowerBlockDistance()
     {
         return maxPowerBlockDistance;
+    }
+
+    public int maxAutoCloseTimer()
+    {
+        return maxAutoCloseTimer;
     }
 
     public boolean skipUnloadedAutoCloseToggle()

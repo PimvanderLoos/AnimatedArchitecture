@@ -13,7 +13,7 @@ public class WaitForSetTime extends WaitForCommand
     public WaitForSetTime(BigDoors plugin, Player player, long doorUID)
     {
         super(plugin);
-        this.player  = player;
+        this.player = player;
         command = "setautoclosetime";
         this.doorUID = doorUID;
         Util.messagePlayer(player, plugin.getMessages().getString("COMMAND.SetTime.Init"));
@@ -30,6 +30,13 @@ public class WaitForSetTime extends WaitForCommand
             try
             {
                 int time = Integer.parseInt(args[0]);
+                int timeLimit = plugin.getConfigLoader().maxAutoCloseTimer();
+                if (timeLimit >= 0 && time > timeLimit)
+                {
+                    Util.messagePlayer(player, plugin.getMessages().getString("GENERAL.AutoCloseTimerTooBig"));
+                    return true;
+                }
+
                 plugin.getCommandHandler().setDoorOpenTime(player, doorUID, time);
                 plugin.removeCommandWaiter(this);
                 if (time != -1)

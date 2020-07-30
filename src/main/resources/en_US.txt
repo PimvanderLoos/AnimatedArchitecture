@@ -24,6 +24,7 @@ GENERAL.IsBusy=&cYou are already in a creation / relocation / inspector process.
 GENERAL.NotBusy=&cYou are not creating any doors right now! Please initiate the creation process in the GUI! /BDM
 GENERAL.NoDoorTypeCreationPermission=&cYou do not have permission to create a door of this type!
 GENERAL.InvalidBlocksToMoveRange=&cIntended blocks to move distance is outside of the allowed range!
+GENERAL.AutoCloseTimerTooBig=&cIntended autoCloseTimer value is too big! Please try a smaller value.
 GENERAL.ChunksNotLoaded=&cCould not toggle the door because its chunks could not be loaded!
 GENERAL.DOORTYPE.Door=Door
 GENERAL.DOORTYPE.DrawBridge=Drawbridge
