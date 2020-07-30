@@ -348,12 +348,34 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         return instance;
     }
-    
-    public boolean isEnabled()
+
+    /**
+     * For this plugin, there is a difference between being enabled and being
+     * enabled successfully.
+     *
+     * This plugin will always try to enable itself, even if it won't function at
+     * all. This is done so that an alternative command handler can be registered to
+     * inform users that the plugin is broken and admins WHY it failed to enable
+     * properly.
+     *
+     * So, if you inted to use this plugin, make sure to check this function to
+     * avoid running into issues.
+     *
+     * @return True if this plugin was enabled successfully.
+     */
+    public boolean isEnabledSuccessfully()
     {
         return isEnabled;
     }
-    
+
+    /**
+     * Gets the number of the current build. Higher number == newer build. This can
+     * be used to check for feature support, for example. Released builds do not use
+     * branches, so if feature x is supported in build y, feature x will also be
+     * supported in build y+1, unless intentionally removed.
+     *
+     * @return The id of the current build.
+     */
     public int getBuild()
     {
         return buildNumber;
