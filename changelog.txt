@@ -1,3 +1,6 @@
+Alpha 0.1.8.25
+
+
 Alpha 0.1.8.24
 - Fixed powerblock cache not being invalidated when creating a new door (so you couldn't use it). The cache is now also invalidated when removing doors. Thanks, @PirateCraft, for the bug report!
 - Exposed some methods to check which chunks a door might interact with when opening and if they are currently loaded or not.
