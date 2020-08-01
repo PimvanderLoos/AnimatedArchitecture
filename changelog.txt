@@ -1,5 +1,5 @@
 Alpha 0.1.8.24
-- Fixed powerblock cache not being invalidated when creating a new door (so you couldn't use it). Cache is now also invalidated when removing doors. Thanks, @PirateCraft, for the bug report!
+- Fixed powerblock cache not being invalidated when creating a new door (so you couldn't use it). The cache is now also invalidated when removing doors. Thanks, @PirateCraft, for the bug report!
 - Exposed some methods to check which chunks a door might interact with when opening and if they are currently loaded or not.
 - Added new config option "loadChunksForToggle" (default: true) that determines how the plugin handles unloaded chunks. When set to true, it will load any necessary chunks and move the blocks without animation. When set to false, it will abort the toggle attempt (and not load any chunks).
 - Added new config option "skipUnloadedAutoCloseToggle" (default: true) that will prevent a door being toggled in unloaded chunks if it has an autoCloseTimer set, to avoid unnecessary chunk loading. Only takes effect if "loadChunksForToggle" is enabled.

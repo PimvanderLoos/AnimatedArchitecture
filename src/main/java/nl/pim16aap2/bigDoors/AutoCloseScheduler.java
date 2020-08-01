@@ -41,6 +41,17 @@ public class AutoCloseScheduler
         if (door.getAutoClose() < 0 || !door.isOpen())
             return;
 
+        if (door.getAutoClose() > BigDoors.get().getConfigLoader().maxAutoCloseTimer())
+        {
+            BigDoors.get().getMyLogger()
+                .warn("Aborted autoCloseTimer for door: " + door.getDoorUID() + ", because it's autoCloseTimer ("
+                    + door.getAutoClose() + ") exceeds the global limit ("
+                    + BigDoors.get().getConfigLoader().maxAutoCloseTimer() + ").");
+            BigDoors.get().getMyLogger()
+                .warn("Either change the door's autoCloseTimer or increase the global limit in the config.");
+            return;
+        }
+
         // First delete any old timers that might still be running.
         deleteTimer(door.getDoorUID());
         int delay = Math.max(plugin.getMinimumDoorDelay(), door.getAutoClose() * 20);
@@ -58,8 +69,8 @@ public class AutoCloseScheduler
                         cancel();
                     }
                     else
-                        plugin.getDoorOpener(door.getType()).openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()),
-                                                                      time, instantOpen, false);
+                        plugin.getDoorOpener(door.getType())
+                            .openDoor(plugin.getCommander().getDoor(null, door.getDoorUID()), time, instantOpen, false);
                 }
                 deleteTimer(door.getDoorUID());
             }
