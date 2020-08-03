@@ -733,7 +733,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                     ", is not a Spigot event, but it was called on the Spigot platform!"));
             return;
         }
-
+        
         // Async events can only be called asynchronously and Sync events can only be called from the main thread.
         final boolean isMainThread = isMainThread(Thread.currentThread().getId());
         if (isMainThread && doorEvent.isAsynchronous())

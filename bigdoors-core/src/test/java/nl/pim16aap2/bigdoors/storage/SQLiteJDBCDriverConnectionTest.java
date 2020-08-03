@@ -501,16 +501,19 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
 
         // Check if adding owners works correctly.
         Assert.assertEquals(1, storage.getOwnersOfDoor(1L).size());
+
         // Try adding player2 as owner of door 2.
-        storage.addOwner(2L, player2, 1);
+        Assert.assertTrue(storage.addOwner(2L, player2, 1));
+
         // Try adding player 1 as owner of door 2, while player 1 is already the creator! This is not allowed.
-        storage.addOwner(2L, player1, 0);
+        Assert.assertFalse(storage.addOwner(2L, player1, 0));
+
         // Try adding player 2 as owner of door 2, while player 1 is already the creator! This is not allowed.
-        storage.addOwner(2L, player2, 0);
+        Assert.assertFalse(storage.addOwner(2L, player2, 0));
 
         // Try adding a player that is not in the database yet as owner.
         Assert.assertEquals(1, storage.getOwnersOfDoor(1L).size());
-        storage.addOwner(1L, player3, 1);
+        Assert.assertTrue(storage.addOwner(1L, player3, 1));
         Assert.assertEquals(2, storage.getOwnersOfDoor(1L).size());
 
         // Verify the permission level of player 2 over door 2.
@@ -535,15 +538,15 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), "massive2", 0).get().size());
 
         // Verify that adding an existing owner overrides the permission level.
-        storage.addOwner(2L, player2, 2);
+        Assert.assertTrue(storage.addOwner(2L, player2, 2));
         Assert.assertEquals(2, storage.getPermission(player2UUID.toString(), 2L));
 
         // Remove player 2 as owner of door 2.
-        storage.removeOwner(2L, player2UUID.toString());
+        Assert.assertTrue(storage.removeOwner(2L, player2UUID.toString()));
         Assert.assertEquals(1, storage.getOwnersOfDoor(2L).size());
 
         // Try to remove player 1 (creator) of door 2. This is not allowed.
-        storage.removeOwner(2L, player1UUID.toString());
+        Assert.assertFalse(storage.removeOwner(2L, player1UUID.toString()));
         Assert.assertEquals(1, storage.getOwnersOfDoor(2L).size());
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
@@ -564,14 +567,14 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertEquals(2, storage.getDoors("massive2").get().size());
 
         // Insert a copy of door 1 in the database (will have doorUID = 4).
-        storage.insert(door1);
+        Assert.assertTrue(storage.insert(door1));
 
         // Verify there are now exactly 2 doors named "massive1" in the database.
         Assert.assertTrue(storage.getDoors("massive1").isPresent());
         Assert.assertEquals(2, storage.getDoors("massive1").get().size());
 
         // Remove the just-added copy of door 1 (doorUID = 4) from the database.
-        storage.removeDoor(4L);
+        Assert.assertTrue(storage.removeDoor(4L));
 
         // Verify that after removal of the copy of door 1 (doorUID = 4), there is now exactly 1 door named
         // "massive1" in the database again.
@@ -579,7 +582,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertEquals(1, storage.getDoors("massive1").get().size());
 
         // Verify that player 2 cannot delete doors they do not own (door 1 belongs to player 1).
-        storage.removeOwner(1L, player2UUID.toString());
+        Assert.assertFalse(storage.removeOwner(1L, player2UUID.toString()));
         Assert.assertTrue(storage.getDoors("massive1").isPresent());
         Assert.assertEquals(1, storage.getDoors("massive1").get().size());
 
@@ -589,7 +592,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertFalse(storage.getDoors(DELETEDOORNAME).isPresent());
 
         for (int idx = 0; idx < 10; ++idx)
-            storage.insert(door3);
+            Assert.assertTrue(storage.insert(door3));
 
         // Verify there are now exactly 10 doors with this different name in the database.
         Assert.assertTrue(storage.getDoors(DELETEDOORNAME).isPresent());
@@ -597,7 +600,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
 
         // Remove all 10 doors we just added (owned by player 2) and verify there are exactly 0 entries of the door with
         // the new name after batch removal. Also revert the name change of door 3.
-        storage.removeDoors(player2UUID.toString(), DELETEDOORNAME);
+        Assert.assertTrue(storage.removeDoors(player2UUID.toString(), DELETEDOORNAME));
         Assert.assertFalse(storage.getDoors(DELETEDOORNAME).isPresent());
         Assert.assertTrue(storage.getDoor(3L).isPresent());
         door3.setName(storage.getDoor(3L).get().getName());
@@ -611,13 +614,13 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertNotSame(player1UUID, storage.getPlayerUUID(player2Name).get());
 
         // Update player 2's name to their alt name and make sure the old name is gone and the new one is reachable.
-        storage.updatePlayerName(player2UUID.toString(), player2NameALT);
+        Assert.assertTrue(storage.updatePlayerName(player2UUID.toString(), player2NameALT));
         Assert.assertFalse(storage.getPlayerUUID(player2Name).isPresent());
         Assert.assertTrue(storage.getPlayerUUID(player2NameALT).isPresent());
         Assert.assertEquals(player2UUID, storage.getPlayerUUID(player2NameALT).get());
 
         // Revert name change of player 2.
-        storage.updatePlayerName(player2UUID.toString(), player2Name);
+        Assert.assertTrue(storage.updatePlayerName(player2UUID.toString(), player2Name));
 
 //        long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlockLoc().getX(),
 //                                                          door1.getPowerBlockLoc().getZ());

@@ -79,8 +79,18 @@ public enum SQLStatement
         "SELECT bitflag FROM DoorBase WHERE id = ?;"
     ),
 
-    UPDATE_DOOR_FLAG(
-        "UPDATE DoorBase SET bitflag = ? WHERE id = ?;"
+    /**
+     * Adds a single flag to the bitflag column. Please only provide powers of two.
+     */
+    ADD_DOOR_FLAG(
+        "UPDATE DoorBase SET bitflag = (bitflag | ?) WHERE id = ?;"
+    ),
+
+    /**
+     * Removes a single flag to the bitflag column. Please only provide powers of two.
+     */
+    REMOVE_DOOR_FLAG(
+        "UPDATE DoorBase SET bitflag = (bitflag &~ ?) WHERE id = ?;"
     ),
 
     GET_POWER_BLOCK_DATA_IN_CHUNK(

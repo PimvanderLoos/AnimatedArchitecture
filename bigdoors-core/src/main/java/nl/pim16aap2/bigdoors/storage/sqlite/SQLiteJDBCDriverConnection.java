@@ -1006,19 +1006,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private boolean changeDoorFlag(final long doorUID, final @NotNull DoorFlag flag, final boolean flagStatus)
     {
-        @Nullable final Integer currentFlag = executeQuery(SQLStatement.GET_DOOR_FLAG.constructPPreparedStatement()
-                                                                                     .setLong(1, doorUID),
-                                                           resultSet -> resultSet.getInt(1));
-        if (currentFlag == null)
-        {
-            PLogger.get().logException(new SQLException("Could not get flag value of door: " + doorUID));
-            return false;
-        }
-
-        final long newFlag = IBitFlag.changeFlag(DoorFlag.getFlagValue(flag), flagStatus, currentFlag);
-        return executeUpdate(SQLStatement.UPDATE_DOOR_FLAG.constructPPreparedStatement()
-                                                          .setLong(1, newFlag)
-                                                          .setLong(2, doorUID)) > 0;
+        SQLStatement statement = flagStatus ? SQLStatement.ADD_DOOR_FLAG : SQLStatement.REMOVE_DOOR_FLAG;
+        return executeUpdate(statement.constructPPreparedStatement()
+                                      .setLong(1, DoorFlag.getFlagValue(flag))
+                                      .setLong(2, doorUID)) > 0;
     }
 
     /** {@inheritDoc} */
@@ -1185,7 +1176,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Contract(" _, _, _, !null -> !null")
     private <T> T executeQuery(final @NotNull Connection conn,
                                final @NotNull PPreparedStatement pPreparedStatement,
-                               // TODO: Store connection in the function, so chained queries don't have to open multiple connections.
                                final @NotNull CheckedFunction<ResultSet, T, SQLException> fun,
                                final @Nullable T fallback)
     {
@@ -1277,68 +1267,53 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             new ArrayList<>());
     }
 
-    /**
-     * Adds an owner or updates an existing owner's permission level.
-     *
-     * @param conn       A connection to the database.
-     * @param rs         The {@link ResultSet} containing the current door owner (or not).
-     * @param doorUID    The UID of the door.
-     * @param playerID   The ID of the player.
-     * @param permission The new level of ownership this player has over the door.
-     * @return True if a change was made.
-     *
-     * @throws SQLException
-     */
-    private boolean addOrUpdateOwner(final @NotNull Connection conn, final @NotNull ResultSet rs, final long doorUID,
-                                     final long playerID, final int permission)
-        throws SQLException
-    {
-        if (rs.next() && (rs.getInt("permission") != permission))
-            return executeUpdate(conn, SQLStatement.UPDATE_DOOR_OWNER_PERMISSION.constructPPreparedStatement()
-                                                                                .setInt(1, permission)
-                                                                                .setLong(2, playerID)
-                                                                                .setLong(3, doorUID)) > 0;
-
-        return executeUpdate(conn, SQLStatement.INSERT_DOOR_OWNER.constructPPreparedStatement()
-                                                                 .setInt(1, permission)
-                                                                 .setLong(2, playerID)
-                                                                 .setLong(3, doorUID)) > 0;
-    }
-
     /** {@inheritDoc} */
     @Override
     public boolean addOwner(final long doorUID, final @NotNull IPPlayer player, final int permission)
     {
-        // TODO: Use transaction
         // permission level 0 is reserved for the creator, and negative values are not allowed.
         if (permission < 1)
             return false;
 
-        try (final Connection conn = getConnection())
-        {
-            if (conn == null)
-                return false;
+        final String playerName = player.getName();
 
-            final String playerName = player.getName();
-            final long playerID = getPlayerID(conn, new DoorOwner(doorUID, player.getUUID(), playerName, permission));
-            if (playerID == -1)
+        return execute(
+            conn ->
             {
-                PLogger.get().logException(new IllegalArgumentException(
-                    "Trying to add player \"" + player.getUUID().toString() + "\" as owner of door " + doorUID +
-                        ", but that player is not registered in the database! Aborting..."));
-                return false;
-            }
+                conn.setAutoCommit(false);
+                final long playerID = getPlayerID(conn,
+                                                  new DoorOwner(doorUID, player.getUUID(), playerName, permission));
 
-            return executeQuery(conn, SQLStatement.GET_DOOR_OWNER_PLAYER.constructPPreparedStatement()
-                                                                        .setLong(1, playerID)
-                                                                        .setLong(2, doorUID),
-                                rs -> addOrUpdateOwner(conn, rs, doorUID, playerID, permission), false);
-        }
-        catch (SQLException | NullPointerException e)
-        {
-            PLogger.get().logException(e);
-        }
-        return false;
+                if (playerID == -1)
+                {
+                    PLogger.get().logException(new IllegalArgumentException(
+                        "Trying to add player \"" + player.getUUID().toString() + "\" as owner of door " + doorUID +
+                            ", but that player is not registered in the database! Aborting..."));
+                    return false;
+                }
+
+                boolean result =
+                    executeQuery(conn, SQLStatement.GET_DOOR_OWNER_PLAYER.constructPPreparedStatement()
+                                                                         .setLong(1, playerID)
+                                                                         .setLong(2, doorUID),
+                                 rs ->
+                                 {
+                                     SQLStatement statement = (rs.next() && (rs.getInt("permission") != permission)) ?
+                                                              SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
+                                                              SQLStatement.INSERT_DOOR_OWNER;
+
+                                     return
+                                         executeUpdate(conn, statement
+                                             .constructPPreparedStatement()
+                                             .setInt(1, permission)
+                                             .setLong(2, playerID)
+                                             .setLong(3, doorUID)) > 0;
+                                 }, false);
+
+                conn.commit();
+                return result;
+            }, false
+        );
     }
 
     /** {@inheritDoc} */

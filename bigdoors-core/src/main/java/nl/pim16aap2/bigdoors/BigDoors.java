@@ -103,7 +103,7 @@ import org.jetbrains.annotations.Nullable;
 //       to the standards for my CV?
 // TODO: Allow directly opening the GUI for a door.
 // TODO: Make sure that portals don't break when set. Also, they should rotate.
-// TODO: Try to make sure that items like stairs maintain their connection state (so angles move like angles.
+// TODO: Try to make sure that items like stairs maintain their connection state (so corner stairs move like corner stairs).
 // TODO: Use "synchronized" to avoid timing/scheduling issues.
 // TODO: InterruptedException should not be caught, it should be rethrown. Either avoid it altogether, or handle it
 //       properly.
