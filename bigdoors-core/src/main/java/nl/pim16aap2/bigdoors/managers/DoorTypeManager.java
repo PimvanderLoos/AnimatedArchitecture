@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,7 +97,7 @@ public final class DoorTypeManager
      * @param doorTypeID The ID of the {@link DoorType}.
      * @return An optional that contains the class of the {@link DoorType} if it is registered.
      */
-    public Optional<DoorType> getDoorTypeID(final long doorTypeID)
+    public Optional<DoorType> getDoorType(final long doorTypeID)
     {
         return Optional.ofNullable(doorTypesFromID.get(doorTypeID));
     }
@@ -136,6 +137,26 @@ public final class DoorTypeManager
     public CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType)
     {
         return registerDoorType(doorType, true);
+    }
+
+    /**
+     * Unregisters a door-type. Note that it does <b>NOT</b> remove it or its doors from the database and that after
+     * unregistering it, that won't be possible anymore either.
+     * <p>
+     * Once unregistered, this type will be completely disabled and doors of this type cannot be used for anything.
+     *
+     * @param doorType The type to unregister.
+     */
+    public void unregisterDoorType(final @NotNull DoorType doorType)
+    {
+        final @Nullable DoorTypeInfo doorTypeInfo = doorTypesToID.remove(doorType);
+        if (doorTypeInfo == null)
+        {
+            PLogger.get().warn("Trying to unregister door of type: " + doorType.getTypeName() + ", but it isn't " +
+                                   "registered already!");
+            return;
+        }
+        doorTypesFromID.remove(doorTypeInfo.id);
     }
 
     /**

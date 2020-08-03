@@ -345,6 +345,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
 
             final @NotNull Object[] typeData = new Object[doorType.getParameterCount()];
             int parameterIDX = 0;
+            // Just populate the type-specific dataset with random-ish data.
             for (DoorType.Parameter parameter : doorType.getParameters())
             {
                 Object data;
@@ -387,6 +388,19 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
             testRetrieval(typeTesting[idx]);
     }
 
+    /**
+     * Verifies all doors in {@link #typeTesting}.
+     */
+    private void deleteDoorTypeTestDoors()
+    {
+        // Just make sure it still exists, to make debugging easier.
+        Assert.assertTrue(storage.getDoor(3L).isPresent());
+        Assert.assertTrue(storage.deleteDoorType(DoorTypePortcullis.get()));
+        Assert.assertTrue(storage.getDoor(1L).isPresent());
+        Assert.assertTrue(storage.getDoor(2L).isPresent());
+        Assert.assertFalse(storage.getDoor(3L).isPresent());
+    }
+
 
     /**
      * Tests all doors in {@link #typeTesting}.
@@ -397,6 +411,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         initDoorTypeTest();
         insertDoorTypeTestDoors();
         verifyDoorTypeTestDoors();
+        deleteDoorTypeTestDoors();
     }
 
     /**
@@ -499,6 +514,10 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertFalse(storage.isBigDoorsWorld(UUID.randomUUID()));
 
         Assert.assertEquals(1, storage.getOwnerCountOfDoor(1L));
+
+        long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlock().getX(),
+                                                          door1.getPowerBlock().getZ());
+        Assert.assertEquals(3, storage.getDoorsInChunk(chunkHash).size());
 
         // Check if adding owners works correctly.
         Assert.assertEquals(1, storage.getOwnersOfDoor(1L).size());
@@ -623,8 +642,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         // Revert name change of player 2.
         Assert.assertTrue(storage.updatePlayerName(player2UUID.toString(), player2Name));
 
-        long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlock().getX(),
-                                                          door1.getPowerBlock().getZ());
+        chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlock().getX(),
+                                                     door1.getPowerBlock().getZ());
         final ConcurrentHashMap<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkHash);
         Assert.assertNotNull(powerBlockData);
         Assert.assertEquals(3, powerBlockData.elements().nextElement().size());
@@ -751,30 +770,30 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
             assertDoor3Parity();
         }
 
-//        // Test power block relocation.
-//        {
-//            // Create a new location that is not the same as the current power block location of door 3.
-//            final @NotNull Vector3Di oldLoc = door3.getPowerBlockLoc();
-//            final @NotNull Vector3Di newLoc = oldLoc.clone();
-//            newLoc.setY((newLoc.getX() + 30) % 256);
-//            Assert.assertNotSame(newLoc, oldLoc);
-//
-//            // Set the power block location of the database entry of door 3 to the new location.
-//            storage.updateDoorPowerBlockLoc(3L, newLoc.getX(), newLoc.getY(), newLoc.getZ());
-//            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
-//            // This should be the case because the power block locations should differ between them.
-//            assertDoor3NotParity();
-//            // Move the powerBlock location of the object of door 3 so that it matches the database entry of door 3.
-//            // Then make sure both the object and the database entry of door 3 match.
-//            door3.setPowerBlockLocation(newLoc);
-//            assertDoor3Parity();
-//
-//            // Reset the powerBlock location of both the database entry and the object of door 3 and verify they are the
-//            // same again.
-//            storage.updateDoorPowerBlockLoc(3L, oldLoc.getX(), oldLoc.getY(), oldLoc.getZ());
-//            door3.setPowerBlockLocation(oldLoc);
-//            assertDoor3Parity();
-//        }
+        // Test power block relocation.
+        {
+            // Create a new location that is not the same as the current power block location of door 3.
+            final @NotNull Vector3Di oldLoc = door3.getPowerBlock();
+            final @NotNull Vector3Di newLoc = oldLoc.clone();
+            newLoc.setY((newLoc.getX() + 30) % 256);
+            Assert.assertNotSame(newLoc, oldLoc);
+
+            // Set the power block location of the database entry of door 3 to the new location.
+            storage.updateDoorPowerBlockLoc(3L, newLoc.getX(), newLoc.getY(), newLoc.getZ());
+            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
+            // This should be the case because the power block locations should differ between them.
+            assertDoor3NotParity();
+            // Move the powerBlock location of the object of door 3 so that it matches the database entry of door 3.
+            // Then make sure both the object and the database entry of door 3 match.
+            door3.setPowerBlockPosition(newLoc);
+            assertDoor3Parity();
+
+            // Reset the powerBlock location of both the database entry and the object of door 3 and verify they are the
+            // same again.
+            storage.updateDoorPowerBlockLoc(3L, oldLoc.getX(), oldLoc.getY(), oldLoc.getZ());
+            door3.setPowerBlockPosition(oldLoc);
+            assertDoor3Parity();
+        }
 
         // Test updating doors.
         {

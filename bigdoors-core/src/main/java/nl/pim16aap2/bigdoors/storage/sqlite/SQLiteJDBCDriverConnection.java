@@ -275,7 +275,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         final long doorUID = doorBaseRS.getLong("id");
 
-        final @NotNull Optional<DoorType> doorType = DoorTypeManager.get().getDoorTypeID(doorBaseRS.getInt("doorType"));
+        final @NotNull Optional<DoorType> doorType = DoorTypeManager.get().getDoorType(doorBaseRS.getInt("doorType"));
         if (!doorType.isPresent())
         {
             PLogger.get().logException(new NullPointerException(
@@ -341,7 +341,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull Optional<DoorType> doorType =
             // There are 2 columns named "id" here. The first one is the ID of the DoorType, the second one
             // is the ID of the type-specific-table.
-            DoorTypeManager.get().getDoorTypeID(doorBaseRS.getInt(1));
+            DoorTypeManager.get().getDoorType(doorBaseRS.getInt(1));
 
         if (!doorType.isPresent())
             return new Object[]{};
@@ -439,6 +439,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                     ", but it is not registered! Please register it first."));
             return false;
         }
+
         final @NotNull String typeTableName = getTableNameOfType(doorType);
         if (!IStorage.isValidTableName(typeTableName))
         {
@@ -446,10 +447,21 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 "Invalid table name in database: \"" + typeTableName + "\". Please use only alphanumeric characters."));
             return false;
         }
-        // TODO: Use a transaction.
-        int result = executeUpdate(SQLStatement.DELETE_DOOR_TYPE.constructPPreparedStatement().setLong(1, typeID));
-        result += executeUpdate(new PPreparedStatement(0, "DROP TABLE " + typeTableName + ";"));
-        return result == 2; // TODO: This isn't particularly safe. If it's 1, for example, which data is still there??
+
+        boolean removed = executeTransaction(
+            conn ->
+            {
+                boolean result = executeUpdate(SQLStatement.DELETE_DOOR_TYPE.constructPPreparedStatement()
+                                                                            .setLong(1, typeID)) > 0;
+                if (result)
+                    // Ths doesn't appear to return a positive value no matter its effect.
+                    executeUpdate(new PPreparedStatement(0, "DROP TABLE " + typeTableName + ";"));
+                return result;
+            }, false);
+
+        if (removed)
+            DoorTypeManager.get().unregisterDoorType(doorType);
+        return removed;
     }
 
     @NotNull
@@ -588,7 +600,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final @NotNull Pair<String, Integer> typeSpecificDataInsertStatement = typeSpecificDataInsertStatementOpt.get();
 
-        conn.setAutoCommit(false);
         final @NotNull String playerUUID = door.getDoorOwner().getPlayer().getUUID().toString();
         final @NotNull String playerName = door.getDoorOwner().getPlayer().getName();
         final @NotNull String worldUUID = door.getWorld().getUID().toString();
@@ -639,7 +650,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         executeUpdate(conn, SQLStatement.INSERT_DOOR_CREATOR.constructPPreparedStatement().setString(1, playerUUID));
 
-        conn.commit();
         return doorUID;
     }
 
@@ -664,24 +674,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return false;
         }
 
-        try (final @Nullable Connection conn = getConnection())
-        {
-            if (conn == null)
-                return false;
-            return insert(conn, door, doorTypeID, typeSpecificDataOpt.get()) > 0;
-
-//            long doorUID = insert(conn, door, doorTypeID, typeSpecificDataOpt.get());
-//
-//            if (doorUID % 100 == 0)
-//                System.out.println("Added door: " + doorUID);
-//
-//            return doorUID > 0;
-        }
-        catch (Exception e)
-        {
-            PLogger.get().logException(e);
-        }
-        return false;
+        return executeTransaction(
+            conn -> (insert(conn, door, doorTypeID, typeSpecificDataOpt.get()) > 0), false);
     }
 
     /**
@@ -1267,17 +1261,65 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private <T> T execute(final @NotNull CheckedFunction<Connection, T, SQLException> fun,
                           final @Nullable T fallback)
     {
+        return execute(fun, fallback, FailureAction.IGNORE);
+    }
+
+    /**
+     * Executes a {@link CheckedFunction} given an active Connection.
+     *
+     * @param fun           The function to execute.
+     * @param fallback      The fallback value to return in case of failure.
+     * @param <T>           The type of the result to return.
+     * @param failureAction The action to take when an exception is caught.
+     * @return The result of the Function.
+     */
+    @Contract(" _, !null -> !null")
+    private <T> T execute(final @NotNull CheckedFunction<Connection, T, SQLException> fun,
+                          final @Nullable T fallback, final FailureAction failureAction)
+    {
         try (final @Nullable Connection conn = getConnection())
         {
-            if (conn == null)
-                return fallback;
-            return fun.apply(conn);
+            try
+            {
+                if (conn == null)
+                    return fallback;
+                return fun.apply(conn);
+            }
+            catch (Exception e)
+            {
+                if (failureAction == FailureAction.ROLLBACK)
+                    conn.rollback();
+                PLogger.get().logException(e);
+            }
         }
         catch (Exception e)
         {
             PLogger.get().logException(e);
         }
         return fallback;
+    }
+
+    /**
+     * Executes a {@link CheckedFunction} given an active Connection as a transaction. In case an error was caught, it
+     * will attempt to roll back to the state before the
+     *
+     * @param fun      The function to execute.
+     * @param fallback The fallback value to return in case of failure.
+     * @param <T>      The type of the result to return.
+     * @return The result of the Function.
+     */
+    @Contract(" _, !null -> !null")
+    private <T> T executeTransaction(final @NotNull CheckedFunction<Connection, T, SQLException> fun,
+                                     final @Nullable T fallback)
+    {
+        return execute(
+            conn ->
+            {
+                conn.setAutoCommit(false);
+                T result = fun.apply(conn);
+                conn.commit();
+                return result;
+            }, fallback, FailureAction.ROLLBACK);
     }
 
     /**
@@ -1339,10 +1381,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final String playerName = player.getName();
 
-        return execute(
+        return executeTransaction(
             conn ->
             {
-                conn.setAutoCommit(false);
                 final long playerID = getPlayerID(conn,
                                                   new DoorOwner(doorUID, player.getUUID(), playerName, permission));
 
@@ -1354,28 +1395,24 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                     return false;
                 }
 
-                boolean result =
-                    executeQuery(conn, SQLStatement.GET_DOOR_OWNER_PLAYER.constructPPreparedStatement()
-                                                                         .setLong(1, playerID)
-                                                                         .setLong(2, doorUID),
-                                 rs ->
-                                 {
-                                     SQLStatement statement = (rs.next() && (rs.getInt("permission") != permission)) ?
-                                                              SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
-                                                              SQLStatement.INSERT_DOOR_OWNER;
+                return executeQuery(
+                    conn, SQLStatement.GET_DOOR_OWNER_PLAYER.constructPPreparedStatement()
+                                                            .setLong(1, playerID)
+                                                            .setLong(2, doorUID),
+                    rs ->
+                    {
+                        SQLStatement statement = (rs.next() && (rs.getInt("permission") != permission)) ?
+                                                 SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
+                                                 SQLStatement.INSERT_DOOR_OWNER;
 
-                                     return
-                                         executeUpdate(conn, statement
-                                             .constructPPreparedStatement()
-                                             .setInt(1, permission)
-                                             .setLong(2, playerID)
-                                             .setLong(3, doorUID)) > 0;
-                                 }, false);
-
-                conn.commit();
-                return result;
-            }, false
-        );
+                        return
+                            executeUpdate(conn, statement
+                                .constructPPreparedStatement()
+                                .setInt(1, permission)
+                                .setLong(2, playerID)
+                                .setLong(3, doorUID)) > 0;
+                    }, false);
+            }, false);
     }
 
     /** {@inheritDoc} */
@@ -1548,5 +1585,22 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             PLogger.get().logException(e);
         }
+    }
+
+    /**
+     * Describes the action to take when an exception is caught.
+     */
+    private enum FailureAction
+    {
+        /**
+         * Don't do anything special when an exception is caught. It'll still log the error.
+         */
+        IGNORE,
+
+        /**
+         * Attempt to roll back the database when an exception is caught.
+         */
+        ROLLBACK,
+        ;
     }
 }

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public enum SQLStatement
 {
     UPDATE_DOOR_POWER_BLOCK_LOC(
-        "UPDATE DoorBase SET powerBlockX = ?, powerBlockY = ?, powerBlockZ = ?, chunkHash = ? WHERE id = ?;"
+        "UPDATE DoorBase SET powerBlockX = ?, powerBlockY = ?, powerBlockZ = ?, powerBlockHash = ? WHERE id = ?;"
     ),
 
     UPDATE_DOOR_OWNER_PERMISSION(
@@ -182,7 +182,7 @@ public enum SQLStatement
     GET_DOOR_IDS_IN_CHUNK(
         "SELECT DoorBase.id \n" +
             "    FROM DoorBase \n" +
-            "    WHERE DoorBase.chunkHash = ?;"
+            "    WHERE DoorBase.engineHash = ?;"
     ),
 
     GET_DOOR_BASE_FROM_ID_FOR_PLAYER(
@@ -256,7 +256,7 @@ public enum SQLStatement
     ),
 
     /**
-     * Deletes a DoorType. // TODO: Also delete the associated table.
+     * Deletes a DoorType.
      */
     DELETE_DOOR_TYPE(
         "DELETE FROM DoorType WHERE id = ?;"

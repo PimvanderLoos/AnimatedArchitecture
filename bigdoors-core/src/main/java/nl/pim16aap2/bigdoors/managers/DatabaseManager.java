@@ -536,7 +536,8 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Updates the location of a power block of a door.
+     * Updates the location of a power block of a door. If you want to move the powerblock, it's recommended to use
+     * {@link PowerBlockManager#updatePowerBlockLoc} instead, as that will properly invalidate the cache.
      *
      * @param doorUID The UID of the door.
      * @param newLoc  The new location.
