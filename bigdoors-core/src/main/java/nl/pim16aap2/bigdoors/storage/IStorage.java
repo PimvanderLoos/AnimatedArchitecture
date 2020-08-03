@@ -220,13 +220,14 @@ public interface IStorage
     Optional<String> getPlayerName(final @NotNull String playerUUID);
 
     /**
-     * Gets the original creator of a door.
+     * Gets the prime {@link DoorOwner}. I.e. the owner with permission level 0. In most cases, this will just be the
+     * original creator of the door. Every valid door has a prime owner.
      *
-     * @param doorUID The door whose owner to get.
-     * @return The original creator of a door.
+     * @param doorUID The UID of the door.
+     * @return The Owner of the door, is possible.
      */
     @NotNull
-    Optional<DoorOwner> getCreatorOfDoor(final long doorUID);
+    Optional<DoorOwner> getPrimeOwner(final long doorUID);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.

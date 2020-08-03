@@ -93,13 +93,6 @@ public enum SQLStatement
         "SELECT * FROM DoorBase WHERE engineHash = ?;"
     ),
 
-    GET_DOOR_OWNER(
-        "SELECT Player.*, DoorOwnerPlayer.doorUID, DoorOwnerPlayer.permission\n" +
-            "FROM DoorOwnerPlayer \n" +
-            "INNER JOIN Player ON Player.id = DoorOwnerPlayer.playerID\n" +
-            "WHERE DoorOwnerPlayer.doorUID = ?;"
-    ),
-
     GET_PLAYER_UUID(
         "SELECT P.playerUUID \n" +
             "FROM Player AS P \n" +
@@ -315,6 +308,12 @@ public enum SQLStatement
             "        (SELECT seq\n" +
             "         FROM sqlite_sequence\n" +
             "         WHERE sqlite_sequence.name = \"DoorBase\"));"
+    ),
+
+    GET_PRIME_OWNER(
+        "SELECT playerName, playerUUID\n" +
+            "FROM Player INNER JOIN DoorOwnerPlayer ON Player.id = DoorOwnerPlayer.playerID\n" +
+            "WHERE permission = 0 AND doorUID = ?;"
     ),
 
     SELECT_MOST_RECENT_DOOR(

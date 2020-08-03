@@ -965,13 +965,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /** {@inheritDoc} */
     @Override
     @NotNull
-    public Optional<DoorOwner> getCreatorOfDoor(final long doorUID)
+    public Optional<DoorOwner> getPrimeOwner(final long doorUID)
     {
-        return executeQuery(SQLStatement.GET_DOOR_OWNER.constructPPreparedStatement().setLong(1, doorUID),
+        return executeQuery(SQLStatement.GET_PRIME_OWNER.constructPPreparedStatement().setLong(1, doorUID),
                             (resultSet -> Optional.of(new DoorOwner(doorUID,
                                                                     UUID.fromString(resultSet.getString("playerUUID")),
-                                                                    resultSet.getString("playerName"),
-                                                                    resultSet.getInt("permission")))),
+                                                                    resultSet.getString("playerName"), 0))),
                             Optional.empty());
     }
 

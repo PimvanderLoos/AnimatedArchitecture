@@ -508,8 +508,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertTrue(storage.getDoor(1).isPresent());
         Assert.assertEquals(door1, storage.getDoor(1).get());
         Assert.assertFalse(storage.getDoor(9999999).isPresent());
-        Assert.assertTrue(storage.getCreatorOfDoor(1L).isPresent());
-        Assert.assertEquals(door1.getDoorOwner(), storage.getCreatorOfDoor(1L).get());
+        Assert.assertTrue(storage.getPrimeOwner(1L).isPresent());
+        Assert.assertEquals(door1.getDoorOwner(), storage.getPrimeOwner(1L).get());
         Assert.assertTrue(storage.isBigDoorsWorld(worldUUID));
         Assert.assertFalse(storage.isBigDoorsWorld(UUID.randomUUID()));
 
