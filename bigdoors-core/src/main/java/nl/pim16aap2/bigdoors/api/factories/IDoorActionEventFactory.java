@@ -11,8 +11,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 /**
  * Represents a class that can create {@link IDoorEvent}s.
  *
@@ -26,7 +24,8 @@ public interface IDoorActionEventFactory
      * @param door          The door.
      * @param cause         What caused the action.
      * @param actionType    The type of action.
-     * @param responsible   Who is responsible for this door. If null, the door's owner will be used.
+     * @param responsible   Who is responsible for this door. Either the player who directly toggled it (via a command
+     *                      or the GUI), or the original creator when this data is not available.
      * @param time          The number of seconds the door will take to open. Note that there are other factors that
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
@@ -37,7 +36,7 @@ public interface IDoorActionEventFactory
     IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
                                                final @NotNull DoorActionCause cause,
                                                final @NotNull DoorActionType actionType,
-                                               final @NotNull Optional<IPPlayer> responsible, final double time,
+                                               final @NotNull IPPlayer responsible, final double time,
                                                final boolean skipAnimation,
                                                final @NotNull IVector3DiConst newMinimum,
                                                final @NotNull IVector3DiConst newMaximum);
@@ -48,7 +47,8 @@ public interface IDoorActionEventFactory
      * @param door          The door.
      * @param cause         What caused the action.
      * @param actionType    The type of action.
-     * @param responsible   Who is responsible for this door. If null, the door's owner will be used.
+     * @param responsible   Who is responsible for this door. Either the player who directly toggled it (via a command
+     *                      or the GUI), or the original creator when this data is not available.
      * @param time          The number of seconds the door will take to open. Note that there are other factors that
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
@@ -59,7 +59,7 @@ public interface IDoorActionEventFactory
     IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
                                            final @NotNull DoorActionCause cause,
                                            final @NotNull DoorActionType actionType,
-                                           final @NotNull Optional<IPPlayer> responsible, final double time,
+                                           final @NotNull IPPlayer responsible, final double time,
                                            final boolean skipAnimation,
                                            final @NotNull IVector3DiConst newMinimum,
                                            final @NotNull IVector3DiConst newMaximum);
@@ -70,7 +70,8 @@ public interface IDoorActionEventFactory
      * @param door          The door.
      * @param cause         What caused the action.
      * @param actionType    The type of action.
-     * @param responsible   Who is responsible for this door. If null, the door's owner will be used.
+     * @param responsible   Who is responsible for this door. Either the player who directly toggled it (via a command
+     *                      or the GUI), or the original creator when this data is not available.
      * @param time          The number of seconds the door will take to open. Note that there are other factors that
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
@@ -78,6 +79,6 @@ public interface IDoorActionEventFactory
     @NotNull
     IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,
                                        final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType,
-                                       final @NotNull Optional<IPPlayer> responsible, final double time,
+                                       final @NotNull IPPlayer responsible, final double time,
                                        final boolean skipAnimation);
 }

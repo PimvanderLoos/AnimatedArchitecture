@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
@@ -100,6 +101,13 @@ public final class TestPlatform implements IBigDoorsPlatform
     public Messages getMessages()
     {
         return null;
+    }
+
+    @Override
+    @NotNull
+    public IMessageable getMessageableServer()
+    {
+        return MessageableServerTest.get();
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 // TODO: This might be better suited as an abstract class, as the implementation of the basic stuff is always going to
 //       be the same (equals, hashCode, getName, etc).
-public interface IPPlayer
+public interface IPPlayer extends IMessageable
 {
     /**
      * Gets the name of this player.

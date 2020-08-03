@@ -10,8 +10,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 @AllArgsConstructor
 abstract class DoorToggleEvent extends BigDoorsSpigotEvent implements IDoorEvent
 {
@@ -33,7 +31,7 @@ abstract class DoorToggleEvent extends BigDoorsSpigotEvent implements IDoorEvent
     /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
-    protected final Optional<IPPlayer> responsible;
+    protected final IPPlayer responsible;
 
     /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))

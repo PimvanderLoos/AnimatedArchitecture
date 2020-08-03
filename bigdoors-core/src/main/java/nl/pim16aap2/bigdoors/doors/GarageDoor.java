@@ -213,7 +213,7 @@ public class GarageDoor extends AbstractDoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         // TODO: Get rid of this.
@@ -221,7 +221,7 @@ public class GarageDoor extends AbstractDoorBase
 
         doorOpeningUtility.registerBlockMover(
             new GarageDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), skipAnimation,
-                                getCurrentDirection(), getCurrentToggleDir(), initiator, newMin, newMax, cause,
+                                getCurrentDirection(), getCurrentToggleDir(), responsible, newMin, newMax, cause,
                                 actionType));
     }
 

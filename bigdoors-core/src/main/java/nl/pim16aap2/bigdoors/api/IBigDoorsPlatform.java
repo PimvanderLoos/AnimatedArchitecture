@@ -95,6 +95,14 @@ public interface IBigDoorsPlatform
     Messages getMessages();
 
     /**
+     * Gets the implementation of a {@link IMessageable} for the server.
+     *
+     * @return The implementation of a {@link IMessageable} for the server.
+     */
+    @NotNull
+    IMessageable getMessageableServer();
+
+    /**
      * Gets the instance of the {@link IBlockAnalyzer} for this platform.
      *
      * @return The instance of the {@link IBlockAnalyzer} for this platform.

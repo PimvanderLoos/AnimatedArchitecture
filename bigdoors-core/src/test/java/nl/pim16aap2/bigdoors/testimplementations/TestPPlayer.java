@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.logging.Level;
 
 public final class TestPPlayer implements IPPlayer
 {
@@ -58,5 +59,11 @@ public final class TestPPlayer implements IPPlayer
     public int hashCode()
     {
         return getUUID().hashCode();
+    }
+
+    @Override
+    public void sendMessage(@NotNull Level level, @NotNull String message)
+    {
+        MessageableServerTest.get().sendMessage(level, message);
     }
 }

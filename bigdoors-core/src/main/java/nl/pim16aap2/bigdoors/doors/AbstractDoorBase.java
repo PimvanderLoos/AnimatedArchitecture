@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.Value;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
+import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -24,7 +25,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -141,19 +141,23 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     /**
      * Attempts to toggle a door. Think twice before using this method. Instead, please look at {@link
-     * DoorOpener#animateDoorAsync(AbstractDoorBase, DoorActionCause, IPPlayer, double, boolean, DoorActionType)}.
+     * DoorOpener#animateDoorAsync(AbstractDoorBase, DoorActionCause, IMessageable, IPPlayer, double, boolean,
+     * DoorActionType)}.
      *
-     * @param cause         What caused this action.
-     * @param initiator     The player that initiated the DoorAction.
-     * @param time          The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
-     *                      is limited, so at a certain point lower values will not increase door speed.
-     * @param skipAnimation If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @param actionType    The type of action.
+     * @param cause           What caused this action.
+     * @param messageReceiver Who will receive any messages that have to be sent.
+     * @param responsible     Who is responsible for this door. Either the player who directly toggled it (via a command
+     *                        or the GUI), or the original creator when this data is not available.
+     * @param time            The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum
+     *                        speed is limited, so at a certain point lower values will not increase door speed.
+     * @param skipAnimation   If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param actionType      The type of action.
      * @return The result of the attempt.
      */
     @NotNull
-    final DoorToggleResult toggle(final @NotNull DoorActionCause cause, final @NotNull IPPlayer initiator,
-                                  final double time, boolean skipAnimation, final @NotNull DoorActionType actionType)
+    final DoorToggleResult toggle(final @NotNull DoorActionCause cause, final @NotNull IMessageable messageReceiver,
+                                  final @NotNull IPPlayer responsible, final double time, boolean skipAnimation,
+                                  final @NotNull DoorActionType actionType)
     {
         if (openDir == RotateDirection.NONE)
         {
@@ -163,43 +167,41 @@ public abstract class AbstractDoorBase implements IDoorBase
         }
 
         if (skipAnimation && !canSkipAnimation())
-            return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, initiator);
+            return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
         DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
-            return doorOpeningUtility.abort(this, isOpenable, cause, initiator);
+            return doorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
         if (doorOpeningUtility.isTooBig(this))
-            return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, initiator);
+            return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
 
         Vector3Di newMin = new Vector3Di(getMinimum());
         Vector3Di newMax = new Vector3Di(getMaximum());
 
         if (!getPotentialNewCoordinates(newMin, newMax))
-            return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, initiator);
+            return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
         IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                       .createPrepareEvent(this, cause, actionType,
-                                                                           Optional.of(initiator), time,
+                                                       .createPrepareEvent(this, cause, actionType, responsible, time,
                                                                            skipAnimation, newMin, newMax);
         BigDoors.get().getPlatform().callDoorActionEvent(prepareEvent);
         if (prepareEvent.isCancelled())
-            return doorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, initiator);
-
+            return doorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, responsible);
 
         if (!doorOpeningUtility.isLocationEmpty(newMin, newMax, minimum, maximum,
-                                                cause.equals(DoorActionCause.PLAYER) ? initiator : null, getWorld()))
-            return doorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, initiator);
+                                                cause.equals(DoorActionCause.PLAYER) ? responsible : null, getWorld()))
+            return doorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible);
 
-        if (!doorOpeningUtility.canBreakBlocksBetweenLocs(this, newMin, newMax, initiator))
-            return doorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause, initiator);
+        if (!doorOpeningUtility.canBreakBlocksBetweenLocs(this, newMin, newMax, responsible))
+            return doorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause, responsible);
 
-        registerBlockMover(cause, time, skipAnimation, newMin, newMax, initiator, actionType);
+        registerBlockMover(cause, time, skipAnimation, newMin, newMax, responsible, actionType);
 
         BigDoors.get().getPlatform().callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                                 .createStartEvent(this, cause, actionType,
-                                                                                   Optional.of(initiator), time,
-                                                                                   skipAnimation, newMin, newMax));
+                                                                 .createStartEvent(this, cause, actionType, responsible,
+                                                                                   time, skipAnimation, newMin,
+                                                                                   newMax));
 
         return DoorToggleResult.SUCCESS;
     }
@@ -211,9 +213,13 @@ public abstract class AbstractDoorBase implements IDoorBase
         IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory().create(getDoorOwner().getPlayer().getUUID(),
                                                                                   getDoorOwner().getPlayer().getName());
         if (newCurrent == 0 && isCloseable())
-            toggle(DoorActionCause.REDSTONE, player, 0.0D, false, DoorActionType.CLOSE);
+            DoorOpener.get().animateDoorAsync(this, DoorActionCause.REDSTONE,
+                                              BigDoors.get().getPlatform().getMessageableServer(), player, 0.0D,
+                                              false, DoorActionType.CLOSE);
         else if (newCurrent > 0 && isOpenable())
-            toggle(DoorActionCause.REDSTONE, player, 0.0D, false, DoorActionType.OPEN);
+            DoorOpener.get().animateDoorAsync(this, DoorActionCause.REDSTONE,
+                                              BigDoors.get().getPlatform().getMessageableServer(), player, 0.0D,
+                                              false, DoorActionType.OPEN);
     }
 
     /**
@@ -225,12 +231,13 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @param skipAnimation If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
      * @param newMin        The new minimum position this door will have after the toggle.
      * @param newMax        The new maximmum position this door will have after the toggle.
-     * @param initiator     The {@link IPPlayer} responsilbe for the door action.
+     * @param responsible   The {@link IPPlayer} responsible for the door action.
      * @param actionType    The type of action that will be performed by the BlockMover.
      */
     protected abstract void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                                final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                               final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
+                                               final @NotNull IVector3DiConst newMax,
+                                               final @NotNull IPPlayer responsible,
                                                final @NotNull DoorActionType actionType);
 
     /** {@inheritDoc} */

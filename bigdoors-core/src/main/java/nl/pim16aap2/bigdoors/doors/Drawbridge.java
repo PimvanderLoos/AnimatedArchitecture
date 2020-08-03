@@ -172,7 +172,7 @@ public class Drawbridge extends AbstractDoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         PBlockFace upDown =
@@ -180,7 +180,7 @@ public class Drawbridge extends AbstractDoorBase
 
         doorOpeningUtility.registerBlockMover(
             new BridgeMover(time, this, upDown, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
-                .getMultiplier(this), initiator, newMin, newMax, cause, actionType));
+                .getMultiplier(this), responsible, newMin, newMax, cause, actionType));
     }
 
     /** {@inheritDoc} */

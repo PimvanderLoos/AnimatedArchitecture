@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
@@ -85,7 +86,6 @@ import nl.pim16aap2.bigdoors.spigot.factories.PPlayerFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PWorldFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.gui.GUI;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
-import nl.pim16aap2.bigdoors.spigot.listeners.DoorActionListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
 import nl.pim16aap2.bigdoors.spigot.listeners.GUIListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
@@ -105,6 +105,7 @@ import nl.pim16aap2.bigdoors.spigot.util.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PExecutorSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ChunkManagerSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.MessageableServerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -287,16 +288,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             Bukkit.getPluginManager().registerEvents(protCompatMan, this);
             DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), configLoader, protCompatMan);
 
-            Bukkit.getPluginManager().registerEvents(DoorActionListener.get(), this);
-            Bukkit.getPluginManager().registerEvents(WorldListener.init(PowerBlockManager
-                                                                            .init(this, configLoader,
-                                                                                  DatabaseManager.get(),
-                                                                                  getPLogger())), this);
+            Bukkit.getPluginManager().registerEvents(WorldListener.init(PowerBlockManager.init(this, configLoader,
+                                                                                               DatabaseManager.get(),
+                                                                                               getPLogger())), this);
             loadCommands();
 
             pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
-
-//            TEST();
         }
         catch (Exception exception)
         {
@@ -502,6 +499,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public IFallingBlockFactory getFallingBlockFactory()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getFallingBlockFactory();
+    }
+
+    @Override
+    @NotNull
+    public IMessageable getMessageableServer()
+    {
+        return MessageableServerSpigot.get();
     }
 
     /** {@inheritDoc} */
@@ -733,7 +737,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                     ", is not a Spigot event, but it was called on the Spigot platform!"));
             return;
         }
-        
+
         // Async events can only be called asynchronously and Sync events can only be called from the main thread.
         final boolean isMainThread = isMainThread(Thread.currentThread().getId());
         if (isMainThread && doorEvent.isAsynchronous())

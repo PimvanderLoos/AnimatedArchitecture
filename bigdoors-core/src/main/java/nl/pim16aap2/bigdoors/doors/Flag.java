@@ -97,11 +97,11 @@ public class Flag extends AbstractDoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @Nullable IPPlayer initiator,
+                                      final @NotNull IVector3DiConst newMax, final @Nullable IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         doorOpeningUtility.registerBlockMover(
-            new FlagMover(60, this, doorOpeningUtility.getMultiplier(this), initiator, cause, actionType));
+            new FlagMover(60, this, doorOpeningUtility.getMultiplier(this), responsible, cause, actionType));
     }
 
     /** {@inheritDoc} */

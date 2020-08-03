@@ -5,8 +5,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.IPEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 public interface IDoorEvent extends IPEvent
 {
     /**
@@ -27,12 +25,13 @@ public interface IDoorEvent extends IPEvent
 
     /**
      * Gets the UUID of the player responsible for this door action. This either means the player who directly requested
-     * this action or, if it was requested indirectly, the original creator of the door.
+     * this action or, if it was requested indirectly (e.g. via redstone), the prime owner of the door. Therefore, this
+     * player might not be online.
      *
-     * @return The UUID of the player that is responsible for this event.
+     * @return The player that is responsible for this event.
      */
     @NotNull
-    Optional<IPPlayer> getResponsible();
+    IPPlayer getResponsible();
 
     /**
      * Gets the type of the requested action.

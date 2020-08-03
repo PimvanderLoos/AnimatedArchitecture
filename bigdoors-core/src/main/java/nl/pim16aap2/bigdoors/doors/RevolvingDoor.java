@@ -74,7 +74,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         // TODO: Get rid of this.
@@ -82,7 +82,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
 
         doorOpeningUtility.registerBlockMover(
             new RevolvingDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
-                                   initiator, quarterCircles, cause, actionType));
+                                   responsible, quarterCircles, cause, actionType));
     }
 
     /** {@inheritDoc} */

@@ -92,11 +92,11 @@ public class Clock extends AbstractDoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         doorOpeningUtility
-            .registerBlockMover(new ClockMover(this, getCurrentToggleDir(), initiator, cause, actionType));
+            .registerBlockMover(new ClockMover(this, getCurrentToggleDir(), responsible, cause, actionType));
     }
 
     /** {@inheritDoc} */

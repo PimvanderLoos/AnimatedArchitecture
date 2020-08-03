@@ -11,8 +11,6 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 /**
  * Implementation of {@link IDoorEventTogglePrepare} for the Spigot platform.
  *
@@ -33,7 +31,7 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
      * @param door             The door.
      * @param cause            What caused the action.
      * @param actionType       The type of action.
-     * @param responsible      Who is responsible for this door. If null, the door's owner will be used.
+     * @param responsible      Who is responsible for this door. This player may be online, but does not have to be.
      * @param time             The number of seconds the door will take to open. Note that there are other factors that
      *                         affect the total time as well.
      * @param animationSkipped If true, the door will skip the animation and open instantly.
@@ -42,7 +40,7 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
      */
     public DoorEventTogglePrepare(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
                                   final @NotNull DoorActionType actionType,
-                                  final @NotNull Optional<IPPlayer> responsible, final double time,
+                                  final @NotNull IPPlayer responsible, final double time,
                                   final boolean animationSkipped, final @NotNull IVector3DiConst newMinimum,
                                   final @NotNull IVector3DiConst newMaximum)
     {

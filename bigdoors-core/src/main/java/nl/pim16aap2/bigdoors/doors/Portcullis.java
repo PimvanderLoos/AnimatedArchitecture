@@ -118,14 +118,14 @@ public class Portcullis extends AbstractDoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
 
         int blocksToMove = newMin.getY() - minimum.getY();
         doorOpeningUtility.registerBlockMover(
             new VerticalMover(time, this, skipAnimation, blocksToMove, doorOpeningUtility.getMultiplier(this),
-                              initiator, newMin, newMax, cause, actionType));
+                              responsible, newMin, newMax, cause, actionType));
     }
 
     /** {@inheritDoc} */

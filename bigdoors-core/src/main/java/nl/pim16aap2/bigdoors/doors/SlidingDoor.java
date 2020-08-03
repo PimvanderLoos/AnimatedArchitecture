@@ -129,7 +129,7 @@ public class SlidingDoor extends AbstractDoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         RotateDirection currentToggleDir = getCurrentToggleDir();
@@ -139,7 +139,7 @@ public class SlidingDoor extends AbstractDoorBase
 
         doorOpeningUtility.registerBlockMover(
             new SlidingMover(time, this, skipAnimation, finalBlocksToMove, currentToggleDir,
-                             doorOpeningUtility.getMultiplier(this), initiator, newMin, newMax, cause, actionType));
+                             doorOpeningUtility.getMultiplier(this), responsible, newMin, newMax, cause, actionType));
     }
 
     /** {@inheritDoc} */

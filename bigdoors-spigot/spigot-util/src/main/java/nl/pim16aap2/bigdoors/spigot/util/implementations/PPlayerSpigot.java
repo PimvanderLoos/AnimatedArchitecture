@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Represents an implementation of {@link IPPlayer} for the Spigot platform.
@@ -51,6 +52,14 @@ public final class PPlayerSpigot implements IPPlayer
     public String getName()
     {
         return name;
+    }
+
+    @Override
+    public void sendMessage(final @NotNull Level level, final @NotNull String message)
+    {
+        Player player = getBukkitPlayer();
+        if (player != null)
+            player.sendMessage(message);
     }
 
     /**

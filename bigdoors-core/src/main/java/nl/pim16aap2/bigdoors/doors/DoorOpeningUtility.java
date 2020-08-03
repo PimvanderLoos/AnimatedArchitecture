@@ -95,15 +95,15 @@ public final class DoorOpeningUtility
     /**
      * Aborts an attempt to toggle a {@link AbstractDoorBase} and cleans up leftover data from this attempt.
      *
-     * @param door      The {@link AbstractDoorBase}.
-     * @param result    The reason the action was aborted.
-     * @param cause     What caused the toggle in the first place.
-     * @param initiator Who is responsible for the action.
+     * @param door        The {@link AbstractDoorBase}.
+     * @param result      The reason the action was aborted.
+     * @param cause       What caused the toggle in the first place.
+     * @param responsible Who is responsible for the action.
      * @return The result.
      */
     @NotNull
     public DoorToggleResult abort(final @NotNull AbstractDoorBase door, final @NotNull DoorToggleResult result,
-                                  final @NotNull DoorActionCause cause, final @NotNull IPPlayer initiator)
+                                  final @NotNull DoorActionCause cause, final @NotNull IPPlayer responsible)
     {
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this door. However, in every other case it should, because the door is
@@ -117,7 +117,7 @@ public final class DoorOpeningUtility
             else
             {
                 BigDoors.get().getMessagingInterface()
-                        .messagePlayer(initiator, BigDoors.get().getPlatform().getMessages().getString(
+                        .messagePlayer(responsible, BigDoors.get().getPlatform().getMessages().getString(
                             DoorToggleResult.getMessage(result), door.getName()));
             }
         return result;
@@ -144,17 +144,17 @@ public final class DoorOpeningUtility
      * <p>
      * If the player is not allowed to break the block(s), they'll receive a message about this.
      *
-     * @param door      The {@link AbstractDoorBase} being opened.
-     * @param pos1      The first position of the area to check.
-     * @param pos2      The second position of the area to check.
-     * @param initiator Who is responsible for the action.
+     * @param door        The {@link AbstractDoorBase} being opened.
+     * @param pos1        The first position of the area to check.
+     * @param pos2        The second position of the area to check.
+     * @param responsible Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
     public boolean canBreakBlocksBetweenLocs(final @NotNull AbstractDoorBase door, final @NotNull IVector3DiConst pos1,
-                                             final @NotNull IVector3DiConst pos2, final @NotNull IPPlayer initiator)
+                                             final @NotNull IVector3DiConst pos2, final @NotNull IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
-        return protectionManager.canBreakBlocksBetweenLocs(initiator, pos1, pos2, door.getWorld()).map(
+        return protectionManager.canBreakBlocksBetweenLocs(responsible, pos1, pos2, door.getWorld()).map(
             PROT ->
             {
                 PLogger.get()

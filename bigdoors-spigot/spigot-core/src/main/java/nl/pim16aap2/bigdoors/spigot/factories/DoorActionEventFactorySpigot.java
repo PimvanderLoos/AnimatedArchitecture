@@ -14,8 +14,6 @@ import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
 {
     /** {@inheritDoc} */
@@ -24,7 +22,7 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
     public IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
                                                       final @NotNull DoorActionCause cause,
                                                       final @NotNull DoorActionType actionType,
-                                                      final @NotNull Optional<IPPlayer> responsible, final double time,
+                                                      final @NotNull IPPlayer responsible, final double time,
                                                       final boolean skipAnimation,
                                                       final @NotNull IVector3DiConst newMinimum,
                                                       final @NotNull IVector3DiConst newMaximum)
@@ -39,7 +37,7 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
     public IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
                                                   final @NotNull DoorActionCause cause,
                                                   final @NotNull DoorActionType actionType,
-                                                  final @NotNull Optional<IPPlayer> responsible, final double time,
+                                                  final @NotNull IPPlayer responsible, final double time,
                                                   final boolean skipAnimation,
                                                   final @NotNull IVector3DiConst newMinimum,
                                                   final @NotNull IVector3DiConst newMaximum)
@@ -55,7 +53,7 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
     public IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,
                                               final @NotNull DoorActionCause cause,
                                               final @NotNull DoorActionType actionType,
-                                              final @NotNull Optional<IPPlayer> responsible, final double time,
+                                              final @NotNull IPPlayer responsible, final double time,
                                               final boolean skipAnimation)
     {
         return new DoorEventToggleEnd(door, cause, actionType, responsible, time, skipAnimation);

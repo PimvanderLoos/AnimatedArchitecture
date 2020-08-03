@@ -278,6 +278,17 @@ public final class PLogger
     }
 
     /**
+     * Logs a message to the log file and potentially to the console as well at a given level.
+     *
+     * @param msg   The message to be logged.
+     * @param level The level at which the message is logged (info, warn, etc).
+     */
+    public void logMessage(final @NotNull String msg, final @NotNull Level level)
+    {
+        logMessage(msg, level, true);
+    }
+
+    /**
      * Writes a message to the log file.
      *
      * @param msg The message to be written.

@@ -87,14 +87,14 @@ public class Windmill extends AbstractDoorBase
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer initiator,
+                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
         doorOpeningUtility.registerBlockMover(new WindmillMover(this, fixedTime, doorOpeningUtility.getMultiplier(this),
-                                                                getCurrentToggleDir(), initiator, cause, actionType));
+                                                                getCurrentToggleDir(), responsible, cause, actionType));
     }
 
     /** {@inheritDoc} */

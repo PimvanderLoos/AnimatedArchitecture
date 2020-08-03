@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -442,7 +441,7 @@ public abstract class BlockMover implements IRestartable
                         BigDoors.get().getPlatform()
                                 .callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
                                                              .createEndEvent(door, cause, actionType,
-                                                                             Optional.of(player), time, skipAnimation));
+                                                                             player, time, skipAnimation));
 
                         if (door instanceof ITimerToggleableArchetype)
                             BigDoors.get().getAutoCloseScheduler()
