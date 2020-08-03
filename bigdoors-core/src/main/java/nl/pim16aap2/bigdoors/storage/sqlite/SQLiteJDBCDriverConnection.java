@@ -54,6 +54,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private static final int MIN_DATABASE_VERSION = 0;
 
     private final @NotNull Map<Long, Pair<String, Integer>> typeDataInsertionStatementsCache = new HashMap<>();
+    private final @NotNull Map<Long, Pair<String, Integer>> typeDataUpdateStatementsCache = new HashMap<>();
 
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
@@ -321,7 +322,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final @NotNull Optional<? extends AbstractDoorBase> door = doorType.get().constructDoor(doorData, typeData);
 
-        return door.map(abstractDoorBase -> (AbstractDoorBase) abstractDoorBase);
+        return door.map(abstractDoorBase -> abstractDoorBase);
     }
 
     /**
@@ -451,6 +452,29 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return result == 2; // TODO: This isn't particularly safe. If it's 1, for example, which data is still there??
     }
 
+    @NotNull
+    private Optional<Pair<String, Integer>> getTypeDataUpdateStatement(final @NotNull DoorType doorType,
+                                                                       final long doorTypeID)
+    {
+        return Optional.of(typeDataUpdateStatementsCache.computeIfAbsent(
+            doorTypeID, key ->
+            {
+                final @NotNull StringBuilder updateStatementBuilder = new StringBuilder();
+                updateStatementBuilder.append("UPDATE ").append(getTableNameOfType(doorType)).append(" SET ");
+
+                final @NotNull List<DoorType.Parameter> parameters = doorType.getParameters();
+                final int parameterCount = parameters.size();
+                for (int idx = 0; idx < parameterCount; ++idx)
+                {
+                    updateStatementBuilder.append(parameters.get(idx).getParameterName()).append(" = ?");
+                    if (idx < (parameterCount - 1))
+                        updateStatementBuilder.append(", ");
+                }
+                updateStatementBuilder.append(" WHERE doorUID = ?;");
+                return new Pair<>(updateStatementBuilder.toString(), parameterCount);
+            }));
+    }
+
     @Override
     public boolean updateTypeData(final @NotNull AbstractDoorBase door)
     {
@@ -462,34 +486,31 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return false;
         }
 
-        if (!DoorTypeManager.get().isRegistered(door.getDoorType()))
+        final Optional<Long> doorTypeID = DoorTypeManager.get().getDoorTypeID(door.getDoorType());
+        if (!doorTypeID.isPresent())
         {
             PLogger.get().logException(new SQLException(
                 "Failed to update type-data of door: \"" + door.getDoorUID() + "\"! Reason: DoorType not registered!"));
             return false;
         }
 
-        final @NotNull StringBuilder updateStatementBuilder = new StringBuilder();
-        updateStatementBuilder.append("UPDATE ").append(getTableNameOfType(door.getDoorType())).append(" SET ");
-
-        final @NotNull List<DoorType.Parameter> parameters = door.getDoorType().getParameters();
-        final int parameterCount = parameters.size();
-        for (int idx = 0; idx < parameterCount; ++idx)
+        final @NotNull Optional<Pair<String, Integer>> typeSpecificDataUpdateStatementOpt
+            = getTypeDataUpdateStatement(door.getDoorType(), doorTypeID.get());
+        if (!typeSpecificDataUpdateStatementOpt.isPresent())
         {
-            updateStatementBuilder.append(parameters.get(idx).getParameterName()).append(" = ?");
-            if (idx < (parameterCount - 1))
-                updateStatementBuilder.append(", ");
+            PLogger.get().logException(new NullPointerException("Failed to obtain type-specific update statement " +
+                                                                    "for type with ID: " + doorTypeID));
+            return false;
         }
-        updateStatementBuilder.append(" WHERE doorUID = ?;");
 
-        // TODO: Caching
+        final @NotNull Pair<String, Integer> typeSpecificDataUpdateStatement = typeSpecificDataUpdateStatementOpt.get();
         final @NotNull PPreparedStatement pPreparedStatement =
-            new PPreparedStatement(parameterCount + 1, updateStatementBuilder.toString());
+            new PPreparedStatement(typeSpecificDataUpdateStatement.value() + 1, typeSpecificDataUpdateStatement.key());
         final @NotNull Object[] typeData = typeDataOpt.get();
 
-        for (int idx = 0; idx < parameterCount; ++idx)
+        for (int idx = 0; idx < typeSpecificDataUpdateStatement.value(); ++idx)
             pPreparedStatement.setObject(idx + 1, typeData[idx]);
-        pPreparedStatement.setLong(parameterCount + 1, door.getDoorUID());
+        pPreparedStatement.setLong(typeSpecificDataUpdateStatement.value() + 1, door.getDoorUID());
 
         return executeUpdate(pPreparedStatement) > 0;
     }
