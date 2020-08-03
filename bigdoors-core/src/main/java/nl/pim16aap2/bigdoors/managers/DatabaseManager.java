@@ -225,6 +225,19 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
+     * Gets the prime {@link DoorOwner}. I.e. the owner with permission level 0. In most cases, this will just be the
+     * original creator of the door. Every valid door has a prime owner.
+     *
+     * @param doorUID The UID of the door.
+     * @return The Owner of the door, is possible.
+     */
+    @NotNull
+    Optional<DoorOwner> getPrimeOwner(final long doorUID)
+    {
+        return db.getPrimeOwner(doorUID);
+    }
+
+    /**
      * Gets all {@link AbstractDoorBase} owned by a player.
      *
      * @param playerUUID The {@link UUID} of the payer.
