@@ -232,7 +232,7 @@ public final class DatabaseManager extends Restartable
      * @return The Owner of the door, is possible.
      */
     @NotNull
-    CompletableFuture<Optional<DoorOwner>> getPrimeOwner(final long doorUID)
+    public CompletableFuture<Optional<DoorOwner>> getPrimeOwner(final long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getPrimeOwner(doorUID), threadPool);
     }
