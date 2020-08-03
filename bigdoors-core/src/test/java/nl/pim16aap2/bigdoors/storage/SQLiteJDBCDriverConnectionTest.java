@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 @ExtendWith(MockitoExtension.class)
@@ -169,7 +170,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final @NotNull Vector3Di min = new Vector3Di(144, 75, 153);
                 final @NotNull Vector3Di max = new Vector3Di(144, 131, 167);
                 final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di powerBlock = new Vector3Di(0, 0, 0);
+                final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
                 final @NotNull PBlockFace currentDirection = PBlockFace.DOWN;
 
@@ -192,7 +193,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final @NotNull Vector3Di min = new Vector3Di(144, 75, 168);
                 final @NotNull Vector3Di max = new Vector3Di(144, 131, 182);
                 final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di powerBlock = new Vector3Di(0, 0, 0);
+                final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
@@ -213,7 +214,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
                 final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
                 final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di powerBlock = new Vector3Di(0, 0, 0);
+                final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player2);
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
@@ -622,10 +623,11 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         // Revert name change of player 2.
         Assert.assertTrue(storage.updatePlayerName(player2UUID.toString(), player2Name));
 
-//        long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlockLoc().getX(),
-//                                                          door1.getPowerBlockLoc().getZ());
-//        Assert.assertNotNull(storage.getPowerBlockData(chunkHash));
-//        Assert.assertEquals(3, storage.getPowerBlockData(chunkHash).size());
+        long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlock().getX(),
+                                                          door1.getPowerBlock().getZ());
+        final ConcurrentHashMap<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkHash);
+        Assert.assertNotNull(powerBlockData);
+        Assert.assertEquals(3, powerBlockData.elements().nextElement().size());
     }
 
     /**

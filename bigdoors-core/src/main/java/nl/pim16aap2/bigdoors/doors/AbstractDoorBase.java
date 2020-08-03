@@ -23,7 +23,6 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -60,7 +59,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private boolean open;
-    @Nullable
+    @NotNull
     private RotateDirection openDir;
 
     /** {@inheritDoc} */
@@ -533,50 +532,60 @@ public abstract class AbstractDoorBase implements IDoorBase
          * The UID of this door.
          */
         long uid;
+
         /**
          * The name of this door.
          */
         @NotNull
         String name;
+
         /**
          * The location with the coordinates closest to the origin.
          */
         @NotNull
         Vector3Di min;
+
         /**
          * The location with the coordinates furthest away from the origin.
          */
         @NotNull
         Vector3Di max;
+
         /**
          * The location of the engine.
          */
         @NotNull
         Vector3Di engine;
+
         /**
          * The location of the powerblock.
          */
         @NotNull
-        Vector3Di powerBlock; // TODO: Use a list of powerblocks.
+        Vector3Di powerBlock;
+
         /**
          * The {@link IPWorld} this door is in.
          */
         @NotNull
         IPWorld world;
+
         /**
          * Whether or not this door is currently open.
          */
         boolean isOpen; // TODO: Use the bitflag here instead.
+
         /**
          * The open direction of this door.
          */
-        @Nullable
+        @NotNull
         RotateDirection openDirection;
+
         /**
          * The {@link DoorOwner} of this door.
          */
         @NotNull
         DoorOwner doorOwner;
+
         /**
          * Whether or not this door is currently locked.
          */

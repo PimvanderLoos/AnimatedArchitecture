@@ -96,18 +96,18 @@ public final class DoorTypeManager
      * @param doorTypeID The ID of the {@link DoorType}.
      * @return An optional that contains the class of the {@link DoorType} if it is registered.
      */
-    public Optional<DoorType> getDoorType(final long doorTypeID)
+    public Optional<DoorType> getDoorTypeID(final long doorTypeID)
     {
         return Optional.ofNullable(doorTypesFromID.get(doorTypeID));
     }
 
     /**
-     * Obtains the class of an {@link DoorType} as described by its {@link Class}.
+     * Obtains the ID of a {@link DoorType}.
      *
      * @param doorType The {@link Class} of the {@link DoorType}.
      * @return An optional that contains the ID of the {@link DoorType} if it is registered.
      */
-    public Optional<Long> getDoorType(final @NotNull DoorType doorType)
+    public Optional<Long> getDoorTypeID(final @NotNull DoorType doorType)
     {
         final @Nullable DoorTypeInfo info = doorTypesToID.get(doorType);
         return info == null ? Optional.empty() : Optional.of(info.id);

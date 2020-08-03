@@ -33,7 +33,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,6 +52,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     // TODO: Set this to 10. This cannot be done currently because the tests will fail for the upgrades, which
     //       are still useful when writing the code to upgrade the v1 database to v2.
     private static final int MIN_DATABASE_VERSION = 0;
+
+    private final @NotNull Map<Long, Pair<String, Integer>> typeDataInsertionStatementsCache = new HashMap<>();
 
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
@@ -200,14 +204,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Initializes the database. I.e. create all the required tables.
+     * Initializes the database. I.e. create all the required files/tables.
      */
     private void init()
     {
-        if (dbFile.exists())
-        {
-            dbFile.delete();
-        }
         if (!dbFile.exists())
             try
             {
@@ -253,7 +253,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_DOORTYPE.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_DOORBASE.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_DOOROWNER_PLAYER.constructPPreparedStatement());
-                executeUpdate(conn, SQLStatement.CREATE_TABLE_POWERBLOCK.constructPPreparedStatement());
 
                 setDBVersion(conn, DATABASE_VERSION);
                 databaseState = DatabaseState.OK;
@@ -268,35 +267,27 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
     }
 
-
-    /*
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     */
-
     @NotNull
     private Optional<AbstractDoorBase> constructDoor(final @NotNull ResultSet doorBaseRS,
                                                      final @NotNull Object[] typeData)
         throws SQLException
     {
-        final @NotNull Optional<DoorType> doorType = DoorTypeManager.get().getDoorType(doorBaseRS.getInt("doorType"));
+        final long doorUID = doorBaseRS.getLong("id");
+
+        final @NotNull Optional<DoorType> doorType = DoorTypeManager.get().getDoorTypeID(doorBaseRS.getInt("doorType"));
+        if (!doorType.isPresent())
+        {
+            PLogger.get().logException(new NullPointerException(
+                "Failed to obtain door type of door: " + doorUID + ", typeID: " + doorBaseRS.getInt("doorType")));
+            return Optional.empty();
+        }
 
         final @NotNull Optional<RotateDirection> openDirection =
             Optional.ofNullable(RotateDirection.valueOf(doorBaseRS.getInt("openDirection")));
 
-        if (!doorType.isPresent() || !openDirection.isPresent())
+        if (!openDirection.isPresent())
             return Optional.empty();
 
-        final long doorUID = doorBaseRS.getLong("id");
         final @NotNull Vector3Di min = new Vector3Di(doorBaseRS.getInt("xMin"),
                                                      doorBaseRS.getInt("yMin"),
                                                      doorBaseRS.getInt("zMin"));
@@ -306,6 +297,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull Vector3Di eng = new Vector3Di(doorBaseRS.getInt("engineX"),
                                                      doorBaseRS.getInt("engineY"),
                                                      doorBaseRS.getInt("engineZ"));
+        final @NotNull Vector3Di pow = new Vector3Di(doorBaseRS.getInt("powerBlockX"),
+                                                     doorBaseRS.getInt("powerBlockY"),
+                                                     doorBaseRS.getInt("powerBlockZ"));
 
         final @NotNull IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
                                                .create(UUID.fromString(doorBaseRS.getString("worldUUID")));
@@ -318,11 +312,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                            doorBaseRS.getString("playerName"),
                                                            doorBaseRS.getInt("permission"));
 
-        final @NotNull Vector3Di powerBlock = new Vector3Di(0, 0, 0);
         final @NotNull String name = doorBaseRS.getString("name");
 
         final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, eng,
-                                                                                          powerBlock, world, isOpen,
+                                                                                          pow, world, isOpen,
                                                                                           openDirection.get(),
                                                                                           doorOwner, isLocked);
 
@@ -347,7 +340,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull Optional<DoorType> doorType =
             // There are 2 columns named "id" here. The first one is the ID of the DoorType, the second one
             // is the ID of the type-specific-table.
-            DoorTypeManager.get().getDoorType(doorBaseRS.getInt(1));
+            DoorTypeManager.get().getDoorTypeID(doorBaseRS.getInt(1));
 
         if (!doorType.isPresent())
             return new Object[]{};
@@ -370,7 +363,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /** {@inheritDoc} */
-    // TODO: Clean up this method. Split it up into smaller ones or something. This is getting too confusing.
     @Override
     public long registerDoorType(final @NotNull DoorType doorType)
     {
@@ -388,7 +380,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                                 .setInt(3, doorType.getVersion())
                                                                                 .setString(4, typeTableName));
         if (updateStatus == -1)
+        {
+            PLogger.get().logException(
+                new SQLException("Failed to create definition table for door type: \"" + typeTableName + "\""));
             return -1;
+        }
 
         // FIXME: Read the data of the table to make sure that the parameters that were passed on to this method
         //        Are still up to date. If not, throw some kind of version mismatch exception or something.
@@ -401,7 +397,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             resultSet -> new Pair<>(resultSet.getLong("id"), resultSet.getString("typeTableName"))));
 
         if (!result.isPresent())
+        {
+            PLogger.get().logException(
+                new SQLException("Failed to obtain ID and typeTableName for door type: \"" + typeTableName + "\""));
             return -1;
+        }
 
         // Create a new table for this DoorType, if needed.
         final @NotNull StringBuilder tableCreationStatementBuilder = new StringBuilder();
@@ -413,11 +413,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                          .append(parameter.getParameterType()).append(" NOT NULL");
         tableCreationStatementBuilder.append(", UNIQUE(doorUID));");
 
-        // If the table creation failed, delete the entry from the DoorType table.
         int insertStatus = executeUpdate(new PPreparedStatement(0, tableCreationStatementBuilder.toString()));
 
+        // If the table creation failed, delete the entry from the DoorType table.
         if (insertStatus == -1)
         {
+            PLogger.get().logException(
+                new SQLException("Failed to create type table: \"" + typeTableName + "\""));
             executeUpdate(SQLStatement.DELETE_DOOR_TYPE.constructPPreparedStatement().setLong(1, result.get().key()));
             return -1;
         }
@@ -428,7 +430,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public boolean deleteDoorType(final @NotNull DoorType doorType)
     {
-        final long typeID = DoorTypeManager.get().getDoorType(doorType).orElse(-1L);
+        final long typeID = DoorTypeManager.get().getDoorTypeID(doorType).orElse(-1L);
         if (typeID == -1)
         {
             PLogger.get().logException(new IllegalStateException(
@@ -449,7 +451,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return result == 2; // TODO: This isn't particularly safe. If it's 1, for example, which data is still there??
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean updateTypeData(final @NotNull AbstractDoorBase door)
     {
@@ -499,15 +500,73 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @param doorType The {@link DoorType}.
      * @return The name of the table.
      */
+    @NotNull
     private String getTableNameOfType(final @NotNull DoorType doorType)
     {
         return String.format("%s_%s_%d", doorType.getPluginName(), doorType.getTypeName(), doorType.getVersion());
+    }
+
+    /**
+     * Generates the insertionstatement for a given {@link DoorType}.
+     *
+     * @param doorType   The type of door to generate the insertionstatement for.
+     * @param doorTypeID The ID of the {@link DoorType}.
+     * @return A pair containing the statement and the number of arguments.
+     */
+    @NotNull
+    private Optional<Pair<String, Integer>> getTypeSpecificDataInsertStatement(final @NotNull DoorType doorType,
+                                                                               final long doorTypeID)
+    {
+        return Optional.of(typeDataInsertionStatementsCache.computeIfAbsent(
+            doorTypeID, key ->
+            {
+                final @NotNull String typeTableName = getTableNameOfType(doorType);
+                final @NotNull StringBuilder parameterNames = new StringBuilder();
+                final @NotNull StringBuilder parameterQuestionMarks = new StringBuilder();
+
+                parameterNames.append("INSERT INTO ").append(typeTableName).append(" (doorUID, ");
+                parameterQuestionMarks.append(
+                    "((SELECT seq FROM sqlite_sequence WHERE sqlite_sequence.name =\"DoorBase\"), ");
+
+                final int parameterCount = doorType.getParameterCount();
+                for (int parameterIDX = 0; parameterIDX < parameterCount; ++parameterIDX)
+                {
+                    final @NotNull DoorType.Parameter parameter = doorType.getParameters().get(parameterIDX);
+                    parameterNames.append(parameter.getParameterName());
+                    parameterQuestionMarks.append("?");
+
+                    if (parameterIDX == (parameterCount - 1))
+                    {
+                        parameterNames.append(") VALUES ");
+                        parameterQuestionMarks.append(");");
+                    }
+                    else
+                    {
+                        parameterNames.append(", ");
+                        parameterQuestionMarks.append(", ");
+                    }
+                }
+
+                final @NotNull String insertString = parameterNames.toString() + parameterQuestionMarks.toString();
+                return new Pair<>(insertString, parameterCount);
+            }));
     }
 
     private long insert(final @NotNull Connection conn, final @NotNull AbstractDoorBase door, final long doorTypeID,
                         final @NotNull Object[] typeSpecificData)
         throws SQLException
     {
+        final @NotNull Optional<Pair<String, Integer>> typeSpecificDataInsertStatementOpt
+            = getTypeSpecificDataInsertStatement(door.getDoorType(), doorTypeID);
+        if (!typeSpecificDataInsertStatementOpt.isPresent())
+        {
+            PLogger.get().logException(new NullPointerException("Failed to obtain type-specific insertion statement " +
+                                                                    "for type with ID: " + doorTypeID));
+            return -1;
+        }
+
+        final @NotNull Pair<String, Integer> typeSpecificDataInsertStatement = typeSpecificDataInsertStatementOpt.get();
+
         conn.setAutoCommit(false);
         final @NotNull String playerUUID = door.getDoorOwner().getPlayer().getUUID().toString();
         final @NotNull String playerName = door.getDoorOwner().getPlayer().getName();
@@ -519,7 +578,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                 .setString(1, playerUUID)
                                                                 .setString(2, playerName));
 
-        final long chunkHash = Util.simpleChunkHashFromLocation(door.getEngine().getX(), door.getEngine().getZ());
+        final long engineHash = Util.simpleChunkHashFromLocation(door.getEngine().getX(), door.getEngine().getZ());
+        final long powerBlockHash = Util
+            .simpleChunkHashFromLocation(door.getPowerBlock().getX(), door.getPowerBlock().getZ());
         executeUpdate(conn, SQLStatement.INSERT_DOOR_BASE.constructPPreparedStatement()
                                                          .setString(1, door.getName())
                                                          .setString(2, worldUUID)
@@ -533,44 +594,25 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                          .setInt(10, door.getEngine().getX())
                                                          .setInt(11, door.getEngine().getY())
                                                          .setInt(12, door.getEngine().getZ())
-                                                         .setLong(13, getFlag(door))
-                                                         .setInt(14, RotateDirection.getValue(door.getOpenDir()))
-                                                         .setLong(15, chunkHash));
+                                                         .setLong(13, engineHash)
+                                                         .setInt(14, door.getPowerBlock().getX())
+                                                         .setInt(15, door.getPowerBlock().getY())
+                                                         .setInt(16, door.getPowerBlock().getZ())
+                                                         .setLong(17, powerBlockHash)
+                                                         .setLong(18, getFlag(door))
+                                                         .setInt(19, RotateDirection.getValue(door.getOpenDir())));
 
-        // TODO: Caching.
-        final @NotNull String typeTableName = getTableNameOfType(door.getDoorType());
-        final @NotNull StringBuilder parameterNames = new StringBuilder();
-        final @NotNull StringBuilder parameterQuestionMarks = new StringBuilder();
+        final @NotNull PPreparedStatement pPreparedStatement
+            = new PPreparedStatement(typeSpecificDataInsertStatement.value(),
+                                     typeSpecificDataInsertStatement.key());
 
-        parameterNames.append("INSERT INTO ").append(typeTableName).append(" (doorUID, ");
-        parameterQuestionMarks.append("((SELECT seq FROM sqlite_sequence WHERE sqlite_sequence.name =\"DoorBase\"), ");
-
-        final int parameterCount = door.getDoorType().getParameterCount();
-        for (int parameterIDX = 0; parameterIDX < parameterCount; ++parameterIDX)
-        {
-            final @NotNull DoorType.Parameter parameter = door.getDoorType().getParameters().get(parameterIDX);
-            parameterNames.append(parameter.getParameterName());
-            parameterQuestionMarks.append("?");
-
-            if (parameterIDX == (parameterCount - 1))
-            {
-                parameterNames.append(") VALUES ");
-                parameterQuestionMarks.append(");");
-            }
-            else
-            {
-                parameterNames.append(", ");
-                parameterQuestionMarks.append(", ");
-            }
-        }
-
-        final @NotNull String insertString = parameterNames.toString() + parameterQuestionMarks.toString();
-
-        final @NotNull PPreparedStatement pPreparedStatement = new PPreparedStatement(parameterCount, insertString);
-        for (int parameterIDX = 0; parameterIDX < parameterCount; ++parameterIDX)
+        for (int parameterIDX = 0; parameterIDX < typeSpecificDataInsertStatement.value(); ++parameterIDX)
             pPreparedStatement.setObject(parameterIDX + 1, typeSpecificData[parameterIDX]);
+
         executeUpdate(conn, pPreparedStatement);
 
+        // TODO: Just use the fact that the last-inserted door has the current UID (that fact is already used by
+        //       getTypeSpecificDataInsertStatement(DoorType)), so it can be done in a single statement.
         long doorUID = executeQuery(conn, SQLStatement.SELECT_MOST_RECENT_DOOR.constructPPreparedStatement(),
                                     rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
 
@@ -593,7 +635,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return false;
         }
 
-        final long doorTypeID = DoorTypeManager.get().getDoorType(door.getDoorType()).orElse(-1L);
+        final long doorTypeID = DoorTypeManager.get().getDoorTypeID(door.getDoorType()).orElse(-1L);
         if (doorTypeID == -1)
         {
             PLogger.get()
@@ -923,23 +965,23 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @NotNull
     public ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(final long chunkHash)
     {
-        return null;
-//        return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructPPreparedStatement()
-//                                                                      .setLong(1, chunkHash),
-//                            resultSet ->
-//                            {
-//                                final ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
-//                                while (resultSet.next())
-//                                {
-//                                    int locationHash = Util.simpleChunkSpaceLocationhash(resultSet.getInt("x"),
-//                                                                                         resultSet.getInt("y"),
-//                                                                                         resultSet.getInt("z"));
-//                                    if (!doors.containsKey(locationHash))
-//                                        doors.put(locationHash, new ArrayList<>());
-//                                    doors.get(locationHash).add(resultSet.getLong("id"));
-//                                }
-//                                return doors;
-//                            }, new ConcurrentHashMap<>());
+        return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructPPreparedStatement()
+                                                                      .setLong(1, chunkHash),
+                            resultSet ->
+                            {
+                                final ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
+                                while (resultSet.next())
+                                {
+                                    int locationHash =
+                                        Util.simpleChunkSpaceLocationhash(resultSet.getInt("powerBlockX"),
+                                                                          resultSet.getInt("powerBlockY"),
+                                                                          resultSet.getInt("powerBlockZ"));
+                                    if (!doors.containsKey(locationHash))
+                                        doors.put(locationHash, new ArrayList<>());
+                                    doors.get(locationHash).add(resultSet.getLong("id"));
+                                }
+                                return doors;
+                            }, new ConcurrentHashMap<>());
     }
 
     /** {@inheritDoc} */
@@ -987,14 +1029,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public boolean updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos)
     {
-        return false;
-//        return executeUpdate(SQLStatement.UPDATE_DOOR_POWER_BLOCK_LOC.constructPPreparedStatement()
-//                                                                     .setInt(1, xPos)
-//                                                                     .setInt(2, yPos)
-//                                                                     .setInt(3, zPos)
-//                                                                     .setLong(4, Util.simpleChunkHashFromLocation(xPos,
-//                                                                                                                  zPos))
-//                                                                     .setLong(5, doorUID)) > 0;
+        return executeUpdate(SQLStatement.UPDATE_DOOR_POWER_BLOCK_LOC
+                                 .constructPPreparedStatement()
+                                 .setInt(1, xPos)
+                                 .setInt(2, yPos)
+                                 .setInt(3, zPos)
+                                 .setLong(4, Util.simpleChunkHashFromLocation(xPos, zPos))
+                                 .setLong(5, doorUID)) > 0;
     }
 
     /**

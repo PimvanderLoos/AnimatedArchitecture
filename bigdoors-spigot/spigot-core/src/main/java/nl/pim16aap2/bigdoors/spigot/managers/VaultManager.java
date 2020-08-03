@@ -162,7 +162,7 @@ public final class VaultManager implements IRestartable
     {
         if (!vaultEnabled)
             return 0;
-        Optional<Long> typeID = DoorTypeManager.get().getDoorType(type);
+        Optional<Long> typeID = DoorTypeManager.get().getDoorTypeID(type);
         if (!typeID.isPresent())
         {
             PLogger.get()

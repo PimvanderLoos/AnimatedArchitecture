@@ -122,7 +122,7 @@ class GUIPageDoorList implements IGUIPage
 //            lore.add(messages.getString(EDoorType.getMessage(EDoorType)));
             lore.add(doorType.getTypeName());
             GUIItem item = new GUIItem(
-                GUI.DOORTYPES[(int) (long) DoorTypeManager.get().getDoorType(doorType).orElse(0L)],
+                GUI.DOORTYPES[(int) (long) DoorTypeManager.get().getDoorTypeID(doorType).orElse(0L)],
                 currentDoor.getName(), lore, 1);
             item.setDoor(currentDoor);
             gui.addItem(idx + 9, item);

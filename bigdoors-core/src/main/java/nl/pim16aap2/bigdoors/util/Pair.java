@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 /**
  * Represents a name-value pair.
  *
@@ -60,5 +62,29 @@ public final class Pair<K, V>
     public void setValue(final @NotNull V value)
     {
         this.value = value;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the hashCode of the key.
+     */
+    @Override
+    public int hashCode()
+    {
+        return key.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Pair<?, ?> other = (Pair<?, ?>) o;
+        return Objects.equals(key, other.key) && Objects.equals(value, other.value);
     }
 }

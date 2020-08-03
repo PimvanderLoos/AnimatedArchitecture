@@ -11,21 +11,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public enum SQLStatement
 {
+    UPDATE_DOOR_POWER_BLOCK_LOC(
+        "UPDATE DoorBase SET powerBlockX = ?, powerBlockY = ?, powerBlockZ = ?, chunkHash = ? WHERE id = ?;"
+    ),
 
-//    UPDATE_DOOR_POWER_BLOCK_LOC(
-//        "UPDATE DoorBase SET powerBlockX = ?, powerBlockY = ?, powerBlockZ = ?, \n" +
-//            "chunkHash = ? WHERE id = ?;"),
-
-
-    /*
-
-
-
-    STATEMENTS FROM HERE ON OUT HAVE BEEN VERIFIED TO WORK WITH THE NEW SCHEMA.
-
-
-
-     */
     UPDATE_DOOR_OWNER_PERMISSION(
         "UPDATE DoorOwnerPlayer SET permission = ? WHERE playerID = ? and doorUID = ?;"
     ),
@@ -94,7 +83,14 @@ public enum SQLStatement
     ),
 
     GET_POWER_BLOCK_DATA_IN_CHUNK(
-        "SELECT * FROM PowerBlock WHERE chunkHash = ?;"
+        "SELECT id, powerBlockX, powerBlockY, powerBlockZ, powerBlockHash FROM DoorBase WHERE powerBlockHash = ?;"
+    ),
+
+    /**
+     * Gets all the doors that have their <b>engine</b> in the chunk with the given chunk hash.
+     */
+    GET_DOORS_IN_CHUNK(
+        "SELECT * FROM DoorBase WHERE engineHash = ?;"
     ),
 
     GET_DOOR_OWNER(
@@ -267,7 +263,7 @@ public enum SQLStatement
     ),
 
     /**
-     * Obtains both the typeTableName and the ID of an {@link DoorType}.
+     * Obtains both the typeTableName and the ID of a {@link DoorType}.
      */
     GET_DOOR_TYPE_TABLE_NAME_AND_ID(
         "SELECT id, typeTableName FROM DoorType WHERE pluginName = ? AND typeName = ? AND typeVersion = ?;"
@@ -295,12 +291,13 @@ public enum SQLStatement
 
     INSERT_DOOR_BASE(
         "INSERT INTO DoorBase\n" +
-            "    (name, world, doorType, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, bitflag, openDirection, chunkHash)\n" +
+            "    (name, world, doorType, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineHash," +
+            " powerBlockX, powerBlockY, powerBlockZ, powerBlockHash, bitflag, openDirection)\n" +
             "    VALUES (?,\n" +
             "    (SELECT id\n" +
             "     FROM World\n" +
             "     WHERE World.worldUUID = ?)\n" +
-            "    , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+            "    , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
     ),
 
     /**
@@ -383,9 +380,13 @@ public enum SQLStatement
             "     engineX        INTEGER    NOT NULL,\n" +
             "     engineY        INTEGER    NOT NULL,\n" +
             "     engineZ        INTEGER    NOT NULL,\n" +
-            "     bitflag        INTEGER    NOT NULL,\n" +
+            "     engineHash     INTEGER    NOT NULL,\n" +
+            "     powerBlockX    INTEGER    NOT NULL,\n" +
+            "     powerBlockY    INTEGER    NOT NULL,\n" +
+            "     powerBlockZ    INTEGER    NOT NULL,\n" +
+            "     powerBlockHash INTEGER    NOT NULL,\n" +
             "     openDirection  INTEGER    NOT NULL,\n" +
-            "     chunkHash      INTEGER    NOT NULL);"
+            "     bitflag        INTEGER    NOT NULL);"
     ),
 
     CREATE_TABLE_DOOROWNER_PLAYER(
@@ -395,16 +396,6 @@ public enum SQLStatement
             "     playerID       REFERENCES Player(id)   ON UPDATE CASCADE ON DELETE CASCADE,\n" +
             "     doorUID        REFERENCES DoorBase(id) ON UPDATE CASCADE ON DELETE CASCADE,\n" +
             "     unique (playerID, doorUID));"
-    ),
-
-    CREATE_TABLE_POWERBLOCK(
-        "CREATE TABLE IF NOT EXISTS PowerBlock\n" +
-            "    (id             INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
-            "     doorUID        REFERENCES DoorBase(id) ON UPDATE CASCADE ON DELETE CASCADE,\n" +
-            "     x              INTEGER    NOT NULL,\n" +
-            "     y              INTEGER    NOT NULL,\n" +
-            "     z              INTEGER    NOT NULL,\n" +
-            "     chunkHash      INTEGER    NOT NULL);"
     ),
 
 
