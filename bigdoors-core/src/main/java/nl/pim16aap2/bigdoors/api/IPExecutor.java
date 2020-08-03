@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.api;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
@@ -18,10 +18,10 @@ public interface IPExecutor<T>
      * Schedules a task to be run on the main thread.
      *
      * @param supplier A function returning the value to be used to complete the returned IMainThreadExecutor.
-     * @return The result or null if an error occurred.
+     * @return The result of the action.
      */
-    @Nullable
-    T supplyOnMainThread(final @NotNull Supplier<T> supplier);
+    @NotNull
+    CompletableFuture<T> supplyOnMainThread(final @NotNull Supplier<T> supplier);
 
     /**
      * Schedules an action to be run on the main thread.
@@ -34,10 +34,10 @@ public interface IPExecutor<T>
      * Schedules a task to be run on the main thread.
      *
      * @param supplier A function returning the value to be used to complete the returned IMainThreadExecutor.
-     * @return The result or null if an error occurred.
+     * @return The result of the action.
      */
-    @Nullable
-    T supplyAsync(final @NotNull Supplier<T> supplier);
+    @NotNull
+    CompletableFuture<T> supplyAsync(final @NotNull Supplier<T> supplier);
 
     /**
      * Schedules an action to be run asynchronously.

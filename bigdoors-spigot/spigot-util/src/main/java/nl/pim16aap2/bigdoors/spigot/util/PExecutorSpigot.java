@@ -5,10 +5,9 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.TimerTask;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
@@ -23,10 +22,8 @@ public final class PExecutorSpigot<T> implements IPExecutor<T>
     @NotNull
     private final PLogger pLogger;
 
-    /**
-     * Used to store the result of a supplier (as Bukkit's scheduler doesn't allow suppliers).
-     */
-    private final ArrayBlockingQueue<T> result = new ArrayBlockingQueue<>(1);
+    @NotNull
+    private final CompletableFuture<T> result = new CompletableFuture<>();
 
     public PExecutorSpigot(final @NotNull JavaPlugin plugin, final @NotNull PLogger pLogger)
     {
@@ -34,21 +31,12 @@ public final class PExecutorSpigot<T> implements IPExecutor<T>
         this.pLogger = pLogger;
     }
 
-    /** {@inheritDoc} */
     @Override
-    @Nullable
-    public synchronized T supplyOnMainThread(final @NotNull Supplier<T> supplier)
+    @NotNull
+    public synchronized CompletableFuture<T> supplyOnMainThread(final @NotNull Supplier<T> supplier)
     {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> result.add(supplier.get()));
-        try
-        {
-            return result.take();
-        }
-        catch (InterruptedException e)
-        {
-            pLogger.logException(e);
-            return null;
-        }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> result.complete(supplier.get()));
+        return result;
     }
 
     /** {@inheritDoc} */
@@ -59,21 +47,13 @@ public final class PExecutorSpigot<T> implements IPExecutor<T>
     }
 
     /** {@inheritDoc} */
-    @Nullable
     @Override
-    public synchronized T supplyAsync(final @NotNull Supplier<T> supplier)
+    @NotNull
+    public synchronized CompletableFuture<T> supplyAsync(final @NotNull Supplier<T> supplier)
     {
         //noinspection deprecation
-        Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, () -> result.add(supplier.get()));
-        try
-        {
-            return result.take();
-        }
-        catch (InterruptedException e)
-        {
-            pLogger.logException(e);
-            return null;
-        }
+        Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, () -> result.complete(supplier.get()));
+        return result;
     }
 
     /** {@inheritDoc} */

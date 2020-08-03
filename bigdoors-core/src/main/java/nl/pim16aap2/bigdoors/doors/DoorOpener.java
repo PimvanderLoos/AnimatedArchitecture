@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -124,6 +125,7 @@ public final class DoorOpener
      * @param doorActionType Whether the door should be toggled, opened, or closed.
      * @return The result of the animation attempt.
      */
+    @SneakyThrows
     private DoorToggleResult animateDoorOnMainThread(final @NotNull AbstractDoorBase door,
                                                      final @NotNull DoorActionCause cause, @Nullable IPPlayer initiator,
                                                      final double time, boolean skipAnimation,
@@ -131,10 +133,9 @@ public final class DoorOpener
     {
         IPExecutor<DoorToggleResult> mainThreadExecutor = BigDoors.get().getPlatform().newPExecutor();
 
-        // TODO: Shouldn't this be a CompletableFuture or something?
         DoorToggleResult result = mainThreadExecutor
             .supplyOnMainThread(() -> animateDoorSync(door, cause, initiator, time,
-                                                      skipAnimation, doorActionType));
+                                                      skipAnimation, doorActionType)).get();
         return result == null ? DoorToggleResult.ERROR : result;
     }
 }
