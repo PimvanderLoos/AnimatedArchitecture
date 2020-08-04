@@ -18,4 +18,14 @@ public interface IMessageable
      * @param message The message to send. This may or may not contain color codes.
      */
     void sendMessage(final @NotNull Level level, final @NotNull String message);
+
+    /**
+     * Sends a message to this object. If this target supports levels, {@link Level#INFO} will be used.
+     *
+     * @param message The message to send. This may or may not contain color codes.
+     */
+    default void sendMessage(final @NotNull String message)
+    {
+        sendMessage(Level.INFO, message);
+    }
 }

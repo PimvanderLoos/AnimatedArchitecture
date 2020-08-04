@@ -5,8 +5,8 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.util.WorldTime;
-import org.bukkit.Bukkit;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.tooluser.creator.BigDoorCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,15 +39,17 @@ public class SubCommandDebug extends SubCommand
         if (!(sender instanceof Player))
             return false;
 
+        new BigDoorCreator(SpigotAdapter.wrapPlayer((Player) sender), "TEST");
+
 //        BigDoors.get().getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140);
 //        BigDoors.get().getDatabaseManager().getDoor(236L).ifPresent(door -> BigDoors.get().getDatabaseManager().fillDoor((door)));
 //        if (sender instanceof Player)
 //            plugin.getGlowingBlockSpawner()
 //                  .spawnGlowinBlock(((Player) sender).getUniqueId(), ((Player) sender).getWorld().getName(), 60,
 //                                    128, 76, 140);
-        long worldTime = ((Player) sender).getWorld().getTime();
-        Bukkit.broadcastMessage("WorldTime: " + worldTime +
-                                    ", WorldTimeObject: " + new WorldTime(worldTime).toString());
+//        long worldTime = ((Player) sender).getWorld().getTime();
+//        Bukkit.broadcastMessage("WorldTime: " + worldTime +
+//                                    ", WorldTimeObject: " + new WorldTime(worldTime).toString());
 
 
         return true;

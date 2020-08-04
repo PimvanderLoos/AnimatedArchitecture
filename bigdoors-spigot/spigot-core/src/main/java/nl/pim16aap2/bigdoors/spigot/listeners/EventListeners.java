@@ -1,9 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -43,24 +46,38 @@ public class EventListeners implements Listener
     @EventHandler
     public void onLeftClick(final PlayerInteractEvent event)
     {
-        try
-        {
-            if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null &&
-                plugin.getToolVerifier().isTool(event.getPlayer().getInventory().getItemInMainHand()))
+        if (event.getAction() != Action.LEFT_CLICK_BLOCK)
+            return;
+
+        if (event.getClickedBlock() == null)
+            return;
+
+        ToolUserManager.get().getToolUser(event.getPlayer().getUniqueId()).ifPresent(
+            toolUser ->
             {
-                plugin.getToolUser(event.getPlayer()).ifPresent(
-                    TU ->
-                    {
-                        TU.selector(event.getClickedBlock().getLocation());
-                        event.setCancelled(true);
-                    }
-                );
+                @NotNull final Location loc = event.getClickedBlock().getLocation();
+                toolUser.handleInput(new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
             }
-        }
-        catch (Exception e)
-        {
-            plugin.getPLogger().logException(e);
-        }
+        );
+
+//        try
+//        {
+////            if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null &&
+////                plugin.getToolVerifier().isTool(event.getPlayer().getInventory().getItemInMainHand()))
+////            {
+////                plugin.getToolUser(event.getPlayer()).ifPresent(
+////                    TU ->
+////                    {
+////                        TU.selector(event.getClickedBlock().getLocation());
+////                        event.setCancelled(true);
+////                    }
+////                );
+////            }
+//        }
+//        catch (Exception e)
+//        {
+//            plugin.getPLogger().logException(e);
+//        }
     }
 
     /**

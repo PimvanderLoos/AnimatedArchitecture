@@ -434,7 +434,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
  *
  * @author Pim
  */
-public final class BigDoors
+public final class
+BigDoors
 {
     @NotNull
     private static final BigDoors instance = new BigDoors();
