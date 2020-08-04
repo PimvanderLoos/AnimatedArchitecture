@@ -412,7 +412,12 @@ public class CommandHandler implements CommandExecutor
             case "upgradedatabaseforv2":
                 if (player != null) // Only the server may use this command.
                     break;
-                prepareDatabaseForV2(sender, cmd, label, args);
+//                prepareDatabaseForV2(sender, cmd, label, args);
+                plugin.getMyLogger()
+                    .info("This command has been disabled! v2's database has changed significantly recently.");
+                plugin.getMyLogger()
+                    .info("The upgrade process will need to be updated because, as it stands, neither v1, nor v2 ");
+                plugin.getMyLogger().info("Will be able to use the database after the \"upgrade\".");
                 break;
             case "version":
                 if (player != null && !player.hasPermission("bigdoors.admin.version"))

@@ -43,8 +43,21 @@ public enum ProtectionCompat
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
-            return version.startsWith("4.") ? PlotSquaredNewProtectionCompat.class :
-                PlotSquaredOldProtectionCompat.class;
+            if (version.length() < 2)
+                return null;
+
+            final String majorVersion = version.substring(0, 2);
+            switch (majorVersion)
+            {
+            case "3.":
+                return PlotSquared3ProtectionCompat.class;
+            case "4.":
+                return PlotSquared4ProtectionCompat.class;
+            case "5.":
+                return PlotSquared5ProtectionCompat.class;
+            default:
+                return null;
+            }
         }
     },
 
@@ -56,6 +69,9 @@ public enum ProtectionCompat
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
+            if (version.length() < 2)
+                return null;
+
             if (version.startsWith("7."))
                 return WorldGuard7ProtectionCompat.class;
             else if (version.startsWith("6."))
