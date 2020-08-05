@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
 
 /**
  * Represents a single step in a larger procedure.
@@ -16,18 +16,15 @@ import java.util.function.Consumer;
 public abstract class Step<T extends ToolUser<T>>
 {
     /**
-     * Applies an object to the {@link Consumer} of this step.
+     * Applies an object to the {@link BiFunction} of this step.
      *
      * @param toolUser The {@link ToolUser} for whom this action will be applied.
-     * @param input    The object to give to the {@link Consumer}.
+     * @param input    The object to give to the {@link BiFunction}.
      */
-    public final boolean accept(final @NotNull T toolUser, final @Nullable Object input)
+    public final boolean apply(final @NotNull T toolUser, final @Nullable Object input)
     {
         if (!validInput(input))
-        {
-            protectedAccept(toolUser, input);
-            return true;
-        }
+            return protectedAccept(toolUser, input);
         else
         {
             PLogger.get().debug("Trying to pass a " + (input == null ? "null" : input.getClass().getSimpleName()) +
@@ -37,12 +34,12 @@ public abstract class Step<T extends ToolUser<T>>
     }
 
     /**
-     * Protected version of {@link #accept(ToolUser, Object)}. That method takes care of input type verification.
+     * Protected version of {@link #apply(ToolUser, Object)}. That method takes care of input type verification.
      *
      * @param toolUser The {@link ToolUser} for whom this action will be applied.
-     * @param obj      The object to give to the {@link Consumer}.
+     * @param obj      The object to give to the {@link BiFunction}.
      */
-    protected abstract void protectedAccept(final @NotNull T toolUser, final @NonNull Object obj);
+    protected abstract boolean protectedAccept(final @NotNull T toolUser, final @NonNull Object obj);
 
     /**
      * Checks if an object is a valid input type.

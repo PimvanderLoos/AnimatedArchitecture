@@ -42,6 +42,13 @@ public abstract class ToolUser<T extends ToolUser<T>>
         return Optional.of(procedure.get(stepIDX));
     }
 
+    /**
+     * Gets the {@link Message} associated with a given {@link Step}. If no message could be found, {@link
+     * Message#EMPTY} is used instead.
+     *
+     * @param step The {@link Step} for which to get the {@link Message}.
+     * @return The {@link Message} for the given {@link Step}.
+     */
     protected abstract Message getStepMessage(final @NotNull Step<T> step);
 
     /**
@@ -56,8 +63,9 @@ public abstract class ToolUser<T extends ToolUser<T>>
         getCurrentStep().ifPresent(
             step ->
             {
-                if (!step.accept((T) this, obj))
-                    getStepMessage(step);
+                if (!step.apply((T) this, obj))
+                    // TODO: This doesn't work with variables. Perhaps store them in an enum as well?
+                    player.sendMessage(messages.getString(getStepMessage(step)));
             });
     }
 }

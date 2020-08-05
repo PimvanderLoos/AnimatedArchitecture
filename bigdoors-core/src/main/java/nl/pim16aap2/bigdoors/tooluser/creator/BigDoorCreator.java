@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,35 +43,47 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
         player.sendMessage(messages.getString(nextStep.getMessage(), values));
     }
 
-    private void setName(final @NotNull String str)
+    private boolean setName(final @NotNull String str)
     {
         name = str;
         setProcedure(Procedure.SET_FIRST_POS);
+        return true;
     }
 
-    private void setFirstPos(final @NotNull IVector3DiConst pos)
+    private boolean setFirstPos(final @NotNull IVector3DiConst pos)
     {
         setProcedure(Procedure.SET_SECOND_POS);
+        return true;
     }
 
-    private void setSecondPos(final @NotNull IVector3DiConst pos)
+    private boolean setSecondPos(final @NotNull IVector3DiConst pos)
     {
         setProcedure(Procedure.SET_ENGINE_POS);
+        return true;
     }
 
-    private void setEnginePos(final @NotNull IVector3DiConst pos)
+    private boolean setEnginePos(final @NotNull IVector3DiConst pos)
     {
         setProcedure(Procedure.SET_POWER_BLOCK_POS);
+        return true;
     }
 
-    private void setPowerBlockPos(final @NotNull IVector3DiConst pos)
+    private boolean setPowerBlockPos(final @NotNull IVector3DiConst pos)
     {
         setProcedure(Procedure.SET_OPEN_DIR);
+        return true;
     }
 
-    private void setOpenDir(final @NotNull String str)
+    private boolean setOpenDir(final @NotNull String str)
     {
         BigDoors.get().getMessagingInterface().broadcastMessage("COMPLETED THE CREATOR!!");
+        return true;
+    }
+
+    @Override
+    protected Message getStepMessage(final @NotNull Step<BigDoorCreator> step)
+    {
+        return Procedure.getProcedure(step).map(Procedure::getMessage).orElse(Message.EMPTY);
     }
 
     @Override
@@ -79,6 +93,7 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
     }
 
     // TODO: Rename this, it is not a procedure, but a definition of steps.
+    // TODO: Use an interface.
     private enum Procedure
     {
         SET_NAME(new StepString<>(BigDoorCreator::setName), Message.CREATOR_BIGDOOR_INIT),
@@ -101,6 +116,16 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
         @NotNull
         private static final List<Procedure> values = Collections.unmodifiableList(Arrays.asList(Procedure.values()));
 
+        @NotNull
+        private static final Map<Step<BigDoorCreator>, Procedure> procedureMap;
+
+        static
+        {
+            Map<Step<BigDoorCreator>, Procedure> procedureMapTmp = new HashMap<>(values.size());
+            values.forEach(procedure -> procedureMapTmp.put(procedure.step, procedure));
+            procedureMap = Collections.unmodifiableMap(procedureMapTmp);
+        }
+
         Procedure(final @NotNull Step<BigDoorCreator> step, final @NotNull Message message)
         {
             this.step = step;
@@ -114,6 +139,11 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
             if (nextIDX >= values().length)
                 return Optional.empty();
             return Optional.of(values.get(nextIDX));
+        }
+
+        static Optional<Procedure> getProcedure(final @NotNull Step<BigDoorCreator> step)
+        {
+            return Optional.ofNullable(procedureMap.get(step));
         }
     }
 }

@@ -4,18 +4,18 @@ import lombok.AllArgsConstructor;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 @AllArgsConstructor
 public class StepString<T extends ToolUser<T>> extends Step<T>
 {
     @NotNull
-    private final BiConsumer<T, String> consumer;
+    private final BiFunction<T, String, Boolean> fun;
 
     @Override
-    protected void protectedAccept(final @NotNull T toolUser, final @NotNull Object input)
+    protected boolean protectedAccept(final @NotNull T toolUser, final @NotNull Object input)
     {
-        consumer.accept(toolUser, (String) input);
+        return fun.apply(toolUser, (String) input);
     }
 
     @Override
