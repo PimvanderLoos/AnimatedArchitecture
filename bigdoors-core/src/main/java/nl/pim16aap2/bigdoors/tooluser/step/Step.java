@@ -21,15 +21,19 @@ public abstract class Step<T extends ToolUser<T>>
      * @param toolUser The {@link ToolUser} for whom this action will be applied.
      * @param input    The object to give to the {@link Consumer}.
      */
-    public final void accept(final @NotNull T toolUser, final @Nullable Object input)
+    public final boolean accept(final @NotNull T toolUser, final @Nullable Object input)
     {
-        if (validInput(input))
+        if (!validInput(input))
+        {
             protectedAccept(toolUser, input);
+            return true;
+        }
         else
-            PLogger.get().logException(
-                new IllegalArgumentException(
-                    "Trying to pass a " + (input == null ? "null" : input.getClass().getSimpleName()) +
-                        " into " + getInputClass().getSimpleName()));
+        {
+            PLogger.get().debug("Trying to pass a " + (input == null ? "null" : input.getClass().getSimpleName()) +
+                                    " into " + getInputClass().getSimpleName());
+            return false;
+        }
     }
 
     /**

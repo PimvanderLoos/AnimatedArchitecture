@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class ToolUserManager
+public final class ToolUserManager implements IRestartable // TODO: Initialize the restartableHolder.
 {
     private static final ToolUserManager INSTANCE = new ToolUserManager();
     private static final Map<UUID, ToolUser> toolUsers = new ConcurrentHashMap<>();
@@ -54,5 +55,18 @@ public final class ToolUserManager
     public Optional<ToolUser> getToolUser(final @NotNull UUID uuid)
     {
         return Optional.ofNullable(toolUsers.get(uuid));
+    }
+
+    @Override
+    public void restart()
+    {
+//        toolUsers.forEach(ToolUser::shutdown);
+        toolUsers.clear();
+    }
+
+    @Override
+    public void shutdown()
+    {
+        restart();
     }
 }

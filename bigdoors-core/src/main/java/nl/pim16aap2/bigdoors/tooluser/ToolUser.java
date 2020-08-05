@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,6 +42,8 @@ public abstract class ToolUser<T extends ToolUser<T>>
         return Optional.of(procedure.get(stepIDX));
     }
 
+    protected abstract Message getStepMessage(final @NotNull Step<T> step);
+
     /**
      * Gets the procedure (ordered list of steps) that this {@link ToolUser} has to go through.
      *
@@ -50,6 +53,11 @@ public abstract class ToolUser<T extends ToolUser<T>>
 
     public void handleInput(final @NotNull Object obj)
     {
-        getCurrentStep().ifPresent(step -> step.accept((T) this, obj));
+        getCurrentStep().ifPresent(
+            step ->
+            {
+                if (!step.accept((T) this, obj))
+                    getStepMessage(step);
+            });
     }
 }
