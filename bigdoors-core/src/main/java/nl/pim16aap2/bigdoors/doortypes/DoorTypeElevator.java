@@ -3,7 +3,9 @@ package nl.pim16aap2.bigdoors.doortypes;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Elevator;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +43,12 @@ public final class DoorTypeElevator extends DoorType
     public static DoorTypeElevator get()
     {
         return instance;
+    }
+
+    @Override
+    public boolean isValidOpenDirection(@NotNull RotateDirection rotateDirection)
+    {
+        throw new NotImplementedException();
     }
 
     /** {@inheritDoc} */

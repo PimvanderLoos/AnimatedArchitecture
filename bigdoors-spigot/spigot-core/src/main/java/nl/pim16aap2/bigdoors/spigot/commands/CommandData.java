@@ -10,6 +10,7 @@ public enum CommandData
 
     ADDOWNER("AddOwner", "bigdoors.user.addowner", CommandData.BIGDOORS),
     CANCEL("cancel", CommandData.BDM.permission, CommandData.BIGDOORS),
+    CONFIRM("confirm", CommandData.BDM.permission, CommandData.BIGDOORS),
     MOVEPOWERBLOCK("movepowerblock", "bigdoors.user.movepowerblock", CommandData.BIGDOORS),
     DEBUG("debug", "bigdoorsdebug.iknowishouldnotusethis", CommandData.BIGDOORS),
     DELETE("delete", "bigdoors.user.delete", CommandData.BIGDOORS),

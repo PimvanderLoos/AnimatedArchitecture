@@ -38,6 +38,7 @@ ERROR.DOORISBUSY=&4"%DOOR%" is busy! Try again later.
 ERROR.DOORISLOCKED=&4"%DOOR%" is locked!
 ERROR.DOORTOOBIG=&4"%DOOR%" is too big!
 ERROR.TOGGLEFAILURE=&4"%DOOR%" could not be toggled!
+ERROR.TOGGLECANCELLED=&4"%DOOR%" could not be toggled because it was cancelled.
 ERROR.DOORALREADYCLOSED=&4"%DOOR%" is already closed!
 ERROR.DOORALREADYOPEN=&4"%DOOR%" is already open!
 ERROR.NOOPENDIRECTION=&4"%DOOR%" could not find an available open direction!
@@ -67,6 +68,7 @@ ERROR.COMMAND.INVALIDPERMISSIONVALUE=&4"%INPUT%" is not a valid permission value
 
 ERROR.COMMAND.NOTAPLAYER=Only players can execute this command!
 ERROR.COMMAND.NOTFOUND=&4Command not found!
+ERROR.COMMAND.NOTHINGTOCONFIRM=&4There's nothing to confirm!
 
 
 GUI.PAGE.DOORLIST=Door Menu
@@ -173,11 +175,14 @@ COMMAND.SETROTATION.SUCCESS=&aThis door will now open in %OPENDIRECTION% directi
 CREATOR.GENERAL.GIVENAME=&aPlease start by giving the door/drawbridge/portcullis a message using the command: "/BigDoors SetName <message>"
 CREATOR.GENERAL.INVALIDPOINT=&4The selected point was invalid! Try again!
 CREATOR.GENERAL.INVALIDROTATIONPOINT=&4Invalid rotation point selected! Try again!
+CREATOR.GENERAL.POWERBLOCKINSIDEDOOR=&4You cannot place powerblocks inside their own door!
 CREATOR.GENERAL.INVALIDROTATIONDIRECTION=&4Invalid rotation point selection! Try again!
 CREATOR.GENERAL.CANCELLED=&4The creation process has been cancelled.
 CREATOR.GENERAL.TIMEOUT=&4Time's up! Creation was aborted, please try again.
 CREATOR.GENERAL.STICKNAME=Big Door Tool
 CREATOR.GENERAL.INIT=&aProcess initiated! You have 60 seconds to complete this process!\nIf you wish to cancel the process sooner, type "/BigDoors cancel" in chat.
+CREATOR.GENERAL.SETPOWERBLOCK=&aPlease select a location for the powerblock.
+CREATOR.GENERAL.SETOPENDIR=&aPlease tell me which way you want the door to open. These are your options:
 
 # Supported: %BLOCKLIMIT%
 CREATOR.GENERAL.AREATOOBIG=&4You are not allowed to create a door this big. Your size limit is %BLOCKLIMIT%.
@@ -185,6 +190,8 @@ CREATOR.GENERAL.AREATOOBIG=&4You are not allowed to create a door this big. Your
 # Supported: %DOORPRICE%
 CREATOR.GENERAL.INSUFFICIENTFUNDS=&4You have insufficient funds to create this door! You'd need %DOORPRICE%.
 CREATOR.GENERAL.MONEYWITHDRAWN=&a%DOORPRICE% has been withdrawn from your account.
+CREATOR.GENERAL.CONFIRMPRICE=&aThis door will cost %DOORPRICE%. Type "/bigdoors confirm" to complete the process.\nYou can cancel the process using ""/bigdoors cancel"
+
 
 
 CREATOR.PBRELOCATOR.STICKLORE=This tool is used to change the location of a power block.

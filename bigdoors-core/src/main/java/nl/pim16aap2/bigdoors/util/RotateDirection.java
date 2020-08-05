@@ -1,11 +1,14 @@
 package nl.pim16aap2.bigdoors.util;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents all directions a door can rotate in.
@@ -27,16 +30,28 @@ public enum RotateDirection
     /**
      * Map of all indices with their respective {@link RotateDirection} constants as values.
      */
-    private static Map<Integer, RotateDirection> map = new HashMap<>();
+    private final static Map<Integer, RotateDirection> idMap;
+    private final static Map<String, RotateDirection> nameMap;
 
     static
     {
+        RotateDirection[] values = RotateDirection.values();
+        Map<Integer, RotateDirection> idMapTmp = new HashMap<>(values.length);
+        Map<String, RotateDirection> nameMapTmp = new HashMap<>(values.length);
         for (RotateDirection dir : RotateDirection.values())
-            map.put(dir.val, dir);
+        {
+            idMapTmp.put(dir.val, dir);
+            nameMapTmp.put(dir.name(), dir);
+        }
+        idMap = Collections.unmodifiableMap(idMapTmp);
+        nameMap = Collections.unmodifiableMap(nameMapTmp);
     }
 
     private final int val;
-    private final @NotNull Message message;
+
+    @Getter
+    @NotNull
+    private final Message message;
 
     RotateDirection(final int val, final @NotNull Message message)
     {
@@ -66,12 +81,18 @@ public enum RotateDirection
     {
         try
         {
-            return map.get(dir);
+            return idMap.get(dir);
         }
         catch (Exception e)
         {
             return null;
         }
+    }
+
+    @NotNull
+    public static Optional<RotateDirection> getRotateDirection(final @NotNull String name)
+    {
+        return Optional.ofNullable(nameMap.get(name));
     }
 
     /**

@@ -48,7 +48,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
-    protected Vector3Di minimum, maximum, engine, powerBlock, dimensions;
+    protected IVector3DiConst minimum, maximum, engine, powerBlock, dimensions;
 
     /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
@@ -550,25 +550,25 @@ public abstract class AbstractDoorBase implements IDoorBase
          * The location with the coordinates closest to the origin.
          */
         @NotNull
-        Vector3Di min;
+        IVector3DiConst min;
 
         /**
          * The location with the coordinates furthest away from the origin.
          */
         @NotNull
-        Vector3Di max;
+        IVector3DiConst max;
 
         /**
          * The location of the engine.
          */
         @NotNull
-        Vector3Di engine;
+        IVector3DiConst engine;
 
         /**
          * The location of the powerblock.
          */
         @NotNull
-        Vector3Di powerBlock;
+        IVector3DiConst powerBlock;
 
         /**
          * The {@link IPWorld} this door is in.

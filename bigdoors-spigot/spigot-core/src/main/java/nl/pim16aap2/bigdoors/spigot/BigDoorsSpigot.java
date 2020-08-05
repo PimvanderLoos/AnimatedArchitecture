@@ -57,6 +57,7 @@ import nl.pim16aap2.bigdoors.spigot.commands.SuperCommand;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandCancel;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandClose;
+import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandConfirm;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandDebug;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandDelete;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandFill;
@@ -451,6 +452,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         {
             commandBigDoors.registerSubCommand(new SubCommandAddOwner(this, commandManager));
             commandBigDoors.registerSubCommand(new SubCommandCancel(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandConfirm(this, commandManager));
             commandBigDoors.registerSubCommand(new SubCommandMovePowerBlock(this, commandManager));
             commandBigDoors.registerSubCommand(new SubCommandClose(this, commandManager));
             commandBigDoors.registerSubCommand(new SubCommandDebug(this, commandManager));

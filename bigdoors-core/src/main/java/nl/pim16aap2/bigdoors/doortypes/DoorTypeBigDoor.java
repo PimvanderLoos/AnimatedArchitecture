@@ -4,10 +4,12 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,11 @@ public final class DoorTypeBigDoor extends DoorType
     }
 
     @NotNull
+    private static final List<RotateDirection> VALID_ROTATE_DIRECTIONS =
+        Collections.unmodifiableList(Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
+
+
+    @NotNull
     private static final DoorTypeBigDoor instance = new DoorTypeBigDoor();
 
     private DoorTypeBigDoor()
@@ -43,6 +50,12 @@ public final class DoorTypeBigDoor extends DoorType
     public static DoorTypeBigDoor get()
     {
         return instance;
+    }
+
+    @Override
+    public boolean isValidOpenDirection(@NotNull RotateDirection rotateDirection)
+    {
+        return DoorTypeBigDoor.VALID_ROTATE_DIRECTIONS.contains(rotateDirection);
     }
 
     /** {@inheritDoc} */

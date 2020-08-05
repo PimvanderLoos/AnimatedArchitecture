@@ -40,6 +40,7 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -773,8 +774,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         // Test power block relocation.
         {
             // Create a new location that is not the same as the current power block location of door 3.
-            final @NotNull Vector3Di oldLoc = door3.getPowerBlock();
-            final @NotNull Vector3Di newLoc = oldLoc.clone();
+            final @NotNull IVector3DiConst oldLoc = door3.getPowerBlock();
+            final @NotNull Vector3Di newLoc = new Vector3Di(oldLoc);
             newLoc.setY((newLoc.getX() + 30) % 256);
             Assert.assertNotSame(newLoc, oldLoc);
 

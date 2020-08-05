@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doortypes;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -46,6 +47,14 @@ public abstract class DoorType
         this.parameters = parameters;
         translationName = "DoorType_" + toString();
     }
+
+    /**
+     * Checks if a given {@link RotateDirection} is valid for this type.
+     *
+     * @param rotateDirection The {@link RotateDirection} to check.
+     * @return True if the provided {@link RotateDirection} is valid for this type, otherwise false.
+     */
+    public abstract boolean isValidOpenDirection(final @NotNull RotateDirection rotateDirection);
 
     /**
      * Instantiates a new {@link AbstractDoorBase} associated with this type.

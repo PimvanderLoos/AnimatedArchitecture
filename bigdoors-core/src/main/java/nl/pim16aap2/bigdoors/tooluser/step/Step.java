@@ -23,7 +23,7 @@ public abstract class Step<T extends ToolUser<T>>
      */
     public final boolean apply(final @NotNull T toolUser, final @Nullable Object input)
     {
-        if (!validInput(input))
+        if (validInput(input))
             return protectedAccept(toolUser, input);
         else
         {
@@ -47,8 +47,9 @@ public abstract class Step<T extends ToolUser<T>>
      * @param obj The object to check.
      * @return True if this object is valid for the current type.
      */
-    public final boolean validInput(final @Nullable Object obj)
+    public boolean validInput(final @Nullable Object obj)
     {
+//        return obj != null && getInputClass().isAssignableFrom(obj.getClass());
         return getInputClass().isInstance(obj);
     }
 
@@ -57,5 +58,5 @@ public abstract class Step<T extends ToolUser<T>>
      *
      * @return The {@link Class} of the input object.
      */
-    public abstract Class<?> getInputClass();
+    protected abstract Class<?> getInputClass();
 }

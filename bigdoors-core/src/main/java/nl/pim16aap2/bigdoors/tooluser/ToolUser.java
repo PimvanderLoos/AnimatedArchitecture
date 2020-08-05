@@ -3,13 +3,16 @@ package nl.pim16aap2.bigdoors.tooluser;
 import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
+import nl.pim16aap2.bigdoors.tooluser.step.StepString;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,14 +61,84 @@ public abstract class ToolUser<T extends ToolUser<T>>
      */
     public abstract List<Step<T>> getProcedure();
 
-    public void handleInput(final @NotNull Object obj)
+    public void handleInput(final @Nullable Object obj)
     {
+        {
+            System.out.print(" ");
+            System.out.print("handleInput! stepIDX = " + stepIDX);
+            Optional<Step<T>> current_step = getCurrentStep();
+            if (current_step.isPresent())
+            {
+                System.out.print("Current step is present: " + current_step.get().getClass().getSimpleName());
+                if (current_step.get() instanceof StepString)
+                {
+                    System.out.print("String input to handle: " + (String) obj);
+                }
+            }
+            else
+                System.out.print("Current step is not present!");
+        }
+
         getCurrentStep().ifPresent(
             step ->
             {
-                if (!step.apply((T) this, obj))
-                    // TODO: This doesn't work with variables. Perhaps store them in an enum as well?
-                    player.sendMessage(messages.getString(getStepMessage(step)));
+                try
+                {
+                    boolean result = step.apply((T) this, obj);
+                    System.out.print("Result = " + result);
+                    if (!result)
+                        player.sendMessage(messages.getString(getStepMessage(step)));
+
+//                    if (!step.apply((T) this, obj))
+//                        // TODO: This doesn't work with variables. Perhaps store them in an enum as well?
+//                        player.sendMessage(messages.getString(getStepMessage(step)));
+                }
+                catch (Exception e)
+                {
+                    PLogger.get().logException(e);
+                }
             });
+    }
+
+    /**
+     * Handles a confirmation. I.e. input where the fact that there is any input at all is the input itself and
+     * therefore doesn't have a value.
+     */
+    public void handleConfirm()
+    {
+        System.out.print("CONFIRM!");
+        getCurrentStep().ifPresent(
+            step ->
+            {
+                try
+                {
+                    boolean result = step.apply((T) this, null);
+                    System.out.print("Result = " + result);
+                    if (!result)
+                        player.sendMessage(messages.getString(getStepMessage(step)));
+
+//                    if (!step.apply((T) this, null))
+//                        // TODO: This doesn't work with variables. Perhaps store them in an enum as well?
+//                        player.sendMessage(messages.getString(getStepMessage(step)));
+                }
+                catch (Exception e)
+                {
+                    PLogger.get().logException(e);
+                }
+            });
+    }
+
+    /**
+     * Checks if a player is allowed to break the block in a given location.
+     * <p>
+     * If the player is not allowed to break blocks in the location, a message will be sent to them.
+     *
+     * @param loc The location to check.
+     * @return True if the player is allowed to break the block at the given location.
+     */
+    protected boolean playerHasAccessToLocation(final @NotNull IPLocation loc)
+    {
+        // TODO: Implement.
+        return true;
     }
 }

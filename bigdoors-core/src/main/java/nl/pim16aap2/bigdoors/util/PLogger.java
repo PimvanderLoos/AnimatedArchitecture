@@ -51,7 +51,7 @@ public final class PLogger
     /**
      * Determine if debug messages should be logged or not.
      */
-    private boolean debugLogging = false;
+    private boolean debugLogging = true;
 
     /**
      * The instance of this {@link PLogger}.

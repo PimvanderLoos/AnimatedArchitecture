@@ -26,8 +26,6 @@ import org.jetbrains.annotations.Nullable;
 //       Also: https://www.baeldung.com/java-size-of-object
 // TODO: Fix violation of LSP for doorAttributes. Instead of having a switch per type in the GUI, override a return in the DoorAttribute enum.
 // TODO: Look into Aikar's command system to replace my command system: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
-// TODO: Consider storing original locations in the database. Then use the OpenDirection as the direction to go when in
-//       the original position. Then you cannot make regular doors go in a full circle anymore.
 // TODO: Instead of placing all blocks one by one and sending packets to the players about it, use this method instead:
 //       https://www.spigotmc.org/threads/efficiently-change-large-area-of-blocks.262341/#post-2585360
 // TODO: Write script (python? might be fun to switch it up) to build plugin.yml on compilation.
@@ -94,6 +92,18 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Place the creator stick in the player's hotbar. If possible, in the currently selected place.
+//       If there is no space in the hotbar (or maybe always do this), move the currently selected item into the
+//       player's inventory. If there is no space, abort the process and inform the player that they need to sort
+//       their shit out and do some inventory management.
+// TODO: Implement a way to retrieve the original locations in the database. Then use the OpenDirection as the
+//       direction to go when in the original position. Then you cannot make regular doors go in a full circle anymore.
+//       Perhaps this could just be a single value in the database that describes the original min value (they can't
+//       change shape, after all). How this hash is implemented can be determined on a per-type basis. A portcullis
+//       can just use its lowest y-value as the x/z values do not matter at all.
+//       However, it might also be nice to have a reversible way to retrieve the original location, so it's easier to
+//       determine how to toggle a door back to its original position. Be careful to not make a very complicated
+//       system to avoid storing a few more ints in the database; it's not worth it.
 // TODO: Make a decision about using null in parameters. You could make a point that instead of value vs null, you can
 //       value vs empty Optional vs null. However, Optionals make it more clear when an object might not be present
 //       and they shouldn't be null anyway. On the other hand, the biggest reason I want it right now is because
@@ -406,7 +416,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Make sure that new lines in the messages work (check Util::stringFromArray).
 // TODO: Fix no permission to set AutoCloseTime from GUI.
 // TODO: Check if TimedCache#containsValue() works properly.
-// TODO: What happens when a player is given a creator stick while their inventory is full?
 // TODO: Test all methods in the database manager stuff.
 // TODO: Fix command waiter system.
 // TODO: Fix not being able to use doorUID in setBlocksToMove (direct).

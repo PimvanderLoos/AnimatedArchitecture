@@ -5,8 +5,6 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -55,29 +53,9 @@ public class EventListeners implements Listener
         ToolUserManager.get().getToolUser(event.getPlayer().getUniqueId()).ifPresent(
             toolUser ->
             {
-                @NotNull final Location loc = event.getClickedBlock().getLocation();
-                toolUser.handleInput(new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
-            }
-        );
-
-//        try
-//        {
-////            if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null &&
-////                plugin.getToolVerifier().isTool(event.getPlayer().getInventory().getItemInMainHand()))
-////            {
-////                plugin.getToolUser(event.getPlayer()).ifPresent(
-////                    TU ->
-////                    {
-////                        TU.selector(event.getClickedBlock().getLocation());
-////                        event.setCancelled(true);
-////                    }
-////                );
-////            }
-//        }
-//        catch (Exception e)
-//        {
-//            plugin.getPLogger().logException(e);
-//        }
+                event.setCancelled(true);
+                toolUser.handleInput(SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation()));
+            });
     }
 
     /**

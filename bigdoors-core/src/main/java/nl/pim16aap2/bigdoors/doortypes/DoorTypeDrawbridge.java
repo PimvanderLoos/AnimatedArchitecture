@@ -4,8 +4,10 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Drawbridge;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +47,12 @@ public final class DoorTypeDrawbridge extends DoorType
     public static DoorTypeDrawbridge get()
     {
         return instance;
+    }
+
+    @Override
+    public boolean isValidOpenDirection(@NotNull RotateDirection rotateDirection)
+    {
+        throw new NotImplementedException();
     }
 
     /** {@inheritDoc} */
