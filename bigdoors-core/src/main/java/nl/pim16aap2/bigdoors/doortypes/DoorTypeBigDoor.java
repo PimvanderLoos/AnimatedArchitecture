@@ -58,6 +58,12 @@ public final class DoorTypeBigDoor extends DoorType
         return DoorTypeBigDoor.VALID_ROTATE_DIRECTIONS.contains(rotateDirection);
     }
 
+    @Override
+    public @NotNull List<RotateDirection> getValidOpenDirections()
+    {
+        return VALID_ROTATE_DIRECTIONS;
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override

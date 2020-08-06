@@ -57,6 +57,16 @@ public abstract class DoorType
     public abstract boolean isValidOpenDirection(final @NotNull RotateDirection rotateDirection);
 
     /**
+     * Gets a list of all theoretically valid {@link RotateDirection} for this given type. It does take the physical
+     * aspects of a {@link AbstractDoorBase} into consideration. Therefore, the actual list of valid {@link
+     * RotateDirection}s is most likely going to be a subset of those returned by this method.
+     *
+     * @return A list of all valid {@link RotateDirection} for this given type.
+     */
+    @NotNull
+    public abstract List<RotateDirection> getValidOpenDirections();
+
+    /**
      * Instantiates a new {@link AbstractDoorBase} associated with this type.
      *
      * @param doorData The {@link AbstractDoorBase.DoorData} to instantiate the base door.

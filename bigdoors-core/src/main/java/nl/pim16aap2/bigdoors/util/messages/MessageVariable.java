@@ -23,4 +23,5 @@ interface MessageVariable
     String DOORPRICE = "%DOORPRICE%";
     String DOORNAME = "%DOORNAME%";
     String BLOCKLIMIT = "%BLOCKLIMIT%";
+    String OPENDIRECTIONLIST = "%OPENDIRECTIONLIST%";
 }

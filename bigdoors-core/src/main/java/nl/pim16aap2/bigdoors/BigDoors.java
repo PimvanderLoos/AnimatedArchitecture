@@ -92,6 +92,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: PLogger: Make it possible to log exceptions/errors without logging anything to the console. This is useful
+//       in the case where you want to actually throw the error/exception in addition to logging it.
 // TODO: Place the creator stick in the player's hotbar. If possible, in the currently selected place.
 //       If there is no space in the hotbar (or maybe always do this), move the currently selected item into the
 //       player's inventory. If there is no space, abort the process and inform the player that they need to sort

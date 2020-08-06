@@ -182,7 +182,11 @@ CREATOR.GENERAL.TIMEOUT=&4Time's up! Creation was aborted, please try again.
 CREATOR.GENERAL.STICKNAME=Big Door Tool
 CREATOR.GENERAL.INIT=&aProcess initiated! You have 60 seconds to complete this process!\nIf you wish to cancel the process sooner, type "/BigDoors cancel" in chat.
 CREATOR.GENERAL.SETPOWERBLOCK=&aPlease select a location for the powerblock.
-CREATOR.GENERAL.SETOPENDIR=&aPlease tell me which way you want the door to open. These are your options:
+
+
+# Supported: %OPENDIRECTIONLIST% Note that this produces a list with 1 entry per line.
+CREATOR.GENERAL.SETOPENDIR=&aPlease tell me which way you want the door to open. These are your options:\n%OPENDIRECTIONLIST%\nPlease type "/bigdoors setrotation <id>".
+
 
 # Supported: %BLOCKLIMIT%
 CREATOR.GENERAL.AREATOOBIG=&4You are not allowed to create a door this big. Your size limit is %BLOCKLIMIT%.

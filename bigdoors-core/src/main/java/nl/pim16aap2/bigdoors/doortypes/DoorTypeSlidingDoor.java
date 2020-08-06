@@ -51,6 +51,13 @@ public final class DoorTypeSlidingDoor extends DoorType
         throw new NotImplementedException();
     }
 
+    @Override
+    @NotNull
+    public List<RotateDirection> getValidOpenDirections()
+    {
+        throw new NotImplementedException();
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override

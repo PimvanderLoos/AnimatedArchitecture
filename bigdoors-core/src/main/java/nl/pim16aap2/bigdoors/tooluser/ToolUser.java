@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.step.StepString;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,13 +45,13 @@ public abstract class ToolUser<T extends ToolUser<T>>
     }
 
     /**
-     * Gets the {@link Message} associated with a given {@link Step}. If no message could be found, {@link
-     * Message#EMPTY} is used instead.
+     * Gets the localized message associated with a given {@link Step}. If no message could be found, an empty String is
+     * returned.
      *
-     * @param step The {@link Step} for which to get the {@link Message}.
-     * @return The {@link Message} for the given {@link Step}.
+     * @param step The {@link Step} for which to get the message.
+     * @return The localized message for the given {@link Step}.
      */
-    protected abstract Message getStepMessage(final @NotNull Step<T> step);
+    protected abstract String getStepMessage(final @NotNull Step<T> step);
 
     /**
      * Gets the procedure (ordered list of steps) that this {@link ToolUser} has to go through.
@@ -60,6 +59,20 @@ public abstract class ToolUser<T extends ToolUser<T>>
      * @return The procedure (ordered list of steps) that this {@link ToolUser} has to go through.
      */
     public abstract List<Step<T>> getProcedure();
+
+    /**
+     * Sends the localized message of the current {@link Step} to the player that owns this object.
+     *
+     * @param step The step to inform the user about.
+     */
+    protected void sendMessage(final @NotNull Step<T> step)
+    {
+        String message = getStepMessage(step);
+        if (message.isEmpty())
+            PLogger.get().warn("Missing translation for step: " + step.getClass().getSimpleName());
+        else
+            player.sendMessage(message);
+    }
 
     public void handleInput(final @Nullable Object obj)
     {
@@ -84,14 +97,8 @@ public abstract class ToolUser<T extends ToolUser<T>>
             {
                 try
                 {
-                    boolean result = step.apply((T) this, obj);
-                    System.out.print("Result = " + result);
-                    if (!result)
-                        player.sendMessage(messages.getString(getStepMessage(step)));
-
-//                    if (!step.apply((T) this, obj))
-//                        // TODO: This doesn't work with variables. Perhaps store them in an enum as well?
-//                        player.sendMessage(messages.getString(getStepMessage(step)));
+                    if (!step.apply((T) this, obj))
+                        sendMessage(step);
                 }
                 catch (Exception e)
                 {
@@ -107,25 +114,7 @@ public abstract class ToolUser<T extends ToolUser<T>>
     public void handleConfirm()
     {
         System.out.print("CONFIRM!");
-        getCurrentStep().ifPresent(
-            step ->
-            {
-                try
-                {
-                    boolean result = step.apply((T) this, null);
-                    System.out.print("Result = " + result);
-                    if (!result)
-                        player.sendMessage(messages.getString(getStepMessage(step)));
-
-//                    if (!step.apply((T) this, null))
-//                        // TODO: This doesn't work with variables. Perhaps store them in an enum as well?
-//                        player.sendMessage(messages.getString(getStepMessage(step)));
-                }
-                catch (Exception e)
-                {
-                    PLogger.get().logException(e);
-                }
-            });
+        handleInput(null);
     }
 
     /**

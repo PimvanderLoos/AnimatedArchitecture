@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
+import nl.pim16aap2.bigdoors.tooluser.IProcedure;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.step.StepConfirm;
 import nl.pim16aap2.bigdoors.tooluser.step.StepPLocation;
@@ -15,20 +16,25 @@ import nl.pim16aap2.bigdoors.tooluser.step.StepString;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class BigDoorCreator extends Creator<BigDoorCreator>
+public final class BigDoorCreator extends Creator<BigDoorCreator>
 {
     private static final List<Step<BigDoorCreator>> procedure =
         Collections.unmodifiableList(Arrays.stream(Procedure.values())
@@ -56,15 +62,11 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
         return type;
     }
 
-    private void setProcedure(final @NotNull Procedure nextStep, final String... values)
+    private void setProcedure(final @NotNull Procedure nextStep)
     {
         System.out.print("Setting stepIDX (" + stepIDX + ") to: " + nextStep.ordinal());
         stepIDX = nextStep.ordinal();
-        Message message = nextStep.getMessage();
-        if (message != Message.EMPTY)
-            player.sendMessage(messages.getString(nextStep.getMessage(), values));
-        else
-            BigDoors.get().getMessagingInterface().broadcastMessage("EMPTY MESSAGE: STEP: " + nextStep.name());
+        sendMessage(nextStep.step);
     }
 
     private boolean setName(final @NotNull String str)
@@ -138,6 +140,23 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
         String openDirName = str.toUpperCase();
         System.out.println("Setting open dir: " + openDirName);
 
+        OptionalInt idOpt = Util.parseInt(str);
+        if (idOpt.isPresent())
+        {
+            int id = idOpt.getAsInt();
+            if (id < 0 || id > getDoorType().getValidOpenDirections().size())
+            {
+                PLogger.get().debug(
+                    getClass().getSimpleName() + ": Player " + player.getUUID().toString() + " selected ID: " + id +
+                        " out of " + getDoorType().getValidOpenDirections().size() + " options.");
+                return false; // TODO: Inform the player
+            }
+
+            opendir = getDoorType().getValidOpenDirections().get(id);
+            setProcedure(Procedure.COMPLETE);
+            return true;
+        }
+
         return RotateDirection.getRotateDirection(openDirName).map(
             foundOpenDir ->
             {
@@ -145,7 +164,7 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
                 {
                     opendir = foundOpenDir;
                     // TODO: Money, canBreakBlocks.
-                    setProcedure(Procedure.COMPLETE, cuboid.getVolume().toString());
+                    setProcedure(Procedure.COMPLETE);
                     return true;
                 }
                 return false;
@@ -169,9 +188,9 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
     }
 
     @Override
-    protected Message getStepMessage(final @NotNull Step<BigDoorCreator> step)
+    protected String getStepMessage(final @NotNull Step<BigDoorCreator> step)
     {
-        return Procedure.getProcedure(step).map(Procedure::getMessage).orElse(Message.EMPTY);
+        return Procedure.getProcedure(step).map(procedure -> procedure.getMessage(this)).orElse("");
     }
 
     @Override
@@ -180,30 +199,39 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
         return procedure;
     }
 
-    // TODO: Rename this, it is not a procedure, but a definition of steps.
-    // TODO: Use an interface.
-    private enum Procedure
+    private enum Procedure implements IProcedure<BigDoorCreator>
     {
         SET_NAME(new StepString<>(BigDoorCreator::setName), Message.CREATOR_BIGDOOR_INIT),
+
         SET_FIRST_POS(new StepPLocation<>(BigDoorCreator::setFirstPos), Message.CREATOR_BIGDOOR_STEP1),
+
         SET_SECOND_POS(new StepPLocation<>(BigDoorCreator::setSecondPos), Message.CREATOR_BIGDOOR_STEP2),
+
         SET_ENGINE_POS(new StepPLocation<>(BigDoorCreator::setEnginePos), Message.CREATOR_BIGDOOR_STEP3),
+
         SET_POWER_BLOCK_POS(new StepPLocation<>(BigDoorCreator::setPowerBlockPos),
                             Message.CREATOR_GENERAL_SETPOWERBLOCK),
-        SET_OPEN_DIR(new StepString<>(BigDoorCreator::setOpenDir), Message.CREATOR_GENERAL_SETOPENDIR),
-        COMPLETE(new StepConfirm<>(BigDoorCreator::complete), Message.CREATOR_GENERAL_CONFIRMPRICE);
 
-        @Getter
+        SET_OPEN_DIR(new StepString<>(BigDoorCreator::setOpenDir), Message.CREATOR_GENERAL_SETOPENDIR,
+                     Creator::getOpenDirections),
+
+        COMPLETE(new StepConfirm<>(BigDoorCreator::complete), Message.CREATOR_GENERAL_CONFIRMPRICE,
+                 creator -> Integer.toString(creator.getPrice())),
+        ;
+
+        @Getter(onMethod = @__({@Override}))
         @NotNull
         final Step<BigDoorCreator> step;
 
-        @Getter
         @NotNull
         final Message message;
 
-        @Getter
+        //        @Getter(onMethod = @__({@Override}))
         @NotNull
         private static final List<Procedure> values = Collections.unmodifiableList(Arrays.asList(Procedure.values()));
+
+        @NotNull
+        final List<Function<Creator<BigDoorCreator>, String>> messageVariablesRetrievers;
 
         @NotNull
         private static final Map<Step<BigDoorCreator>, Procedure> procedureMap;
@@ -215,24 +243,50 @@ public class BigDoorCreator extends Creator<BigDoorCreator>
             procedureMap = Collections.unmodifiableMap(procedureMapTmp);
         }
 
-        Procedure(final @NotNull Step<BigDoorCreator> step, final @NotNull Message message)
+        Procedure(final @NotNull Step<BigDoorCreator> step, final @NotNull Message message,
+                  final @NotNull Function<Creator<BigDoorCreator>, String>... messageVariablesRetrievers)
         {
             this.step = step;
             this.message = message;
+            if (messageVariablesRetrievers.length != Message.getVariableCount(this.message))
+            {
+                VerifyError e =
+                    new VerifyError("Parameter mismatch for " + name() + ". Expected: " +
+                                        Message.getVariableCount(this.message) + " but received: " +
+                                        messageVariablesRetrievers.length);
+                PLogger.get().logError(e);
+                // TODO: Throw the error as well. The PLogger needs to be able to log errors (and execptions) without
+                //  dumping them in the console as well, to avoid logging them twice.
+            }
+
+            this.messageVariablesRetrievers = Collections.unmodifiableList(Arrays.asList(messageVariablesRetrievers));
         }
 
-        @NotNull
-        Optional<Procedure> next()
-        {
-            final int nextIDX = ordinal() + 1;
-            if (nextIDX >= values().length)
-                return Optional.empty();
-            return Optional.of(values.get(nextIDX));
-        }
+//        @NotNull
+//        Optional<Procedure> next()
+//        {
+//            final int nextIDX = ordinal() + 1;
+//            if (nextIDX >= values().length)
+//                return Optional.empty();
+//            return Optional.of(values.get(nextIDX));
+//        }
 
         static Optional<Procedure> getProcedure(final @NotNull Step<BigDoorCreator> step)
         {
             return Optional.ofNullable(procedureMap.get(step));
+        }
+
+        @Override
+        @NotNull
+        public String getMessage(final @NotNull Creator creator)
+        {
+            List<String> variables = new ArrayList<>();
+            messageVariablesRetrievers.forEach(fun -> variables.add(fun.apply(creator)));
+
+            String[] variablesArr = new String[variables.size()];
+            variablesArr = variables.toArray(variablesArr);
+
+            return BigDoors.get().getPlatform().getMessages().getString(message, variablesArr);
         }
     }
 }

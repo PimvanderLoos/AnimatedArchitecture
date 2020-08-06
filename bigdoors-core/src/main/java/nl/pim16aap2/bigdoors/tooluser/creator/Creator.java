@@ -56,4 +56,22 @@ public abstract class Creator<T extends Creator<T>> extends ToolUser<T>
      */
     @NotNull
     protected abstract DoorType getDoorType();
+
+    public int getPrice()
+    {
+        if (cuboid == null)
+            return -1;
+        // TODO: Implement.
+//        return BigDoors.get().getPlatform().getEconomyManager().getPrice(getDoorType(), cuboid.getVolume());
+        return 1;
+    }
+
+    public String getOpenDirections()
+    {
+        StringBuilder sb = new StringBuilder();
+        int idx = 0;
+        for (RotateDirection rotateDirection : getDoorType().getValidOpenDirections())
+            sb.append(idx++).append(": ").append(messages.getString(rotateDirection.getMessage())).append("\n");
+        return sb.toString();
+    }
 }
