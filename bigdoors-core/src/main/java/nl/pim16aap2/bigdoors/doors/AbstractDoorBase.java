@@ -520,10 +520,10 @@ public abstract class AbstractDoorBase implements IDoorBase
             return false;
 
         AbstractDoorBase other = (AbstractDoorBase) o;
-        return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) && maximum
-            .equals(other.maximum) &&
-            getDoorType().equals(other.getDoorType()) && open == other.open && doorOwner.equals(other.doorOwner) &&
-            isLocked == other.isLocked && world.getUID().equals(other.world.getUID());
+        return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) &&
+            maximum.equals(other.maximum) && getDoorType().equals(other.getDoorType()) && open == other.open &&
+            doorOwner.equals(other.doorOwner) && isLocked == other.isLocked &&
+            world.getUID().equals(other.world.getUID());
     }
 
     /**

@@ -7,16 +7,16 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
-import nl.pim16aap2.bigdoors.tooluser.step.StepString;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class ToolUser<T extends ToolUser<T>>
+public abstract class ToolUser
 {
     protected int stepIDX = 0;
     @Getter
@@ -25,23 +25,39 @@ public abstract class ToolUser<T extends ToolUser<T>>
     @NotNull
     protected final Messages messages = BigDoors.get().getPlatform().getMessages();
 
+    @NotNull
+    protected final List<Step> procedure;
+
     protected ToolUser(final @NotNull IPPlayer pPlayer)
     {
         player = pPlayer;
+        procedure = Collections.unmodifiableList(constructProcedure());
         ToolUserManager.get().registerToolUser(this);
     }
 
-    protected Optional<Step<T>> getCurrentStep()
+    @NotNull
+    protected final Optional<Step> getStep(final int step)
     {
-        List<Step<T>> procedure = getProcedure();
-        if (stepIDX > procedure.size() || stepIDX < 0)
+        if (step > procedure.size() || step < 0)
         {
             PLogger.get().logException(
-                new ArrayIndexOutOfBoundsException("Tried to get step #" + stepIDX + ", but this " +
+                new ArrayIndexOutOfBoundsException("Tried to get step #" + step + ", but this " +
                                                        "procedure only has " + procedure.size() + " steps!"));
             return Optional.empty();
         }
-        return Optional.of(procedure.get(stepIDX));
+        return Optional.of(procedure.get(step));
+    }
+
+    @NotNull
+    public final Optional<Step> getCurrentStep()
+    {
+        return getStep(stepIDX);
+    }
+
+    @NotNull
+    public final Optional<Step> getNextStep()
+    {
+        return getStep(stepIDX + 1);
     }
 
     /**
@@ -51,70 +67,70 @@ public abstract class ToolUser<T extends ToolUser<T>>
      * @param step The {@link Step} for which to get the message.
      * @return The localized message for the given {@link Step}.
      */
-    protected abstract String getStepMessage(final @NotNull Step<T> step);
+    @NotNull
+    public abstract String getStepMessage(final @NotNull Step step);
 
     /**
-     * Gets the procedure (ordered list of steps) that this {@link ToolUser} has to go through.
+     * Gets the procedure (ordered list of steps) that this {@link ToolUser} has to go through. Note that this is an
+     * UnmodifiableList!
      *
      * @return The procedure (ordered list of steps) that this {@link ToolUser} has to go through.
      */
-    public abstract List<Step<T>> getProcedure();
+    @NotNull
+    public final List<Step> getProcedure()
+    {
+        return procedure;
+    }
+
+    /**
+     * Constructs the procedure (ordered list of steps) that this {@link ToolUser} has to go through.
+     *
+     * @return The procedure (ordered list of steps) that this {@link ToolUser} has to go through.
+     */
+    @NotNull
+    protected abstract List<Step> constructProcedure();
 
     /**
      * Sends the localized message of the current {@link Step} to the player that owns this object.
      *
      * @param step The step to inform the user about.
      */
-    protected void sendMessage(final @NotNull Step<T> step)
+    protected void sendMessage(final @NotNull Step step)
     {
-        String message = getStepMessage(step);
+        final @NotNull String message = getStepMessage(step);
         if (message.isEmpty())
             PLogger.get().warn("Missing translation for step: " + step.getClass().getSimpleName());
         else
             player.sendMessage(message);
     }
 
-    public void handleInput(final @Nullable Object obj)
+    public boolean handleInput(final @Nullable Object obj)
     {
-        {
-            System.out.print(" ");
-            System.out.print("handleInput! stepIDX = " + stepIDX);
-            Optional<Step<T>> current_step = getCurrentStep();
-            if (current_step.isPresent())
-            {
-                System.out.print("Current step is present: " + current_step.get().getClass().getSimpleName());
-                if (current_step.get() instanceof StepString)
-                {
-                    System.out.print("String input to handle: " + (String) obj);
-                }
-            }
-            else
-                System.out.print("Current step is not present!");
-        }
-
-        getCurrentStep().ifPresent(
+        return getCurrentStep().map(
             step ->
             {
                 try
                 {
-                    if (!step.apply((T) this, obj))
-                        sendMessage(step);
+                    if (step.apply(obj))
+                        return true;
+                    sendMessage(step);
                 }
                 catch (Exception e)
                 {
                     PLogger.get().logException(e);
                 }
-            });
+                return false;
+            }).orElse(false);
     }
 
     /**
      * Handles a confirmation. I.e. input where the fact that there is any input at all is the input itself and
      * therefore doesn't have a value.
      */
-    public void handleConfirm()
+    public boolean handleConfirm()
     {
         System.out.print("CONFIRM!");
-        handleInput(null);
+        return handleInput(null);
     }
 
     /**

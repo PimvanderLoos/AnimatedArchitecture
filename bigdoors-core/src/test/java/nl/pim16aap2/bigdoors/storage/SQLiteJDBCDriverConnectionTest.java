@@ -1,9 +1,7 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import junit.framework.Assert;
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IRestartable;
@@ -30,11 +28,8 @@ import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
-import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
-import nl.pim16aap2.bigdoors.testimplementations.TestMessagingInterface;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
-import nl.pim16aap2.bigdoors.testimplementations.TestPlatform;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -64,11 +59,6 @@ import java.util.concurrent.ExecutionException;
 @ExtendWith(MockitoExtension.class)
 public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
 {
-    @NotNull
-    private static final IConfigLoader config = new TestConfigLoader();
-    @NotNull
-    private static final IBigDoorsPlatform platform = new TestPlatform();
-
     @NotNull
     private static final String DELETEDOORNAME = "deletemeh";
 
@@ -114,40 +104,22 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
      */
     private static AbstractDoorBase[] typeTesting;
 
-    private static File dbFile;
-    private static File dbFileBackup;
-    private static String testDir;
+    private static final File dbFile;
+    private static final File dbFileBackup;
     private static SQLiteJDBCDriverConnection storage;
 
     // Initialize files.
     static
     {
-        try
-        {
-            testDir = platform.getDataDirectory().getCanonicalPath() + "/tests";
-            dbFile = new File(testDir + "/test.db");
-            dbFileBackup = new File(dbFile.toString() + ".BACKUP");
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    @NotNull
-    private static final File logFile = new File(testDir, "/log.txt");
-
-    static
-    {
-        BigDoors.get().setMessagingInterface(new TestMessagingInterface());
+        dbFile = new File(UnitTestUtil.TEST_DIR + "/test.db");
+        dbFileBackup = new File(dbFile.toString() + ".BACKUP");
     }
 
     // Set up basic stuff.
     @BeforeAll
     public static void basicSetup()
     {
-        BigDoors.get().setBigDoorsPlatform(platform);
-        PLogger.init(logFile);
+        UnitTestUtil.setupStatic();
         PLogger.get().setConsoleLogging(true);
         PLogger.get().setOnlyLogExceptions(true); // Only log errors etc.
     }
@@ -236,7 +208,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     private void initStorage()
         throws NoSuchFieldException, IllegalAccessException
     {
-        DatabaseManager.init(this, config, dbFile);
+        DatabaseManager.init(this, UnitTestUtil.CONFIG, dbFile);
         Field dbField = DatabaseManager.class.getDeclaredField("db");
         dbField.setAccessible(true);
         storage = (SQLiteJDBCDriverConnection) dbField.get(DatabaseManager.get());
@@ -271,7 +243,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         // Remove any old database files and append ".FINISHED" to the name of the current one, so it
         // won't interfere with the next run, but can still be used for manual inspection.
         final @NotNull File oldDB = new File(dbFile.toString() + ".FINISHED");
-        final @NotNull File oldLog = new File(logFile.toString() + ".FINISHED");
+        final @NotNull File oldLog = new File(UnitTestUtil.LOG_FILE.toString() + ".FINISHED");
 
         PLogger.get().setConsoleLogging(true);
         if (oldDB.exists())
@@ -293,7 +265,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 oldLog.delete();
             while (!PLogger.get().isEmpty())
                 Thread.sleep(100L);
-            Files.move(logFile.toPath(), oldLog.toPath());
+            Files.move(UnitTestUtil.LOG_FILE.toPath(), oldLog.toPath());
         }
         catch (IOException | InterruptedException e)
         {
@@ -433,8 +405,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
 
         testDoorTypes();
         // Make sure no errors were logged.
-        waitForLogger();
-        Assert.assertEquals(logFile.length(), 0);
+        UnitTestUtil.waitForLogger();
+        Assert.assertEquals(UnitTestUtil.LOG_FILE.length(), 0);
 
         PLogger.get().setOnlyLogExceptions(false);
 
@@ -829,33 +801,6 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     }
 
     /**
-     * Makes this thread wait for the logger to finish writing everything to the log file.
-     */
-    private void waitForLogger()
-    {
-        while (!PLogger.get().isEmpty())
-        {
-            try
-            {
-                Thread.sleep(10L);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        // Wait a bit longer to make sure it's finished writing the file as well.
-        try
-        {
-            Thread.sleep(20L);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Verifies that the size of the log file has increased in regards to the previous size.
      *
      * @param previousSize The last known size of the log file to compare the current size against.
@@ -863,8 +808,8 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
      */
     private long verifyLogSizeIncrease(final long previousSize)
     {
-        waitForLogger();
-        final long currentLogSize = logFile.length();
+        UnitTestUtil.waitForLogger();
+        final long currentLogSize = UnitTestUtil.LOG_FILE.length();
         Assert.assertTrue(currentLogSize > previousSize);
         return currentLogSize;
     }

@@ -1,9 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.step;
 
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
@@ -13,18 +11,17 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
-public abstract class Step<T extends ToolUser<T>>
+public abstract class Step
 {
     /**
      * Applies an object to the {@link BiFunction} of this step.
      *
-     * @param toolUser The {@link ToolUser} for whom this action will be applied.
-     * @param input    The object to give to the {@link BiFunction}.
+     * @param input The object to give to the {@link BiFunction}.
      */
-    public final boolean apply(final @NotNull T toolUser, final @Nullable Object input)
+    public final boolean apply(final @Nullable Object input)
     {
         if (validInput(input))
-            return protectedAccept(toolUser, input);
+            return protectedAccept(input);
         else
         {
             PLogger.get().debug("Trying to pass a " + (input == null ? "null" : input.getClass().getSimpleName()) +
@@ -34,12 +31,11 @@ public abstract class Step<T extends ToolUser<T>>
     }
 
     /**
-     * Protected version of {@link #apply(ToolUser, Object)}. That method takes care of input type verification.
+     * Protected version of {@link #apply(Object)}. That method takes care of input type verification.
      *
-     * @param toolUser The {@link ToolUser} for whom this action will be applied.
-     * @param obj      The object to give to the {@link BiFunction}.
+     * @param obj The object to give to the {@link BiFunction}.
      */
-    protected abstract boolean protectedAccept(final @NotNull T toolUser, final @NonNull Object obj);
+    protected abstract boolean protectedAccept(final @NonNull Object obj);
 
     /**
      * Checks if an object is a valid input type.

@@ -18,7 +18,6 @@ public final class ToolUserManager implements IRestartable // TODO: Initialize t
 
     private ToolUserManager()
     {
-
     }
 
     public static ToolUserManager get()
@@ -26,7 +25,7 @@ public final class ToolUserManager implements IRestartable // TODO: Initialize t
         return INSTANCE;
     }
 
-    public <T extends ToolUser<T>> void registerToolUser(ToolUser<T> toolUser)
+    public void registerToolUser(ToolUser toolUser)
     {
         ToolUser result = toolUsers.putIfAbsent(toolUser.getPlayer().getUUID(), toolUser);
         if (result != null)

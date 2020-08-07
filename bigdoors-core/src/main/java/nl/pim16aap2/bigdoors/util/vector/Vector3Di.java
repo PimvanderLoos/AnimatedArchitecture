@@ -3,6 +3,9 @@ package nl.pim16aap2.bigdoors.util.vector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPWorld;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -124,6 +127,13 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         {
             throw new Error(e);
         }
+    }
+
+    @Override
+    public IPLocation toLocation(final @NotNull IPWorld world)
+    {
+        System.out.println("Creating Location from vector: " + toString());
+        return BigDoors.get().getPlatform().getPLocationFactory().create(world, this);
     }
 
     @Override

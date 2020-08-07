@@ -161,20 +161,6 @@ public final class PLocationSpigot implements IPLocation
 
     /** {@inheritDoc} */
     @Override
-    public String toIntPositionString()
-    {
-        return String.format("(%d;%d;%d)", getBlockX(), getBlockY(), getBlockZ());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toDoublePositionString()
-    {
-        return String.format("(%.2f;%.2f;%.2f)", getX(), getY(), getZ());
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public boolean equals(Object o)
     {
         if (this == o)

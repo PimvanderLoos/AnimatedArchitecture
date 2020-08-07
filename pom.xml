@@ -97,6 +97,7 @@
             <version>2.23.0</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -112,6 +113,10 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.0.0-M3</version>
+                    <configuration>
+                        <trimStackTrace>false</trimStackTrace>
+                        <useFile>false</useFile>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

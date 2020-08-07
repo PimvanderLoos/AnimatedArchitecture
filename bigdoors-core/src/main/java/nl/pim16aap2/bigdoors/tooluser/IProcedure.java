@@ -10,15 +10,15 @@ import org.jetbrains.annotations.NotNull;
  * @author Pim
  */
 // TODO: Rename this, it is not a procedure, but a definition of steps.
-public interface IProcedure<T extends ToolUser<T>>
+public interface IProcedure
 {
-    /**
-     * Gets the {@link Step} of the current part of the procedure.
-     *
-     * @return The {@link Step} of the current part of the procedure.
-     */
-    @NotNull
-    Step<T> getStep();
+//    /**
+//     * Gets the {@link Step} of the current part of the procedure.
+//     *
+//     * @return The {@link Step} of the current part of the procedure.
+//     */
+//    @NotNull
+//    Step getStep();
 
     /**
      * Gets the localized message associated with the current {@link Step}.

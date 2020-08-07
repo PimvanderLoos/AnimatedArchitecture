@@ -3,7 +3,9 @@ package nl.pim16aap2.bigdoors.tooluser.creator;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -11,7 +13,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class Creator<T extends Creator<T>> extends ToolUser<T>
+public abstract class Creator extends ToolUser
 {
     protected String name;
     protected Cuboid cuboid;
@@ -47,6 +49,22 @@ public abstract class Creator<T extends Creator<T>> extends ToolUser<T>
             return true;
         PLogger.get().debug("World mismatch in ToolUser for player: " + player.getUUID().toString());
         return false;
+    }
+
+    /**
+     * Takes care of inserting the door.
+     *
+     * @param door The door to send to the {@link DatabaseManager}.
+     */
+    protected void insertDoor(final @NotNull AbstractDoorBase door)
+    {
+        // TODO: Don't complete the process until the CompletableFuture has an actual result.
+        DatabaseManager.get().addDoorBase(door).whenComplete(
+            (result, throwable) ->
+            {
+                if (!result)
+                    PLogger.get().severe("Failed to insert door after creation!");
+            });
     }
 
     /**

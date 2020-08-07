@@ -1,22 +1,21 @@
 package nl.pim16aap2.bigdoors.tooluser.step;
 
 import lombok.AllArgsConstructor;
-import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 @AllArgsConstructor
-public class StepVector3Di<T extends ToolUser<T>> extends Step<T>
+public class StepVector3Di extends Step
 {
     @NotNull
-    private final BiFunction<T, IVector3DiConst, Boolean> fun;
+    private final Function<IVector3DiConst, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @NotNull T toolUser, final @NotNull Object input)
+    protected boolean protectedAccept(final @NotNull Object input)
     {
-        return fun.apply(toolUser, (IVector3DiConst) input);
+        return fun.apply((IVector3DiConst) input);
     }
 
     @Override

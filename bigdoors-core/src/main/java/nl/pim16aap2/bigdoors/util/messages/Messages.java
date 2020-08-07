@@ -79,6 +79,7 @@ public final class Messages extends Restartable
                 return;
             }
 
+        // TODO: Don't add .txt if it already ends with .txt
         textFile = new File(fileDir, fileName + ".txt");
         if (!textFile.exists())
         {

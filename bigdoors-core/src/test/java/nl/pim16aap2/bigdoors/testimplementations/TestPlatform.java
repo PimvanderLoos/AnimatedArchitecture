@@ -8,6 +8,8 @@ import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
+import nl.pim16aap2.bigdoors.api.IRestartable;
+import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
@@ -18,14 +20,21 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
-public final class TestPlatform implements IBigDoorsPlatform
+public final class TestPlatform implements IBigDoorsPlatform, IRestartableHolder
 {
     private final TestPPlayerFactory pPlayerFactory = new TestPPlayerFactory();
     private final TestPWorldFactory pWorldFactory = new TestPWorldFactory();
+    private final TestPLocationFactory pLocationFactory = new TestPLocationFactory();
     private static final File dataDirectory = new File(".");
+    private final Set<IRestartable> restartables = new HashSet<>();
+    @Nullable
+    private Messages messages;
 
     public TestPlatform()
     {
@@ -44,7 +53,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     @NotNull
     public IPLocationFactory getPLocationFactory()
     {
-        return null;
+        return pLocationFactory;
     }
 
     @Override
@@ -96,11 +105,16 @@ public final class TestPlatform implements IBigDoorsPlatform
         return null;
     }
 
+    public void setMessages(final @NotNull Messages messages)
+    {
+        this.messages = messages;
+    }
+
     @Override
     @NotNull
     public Messages getMessages()
     {
-        return null;
+        return messages;
     }
 
     @Override
@@ -139,7 +153,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     }
 
     @Override
-    public void callDoorActionEvent(@NotNull IDoorEvent doorActionEvent)
+    public void callDoorActionEvent(final @NotNull IDoorEvent doorActionEvent)
     {
 
     }
@@ -155,5 +169,17 @@ public final class TestPlatform implements IBigDoorsPlatform
     public <T> IPExecutor<T> newPExecutor()
     {
         return null;
+    }
+
+    @Override
+    public void registerRestartable(final @NotNull IRestartable restartable)
+    {
+        restartables.add(restartable);
+    }
+
+    @Override
+    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
+    {
+        return restartables.contains(restartable);
     }
 }

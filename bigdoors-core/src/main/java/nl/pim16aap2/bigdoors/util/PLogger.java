@@ -96,7 +96,7 @@ public final class PLogger
      *
      * @return True if this logger has been initialized.
      */
-    private boolean isInitialized()
+    public boolean isInitialized()
     {
         return logFile != null;
     }
@@ -154,6 +154,11 @@ public final class PLogger
         return messageQueue.isEmpty();
     }
 
+    public int size()
+    {
+        return messageQueue.size();
+    }
+
     /**
      * Processes the queue of messages that will be logged to the log file.
      */
@@ -200,6 +205,8 @@ public final class PLogger
      */
     private void addToMessageQueue(final @NotNull LogMessage logMessage)
     {
+        if (isInitialized() && !success)
+            throw new IllegalStateException("PLogger was not initialized successfully!");
         messageQueue.add(logMessage);
     }
 

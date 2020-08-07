@@ -58,6 +58,11 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         this.currentDirection = currentDirection;
     }
 
+    public BigDoor(final @NotNull DoorData doorData, final @NotNull PBlockFace currentDirection)
+    {
+        this(doorData, -1, -1, currentDirection);
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override
@@ -164,6 +169,9 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     public boolean equals(final @Nullable Object o)
     {
         if (!super.equals(o))
+            return false;
+        
+        if (!(o instanceof BigDoor))
             return false;
 
         final @NotNull BigDoor other = (BigDoor) o;

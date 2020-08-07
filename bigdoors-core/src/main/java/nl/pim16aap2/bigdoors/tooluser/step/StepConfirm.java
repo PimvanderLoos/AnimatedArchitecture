@@ -1,11 +1,10 @@
 package nl.pim16aap2.bigdoors.tooluser.step;
 
 import lombok.AllArgsConstructor;
-import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Represents a step where the fact that there is any input at all is the input itself and therefore doesn't have a
@@ -14,15 +13,15 @@ import java.util.function.Function;
  * @author Pim
  */
 @AllArgsConstructor
-public class StepConfirm<T extends ToolUser<T>> extends Step<T>
+public class StepConfirm extends Step
 {
     @NotNull
-    private final Function<T, Boolean> fun;
+    private final Supplier<Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @NotNull T toolUser, final @Nullable Object input)
+    protected boolean protectedAccept(final @Nullable Object input)
     {
-        return fun.apply(toolUser);
+        return fun.get();
     }
 
     @Override

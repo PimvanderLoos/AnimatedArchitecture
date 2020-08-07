@@ -2,21 +2,20 @@ package nl.pim16aap2.bigdoors.tooluser.step;
 
 import lombok.AllArgsConstructor;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
-import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 @AllArgsConstructor
-public class StepPLocation<T extends ToolUser<T>> extends Step<T>
+public class StepPLocation extends Step
 {
     @NotNull
-    private final BiFunction<T, IPLocationConst, Boolean> fun;
+    private final Function<IPLocationConst, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @NotNull T toolUser, final @NotNull Object input)
+    protected boolean protectedAccept(final @NotNull Object input)
     {
-        return fun.apply(toolUser, (IPLocationConst) input);
+        return fun.apply((IPLocationConst) input);
     }
 
     @Override

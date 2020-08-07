@@ -73,12 +73,18 @@ public interface IPLocationConst extends Cloneable
      *
      * @return The position in integers as a String.
      */
-    String toIntPositionString();
+    default String toIntPositionString()
+    {
+        return String.format("(%d;%d;%d)", getBlockX(), getBlockY(), getBlockZ());
+    }
 
     /**
      * Gets the position (so no world) in double as a String.
      *
      * @return The position in double as a String.
      */
-    String toDoublePositionString();
+    default String toDoublePositionString()
+    {
+        return String.format("(%.2f;%.2f;%.2f)", getX(), getY(), getZ());
+    }
 }
