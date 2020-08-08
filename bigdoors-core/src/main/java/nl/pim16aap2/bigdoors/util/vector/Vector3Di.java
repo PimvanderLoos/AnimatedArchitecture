@@ -27,6 +27,99 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         z = other.getZ();
     }
 
+    // TODO: Test this.
+    public Vector3Di rotateAroundXAxis(final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double newY = cos * (double) getY() - sin * (double) getZ();
+        double newZ = sin * (double) getY() + cos * (double) getZ();
+
+        setY((int) newY);
+        setZ((int) newZ);
+        return this;
+    }
+
+    // TODO: Test this.
+    public Vector3Di rotateAroundXAxis(final @NotNull IVector3DiConst pivotPoint, final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double translatedY = y - pivotPoint.getY();
+        double translatedZ = z - pivotPoint.getZ();
+
+        double changeY = cos * translatedY - sin * translatedZ;
+        double changeZ = sin * translatedY + cos * translatedZ;
+
+        setY((int) (pivotPoint.getY() + changeY));
+        setZ((int) (pivotPoint.getZ() + changeZ));
+        return this;
+    }
+
+    // TODO: Test this.
+    public Vector3Di rotateAroundYAxis(final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double newX = cos * (double) getX() + sin * (double) getZ();
+        double newZ = -sin * (double) getX() + cos * (double) getZ();
+
+        setX((int) newX);
+        setZ((int) newZ);
+        return this;
+    }
+
+    public Vector3Di rotateAroundYAxis(final @NotNull IVector3DiConst pivotPoint, final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double translatedX = x - pivotPoint.getX();
+        double translatedZ = z - pivotPoint.getZ();
+
+        double changeX = cos * translatedX - sin * translatedZ;
+        double changeZ = sin * translatedX + cos * translatedZ;
+
+        setX((int) (pivotPoint.getX() + changeX));
+        setZ((int) (pivotPoint.getZ() + changeZ));
+        return this;
+    }
+
+    // TODO: Test this.
+    public Vector3Di rotateAroundZAxis(final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double newX = cos * (double) getX() - sin * (double) getY();
+        double newY = sin * (double) getX() + cos * (double) getY();
+
+        setX((int) newX);
+        setY((int) newY);
+
+        return this;
+    }
+
+    // TODO: Test this.
+    public Vector3Di rotateAroundZAxis(final @NotNull IVector3DiConst pivotPoint, final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double translatedX = x - pivotPoint.getX();
+        double translatedY = y - pivotPoint.getY();
+
+        double changeX = cos * translatedX - sin * translatedY;
+        double changeY = sin * translatedX + cos * translatedY;
+
+        setX((int) (pivotPoint.getX() + changeX));
+        setY((int) (pivotPoint.getZ() + changeY));
+        return this;
+    }
+
     public Vector3Di add(final @NotNull IVector3DiConst other)
     {
         add(other.getX(), other.getY(), other.getZ());

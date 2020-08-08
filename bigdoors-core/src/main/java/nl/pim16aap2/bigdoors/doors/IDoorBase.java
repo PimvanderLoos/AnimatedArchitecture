@@ -84,6 +84,7 @@ public interface IDoorBase
      * @return True if the new coordinates were found successfully. In case no valid coordinates could be found, False
      * is returned instead.
      */
+    // TODO: Return Optional<Cuboid>
     boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax);
 
     /**

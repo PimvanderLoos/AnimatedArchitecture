@@ -242,6 +242,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Make some kind of MessageRecipient interface. Much cleaner than sending an "Object" to sendMessageToTarget.
 //       Just let IPPlayer extend it for players.
 // TODO: Send out event after toggling a door.
+// TODO: Generify the GlowingBlockSpawner. It needs an IBlockHighlighter interface in the core module.
 
 /*
  * GUI

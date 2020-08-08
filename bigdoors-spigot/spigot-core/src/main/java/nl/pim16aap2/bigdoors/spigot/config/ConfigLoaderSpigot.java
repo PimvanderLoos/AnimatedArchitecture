@@ -545,7 +545,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @Override
     public double getMultiplier(final @NotNull DoorType type)
     {
-        return doorMultipliers.get(type);
+        return doorMultipliers.getOrDefault(type, 0.0D);
     }
 
     /** {@inheritDoc} */

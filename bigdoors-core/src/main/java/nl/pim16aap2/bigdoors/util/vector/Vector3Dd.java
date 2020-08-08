@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @Data
 @AllArgsConstructor
+// TODO: Write test.
 public final class Vector3Dd implements IVector3DdConst, Cloneable
 {
     @Getter
@@ -25,6 +26,96 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         x = other.getX();
         y = other.getY();
         z = other.getZ();
+    }
+
+    public Vector3Dd rotateAroundXAxis(final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double newY = cos * getY() - sin * getZ();
+        double newZ = sin * getY() + cos * getZ();
+
+        setY(newY);
+        setZ(newZ);
+
+        return this;
+    }
+
+    public Vector3Dd rotateAroundXAxis(final @NotNull IVector3DdConst pivotPoint, final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double translatedY = y - pivotPoint.getY();
+        double translatedZ = z - pivotPoint.getZ();
+
+        double changeY = cos * translatedY - sin * translatedZ;
+        double changeZ = sin * translatedY + cos * translatedZ;
+
+        setY(pivotPoint.getY() + changeY);
+        setZ(pivotPoint.getZ() + changeZ);
+        return this;
+    }
+
+    public Vector3Dd rotateAroundYAxis(final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double newX = cos * getX() + sin * getZ();
+        double newZ = -sin * getX() + cos * getZ();
+
+        setX(newX);
+        setZ(newZ);
+
+        return this;
+    }
+
+    public Vector3Dd rotateAroundYAxis(final @NotNull IVector3DdConst pivotPoint, final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double translatedX = x - pivotPoint.getX();
+        double translatedZ = z - pivotPoint.getZ();
+
+        double changeX = cos * translatedX - sin * translatedZ;
+        double changeZ = sin * translatedX + cos * translatedZ;
+
+        setX(pivotPoint.getX() + changeX);
+        setZ(pivotPoint.getZ() + changeZ);
+        return this;
+    }
+
+    public Vector3Dd rotateAroundZAxis(final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double newX = cos * getX() - sin * getY();
+        double newY = sin * getX() + cos * getY();
+
+        setX(newX);
+        setY(newY);
+
+        return this;
+    }
+
+    public Vector3Dd rotateAroundZAxis(final @NotNull IVector3DdConst pivotPoint, final double radians)
+    {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double translatedX = x - pivotPoint.getX();
+        double translatedY = y - pivotPoint.getY();
+
+        double changeX = cos * translatedX - sin * translatedY;
+        double changeY = sin * translatedX + cos * translatedY;
+
+        setX(pivotPoint.getX() + changeX);
+        setY(pivotPoint.getZ() + changeY);
+        return this;
     }
 
     public Vector3Dd add(final @NotNull IVector3DdConst other)
