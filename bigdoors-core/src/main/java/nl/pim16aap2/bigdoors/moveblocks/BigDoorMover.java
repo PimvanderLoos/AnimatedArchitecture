@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -9,11 +8,6 @@ import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotEast;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotNorth;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotSouth;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLHorizontalRotWest;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.IGetNewLocation;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
@@ -26,17 +20,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class BigDoorMover extends BlockMover
 {
-    private final int stepMultiplier;
-    private final IVector3DiConst turningPoint;
-    private final IGetNewLocation gnl;
-    private double endStepSum;
-    private double multiplier;
-    private double startStepSum;
+    private final IVector3DdConst rotationCenter;
 
     private int halfEndCount;
+    private final double angle;
     private double step;
-
-    private Vector3Dd rotationCenter;
 
     public BigDoorMover(final @NotNull RotateDirection rotDirection, final double time,
                         final @NotNull PBlockFace currentDirection, final @NotNull AbstractDoorBase door,
@@ -47,9 +35,13 @@ public class BigDoorMover extends BlockMover
         super(door, time, skipAnimation, currentDirection, rotDirection, -1, player, finalMin, finalMax, cause,
               actionType);
 
-        turningPoint = door.getEngine();
-        rotationCenter = new Vector3Dd(turningPoint.getX() + 0.5, yMin, turningPoint.getZ() + 0.5);
-        stepMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
+        angle = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
+                rotDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
+
+        if (angle == 0.0D)
+            PLogger.get().severe("Invalid open direction \"" + rotDirection.name() + "\" for door: " + getDoorUID());
+
+        rotationCenter = new Vector3Dd(door.getEngine().getX() + 0.5, yMin, door.getEngine().getZ() + 0.5);
 
         final int xLen = Math.abs(door.getMaximum().getX() - door.getMinimum().getX());
         final int zLen = Math.abs(door.getMaximum().getZ() - door.getMinimum().getZ());
@@ -57,39 +49,6 @@ public class BigDoorMover extends BlockMover
         final double[] vars = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
         super.time = vars[0];
         super.tickRate = (int) vars[1];
-        this.multiplier = vars[2];
-
-        switch (currentDirection)
-        {
-            case NORTH:
-                gnl = new GNLHorizontalRotNorth(world, xMin, xMax, zMin, zMax, rotDirection);
-                startStepSum = Math.PI;
-                endStepSum = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 : 3 * Math.PI / 2;
-                break;
-            case EAST:
-                gnl = new GNLHorizontalRotEast(world, xMin, xMax, zMin, zMax, rotDirection);
-                startStepSum = Math.PI / 2;
-                endStepSum = rotDirection == RotateDirection.CLOCKWISE ? 0 : Math.PI;
-                break;
-            case SOUTH:
-                gnl = new GNLHorizontalRotSouth(world, xMin, xMax, zMin, zMax, rotDirection);
-                startStepSum = 0;
-                endStepSum = rotDirection == RotateDirection.CLOCKWISE ? 3 * Math.PI / 2 : Math.PI / 2;
-                break;
-            case WEST:
-                gnl = new GNLHorizontalRotWest(world, xMin, xMax, zMin, zMax, rotDirection);
-                startStepSum = 3 * Math.PI / 2;
-                endStepSum = rotDirection == RotateDirection.CLOCKWISE ? Math.PI : 0;
-                break;
-            default:
-                PLogger.get()
-                       .dumpStackTrace(
-                           "Invalid currentDirection for cylindrical mover: " + currentDirection.toString());
-                gnl = null;
-                break;
-        }
-        BigDoors.get().getMessagingInterface()
-                .broadcastMessage("Constructor BIGDOOR! endCount = " + endCount + ", time = " + super.time);
 
         init();
         super.startAnimation();
@@ -101,15 +60,12 @@ public class BigDoorMover extends BlockMover
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
-        step = (Math.PI / 2.0f) / super.endCount * stepMultiplier;
+        step = angle / super.endCount;
         halfEndCount = super.endCount / 2;
         super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
-        BigDoors.get().getMessagingInterface()
-                .broadcastMessage("INIT BIGDOOR! endCount = " + endCount + ", time = " + super.time);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
@@ -119,48 +75,65 @@ public class BigDoorMover extends BlockMover
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void executeAnimationStep(final int ticks)
     {
-        final double stepSum = startStepSum + step * ticks;
-
         if (ticks == halfEndCount)
             applyRotation();
 
-        final double sin = Math.sin(stepSum);
+        final double stepSum = step * ticks;
         final double cos = Math.cos(stepSum);
+        final double sin = Math.sin(stepSum);
 
         for (final PBlockData block : savedBlocks)
         {
             final double radius = block.getRadius();
-            final int yPos = block.getStartLocation().getBlockY();
+            if (radius == 0)
+                continue;
 
-            if (radius != 0)
-            {
-                final double addX = radius * sin;
-                final double addZ = radius * cos;
-
-                final Vector3Dd position = new Vector3Dd(rotationCenter.getX() + addX, yPos,
-                                                         rotationCenter.getZ() + addZ);
-                final Vector3Dd vec = position.subtract(block.getFBlock().getPosition());
-                block.getFBlock().setVelocity(vec.multiply(0.101));
-            }
+            final Vector3Dd goalPos = getGoalPos(cos, sin, block.getStartX(), block.getStartY(), block.getStartZ());
+            final Vector3Dd vec = goalPos.subtract(block.getFBlock().getPosition());
+            block.getFBlock().setVelocity(vec.multiply(0.101));
         }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
+    @NotNull
+    private Vector3Dd getGoalPos(final double angle, final double startX, final double startY, final double startZ)
     {
-        return gnl.getNewLocation(radius, xAxis, yAxis, zAxis);
+        return getGoalPos(Math.cos(angle), Math.sin(angle), startX, startY, startZ);
     }
 
-    /** {@inheritDoc} */
+    @NotNull
+    private Vector3Dd getGoalPos(final double cos, final double sin, final double startX, final double startY,
+                                 final double startZ)
+    {
+        double translatedX = startX - rotationCenter.getX();
+        double translatedZ = startZ - rotationCenter.getZ();
+
+        double changeX = translatedX * cos - translatedZ * sin;
+        double changeZ = translatedX * sin + translatedZ * cos;
+
+        return new Vector3Dd(rotationCenter.getX() + changeX, startY, rotationCenter.getZ() + changeZ);
+    }
+
+    @Override
+    @NotNull
+    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
+    {
+        return locationFactory.create(world, getGoalPos(angle, xAxis, yAxis, zAxis));
+    }
+
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
-        // Get the radius of this pillar.
-        return Math.max(Math.abs(xAxis - turningPoint.getX()), Math.abs(zAxis - turningPoint.getZ()));
+        final double deltaA = door.getEngine().getX() - xAxis;
+        final double deltaB = door.getEngine().getZ() - zAxis;
+        return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
+    }
+
+    @Override
+    protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
+    {
+        return (float) Math.atan2(door.getEngine().getX() - xAxis, door.getEngine().getZ() - zAxis);
     }
 }

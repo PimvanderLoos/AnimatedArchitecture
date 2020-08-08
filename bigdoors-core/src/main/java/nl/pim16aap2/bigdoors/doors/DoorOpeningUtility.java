@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -36,6 +37,7 @@ public final class DoorOpeningUtility
     @Nullable
     private static DoorOpeningUtility instance;
 
+    @Getter // Temporary until this is a global thing that can be accessed from the core.
     private final IGlowingBlockSpawner glowingBlockSpawner;
     private final IConfigLoader config;
     private final IProtectionCompatManager protectionManager;
@@ -329,7 +331,7 @@ public final class DoorOpeningUtility
 
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
-        if (DoorTypeManager.get().isDoorTypeEnabled(door.getDoorType()))
+        if (!DoorTypeManager.get().isDoorTypeEnabled(door.getDoorType()))
             return DoorToggleResult.TYPEDISABLED;
 
         if (!chunksLoaded(door))

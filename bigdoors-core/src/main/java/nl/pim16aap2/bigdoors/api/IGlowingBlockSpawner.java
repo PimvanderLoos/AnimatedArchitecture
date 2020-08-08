@@ -10,6 +10,8 @@ import java.util.UUID;
  *
  * @author Pim
  */
+// TODO: Allow spawning blocks between locations.
+// TODO: During onDisable, make sure to remove all highlighted blocks!
 public interface IGlowingBlockSpawner
 {
     /**

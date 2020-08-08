@@ -107,42 +107,26 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
-        PBlockFace newDir;
-        RotateDirection rotateDirection = getCurrentToggleDir();
-        switch (getCurrentDirection())
+        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
+                             rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
+        if (angle == 0.0D)
         {
-            case NORTH:
-                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.EAST : PBlockFace.WEST;
-                break;
-            case EAST:
-                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.SOUTH : PBlockFace.NORTH;
-                break;
-            case SOUTH:
-                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.WEST : PBlockFace.EAST;
-                break;
-            case WEST:
-                newDir = rotateDirection.equals(RotateDirection.CLOCKWISE) ? PBlockFace.NORTH : PBlockFace.SOUTH;
-                break;
-            default:
-                PLogger.get()
-                       .warn("Invalid currentDirection for BigDoor! \"" + getCurrentDirection().toString() + "\"");
-                return false;
+            PLogger.get().severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
+            return false;
         }
 
-        IVector3DiConst newVec = PBlockFace.getDirection(newDir);
-        int xMin = Math.min(engine.getX(), engine.getX() + dimensions.getZ() * newVec.getX());
-        int xMax = Math.max(engine.getX(), engine.getX() + dimensions.getZ() * newVec.getX());
+        final @NotNull IVector3DiConst newMinTmp = newMin.clone().rotateAroundYAxis(getEngine(), angle);
+        final @NotNull IVector3DiConst newMaxTmp = newMax.clone().rotateAroundYAxis(getEngine(), angle);
 
-        int zMin = Math.min(engine.getZ(), engine.getZ() + dimensions.getX() * newVec.getZ());
-        int zMax = Math.max(engine.getZ(), engine.getZ() + dimensions.getX() * newVec.getZ());
+        newMin.setX(Math.min(newMinTmp.getX(), newMaxTmp.getX()));
+        newMin.setY(Math.min(newMinTmp.getY(), newMaxTmp.getY()));
+        newMin.setZ(Math.min(newMinTmp.getZ(), newMaxTmp.getZ()));
 
-        newMin.setX(xMin);
-        newMin.setY(newMin.getY());
-        newMin.setZ(zMin);
+        newMax.setX(Math.max(newMinTmp.getX(), newMaxTmp.getX()));
+        newMax.setY(Math.max(newMinTmp.getY(), newMaxTmp.getY()));
+        newMax.setZ(Math.max(newMinTmp.getZ(), newMaxTmp.getZ()));
 
-        newMax.setX(xMax);
-        newMax.setY(newMax.getY());
-        newMax.setZ(zMax);
         return true;
     }
 
