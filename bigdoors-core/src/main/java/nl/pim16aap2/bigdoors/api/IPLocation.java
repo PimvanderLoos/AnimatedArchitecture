@@ -91,12 +91,6 @@ public interface IPLocation extends IPLocationConst, Cloneable
     @NotNull
     IPLocation add(final @NotNull IVector3DdConst vector);
 
-    @Override
-    String toIntPositionString();
-
-    @Override
-    String toDoublePositionString();
-
     /** {@inheritDoc} */
     @NotNull
     IPLocation clone();

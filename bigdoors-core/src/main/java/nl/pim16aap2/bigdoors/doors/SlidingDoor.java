@@ -136,7 +136,7 @@ public class SlidingDoor extends AbstractDoorBase
             newMin.getZ() - minimum.getZ() : newMin.getX() - minimum.getX();
 
         doorOpeningUtility.registerBlockMover(
-            new SlidingMover(time, this, skipAnimation, finalBlocksToMove, currentToggleDir,
+            new SlidingMover(this, time, skipAnimation, finalBlocksToMove, currentToggleDir,
                              doorOpeningUtility.getMultiplier(this), responsible, newMin, newMax, cause, actionType));
     }
 

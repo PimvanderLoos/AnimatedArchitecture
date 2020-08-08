@@ -375,7 +375,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                                                                                           engine, powerBlock, world,
                                                                                           isOpen, RotateDirection.EAST,
                                                                                           doorOwner, false);
-        final @NotNull BigDoor d01 = new BigDoor(doorData, 100, 0, PBlockFace.DOWN);
+        final @NotNull BigDoor d01 = new BigDoor(doorData, 100, 0);
         final @NotNull Clock d02 = new Clock(doorData, false, PBlockFace.NORTH);
         final @NotNull Drawbridge d03 = new Drawbridge(doorData, 100, 0, PBlockFace.EAST, true, true);
         final @NotNull Elevator d04 = new Elevator(doorData, 10, 0, 0);

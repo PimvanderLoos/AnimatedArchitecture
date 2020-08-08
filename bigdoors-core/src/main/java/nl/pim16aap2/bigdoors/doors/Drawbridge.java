@@ -177,7 +177,7 @@ public class Drawbridge extends AbstractDoorBase
             Math.abs(minimum.getY() - maximum.getY()) > 0 ? PBlockFace.DOWN : PBlockFace.UP;
 
         doorOpeningUtility.registerBlockMover(
-            new BridgeMover(time, this, upDown, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
+            new BridgeMover(this, time, upDown, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
                 .getMultiplier(this), responsible, newMin, newMax, cause, actionType));
     }
 

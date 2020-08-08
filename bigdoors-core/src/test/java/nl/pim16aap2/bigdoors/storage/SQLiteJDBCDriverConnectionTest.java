@@ -145,11 +145,10 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
                 final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
                 final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
-                final @NotNull PBlockFace currentDirection = PBlockFace.DOWN;
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
                                                          RotateDirection.EAST, doorOwner, isLocked);
-                final @NotNull BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen, currentDirection);
+                final @NotNull BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen);
                 door1 = bigDoor;
             }
 

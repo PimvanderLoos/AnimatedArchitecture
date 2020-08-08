@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BigDoorMover;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
@@ -40,27 +39,16 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
 
-    /**
-     * Describes the side the {@link IDoorBase} is on relative to the engine.
-     *
-     * @return The side the {@link IDoorBase} is on relative to the engine
-     */
-    @Getter
-    @NotNull
-    protected PBlockFace currentDirection;
-
-    public BigDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
-                   final @NotNull PBlockFace currentDirection)
+    public BigDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime)
     {
         super(doorData);
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
-        this.currentDirection = currentDirection;
     }
 
-    public BigDoor(final @NotNull DoorData doorData, final @NotNull PBlockFace currentDirection)
+    public BigDoor(final @NotNull DoorData doorData)
     {
-        this(doorData, -1, -1, currentDirection);
+        this(doorData, -1, -1);
     }
 
     /** {@inheritDoc} */
@@ -141,7 +129,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                                       final @NotNull DoorActionType actionType)
     {
         doorOpeningUtility.registerBlockMover(
-            new BigDoorMover(getCurrentToggleDir(), time, getCurrentDirection(), this, skipAnimation,
+            new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,
                              doorOpeningUtility.getMultiplier(this),
                              responsible, newMin, newMax, cause, actionType));
     }
@@ -151,13 +139,12 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     {
         if (!super.equals(o))
             return false;
-        
+
         if (!(o instanceof BigDoor))
             return false;
 
         final @NotNull BigDoor other = (BigDoor) o;
-        return getCurrentDirection().equals(other.getCurrentDirection()) &&
-            getAutoCloseTime() == other.getAutoCloseTime() &&
+        return getAutoCloseTime() == other.getAutoCloseTime() &&
             getAutoOpenTime() == other.getAutoOpenTime();
     }
 }

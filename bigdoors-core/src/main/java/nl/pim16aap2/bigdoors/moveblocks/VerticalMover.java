@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.doors.Elevator;
 import nl.pim16aap2.bigdoors.doors.Portcullis;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -32,13 +31,15 @@ public class VerticalMover extends BlockMover
     @Nullable
     private PBlockData firstBlockData = null;
 
-    public VerticalMover(final double time, final @NotNull AbstractDoorBase door, final boolean skipAnimation,
+    protected final int blocksToMove;
+
+    public VerticalMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
                          final int blocksToMove, final double multiplier, final @NotNull IPPlayer player,
                          final @NotNull IVector3DiConst finalMin, final @NotNull IVector3DiConst finalMax,
                          final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, PBlockFace.UP, RotateDirection.NONE, blocksToMove, player, finalMin,
-              finalMax, cause, actionType);
+        super(door, time, skipAnimation, RotateDirection.NONE, player, finalMin, finalMax, cause, actionType);
+        this.blocksToMove = blocksToMove;
 
         double speed = 1;
         double pcMult = multiplier;
@@ -73,7 +74,7 @@ public class VerticalMover extends BlockMover
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
-        step = ((double) blocksMoved) / ((double) super.endCount);
+        step = ((double) blocksToMove) / ((double) super.endCount);
         super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
@@ -131,6 +132,6 @@ public class VerticalMover extends BlockMover
     @Override
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
-        return locationFactory.create(world, xAxis, yAxis + blocksMoved, zAxis);
+        return locationFactory.create(world, xAxis, yAxis + blocksToMove, zAxis);
     }
 }

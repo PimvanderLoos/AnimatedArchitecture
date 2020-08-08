@@ -19,7 +19,6 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
@@ -53,8 +52,6 @@ public abstract class BlockMover implements IRestartable
     protected boolean skipAnimation;
     protected RotateDirection openDirection;
     protected List<PBlockData> savedBlocks;
-    protected PBlockFace currentDirection;
-    protected int blocksMoved;
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
@@ -97,30 +94,25 @@ public abstract class BlockMover implements IRestartable
     /**
      * Constructs a {@link BlockMover}.
      *
-     * @param door             The {@link AbstractDoorBase}.
-     * @param time             The amount of time (in seconds) the door will try to toggle itself in.
-     * @param skipAnimation    If the door should be opened instantly (i.e. skip animation) or not.
-     * @param currentDirection The current direction of the door.
-     * @param openDirection    The direction the {@link AbstractDoorBase} will move.
-     * @param blocksMoved      The number of blocks the {@link AbstractDoorBase} will move.
-     * @param player           The player who opened this door.
-     * @param finalMin         The resulting minimum coordinates.
-     * @param finalMax         The resulting maximum coordinates.
+     * @param door          The {@link AbstractDoorBase}.
+     * @param time          The amount of time (in seconds) the door will try to toggle itself in.
+     * @param skipAnimation If the door should be opened instantly (i.e. skip animation) or not.
+     * @param openDirection The direction the {@link AbstractDoorBase} will move.
+     * @param player        The player who opened this door.
+     * @param finalMin      The resulting minimum coordinates.
+     * @param finalMax      The resulting maximum coordinates.
      */
     protected BlockMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
-                         final @NotNull PBlockFace currentDirection, final @NotNull RotateDirection openDirection,
-                         final int blocksMoved, final @NotNull IPPlayer player, final @NotNull IVector3DiConst finalMin,
-                         final @NotNull IVector3DiConst finalMax, final @NotNull DoorActionCause cause,
-                         final @NotNull DoorActionType actionType)
+                         final @NotNull RotateDirection openDirection, final @NotNull IPPlayer player,
+                         final @NotNull IVector3DiConst finalMin, final @NotNull IVector3DiConst finalMax,
+                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
         BigDoors.get().getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
         world = door.getWorld();
         this.door = door;
         this.time = time;
         this.skipAnimation = skipAnimation;
-        this.currentDirection = currentDirection;
         this.openDirection = openDirection;
-        this.blocksMoved = blocksMoved;
         this.player = player;
         fallingBlockFactory = BigDoors.get().getPlatform().getFallingBlockFactory();
         savedBlocks = new ArrayList<>();

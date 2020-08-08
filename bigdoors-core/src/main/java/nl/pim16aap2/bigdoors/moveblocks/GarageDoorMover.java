@@ -34,6 +34,8 @@ public class GarageDoorMover extends BlockMover
     private BiFunction<PBlockData, Double, Vector3Dd> getVector;
     private int xLen, yLen, zLen;
     private boolean NS = false;
+    protected PBlockFace currentDirection;
+    protected int blocksToMove;
 
     private double step;
 
@@ -43,8 +45,8 @@ public class GarageDoorMover extends BlockMover
                            final @NotNull IVector3DiConst finalMin, final @NotNull IVector3DiConst finalMax,
                            final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, currentDirection, rotateDirection, -1, player, finalMin, finalMax, cause,
-              actionType);
+        super(door, time, skipAnimation, rotateDirection, player, finalMin, finalMax, cause, actionType);
+        this.currentDirection = currentDirection;
 
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
@@ -88,13 +90,14 @@ public class GarageDoorMover extends BlockMover
 
         if (currentDirection.equals(PBlockFace.UP))
         {
-            super.blocksMoved = yLen + 1;
+            blocksToMove = yLen + 1;
             getVector = this::getVectorUp;
         }
         else
         {
-            super.blocksMoved = (xLen + 1) * directionVec.getX() + (yLen + 1) * directionVec.getY()
-                + (zLen + 1) * directionVec.getZ();
+            blocksToMove = Math.abs((xLen + 1) * directionVec.getX()
+                                        + (yLen + 1) * directionVec.getY()
+                                        + (zLen + 1) * directionVec.getZ());
             getVector = getVectorTmp;
         }
 
@@ -108,7 +111,7 @@ public class GarageDoorMover extends BlockMover
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
-        step = getBlocksMoved() / ((float) super.endCount);
+        step = blocksToMove / ((float) super.endCount);
         super.soundActive = new PSoundDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
@@ -232,11 +235,6 @@ public class GarageDoorMover extends BlockMover
             newY -= 2;
         }
         return locationFactory.create(world, newX, newY, newZ);
-    }
-
-    private double getBlocksMoved()
-    {
-        return Math.abs(blocksMoved);
     }
 
     @Override

@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -55,14 +54,13 @@ class BigDoorCreatorTest
         final @NotNull IPWorld world2 =
             UnitTestUtil.PLATFORM.getPWorldFactory().create(UUID.fromString("9ba0de97-01ef-4b4f-b12c-025ff84a6931"));
         final @NotNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
-        final @NotNull PBlockFace currentDirection = PBlockFace.NONE;
 
         final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER);
         final @NotNull AbstractDoorBase.DoorData doorData
             = new AbstractDoorBase.DoorData(-1, doorName, min, max, engine, powerblock, world, false, openDirection,
                                             doorOwner, false);
 
-        final @NotNull BigDoor bigDoor = new BigDoor(doorData, currentDirection);
+        final @NotNull BigDoor bigDoor = new BigDoor(doorData);
 
 
         final @NotNull Optional<Step> step = bdc.getCurrentStep();

@@ -54,13 +54,13 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
      * @param multiplier      The speed multiplier.
      * @param player          The player who opened this door.
      */
-    public BridgeMover(final double time, final @NotNull T door, final @NotNull PBlockFace upDown,
+    public BridgeMover(final @NotNull T door, final double time, final @NotNull PBlockFace upDown,
                        final @NotNull RotateDirection rotateDirection, final boolean skipAnimation,
                        final double multiplier, final @NotNull IPPlayer player, final @NotNull IVector3DiConst finalMin,
                        final @NotNull IVector3DiConst finalMax, final @NotNull DoorActionCause cause,
                        final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, upDown, rotateDirection, -1, player, finalMin, finalMax, cause, actionType);
+        super(door, time, skipAnimation, rotateDirection, player, finalMin, finalMax, cause, actionType);
 
         NS = door.isNorthSouthAligned();
 

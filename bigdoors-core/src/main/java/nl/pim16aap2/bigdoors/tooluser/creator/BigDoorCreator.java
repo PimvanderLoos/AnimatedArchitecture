@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.StepPLocation;
 import nl.pim16aap2.bigdoors.tooluser.step.StepString;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -196,7 +195,7 @@ public class BigDoorCreator extends Creator
         final @NotNull AbstractDoorBase.DoorData doorData =
             new AbstractDoorBase.DoorData(doorUID, name, cuboid.getMin(), cuboid.getMax(), engine, powerblock, world,
                                           isOpen, opendir, owner, isLocked);
-        final @NotNull BigDoor door = new BigDoor(doorData, PBlockFace.NONE);
+        final @NotNull BigDoor door = new BigDoor(doorData);
         BigDoors.get().getMessagingInterface().broadcastMessage(door.toString());
         return door;
     }

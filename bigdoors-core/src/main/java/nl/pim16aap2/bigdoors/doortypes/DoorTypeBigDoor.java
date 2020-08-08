@@ -3,10 +3,8 @@ package nl.pim16aap2.bigdoors.doortypes;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,10 +19,9 @@ public final class DoorTypeBigDoor extends DoorType
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(3);
+        List<Parameter> parameterTMP = new ArrayList<>(2);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
-        parameterTMP.add(new Parameter(ParameterType.INTEGER, "currentDirection"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
 
@@ -71,17 +68,12 @@ public final class DoorTypeBigDoor extends DoorType
                                                      final @NotNull Object... typeData)
         throws Exception
     {
-        final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) typeData[2]);
-        if (currentDirection == null)
-            return Optional.empty();
-
         final int autoCloseTimer = (int) typeData[0];
         final int autoOpenTimer = (int) typeData[1];
 
         return Optional.of(new BigDoor(doorData,
                                        autoCloseTimer,
-                                       autoOpenTimer,
-                                       currentDirection));
+                                       autoOpenTimer));
     }
 
     /** {@inheritDoc} */
@@ -96,7 +88,6 @@ public final class DoorTypeBigDoor extends DoorType
 
         final @NotNull BigDoor bigDoor = (BigDoor) door;
         return new Object[]{bigDoor.getAutoCloseTime(),
-                            bigDoor.getAutoOpenTime(),
-                            PBlockFace.getValue(bigDoor.getCurrentDirection())};
+                            bigDoor.getAutoOpenTime()};
     }
 }
