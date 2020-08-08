@@ -56,14 +56,12 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
         return worldGuardPlugin.wrapPlayer(player);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
         return canBreakBlock(getLocalPlayer(player), loc);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
                                              final @NotNull Location loc2)
@@ -94,7 +92,6 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean success()
     {

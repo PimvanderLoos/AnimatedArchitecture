@@ -204,7 +204,6 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
@@ -240,7 +239,6 @@ public class GarageDoorMover extends BlockMover
         return Math.abs(blocksMoved);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
@@ -257,7 +255,6 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(finalLoc.getX() + addX, finalLoc.getY(), finalLoc.getZ() + addZ);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void executeAnimationStep(final int ticks)
     {
@@ -269,7 +266,6 @@ public class GarageDoorMover extends BlockMover
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {

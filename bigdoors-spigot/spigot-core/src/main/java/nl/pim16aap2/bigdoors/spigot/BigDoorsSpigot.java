@@ -232,7 +232,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         abortableTaskManager = AbortableTaskManager.init(this);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void onEnable()
     {
@@ -477,7 +476,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         commandManager.registerCommand(new CommandMenu(this, commandManager));
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public File getDataDirectory()
@@ -485,7 +483,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return getDataFolder();
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPBlockDataFactory getPBlockDataFactory()
@@ -493,7 +490,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return PlatformManagerSpigot.get().getSpigotPlatform().getPBlockDataFactory();
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IFallingBlockFactory getFallingBlockFactory()
@@ -508,7 +504,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return MessageableServerSpigot.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IBlockAnalyzer getBlockAnalyzer()
@@ -516,14 +511,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return PlatformManagerSpigot.get().getSpigotPlatform().getBlockAnalyzer();
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isMainThread(final long compareThread)
     {
         return compareThread == MAINTHREADID;
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public <T> IPExecutor<T> newPExecutor()
@@ -552,14 +545,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return protCompatMan.canBreakBlocksBetweenLocs(player, pos1, pos2, world);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void registerRestartable(final @NotNull IRestartable restartable)
     {
         restartables.add(restartable);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
     {
@@ -585,7 +576,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         restartables.forEach(IRestartable::restart);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void onDisable()
     {
@@ -726,7 +716,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return ret;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void callDoorActionEvent(final @NotNull IDoorEvent doorEvent)
     {

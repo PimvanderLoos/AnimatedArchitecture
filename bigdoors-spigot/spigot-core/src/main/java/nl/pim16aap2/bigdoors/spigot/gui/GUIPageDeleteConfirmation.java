@@ -36,7 +36,6 @@ public class GUIPageDeleteConfirmation implements IGUIPage
         refresh();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void kill()
     {
@@ -44,14 +43,12 @@ public class GUIPageDeleteConfirmation implements IGUIPage
             futurePermissionCheck.cancel(true);
     }
 
-    /** {@inheritDoc} */
     @Override
     public PageType getPageType()
     {
         return PageType.CONFIRMATION;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void handleInput(int interactionIDX)
     {
@@ -132,7 +129,6 @@ public class GUIPageDeleteConfirmation implements IGUIPage
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void refresh()
     {

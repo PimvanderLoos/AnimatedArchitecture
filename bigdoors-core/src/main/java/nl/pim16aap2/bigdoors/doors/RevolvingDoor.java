@@ -70,7 +70,6 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
                RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
@@ -85,7 +84,6 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
                                    responsible, quarterCircles, cause, actionType));
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(@Nullable Object o)
     {

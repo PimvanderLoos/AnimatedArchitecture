@@ -21,21 +21,18 @@ public class MessagingInterfaceStdout implements IMessagingInterface
         formattedName = PLogger.formatName(name);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void writeToConsole(final @NotNull Level level, final @NotNull String message)
     {
         System.out.println(formattedName + message);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void messagePlayer(final @NotNull IPPlayer player, final @NotNull String message)
     {
         System.out.println(formattedName + " to player: \"" + player.getName() + "\": " + message);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level,
                                     final @NotNull String message)
@@ -43,7 +40,6 @@ public class MessagingInterfaceStdout implements IMessagingInterface
         System.out.println(formattedName + " to a target: " + message);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void broadcastMessage(final @NotNull String message)
     {

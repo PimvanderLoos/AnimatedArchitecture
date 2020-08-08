@@ -35,7 +35,6 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
         super(door, cause, actionType, responsible, time, skipAnimation);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public HandlerList getHandlers()

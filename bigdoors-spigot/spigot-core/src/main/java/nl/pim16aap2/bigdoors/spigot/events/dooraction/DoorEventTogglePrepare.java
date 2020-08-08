@@ -47,7 +47,6 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
         super(door, cause, actionType, responsible, time, animationSkipped, newMinimum, newMaximum);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public HandlerList getHandlers()

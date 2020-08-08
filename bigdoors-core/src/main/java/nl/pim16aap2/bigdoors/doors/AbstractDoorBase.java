@@ -112,7 +112,6 @@ public abstract class AbstractDoorBase implements IDoorBase
      */
     public abstract DoorType getDoorType();
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPowerBlockActive()
     {
@@ -132,7 +131,6 @@ public abstract class AbstractDoorBase implements IDoorBase
                        .isBlockPowered(getWorld(), getPowerBlock());
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isValidOpenDirection(final @NotNull RotateDirection openDir)
     {
@@ -206,7 +204,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         return DoorToggleResult.SUCCESS;
     }
 
-    /** {@inheritDoc} */
     @Override
     public final void onRedstoneChange(final int newCurrent)
     {
@@ -240,7 +237,6 @@ public abstract class AbstractDoorBase implements IDoorBase
                                                final @NotNull IPPlayer responsible,
                                                final @NotNull DoorActionType actionType);
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public Vector2Di[] calculateCurrentChunkRange()
@@ -252,7 +248,6 @@ public abstract class AbstractDoorBase implements IDoorBase
                                new Vector2Di(maxChunk.getX(), maxChunk.getY())};
     }
 
-    /** {@inheritDoc} */
     @Override
     public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull IVector2DiConst chunk)
     {
@@ -279,7 +274,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public final UUID getPlayerUUID()
@@ -294,14 +288,12 @@ public abstract class AbstractDoorBase implements IDoorBase
         return doorOwner.getPlayer().getUUID();
     }
 
-    /** {@inheritDoc} */
     @Override
     public final int getPermission()
     {
         return doorOwner == null ? -1 : doorOwner.getPermission();
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public final RotateDirection getOpenDir()
@@ -310,7 +302,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         return openDir == null || openDir == RotateDirection.NONE ? openDir = getDefaultOpenDirection() : openDir;
     }
 
-    /** {@inheritDoc} */
     @Override
     public final void setOpenDir(final @NotNull RotateDirection newRotDir)
     {
@@ -371,7 +362,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         minChunkCoords = null;
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public final Vector2Di[] getChunkRange()
@@ -435,7 +425,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         return Util.getChunkCoords(engine);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public final IVector2DiConst getChunk()
@@ -464,7 +453,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         return blockCount == null ? blockCount = calculateBlockCount() : blockCount;
     }
 
-    /** {@inheritDoc} */
     @Override
     public final long getSimplePowerBlockChunkHash()
     {
@@ -477,7 +465,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         return Util.simpleChunkHashFromLocation(powerBlock.getX(), powerBlock.getZ());
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public final String getBasicInfo()

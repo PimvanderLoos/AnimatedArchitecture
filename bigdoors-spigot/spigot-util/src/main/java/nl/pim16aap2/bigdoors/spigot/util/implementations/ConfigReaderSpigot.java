@@ -19,7 +19,6 @@ public class ConfigReaderSpigot implements IConfigReader
         this.config = config;
     }
 
-    /** {@inheritDoc} */
     @Override
     public Object get(@NotNull String path, @Nullable Object def)
     {

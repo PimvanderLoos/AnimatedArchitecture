@@ -45,7 +45,6 @@ public class LoginResourcePackListener extends Restartable implements Listener
         return (instance == null) ? instance = new LoginResourcePackListener(plugin, url) : instance;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void restart()
     {
@@ -77,7 +76,6 @@ public class LoginResourcePackListener extends Restartable implements Listener
         isRegistered = false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {

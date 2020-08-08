@@ -56,7 +56,6 @@ public abstract class SubCommand implements ICommand
         return argsHelp;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getMinArgCount()
     {

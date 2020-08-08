@@ -58,7 +58,6 @@ public class SuperCommand implements ICommand
         commandManager.registerCommandShortcut(subCommand);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)
@@ -138,7 +137,6 @@ public class SuperCommand implements ICommand
         return CommandData.getCommandName(command);
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getMinArgCount()
     {

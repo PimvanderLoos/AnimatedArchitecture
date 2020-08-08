@@ -35,7 +35,6 @@ public class ElevatorCreator extends Creator
         return new Elevator(doorData, 0, 0, 0);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected boolean isReadyToConstructDoor()
     {
@@ -53,35 +52,30 @@ public class ElevatorCreator extends Creator
         engine = new Vector3Di(xMid, yMin, zMid);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_ELEVATOR_STEP1);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolLore()
     {
         return messages.getString(Message.CREATOR_ELEVATOR_STICKLORE);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void selector(final @NotNull Location loc)
     {
@@ -107,7 +101,6 @@ public class ElevatorCreator extends Creator
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getInitMessage()
@@ -115,7 +108,6 @@ public class ElevatorCreator extends Creator
         return messages.getString(Message.CREATOR_ELEVATOR_INIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickLore()
@@ -123,7 +115,6 @@ public class ElevatorCreator extends Creator
         return messages.getString(Message.CREATOR_ELEVATOR_STICKLORE);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickReceived()
@@ -131,7 +122,6 @@ public class ElevatorCreator extends Creator
         return messages.getString(Message.CREATOR_ELEVATOR_INIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep1()
@@ -139,7 +129,6 @@ public class ElevatorCreator extends Creator
         return messages.getString(Message.CREATOR_ELEVATOR_STEP1);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep2()
@@ -147,7 +136,6 @@ public class ElevatorCreator extends Creator
         return messages.getString(Message.CREATOR_ELEVATOR_STEP2);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep3()
@@ -155,7 +143,6 @@ public class ElevatorCreator extends Creator
         return "";
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getSuccessMessage()

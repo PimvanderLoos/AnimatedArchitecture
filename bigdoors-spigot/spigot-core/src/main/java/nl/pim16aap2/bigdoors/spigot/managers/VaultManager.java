@@ -310,7 +310,6 @@ public final class VaultManager implements IRestartable
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void restart()
     {
@@ -318,7 +317,6 @@ public final class VaultManager implements IRestartable
         init();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {

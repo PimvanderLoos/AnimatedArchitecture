@@ -26,14 +26,12 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
         formattedName = PLogger.formatName(plugin.getName());
     }
 
-    /** {@inheritDoc} */
     @Override
     public void writeToConsole(final @NotNull Level level, final @NotNull String message)
     {
         Bukkit.getLogger().log(level, formattedName + message);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void messagePlayer(@NotNull IPPlayer player, @NotNull String message)
     {
@@ -44,7 +42,6 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
         SpigotUtil.messagePlayer(bukkitPlayer, message);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level,
                                     final @NotNull String message)
@@ -55,7 +52,6 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
             writeToConsole(level, ChatColor.stripColor(message));
     }
 
-    /** {@inheritDoc} */
     @Override
     public void broadcastMessage(final @NotNull String message)
     {

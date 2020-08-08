@@ -136,7 +136,6 @@ public final class DoorManager extends Restartable
         emptyBusyDoors();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void restart()
     {
@@ -144,7 +143,6 @@ public final class DoorManager extends Restartable
         busyDoors.clear();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {

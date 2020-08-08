@@ -27,7 +27,6 @@ public class TownyNewProtectionCompat implements IProtectionCompat
         success = true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
@@ -36,7 +35,6 @@ public class TownyNewProtectionCompat implements IProtectionCompat
                                                   ActionType.DESTROY);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
                                              final @NotNull Location loc2)
@@ -59,14 +57,12 @@ public class TownyNewProtectionCompat implements IProtectionCompat
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean success()
     {
         return success;
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public String getName()

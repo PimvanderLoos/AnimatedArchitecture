@@ -31,7 +31,6 @@ public class RevolvingDoorCreator extends BigDoorCreator
         return new RevolvingDoor(doorData, 4);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
@@ -42,7 +41,6 @@ public class RevolvingDoorCreator extends BigDoorCreator
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
@@ -53,7 +51,6 @@ public class RevolvingDoorCreator extends BigDoorCreator
         return xDepth > 0 && zDepth > 0;
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getInitMessage()
@@ -61,7 +58,6 @@ public class RevolvingDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_REVOLVINGDOOR_INIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickLore()
@@ -69,7 +65,6 @@ public class RevolvingDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_REVOLVINGDOOR_STICKLORE);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickReceived()
@@ -77,7 +72,6 @@ public class RevolvingDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_REVOLVINGDOOR_INIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep1()
@@ -85,7 +79,6 @@ public class RevolvingDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_REVOLVINGDOOR_STEP1);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep2()
@@ -93,7 +86,6 @@ public class RevolvingDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_REVOLVINGDOOR_STEP2);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep3()
@@ -101,7 +93,6 @@ public class RevolvingDoorCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_REVOLVINGDOOR_STEP3);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getSuccessMessage()

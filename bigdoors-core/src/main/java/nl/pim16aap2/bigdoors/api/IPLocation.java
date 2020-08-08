@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface IPLocation extends IPLocationConst, Cloneable
 {
-    /** {@inheritDoc} */
     @Override
     @NotNull
     IPWorld getWorld();
@@ -24,32 +23,25 @@ public interface IPLocation extends IPLocationConst, Cloneable
      */
     void setWorld(final @NotNull IPWorld other);
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     Vector2Di getChunk();
 
-    /** {@inheritDoc} */
     @Override
     int getBlockX();
 
-    /** {@inheritDoc} */
     @Override
     int getBlockY();
 
-    /** {@inheritDoc} */
     @Override
     int getBlockZ();
 
-    /** {@inheritDoc} */
     @Override
     double getX();
 
-    /** {@inheritDoc} */
     @Override
     double getY();
 
-    /** {@inheritDoc} */
     @Override
     double getZ();
 
@@ -99,11 +91,9 @@ public interface IPLocation extends IPLocationConst, Cloneable
     @NotNull
     IPLocation add(final @NotNull IVector3DdConst vector);
 
-    /** {@inheritDoc} */
     @Override
     String toIntPositionString();
 
-    /** {@inheritDoc} */
     @Override
     String toDoublePositionString();
 

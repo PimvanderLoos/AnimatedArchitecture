@@ -55,7 +55,6 @@ public class RedstoneListener extends Restartable implements Listener
         return (instance == null) ? instance = new RedstoneListener(plugin) : instance;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void restart()
     {
@@ -92,7 +91,6 @@ public class RedstoneListener extends Restartable implements Listener
         isRegistered = false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {

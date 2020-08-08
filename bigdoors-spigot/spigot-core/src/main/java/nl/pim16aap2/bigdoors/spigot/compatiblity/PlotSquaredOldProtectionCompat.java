@@ -34,7 +34,6 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
         success = plotSquaredPlugin != null;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
@@ -133,7 +132,6 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean success()
     {

@@ -25,28 +25,24 @@ public class PowerBlockInspector extends ToolUser
         giveToolToPlayer();
     }
 
-    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_PBINSPECTOR_INIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolLore()
     {
         return messages.getString(Message.CREATOR_PBINSPECTOR_STICKLORE);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void triggerFinishUp()
     {
         finishUp();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void selector(final @NotNull Location loc)
     {

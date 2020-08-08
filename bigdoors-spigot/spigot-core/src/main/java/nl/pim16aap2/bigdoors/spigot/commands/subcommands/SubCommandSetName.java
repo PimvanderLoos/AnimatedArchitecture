@@ -30,7 +30,6 @@ public class SubCommandSetName extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)

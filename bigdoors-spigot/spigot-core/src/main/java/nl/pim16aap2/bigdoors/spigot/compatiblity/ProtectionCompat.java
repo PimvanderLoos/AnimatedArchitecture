@@ -16,7 +16,6 @@ public enum ProtectionCompat
 {
     PLOTSQUARED("PlotSquared")
         {
-            /** {@inheritDoc} */
             @Override
             @Nullable
             public Class<? extends IProtectionCompat> getClass(final @NotNull String version)
@@ -28,7 +27,6 @@ public enum ProtectionCompat
 
     TOWNY("Towny")
         {
-            /** {@inheritDoc} */
             @Override
             public Class<? extends IProtectionCompat> getClass(final @NotNull String version)
             {
@@ -49,7 +47,6 @@ public enum ProtectionCompat
 
     WORLDGUARD("WorldGuard")
         {
-            /** {@inheritDoc} */
             @Override
             @Nullable
             public Class<? extends IProtectionCompat> getClass(final @NotNull String version)
@@ -65,7 +62,6 @@ public enum ProtectionCompat
 
     GRIEFPREVENTION("GriefPrevention")
         {
-            /** {@inheritDoc} */
             @Override
             @Nullable
             public Class<? extends IProtectionCompat> getClass(final @NotNull String version)
@@ -76,7 +72,6 @@ public enum ProtectionCompat
 
     LANDS("Lands")
         {
-            /** {@inheritDoc} */
             @Override
             @Nullable
             public Class<? extends IProtectionCompat> getClass(final @NotNull String version)

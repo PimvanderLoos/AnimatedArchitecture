@@ -27,7 +27,6 @@ public class GUIPageDoorCreation implements IGUIPage
         refresh();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void kill()
     {

@@ -58,7 +58,6 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
         isHourArm = NS ? this::isHourArmNS : this::isHourArmEW;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void init()
     {
@@ -90,14 +89,12 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
         return ((int) block.getStartLocation().getZ()) == door.getEngine().getZ();
     }
 
-    /** {@inheritDoc} */
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         return block.getStartPosition();
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void executeAnimationStep(final int ticks)
     {
