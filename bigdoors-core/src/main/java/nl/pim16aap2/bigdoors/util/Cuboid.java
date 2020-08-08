@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -14,42 +13,57 @@ import org.jetbrains.annotations.Nullable;
 public class Cuboid
 {
     @NotNull
-    @Getter
     private Vector3Di min, max;
 
     @Nullable
     private Integer volume = null;
 
-    public Cuboid(final @NotNull Vector3Di min, final @NotNull Vector3Di max)
+    public Cuboid(final @NotNull IVector3DiConst min, final @NotNull IVector3DiConst max)
     {
-        this.min = min;
-        this.max = max;
+        this.min = new Vector3Di(min);
+        this.max = new Vector3Di(max);
         minMaxFix();
     }
 
     /**
-     * Updates the lower bound coordinates of this {@link Cuboid}.
+     * Updates the coordinates of this {@link Cuboid}.
      * <p>
      * This also invalidates {@link #volume} and causes the min/max coordinates to be rebalanced.
      *
-     * @param min The new
+     * @param first  The first of the two new coordinates.
+     * @param second The first of the two new coordinates.
      */
-    public void setMin(final @NotNull Vector3Di min)
+    public void updatePositions(final @NotNull IVector3DiConst first, final @NotNull IVector3DiConst second)
     {
-        this.min = min;
-        minMaxFix();
-        volume = null;
-    }
-
-    public void setMax(final @NotNull Vector3Di max)
-    {
-        this.max = max;
+        min = new Vector3Di(first);
+        max = new Vector3Di(second);
         minMaxFix();
         volume = null;
     }
 
     /**
-     * Gets the total number of blocks in this cuboid.
+     * Gets the lower bound position.
+     *
+     * @return The lower bound position.
+     */
+    public IVector3DiConst getMin()
+    {
+        return min;
+    }
+
+    /**
+     * Gets the upper bound position.
+     *
+     * @return The upper bound position.
+     */
+    public IVector3DiConst getMax()
+    {
+        return max;
+    }
+
+    /**
+     * Gets the total number of blocks in this cuboid. It is inclusive of lower and upper bound. E.g. the volume of
+     * [(1,1,1)(2,2,2)] = 8.
      *
      * @return The total number of blocks in this cuboid.
      */
@@ -87,7 +101,7 @@ public class Cuboid
         int minY = Math.min(min.getY(), max.getY());
         int minZ = Math.min(min.getZ(), max.getZ());
 
-        int maxX = Math.max(min.getZ(), max.getX());
+        int maxX = Math.max(min.getX(), max.getX());
         int maxY = Math.max(min.getY(), max.getY());
         int maxZ = Math.max(min.getZ(), max.getZ());
 

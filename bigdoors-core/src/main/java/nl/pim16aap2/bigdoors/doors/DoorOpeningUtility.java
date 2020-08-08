@@ -134,7 +134,7 @@ public final class DoorOpeningUtility
         // Make sure the doorSize does not exceed the total doorSize.
         // If it does, open the door instantly.
         int maxDoorSize = config.maxDoorSize();
-        if (maxDoorSize != -1)
+        if (maxDoorSize > 0)
             return door.getBlockCount() > maxDoorSize;
         return false;
     }
@@ -329,7 +329,7 @@ public final class DoorOpeningUtility
 
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
-        if (DoorTypeManager.get().isDoorTypeEnabled(door.getDoorType()))
+        if (!DoorTypeManager.get().isDoorTypeEnabled(door.getDoorType()))
             return DoorToggleResult.TYPEDISABLED;
 
         if (!chunksLoaded(door))
