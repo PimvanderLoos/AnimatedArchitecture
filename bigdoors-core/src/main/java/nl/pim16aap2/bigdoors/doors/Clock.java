@@ -88,7 +88,6 @@ public class Clock extends AbstractDoorBase
             return engine.getZ() == minimum.getZ() ? RotateDirection.EAST : RotateDirection.WEST;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
@@ -99,7 +98,6 @@ public class Clock extends AbstractDoorBase
             .registerBlockMover(new ClockMover(this, getCurrentToggleDir(), responsible, cause, actionType));
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(@Nullable Object o)
     {

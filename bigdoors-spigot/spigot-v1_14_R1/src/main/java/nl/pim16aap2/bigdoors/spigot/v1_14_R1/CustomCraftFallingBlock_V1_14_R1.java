@@ -61,7 +61,6 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void setVelocity(final @NotNull IVector3DdConst vector)
     {
@@ -69,7 +68,6 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         entity.velocityChanged = true;
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation getPLocation()
@@ -77,7 +75,6 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return SpigotAdapter.wrapLocation(super.getLocation());
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public Vector3Dd getPosition()
@@ -86,7 +83,6 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return new Vector3Dd(bukkitLocation.getX(), bukkitLocation.getY(), bukkitLocation.getZ());
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public Vector3Dd getPVelocity()
@@ -103,14 +99,12 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return (CustomEntityFallingBlock_V1_14_R1) entity;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isOnGround()
     {
         return false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString()
     {
@@ -142,35 +136,30 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return CraftBlockData.fromData(getHandle().getBlock());
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean getDropItem()
     {
         return false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void setDropItem(final boolean drop)
     {
         getHandle().dropItem = false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean canHurtEntities()
     {
         return false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void setHurtEntities(final boolean hurtEntities)
     {
         getHandle().hurtEntities = false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void setTicksLived(final int value)
     {

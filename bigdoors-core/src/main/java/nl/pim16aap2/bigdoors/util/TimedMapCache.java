@@ -183,14 +183,12 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public int size()
     {
         return map.size();
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isEmpty()
     {
@@ -212,7 +210,6 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean containsValue(Object value)
     {
@@ -234,7 +231,6 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         return newVal.value;
     }
 
-    /** {@inheritDoc} */
     @Override
     public V remove(Object key)
     {
@@ -242,35 +238,30 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         return timedValue == null ? null : timedValue.value;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void putAll(Map m)
     {
         map.putAll(m);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void clear()
     {
         map.clear();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Set keySet()
     {
         return null;
     }
 
-    /** {@inheritDoc} */
     @Override
     public Collection values()
     {
         return map.values();
     }
 
-    /** {@inheritDoc} */
     @Override
     public java.util.Set entrySet()
     {
@@ -286,7 +277,6 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
         reInit(timeOut, SMALLESTTIMEUNIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {

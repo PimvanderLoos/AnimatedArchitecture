@@ -119,7 +119,6 @@ public class GarageDoor extends AbstractDoorBase
         return RotateDirection.getOpposite(Util.getRotateDirection(getCurrentDirection()));
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
@@ -209,7 +208,6 @@ public class GarageDoor extends AbstractDoorBase
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
@@ -225,7 +223,6 @@ public class GarageDoor extends AbstractDoorBase
                                 actionType));
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(final @Nullable Object o)
     {

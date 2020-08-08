@@ -8,7 +8,6 @@ import java.util.UUID;
 
 public class TestPPlayerFactory implements IPPlayerFactory
 {
-    /** {@inheritDoc} */
     @Override
     public @NotNull IPPlayer create(@NotNull UUID playerUUID, @NotNull String playerName)
     {

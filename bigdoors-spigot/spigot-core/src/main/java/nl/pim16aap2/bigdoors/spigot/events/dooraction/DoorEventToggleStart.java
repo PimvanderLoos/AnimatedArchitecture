@@ -52,7 +52,6 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
         this.newMaximum = newMaximum;
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public HandlerList getHandlers()

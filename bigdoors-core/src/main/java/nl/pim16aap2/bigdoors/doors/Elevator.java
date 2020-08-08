@@ -29,7 +29,6 @@ public class Elevator extends Portcullis
         return DOOR_TYPE;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(final @Nullable Object o)
     {

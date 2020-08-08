@@ -30,7 +30,6 @@ public class FlagCreator extends BigDoorCreator
         return new Flag(doorData, false, PBlockFace.EAST);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getInitMessage()
@@ -38,7 +37,6 @@ public class FlagCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_FLAG_INIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickLore()
@@ -46,7 +44,6 @@ public class FlagCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_FLAG_STICKLORE);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickReceived()
@@ -54,7 +51,6 @@ public class FlagCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_FLAG_INIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep1()
@@ -62,7 +58,6 @@ public class FlagCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_FLAG_STEP1);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep2()
@@ -70,7 +65,6 @@ public class FlagCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_FLAG_STEP2);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep3()
@@ -78,7 +72,6 @@ public class FlagCreator extends BigDoorCreator
         return messages.getString(Message.CREATOR_FLAG_STEP3);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getSuccessMessage()

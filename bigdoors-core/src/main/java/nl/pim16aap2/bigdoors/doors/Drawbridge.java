@@ -127,7 +127,6 @@ public class Drawbridge extends AbstractDoorBase
         return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
@@ -168,7 +167,6 @@ public class Drawbridge extends AbstractDoorBase
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
@@ -183,7 +181,6 @@ public class Drawbridge extends AbstractDoorBase
                 .getMultiplier(this), responsible, newMin, newMax, cause, actionType));
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(@Nullable Object o)
     {

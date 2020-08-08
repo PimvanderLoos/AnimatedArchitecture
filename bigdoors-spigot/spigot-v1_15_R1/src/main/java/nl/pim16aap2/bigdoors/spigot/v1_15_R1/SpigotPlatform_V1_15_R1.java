@@ -54,7 +54,6 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
         return instance;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void init(final @NotNull BigDoorsSpigotAbstract plugin)
     {

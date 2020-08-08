@@ -18,7 +18,6 @@ import java.util.UUID;
  */
 public class PLocationFactorySpigot implements IPLocationFactory
 {
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(final @NotNull IPWorld world, final double x, final double y, final double z)
@@ -26,7 +25,6 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return new PLocationSpigot(world, x, y, z);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(final @NotNull IPWorld world, final @NotNull IVector3DiConst position)
@@ -34,7 +32,6 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return create(world, position.getX(), position.getY(), position.getZ());
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(final @NotNull IPWorld world, final @NotNull IVector3DdConst position)
@@ -42,7 +39,6 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return create(world, position.getX(), position.getY(), position.getZ());
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(final @NotNull UUID worldUUID, final double x, final double y, final double z)
@@ -50,7 +46,6 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldUUID), x, y, z);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(final @NotNull UUID worldUUID, final @NotNull IVector3DiConst position)
@@ -58,7 +53,6 @@ public class PLocationFactorySpigot implements IPLocationFactory
         return create(worldUUID, position.getX(), position.getY(), position.getZ());
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation create(final @NotNull UUID worldUUID, final @NotNull IVector3DdConst position)

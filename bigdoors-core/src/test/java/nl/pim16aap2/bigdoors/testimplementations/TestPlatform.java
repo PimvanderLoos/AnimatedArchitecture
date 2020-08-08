@@ -41,7 +41,6 @@ public final class TestPlatform implements IBigDoorsPlatform, IRestartableHolder
         // TODO: INIT STUFF. Perhaps add a #getDataFolder() to IBigDoorsPlatform.
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public File getDataDirectory()

@@ -27,7 +27,6 @@ class GUIPageDoorList implements IGUIPage
         refresh();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void kill()
     {

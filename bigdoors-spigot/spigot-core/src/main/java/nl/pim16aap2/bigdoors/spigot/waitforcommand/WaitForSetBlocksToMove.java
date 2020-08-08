@@ -30,7 +30,6 @@ public class WaitForSetBlocksToMove extends WaitForCommand
         SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_BLOCKSTOMOVE_INIT));
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean executeCommand(final @NotNull String[] args)
         throws CommandActionNotAllowedException, IllegalArgumentException

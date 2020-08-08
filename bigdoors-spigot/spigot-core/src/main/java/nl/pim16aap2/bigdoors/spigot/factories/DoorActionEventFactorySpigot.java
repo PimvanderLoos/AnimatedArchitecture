@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
 {
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
@@ -31,7 +30,6 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
                                           newMaximum);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
@@ -47,7 +45,6 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
                                         newMaximum);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,

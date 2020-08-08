@@ -43,7 +43,6 @@ public class WaitForRemoveOwner extends WaitForCommand
         );
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean executeCommand(final @NotNull String[] args)
         throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException

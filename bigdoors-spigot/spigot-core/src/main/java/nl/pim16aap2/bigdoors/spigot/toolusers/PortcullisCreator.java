@@ -34,7 +34,6 @@ public class PortcullisCreator extends Creator
         return new Portcullis(doorData, 0, 0, 0);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected boolean isReadyToConstructDoor()
     {
@@ -52,35 +51,30 @@ public class PortcullisCreator extends Creator
         engine = new Vector3Di(xMid, yMin, zMid);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolReceivedMessage()
     {
         return messages.getString(Message.CREATOR_PORTCULLIS_STEP1);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected @NotNull String getToolLore()
     {
         return messages.getString(Message.CREATOR_PORTCULLIS_STICKLORE);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected boolean isPosTwoValid(final @NotNull Location loc)
     {
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected boolean isEngineValid(final @NotNull Location loc)
     {
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void selector(final @NotNull Location loc)
     {
@@ -111,7 +105,6 @@ public class PortcullisCreator extends Creator
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getInitMessage()
@@ -119,7 +112,6 @@ public class PortcullisCreator extends Creator
         return messages.getString(Message.CREATOR_PORTCULLIS_INIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickLore()
@@ -127,7 +119,6 @@ public class PortcullisCreator extends Creator
         return messages.getString(Message.CREATOR_PORTCULLIS_STICKLORE);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStickReceived()
@@ -135,7 +126,6 @@ public class PortcullisCreator extends Creator
         return messages.getString(Message.CREATOR_PORTCULLIS_INIT);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep1()
@@ -143,7 +133,6 @@ public class PortcullisCreator extends Creator
         return messages.getString(Message.CREATOR_PORTCULLIS_STEP1);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep2()
@@ -151,7 +140,6 @@ public class PortcullisCreator extends Creator
         return messages.getString(Message.CREATOR_PORTCULLIS_STEP2);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getStep3()
@@ -159,7 +147,6 @@ public class PortcullisCreator extends Creator
         return "";
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     protected String getSuccessMessage()

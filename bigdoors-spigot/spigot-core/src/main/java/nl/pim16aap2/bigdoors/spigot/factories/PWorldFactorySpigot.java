@@ -15,7 +15,6 @@ import java.util.UUID;
  */
 public class PWorldFactorySpigot implements IPWorldFactory
 {
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPWorld create(final @NotNull UUID worldUUID)

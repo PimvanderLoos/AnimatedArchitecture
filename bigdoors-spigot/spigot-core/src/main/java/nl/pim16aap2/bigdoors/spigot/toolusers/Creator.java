@@ -227,7 +227,6 @@ public abstract class Creator extends ToolUser
         two.setZ(maxZ);
     }
 
-    /** {@inheritDoc} */
     @Override
     public abstract void selector(final @NotNull Location loc);
 
@@ -273,7 +272,6 @@ public abstract class Creator extends ToolUser
         return hasPermission(plugin.canBreakBlock(pPlayer, SpigotAdapter.wrapLocation(loc)));
     }
 
-    /** {@inheritDoc} */
     @Override
     protected final void triggerFinishUp()
     {

@@ -34,14 +34,12 @@ public final class TestPPlayer implements IPPlayer
     }
 
 
-    /** {@inheritDoc} */
     @Override
     public String toString()
     {
         return String.format("%s (%s)", getUUID().toString(), getName());
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o)
     {
@@ -54,7 +52,6 @@ public final class TestPPlayer implements IPPlayer
         return getUUID().equals(((TestPPlayer) o).getUUID());
     }
 
-    /** {@inheritDoc} */
     @Override
     public int hashCode()
     {

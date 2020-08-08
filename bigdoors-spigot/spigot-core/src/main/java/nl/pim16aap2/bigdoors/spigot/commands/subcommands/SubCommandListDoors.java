@@ -48,7 +48,6 @@ public class SubCommandListDoors extends SubCommand
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)

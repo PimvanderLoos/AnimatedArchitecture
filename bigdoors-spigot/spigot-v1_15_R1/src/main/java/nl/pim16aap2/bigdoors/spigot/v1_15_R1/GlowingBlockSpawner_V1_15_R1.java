@@ -117,13 +117,11 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
         teams.put(color, team);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void restart()
     {
     }
 
-    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {
@@ -131,7 +129,6 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
         teams.clear();
     }
 
-    /** {@inheritDoc} */
     @Override
     @Nullable
     public IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,

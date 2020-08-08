@@ -62,7 +62,6 @@ public class PPreparedStatement
         this.statement = statement;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString()
     {

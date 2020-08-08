@@ -38,7 +38,6 @@ public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedston
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isBlockPowered(final @NotNull IPWorld world, final @NotNull IVector3DiConst position)
     {

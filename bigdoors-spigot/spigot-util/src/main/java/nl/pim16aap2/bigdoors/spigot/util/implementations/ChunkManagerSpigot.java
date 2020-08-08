@@ -32,7 +32,6 @@ public final class ChunkManagerSpigot implements IChunkManager
         return instance;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isLoaded(final @NotNull IPWorld world, final @NotNull IVector2DiConst chunk)
     {
@@ -40,7 +39,6 @@ public final class ChunkManagerSpigot implements IChunkManager
                             .isLoaded();
     }
 
-    /** {@inheritDoc} */
     @Override
     public ChunkLoadResult load(final @NotNull IPWorld world, final @NotNull IVector2DiConst chunk)
     {

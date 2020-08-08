@@ -33,7 +33,6 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
               door.getMaximum(), cause, actionType);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void init()
     {
@@ -49,14 +48,12 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         return block.getStartPosition();
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void executeAnimationStep(final int ticks)
     {
@@ -69,7 +66,6 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
             }
     }
 
-    /** {@inheritDoc} */
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
@@ -80,7 +76,6 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
-    /** {@inheritDoc} */
     @Override
     protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
     {

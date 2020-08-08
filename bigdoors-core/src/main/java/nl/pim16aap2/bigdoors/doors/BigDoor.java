@@ -108,7 +108,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
@@ -135,7 +134,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
@@ -148,7 +146,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                              responsible, newMin, newMax, cause, actionType));
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(final @Nullable Object o)
     {

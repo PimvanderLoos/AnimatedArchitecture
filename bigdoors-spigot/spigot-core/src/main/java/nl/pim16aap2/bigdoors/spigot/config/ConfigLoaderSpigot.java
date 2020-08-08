@@ -119,14 +119,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         return instance;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void restart()
     {
         reloadConfig();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void shutdown()
     {
@@ -409,7 +407,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean debug()
     {
@@ -423,35 +420,30 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         return flagFormula;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean dbBackup()
     {
         return makeBackup;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int coolDown()
     {
         return coolDown;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean allowStats()
     {
         return allowStats;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int maxDoorSize()
     {
         return maxDoorSize;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int cacheTimeout()
     {
@@ -463,21 +455,18 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         return resourcePack;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String languageFile()
     {
         return languageFile;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int maxdoorCount()
     {
         return maxDoorCount;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean autoDLUpdate()
     {
@@ -499,7 +488,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         return downloadDelay;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean enableRedstone()
     {
@@ -527,35 +515,30 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         return headCacheTimeout;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean checkForUpdates()
     {
         return checkForUpdates;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getPrice(final @NotNull DoorType type)
     {
         return doorPrices.get(type);
     }
 
-    /** {@inheritDoc} */
     @Override
     public double getMultiplier(final @NotNull DoorType type)
     {
         return doorMultipliers.getOrDefault(type, 0.0D);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean consoleLogging()
     {
         return consoleLogging;
     }
-
-
+    
     /**
      * Represents a class that attempts to parse a list of materials represented as Strings into a list of Materials.
      * <p>
@@ -581,7 +564,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             output.clear();
         }
 
-        /** {@inheritDoc} */
         @Override
         @NotNull
         public List<String> test(@NotNull List<String> input)

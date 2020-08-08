@@ -26,14 +26,12 @@ public class TownyOldProtectionCompat implements IProtectionCompat
         success = true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
         return PlayerCacheUtil.getCachePermission(player, loc, loc.getBlock().getType(), ActionType.DESTROY);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
                                              final @NotNull Location loc2)
@@ -56,14 +54,12 @@ public class TownyOldProtectionCompat implements IProtectionCompat
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean success()
     {
         return success;
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public String getName()

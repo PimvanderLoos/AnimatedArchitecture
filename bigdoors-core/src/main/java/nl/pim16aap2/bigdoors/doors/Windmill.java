@@ -83,7 +83,6 @@ public class Windmill extends AbstractDoorBase
             return RotateDirection.EAST;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
@@ -97,7 +96,6 @@ public class Windmill extends AbstractDoorBase
                                                                 getCurrentToggleDir(), responsible, cause, actionType));
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(final @Nullable Object o)
     {

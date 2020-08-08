@@ -45,7 +45,6 @@ public final class PLocationSpigot implements IPLocation
         world = new PWorldSpigot(location.getWorld());
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public Vector2Di getChunk()
@@ -53,70 +52,60 @@ public final class PLocationSpigot implements IPLocation
         return new Vector2Di(location.getBlockX() << 4, location.getBlockZ() << 4);
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getBlockX()
     {
         return location.getBlockX();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getBlockY()
     {
         return location.getBlockY();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getBlockZ()
     {
         return location.getBlockZ();
     }
 
-    /** {@inheritDoc} */
     @Override
     public double getX()
     {
         return location.getX();
     }
 
-    /** {@inheritDoc} */
     @Override
     public double getY()
     {
         return location.getY();
     }
 
-    /** {@inheritDoc} */
     @Override
     public double getZ()
     {
         return location.getZ();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void setX(double newVal)
     {
         location.setX(newVal);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void setY(double newVal)
     {
         location.setY(newVal);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void setZ(double newVal)
     {
         location.setZ(newVal);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation add(final double x, final double y, final double z)
@@ -125,7 +114,6 @@ public final class PLocationSpigot implements IPLocation
         return this;
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation add(final @NotNull IVector3DiConst vector)
@@ -133,7 +121,6 @@ public final class PLocationSpigot implements IPLocation
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public IPLocation add(final @NotNull IVector3DdConst vector)
@@ -152,14 +139,24 @@ public final class PLocationSpigot implements IPLocation
         return location;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString()
     {
         return getWorld().toString() + ": " + getX() + ":" + getY() + ":" + getZ();
     }
 
-    /** {@inheritDoc} */
+    @Override
+    public String toIntPositionString()
+    {
+        return String.format("(%d;%d;%d)", getBlockX(), getBlockY(), getBlockZ());
+    }
+
+    @Override
+    public String toDoublePositionString()
+    {
+        return String.format("(%.2f;%.2f;%.2f)", getX(), getY(), getZ());
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -173,14 +170,12 @@ public final class PLocationSpigot implements IPLocation
         return location.equals(other.getBukkitLocation());
     }
 
-    /** {@inheritDoc} */
     @Override
     public int hashCode()
     {
         return location.hashCode();
     }
 
-    /** {@inheritDoc} */
     @Override
     @NotNull
     public PLocationSpigot clone()
