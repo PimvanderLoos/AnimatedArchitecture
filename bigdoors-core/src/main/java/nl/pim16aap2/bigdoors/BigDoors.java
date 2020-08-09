@@ -352,17 +352,15 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Instead of using an enum, consider using annotations instead. It can also include stuff like PlayerOnly etc.
 
 /*
- * Creators
+ * Creators / ToolUsers
  */
+// TODO: Before starting the creation process, make sure that there is space in the player's inventory for the tool
+//       So when the player's inventory is full:
+//       "/bigdoors newdoor -type BigDoor" -> "Your inventory appears to be full! Please make some space and try again!"
+//       If their inventory fills up during the process, just abort when they get to the point where they should have
+//       received the tool.
 // TODO: Use the openDirection to figure out the current direction for the types that need that. And if that's not
 //       possible, just ask the user.
-// TODO: Make users explicitly specify the openDirection on door creation.
-// TODO: Use the openDirection to figure out the current direction for the types that need that. And if that's not
-//       possible, just ask the user.
-// TODO: Move ToolUsers from spigot-core to bigdoors-core. Also use the following system:
-//       - Use an "int step" or something to keep track of at which step in the creation process the user is.
-//       - Use an array of function pointers which can easily be used using the step integer.
-//       - Make sure it's very easy to extend the system.
 // TODO: GarageDoorCreator: Fix having to double click last block.
 // TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
 // TODO: Adapt to the new creation style.

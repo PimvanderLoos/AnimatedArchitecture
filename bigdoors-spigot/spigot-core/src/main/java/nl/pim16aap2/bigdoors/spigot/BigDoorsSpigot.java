@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.spigot;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
@@ -86,6 +87,7 @@ import nl.pim16aap2.bigdoors.spigot.factories.PLocationFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PPlayerFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PWorldFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.gui.GUI;
+import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
 import nl.pim16aap2.bigdoors.spigot.listeners.GUIListener;
@@ -224,11 +226,16 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @NotNull
     private final IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
+    @Getter(onMethod = @__({@Override}))
+    @NotNull
+    private final IBigDoorsToolUtil bigDoorsToolUtil;
+
     public BigDoorsSpigot()
     {
         INSTANCE = this;
         BIGDOORS.setBigDoorsPlatform(this);
         MAINTHREADID = Thread.currentThread().getId();
+        bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
 
         abortableTaskManager = AbortableTaskManager.init(this);
     }

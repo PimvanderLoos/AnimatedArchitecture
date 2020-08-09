@@ -50,6 +50,10 @@ public class EventListeners implements Listener
         if (event.getClickedBlock() == null)
             return;
 
+        if (!BigDoors.get().getPlatform().getBigDoorsToolUtil()
+                     .isPlayerHoldingTool(SpigotAdapter.wrapPlayer(event.getPlayer())))
+            return;
+
         ToolUserManager.get().getToolUser(event.getPlayer().getUniqueId()).ifPresent(
             toolUser ->
             {

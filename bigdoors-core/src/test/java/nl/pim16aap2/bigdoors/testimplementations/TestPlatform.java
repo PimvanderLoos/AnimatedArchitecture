@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -9,7 +10,6 @@ import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IRestartable;
-import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
@@ -26,7 +26,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class TestPlatform implements IBigDoorsPlatform, IRestartableHolder
+public final class TestPlatform implements IBigDoorsPlatform
 {
     private final TestPPlayerFactory pPlayerFactory = new TestPPlayerFactory();
     private final TestPWorldFactory pWorldFactory = new TestPWorldFactory();
@@ -35,6 +35,7 @@ public final class TestPlatform implements IBigDoorsPlatform, IRestartableHolder
     private final Set<IRestartable> restartables = new HashSet<>();
     @Nullable
     private Messages messages;
+    private final IBigDoorsToolUtil bigDoorsToolUtil = new TestBigDoorsToolUtil();
 
     public TestPlatform()
     {
@@ -53,6 +54,13 @@ public final class TestPlatform implements IBigDoorsPlatform, IRestartableHolder
     public IPLocationFactory getPLocationFactory()
     {
         return pLocationFactory;
+    }
+
+    @Override
+    @NotNull
+    public IBigDoorsToolUtil getBigDoorsToolUtil()
+    {
+        return bigDoorsToolUtil;
     }
 
     @Override
@@ -120,7 +128,7 @@ public final class TestPlatform implements IBigDoorsPlatform, IRestartableHolder
     @NotNull
     public IMessageable getMessageableServer()
     {
-        return MessageableServerTest.get();
+        return TestMessageableServer.get();
     }
 
     @Override

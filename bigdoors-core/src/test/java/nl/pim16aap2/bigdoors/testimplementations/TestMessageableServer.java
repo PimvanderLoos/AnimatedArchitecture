@@ -5,15 +5,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
 
-public class MessageableServerTest implements IMessageable
+public class TestMessageableServer implements IMessageable
 {
-    public static final MessageableServerTest INSTANCE = new MessageableServerTest();
+    public static final TestMessageableServer INSTANCE = new TestMessageableServer();
 
-    private MessageableServerTest()
+    private TestMessageableServer()
     {
     }
 
-    public static MessageableServerTest get()
+    public static TestMessageableServer get()
     {
         return INSTANCE;
     }

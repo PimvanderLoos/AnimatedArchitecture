@@ -4,9 +4,6 @@ import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * {@inheritDoc}
- */
 public abstract class Restartable implements IRestartable
 {
     /**

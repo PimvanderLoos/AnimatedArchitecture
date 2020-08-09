@@ -37,6 +37,37 @@ public abstract class Creator extends ToolUser
         return -1;
     }
 
+    @Override
+    protected void prepareNextStep()
+    {
+        getCurrentStep().ifPresent(this::sendMessage);
+        if (stepIDX == (procedure.size() - 1))
+            completeCreationProcess();
+    }
+
+    /**
+     * Completes the creation process. It'll construct and insert the door and complete the {@link ToolUser} process.
+     *
+     * @return True, so that it fits the functional interface being used for the steps.
+     * <p>
+     * If the insertion fails for whatever reason, it'll just be ignored, because at that point, there's no sense in
+     * continuing the creation process anyway.
+     */
+    protected boolean completeCreationProcess()
+    {
+        insertDoor(constructDoor());
+        completeProcess();
+        return true;
+    }
+
+    /**
+     * Constructs the door at the end of the creation process.
+     *
+     * @return The newly-created door.
+     */
+    @NotNull
+    protected abstract AbstractDoorBase constructDoor();
+
     /**
      * Verifies that the world of the selected location matches the world that this door is being created in.
      *
@@ -75,7 +106,7 @@ public abstract class Creator extends ToolUser
     @NotNull
     protected abstract DoorType getDoorType();
 
-    public int getPrice()
+    protected int getPrice()
     {
         if (cuboid == null)
             return -1;
@@ -84,7 +115,12 @@ public abstract class Creator extends ToolUser
         return 1;
     }
 
-    public String getOpenDirections()
+    protected final boolean isEconomyEnabled()
+    {
+        return false; // TODO: Implement this.
+    }
+
+    protected String getOpenDirections()
     {
         StringBuilder sb = new StringBuilder();
         int idx = 0;

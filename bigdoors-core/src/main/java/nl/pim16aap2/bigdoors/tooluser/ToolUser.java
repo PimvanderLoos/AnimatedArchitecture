@@ -5,9 +5,11 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class ToolUser
+public abstract class ToolUser implements IRestartable
 {
     protected int stepIDX = 0;
     @Getter
@@ -33,6 +35,64 @@ public abstract class ToolUser
         player = pPlayer;
         procedure = Collections.unmodifiableList(constructProcedure());
         ToolUserManager.get().registerToolUser(this);
+    }
+
+    /**
+     * Takes care of the final part of the process. This unregisters this {@link ToolUser} and removes the tool from the
+     * player's inventory (if they still have it).
+     */
+    protected final void completeProcess()
+    {
+        ToolUserManager.get().removeToolUser(this);
+        removeTool();
+    }
+
+    @Override
+    public void restart()
+    {
+        completeProcess();
+    }
+
+    @Override
+    public void shutdown()
+    {
+        completeProcess();
+    }
+
+    /**
+     * Adds the BigDoors tool from the player's inventory.
+     *
+     * @param name    The name of the tool.
+     * @param lore    The lore of the tool.
+     * @param message The message to send to the player after giving them the tool.
+     */
+    protected final void giveTool(final @NotNull Message name, final @NotNull Message lore,
+                                  final @Nullable Message message)
+    {
+        BigDoors.get().getPlatform().getBigDoorsToolUtil()
+                .giveToPlayer(player, messages.getString(name), messages.getString(lore));
+
+        if (message != null)
+            player.sendMessage(messages.getString(message));
+    }
+
+    /**
+     * Adds the BigDoors tool from the player's inventory.
+     *
+     * @param name The name of the tool.
+     * @param lore The lore of the tool.
+     */
+    protected final void giveTool(final @NotNull Message name, final @NotNull Message lore)
+    {
+        giveTool(name, lore, null);
+    }
+
+    /**
+     * Removes the BigDoors tool from the player's inventory.
+     */
+    protected final void removeTool()
+    {
+        BigDoors.get().getPlatform().getBigDoorsToolUtil().removeTool(player);
     }
 
     @NotNull
@@ -52,12 +112,6 @@ public abstract class ToolUser
     public final Optional<Step> getCurrentStep()
     {
         return getStep(stepIDX);
-    }
-
-    @NotNull
-    public final Optional<Step> getNextStep()
-    {
-        return getStep(stepIDX + 1);
     }
 
     /**
@@ -91,6 +145,11 @@ public abstract class ToolUser
     protected abstract List<Step> constructProcedure();
 
     /**
+     * Prepares the next step. For example by sending the player some instructions about what they should do.
+     */
+    protected abstract void prepareNextStep();
+
+    /**
      * Sends the localized message of the current {@link Step} to the player that owns this object.
      *
      * @param step The step to inform the user about.
@@ -112,7 +171,10 @@ public abstract class ToolUser
                 try
                 {
                     if (step.apply(obj))
+                    {
+                        prepareNextStep();
                         return true;
+                    }
                     sendMessage(step);
                 }
                 catch (Exception e)
@@ -129,7 +191,6 @@ public abstract class ToolUser
      */
     public boolean handleConfirm()
     {
-        System.out.print("CONFIRM!");
         return handleInput(null);
     }
 

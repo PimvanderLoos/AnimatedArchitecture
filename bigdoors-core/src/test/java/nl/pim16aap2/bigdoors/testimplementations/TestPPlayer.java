@@ -61,6 +61,6 @@ public final class TestPPlayer implements IPPlayer
     @Override
     public void sendMessage(@NotNull Level level, @NotNull String message)
     {
-        MessageableServerTest.get().sendMessage(level, message);
+        TestMessageableServer.get().sendMessage(level, message);
     }
 }
