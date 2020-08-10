@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 @ExtendWith(MockitoExtension.class)
-class BigDoorCreatorTest
+class CreatorBigDoorTest
 {
     private static final IPPlayer PLAYER =
         new TestPPlayer(UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5"), "user");
@@ -128,7 +128,7 @@ class BigDoorCreatorTest
     {
         ((TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager()).isEconomyEnabled = false;
         final @NotNull AtomicReference<AbstractDoorBase> resultDoorRef = setupInsertHijack();
-        final @NotNull BigDoorCreator bdc = new BigDoorCreator(PLAYER);
+        final @NotNull CreatorBigDoor bdc = new CreatorBigDoor(PLAYER);
 
         Assert.assertEquals("CREATOR_GENERAL_GIVENAME", bdc.getCurrentStepMessage());
 
@@ -162,7 +162,7 @@ class BigDoorCreatorTest
         ((TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager()).isEconomyEnabled = true;
         ((TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager()).buyDoor = true;
         final @NotNull AtomicReference<AbstractDoorBase> resultDoorRef = setupInsertHijack();
-        final @NotNull BigDoorCreator bdc = new BigDoorCreator(PLAYER);
+        final @NotNull CreatorBigDoor bdc = new CreatorBigDoor(PLAYER);
 
         Assert.assertEquals("CREATOR_GENERAL_GIVENAME", bdc.getCurrentStepMessage());
 

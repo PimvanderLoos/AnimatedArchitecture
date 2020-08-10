@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class BigDoorCreator extends Creator
+public class CreatorBigDoor extends Creator
 {
     @NotNull
     private static final DoorType doorType = DoorTypeBigDoor.get();
 
-    public BigDoorCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorBigDoor(final @NotNull IPPlayer player, final @Nullable String name)
     {
         super(player);
         if (name == null)
@@ -44,7 +44,7 @@ public class BigDoorCreator extends Creator
         prepareNextStep();
     }
 
-    public BigDoorCreator(final @NotNull IPPlayer player)
+    public CreatorBigDoor(final @NotNull IPPlayer player)
     {
         this(player, null);
     }
@@ -152,12 +152,12 @@ public class BigDoorCreator extends Creator
      */
     private static boolean invalidClass(final @NotNull ToolUser toolUser)
     {
-        if (toolUser instanceof BigDoorCreator)
+        if (toolUser instanceof CreatorBigDoor)
             return false;
         PLogger.get().logException(
             new IllegalArgumentException(
                 "ToolUser " + toolUser.getClass().getSimpleName() + " not of type: " +
-                    BigDoorCreator.class.getSimpleName()));
+                    CreatorBigDoor.class.getSimpleName()));
         // TODO: Maybe abort creator if this goes wrong?
         //       Maybe move this to Creator? As non-static.
 
@@ -166,29 +166,29 @@ public class BigDoorCreator extends Creator
 
     private enum Step implements IStep
     {
-        SET_NAME(bigDoorCreator -> new StepExecutorString(bigDoorCreator::setName), Message.CREATOR_GENERAL_GIVENAME),
+        SET_NAME(creatorBigDoor -> new StepExecutorString(creatorBigDoor::setName), Message.CREATOR_GENERAL_GIVENAME),
 
-        SET_FIRST_POS(bigDoorCreator -> new StepExecutorPLocation(bigDoorCreator::setFirstPos),
+        SET_FIRST_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setFirstPos),
                       Message.CREATOR_BIGDOOR_STEP1),
 
-        SET_SECOND_POS(bigDoorCreator -> new StepExecutorPLocation(bigDoorCreator::setSecondPos),
+        SET_SECOND_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setSecondPos),
                        Message.CREATOR_BIGDOOR_STEP2),
 
-        SET_ENGINE_POS(bigDoorCreator -> new StepExecutorPLocation(bigDoorCreator::setEnginePos),
+        SET_ENGINE_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setEnginePos),
                        Message.CREATOR_BIGDOOR_STEP3),
 
-        SET_POWER_BLOCK_POS(bigDoorCreator -> new StepExecutorPLocation(bigDoorCreator::setPowerBlockPos),
+        SET_POWER_BLOCK_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setPowerBlockPos),
                             Message.CREATOR_GENERAL_SETPOWERBLOCK),
 
-        SET_OPEN_DIR(bigDoorCreator -> new StepExecutorString(bigDoorCreator::setOpenDir),
+        SET_OPEN_DIR(creatorBigDoor -> new StepExecutorString(creatorBigDoor::setOpenDir),
                      Message.CREATOR_GENERAL_SETOPENDIR,
                      Creator::getOpenDirections),
 
-        CONFIRM_PRICE(bigDoorCreator -> new StepExecutorBoolean(bigDoorCreator::confirmPrice),
+        CONFIRM_PRICE(creatorBigDoor -> new StepExecutorBoolean(creatorBigDoor::confirmPrice),
                       Message.CREATOR_GENERAL_CONFIRMPRICE,
                       creator -> String.format("%.2f", creator.getPrice().orElse(0))),
 
-        COMPLETE_PROCESS(bigDoorCreator -> new StepExecutorVoid(bigDoorCreator::completeCreationProcess),
+        COMPLETE_PROCESS(creatorBigDoor -> new StepExecutorVoid(creatorBigDoor::completeCreationProcess),
                          Message.CREATOR_BIGDOOR_SUCCESS),
         ;
 
@@ -200,14 +200,14 @@ public class BigDoorCreator extends Creator
         private static final List<Step> values = Collections.unmodifiableList(Arrays.asList(Step.values()));
 
         @NotNull
-        final List<Function<BigDoorCreator, String>> messageVariablesRetrievers;
+        final List<Function<CreatorBigDoor, String>> messageVariablesRetrievers;
 
         @NotNull
-        final Function<BigDoorCreator, StepExecutor> functionRetriever;
+        final Function<CreatorBigDoor, StepExecutor> functionRetriever;
 
-        Step(final @NotNull Function<BigDoorCreator, StepExecutor> functionRetriever,
+        Step(final @NotNull Function<CreatorBigDoor, StepExecutor> functionRetriever,
              final @NotNull Message message,
-             final @NotNull Function<BigDoorCreator, String>... messageVariablesRetrievers)
+             final @NotNull Function<CreatorBigDoor, String>... messageVariablesRetrievers)
         {
             this.functionRetriever = functionRetriever;
             this.message = message;
@@ -228,25 +228,25 @@ public class BigDoorCreator extends Creator
         /**
          * Gets the step associated with this part of the procedure.
          *
-         * @param bigDoorCreator The {@link BigDoorCreator} that owns this step.
+         * @param creatorBigDoor The {@link CreatorBigDoor} that owns this step.
          * @return The newly-created step.
          */
-        public StepExecutor getStep(final @NotNull BigDoorCreator bigDoorCreator)
+        public StepExecutor getStep(final @NotNull CreatorBigDoor creatorBigDoor)
         {
-            return functionRetriever.apply(bigDoorCreator);
+            return functionRetriever.apply(creatorBigDoor);
         }
 
         @Override
         @NotNull
         public String getMessage(final @NotNull Creator creator)
         {
-            if (BigDoorCreator.invalidClass(creator))
+            if (CreatorBigDoor.invalidClass(creator))
                 return "ERROR: InvalidClass!"; // TODO: Handle more gracefully.
 
-            final @NotNull BigDoorCreator bigDoorCreator = (BigDoorCreator) creator;
+            final @NotNull CreatorBigDoor creatorBigDoor = (CreatorBigDoor) creator;
 
             List<String> variables = new ArrayList<>();
-            messageVariablesRetrievers.forEach(fun -> variables.add(fun.apply(bigDoorCreator)));
+            messageVariablesRetrievers.forEach(fun -> variables.add(fun.apply(creatorBigDoor)));
 
             String[] variablesArr = new String[variables.size()];
             variablesArr = variables.toArray(variablesArr);
