@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -37,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -72,11 +72,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private final String url;
 
     /**
-     * The BigDoors configuration.
-     */
-    private final IConfigLoader config;
-
-    /**
      * Log ALL statements to the log file.
      */
     private boolean logStatements = false;
@@ -90,12 +85,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * Constructor of the SQLite driver connection.
      *
      * @param dbFile The file to store the database in.
-     * @param config The {@link IConfigLoader} containing options used in this class.
      */
-    public SQLiteJDBCDriverConnection(final @NotNull File dbFile, final @NotNull IConfigLoader config)
+    public SQLiteJDBCDriverConnection(final @NotNull File dbFile)
     {
         this.dbFile = dbFile;
-        this.config = config;
         url = "jdbc:sqlite:" + dbFile;
         if (!loadDriver())
         {
@@ -495,7 +488,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return false;
         }
 
-        final Optional<Long> doorTypeID = DoorTypeManager.get().getDoorTypeID(door.getDoorType());
+        final @NotNull OptionalLong doorTypeID = DoorTypeManager.get().getDoorTypeID(door.getDoorType());
         if (!doorTypeID.isPresent())
         {
             PLogger.get().logException(new SQLException(
@@ -504,7 +497,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
 
         final @NotNull Optional<Pair<String, Integer>> typeSpecificDataUpdateStatementOpt
-            = getTypeDataUpdateStatement(door.getDoorType(), doorTypeID.get());
+            = getTypeDataUpdateStatement(door.getDoorType(), doorTypeID.getAsLong());
         if (!typeSpecificDataUpdateStatementOpt.isPresent())
         {
             PLogger.get().logException(new NullPointerException("Failed to obtain type-specific update statement " +
@@ -1448,17 +1441,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 return;
             }
 
-            // If an update is required and backups are enabled, make a backup.
-            // First close the connection to the database. Reopen it when possible.
-            if (config.dbBackup())
-            {
-                conn.close();
-                if (!makeBackup())
-                    return;
-                conn = getConnection(DatabaseState.OUT_OF_DATE);
-                if (conn == null)
-                    return;
-            }
+            conn.close();
+            if (!makeBackup())
+                return;
+            conn = getConnection(DatabaseState.OUT_OF_DATE);
+            if (conn == null)
+                return;
 
             if (dbVersion < 11)
                 upgradeToV11(conn);

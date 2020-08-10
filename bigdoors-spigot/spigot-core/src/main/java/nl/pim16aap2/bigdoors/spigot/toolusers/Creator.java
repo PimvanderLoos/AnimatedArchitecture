@@ -173,7 +173,9 @@ public abstract class Creator extends ToolUser
                 {
                     if (sizeLimit >= 0 && sizeLimit <= doorSize)
                         sendAreaTooBigMessage(player, sizeLimit);
-                    else if (plugin.getVaultManager().buyDoor(player, door.getDoorType(), doorSize))
+                    else if (plugin.getVaultManager()
+                                   .buyDoor(SpigotAdapter.wrapPlayer(player), door.getWorld(), door.getDoorType(),
+                                            doorSize))
                     {
                         BigDoors.get().getDatabaseManager().addDoorBase(door);
                         if (message != null)

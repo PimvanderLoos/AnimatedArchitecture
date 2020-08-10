@@ -3,11 +3,13 @@ package nl.pim16aap2.bigdoors.tooluser;
 import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -26,9 +28,13 @@ public abstract class ToolUser implements IRestartable
     protected final IPPlayer player;
     @NotNull
     protected final Messages messages = BigDoors.get().getPlatform().getMessages();
-
     @NotNull
     protected final List<Step> procedure;
+
+    /**
+     * Keeps track of whether this {@link ToolUser} is active or not.
+     */
+    protected boolean active = true;
 
     protected ToolUser(final @NotNull IPPlayer pPlayer)
     {
@@ -45,6 +51,7 @@ public abstract class ToolUser implements IRestartable
     {
         ToolUserManager.get().removeToolUser(this);
         removeTool();
+        active = false;
     }
 
     @Override
@@ -163,8 +170,11 @@ public abstract class ToolUser implements IRestartable
             player.sendMessage(message);
     }
 
-    public boolean handleInput(final @Nullable Object obj)
+    public boolean handleInput(final @NotNull Object obj)
     {
+        if (!active)
+            return false;
+
         return getCurrentStep().map(
             step ->
             {
@@ -172,7 +182,8 @@ public abstract class ToolUser implements IRestartable
                 {
                     if (step.apply(obj))
                     {
-                        prepareNextStep();
+                        if (active) // The process may have been cancelled, so check to make sure.
+                            prepareNextStep();
                         return true;
                     }
                     sendMessage(step);
@@ -186,25 +197,50 @@ public abstract class ToolUser implements IRestartable
     }
 
     /**
-     * Handles a confirmation. I.e. input where the fact that there is any input at all is the input itself and
-     * therefore doesn't have a value.
-     */
-    public boolean handleConfirm()
-    {
-        return handleInput(null);
-    }
-
-    /**
      * Checks if a player is allowed to break the block in a given location.
      * <p>
-     * If the player is not allowed to break blocks in the location, a message will be sent to them.
+     * If the player is not allowed to break blocks in the location, a message will be sent to them (provided the name
+     * of the compat isn't empty).
      *
      * @param loc The location to check.
      * @return True if the player is allowed to break the block at the given location.
      */
-    protected boolean playerHasAccessToLocation(final @NotNull IPLocation loc)
+    protected boolean playerHasAccessToLocation(final @NotNull IPLocationConst loc)
     {
-        // TODO: Implement.
-        return true;
+        final @NotNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
+                                                         .canBreakBlock(player, loc);
+
+        result.ifPresent(
+            compat ->
+            {
+                if (!compat.isEmpty())
+                    player.sendMessage(messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
+            });
+        return !result.isPresent();
+    }
+
+    /**
+     * Checks if a player is allowed to break all blocks in a given cuboid.
+     * <p>
+     * If the player is not allowed to break one or more blocks in the cuboid, a message will be sent to them. (provided
+     * the name of the compat isn't empty).
+     *
+     * @param cuboid The cuboid to check.
+     * @param world  The world to check in.
+     * @return True if the player is allowed to break all blocks inside the cuboid.
+     */
+    protected boolean playerHasAccessToCuboid(final @NotNull Cuboid cuboid, final @NotNull IPWorld world)
+    {
+        final @NotNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
+                                                         .canBreakBlocksBetweenLocs(player, cuboid.getMin(),
+                                                                                    cuboid.getMax(), world);
+
+        result.ifPresent(
+            compat ->
+            {
+                if (!compat.isEmpty())
+                    player.sendMessage(messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
+            });
+        return !result.isPresent();
     }
 }

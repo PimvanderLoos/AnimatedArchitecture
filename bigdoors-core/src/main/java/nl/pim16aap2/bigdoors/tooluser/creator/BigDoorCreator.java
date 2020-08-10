@@ -11,9 +11,10 @@ import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.tooluser.IProcedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
-import nl.pim16aap2.bigdoors.tooluser.step.StepConfirm;
+import nl.pim16aap2.bigdoors.tooluser.step.StepBoolean;
 import nl.pim16aap2.bigdoors.tooluser.step.StepPLocation;
 import nl.pim16aap2.bigdoors.tooluser.step.StepString;
+import nl.pim16aap2.bigdoors.tooluser.step.StepVoid;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -88,6 +89,9 @@ public class BigDoorCreator extends Creator
 
     private boolean setFirstPos(final @NotNull IPLocationConst loc)
     {
+        if (!playerHasAccessToLocation(loc))
+            return false;
+
         world = loc.getWorld();
         firstPos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
         stepIDX = Procedure.SET_SECOND_POS.ordinal();
@@ -99,6 +103,9 @@ public class BigDoorCreator extends Creator
         if (!verifyWorldMatch(loc))
             return false;
 
+        if (!playerHasAccessToLocation(loc))
+            return false;
+
         cuboid = new Cuboid(new Vector3Di(firstPos),
                             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
@@ -108,6 +115,9 @@ public class BigDoorCreator extends Creator
             return false;
         }
 
+        if (!playerHasAccessToCuboid(cuboid, world))
+            return false;
+
         stepIDX = Procedure.SET_ENGINE_POS.ordinal();
         return true;
     }
@@ -115,6 +125,9 @@ public class BigDoorCreator extends Creator
     private boolean setEnginePos(final @NotNull IPLocationConst loc)
     {
         if (!verifyWorldMatch(loc))
+            return false;
+
+        if (!playerHasAccessToLocation(loc))
             return false;
 
         final @NotNull Vector3Di pos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
@@ -134,6 +147,9 @@ public class BigDoorCreator extends Creator
         if (!loc.getWorld().getUID().equals(world.getUID()))
             return false;
 
+        if (!playerHasAccessToLocation(loc))
+            return false;
+
         final @NotNull Vector3Di pos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
         if (cuboid.isPosInsideCuboid(pos))
         {
@@ -143,14 +159,17 @@ public class BigDoorCreator extends Creator
         powerblock = pos;
 
         stepIDX = Procedure.SET_OPEN_DIR.ordinal();
+        removeTool();
         return true;
     }
 
     private boolean setOpenDir(final @NotNull String str)
     {
-        String openDirName = str.toUpperCase();
+        final @NotNull String openDirName = str.toUpperCase();
+        final @NotNull OptionalInt idOpt = Util.parseInt(str);
 
-        OptionalInt idOpt = Util.parseInt(str);
+        // TODO: Get rid of code duplication.
+        // TODO: Move into Creator.
         if (idOpt.isPresent())
         {
             int id = idOpt.getAsInt();
@@ -163,7 +182,7 @@ public class BigDoorCreator extends Creator
             }
 
             opendir = getDoorType().getValidOpenDirections().get(id);
-            stepIDX = isEconomyEnabled() ? Procedure.CONFIRM_PRICE.ordinal() : Procedure.COMPLETE_PROCESS.ordinal();
+            stepIDX = getPrice().isPresent() ? Procedure.CONFIRM_PRICE.ordinal() : Procedure.COMPLETE_PROCESS.ordinal();
             return true;
         }
 
@@ -173,8 +192,8 @@ public class BigDoorCreator extends Creator
                 if (DoorTypeBigDoor.get().isValidOpenDirection(foundOpenDir))
                 {
                     opendir = foundOpenDir;
-                    // TODO: Money, canBreakBlocks.
-                    stepIDX = Procedure.CONFIRM_PRICE.ordinal();
+                    stepIDX = getPrice().isPresent() ? Procedure.CONFIRM_PRICE.ordinal() :
+                              Procedure.COMPLETE_PROCESS.ordinal();
                     return true;
                 }
                 return false;
@@ -198,11 +217,22 @@ public class BigDoorCreator extends Creator
         return door;
     }
 
-    private boolean confirmPrice()
+    private boolean confirmPrice(final boolean confirm)
     {
-        BigDoors.get().getMessagingInterface().broadcastMessage("COMPLETED THE CREATOR!!");
-        stepIDX = Procedure.COMPLETE_PROCESS.ordinal();
+        if (!confirm)
+        {
+            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_CANCELLED));
+            shutdown();
+            return true;
+        }
+        if (!buyDoor())
+        {
+            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS));
+            shutdown();
+            return true;
+        }
 
+        stepIDX = Procedure.COMPLETE_PROCESS.ordinal();
         return true;
     }
 
@@ -227,7 +257,7 @@ public class BigDoorCreator extends Creator
 
     private enum Procedure implements IProcedure
     {
-        SET_NAME(bigDoorCreator -> new StepString(bigDoorCreator::setName), Message.CREATOR_BIGDOOR_INIT),
+        SET_NAME(bigDoorCreator -> new StepString(bigDoorCreator::setName), Message.CREATOR_GENERAL_GIVENAME),
 
         SET_FIRST_POS(bigDoorCreator -> new StepPLocation(bigDoorCreator::setFirstPos), Message.CREATOR_BIGDOOR_STEP1),
 
@@ -243,18 +273,17 @@ public class BigDoorCreator extends Creator
         SET_OPEN_DIR(bigDoorCreator -> new StepString(bigDoorCreator::setOpenDir), Message.CREATOR_GENERAL_SETOPENDIR,
                      Creator::getOpenDirections),
 
-        CONFIRM_PRICE(bigDoorCreator -> new StepConfirm(bigDoorCreator::confirmPrice),
+        CONFIRM_PRICE(bigDoorCreator -> new StepBoolean(bigDoorCreator::confirmPrice),
                       Message.CREATOR_GENERAL_CONFIRMPRICE,
-                      creator -> Integer.toString(creator.getPrice())),
+                      creator -> String.format("%.2f", creator.getPrice().orElse(0))),
 
-        COMPLETE_PROCESS(bigDoorCreator -> new StepConfirm(bigDoorCreator::completeCreationProcess),
+        COMPLETE_PROCESS(bigDoorCreator -> new StepVoid(bigDoorCreator::completeCreationProcess),
                          Message.CREATOR_BIGDOOR_SUCCESS),
         ;
 
         @NotNull
         final Message message;
 
-        //        @Getter(onMethod = @__({@Override}))
         @Getter
         @NotNull
         private static final List<Procedure> values = Collections.unmodifiableList(Arrays.asList(Procedure.values()));

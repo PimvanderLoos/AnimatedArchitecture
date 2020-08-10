@@ -3,13 +3,16 @@ package nl.pim16aap2.bigdoors.spigot.managers;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
+import nl.pim16aap2.bigdoors.api.IEconomyManager;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IRestartable;
-import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
@@ -17,33 +20,36 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalLong;
 
 /**
  * Manages all interactions with Vault.
  *
  * @author Pim
  */
-public final class VaultManager implements IRestartable
+public final class VaultManager implements IRestartable, IEconomyManager
 {
     private static final VaultManager instance = new VaultManager();
-    private final Map<Long, Double> menu;
     private final Map<DoorType, Double> flatPrices;
-    private final boolean vaultEnabled;
+    private boolean economyEnabled = false;
+    private boolean permissionsEnabled = false;
     private Economy economy = null;
     private Permission perms = null;
     private BigDoorsSpigot plugin;
 
     private VaultManager()
     {
-        menu = new HashMap<>();
         flatPrices = new HashMap<>();
-        vaultEnabled = isVaultInstalled() && setupEconomy() && setupPermissions();
-        if (!vaultEnabled) // TODO: Don't throw an exception here, it's completely fine if Vault isn't installed!
-            PLogger.get().logException(new IllegalStateException("Failed to enable Vault!"));
+        if (isVaultInstalled())
+        {
+            economyEnabled = setupEconomy();
+            permissionsEnabled = setupPermissions();
+        }
     }
 
     /**
@@ -61,32 +67,42 @@ public final class VaultManager implements IRestartable
         return instance;
     }
 
-    /**
-     * Buys a door for a player.
-     *
-     * @param player     The player whose bank account to use.
-     * @param type       The {@link DoorType} of the door.
-     * @param blockCount The number of blocks in the door.
-     * @return True if the player bought the door successfully.
-     */
-    public boolean buyDoor(final @NotNull Player player, final @NotNull DoorType type, final int blockCount)
+    @Override
+    public boolean buyDoor(final @NotNull IPPlayer player, final @NotNull IPWorld world, final @NotNull DoorType type,
+                           final int blockCount)
     {
-        if (!vaultEnabled)
+        if (!economyEnabled)
             return true;
-        double price = getPrice(type, blockCount);
-        if (withdrawPlayer(player, player.getWorld().getName(), price))
+
+        final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
+        if (spigotPlayer == null)
         {
-            if (price > 0)
-                SpigotUtil.messagePlayer(player,
-                                         plugin.getMessages().getString(Message.CREATOR_GENERAL_MONEYWITHDRAWN,
-                                                                        Double.toString(price)));
+            PLogger.get().logException(
+                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
+            return false;
+        }
+
+        final @NotNull OptionalDouble priceOpt = getPrice(type, blockCount);
+        if (!priceOpt.isPresent())
+            return true;
+
+        final double price = priceOpt.getAsDouble();
+        if (withdrawPlayer(spigotPlayer, world.getName(), price))
+        {
+            player.sendMessage(plugin.getMessages().getString(Message.CREATOR_GENERAL_MONEYWITHDRAWN,
+                                                              Double.toString(price)));
             return true;
         }
 
-        SpigotUtil.messagePlayer(player,
-                                 plugin.getMessages().getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS,
-                                                                Double.toString(price)));
+        player.sendMessage(plugin.getMessages().getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS,
+                                                          Double.toString(price)));
         return false;
+    }
+
+    @Override
+    public boolean isEconomyEnabled()
+    {
+        return economyEnabled;
     }
 
     /**
@@ -97,16 +113,7 @@ public final class VaultManager implements IRestartable
      */
     private void getFlatPrice(final @NotNull DoorType type)
     {
-        Double price;
-        try
-        {
-            price = Double.parseDouble(plugin.getConfigLoader().getPrice(type));
-            flatPrices.put(type, price);
-        }
-        catch (Exception unhandled)
-        {
-            // Ignored.
-        }
+        Util.parseDouble(plugin.getConfigLoader().getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
     }
 
     /**
@@ -127,7 +134,7 @@ public final class VaultManager implements IRestartable
      */
     public boolean hasPermission(final @NotNull Player player, final @NotNull String permission)
     {
-        return vaultEnabled && perms.playerHas(player.getWorld().getName(), player, permission);
+        return permissionsEnabled && perms.playerHas(player.getWorld().getName(), player, permission);
     }
 
     /**
@@ -151,37 +158,24 @@ public final class VaultManager implements IRestartable
         }
     }
 
-    /**
-     * Gets the price of {@link EDoorType} for a specific number of blocks.
-     *
-     * @param type       The {@link EDoorType}.
-     * @param blockCount The number of blocks.
-     * @return The price of this {@link DoorType} with this number of blocks.
-     */
-    public double getPrice(final @NotNull DoorType type, final int blockCount)
+    @Override
+    public OptionalDouble getPrice(final @NotNull DoorType type, final int blockCount)
     {
-        if (!vaultEnabled)
-            return 0;
-        Optional<Long> typeID = DoorTypeManager.get().getDoorTypeID(type);
+        if (!economyEnabled)
+            return OptionalDouble.empty();
+        final @NotNull OptionalLong typeID = DoorTypeManager.get().getDoorTypeID(type);
         if (!typeID.isPresent())
         {
             PLogger.get()
                    .logException(new IllegalStateException("Trying to calculate the price for an unregistered door!"));
-            return 0;
+            return OptionalDouble.empty();
         }
 
-        // Try cache first
-        final long priceID = blockCount * 100L + typeID.get();
-        if (menu.containsKey(priceID))
-            return menu.get(priceID);
-
-        double price = flatPrices
+        // TODO: Store flat prices as OptionalDoubles.
+        final double price = flatPrices
             .getOrDefault(type, evaluateFormula(plugin.getConfigLoader().getPrice(type), blockCount));
 
-        // Negative values aren't allowed.
-        price = Math.max(0, price);
-        menu.put(priceID, price);
-        return price;
+        return price <= 0 ? OptionalDouble.empty() : OptionalDouble.of(price);
     }
 
     /**
@@ -320,7 +314,6 @@ public final class VaultManager implements IRestartable
     @Override
     public void shutdown()
     {
-        menu.clear();
         flatPrices.clear();
     }
 }

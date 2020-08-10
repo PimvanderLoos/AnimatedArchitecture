@@ -39,7 +39,7 @@ public class SubCommandDebug extends SubCommand
         if (!(sender instanceof Player))
             return false;
 
-        new BigDoorCreator(SpigotAdapter.wrapPlayer((Player) sender), "TEST");
+        new BigDoorCreator(SpigotAdapter.wrapPlayer((Player) sender));
 
 //        BigDoors.get().getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140);
 //        BigDoors.get().getDatabaseManager().getDoor(236L).ifPresent(door -> BigDoors.get().getDatabaseManager().fillDoor((door)));

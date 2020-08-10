@@ -92,6 +92,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Replace the chunk loading system with v1's new system.
+// TODO: Move implementations for tests and stuff to its own module.
 // TODO: PLogger: Make it possible to log exceptions/errors without logging anything to the console. This is useful
 //       in the case where you want to actually throw the error/exception in addition to logging it.
 // TODO: Place the creator stick in the player's hotbar. If possible, in the currently selected place.

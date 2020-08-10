@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
+import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
@@ -168,7 +169,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private Map<UUID, ToolUser> toolUsers;
     private Map<UUID, GUI> playerGUIs;
     private final Set<IRestartable> restartables = new HashSet<>();
-    private ProtectionCompatManagerSpigot protCompatMan;
+
+    @Getter(onMethod = @__({@Override}))
+    private ProtectionCompatManagerSpigot protectionCompatManager;
     private LoginResourcePackListener rPackHandler;
 
     /** {@inheritDoc} */
@@ -248,7 +251,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             // Register this here so it can check for updates even when loaded on an incorrect version.
             updateManager = new UpdateManager(this, 58669);
 
-            DatabaseManager.init(this, configLoader, new File(super.getDataFolder(), "doorDB.db"));
+            DatabaseManager.init(this, new File(super.getDataFolder(), "doorDB.db"));
             registerDoorTypes();
 
             Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
@@ -291,9 +294,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             Bukkit.getPluginManager().registerEvents(new GUIListener(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkListener(this), this);
 
-            protCompatMan = ProtectionCompatManagerSpigot.init(this);
-            Bukkit.getPluginManager().registerEvents(protCompatMan, this);
-            DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), configLoader, protCompatMan);
+            protectionCompatManager = ProtectionCompatManagerSpigot.init(this);
+            Bukkit.getPluginManager().registerEvents(protectionCompatManager, this);
+            DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), configLoader, protectionCompatManager);
 
             Bukkit.getPluginManager().registerEvents(WorldListener.init(PowerBlockManager.init(this, configLoader,
                                                                                                DatabaseManager.get(),
@@ -542,7 +545,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @NotNull
     public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc)
     {
-        return protCompatMan.canBreakBlock(player, loc);
+        return protectionCompatManager.canBreakBlock(player, loc);
     }
 
     @NotNull
@@ -551,7 +554,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                                                       final @NotNull IVector3DiConst pos2,
                                                       final @NotNull IPWorld world)
     {
-        return protCompatMan.canBreakBlocksBetweenLocs(player, pos1, pos2, world);
+        return protectionCompatManager.canBreakBlocksBetweenLocs(player, pos1, pos2, world);
     }
 
     @Override
@@ -606,6 +609,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
         toolUsers.clear();
         cmdWaiters.clear();
+    }
+
+    @Override
+    @NotNull
+    public IEconomyManager getEconomyManager()
+    {
+        return vaultManager;
     }
 
     @NotNull

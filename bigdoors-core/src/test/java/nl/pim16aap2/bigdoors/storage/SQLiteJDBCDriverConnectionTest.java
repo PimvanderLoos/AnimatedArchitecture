@@ -4,8 +4,6 @@ import junit.framework.Assert;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.IRestartable;
-import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
@@ -25,7 +23,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorTypeRevolvingDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
@@ -55,9 +52,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @ExtendWith(MockitoExtension.class)
-public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
+public class SQLiteJDBCDriverConnectionTest
 {
     @NotNull
     private static final String DELETEDOORNAME = "deletemeh";
@@ -104,15 +103,16 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
      */
     private static AbstractDoorBase[] typeTesting;
 
-    private static final File dbFile;
+    private static final File DB_FILE;
     private static final File dbFileBackup;
     private static SQLiteJDBCDriverConnection storage;
+    private static ExecutorService threadPool;
 
     // Initialize files.
     static
     {
-        dbFile = new File(UnitTestUtil.TEST_DIR + "/test.db");
-        dbFileBackup = new File(dbFile.toString() + ".BACKUP");
+        DB_FILE = new File(UnitTestUtil.TEST_DIR + "/test.db");
+        dbFileBackup = new File(DB_FILE.toString() + ".BACKUP");
     }
 
     // Set up basic stuff.
@@ -205,13 +205,20 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
      * Initializes the storage object.
      */
     private void initStorage()
-        throws NoSuchFieldException, IllegalAccessException
     {
-        DatabaseManager.init(this, UnitTestUtil.CONFIG, dbFile);
-        Field dbField = DatabaseManager.class.getDeclaredField("db");
-        dbField.setAccessible(true);
-        storage = (SQLiteJDBCDriverConnection) dbField.get(DatabaseManager.get());
-//        storage.setStatementLogging(true);
+        storage = new SQLiteJDBCDriverConnection(DB_FILE);
+
+        try
+        {
+            UnitTestUtil.setDatabaseStorage(storage);
+            threadPool = UnitTestUtil.getDatabaseManagerThreadPool();
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
+            e.printStackTrace();
+            Assert.fail();
+        }
+        Assert.assertNotNull(threadPool);
     }
 
     /**
@@ -220,10 +227,10 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     @BeforeAll
     public static void prepare()
     {
-        if (dbFile.exists())
+        if (DB_FILE.exists())
         {
             System.out.println("WARNING! FILE \"dbFile\" STILL EXISTS! Attempting deletion now!");
-            dbFile.delete();
+            DB_FILE.delete();
         }
         if (dbFileBackup.exists())
         {
@@ -241,7 +248,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
     {
         // Remove any old database files and append ".FINISHED" to the name of the current one, so it
         // won't interfere with the next run, but can still be used for manual inspection.
-        final @NotNull File oldDB = new File(dbFile.toString() + ".FINISHED");
+        final @NotNull File oldDB = new File(DB_FILE.toString() + ".FINISHED");
         final @NotNull File oldLog = new File(UnitTestUtil.LOG_FILE.toString() + ".FINISHED");
 
         PLogger.get().setConsoleLogging(true);
@@ -252,7 +259,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
 
         try
         {
-            Files.move(dbFile.toPath(), oldDB.toPath());
+            Files.move(DB_FILE.toPath(), oldDB.toPath());
         }
         catch (IOException e)
         {
@@ -285,6 +292,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get()).get());
         Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get()).get());
         Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get()).get());
+        threadPool.awaitTermination(400L, TimeUnit.MILLISECONDS);
     }
 
     private void initDoorTypeTest()
@@ -840,18 +848,5 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
         previousLogSize = verifyLogSizeIncrease(previousLogSize);
 
         PLogger.get().setConsoleLogging(true); // Enable console logging again after the test.
-    }
-
-    @Override
-    public void registerRestartable(@NotNull IRestartable restartable)
-    {
-        // Don't do anything; it's not needed.
-    }
-
-    @Override
-    public boolean isRestartableRegistered(@NotNull IRestartable restartable)
-    {
-        // Don't do anything; it's not needed.
-        return false;
     }
 }

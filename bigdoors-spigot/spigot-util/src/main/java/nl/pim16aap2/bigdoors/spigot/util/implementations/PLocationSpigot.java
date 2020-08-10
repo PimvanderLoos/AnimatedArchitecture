@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,8 @@ public final class PLocationSpigot implements IPLocation
     public PLocationSpigot(final @NotNull IPWorld world, final double x, final double y, final double z)
     {
         final @Nullable World bukkitWorld = world instanceof PWorldSpigot ?
-                                            ((PWorldSpigot) world).getBukkitWorld() : null;
+                                            ((PWorldSpigot) world).getBukkitWorld() : Bukkit.getWorld(world.getUID());
+        Thread.dumpStack();
         location = new Location(bukkitWorld, x, y, z);
         this.world = world;
     }

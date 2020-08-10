@@ -35,13 +35,6 @@ public interface IConfigLoader extends IRestartable
 //    String dbFile();
 
     /**
-     * Checks if the database should make a backup before attempting an upgrade.
-     *
-     * @return True if the database should make a backup before attempting an upgrade.
-     */
-    boolean dbBackup();
-
-    /**
      * Gets the number of ticks a door should wait before it can be activated again.
      *
      * @return The number of ticks a door should wait before it can be activated again.

@@ -5,10 +5,12 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
+import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
@@ -31,15 +33,18 @@ public final class TestPlatform implements IBigDoorsPlatform
     private final TestPPlayerFactory pPlayerFactory = new TestPPlayerFactory();
     private final TestPWorldFactory pWorldFactory = new TestPWorldFactory();
     private final TestPLocationFactory pLocationFactory = new TestPLocationFactory();
+
     private static final File dataDirectory = new File(".");
     private final Set<IRestartable> restartables = new HashSet<>();
     @Nullable
     private Messages messages;
     private final IBigDoorsToolUtil bigDoorsToolUtil = new TestBigDoorsToolUtil();
 
+    private final IEconomyManager economyManager = new TestEconomyManager();
+    private final IProtectionCompatManager protectionCompatManager = new TestProtectionCompatManager();
+
     public TestPlatform()
     {
-        // TODO: INIT STUFF. Perhaps add a #getDataFolder() to IBigDoorsPlatform.
     }
 
     @Override
@@ -61,6 +66,20 @@ public final class TestPlatform implements IBigDoorsPlatform
     public IBigDoorsToolUtil getBigDoorsToolUtil()
     {
         return bigDoorsToolUtil;
+    }
+
+    @Override
+    @NotNull
+    public IEconomyManager getEconomyManager()
+    {
+        return economyManager;
+    }
+
+    @Override
+    @NotNull
+    public IProtectionCompatManager getProtectionCompatManager()
+    {
+        return protectionCompatManager;
     }
 
     @Override

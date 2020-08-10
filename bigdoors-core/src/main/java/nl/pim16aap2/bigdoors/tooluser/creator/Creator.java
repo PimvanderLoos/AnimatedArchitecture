@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -12,6 +13,8 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.OptionalDouble;
 
 public abstract class Creator extends ToolUser
 {
@@ -55,7 +58,12 @@ public abstract class Creator extends ToolUser
      */
     protected boolean completeCreationProcess()
     {
-        insertDoor(constructDoor());
+        // Only insert the door if the ToolUser hasn't been shut down yet.
+        // It'll still call completeProcess() to make sure it's cleaned up properly.
+        // This should've been done already, but just in case...
+        if (active)
+            insertDoor(constructDoor());
+
         completeProcess();
         return true;
     }
@@ -90,6 +98,7 @@ public abstract class Creator extends ToolUser
     protected void insertDoor(final @NotNull AbstractDoorBase door)
     {
         // TODO: Don't complete the process until the CompletableFuture has an actual result.
+        //       Or maybe just finish it anyway and send whatever message once it is done.
         DatabaseManager.get().addDoorBase(door).whenComplete(
             (result, throwable) ->
             {
@@ -106,18 +115,34 @@ public abstract class Creator extends ToolUser
     @NotNull
     protected abstract DoorType getDoorType();
 
-    protected int getPrice()
+    /**
+     * Attempts to buy the door for the current player.
+     *
+     * @return True if the player has bought the door or if the economy is not enabled.
+     */
+    protected boolean buyDoor()
     {
         if (cuboid == null)
-            return -1;
-        // TODO: Implement.
-//        return BigDoors.get().getPlatform().getEconomyManager().getPrice(getDoorType(), cuboid.getVolume());
-        return 1;
+            return false;
+
+        if (!isEconomyEnabled())
+            return true;
+
+        return BigDoors.get().getPlatform().getEconomyManager()
+                       .buyDoor(player, world, getDoorType(), cuboid.getVolume());
+    }
+
+    protected OptionalDouble getPrice()
+    {
+        // TODO: Perhaps this should be cached.
+        if (cuboid == null || !isEconomyEnabled())
+            return OptionalDouble.empty();
+        return BigDoors.get().getPlatform().getEconomyManager().getPrice(getDoorType(), cuboid.getVolume());
     }
 
     protected final boolean isEconomyEnabled()
     {
-        return false; // TODO: Implement this.
+        return BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled();
     }
 
     protected String getOpenDirections()

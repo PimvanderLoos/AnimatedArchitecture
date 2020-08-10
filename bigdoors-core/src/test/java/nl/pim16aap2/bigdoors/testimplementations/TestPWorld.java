@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +13,10 @@ public final class TestPWorld implements IPWorld
     private final UUID uuid;
     private final boolean exists;
     private final WorldTime time;
+    
+    @Getter(onMethod = @__({@Override}))
+    @Setter
+    private String name = "testWorld";
 
     public TestPWorld(final @NotNull UUID uuid)
     {

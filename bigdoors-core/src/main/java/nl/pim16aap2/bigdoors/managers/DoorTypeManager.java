@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -108,10 +109,10 @@ public final class DoorTypeManager
      * @param doorType The {@link Class} of the {@link DoorType}.
      * @return An optional that contains the ID of the {@link DoorType} if it is registered.
      */
-    public Optional<Long> getDoorTypeID(final @NotNull DoorType doorType)
+    public OptionalLong getDoorTypeID(final @NotNull DoorType doorType)
     {
         final @Nullable DoorTypeInfo info = doorTypesToID.get(doorType);
-        return info == null ? Optional.empty() : Optional.of(info.id);
+        return info == null ? OptionalLong.empty() : OptionalLong.of(info.id);
     }
 
     /**

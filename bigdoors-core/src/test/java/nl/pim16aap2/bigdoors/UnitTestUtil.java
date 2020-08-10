@@ -3,15 +3,23 @@ package nl.pim16aap2.bigdoors;
 import junit.framework.Assert;
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.IRestartableHolder;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.testimplementations.TestMessagingInterface;
 import nl.pim16aap2.bigdoors.testimplementations.TestPlatform;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutorService;
 
 @UtilityClass
 public class UnitTestUtil
@@ -30,6 +38,18 @@ public class UnitTestUtil
     static
     {
         BigDoors.get().setMessagingInterface(new TestMessagingInterface());
+        try
+        {
+            // This will create a fake database manager that can be used for testing.
+            Constructor<DatabaseManager> ctor = DatabaseManager.class.getDeclaredConstructor(IRestartableHolder.class);
+            ctor.setAccessible(true);
+            ctor.newInstance(PLATFORM);
+        }
+        catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
+        {
+            e.printStackTrace();
+            Assert.fail();
+        }
 
         try
         {
@@ -41,6 +61,22 @@ public class UnitTestUtil
             e.printStackTrace();
         }
         Assert.assertNotNull(TEST_DIR);
+    }
+
+    public void setDatabaseStorage(final @Nullable IStorage storage)
+        throws NoSuchFieldException, IllegalAccessException
+    {
+        Field field = DatabaseManager.class.getDeclaredField("db");
+        field.setAccessible(true);
+        field.set(DatabaseManager.get(), storage);
+    }
+
+    public ExecutorService getDatabaseManagerThreadPool()
+        throws NoSuchFieldException, IllegalAccessException
+    {
+        Field field = DatabaseManager.class.getDeclaredField("threadPool");
+        field.setAccessible(true);
+        return (ExecutorService) field.get(DatabaseManager.get());
     }
 
     @NotNull

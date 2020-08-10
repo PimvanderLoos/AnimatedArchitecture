@@ -38,7 +38,7 @@ public class SubCommandConfirm extends SubCommand
         Player player = (Player) sender;
         Optional<ToolUser> toolUser = ToolUserManager.get().getToolUser(player.getUniqueId());
         if (toolUser.isPresent())
-            toolUser.get().handleConfirm();
+            toolUser.get().handleInput(true);
         else
             player.sendMessage(messages.getString(Message.ERROR_COMMAND_NOTHINGTOCONFIRM));
         return true;

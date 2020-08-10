@@ -56,7 +56,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
     private final String header;
     private int coolDown;
-    private boolean makeBackup;
     private boolean allowStats;
     private int maxDoorSize;
     private String resourcePack;
@@ -188,8 +187,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "This plugin uses a support resource pack for things suchs as sound.",
             "You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
             "Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
-            "The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl + "'",
-            "The default resource pack for 1.13.x is: \'" + defResPackUrl1_13 + "\'"};
+            "The default resource pack for 1.11.x/1.12.x is: '" + defResPackUrl + "'",
+            "The default resource pack for 1.13.x is: '" + defResPackUrl1_13 + "'"};
         String[] multiplierComment = {
             "These multipliers affect the opening/closing speed of their respective doorBase types.",
             "Note that the maximum speed is limited, so beyond a certain point raising these values won't have any effect.",
@@ -217,12 +216,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         String[] consoleLoggingComment = {
             "Write errors and exceptions to console. If disabled, they will only be written to the bigdoors log. ",
             "If enabled, they will be written to both the console and the bigdoors log."};
-        String[] backupComment = {
-            "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
-            "In case anything goes wrong, you can just revert to the old version! Only the most recent backup will be kept."};
 
-//        FileConfiguration config = plugin.getConfig();
+
         IConfigReader config = new ConfigReaderSpigot(plugin.getConfig());
+
 
         enableRedstone = addNewConfigEntry(config, "allowRedstone", true, enableRedstoneComment);
 
@@ -257,7 +254,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         resourcePack = addNewConfigEntry(config, "resourcePack", defResPackUrl1_13, resourcePackComment);
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
-        makeBackup = addNewConfigEntry(config, "makeBackup", true, backupComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
 
 
@@ -421,12 +417,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public boolean dbBackup()
-    {
-        return makeBackup;
-    }
-
-    @Override
     public int coolDown()
     {
         return coolDown;
@@ -538,7 +528,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     {
         return consoleLogging;
     }
-    
+
     /**
      * Represents a class that attempts to parse a list of materials represented as Strings into a list of Materials.
      * <p>

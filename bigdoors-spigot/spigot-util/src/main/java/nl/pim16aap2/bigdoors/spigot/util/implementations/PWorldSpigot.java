@@ -20,22 +20,29 @@ public final class PWorldSpigot implements IPWorld
     @NotNull
     private final UUID uuid;
     @Nullable
-    private World world;
+    private final World world;
 
     public PWorldSpigot(final @NotNull UUID worldUUID)
     {
         uuid = worldUUID;
-        World bukkitWorld = Bukkit.getWorld(worldUUID);
+        final @Nullable World bukkitWorld = Bukkit.getWorld(worldUUID);
         if (bukkitWorld == null)
             PLogger.get().logException(
                 new NullPointerException("World \"" + worldUUID.toString() + "\" could not be found!"));
-        world = Bukkit.getWorld(worldUUID);
+        world = bukkitWorld;
     }
 
     public PWorldSpigot(final @NotNull World world)
     {
         uuid = world.getUID();
         this.world = world;
+    }
+
+    @Override
+    @NotNull
+    public String getName()
+    {
+        return world == null ? "ERROR" : world.getName();
     }
 
     @Override

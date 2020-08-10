@@ -20,12 +20,6 @@ public class TestConfigLoader implements IConfigLoader
     }
 
     @Override
-    public boolean dbBackup()
-    {
-        return true;
-    }
-
-    @Override
     public int coolDown()
     {
         return 0;

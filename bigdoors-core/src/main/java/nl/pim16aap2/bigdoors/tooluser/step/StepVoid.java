@@ -7,13 +7,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 /**
- * Represents a step where the fact that there is any input at all is the input itself and therefore doesn't have a
- * value.
+ * Represents a step without any input value.
  *
  * @author Pim
  */
 @AllArgsConstructor
-public class StepConfirm extends Step
+public class StepVoid extends Step
 {
     @NotNull
     private final Supplier<Boolean> fun;
