@@ -15,11 +15,7 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorBoolean;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
-import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.function.Function;
 
 public class BigDoorCreator extends Creator
@@ -87,41 +82,6 @@ public class BigDoorCreator extends Creator
         return true;
     }
 
-    private boolean setFirstPos(final @NotNull IPLocationConst loc)
-    {
-        if (!playerHasAccessToLocation(loc))
-            return false;
-
-        world = loc.getWorld();
-        firstPos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        stepIDX = Step.SET_SECOND_POS.ordinal();
-        return true;
-    }
-
-    private boolean setSecondPos(final @NotNull IPLocationConst loc)
-    {
-        if (!verifyWorldMatch(loc))
-            return false;
-
-        if (!playerHasAccessToLocation(loc))
-            return false;
-
-        cuboid = new Cuboid(new Vector3Di(firstPos),
-                            new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
-
-        if (!isSizeAllowed(cuboid.getVolume()))
-        {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_AREATOOBIG, cuboid.getVolume().toString()));
-            return false;
-        }
-
-        if (!playerHasAccessToCuboid(cuboid, world))
-            return false;
-
-        stepIDX = Step.SET_ENGINE_POS.ordinal();
-        return true;
-    }
-
     private boolean setEnginePos(final @NotNull IPLocationConst loc)
     {
         if (!verifyWorldMatch(loc))
@@ -165,75 +125,23 @@ public class BigDoorCreator extends Creator
 
     private boolean setOpenDir(final @NotNull String str)
     {
-        final @NotNull String openDirName = str.toUpperCase();
-        final @NotNull OptionalInt idOpt = Util.parseInt(str);
-
-        // TODO: Get rid of code duplication.
-        // TODO: Move into Creator.
-        if (idOpt.isPresent())
-        {
-            int id = idOpt.getAsInt();
-            if (id < 0 || id > getDoorType().getValidOpenDirections().size())
-            {
-                PLogger.get().debug(
-                    getClass().getSimpleName() + ": Player " + player.getUUID().toString() + " selected ID: " + id +
-                        " out of " + getDoorType().getValidOpenDirections().size() + " options.");
-                return false; // TODO: Inform the player
-            }
-
-            opendir = getDoorType().getValidOpenDirections().get(id);
-            stepIDX = getPrice().isPresent() ? Step.CONFIRM_PRICE.ordinal() : Step.COMPLETE_PROCESS.ordinal();
-            return true;
-        }
-
-        return RotateDirection.getRotateDirection(openDirName).map(
+        return parseOpenDirection(str).map(
             foundOpenDir ->
             {
-                if (DoorTypeBigDoor.get().isValidOpenDirection(foundOpenDir))
-                {
-                    opendir = foundOpenDir;
-                    stepIDX = getPrice().isPresent() ? Step.CONFIRM_PRICE.ordinal() :
-                              Step.COMPLETE_PROCESS.ordinal();
-                    return true;
-                }
-                return false;
-            }
-        ).orElse(false);
+                opendir = foundOpenDir;
+                stepIDX = getPrice().isPresent() ? Step.CONFIRM_PRICE.ordinal() :
+                          Step.COMPLETE_PROCESS.ordinal();
+                return true;
+            }).orElse(false);
     }
 
     @Override
     @NotNull
     protected AbstractDoorBase constructDoor()
     {
-        final boolean isOpen = false;
-        final boolean isLocked = false;
-        final long doorUID = -1;
-        final @NotNull DoorOwner owner = new DoorOwner(doorUID, player.getUUID(), player.getName(), 0);
-        final @NotNull AbstractDoorBase.DoorData doorData =
-            new AbstractDoorBase.DoorData(doorUID, name, cuboid.getMin(), cuboid.getMax(), engine, powerblock, world,
-                                          isOpen, opendir, owner, isLocked);
-        final @NotNull BigDoor door = new BigDoor(doorData);
+        final @NotNull BigDoor door = new BigDoor(constructDoorData());
         BigDoors.get().getMessagingInterface().broadcastMessage(door.toString());
         return door;
-    }
-
-    private boolean confirmPrice(final boolean confirm)
-    {
-        if (!confirm)
-        {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_CANCELLED));
-            shutdown();
-            return true;
-        }
-        if (!buyDoor())
-        {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS));
-            shutdown();
-            return true;
-        }
-
-        stepIDX = Step.COMPLETE_PROCESS.ordinal();
-        return true;
     }
 
     /**
@@ -251,6 +159,7 @@ public class BigDoorCreator extends Creator
                 "ToolUser " + toolUser.getClass().getSimpleName() + " not of type: " +
                     BigDoorCreator.class.getSimpleName()));
         // TODO: Maybe abort creator if this goes wrong?
+        //       Maybe move this to Creator? As non-static.
 
         return true;
     }

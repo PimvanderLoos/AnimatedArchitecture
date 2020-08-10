@@ -6,15 +6,22 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 public abstract class Creator extends ToolUser
 {
@@ -49,6 +56,21 @@ public abstract class Creator extends ToolUser
     }
 
     /**
+     * Constructs the {@link AbstractDoorBase.DoorData} for the current door. This is the same for all doors.
+     *
+     * @return The {@link AbstractDoorBase.DoorData} for the current door.
+     */
+    protected final AbstractDoorBase.DoorData constructDoorData()
+    {
+        final boolean isOpen = false;
+        final boolean isLocked = false;
+        final long doorUID = -1;
+        final @NotNull DoorOwner owner = new DoorOwner(doorUID, player.getUUID(), player.getName(), 0);
+        return new AbstractDoorBase.DoorData(doorUID, name, cuboid.getMin(), cuboid.getMax(), engine, powerblock, world,
+                                             isOpen, opendir, owner, isLocked);
+    }
+
+    /**
      * Completes the creation process. It'll construct and insert the door and complete the {@link ToolUser} process.
      *
      * @return True, so that it fits the functional interface being used for the steps.
@@ -66,6 +88,106 @@ public abstract class Creator extends ToolUser
 
         completeProcess();
         return true;
+    }
+
+    /**
+     * Sets the first location of the selection and advances the procedure by one.
+     *
+     * @param loc The first location of the cuboid.
+     * @return True if setting the location was successful.
+     */
+    protected boolean setFirstPos(final @NotNull IPLocationConst loc)
+    {
+        if (!playerHasAccessToLocation(loc))
+            return false;
+
+        world = loc.getWorld();
+        firstPos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        stepIDX += 1;
+        return true;
+    }
+
+    /**
+     * Sets the second location of the selection and advances the procedure by one if successful.
+     *
+     * @param loc The second location of the cuboid.
+     * @return True if setting the location was successful.
+     */
+    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
+    {
+        if (!verifyWorldMatch(loc))
+            return false;
+
+        if (!playerHasAccessToLocation(loc))
+            return false;
+
+        cuboid = new Cuboid(new Vector3Di(firstPos),
+                            new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+
+        if (!isSizeAllowed(cuboid.getVolume()))
+        {
+            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_AREATOOBIG, cuboid.getVolume().toString()));
+            return false;
+        }
+
+        if (!playerHasAccessToCuboid(cuboid, world))
+            return false;
+
+        stepIDX += 1;
+        return true;
+    }
+
+    /**
+     * Attempts to buy the door for the player and advances the procedure by one if successful.
+     * <p>
+     * Note that if the player does not end up buying the door, either because of insufficient funds or because they
+     * rejected the offer, the current step is NOT incremented!
+     *
+     * @param confirm Whether or not the player confirmed they want to buy this door.
+     * @return Always returns true, because either they can and do buy the door, or they cannot or refuse to buy the
+     * door and the process is aborted.
+     */
+    protected boolean confirmPrice(final boolean confirm)
+    {
+        if (!confirm)
+        {
+            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_CANCELLED));
+            shutdown();
+            return true;
+        }
+        if (!buyDoor())
+        {
+            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS));
+            shutdown();
+            return true;
+        }
+
+        stepIDX += 1;
+        return true;
+    }
+
+    protected Optional<RotateDirection> parseOpenDirection(final @NotNull String str)
+    {
+        final @NotNull String openDirName = str.toUpperCase();
+        final @NotNull OptionalInt idOpt = Util.parseInt(str);
+
+        if (idOpt.isPresent())
+        {
+            int id = idOpt.getAsInt();
+            if (id < 0 || id > getDoorType().getValidOpenDirections().size())
+            {
+                PLogger.get().debug(
+                    getClass().getSimpleName() + ": Player " + player.getUUID().toString() + " selected ID: " + id +
+                        " out of " + getDoorType().getValidOpenDirections().size() + " options.");
+                return Optional.empty();
+            }
+
+            return Optional.of(getDoorType().getValidOpenDirections().get(id));
+        }
+
+        return RotateDirection.getRotateDirection(openDirName).flatMap(
+            foundOpenDir -> DoorTypeBigDoor.get().isValidOpenDirection(foundOpenDir) ?
+                            Optional.of(foundOpenDir) : Optional.empty());
     }
 
     /**
