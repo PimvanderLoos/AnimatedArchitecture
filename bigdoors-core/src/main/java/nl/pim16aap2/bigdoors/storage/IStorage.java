@@ -369,8 +369,8 @@ public interface IStorage
     default long getFlag(final @NotNull AbstractDoorBase door)
     {
         long flag = 0;
-        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), door.isOpen(), flag);
-        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), door.isLocked(), flag);
+        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), door.isOpen(), flag);
+        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_LOCKED), door.isLocked(), flag);
         return flag;
     }
 
@@ -435,22 +435,17 @@ public interface IStorage
         /**
          * Consider a door to be opened if this flag is enabled.
          */
-        ISOPEN(1),
+        IS_OPEN(0b00000001),
 
         /**
          * Consider a door to be locked if this flag is enabled.
          */
-        ISLOCKED(2),
+        IS_LOCKED(0b00000010),
 
         /**
          * Consider a door switched on if this flag is enabled. Used in cases of perpetual movement.
          */
-        ISSWITCHEDON(4),
-
-        /**
-         * Not used for anything at the moment.
-         */
-        UNUSED(8),
+        IS_SWITCHED_ON(0b00000100),
         ;
 
         /**

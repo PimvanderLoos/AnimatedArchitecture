@@ -298,8 +298,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                .create(UUID.fromString(doorBaseRS.getString("worldUUID")));
 
         final long bitflag = doorBaseRS.getLong("bitflag");
-        final boolean isOpen = IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISOPEN), bitflag);
-        final boolean isLocked = IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.ISLOCKED), bitflag);
+        final boolean isOpen = IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), bitflag);
+        final boolean isLocked = IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.IS_LOCKED), bitflag);
 
         final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, UUID.fromString(doorBaseRS.getString("playerUUID")),
                                                            doorBaseRS.getString("playerName"),
@@ -995,7 +995,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                       .setInt(5, yMax)
                                                                       .setInt(6, zMax)
                                                                       .setLong(7, doorUID)) > 0;
-        return result && changeDoorFlag(doorUID, DoorFlag.ISOPEN, isOpen);
+        return result && changeDoorFlag(doorUID, DoorFlag.IS_OPEN, isOpen);
     }
 
     @Override
@@ -1036,7 +1036,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public boolean setLock(final long doorUID, final boolean newLockStatus)
     {
-        return changeDoorFlag(doorUID, DoorFlag.ISLOCKED, newLockStatus);
+        return changeDoorFlag(doorUID, DoorFlag.IS_LOCKED, newLockStatus);
     }
 
     /**
