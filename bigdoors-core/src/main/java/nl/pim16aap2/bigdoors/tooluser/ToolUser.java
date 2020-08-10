@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.tooluser.step.Step;
+import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -29,7 +29,7 @@ public abstract class ToolUser implements IRestartable
     @NotNull
     protected final Messages messages = BigDoors.get().getPlatform().getMessages();
     @NotNull
-    protected final List<Step> procedure;
+    protected final List<StepExecutor> procedure;
 
     /**
      * Keeps track of whether this {@link ToolUser} is active or not.
@@ -103,7 +103,7 @@ public abstract class ToolUser implements IRestartable
     }
 
     @NotNull
-    protected final Optional<Step> getStep(final int step)
+    protected final Optional<StepExecutor> getStep(final int step)
     {
         if (step > procedure.size() || step < 0)
         {
@@ -116,20 +116,20 @@ public abstract class ToolUser implements IRestartable
     }
 
     @NotNull
-    protected final Optional<Step> getCurrentStep()
+    protected final Optional<StepExecutor> getCurrentStep()
     {
         return getStep(stepIDX);
     }
 
     /**
-     * Gets the localized message associated with a given {@link Step}. If no message could be found, an empty String is
-     * returned.
+     * Gets the localized message associated with a given {@link StepExecutor}. If no message could be found, an empty
+     * String is returned.
      *
-     * @param step The {@link Step} for which to get the message.
-     * @return The localized message for the given {@link Step}.
+     * @param stepExecutor The {@link StepExecutor} for which to get the message.
+     * @return The localized message for the given {@link StepExecutor}.
      */
     @NotNull
-    protected abstract String getStepMessage(final @NotNull Step step);
+    protected abstract String getStepMessage(final @NotNull StepExecutor stepExecutor);
 
     /**
      * Gets the message for the current step.
@@ -149,7 +149,7 @@ public abstract class ToolUser implements IRestartable
      * @return The procedure (ordered list of steps) that this {@link ToolUser} has to go through.
      */
     @NotNull
-    protected final List<Step> getProcedure()
+    protected final List<StepExecutor> getProcedure()
     {
         return procedure;
     }
@@ -160,7 +160,7 @@ public abstract class ToolUser implements IRestartable
      * @return The procedure (ordered list of steps) that this {@link ToolUser} has to go through.
      */
     @NotNull
-    protected abstract List<Step> constructProcedure();
+    protected abstract List<StepExecutor> constructProcedure();
 
     /**
      * Prepares the next step. For example by sending the player some instructions about what they should do.
@@ -168,15 +168,15 @@ public abstract class ToolUser implements IRestartable
     protected abstract void prepareNextStep();
 
     /**
-     * Sends the localized message of the current {@link Step} to the player that owns this object.
+     * Sends the localized message of the current {@link StepExecutor} to the player that owns this object.
      *
-     * @param step The step to inform the user about.
+     * @param stepExecutor The step to inform the user about.
      */
-    protected void sendMessage(final @NotNull Step step)
+    protected void sendMessage(final @NotNull StepExecutor stepExecutor)
     {
-        final @NotNull String message = getStepMessage(step);
+        final @NotNull String message = getStepMessage(stepExecutor);
         if (message.isEmpty())
-            PLogger.get().warn("Missing translation for step: " + step.getClass().getSimpleName());
+            PLogger.get().warn("Missing translation for step: " + stepExecutor.getClass().getSimpleName());
         else
             player.sendMessage(message);
     }

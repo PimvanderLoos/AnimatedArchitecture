@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.tooluser.step;
+package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -7,11 +7,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.BiFunction;
 
 /**
- * Represents a single step in a larger procedure.
+ * Represents an executor for a single step in a larger procedure.
  *
  * @author Pim
  */
-public abstract class Step
+public abstract class StepExecutor
 {
     /**
      * Applies an object to the {@link BiFunction} of this step.

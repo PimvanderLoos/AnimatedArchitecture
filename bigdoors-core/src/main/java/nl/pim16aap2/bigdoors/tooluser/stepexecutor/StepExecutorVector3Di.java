@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.tooluser.step;
+package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.AllArgsConstructor;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Function;
 
 @AllArgsConstructor
-public class StepVector3Di extends Step
+public class StepExecutorVector3Di extends StepExecutor
 {
     @NotNull
     private final Function<IVector3DiConst, Boolean> fun;

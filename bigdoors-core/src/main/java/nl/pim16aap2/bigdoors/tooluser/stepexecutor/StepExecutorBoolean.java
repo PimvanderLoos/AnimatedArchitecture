@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.tooluser.step;
+package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -6,13 +6,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-/**
- * Represents a step where the input is a boolean value.
- *
- * @author Pim
- */
 @AllArgsConstructor
-public class StepBoolean extends Step
+public class StepExecutorBoolean extends StepExecutor
 {
     @NotNull
     private final Function<Boolean, Boolean> fun;
