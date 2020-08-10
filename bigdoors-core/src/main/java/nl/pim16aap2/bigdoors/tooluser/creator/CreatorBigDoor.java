@@ -231,6 +231,7 @@ public class CreatorBigDoor extends Creator
          * @param creatorBigDoor The {@link CreatorBigDoor} that owns this step.
          * @return The newly-created step.
          */
+        @NotNull
         public StepExecutor getStep(final @NotNull CreatorBigDoor creatorBigDoor)
         {
             return functionRetriever.apply(creatorBigDoor);
