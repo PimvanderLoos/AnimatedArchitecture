@@ -116,7 +116,7 @@ public abstract class ToolUser implements IRestartable
     }
 
     @NotNull
-    public final Optional<Step> getCurrentStep()
+    protected final Optional<Step> getCurrentStep()
     {
         return getStep(stepIDX);
     }
@@ -129,7 +129,18 @@ public abstract class ToolUser implements IRestartable
      * @return The localized message for the given {@link Step}.
      */
     @NotNull
-    public abstract String getStepMessage(final @NotNull Step step);
+    protected abstract String getStepMessage(final @NotNull Step step);
+
+    /**
+     * Gets the message for the current step.
+     *
+     * @return The message of the current step if possible. Otherwise, an empty String is returned.
+     */
+    @NotNull
+    public String getCurrentStepMessage()
+    {
+        return getCurrentStep().map(this::getStepMessage).orElse("");
+    }
 
     /**
      * Gets the procedure (ordered list of steps) that this {@link ToolUser} has to go through. Note that this is an
@@ -138,7 +149,7 @@ public abstract class ToolUser implements IRestartable
      * @return The procedure (ordered list of steps) that this {@link ToolUser} has to go through.
      */
     @NotNull
-    public final List<Step> getProcedure()
+    protected final List<Step> getProcedure()
     {
         return procedure;
     }

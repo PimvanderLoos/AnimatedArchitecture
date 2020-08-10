@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.testimplementations.TestEconomyManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
-import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -25,7 +24,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -132,9 +130,7 @@ class BigDoorCreatorTest
         final @NotNull AtomicReference<AbstractDoorBase> resultDoorRef = setupInsertHijack();
         final @NotNull BigDoorCreator bdc = new BigDoorCreator(PLAYER);
 
-        final @NotNull Optional<Step> step = bdc.getCurrentStep();
-        Assert.assertTrue(step.isPresent());
-        Assert.assertEquals("CREATOR_GENERAL_GIVENAME", bdc.getStepMessage(step.get()));
+        Assert.assertEquals("CREATOR_GENERAL_GIVENAME", bdc.getCurrentStepMessage());
 
         Assert.assertTrue(bdc.handleInput(doorName));
         Assert.assertFalse(bdc.handleInput(true));
@@ -168,9 +164,7 @@ class BigDoorCreatorTest
         final @NotNull AtomicReference<AbstractDoorBase> resultDoorRef = setupInsertHijack();
         final @NotNull BigDoorCreator bdc = new BigDoorCreator(PLAYER);
 
-        @NotNull Optional<Step> step = bdc.getCurrentStep();
-        Assert.assertTrue(step.isPresent());
-        Assert.assertEquals("CREATOR_GENERAL_GIVENAME", bdc.getStepMessage(step.get()));
+        Assert.assertEquals("CREATOR_GENERAL_GIVENAME", bdc.getCurrentStepMessage());
 
         Assert.assertTrue(bdc.handleInput(doorName));
         Assert.assertFalse(bdc.handleInput(true));
@@ -185,9 +179,7 @@ class BigDoorCreatorTest
         Assert.assertFalse(bdc.handleInput(RotateDirection.NONE.name()));
         Assert.assertTrue(bdc.handleInput(openDirection.name()));
 
-        step = bdc.getCurrentStep();
-        Assert.assertTrue(step.isPresent());
-        Assert.assertEquals("CREATOR_GENERAL_CONFIRMPRICE10.75", bdc.getStepMessage(step.get()));
+        Assert.assertEquals("CREATOR_GENERAL_CONFIRMPRICE10.75", bdc.getCurrentStepMessage());
 
         // Causes the actual insertion.
         Assert.assertTrue(bdc.handleInput(true));
