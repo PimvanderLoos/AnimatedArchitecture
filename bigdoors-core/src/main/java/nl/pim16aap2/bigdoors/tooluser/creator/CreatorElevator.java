@@ -5,9 +5,9 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.BigDoor;
+import nl.pim16aap2.bigdoors.doors.Elevator;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
 import nl.pim16aap2.bigdoors.tooluser.IStep;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -28,23 +29,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class CreatorBigDoor extends Creator
+public class CreatorElevator extends Creator
 {
     @NotNull
-    private static final DoorType doorType = DoorTypeBigDoor.get();
+    private static final DoorType doorType = DoorTypeElevator.get();
 
-    public CreatorBigDoor(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorElevator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         super(player);
         if (name == null)
             stepIDX = Step.SET_NAME.ordinal();
         else
             setName(name);
-        // TODO: Make sure to send the message about the creator stick.
         prepareNextStep();
     }
 
-    public CreatorBigDoor(final @NotNull IPPlayer player)
+    public CreatorElevator(final @NotNull IPPlayer player)
     {
         this(player, null);
     }
@@ -139,7 +139,14 @@ public class CreatorBigDoor extends Creator
     @NotNull
     protected AbstractDoorBase constructDoor()
     {
-        final @NotNull BigDoor door = new BigDoor(constructDoorData());
+        final @NotNull AbstractDoorBase.DoorData doorData = constructDoorData();
+        final int blocksToMove;
+        if (opendir == RotateDirection.NORTH || opendir == RotateDirection.SOUTH)
+            blocksToMove = doorData.getMax().getZ() - doorData.getMin().getZ() + 1;
+        else
+            blocksToMove = doorData.getMax().getX() - doorData.getMin().getX() + 1;
+
+        final @NotNull Elevator door = new Elevator(doorData, blocksToMove);
         BigDoors.get().getMessagingInterface().broadcastMessage(door.toString());
         return door;
     }
@@ -152,12 +159,12 @@ public class CreatorBigDoor extends Creator
      */
     private static boolean invalidClass(final @NotNull ToolUser toolUser)
     {
-        if (toolUser instanceof CreatorBigDoor)
+        if (toolUser instanceof CreatorElevator)
             return false;
         PLogger.get().logException(
             new IllegalArgumentException(
                 "ToolUser " + toolUser.getClass().getSimpleName() + " not of type: " +
-                    CreatorBigDoor.class.getSimpleName()));
+                    CreatorElevator.class.getSimpleName()));
         // TODO: Maybe abort creator if this goes wrong?
         //       Maybe move this to Creator? As non-static.
 
@@ -166,29 +173,26 @@ public class CreatorBigDoor extends Creator
 
     private enum Step implements IStep
     {
-        SET_NAME(creatorBigDoor -> new StepExecutorString(creatorBigDoor::setName), Message.CREATOR_GENERAL_GIVENAME),
+        SET_NAME(creatorElevator -> new StepExecutorString(creatorElevator::setName), Message.CREATOR_GENERAL_GIVENAME),
 
-        SET_FIRST_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setFirstPos),
+        SET_FIRST_POS(creatorElevator -> new StepExecutorPLocation(creatorElevator::setFirstPos),
                       Message.CREATOR_BIGDOOR_STEP1),
 
-        SET_SECOND_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setSecondPos),
+        SET_SECOND_POS(creatorElevator -> new StepExecutorPLocation(creatorElevator::setSecondPos),
                        Message.CREATOR_BIGDOOR_STEP2),
 
-        SET_ENGINE_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setEnginePos),
-                       Message.CREATOR_BIGDOOR_STEP3),
-
-        SET_POWER_BLOCK_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setPowerBlockPos),
+        SET_POWER_BLOCK_POS(creatorElevator -> new StepExecutorPLocation(creatorElevator::setPowerBlockPos),
                             Message.CREATOR_GENERAL_SETPOWERBLOCK),
 
-        SET_OPEN_DIR(creatorBigDoor -> new StepExecutorString(creatorBigDoor::setOpenDir),
+        SET_OPEN_DIR(creatorElevator -> new StepExecutorString(creatorElevator::setOpenDir),
                      Message.CREATOR_GENERAL_SETOPENDIR,
                      Creator::getOpenDirections),
 
-        CONFIRM_PRICE(creatorBigDoor -> new StepExecutorBoolean(creatorBigDoor::confirmPrice),
+        CONFIRM_PRICE(creatorElevator -> new StepExecutorBoolean(creatorElevator::confirmPrice),
                       Message.CREATOR_GENERAL_CONFIRMPRICE,
                       creator -> String.format("%.2f", creator.getPrice().orElse(0))),
 
-        COMPLETE_PROCESS(creatorBigDoor -> new StepExecutorVoid(creatorBigDoor::completeCreationProcess),
+        COMPLETE_PROCESS(creatorElevator -> new StepExecutorVoid(creatorElevator::completeCreationProcess),
                          Message.CREATOR_BIGDOOR_SUCCESS),
         ;
 
@@ -200,14 +204,14 @@ public class CreatorBigDoor extends Creator
         private static final List<Step> values = Collections.unmodifiableList(Arrays.asList(Step.values()));
 
         @NotNull
-        final List<Function<CreatorBigDoor, String>> messageVariablesRetrievers;
+        final List<Function<CreatorElevator, String>> messageVariablesRetrievers;
 
         @NotNull
-        final Function<CreatorBigDoor, StepExecutor> functionRetriever;
+        final Function<CreatorElevator, StepExecutor> functionRetriever;
 
-        Step(final @NotNull Function<CreatorBigDoor, StepExecutor> functionRetriever,
+        Step(final @NotNull Function<CreatorElevator, StepExecutor> functionRetriever,
              final @NotNull Message message,
-             final @NotNull Function<CreatorBigDoor, String>... messageVariablesRetrievers)
+             final @NotNull Function<CreatorElevator, String>... messageVariablesRetrievers)
         {
             this.functionRetriever = functionRetriever;
             this.message = message;
@@ -228,25 +232,32 @@ public class CreatorBigDoor extends Creator
         /**
          * Gets the step associated with this part of the procedure.
          *
-         * @param creatorBigDoor The {@link CreatorBigDoor} that owns this step.
+         * @param creatorElevator The {@link CreatorElevator} that owns this step.
          * @return The newly-created step.
          */
         @NotNull
-        public StepExecutor getStep(final @NotNull CreatorBigDoor creatorBigDoor)
+        public StepExecutor getStep(final @NotNull CreatorElevator creatorElevator)
         {
-            return functionRetriever.apply(creatorBigDoor);
+            return functionRetriever.apply(creatorElevator);
         }
 
         @Override
         public List<String> populateVariables(final @NotNull Creator creator)
         {
-            if (CreatorBigDoor.invalidClass(creator))
+            if (CreatorElevator.invalidClass(creator))
                 return new ArrayList<>(); // TODO: Handle more gracefully.
 
-            final @NotNull CreatorBigDoor creatorBigDoor = (CreatorBigDoor) creator;
-            List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
-            messageVariablesRetrievers.forEach(fun -> variables.add(fun.apply(creatorBigDoor)));
+            List<String> variables = new ArrayList<>(getValues().size());
+            final @NotNull CreatorElevator creatorElevator = (CreatorElevator) creator;
+            messageVariablesRetrievers.forEach(fun -> variables.add(fun.apply(creatorElevator)));
             return variables;
+        }
+
+        @Override
+        @NotNull
+        public Message getMessage()
+        {
+            return message;
         }
 
         @NotNull
@@ -259,13 +270,6 @@ public class CreatorBigDoor extends Creator
                 return Optional.empty();
             }
             return Optional.of(values.get(idx));
-        }
-
-        @Override
-        @NotNull
-        public Message getMessage()
-        {
-            return message;
         }
     }
 }

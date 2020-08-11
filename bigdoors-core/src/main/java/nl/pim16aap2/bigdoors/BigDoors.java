@@ -92,6 +92,7 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Per-door speed multiplier.
 // TODO: Replace the chunk loading system with v1's new system.
 // TODO: Move implementations for tests and stuff to its own module.
 // TODO: PLogger: Make it possible to log exceptions/errors without logging anything to the console. This is useful

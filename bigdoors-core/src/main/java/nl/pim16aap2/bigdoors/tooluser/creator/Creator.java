@@ -23,6 +23,13 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
+
+// TODO: Store a function that retrieves which step comes after the current one in the IStep implementations.
+//       In most cases, this can be extraordinarily simple (just return currentIDX + 1), but in same cases, it might be
+//       necessary to go to a specific step (e.g. skipping price confirmation). Adding "int getNextStep()" to the IStep
+//       interface would make this a lot easier. It would also circumvent the issue of the awkward "bla bla step is
+//       incremented by 1 if successful". Granted, it would still required a modifier, "bla bla the next step is
+//       selected if successful", but it's still much better.
 public abstract class Creator extends ToolUser
 {
     protected String name;
