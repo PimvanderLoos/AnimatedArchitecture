@@ -45,6 +45,8 @@ import nl.pim16aap2.bigDoors.NMS.v1_15_R1.FallingBlockFactory_V1_15_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_15_R1.SkullCreator_V1_15_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_16_R1.FallingBlockFactory_V1_16_R1;
 import nl.pim16aap2.bigDoors.NMS.v1_16_R1.SkullCreator_V1_16_R1;
+import nl.pim16aap2.bigDoors.NMS.v1_16_R2.FallingBlockFactory_V1_16_R2;
+import nl.pim16aap2.bigDoors.NMS.v1_16_R2.SkullCreator_V1_16_R2;
 import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.ChunkUnloadHandler;
@@ -715,7 +717,7 @@ public class BigDoors extends JavaPlugin implements Listener
             mcVersion = MCVersion.v1_14;
         else if (version.equals("v1_15_R1"))
             mcVersion = MCVersion.v1_15;
-        else if (version.equals("v1_16_R1"))
+        else if (version.equals("v1_16_R1") || version.equals("v1_16_R2"))
             mcVersion = MCVersion.v1_16;
         return mcVersion;
     }
@@ -775,6 +777,12 @@ public class BigDoors extends JavaPlugin implements Listener
             is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
             fabf = new FallingBlockFactory_V1_16_R1();
             headManager = new SkullCreator_V1_16_R1(this);
+        }
+        else if (version.equals("v1_16_R2"))
+        {
+            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
+            fabf = new FallingBlockFactory_V1_16_R2();
+            headManager = new SkullCreator_V1_16_R2(this);
         }
         // Return true if compatible.
         return fabf != null;
