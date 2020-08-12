@@ -26,6 +26,8 @@ public abstract class DoorType
     protected final List<Parameter> parameters;
     @NotNull
     protected final String translationName;
+    @NotNull
+    private final List<RotateDirection> validOpenDirections;
 
     /**
      * Constructs a new {@link DoorType}. Don't forget to register it using {@link DoorTypeManager#registerDoorType(DoorType)}.
@@ -39,12 +41,14 @@ public abstract class DoorType
      *                    {@link DoorType}. Do not include {@link AbstractDoorBase.DoorData}.
      */
     protected DoorType(final @NotNull String pluginName, final @NotNull String typeName, final int typeVersion,
-                       final @NotNull List<Parameter> parameters)
+                       final @NotNull List<Parameter> parameters,
+                       final @NotNull List<RotateDirection> validOpenDirections)
     {
         this.pluginName = pluginName;
         this.typeName = typeName;
         this.typeVersion = typeVersion;
         this.parameters = parameters;
+        this.validOpenDirections = validOpenDirections;
         translationName = "DoorType_" + toString();
     }
 
@@ -54,17 +58,23 @@ public abstract class DoorType
      * @param rotateDirection The {@link RotateDirection} to check.
      * @return True if the provided {@link RotateDirection} is valid for this type, otherwise false.
      */
-    public abstract boolean isValidOpenDirection(final @NotNull RotateDirection rotateDirection);
+    public final boolean isValidOpenDirection(final @NotNull RotateDirection rotateDirection)
+    {
+        return validOpenDirections.contains(rotateDirection);
+    }
 
     /**
-     * Gets a list of all theoretically valid {@link RotateDirection} for this given type. It does take the physical
-     * aspects of a {@link AbstractDoorBase} into consideration. Therefore, the actual list of valid {@link
+     * Gets a list of all theoretically valid {@link RotateDirection} for this given type. It does NOT take the physical
+     * aspects of the {@link AbstractDoorBase} into consideration. Therefore, the actual list of valid {@link
      * RotateDirection}s is most likely going to be a subset of those returned by this method.
      *
      * @return A list of all valid {@link RotateDirection} for this given type.
      */
     @NotNull
-    public abstract List<RotateDirection> getValidOpenDirections();
+    public final List<RotateDirection> getValidOpenDirections()
+    {
+        return validOpenDirections;
+    }
 
     /**
      * Instantiates a new {@link AbstractDoorBase} associated with this type.

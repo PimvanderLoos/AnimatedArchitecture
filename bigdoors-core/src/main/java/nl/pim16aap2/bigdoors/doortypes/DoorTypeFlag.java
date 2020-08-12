@@ -4,10 +4,8 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Flag;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +30,7 @@ public final class DoorTypeFlag extends DoorType
 
     private DoorTypeFlag()
     {
-        super(Constants.PLUGINNAME, "Flag", TYPE_VERSION, PARAMETERS);
+        super(Constants.PLUGINNAME, "Flag", TYPE_VERSION, PARAMETERS, new ArrayList<>());
     }
 
     /**
@@ -44,19 +42,6 @@ public final class DoorTypeFlag extends DoorType
     public static DoorTypeFlag get()
     {
         return instance;
-    }
-
-    @Override
-    public boolean isValidOpenDirection(@NotNull RotateDirection rotateDirection)
-    {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    @NotNull
-    public List<RotateDirection> getValidOpenDirections()
-    {
-        throw new NotImplementedException();
     }
 
     /** {@inheritDoc} */

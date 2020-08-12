@@ -5,9 +5,9 @@ import nl.pim16aap2.bigdoors.doors.Windmill;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +30,9 @@ public final class DoorTypeWindmill extends DoorType
 
     private DoorTypeWindmill()
     {
-        super(Constants.PLUGINNAME, "Windmill", TYPE_VERSION, PARAMETERS);
+        super(Constants.PLUGINNAME, "Windmill", TYPE_VERSION, PARAMETERS,
+              Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
+                            RotateDirection.SOUTH, RotateDirection.WEST));
     }
 
     /**
@@ -42,19 +44,6 @@ public final class DoorTypeWindmill extends DoorType
     public static DoorTypeWindmill get()
     {
         return instance;
-    }
-
-    @Override
-    public boolean isValidOpenDirection(@NotNull RotateDirection rotateDirection)
-    {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    @NotNull
-    public List<RotateDirection> getValidOpenDirections()
-    {
-        throw new NotImplementedException();
     }
 
     /** {@inheritDoc} */

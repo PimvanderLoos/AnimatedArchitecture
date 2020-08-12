@@ -5,9 +5,9 @@ import nl.pim16aap2.bigdoors.doors.RevolvingDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +29,8 @@ public final class DoorTypeRevolvingDoor extends DoorType
 
     private DoorTypeRevolvingDoor()
     {
-        super(Constants.PLUGINNAME, "RevolvingDoor", TYPE_VERSION, PARAMETERS);
+        super(Constants.PLUGINNAME, "RevolvingDoor", TYPE_VERSION, PARAMETERS, Arrays
+            .asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
     }
 
     /**
@@ -41,19 +42,6 @@ public final class DoorTypeRevolvingDoor extends DoorType
     public static DoorTypeRevolvingDoor get()
     {
         return instance;
-    }
-
-    @Override
-    public boolean isValidOpenDirection(@NotNull RotateDirection rotateDirection)
-    {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    @NotNull
-    public List<RotateDirection> getValidOpenDirections()
-    {
-        throw new NotImplementedException();
     }
 
     /** {@inheritDoc} */

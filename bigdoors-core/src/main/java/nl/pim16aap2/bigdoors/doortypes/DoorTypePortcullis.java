@@ -5,9 +5,9 @@ import nl.pim16aap2.bigdoors.doors.Portcullis;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +31,8 @@ public final class DoorTypePortcullis extends DoorType
 
     private DoorTypePortcullis()
     {
-        super(Constants.PLUGINNAME, "Portcullis", TYPE_VERSION, PARAMETERS);
+        super(Constants.PLUGINNAME, "Portcullis", TYPE_VERSION, PARAMETERS,
+              Arrays.asList(RotateDirection.UP, RotateDirection.DOWN));
     }
 
     /**
@@ -43,19 +44,6 @@ public final class DoorTypePortcullis extends DoorType
     public static DoorTypePortcullis get()
     {
         return instance;
-    }
-
-    @Override
-    public boolean isValidOpenDirection(@NotNull RotateDirection rotateDirection)
-    {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    @NotNull
-    public List<RotateDirection> getValidOpenDirections()
-    {
-        throw new NotImplementedException();
     }
 
     /** {@inheritDoc} */

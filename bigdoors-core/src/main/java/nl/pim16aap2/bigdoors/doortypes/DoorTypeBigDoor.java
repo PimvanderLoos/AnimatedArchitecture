@@ -26,16 +26,12 @@ public final class DoorTypeBigDoor extends DoorType
     }
 
     @NotNull
-    private static final List<RotateDirection> VALID_ROTATE_DIRECTIONS =
-        Collections.unmodifiableList(Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
-
-
-    @NotNull
     private static final DoorTypeBigDoor instance = new DoorTypeBigDoor();
 
     private DoorTypeBigDoor()
     {
-        super(Constants.PLUGINNAME, "BigDoor", TYPE_VERSION, PARAMETERS);
+        super(Constants.PLUGINNAME, "BigDoor", TYPE_VERSION, PARAMETERS,
+              Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
     }
 
     /**
@@ -47,18 +43,6 @@ public final class DoorTypeBigDoor extends DoorType
     public static DoorTypeBigDoor get()
     {
         return instance;
-    }
-
-    @Override
-    public boolean isValidOpenDirection(@NotNull RotateDirection rotateDirection)
-    {
-        return DoorTypeBigDoor.VALID_ROTATE_DIRECTIONS.contains(rotateDirection);
-    }
-
-    @Override
-    public @NotNull List<RotateDirection> getValidOpenDirections()
-    {
-        return VALID_ROTATE_DIRECTIONS;
     }
 
     /** {@inheritDoc} */
