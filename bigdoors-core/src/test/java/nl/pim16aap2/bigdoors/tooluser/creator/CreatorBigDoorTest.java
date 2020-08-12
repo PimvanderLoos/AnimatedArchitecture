@@ -148,7 +148,7 @@ class CreatorBigDoorTest
         Assert.assertTrue(bdc.handleInput(openDirection.name()));
 
         // Wait for the thread pool to finish inserting the door etc,
-        threadPool.awaitTermination(100L, TimeUnit.MILLISECONDS);
+        threadPool.awaitTermination(20L, TimeUnit.MILLISECONDS);
         AbstractDoorBase resultDoor = resultDoorRef.get();
         Assert.assertNotNull(resultDoor);
         Assert.assertEquals(actualDoor, resultDoor);
@@ -186,7 +186,7 @@ class CreatorBigDoorTest
 
 
         // Wait for the thread pool to finish inserting the door etc,
-        threadPool.awaitTermination(100L, TimeUnit.MILLISECONDS);
+        threadPool.awaitTermination(20L, TimeUnit.MILLISECONDS);
         AbstractDoorBase resultDoor = resultDoorRef.get();
         Assert.assertNotNull(resultDoor);
         Assert.assertEquals(actualDoor, resultDoor);

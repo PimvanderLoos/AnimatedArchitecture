@@ -8,7 +8,7 @@
 //import nl.pim16aap2.bigdoors.doors.Elevator;
 //import nl.pim16aap2.bigdoors.doortypes.DoorType;
 //import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
-//import nl.pim16aap2.bigdoors.tooluser.IStep;
+//import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 //import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 //import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 //import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorBoolean;

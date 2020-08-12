@@ -33,11 +33,10 @@ public final class TestPPlayer implements IPPlayer
         return uuid;
     }
 
-
     @Override
     public String toString()
     {
-        return String.format("%s (%s)", getUUID().toString(), getName());
+        return asString();
     }
 
     @Override

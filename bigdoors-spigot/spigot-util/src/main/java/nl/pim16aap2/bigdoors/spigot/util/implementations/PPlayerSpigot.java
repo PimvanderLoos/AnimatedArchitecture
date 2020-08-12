@@ -74,7 +74,7 @@ public final class PPlayerSpigot implements IPPlayer
     @Override
     public String toString()
     {
-        return String.format("%s (%s)", getUUID().toString(), getName());
+        return asString();
     }
 
     @Override

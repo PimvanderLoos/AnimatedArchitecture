@@ -35,9 +35,32 @@ public abstract class ToolUser implements IRestartable
     protected ToolUser(final @NotNull IPPlayer player)
     {
         this.player = player;
-        procedure = getProcedure();
+        init();
+
+        Procedure<?> procedureTmp = null;
+        try
+        {
+            procedureTmp = getProcedure();
+        }
+        catch (InstantiationException e)
+        {
+            PLogger.get()
+                   .logException(e, "Failed to instantiate procedure for ToolUser for player: " + player.asString());
+            active = false;
+        }
+        // It doesn't really matter if it's set to null here, as the process will be aborted in that case anyway.
+        // At least it satifies the 'final' modifier this way.
+        procedure = procedureTmp;
+        if (procedureTmp == null)
+            return;
+
         ToolUserManager.get().registerToolUser(this);
     }
+
+    /**
+     * Basic initialization executed at the start of the constructor.
+     */
+    protected abstract void init();
 
     /**
      * Gets the {@link Procedure} that this {@link ToolUser} will go through.
@@ -45,7 +68,8 @@ public abstract class ToolUser implements IRestartable
      * @return The {@link Procedure} for this {@link ToolUser}.
      */
     @NotNull
-    protected abstract Procedure<?> getProcedure();
+    protected abstract Procedure<?> getProcedure()
+        throws InstantiationException;
 
     /**
      * Takes care of the final part of the process. This unregisters this {@link ToolUser} and removes the tool from the
@@ -136,6 +160,8 @@ public abstract class ToolUser implements IRestartable
      */
     public boolean handleInput(final @NotNull Object obj)
     {
+        PLogger.get().debug("Handling input: " + obj);
+        
         if (!active)
             return false;
 

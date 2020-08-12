@@ -211,8 +211,8 @@ public final class Util
     }
 
     /**
-     * Check if a given string is a valid door name. Numerical names aren't allowed, to make sure they don't get
-     * confused for doorUIDs.
+     * Check if a given string is a valid door name. Numerical names aren't allowed to make sure they don't get confused
+     * for doorUIDs.
      *
      * @param name The name to test for validity,
      * @return True if the name is allowed.

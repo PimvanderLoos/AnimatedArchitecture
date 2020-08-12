@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
@@ -8,10 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
-// TODO: Consider abandoning enums. Something like this might be nice:
-//       new Step(this).setFunction(this::setname).setMessage(Message.SOMETHING).addMessageVariable(this::getPrice);
-
-public abstract class Procedure<T extends ToolUser>
+public final class Procedure<T extends ToolUser>
 {
     @NotNull
     protected IStep currentStep;
@@ -40,29 +38,7 @@ public abstract class Procedure<T extends ToolUser>
                 "Trying to advance to the next step while there is none! Step: " + getStepClassName()));
             return;
         }
-
         currentStep = steps.next();
-    }
-
-    /**
-     * Jumps to the provided step if it has been registered in the procedure. If it hasn't been registered, it will skip
-     * to the last step.
-     *
-     * @param step The skip to skip to.
-     * @return True if the jump was successful.
-     */
-    public boolean skipToStep(final @NotNull IStep step)
-    {
-        while (steps.hasNext())
-        {
-            final @NotNull IStep current = steps.next();
-            if (current.equals(step))
-            {
-                currentStep = current;
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -73,7 +49,7 @@ public abstract class Procedure<T extends ToolUser>
      */
     public boolean applyStepExecutor(final @Nullable Object obj)
     {
-        return currentStep.getStepExecutor(toolUser).map(stepExecutor -> stepExecutor.apply(obj)).orElse(false);
+        return currentStep.getStepExecutor().map(stepExecutor -> stepExecutor.apply(obj)).orElse(false);
     }
 
     /**
@@ -84,7 +60,7 @@ public abstract class Procedure<T extends ToolUser>
     @NotNull
     public String getMessage()
     {
-        return currentStep.getMessage(toolUser);
+        return currentStep.getLocalizedMessage();
     }
 
     /**
@@ -92,11 +68,10 @@ public abstract class Procedure<T extends ToolUser>
      *
      * @return The simple name of the class of the current step.
      */
-    // TODO: Return the name of the step.
     @NotNull
     public String getStepClassName()
     {
-        return currentStep.getClass().getSimpleName();
+        return currentStep.getName();
     }
 
     /**
