@@ -105,38 +105,39 @@ public abstract class Creator extends ToolUser
     protected void init()
     {
         factorySetName =
-            new Step.Factory<Creator>("Set Name")
+            new Step.Factory<Creator>("SET_NAME")
                 .stepExecutor(new StepExecutorString(this::completeNamingStep));
 
         factorySetFirstPos =
-            new Step.Factory<Creator>("Set First Pos")
+            new Step.Factory<Creator>("SET_FIRST_POST")
                 .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
 
         factorySetSecondPos =
-            new Step.Factory<Creator>("Set Second Pos")
+            new Step.Factory<Creator>("SET_SECOND_POS")
                 .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
 
         factorySetEnginePos =
-            new Step.Factory<Creator>("Set Engine Pos")
+            new Step.Factory<Creator>("SET_ENGINE_POS")
                 .stepExecutor(new StepExecutorPLocation(this::completeSetEngineStep));
 
         factorySetPowerBlockPos =
-            new Step.Factory<Creator>("Set Power Block Pos")
+            new Step.Factory<Creator>("SET_POWER_BLOCK_POS")
                 .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
 
         factorySetOpenDir =
-            new Step.Factory<Creator>("Set Open Direction")
+            new Step.Factory<Creator>("SET_OPEN_DIRECTION")
                 .stepExecutor(new StepExecutorString(this::completeSetOpenDirStep))
                 .messageVariableRetrievers(Collections.singletonList(this::getOpenDirections));
 
         factoryConfirmPrice =
-            new Step.Factory<Creator>("Confirm Door Price")
+            new Step.Factory<Creator>("CONFIRM_DOOR_PRICE")
                 .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
+                .skipCondition(this::skipConfirmPrice)
                 .messageVariableRetrievers(
                     Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))));
 
         factoryCompleteProcess =
-            new Step.Factory<Creator>("Complete Creation Process")
+            new Step.Factory<Creator>("COMPLETE_CREATION_PROCESS")
                 .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
                 .waitForUserInput(false);
     }
@@ -337,11 +338,7 @@ public abstract class Creator extends ToolUser
             foundOpenDir ->
             {
                 opendir = foundOpenDir;
-
                 procedure.goToNextStep();
-                if (!getPrice().isPresent())
-                    procedure.goToNextStep();
-
                 return true;
             }).orElse(false);
     }
@@ -423,6 +420,18 @@ public abstract class Creator extends ToolUser
         if (cuboid == null || !BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
             return OptionalDouble.empty();
         return BigDoors.get().getPlatform().getEconomyManager().getPrice(getDoorType(), cuboid.getVolume());
+    }
+
+    /**
+     * Checks if the step that asks the user to confirm that they want to buy the door should be skipped.
+     * <p>
+     * It should be skipped if the door is free for whatever reason. See {@link #getPrice()}.
+     *
+     * @return True if the step that asks the user to confirm that they want to buy the door should be skipped.
+     */
+    protected boolean skipConfirmPrice()
+    {
+        return !getPrice().isPresent();
     }
 
     /**

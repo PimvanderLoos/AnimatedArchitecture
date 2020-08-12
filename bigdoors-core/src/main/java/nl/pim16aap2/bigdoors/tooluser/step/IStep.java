@@ -43,4 +43,11 @@ public interface IStep
      */
     @NotNull
     Optional<StepExecutor> getStepExecutor();
+
+    /**
+     * Checks if this step should be skipped based on certain criteria defined by the implementation.
+     *
+     * @return True if this step should be skipped.
+     */
+    boolean skip();
 }

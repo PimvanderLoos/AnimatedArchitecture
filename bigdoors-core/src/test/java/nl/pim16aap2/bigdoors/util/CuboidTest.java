@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.util;
 
 import junit.framework.Assert;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -78,5 +80,31 @@ class CuboidTest
 
         cuboid.updatePositions(val2, val1);
         Assert.assertEquals(actualMax, cuboid.getMax());
+    }
+
+    @Test
+    void getCenterBlock()
+    {
+        final @NotNull Vector3Di val1 = new Vector3Di(0, 11, 30);
+        final @NotNull Vector3Di val2 = new Vector3Di(10, 0, 30);
+
+        final @NotNull Vector3Di center = new Vector3Di(5, 5, 30);
+
+        final @NotNull Cuboid cuboid = new Cuboid(val1, val2);
+        Assert.assertEquals(center, cuboid.getCenterBlock());
+    }
+
+    @Test
+    void getCenter()
+    {
+        final @NotNull Vector3Di val1 = new Vector3Di(0, 11, 30);
+        final @NotNull Vector3Di val2 = new Vector3Di(10, 0, 30);
+
+        final @NotNull Vector3Dd center = new Vector3Dd(5, 5.5d, 30);
+
+        final @NotNull Vector3Dd foundCenter = new Cuboid(val1, val2).getCenter();
+        Assert.assertTrue(Math.abs(center.getX() - foundCenter.getX()) < UnitTestUtil.EPSILON);
+        Assert.assertTrue(Math.abs(center.getY() - foundCenter.getY()) < UnitTestUtil.EPSILON);
+        Assert.assertTrue(Math.abs(center.getZ() - foundCenter.getZ()) < UnitTestUtil.EPSILON);
     }
 }

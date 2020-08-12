@@ -35,6 +35,8 @@ public class UnitTestUtil
     @NotNull
     public String TEST_DIR;
 
+    public final double EPSILON = 1E-6;
+
     static
     {
         BigDoors.get().setMessagingInterface(new TestMessagingInterface());

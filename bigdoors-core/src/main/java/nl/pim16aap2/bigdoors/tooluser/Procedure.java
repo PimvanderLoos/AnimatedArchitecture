@@ -35,10 +35,13 @@ public final class Procedure<T extends ToolUser>
         if (!steps.hasNext())
         {
             PLogger.get().logException(new IndexOutOfBoundsException(
-                "Trying to advance to the next step while there is none! Step: " + getStepClassName()));
+                "Trying to advance to the next step while there is none! Step: " + getCurrentStepName()));
             return;
         }
         currentStep = steps.next();
+
+        if (currentStep.skip())
+            goToNextStep();
     }
 
     /**
@@ -64,12 +67,12 @@ public final class Procedure<T extends ToolUser>
     }
 
     /**
-     * Gets the simple name of the class of the current step.
+     * Gets the name of the current step.
      *
-     * @return The simple name of the class of the current step.
+     * @return The name of the current step.
      */
     @NotNull
-    public String getStepClassName()
+    public String getCurrentStepName()
     {
         return currentStep.getName();
     }

@@ -34,6 +34,8 @@ public abstract class ToolUser implements IRestartable
      */
     protected boolean active = true;
 
+    protected boolean playerHasStick = false;
+
     protected ToolUser(final @NotNull IPPlayer player)
     {
         this.player = player;
@@ -122,6 +124,7 @@ public abstract class ToolUser implements IRestartable
     {
         BigDoors.get().getPlatform().getBigDoorsToolUtil()
                 .giveToPlayer(player, messages.getString(name), messages.getString(lore));
+        playerHasStick = true;
 
         if (message != null)
             player.sendMessage(messages.getString(message));
@@ -133,6 +136,7 @@ public abstract class ToolUser implements IRestartable
     protected final void removeTool()
     {
         BigDoors.get().getPlatform().getBigDoorsToolUtil().removeTool(player);
+        playerHasStick = false;
     }
 
     /**
@@ -163,7 +167,7 @@ public abstract class ToolUser implements IRestartable
     {
         final @NotNull String message = procedure.getMessage();
         if (message.isEmpty())
-            PLogger.get().warn("Missing translation for step: " + procedure.getStepClassName());
+            PLogger.get().warn("Missing translation for step: " + procedure.getCurrentStepName());
         else
             player.sendMessage(message);
     }
@@ -171,12 +175,12 @@ public abstract class ToolUser implements IRestartable
     /**
      * Handles user input for the given step.
      *
-     * @param obj The
+     * @param obj The input to handle. What actual type is expected depends on the step.
      * @return True if the input was processed successfully.
      */
     public boolean handleInput(final @NotNull Object obj)
     {
-        PLogger.get().debug("Handling input: " + obj);
+        PLogger.get().debug("Handling input: " + obj + " for step: " + procedure.getCurrentStepName());
 
         if (!active)
             return false;

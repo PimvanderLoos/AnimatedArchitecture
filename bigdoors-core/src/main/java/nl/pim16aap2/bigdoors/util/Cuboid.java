@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -112,5 +113,31 @@ public class Cuboid
         max.setX(maxX);
         max.setY(maxY);
         max.setZ(maxZ);
+    }
+
+    /**
+     * Gets the center point of the cuboid.
+     *
+     * @return The center point of the cuboid.
+     */
+    public Vector3Dd getCenter()
+    {
+        double cX = max.getX() - ((max.getX() - min.getX()) / 2.0f);
+        double cY = max.getY() - ((max.getY() - min.getY()) / 2.0f);
+        double cZ = max.getZ() - ((max.getZ() - min.getZ()) / 2.0f);
+        return new Vector3Dd(cX, cY, cZ);
+    }
+
+    /**
+     * Gets the center block of the cuboid. The results are cast to ints, basically taking the floor.
+     *
+     * @return The center block of the cuboid.
+     */
+    public Vector3Di getCenterBlock()
+    {
+        int cX = (int) (max.getX() - ((max.getX() - min.getX()) / 2.0f));
+        int cY = (int) (max.getY() - ((max.getY() - min.getY()) / 2.0f));
+        int cZ = (int) (max.getZ() - ((max.getZ() - min.getZ()) / 2.0f));
+        return new Vector3Di(cX, cY, cZ);
     }
 }

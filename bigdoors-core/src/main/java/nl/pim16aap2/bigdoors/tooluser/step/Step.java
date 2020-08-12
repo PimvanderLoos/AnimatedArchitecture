@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +36,10 @@ public class Step<T extends ToolUser> implements IStep
 
     private final boolean waitForUserInput;
 
+    @Nullable
+    private final Supplier<Boolean> skipCondition;
+
+
     @Override
     public boolean waitForUserInput()
     {
@@ -46,6 +51,12 @@ public class Step<T extends ToolUser> implements IStep
     public Optional<StepExecutor> getStepExecutor()
     {
         return Optional.of(stepExecutor);
+    }
+
+    @Override
+    public boolean skip()
+    {
+        return skipCondition != null && skipCondition.get();
     }
 
     @Override
@@ -69,6 +80,7 @@ public class Step<T extends ToolUser> implements IStep
         private List<Supplier<String>> messageVariablesRetrievers = null;
         private boolean waitForUserInput = true;
         private Message message = null;
+        private Supplier<Boolean> skipCondition = null;
 
         public Factory(final @NotNull String name)
         {
@@ -85,6 +97,12 @@ public class Step<T extends ToolUser> implements IStep
             final @NotNull List<Supplier<String>> messageVariablesRetrievers)
         {
             this.messageVariablesRetrievers = Collections.unmodifiableList(messageVariablesRetrievers);
+            return this;
+        }
+
+        public Factory<T> skipCondition(final @NotNull Supplier<Boolean> skipCondition)
+        {
+            this.skipCondition = skipCondition;
             return this;
         }
 
@@ -116,7 +134,7 @@ public class Step<T extends ToolUser> implements IStep
                                                      Message.getVariableCount(message) + " but received: " +
                                                      messageVariablesRetrievers.size());
 
-            return new Step<>(name, stepExecutor, message, messageVariablesRetrievers, waitForUserInput);
+            return new Step<>(name, stepExecutor, message, messageVariablesRetrievers, waitForUserInput, skipCondition);
         }
     }
 }
