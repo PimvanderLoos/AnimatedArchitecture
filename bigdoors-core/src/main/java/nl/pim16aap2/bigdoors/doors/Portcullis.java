@@ -55,6 +55,11 @@ public class Portcullis extends AbstractDoorBase
         this.autoOpenTime = autoOpenTime;
     }
 
+    public Portcullis(final @NotNull DoorData doorData, final int blocksToMove)
+    {
+        this(doorData, blocksToMove, -1, -1);
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override

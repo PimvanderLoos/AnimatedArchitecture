@@ -81,6 +81,12 @@ public class Drawbridge extends AbstractDoorBase
         this.northSouthAligned = northSouthAligned;
     }
 
+    public Drawbridge(final @NotNull DoorData doorData, final PBlockFace currentDirection, final boolean modeUp,
+                      final boolean northSouthAligned)
+    {
+        this(doorData, -1, -1, currentDirection, modeUp, northSouthAligned);
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override

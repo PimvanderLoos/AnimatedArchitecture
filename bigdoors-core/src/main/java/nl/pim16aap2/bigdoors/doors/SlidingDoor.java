@@ -54,6 +54,11 @@ public class SlidingDoor extends AbstractDoorBase
         this.autoOpenTime = autoOpenTime;
     }
 
+    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove)
+    {
+        this(doorData, blocksToMove, -1, -1);
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override

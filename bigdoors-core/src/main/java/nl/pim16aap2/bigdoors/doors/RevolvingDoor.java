@@ -29,7 +29,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
      * @return The number of quarter circles this door will rotate.
      */
     @Getter
-    private int quarterCircles = 1;
+    private int quarterCircles;
 
     public RevolvingDoor(final @NotNull DoorData doorData, final int quarterCircles)
     {

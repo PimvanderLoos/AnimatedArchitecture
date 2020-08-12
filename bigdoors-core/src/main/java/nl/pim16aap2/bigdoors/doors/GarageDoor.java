@@ -72,6 +72,12 @@ public class GarageDoor extends AbstractDoorBase
         this.currentDirection = currentDirection;
     }
 
+    public GarageDoor(final @NotNull DoorData doorData, final boolean northSouthAligned,
+                      final @NotNull PBlockFace currentDirection)
+    {
+        this(doorData, -1, -1, northSouthAligned, currentDirection);
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override
