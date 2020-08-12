@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
-import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +18,7 @@ public class CreatorBigDoor extends Creator
 {
     @Getter(onMethod = @__({@Override}))
     @NotNull
-    private static final DoorType doorType = DoorTypeBigDoor.get();
+    private final DoorType doorType = DoorTypeBigDoor.get();
 
     public CreatorBigDoor(final @NotNull IPPlayer player, final @Nullable String name)
     {
@@ -34,7 +33,9 @@ public class CreatorBigDoor extends Creator
         this(player, null);
     }
 
-    private List<IStep> generateSteps()
+    @Override
+    @NotNull
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
@@ -45,14 +46,6 @@ public class CreatorBigDoor extends Creator
                              factorySetOpenDir.message(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
                              factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
                              factoryCompleteProcess.message(Message.CREATOR_BIGDOOR_SUCCESS).construct());
-    }
-
-    @Override
-    @NotNull
-    protected Procedure<?> getProcedure()
-        throws InstantiationException
-    {
-        return new Procedure<>(this, generateSteps());
     }
 
     @Override

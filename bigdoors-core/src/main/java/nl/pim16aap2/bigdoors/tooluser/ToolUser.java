@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -15,6 +16,7 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 public abstract class ToolUser implements IRestartable
@@ -45,7 +47,8 @@ public abstract class ToolUser implements IRestartable
         catch (InstantiationException e)
         {
             PLogger.get()
-                   .logException(e, "Failed to instantiate procedure for ToolUser for player: " + player.asString());
+                   .logException(e, e.getMessage() + " Failed to instantiate procedure for ToolUser for player: " +
+                       player.asString());
             active = false;
         }
         // It doesn't really matter if it's set to null here, as the process will be aborted in that case anyway.
@@ -63,13 +66,26 @@ public abstract class ToolUser implements IRestartable
     protected abstract void init();
 
     /**
+     * Generates the list of {@link IStep}s that together will make up the {@link #procedure}.
+     *
+     * @return The list of {@link IStep}s that together will make up the {@link #procedure}.
+     *
+     * @throws InstantiationException When a step's factory is incomplete or invalid.
+     */
+    protected abstract List<IStep> generateSteps()
+        throws InstantiationException;
+
+    /**
      * Gets the {@link Procedure} that this {@link ToolUser} will go through.
      *
      * @return The {@link Procedure} for this {@link ToolUser}.
      */
     @NotNull
-    protected abstract Procedure<?> getProcedure()
-        throws InstantiationException;
+    protected Procedure<?> getProcedure()
+        throws InstantiationException
+    {
+        return new Procedure<>(this, generateSteps());
+    }
 
     /**
      * Takes care of the final part of the process. This unregisters this {@link ToolUser} and removes the tool from the
@@ -161,7 +177,7 @@ public abstract class ToolUser implements IRestartable
     public boolean handleInput(final @NotNull Object obj)
     {
         PLogger.get().debug("Handling input: " + obj);
-        
+
         if (!active)
             return false;
 
