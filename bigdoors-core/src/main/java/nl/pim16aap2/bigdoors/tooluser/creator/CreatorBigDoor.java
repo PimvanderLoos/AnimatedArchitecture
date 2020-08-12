@@ -37,14 +37,14 @@ public class CreatorBigDoor extends Creator
     private List<IStep> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.construct(),
-                             factorySetFirstPos.construct(),
-                             factorySetSecondPos.construct(),
-                             factorySetEnginePos.construct(),
-                             factorySetPowerBlockPos.construct(),
-                             factorySetOpenDir.construct(),
-                             factoryConfirmPrice.construct(),
-                             factoryCompleteProcess.construct());
+        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
+                             factorySetFirstPos.message(Message.CREATOR_BIGDOOR_STEP1).construct(),
+                             factorySetSecondPos.message(Message.CREATOR_BIGDOOR_STEP2).construct(),
+                             factorySetEnginePos.message(Message.CREATOR_BIGDOOR_STEP3).construct(),
+                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
+                             factorySetOpenDir.message(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
+                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
+                             factoryCompleteProcess.message(Message.CREATOR_BIGDOOR_SUCCESS).construct());
     }
 
     @Override

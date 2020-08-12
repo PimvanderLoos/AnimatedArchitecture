@@ -7,10 +7,10 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
+import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorBoolean;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -46,13 +46,54 @@ public abstract class Creator extends ToolUser
     protected RotateDirection opendir;
     protected IPWorld world;
 
+    /**
+     * Factory for the {@link IStep} that sets the name.
+     * <p>
+     * Don't forget to set the message before using it!
+     */
     protected Step.Factory<Creator> factorySetName;
+    /**
+     * Factory for the {@link IStep} that sets the first position of the area of the door.
+     * <p>
+     * Don't forget to set the message before using it!
+     */
     protected Step.Factory<Creator> factorySetFirstPos;
+    /**
+     * Factory for the {@link IStep} that sets the second position of the area of the door, thus completing the {@link
+     * Cuboid}.
+     * <p>
+     * Don't forget to set the message before using it!
+     */
     protected Step.Factory<Creator> factorySetSecondPos;
+    /**
+     * Factory for the {@link IStep} that sets the position of the door's engine.
+     * <p>
+     * Don't forget to set the message before using it!
+     */
     protected Step.Factory<Creator> factorySetEnginePos;
+    /**
+     * Factory for the {@link IStep} that sets the position of the door's power block.
+     * <p>
+     * Don't forget to set the message before using it!
+     */
     protected Step.Factory<Creator> factorySetPowerBlockPos;
+    /**
+     * Factory for the {@link IStep} that sets the open direction of the door.
+     * <p>
+     * Don't forget to set the message before using it!
+     */
     protected Step.Factory<Creator> factorySetOpenDir;
+    /**
+     * Factory for the {@link IStep} that allows the player to confirm or reject the price of the door.
+     * <p>
+     * Don't forget to set the message before using it!
+     */
     protected Step.Factory<Creator> factoryConfirmPrice;
+    /**
+     * Factory for the {@link IStep} that completes this process.
+     * <p>
+     * Don't forget to set the message before using it!
+     */
     protected Step.Factory<Creator> factoryCompleteProcess;
 
     protected Creator(final @NotNull IPPlayer player)
@@ -65,46 +106,38 @@ public abstract class Creator extends ToolUser
     {
         factorySetName =
             new Step.Factory<Creator>("Set Name")
-                .stepExecutor(new StepExecutorString(this::completeNamingStep))
-                .message(Message.CREATOR_GENERAL_GIVENAME);
+                .stepExecutor(new StepExecutorString(this::completeNamingStep));
 
         factorySetFirstPos =
             new Step.Factory<Creator>("Set First Pos")
-                .stepExecutor(new StepExecutorPLocation(this::setFirstPos))
-                .message(Message.CREATOR_BIGDOOR_STEP1);
+                .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
 
         factorySetSecondPos =
             new Step.Factory<Creator>("Set Second Pos")
-                .stepExecutor(new StepExecutorPLocation(this::setSecondPos))
-                .message(Message.CREATOR_BIGDOOR_STEP2);
+                .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
 
         factorySetEnginePos =
             new Step.Factory<Creator>("Set Engine Pos")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetEngineStep))
-                .message(Message.CREATOR_BIGDOOR_STEP3);
+                .stepExecutor(new StepExecutorPLocation(this::completeSetEngineStep));
 
         factorySetPowerBlockPos =
             new Step.Factory<Creator>("Set Power Block Pos")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep))
-                .message(Message.CREATOR_GENERAL_SETPOWERBLOCK);
+                .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
 
         factorySetOpenDir =
             new Step.Factory<Creator>("Set Open Direction")
                 .stepExecutor(new StepExecutorString(this::completeSetOpenDirStep))
-                .message(Message.CREATOR_GENERAL_SETOPENDIR)
                 .messageVariableRetrievers(Collections.singletonList(this::getOpenDirections));
 
         factoryConfirmPrice =
             new Step.Factory<Creator>("Confirm Door Price")
                 .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
-                .message(Message.CREATOR_GENERAL_CONFIRMPRICE)
                 .messageVariableRetrievers(
                     Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))));
 
         factoryCompleteProcess =
             new Step.Factory<Creator>("Complete Creation Process")
                 .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
-                .message(Message.CREATOR_BIGDOOR_SUCCESS)
                 .waitForUserInput(false);
     }
 
@@ -285,7 +318,7 @@ public abstract class Creator extends ToolUser
         }
 
         return RotateDirection.getRotateDirection(openDirName).flatMap(
-            foundOpenDir -> DoorTypeBigDoor.get().isValidOpenDirection(foundOpenDir) ?
+            foundOpenDir -> getDoorType().isValidOpenDirection(foundOpenDir) ?
                             Optional.of(foundOpenDir) : Optional.empty());
     }
 
