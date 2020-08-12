@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -16,38 +15,43 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 public abstract class ToolUser implements IRestartable
 {
-    protected int stepIDX = 0;
     @Getter
     @NonNull
     protected final IPPlayer player;
     @NotNull
     protected final Messages messages = BigDoors.get().getPlatform().getMessages();
     @NotNull
-    protected final List<StepExecutor> procedure;
+    protected final Procedure<?> procedure;
 
     /**
      * Keeps track of whether this {@link ToolUser} is active or not.
      */
     protected boolean active = true;
 
-    protected ToolUser(final @NotNull IPPlayer pPlayer)
+    protected ToolUser(final @NotNull IPPlayer player)
     {
-        player = pPlayer;
-        procedure = Collections.unmodifiableList(constructProcedure());
+        this.player = player;
+        procedure = getProcedure();
         ToolUserManager.get().registerToolUser(this);
     }
+
+    /**
+     * Gets the {@link Procedure} that this {@link ToolUser} will go through.
+     *
+     * @return The {@link Procedure} for this {@link ToolUser}.
+     */
+    @NotNull
+    protected abstract Procedure<?> getProcedure();
 
     /**
      * Takes care of the final part of the process. This unregisters this {@link ToolUser} and removes the tool from the
      * player's inventory (if they still have it).
      */
-    protected final void completeProcess()
+    protected final void cleanUpProcess()
     {
         ToolUserManager.get().removeToolUser(this);
         removeTool();
@@ -57,13 +61,13 @@ public abstract class ToolUser implements IRestartable
     @Override
     public void restart()
     {
-        completeProcess();
+        cleanUpProcess();
     }
 
     @Override
     public void shutdown()
     {
-        completeProcess();
+        cleanUpProcess();
     }
 
     /**
@@ -84,52 +88,12 @@ public abstract class ToolUser implements IRestartable
     }
 
     /**
-     * Adds the BigDoors tool from the player's inventory.
-     *
-     * @param name The name of the tool.
-     * @param lore The lore of the tool.
-     */
-    protected final void giveTool(final @NotNull Message name, final @NotNull Message lore)
-    {
-        giveTool(name, lore, null);
-    }
-
-    /**
      * Removes the BigDoors tool from the player's inventory.
      */
     protected final void removeTool()
     {
         BigDoors.get().getPlatform().getBigDoorsToolUtil().removeTool(player);
     }
-
-    @NotNull
-    protected final Optional<StepExecutor> getStep(final int step)
-    {
-        if (step > procedure.size() || step < 0)
-        {
-            PLogger.get().logException(
-                new ArrayIndexOutOfBoundsException("Tried to get step #" + step + ", but this " +
-                                                       "procedure only has " + procedure.size() + " steps!"));
-            return Optional.empty();
-        }
-        return Optional.of(procedure.get(step));
-    }
-
-    @NotNull
-    protected final Optional<StepExecutor> getCurrentStep()
-    {
-        return getStep(stepIDX);
-    }
-
-    /**
-     * Gets the localized message associated with a given {@link StepExecutor}. If no message could be found, an empty
-     * String is returned.
-     *
-     * @param stepExecutor The {@link StepExecutor} for which to get the message.
-     * @return The localized message for the given {@link StepExecutor}.
-     */
-    @NotNull
-    protected abstract String getStepMessage(final @NotNull StepExecutor stepExecutor);
 
     /**
      * Gets the message for the current step.
@@ -139,72 +103,60 @@ public abstract class ToolUser implements IRestartable
     @NotNull
     public String getCurrentStepMessage()
     {
-        return getCurrentStep().map(this::getStepMessage).orElse("");
+        return procedure.getMessage();
     }
-
-    /**
-     * Gets the procedure (ordered list of steps) that this {@link ToolUser} has to go through. Note that this is an
-     * UnmodifiableList!
-     *
-     * @return The procedure (ordered list of steps) that this {@link ToolUser} has to go through.
-     */
-    @NotNull
-    protected final List<StepExecutor> getProcedure()
-    {
-        return procedure;
-    }
-
-    /**
-     * Constructs the procedure (ordered list of steps) that this {@link ToolUser} has to go through.
-     *
-     * @return The procedure (ordered list of steps) that this {@link ToolUser} has to go through.
-     */
-    @NotNull
-    protected abstract List<StepExecutor> constructProcedure();
 
     /**
      * Prepares the next step. For example by sending the player some instructions about what they should do.
      */
-    protected abstract void prepareNextStep();
+    protected void prepareCurrentStep()
+    {
+        sendMessage();
+        if (!procedure.waitForUserInput())
+            procedure.applyStepExecutor(null);
+    }
 
     /**
-     * Sends the localized message of the current {@link StepExecutor} to the player that owns this object.
-     *
-     * @param stepExecutor The step to inform the user about.
+     * Sends the localized message of the current step to the player that owns this object.
      */
-    protected void sendMessage(final @NotNull StepExecutor stepExecutor)
+    protected void sendMessage()
     {
-        final @NotNull String message = getStepMessage(stepExecutor);
+        final @NotNull String message = procedure.getMessage();
         if (message.isEmpty())
-            PLogger.get().warn("Missing translation for step: " + stepExecutor.getClass().getSimpleName());
+            PLogger.get().warn("Missing translation for step: " + procedure.getStepClassName());
         else
             player.sendMessage(message);
     }
 
+    /**
+     * Handles user input for the given step.
+     *
+     * @param obj The
+     * @return True if the input was processed successfully.
+     */
     public boolean handleInput(final @NotNull Object obj)
     {
         if (!active)
             return false;
 
-        return getCurrentStep().map(
-            step ->
+        try
+        {
+            if (procedure.applyStepExecutor(obj))
             {
-                try
-                {
-                    if (step.apply(obj))
-                    {
-                        if (active) // The process may have been cancelled, so check to make sure.
-                            prepareNextStep();
-                        return true;
-                    }
-                    sendMessage(step);
-                }
-                catch (Exception e)
-                {
-                    PLogger.get().logException(e);
-                }
-                return false;
-            }).orElse(false);
+                // The process may have been cancelled, so check to make sure.
+                if (active)
+                    prepareCurrentStep();
+                return true;
+            }
+            // Repeat the instruction for the current step if the input was incorrect.
+            sendMessage();
+        }
+        catch (Exception e)
+        {
+            PLogger.get().logException(e);
+        }
+
+        return false;
     }
 
     /**

@@ -54,14 +54,6 @@ public abstract class Creator extends ToolUser
         return -1;
     }
 
-    @Override
-    protected void prepareNextStep()
-    {
-        getCurrentStep().ifPresent(this::sendMessage);
-        if (stepIDX == (procedure.size() - 1))
-            completeCreationProcess();
-    }
-
     /**
      * Constructs the {@link AbstractDoorBase.DoorData} for the current door. This is the same for all doors.
      *
@@ -93,12 +85,12 @@ public abstract class Creator extends ToolUser
         if (active)
             insertDoor(constructDoor());
 
-        completeProcess();
+        cleanUpProcess();
         return true;
     }
 
     /**
-     * Sets the first location of the selection and advances the procedure by one.
+     * Sets the first location of the selection and advances the procedure if successful.
      *
      * @param loc The first location of the cuboid.
      * @return True if setting the location was successful.
@@ -110,12 +102,12 @@ public abstract class Creator extends ToolUser
 
         world = loc.getWorld();
         firstPos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        stepIDX += 1;
+        procedure.goToNextStep();
         return true;
     }
 
     /**
-     * Sets the second location of the selection and advances the procedure by one if successful.
+     * Sets the second location of the selection and advances the procedure if successful.
      *
      * @param loc The second location of the cuboid.
      * @return True if setting the location was successful.
@@ -140,15 +132,15 @@ public abstract class Creator extends ToolUser
         if (!playerHasAccessToCuboid(cuboid, world))
             return false;
 
-        stepIDX += 1;
+        procedure.goToNextStep();
         return true;
     }
 
     /**
-     * Attempts to buy the door for the player and advances the procedure by one if successful.
+     * Attempts to buy the door for the player and advances the procedure if successful.
      * <p>
      * Note that if the player does not end up buying the door, either because of insufficient funds or because they
-     * rejected the offer, the current step is NOT incremented!
+     * rejected the offer, the current step is NOT advanced!
      *
      * @param confirm Whether or not the player confirmed they want to buy this door.
      * @return Always returns true, because either they can and do buy the door, or they cannot or refuse to buy the
@@ -169,7 +161,7 @@ public abstract class Creator extends ToolUser
             return true;
         }
 
-        stepIDX += 1;
+        procedure.goToNextStep();
         return true;
     }
 

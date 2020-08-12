@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.tooluser.IStep;
+import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorBoolean;
@@ -36,12 +37,9 @@ public class CreatorBigDoor extends Creator
     public CreatorBigDoor(final @NotNull IPPlayer player, final @Nullable String name)
     {
         super(player);
-        if (name == null)
-            stepIDX = Step.SET_NAME.ordinal();
-        else
+        if (name != null)
             setName(name);
-        // TODO: Make sure to send the message about the creator stick.
-        prepareNextStep();
+        prepareCurrentStep();
     }
 
     public CreatorBigDoor(final @NotNull IPPlayer player)
@@ -51,33 +49,22 @@ public class CreatorBigDoor extends Creator
 
     @Override
     @NotNull
+    protected Procedure<?> getProcedure()
+    {
+        return new ProcedureBigDoor();
+    }
+
+    @Override
+    @NotNull
     protected DoorType getDoorType()
     {
         return doorType;
     }
 
-    @Override
-    @NotNull
-    public String getStepMessage(final @NotNull StepExecutor stepExecutor)
-    {
-        return Step.getProcedure(procedure.indexOf(stepExecutor)).map(
-            procedure -> procedure.getMessage(this))
-                   .orElse("ERROR: Failed to find procedure from idx!");
-    }
-
-    @Override
-    @NotNull
-    protected List<StepExecutor> constructProcedure()
-    {
-        final @NotNull List<StepExecutor> procedure = new ArrayList<>(Step.getValues().size());
-        Step.getValues().forEach(proc -> procedure.add(proc.getStep(this)));
-        return procedure;
-    }
-
     private boolean setName(final @NotNull String str)
     {
         name = str;
-        stepIDX = Step.SET_FIRST_POS.ordinal();
+        procedure.skipToStep(Step.SET_FIRST_POS);
         giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_BIGDOOR_STICKLORE, Message.CREATOR_BIGDOOR_INIT);
         return true;
     }
@@ -98,7 +85,7 @@ public class CreatorBigDoor extends Creator
         }
 
         engine = pos;
-        stepIDX = Step.SET_POWER_BLOCK_POS.ordinal();
+        procedure.goToNextStep();
         return true;
     }
 
@@ -118,7 +105,7 @@ public class CreatorBigDoor extends Creator
         }
         powerblock = pos;
 
-        stepIDX = Step.SET_OPEN_DIR.ordinal();
+        procedure.goToNextStep();
         removeTool();
         return true;
     }
@@ -129,8 +116,8 @@ public class CreatorBigDoor extends Creator
             foundOpenDir ->
             {
                 opendir = foundOpenDir;
-                stepIDX = getPrice().isPresent() ? Step.CONFIRM_PRICE.ordinal() :
-                          Step.COMPLETE_PROCESS.ordinal();
+                procedure.skipToStep(getPrice().isPresent() ?
+                                     Step.CONFIRM_PRICE : Step.COMPLETE_PROCESS);
                 return true;
             }).orElse(false);
     }
@@ -164,31 +151,62 @@ public class CreatorBigDoor extends Creator
         return true;
     }
 
+    private class ProcedureBigDoor extends Procedure<CreatorBigDoor>
+    {
+        public ProcedureBigDoor()
+        {
+            super(CreatorBigDoor.this, Step.getSteps());
+        }
+
+//        @Override
+//        public boolean applyStepExecutor(@NotNull Object obj)
+//        {
+//            return currentStep.getStepExecutor(toolUser).map(stepExecutor -> stepExecutor.apply(obj)).orElse(false);
+//        }
+//
+//
+//        @Override
+//        public int indexOf(final @NotNull IStep step)
+//        {
+//            if (!(step instanceof Step))
+//                return -1;
+//            return ((Step) step).ordinal();
+//        }
+//
+//        @Override
+//        public IStep goToNextStep(final @NotNull IStep currentStep)
+//        {
+//            // TODO: Check within bounds.
+//            return getSteps().get(indexOf(currentStep) + 1);
+//        }
+    }
+
     private enum Step implements IStep
     {
-        SET_NAME(creatorBigDoor -> new StepExecutorString(creatorBigDoor::setName), Message.CREATOR_GENERAL_GIVENAME),
+        SET_NAME(true, creatorBigDoor -> new StepExecutorString(creatorBigDoor::setName),
+                 Message.CREATOR_GENERAL_GIVENAME),
 
-        SET_FIRST_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setFirstPos),
+        SET_FIRST_POS(true, creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setFirstPos),
                       Message.CREATOR_BIGDOOR_STEP1),
 
-        SET_SECOND_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setSecondPos),
+        SET_SECOND_POS(true, creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setSecondPos),
                        Message.CREATOR_BIGDOOR_STEP2),
 
-        SET_ENGINE_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setEnginePos),
+        SET_ENGINE_POS(true, creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setEnginePos),
                        Message.CREATOR_BIGDOOR_STEP3),
 
-        SET_POWER_BLOCK_POS(creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setPowerBlockPos),
+        SET_POWER_BLOCK_POS(true, creatorBigDoor -> new StepExecutorPLocation(creatorBigDoor::setPowerBlockPos),
                             Message.CREATOR_GENERAL_SETPOWERBLOCK),
 
-        SET_OPEN_DIR(creatorBigDoor -> new StepExecutorString(creatorBigDoor::setOpenDir),
+        SET_OPEN_DIR(true, creatorBigDoor -> new StepExecutorString(creatorBigDoor::setOpenDir),
                      Message.CREATOR_GENERAL_SETOPENDIR,
                      Creator::getOpenDirections),
 
-        CONFIRM_PRICE(creatorBigDoor -> new StepExecutorBoolean(creatorBigDoor::confirmPrice),
+        CONFIRM_PRICE(true, creatorBigDoor -> new StepExecutorBoolean(creatorBigDoor::confirmPrice),
                       Message.CREATOR_GENERAL_CONFIRMPRICE,
                       creator -> String.format("%.2f", creator.getPrice().orElse(0))),
 
-        COMPLETE_PROCESS(creatorBigDoor -> new StepExecutorVoid(creatorBigDoor::completeCreationProcess),
+        COMPLETE_PROCESS(false, creatorBigDoor -> new StepExecutorVoid(creatorBigDoor::completeCreationProcess),
                          Message.CREATOR_BIGDOOR_SUCCESS),
         ;
 
@@ -197,19 +215,28 @@ public class CreatorBigDoor extends Creator
 
         @Getter
         @NotNull
-        private static final List<Step> values = Collections.unmodifiableList(Arrays.asList(Step.values()));
+        private static final List<IStep> steps = Collections.unmodifiableList(Arrays.asList(Step.values()));
+
+//        @NotNull
+//        final Function<CreatorBigDoor, IStep> nextStepRetriever;
+
+        final boolean waitForUserInput;
 
         @NotNull
         final List<Function<CreatorBigDoor, String>> messageVariablesRetrievers;
 
         @NotNull
-        final Function<CreatorBigDoor, StepExecutor> functionRetriever;
+        final Function<CreatorBigDoor, StepExecutor> stepExecutorRetriever;
 
-        Step(final @NotNull Function<CreatorBigDoor, StepExecutor> functionRetriever,
+        Step(final boolean waitForUserInput,
+             final @NotNull Function<CreatorBigDoor, StepExecutor> stepExecutorRetriever,
+//             final @NotNull Function<CreatorBigDoor, IStep> nextStepRetriever,
              final @NotNull Message message,
              final @NotNull Function<CreatorBigDoor, String>... messageVariablesRetrievers)
         {
-            this.functionRetriever = functionRetriever;
+            this.waitForUserInput = waitForUserInput;
+            this.stepExecutorRetriever = stepExecutorRetriever;
+//            this.nextStepRetriever = nextStepRetriever;
             this.message = message;
             if (messageVariablesRetrievers.length != Message.getVariableCount(this.message))
             {
@@ -225,40 +252,17 @@ public class CreatorBigDoor extends Creator
             this.messageVariablesRetrievers = Collections.unmodifiableList(Arrays.asList(messageVariablesRetrievers));
         }
 
-        /**
-         * Gets the step associated with this part of the procedure.
-         *
-         * @param creatorBigDoor The {@link CreatorBigDoor} that owns this step.
-         * @return The newly-created step.
-         */
-        @NotNull
-        public StepExecutor getStep(final @NotNull CreatorBigDoor creatorBigDoor)
-        {
-            return functionRetriever.apply(creatorBigDoor);
-        }
-
         @Override
-        public List<String> populateVariables(final @NotNull Creator creator)
+        @NotNull
+        public List<String> populateVariables(final @NotNull ToolUser toolUser)
         {
-            if (CreatorBigDoor.invalidClass(creator))
+            if (CreatorBigDoor.invalidClass(toolUser))
                 return new ArrayList<>(); // TODO: Handle more gracefully.
 
-            final @NotNull CreatorBigDoor creatorBigDoor = (CreatorBigDoor) creator;
+            final @NotNull CreatorBigDoor creatorBigDoor = (CreatorBigDoor) toolUser;
             List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
             messageVariablesRetrievers.forEach(fun -> variables.add(fun.apply(creatorBigDoor)));
             return variables;
-        }
-
-        @NotNull
-        public static Optional<Step> getProcedure(final int idx)
-        {
-            if (idx < 0 || idx >= values().length)
-            {
-                PLogger.get().logException(
-                    new IndexOutOfBoundsException("IDX: " + idx + " is out of range [0;" + values().length + ")!!"));
-                return Optional.empty();
-            }
-            return Optional.of(values.get(idx));
         }
 
         @Override
@@ -266,6 +270,21 @@ public class CreatorBigDoor extends Creator
         public Message getMessage()
         {
             return message;
+        }
+
+        @Override
+        public boolean waitForUserInput()
+        {
+            return false;
+        }
+
+        @Override
+        @NotNull
+        public Optional<StepExecutor> getStepExecutor(final @NotNull ToolUser toolUser)
+        {
+            if (CreatorBigDoor.invalidClass(toolUser))
+                return Optional.empty(); // TODO: Handle more descriptively.
+            return Optional.of(stepExecutorRetriever.apply((CreatorBigDoor) toolUser));
         }
     }
 }
