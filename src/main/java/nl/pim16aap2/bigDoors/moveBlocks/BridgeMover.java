@@ -57,6 +57,7 @@ public class BridgeMover implements BlockMover
     private int xMax, yMax, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
+    private int endCount;
 
     @SuppressWarnings("deprecation")
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
@@ -390,7 +391,8 @@ public class BridgeMover implements BlockMover
 
         if (!onDisable)
         {
-            int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
+            int delay = buttonDelay(endCount)
+                + Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {
                 @Override
@@ -411,12 +413,12 @@ public class BridgeMover implements BlockMover
     // Method that takes care of the rotation aspect.
     private void rotateEntities()
     {
+        endCount = (int) (20.0f / tickRate * time);
         new BukkitRunnable()
         {
             Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
             boolean replace = false;
             double counter = 0;
-            int endCount = (int) (20 / tickRate * time);
             double step = (Math.PI / 2) / endCount * stepMultiplier;
             double stepSum = startStepSum;
             int totalTicks = (int) (endCount * multiplier);

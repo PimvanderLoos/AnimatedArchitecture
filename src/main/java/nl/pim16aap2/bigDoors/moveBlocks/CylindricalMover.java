@@ -54,6 +54,7 @@ public class CylindricalMover implements BlockMover
     private final Location turningPoint;
     private final List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
+    private int endCount = 0;
 
     @SuppressWarnings("deprecation")
     public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
@@ -274,7 +275,8 @@ public class CylindricalMover implements BlockMover
 
         if (!onDisable)
         {
-            int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
+            int delay = buttonDelay(endCount)
+                + Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {
                 @Override
@@ -295,12 +297,12 @@ public class CylindricalMover implements BlockMover
     // Method that takes care of the rotation aspect.
     private void rotateEntities()
     {
+        endCount = (int) (20.0f / tickRate * time);
         new BukkitRunnable()
         {
             Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
             boolean replace = false;
             double counter = 0;
-            int endCount = (int) (20 / tickRate * time);
             double step = (Math.PI / 2) / endCount * stepMultiplier;
             double stepSum = startStepSum;
             int totalTicks = (int) (endCount * multiplier);

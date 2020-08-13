@@ -44,6 +44,7 @@ public class SlidingMover implements BlockMover
     private int yMax, zMin, zMax;
     private List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
+    private int endCount;
 
     @SuppressWarnings("deprecation")
     public SlidingMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove,
@@ -217,7 +218,8 @@ public class SlidingMover implements BlockMover
 
         if (!onDisable)
         {
-            int delay = Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
+            int delay = buttonDelay(endCount)
+                + Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
             new BukkitRunnable()
             {
                 @Override
@@ -243,10 +245,10 @@ public class SlidingMover implements BlockMover
     // Method that takes care of the rotation aspect.
     private void rotateEntities()
     {
+        endCount = (int) (20.0f / tickRate * time);
         new BukkitRunnable()
         {
             double counter = 0;
-            int endCount = (int) (20 / tickRate * time);
             double step = ((double) blocksToMove) / ((double) endCount);
             double stepSum = 0;
             int totalTicks = (int) (endCount * 1.1);

@@ -2,6 +2,7 @@ Alpha 0.1.8.25
 - Added support for version 1.16.2 of Minecraft.
 - Added support for PlotSquared v5 (in addition to v3 and v4). Thanks, @xTronix, for the bug report!
 - The update-checker will no longer read the hash of the file if it's not needed; it only reads it right before downloading the latest update now. Thanks, @SlimeDog, for the report! 
+- Fixed fast doors (e.g. very small ones) getting toggled twice by the same button. Thanks, @Wolf2323, for the bug report!
 
 Alpha 0.1.8.24
 - Fixed powerblock cache not being invalidated when creating a new door (so you couldn't use it). The cache is now also invalidated when removing doors. Thanks, @PirateCraft, for the bug report!
