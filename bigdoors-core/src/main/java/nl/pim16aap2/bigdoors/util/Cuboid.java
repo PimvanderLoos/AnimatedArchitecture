@@ -81,6 +81,19 @@ public class Cuboid
     }
 
     /**
+     * Gets the dimensions of this door.
+     *
+     * @return The dimensions of this door.
+     */
+    public Vector3Di getDimensions()
+    {
+        int x = max.getX() - min.getX() + 1;
+        int y = max.getY() - min.getY() + 1;
+        int z = max.getZ() - min.getZ() + 1;
+        return new Vector3Di(x, y, z);
+    }
+
+    /**
      * Checks if a position is inside this cuboid. This includes the edges.
      *
      * @param pos The position to check.

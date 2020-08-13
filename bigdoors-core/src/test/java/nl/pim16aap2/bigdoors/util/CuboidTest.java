@@ -95,6 +95,16 @@ class CuboidTest
     }
 
     @Test
+    void getDimensions()
+    {
+        final @NotNull Vector3Di val1 = new Vector3Di(0, 11, 30);
+        final @NotNull Vector3Di val2 = new Vector3Di(10, 0, 30);
+
+        final @NotNull Vector3Di dimensions = new Vector3Di(11, 12, 1);
+        Assert.assertEquals(dimensions, new Cuboid(val1, val2).getDimensions());
+    }
+
+    @Test
     void getCenter()
     {
         final @NotNull Vector3Di val1 = new Vector3Di(0, 11, 30);
