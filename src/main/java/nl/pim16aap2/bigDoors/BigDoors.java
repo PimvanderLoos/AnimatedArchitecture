@@ -179,8 +179,7 @@ public class BigDoors extends JavaPlugin implements Listener
         logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
 
         if (DEVBUILD)
-            logger.logMessageToConsoleOnly("WARNING! You are running a devbuild (build: " + buildNumber + ")! "
-                + "Update checking has been enabled (overrides config option)!");
+            logger.logMessageToConsoleOnly("WARNING! You are running a devbuild (build: " + buildNumber + ")!");
 
         try
         {
