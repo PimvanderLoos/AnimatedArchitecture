@@ -13,9 +13,11 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
+import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -171,7 +173,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (isOpenable != DoorToggleResult.SUCCESS)
             return doorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
-        if (doorOpeningUtility.isTooBig(this))
+        if (LimitsManager.exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
             return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
 
         Vector3Di newMin = new Vector3Di(getMinimum());
@@ -456,12 +458,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public final long getSimplePowerBlockChunkHash()
     {
-        if (powerBlock == null)
-        {
-            NullPointerException e = new NullPointerException("Powerblock unexpectedly null!");
-            PLogger.get().logException(e);
-            throw e;
-        }
         return Util.simpleChunkHashFromLocation(powerBlock.getX(), powerBlock.getZ());
     }
 

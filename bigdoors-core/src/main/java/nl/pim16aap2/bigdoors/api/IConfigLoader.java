@@ -78,7 +78,7 @@ public interface IConfigLoader extends IRestartable
      *
      * @return The global maximum number of doors a player can own.
      */
-    OptionalInt maxdoorCount();
+    OptionalInt maxDoorCount();
 
     /**
      * Gets the global maximum distance (in blocks) a powerblock can be from the door.
@@ -86,6 +86,13 @@ public interface IConfigLoader extends IRestartable
      * @return The global maximum distance (in blocks) a powerblock can be from the door.
      */
     OptionalInt maxPowerBlockDistance();
+
+    /**
+     * Gets the global maximum number of blocks a door can move for applicable types (e.g. sliding door).
+     *
+     * @return The global maximum number of blocks a door can move for applicable types (e.g. sliding door).
+     */
+    OptionalInt maxBlocksToMove();
 
     /**
      * Checks if updates should be downloaded automatically.

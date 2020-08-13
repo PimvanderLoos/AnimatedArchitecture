@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -18,6 +19,7 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -142,24 +144,15 @@ public abstract class Creator extends ToolUser
                 .waitForUserInput(false);
     }
 
-    protected boolean isSizeAllowed(final int blockCount)
-    {
-        return getLimit() < 1 || blockCount <= getLimit();
-    }
-
-    protected int getLimit(/* Limit limitType (e.g. Limit.DOOR_SIZE) */)
-    {
-        // TODO: Implement.
-        return -1;
-    }
-
     /**
      * Constructs the {@link AbstractDoorBase.DoorData} for the current door. This is the same for all doors.
      *
      * @return The {@link AbstractDoorBase.DoorData} for the current door.
      */
+    @NotNull
     protected final AbstractDoorBase.DoorData constructDoorData()
     {
+        // TODO: Make sure all variables are set.
         final boolean isOpen = false;
         final boolean isLocked = false;
         final long doorUID = -1;
@@ -244,7 +237,7 @@ public abstract class Creator extends ToolUser
         cuboid = new Cuboid(new Vector3Di(firstPos),
                             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
-        if (!isSizeAllowed(cuboid.getVolume()))
+        if (LimitsManager.exceedsLimit(player, Limit.DOOR_SIZE, cuboid.getVolume()))
         {
             player.sendMessage(messages.getString(Message.CREATOR_GENERAL_AREATOOBIG, cuboid.getVolume().toString()));
             return false;
@@ -277,7 +270,8 @@ public abstract class Creator extends ToolUser
         }
         if (!buyDoor())
         {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS));
+            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS,
+                                                  String.format("%.2f", getPrice().orElse(0))));
             shutdown();
             return true;
         }
@@ -299,6 +293,7 @@ public abstract class Creator extends ToolUser
      * @return The selected {@link RotateDirection}, if it exists.
      */
     // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirections.
+    @NotNull
     protected Optional<RotateDirection> parseOpenDirection(final @NotNull String str)
     {
         final @NotNull String openDirName = str.toUpperCase();
@@ -442,6 +437,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type, each on their own line.
      */
+    @NotNull
     protected String getOpenDirections()
     {
         StringBuilder sb = new StringBuilder();
@@ -472,6 +468,20 @@ public abstract class Creator extends ToolUser
             player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POWERBLOCKINSIDEDOOR));
             return false;
         }
+
+        {
+            final @NotNull OptionalInt distanceLimit = LimitsManager.getLimit(player, Limit.POWERBLOCK_DISTANCE);
+            final double distance;
+            if (distanceLimit.isPresent() &&
+                (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
+            {
+                player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POWERBLOCKTOOFAR,
+                                                      String.format("%.2f", distance),
+                                                      Integer.toString(distanceLimit.getAsInt())));
+                return false;
+            }
+        }
+
         powerblock = pos;
 
         procedure.goToNextStep();

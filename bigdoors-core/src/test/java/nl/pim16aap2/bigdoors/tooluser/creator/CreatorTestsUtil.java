@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import junit.framework.Assert;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -25,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 class CreatorTestsUtil
 {
-    protected static final IPPlayer PLAYER =
+    protected static final TestPPlayer PLAYER =
         new TestPPlayer(UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5"), "user");
     protected static ExecutorService threadPool;
 

@@ -184,6 +184,11 @@ CREATOR.GENERAL.INIT=&aProcess initiated! You have 60 seconds to complete this p
 CREATOR.GENERAL.SETPOWERBLOCK=&aPlease select a location for the powerblock.
 
 
+# Supported: %DISTANCE%, %DISTANCELIMIT%
+CREATOR.GENERAL.POWERBLOCKTOOFAR=&4The powerblock is too far from the door!\nIt is %DISTANCE% blocks from the door, while your limit is only %DISTANCELIMIT% blocks!
+CREATOR.GENERAL.BLOCKSTOMOVETOOFAR=&4The number of blocks you want this door to move exceeds the limit!\nYou selected %DISTANCE%, while your limit is only %DISTANCELIMIT% blocks!
+
+
 # Supported: %OPENDIRECTIONLIST% Note that this produces a list with 1 entry per line.
 CREATOR.GENERAL.SETOPENDIR=&aPlease tell me which way you want the door to open. These are your options:\n%OPENDIRECTIONLIST%\nPlease type "/bigdoors setrotation <id>".
 

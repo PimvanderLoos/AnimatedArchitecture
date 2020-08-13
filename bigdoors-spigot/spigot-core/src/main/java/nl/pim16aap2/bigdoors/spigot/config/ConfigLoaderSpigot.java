@@ -64,6 +64,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private String resourcePack;
     private String languageFile;
     private OptionalInt maxDoorCount;
+    private OptionalInt maxBlocksToMove;
     private int cacheTimeout;
     private boolean autoDLUpdate;
     private long downloadDelay;
@@ -166,7 +167,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
             "  - BEDROCK"};
         String[] maxDoorCountComment = {
-            "Maximum number of doors a player can own. -1 = infinite."};
+            "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
+            "Not even admins and OPs can bypass this limit!",
+            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "'" + Limit.DOOR_COUNT.getUserPermission() + "x', where 'x' can be any positive value."};
+        String[] maxBlocksToMoveComment = {
+            "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
+            "Not even admins and OPs can bypass this limit!",
+            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "'" + Limit.BLOCKS_TO_MOVE.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] languageFileComment = {
             "Specify a language file to be used. Note that en_US.txt will get regenerated!"};
         String[] checkForUpdatesComment = {
@@ -182,13 +191,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.",
             "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"};
         String[] maxDoorSizeComment = {
-            "Max. number of blocks allowed in a door.",
+            "Global maximum number of blocks allowed in a door. You can set it to -1 to disable it this limit.",
             "If this number is exceeded, doors will open instantly and skip the animation.",
+            "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
-            "\"bigdoors.maxsize.amount\". E.g.: \"bigdoors.maxsize.200\""};
+            "'" + Limit.DOOR_SIZE.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] maxPowerBlockDistanceComment = {
-            "Maximum distance between a door and its powerblock..",
-            "If this number is exceeded, doors will open instantly and skip the animation.",
+            "Global maximum distance between a door and its powerblock. You can set it to -1 to disable it this limit.",
+            "The distance is measured from the center of the door.",
+            "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
             "'" + Limit.POWERBLOCK_DISTANCE.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] resourcePackComment = {
@@ -241,6 +252,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
         int maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
         this.maxDoorCount = maxDoorCount > 0 ? OptionalInt.of(maxDoorCount) : OptionalInt.empty();
+
+        int maxBlocksToMove = addNewConfigEntry(config, "maxBlocksToMove", 100, maxBlocksToMoveComment);
+        this.maxBlocksToMove = maxBlocksToMove > 0 ? OptionalInt.of(maxBlocksToMove) : OptionalInt.empty();
 
         int maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
         this.maxDoorSize = maxDoorSize > 0 ? OptionalInt.of(maxDoorSize) : OptionalInt.empty();
@@ -475,9 +489,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public OptionalInt maxdoorCount()
+    public OptionalInt maxDoorCount()
     {
         return maxDoorCount;
+    }
+
+    @Override
+    public OptionalInt maxBlocksToMove()
+    {
+        return maxBlocksToMove;
     }
 
     @Override

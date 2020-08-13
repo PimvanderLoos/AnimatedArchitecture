@@ -24,4 +24,6 @@ interface MessageVariable
     String DOORNAME = "%DOORNAME%";
     String BLOCKLIMIT = "%BLOCKLIMIT%";
     String OPENDIRECTIONLIST = "%OPENDIRECTIONLIST%";
+    String DISTANCE = "%DISTANCE%";
+    String DISTANCELIMIT = "%DISTANCELIMIT%";
 }

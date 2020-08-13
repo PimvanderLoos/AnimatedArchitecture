@@ -180,7 +180,7 @@ public abstract class ToolUser implements IRestartable
      */
     public boolean handleInput(final @NotNull Object obj)
     {
-        PLogger.get().debug("Handling input: " + obj + " for step: " + procedure.getCurrentStepName());
+        PLogger.get().debug("Handling input: " + obj.toString() + " for step: " + procedure.getCurrentStepName());
 
         if (!active)
             return false;

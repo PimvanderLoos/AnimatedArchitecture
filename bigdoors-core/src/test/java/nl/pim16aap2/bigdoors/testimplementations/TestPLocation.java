@@ -101,4 +101,10 @@ public final class TestPLocation implements IPLocation
             throw new Error(e);
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return toIntPositionString();
+    }
 }

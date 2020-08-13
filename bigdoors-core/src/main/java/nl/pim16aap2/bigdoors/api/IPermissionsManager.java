@@ -27,4 +27,12 @@ public interface IPermissionsManager
      * @return True if the player has the permission node.
      */
     boolean hasPermission(final @NotNull IPPlayer player, final @NotNull String permissionNode);
+
+    /**
+     * Checks if the given player is a server operator or not.
+     *
+     * @param player The player to check.
+     * @return True if the player is a server operator on this server.
+     */
+    boolean isOp(final @NotNull IPPlayer player);
 }

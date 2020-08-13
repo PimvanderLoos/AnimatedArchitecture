@@ -358,4 +358,17 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
         return bukkitPlayer.hasPermission(permissionNode);
     }
+
+    @Override
+    public boolean isOp(final @NotNull IPPlayer player)
+    {
+        final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
+        if (bukkitPlayer == null)
+        {
+            PLogger.get().logException(
+                new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString()));
+            return false;
+        }
+        return bukkitPlayer.isOp();
+    }
 }

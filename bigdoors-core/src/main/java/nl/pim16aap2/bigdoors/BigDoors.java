@@ -92,6 +92,13 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Expand the script that generates the testing translation file a bit.
+//       It should copy the latest real file to its own directory if the testing file doesn't exist (it shouldn't be
+//       in the repo). If the file does exist, quickly check the hashes of both to see if the copied file is still
+//       up-to-date. If it isn't up-to-date, copy over the latest file.
+//       If the file had to be copied over for whatever reason, regenerate the test translations file using the existing
+//       script. Also, make this all part of the test step in Maven, so the plugin can be compiled on Windows by skipping
+//       the test step.
 // TODO: Per-door speed multiplier.
 // TODO: Replace the chunk loading system with v1's new system.
 // TODO: Move implementations for tests and stuff to its own module.

@@ -34,6 +34,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     private final TestPPlayerFactory pPlayerFactory = new TestPPlayerFactory();
     private final TestPWorldFactory pWorldFactory = new TestPWorldFactory();
     private final TestPLocationFactory pLocationFactory = new TestPLocationFactory();
+    private final TestConfigLoader configLoader = new TestConfigLoader();
 
     private static final File dataDirectory = new File(".");
     private final Set<IRestartable> restartables = new HashSet<>();
@@ -47,6 +48,7 @@ public final class TestPlatform implements IBigDoorsPlatform
 
     public TestPlatform()
     {
+        // TODO: Reinitialize everything between every test.
     }
 
     @Override
@@ -123,7 +125,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     @NotNull
     public IConfigLoader getConfigLoader()
     {
-        return null;
+        return configLoader;
     }
 
     @Override

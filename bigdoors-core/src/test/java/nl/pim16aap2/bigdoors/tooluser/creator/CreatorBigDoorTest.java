@@ -57,7 +57,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
         throws InterruptedException
     {
         final @NotNull BigDoor actualDoor = new BigDoor(constructDoorData());
-        
+
         ((TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager()).price = OptionalDouble.of(10.746D);
         ((TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager()).isEconomyEnabled = true;
         ((TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager()).buyDoor = true;
@@ -79,7 +79,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
         Assert.assertFalse(bdc.handleInput(RotateDirection.NONE.name()));
         Assert.assertTrue(bdc.handleInput(openDirection.name()));
 
-        Assert.assertEquals("CREATOR_GENERAL_CONFIRMPRICE10.75", bdc.getCurrentStepMessage());
+        Assert.assertEquals("CREATOR_GENERAL_CONFIRMPRICE 10.75", bdc.getCurrentStepMessage());
 
         // Causes the actual insertion.
         Assert.assertTrue(bdc.handleInput(true));

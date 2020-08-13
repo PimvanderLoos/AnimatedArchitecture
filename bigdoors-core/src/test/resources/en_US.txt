@@ -117,13 +117,13 @@ GUI.DESCRIPTION.TIMER.SET=This door automatically closes after %AUTOCLOSE% secon
 # Supported: %OPENDIRECTION%
 GUI.DESCRIPTION.OPENDIRECTION=The current open direction is: %OPENDIRECTION%.
 
-# Supported: %OPENDIRECTION%, %RELATIVEDIRECTION%
+# Supported: %OPENDIRECTION% %RELATIVEDIRECTION%
 GUI.DESCRIPTION.OPENDIRECTION.RELATIVE=The current open direction is: %OPENDIRECTION% when looking %RELATIVEDIRECTION%.
 
 # Supported: %DOORNAME%
 GUI.DESCRIPTION.INFO=Expanded menu for door %DOORNAME%.
 
-# Supported: %PREVIOUSPAGE%, %PAGECOUNT%, %NEXTPAGE%
+# Supported: %PREVIOUSPAGE% %PAGECOUNT% %NEXTPAGE%
 GUI.DESCRIPTION.NEXTPAGE=Go to page %NEXTPAGE%/%PAGECOUNT%.
 GUI.DESCRIPTION.PREVIOUSPAGE=Go to page %PREVIOUSPAGE%/%PAGECOUNT%.
 
@@ -155,7 +155,7 @@ COMMAND.BLOCKSTOMOVE.DISABLED=&aThe door will now use the default values for mov
 COMMAND.REMOVEOWNER.LIST=&aThese are the current owners of this door:
 COMMAND.SETTIME.INIT=&aType "/BigDoors SetAutoCloseTime <time>" in chat. Replace "<time>" by a number in seconds. After that number of seconds, the door will close again.\nSetting a negative amount of time disables it!
 
-# Supported: %DOORNAME%, %DOORID%
+# Supported: %DOORNAME% %DOORID%
 COMMAND.DOOR.DELETE.SUCCESS=&aSuccessfully deleted "%DOORNAME%" (%DOORID%)!
 
 # Supported: %INPUT%
@@ -184,7 +184,13 @@ CREATOR.GENERAL.INIT=&aProcess initiated! You have 60 seconds to complete this p
 CREATOR.GENERAL.SETPOWERBLOCK=&aPlease select a location for the powerblock.
 
 
-# Supported: %OPENDIRECTIONLIST% Note that this produces a list with 1 entry per line.
+# Supported: %DISTANCE% %DISTANCELIMIT%
+CREATOR.GENERAL.POWERBLOCKTOOFAR=&4The powerblock is too far from the door!\nIt is %DISTANCE% blocks from the door, while your limit is only %DISTANCELIMIT% blocks!
+CREATOR.GENERAL.BLOCKSTOMOVETOOFAR=&4The number of blocks you want this door to move exceeds the limit!\nYou selected %DISTANCE%, while your limit is only %DISTANCELIMIT% blocks!
+
+
+# Supported: %OPENDIRECTIONLIST% 
+# Note that this produces a list with 1 entry per line.
 CREATOR.GENERAL.SETOPENDIR=&aPlease tell me which way you want the door to open. These are your options:\n%OPENDIRECTIONLIST%\nPlease type "/bigdoors setrotation <id>".
 
 

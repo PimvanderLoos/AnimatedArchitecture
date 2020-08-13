@@ -19,4 +19,10 @@ public interface IVector3DdConst
         return Math.sqrt(Math.pow(getX() - point.getX(), 2) + Math.pow(getY() - point.getY(), 2) +
                              Math.pow(getZ() - point.getZ(), 2));
     }
+
+    default double getDistance(final @NotNull IVector3DdConst point)
+    {
+        return Math.sqrt(Math.pow(getX() - point.getX(), 2) + Math.pow(getY() - point.getY(), 2) +
+                             Math.pow(getZ() - point.getZ(), 2));
+    }
 }

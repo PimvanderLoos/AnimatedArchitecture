@@ -4,12 +4,14 @@ import junit.framework.Assert;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Elevator;
+import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.testimplementations.TestEconomyManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -21,6 +23,10 @@ class CreatorElevatorTest extends CreatorTestsUtil
     public void testFreeCreation()
         throws InterruptedException
     {
+        final @NotNull TestConfigLoader testConfigLoader
+            = (TestConfigLoader) UnitTestUtil.PLATFORM.getConfigLoader();
+
+
         openDirection = RotateDirection.UP;
         engine = new Cuboid(min, max).getCenterBlock();
         final @NotNull Elevator actualDoor = new Elevator(constructDoorData(), blocksToMove);
@@ -42,6 +48,11 @@ class CreatorElevatorTest extends CreatorTestsUtil
         Assert.assertFalse(creator.handleInput(RotateDirection.NONE.name()));
         Assert.assertTrue(creator.handleInput(openDirection.name()));
 
+        testConfigLoader.maxBlocksToMove = OptionalInt.of(2);
+        Assert.assertFalse(creator.handleInput(blocksToMove));
+        Assert.assertEquals("CREATOR_GENERAL_BLOCKSTOMOVETOOFAR " + blocksToMove + " 2", PLAYER.getBeforeLastMessage());
+
+        testConfigLoader.maxBlocksToMove = OptionalInt.of(blocksToMove);
         // Causes the actual insertion.
         Assert.assertTrue(creator.handleInput(blocksToMove));
 
@@ -50,5 +61,8 @@ class CreatorElevatorTest extends CreatorTestsUtil
         AbstractDoorBase resultDoor = resultDoorRef.get();
         Assert.assertNotNull(resultDoor);
         Assert.assertEquals(actualDoor, resultDoor);
+
+        // reset
+        testConfigLoader.maxBlocksToMove = OptionalInt.empty();
     }
 }

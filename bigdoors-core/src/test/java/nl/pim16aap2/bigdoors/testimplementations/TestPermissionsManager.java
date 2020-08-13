@@ -10,6 +10,7 @@ public class TestPermissionsManager implements IPermissionsManager
 {
     public OptionalInt maxPermissionSuffix = OptionalInt.empty();
     public boolean hasPermission = true;
+    public boolean isOp;
 
     @Override
     public OptionalInt getMaxPermissionSuffix(final @NotNull IPPlayer player, final @NotNull String permissionBase)
@@ -21,5 +22,11 @@ public class TestPermissionsManager implements IPermissionsManager
     public boolean hasPermission(final @NotNull IPPlayer player, final @NotNull String permissionNode)
     {
         return hasPermission;
+    }
+
+    @Override
+    public boolean isOp(@NotNull IPPlayer player)
+    {
+        return isOp;
     }
 }

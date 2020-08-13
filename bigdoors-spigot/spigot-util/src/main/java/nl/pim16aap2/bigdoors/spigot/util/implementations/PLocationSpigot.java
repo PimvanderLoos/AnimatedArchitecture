@@ -35,7 +35,6 @@ public final class PLocationSpigot implements IPLocation
     {
         final @Nullable World bukkitWorld = world instanceof PWorldSpigot ?
                                             ((PWorldSpigot) world).getBukkitWorld() : Bukkit.getWorld(world.getUID());
-        Thread.dumpStack();
         location = new Location(bukkitWorld, x, y, z);
         this.world = world;
     }
