@@ -6,6 +6,7 @@ import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -18,6 +19,7 @@ import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,14 +27,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.Set;
 
 /**
  * Manages all interactions with Vault.
  *
  * @author Pim
  */
-public final class VaultManager implements IRestartable, IEconomyManager
+public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManager
 {
     private static final VaultManager instance = new VaultManager();
     private final Map<DoorType, Double> flatPrices;
@@ -315,5 +319,43 @@ public final class VaultManager implements IRestartable, IEconomyManager
     public void shutdown()
     {
         flatPrices.clear();
+    }
+
+    @Override
+    public OptionalInt getMaxPermissionSuffix(final @NotNull IPPlayer player, final @NotNull String permissionBase)
+    {
+        final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
+        if (bukkitPlayer == null)
+        {
+            PLogger.get().logException(
+                new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString()));
+            return OptionalInt.empty();
+        }
+
+        final int permissionBaseLength = permissionBase.length();
+        final @NotNull Set<PermissionAttachmentInfo> playerPermissions = bukkitPlayer.getEffectivePermissions();
+        int ret = -1;
+        for (final PermissionAttachmentInfo permission : playerPermissions)
+            if (permission.getPermission().startsWith(permissionBase))
+            {
+                final OptionalInt suffix = Util.parseInt(permission.getPermission().substring(permissionBaseLength));
+                if (suffix.isPresent())
+                    ret = Math.max(ret, suffix.getAsInt());
+            }
+        return ret > 0 ? OptionalInt.of(ret) : OptionalInt.empty();
+    }
+
+    @Override
+    public boolean hasPermission(final @NotNull IPPlayer player, final @NotNull String permissionNode)
+    {
+        final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
+        if (bukkitPlayer == null)
+        {
+            PLogger.get().logException(
+                new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString()));
+            return false;
+        }
+
+        return bukkitPlayer.hasPermission(permissionNode);
     }
 }

@@ -48,9 +48,6 @@ class CreatorElevatorTest extends CreatorTestsUtil
         // Wait for the thread pool to finish inserting the door etc,
         threadPool.awaitTermination(20L, TimeUnit.MILLISECONDS);
         AbstractDoorBase resultDoor = resultDoorRef.get();
-        System.out.println("\n\n====== ACTUAL ELEVATOR: ======");
-        System.out.println(actualDoor.toString() + "\n");
-
         Assert.assertNotNull(resultDoor);
         Assert.assertEquals(actualDoor, resultDoor);
     }

@@ -39,12 +39,20 @@ public interface IBigDoorsPlatform extends IRestartableHolder
     IBigDoorsToolUtil getBigDoorsToolUtil();
 
     /**
-     * Gets the instance of the {@link IBigDoorsToolUtil} for this platform.
+     * Gets the instance of the {@link IEconomyManager} for this platform.
      *
-     * @return The instance of the {@link IBigDoorsToolUtil} for this platform.
+     * @return The instance of the {@link IEconomyManager} for this platform.
      */
     @NotNull
     IEconomyManager getEconomyManager();
+
+    /**
+     * Gets the instance of the {@link IPermissionsManager} for this platform.
+     *
+     * @return The instance of the {@link IPermissionsManager} for this platform.
+     */
+    @NotNull
+    IPermissionsManager getPermissionsManager();
 
     /**
      * Gets the instance of the {@link IProtectionCompatManager} for this platform.

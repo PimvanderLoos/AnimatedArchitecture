@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * Represents a utility singleton that is used to open {@link AbstractDoorBase}s.
@@ -133,11 +134,9 @@ public final class DoorOpeningUtility
      */
     public boolean isTooBig(final @NotNull AbstractDoorBase door)
     {
-        // Make sure the doorSize does not exceed the total doorSize.
-        // If it does, open the door instantly.
-        int maxDoorSize = config.maxDoorSize();
-        if (maxDoorSize > 0)
-            return door.getBlockCount() > maxDoorSize;
+        final @NotNull OptionalInt maxDoorSize = config.maxDoorSize();
+        if (maxDoorSize.isPresent())
+            return door.getBlockCount() > maxDoorSize.getAsInt();
         return false;
     }
 

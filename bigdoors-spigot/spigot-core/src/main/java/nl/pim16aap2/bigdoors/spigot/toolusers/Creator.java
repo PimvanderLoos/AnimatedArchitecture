@@ -162,9 +162,10 @@ public abstract class Creator extends ToolUser
             final @NotNull AbstractDoorBase door = create(doorData);
 
             final int doorSize = door.getBlockCount();
-            if (plugin.getConfigLoader().maxDoorSize() >= 0 && plugin.getConfigLoader().maxDoorSize() <= doorSize)
+            if (plugin.getConfigLoader().maxDoorSize().isPresent() &&
+                plugin.getConfigLoader().maxDoorSize().getAsInt() <= doorSize)
             {
-                sendAreaTooBigMessage(player, plugin.getConfigLoader().maxDoorSize());
+                sendAreaTooBigMessage(player, plugin.getConfigLoader().maxDoorSize().getAsInt());
                 super.finishUp();
                 return;
             }

@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
@@ -614,6 +615,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Override
     @NotNull
     public IEconomyManager getEconomyManager()
+    {
+        return vaultManager;
+    }
+
+    @Override
+    @NotNull
+    public IPermissionsManager getPermissionsManager()
     {
         return vaultManager;
     }

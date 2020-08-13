@@ -3,6 +3,8 @@ package nl.pim16aap2.bigdoors.api;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.OptionalInt;
+
 // TODO: Change this description and while I'm at it, also the name of the class.
 
 /**
@@ -55,7 +57,7 @@ public interface IConfigLoader extends IRestartable
      *
      * @return The global maximum number of blocks that can be in a door.
      */
-    int maxDoorSize();
+    OptionalInt maxDoorSize();
 
     /**
      * Gets the amount of time (in minutes) power blocks should be kept in cache.
@@ -76,7 +78,14 @@ public interface IConfigLoader extends IRestartable
      *
      * @return The global maximum number of doors a player can own.
      */
-    int maxdoorCount();
+    OptionalInt maxdoorCount();
+
+    /**
+     * Gets the global maximum distance (in blocks) a powerblock can be from the door.
+     *
+     * @return The global maximum distance (in blocks) a powerblock can be from the door.
+     */
+    OptionalInt maxPowerBlockDistance();
 
     /**
      * Checks if updates should be downloaded automatically.

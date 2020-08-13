@@ -4,6 +4,8 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.OptionalInt;
+
 public class TestConfigLoader implements IConfigLoader
 {
     @Override
@@ -32,9 +34,9 @@ public class TestConfigLoader implements IConfigLoader
     }
 
     @Override
-    public int maxDoorSize()
+    public OptionalInt maxDoorSize()
     {
-        return 0;
+        return OptionalInt.empty();
     }
 
     @Override
@@ -50,9 +52,15 @@ public class TestConfigLoader implements IConfigLoader
     }
 
     @Override
-    public int maxdoorCount()
+    public OptionalInt maxdoorCount()
     {
-        return 0;
+        return OptionalInt.empty();
+    }
+
+    @Override
+    public OptionalInt maxPowerBlockDistance()
+    {
+        return OptionalInt.empty();
     }
 
     @Override

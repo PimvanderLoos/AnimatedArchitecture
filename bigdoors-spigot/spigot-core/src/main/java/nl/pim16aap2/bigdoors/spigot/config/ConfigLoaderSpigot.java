@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Contract;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.Set;
 
 /**
@@ -57,10 +59,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private final String header;
     private int coolDown;
     private boolean allowStats;
-    private int maxDoorSize;
+    private OptionalInt maxDoorSize;
+    private OptionalInt maxPowerBlockDistance;
     private String resourcePack;
     private String languageFile;
-    private int maxDoorCount;
+    private OptionalInt maxDoorCount;
     private int cacheTimeout;
     private boolean autoDLUpdate;
     private long downloadDelay;
@@ -183,6 +186,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "If this number is exceeded, doors will open instantly and skip the animation.",
             "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
             "\"bigdoors.maxsize.amount\". E.g.: \"bigdoors.maxsize.200\""};
+        String[] maxPowerBlockDistanceComment = {
+            "Maximum distance between a door and its powerblock..",
+            "If this number is exceeded, doors will open instantly and skip the animation.",
+            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "'" + Limit.POWERBLOCK_DISTANCE.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] resourcePackComment = {
             "This plugin uses a support resource pack for things suchs as sound.",
             "You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
@@ -231,8 +239,17 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         addNewConfigEntry(config, "materialBlacklist", DEFAULTBLACKLIST, blacklistComment,
                           new MaterialVerifier(materialBlacklist));
 
-        maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
-        maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
+        int maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
+        this.maxDoorCount = maxDoorCount > 0 ? OptionalInt.of(maxDoorCount) : OptionalInt.empty();
+
+        int maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
+        this.maxDoorSize = maxDoorSize > 0 ? OptionalInt.of(maxDoorSize) : OptionalInt.empty();
+
+        int maxPowerBlockDistance = addNewConfigEntry(config, "maxPowerBlockDistance", -1,
+                                                      maxPowerBlockDistanceComment);
+        this.maxPowerBlockDistance = maxPowerBlockDistance > 0 ?
+                                     OptionalInt.of(maxPowerBlockDistance) : OptionalInt.empty();
+
         languageFile = addNewConfigEntry(config, "languageFile", "en_US", languageFileComment);
         checkForUpdates = addNewConfigEntry(config, "checkForUpdates", true, checkForUpdatesComment);
         autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
@@ -429,9 +446,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public int maxDoorSize()
+    public OptionalInt maxDoorSize()
     {
         return maxDoorSize;
+    }
+
+    @Override
+    public OptionalInt maxPowerBlockDistance()
+    {
+        return maxPowerBlockDistance;
     }
 
     @Override
@@ -452,7 +475,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public int maxdoorCount()
+    public OptionalInt maxdoorCount()
     {
         return maxDoorCount;
     }

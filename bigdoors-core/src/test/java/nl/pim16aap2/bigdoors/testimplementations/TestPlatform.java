@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
+import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.IRestartable;
@@ -41,6 +42,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     private final IBigDoorsToolUtil bigDoorsToolUtil = new TestBigDoorsToolUtil();
 
     private final IEconomyManager economyManager = new TestEconomyManager();
+    private final IPermissionsManager permissionsManager = new TestPermissionsManager();
     private final IProtectionCompatManager protectionCompatManager = new TestProtectionCompatManager();
 
     public TestPlatform()
@@ -73,6 +75,13 @@ public final class TestPlatform implements IBigDoorsPlatform
     public IEconomyManager getEconomyManager()
     {
         return economyManager;
+    }
+
+    @Override
+    @NotNull
+    public IPermissionsManager getPermissionsManager()
+    {
+        return permissionsManager;
     }
 
     @Override
