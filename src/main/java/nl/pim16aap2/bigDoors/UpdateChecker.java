@@ -145,10 +145,6 @@ public final class UpdateChecker
                         hashUrl = downloadUrl;
                 }
 
-                final String hash = Util.readSHA256FromURL(new URL(hashUrl));
-                if (hash.isEmpty())
-                    return new UpdateResult(UpdateReason.INVALID_HASH);
-
                 final String current = Util.getCleanedVersionString();
                 final String available = Util.getCleanedVersionString(latestRelease.get("name").getAsString());
                 final String highest = versionScheme.compareVersions(current, available);
@@ -162,10 +158,10 @@ public final class UpdateChecker
                 // is higher than the latest available version.
                 else if (highest.equals(current))
                     return new UpdateResult(current.equals(available) ? UpdateReason.UP_TO_DATE :
-                        UpdateReason.UNRELEASED_VERSION, current, age, jarUrl, hash);
+                        UpdateReason.UNRELEASED_VERSION, current, age, jarUrl, hashUrl);
 
                 else if (highest.equals(available))
-                    return new UpdateResult(UpdateReason.NEW_UPDATE, highest, age, jarUrl, hash);
+                    return new UpdateResult(UpdateReason.NEW_UPDATE, highest, age, jarUrl, hashUrl);
             }
             catch (IOException e)
             {
@@ -218,7 +214,15 @@ public final class UpdateChecker
             if (!updateFolder.mkdirs())
                 throw new IOException("Failed to create update folder!");
 
-        if (updateFile.exists() && result.getChecksum().equals(Util.getSHA256(updateFile)))
+        final String checksum;
+        if (result.getHashURL().isEmpty() ||
+            (checksum = Util.readSHA256FromURL(new URL(result.getHashURL()))).isEmpty())
+        {
+            plugin.getMyLogger().severe("Failed to obtain checksum for update! Auto-update has been aborted!");
+            return false;
+        }
+
+        if (updateFile.exists() && checksum.equals(Util.getSHA256(updateFile)))
             return true;
 
         try (InputStream in = new URL(result.getDownloadUrl()).openStream())
@@ -234,13 +238,13 @@ public final class UpdateChecker
         if (!updateFile.exists())
             throw new IOException("Failed to save file!");
 
-        final String checksum = Util.getSHA256(updateFile);
-        boolean downloadSuccessfull = result.getChecksum().equals(checksum);
+        final String currentChecksum = Util.getSHA256(updateFile);
+        final boolean downloadSuccessfull = checksum.equals(currentChecksum);
         if (!downloadSuccessfull)
         {
             plugin.getMyLogger().severe("Checksum of downloaded file did not match expected checksum!");
-            plugin.getMyLogger().severe("Expected: " + result.getChecksum());
-            plugin.getMyLogger().severe("Found: " + checksum);
+            plugin.getMyLogger().severe("Expected: " + checksum);
+            plugin.getMyLogger().severe("Found: " + currentChecksum);
             updateFile.delete();
         }
 
@@ -402,20 +406,20 @@ public final class UpdateChecker
         private final String newestVersion;
         private final long age;
         private final String url;
-        private final String sha256;
+        private final String hashURL;
 
         { // An actual use for initializer blocks. This is madness!
             lastResult = this;
         }
 
         private UpdateResult(final UpdateReason reason, final String newestVersion, final long age, final String url,
-            final String sha256)
+            final String hashURL)
         {
             this.reason = reason;
             this.newestVersion = newestVersion;
             this.age = age;
             this.url = url;
-            this.sha256 = sha256;
+            this.hashURL = hashURL;
         }
 
         private UpdateResult(final UpdateReason reason)
@@ -427,7 +431,7 @@ public final class UpdateChecker
             newestVersion = plugin.getDescription().getVersion();
             age = -1;
             url = "";
-            sha256 = "";
+            hashURL = "";
         }
 
         /**
@@ -483,13 +487,16 @@ public final class UpdateChecker
         }
 
         /**
-         * Gets the sha256 checksum of the jar file.
+         * Gets the URL to the sha256 checksum of the jar file.
          *
-         * @return The sha256 checksum of the jar file.
+         * The actual checksum can be obtained using
+         * {@link Util#readSHA256FromURL(URL)}.
+         *
+         * @return The URL to the sha256 checksum of the jar file.
          */
-        public String getChecksum()
+        public String getHashURL()
         {
-            return sha256;
+            return hashURL;
         }
     }
 }
