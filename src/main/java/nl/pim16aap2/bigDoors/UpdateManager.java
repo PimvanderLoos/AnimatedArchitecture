@@ -18,7 +18,6 @@ import nl.pim16aap2.bigDoors.util.Util;
 public final class UpdateManager
 {
     private final BigDoors plugin;
-    private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
 
@@ -31,9 +30,8 @@ public final class UpdateManager
         updater = UpdateChecker.init(plugin);
     }
 
-    public void setEnabled(final boolean newCheckForUpdates, final boolean newDownloadUpdates)
+    public void setEnabled(final boolean newDownloadUpdates)
     {
-        checkForUpdates = newCheckForUpdates;
         downloadUpdates = newDownloadUpdates;
         initUpdater();
     }
@@ -45,7 +43,7 @@ public final class UpdateManager
 
     public String getNewestVersion()
     {
-        if (!checkForUpdates || updater.getLastResult() == null)
+        if (updater.getLastResult() == null)
             return null;
         return updater.getLastResult().getNewestVersion();
     }
@@ -53,7 +51,7 @@ public final class UpdateManager
     public boolean updateAvailable()
     {
         // Updates disabled, so no new updates available by definition.
-        if (!checkForUpdates || updater.getLastResult() == null)
+        if (updater.getLastResult() == null)
             return false;
 
         // There's a newer version available.
@@ -108,28 +106,17 @@ public final class UpdateManager
 
     private void initUpdater()
     {
-        if (checkForUpdates)
+        // Run the UpdateChecker regularly.
+        if (updateRunner == null)
         {
-            // Run the UpdateChecker regularly.
-            if (updateRunner == null)
+            updateRunner = new BukkitRunnable()
             {
-                updateRunner = new BukkitRunnable()
+                @Override
+                public void run()
                 {
-                    @Override
-                    public void run()
-                    {
-                        checkForUpdates();
-                    }
-                }.runTaskTimer(plugin, 0L, 288000L); // Run immediately, then every 4 hours.
-            }
-        }
-        else
-        {
-            if (updateRunner != null)
-            {
-                updateRunner.cancel();
-                updateRunner = null;
-            }
+                    checkForUpdates();
+                }
+            }.runTaskTimer(plugin, 0L, 288000L); // Run immediately, then every 4 hours.
         }
     }
 }

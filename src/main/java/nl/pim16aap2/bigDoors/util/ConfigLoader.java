@@ -59,7 +59,6 @@ public class ConfigLoader
     private Set<Material> blacklist;
     private Set<Material> whitelist;
 
-    private boolean checkForUpdates;
     private int headCacheTimeout;
     private String doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice;
 
@@ -115,7 +114,6 @@ public class ConfigLoader
         String[] maxDoorCountComment = { "Maximum number of doors a player can own. -1 = infinite." };
         String[] languageFileComment = { "Specify a language file to be used. Note that en_US.txt will get regenerated!" };
         String[] dbFileComment = { "Pick the name (and location if you want) of the database." };
-        String[] checkForUpdatesComment = { "Allow this plugin to check for updates on startup. It will not download new versions!" };
         String[] downloadDelayComment = { "Time (in minutes) to delay auto downloading updates after their release.",
                                           "Setting it to 2160 means that updates will be downloaded 36h after their release.",
                                           "This is useful, as it will mean that the update won't get downloaded if I decide to pull it for some reason",
@@ -211,9 +209,6 @@ public class ConfigLoader
 
         dbFile = config.getString("dbFile", "doorDB.db");
         configOptionsList.add(new ConfigOption("dbFile", dbFile, dbFileComment));
-
-        checkForUpdates = config.getBoolean("checkForUpdates", true);
-        configOptionsList.add(new ConfigOption("checkForUpdates", checkForUpdates, checkForUpdatesComment));
 
         autoDLUpdate = config.getBoolean("auto-update", true);
         configOptionsList.add(new ConfigOption("auto-update", autoDLUpdate, autoDLUpdateComment));
@@ -595,14 +590,6 @@ public class ConfigLoader
     public boolean isHookEnabled(final ProtectionCompat hook)
     {
         return hooksMap.get(hook);
-    }
-
-    public boolean checkForUpdates()
-    {
-        if (BigDoors.DEVBUILD) // Setting override.
-            return true;
-
-        return checkForUpdates;
     }
 
     public int getMaxBlocksToMove()

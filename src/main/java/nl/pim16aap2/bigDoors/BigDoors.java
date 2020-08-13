@@ -340,7 +340,7 @@ public class BigDoors extends JavaPlugin implements Listener
                           "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
         }
 
-        updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
+        updateManager.setEnabled(getConfigLoader().autoDLUpdate());
 
         if (commander != null)
             commander.setCanGo(true);
