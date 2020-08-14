@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
-import java.util.logging.Level;
 
 
 // TODO: Store a function that retrieves which step comes after the current one in the IStep implementations.
@@ -238,9 +237,11 @@ public abstract class Creator extends ToolUser
         cuboid = new Cuboid(new Vector3Di(firstPos),
                             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
-        if (LimitsManager.exceedsLimit(player, Limit.DOOR_SIZE, cuboid.getVolume()))
+        final @NotNull OptionalInt sizeLimit = LimitsManager.getLimit(player, Limit.DOOR_SIZE);
+        if (sizeLimit.isPresent() && cuboid.getVolume() > sizeLimit.getAsInt())
         {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_AREATOOBIG, cuboid.getVolume().toString()));
+            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_AREATOOBIG, cuboid.getVolume().toString(),
+                                                  Integer.toString(sizeLimit.getAsInt())));
             return false;
         }
 
@@ -303,7 +304,7 @@ public abstract class Creator extends ToolUser
         if (idOpt.isPresent())
         {
             int id = idOpt.getAsInt();
-            if (id < 0 || id > getDoorType().getValidOpenDirections().size())
+            if (id < 0 || id >= getDoorType().getValidOpenDirections().size())
             {
                 PLogger.get().debug(
                     getClass().getSimpleName() + ": Player " + player.getUUID().toString() + " selected ID: " + id +
@@ -478,11 +479,6 @@ public abstract class Creator extends ToolUser
             player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POWERBLOCKTOOFAR,
                                                   String.format("%.2f", distance),
                                                   Integer.toString(distanceLimit.getAsInt())));
-            Level x = Level.INFO;
-            Level y = Level.FINE;
-            Level z = Level.FINER;
-            Level w = Level.FINEST;
-
             return false;
         }
 

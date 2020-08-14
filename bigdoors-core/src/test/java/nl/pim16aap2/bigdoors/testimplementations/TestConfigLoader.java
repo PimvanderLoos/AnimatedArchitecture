@@ -9,6 +9,7 @@ import java.util.OptionalInt;
 public class TestConfigLoader implements IConfigLoader
 {
     public OptionalInt maxdoorCount = OptionalInt.empty();
+    public OptionalInt maxDoorSize = OptionalInt.empty();
     public OptionalInt maxPowerBlockDistance = OptionalInt.empty();
     public OptionalInt maxBlocksToMove = OptionalInt.empty();
 
@@ -40,7 +41,7 @@ public class TestConfigLoader implements IConfigLoader
     @Override
     public OptionalInt maxDoorSize()
     {
-        return OptionalInt.empty();
+        return maxDoorSize;
     }
 
     @Override

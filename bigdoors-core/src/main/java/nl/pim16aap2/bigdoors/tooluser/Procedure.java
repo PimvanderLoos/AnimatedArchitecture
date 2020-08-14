@@ -45,6 +45,31 @@ public final class Procedure<T extends ToolUser>
     }
 
     /**
+     * Skips to a specific {@link IStep} in this {@link Procedure}.
+     * <p>
+     * If the step could not be found, the procedure will skip to the last step.
+     *
+     * @param goalStep The {@link IStep} to jump to.
+     * @return True if the jump was successful, otherwise false.
+     */
+    public boolean skipToStep(final @NotNull IStep goalStep)
+    {
+        System.out.println("skipToStep: Trying to find step: " + goalStep.getName());
+        while (steps.hasNext())
+        {
+            IStep step = steps.next();
+            System.out.println("skipToStep: Checking step: " + step.getName());
+            if (step.equals(goalStep))
+            {
+                System.out.println("skipToStep: IS A MATCH! RETURN TRUE!");
+                currentStep = step;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Applies some kind of input to the {@link StepExecutor} for the current step.
      *
      * @param obj The input to apply.

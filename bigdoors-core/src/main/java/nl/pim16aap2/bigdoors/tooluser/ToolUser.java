@@ -44,7 +44,7 @@ public abstract class ToolUser implements IRestartable
         Procedure<?> procedureTmp = null;
         try
         {
-            procedureTmp = getProcedure();
+            procedureTmp = new Procedure<>(this, generateSteps());
         }
         catch (InstantiationException e)
         {
@@ -72,7 +72,7 @@ public abstract class ToolUser implements IRestartable
      *
      * @return The list of {@link IStep}s that together will make up the {@link #procedure}.
      *
-     * @throws InstantiationException When a step's factory is incomplete or invalid.
+     * @throws InstantiationException When a step's factory is incomplete or otherwise invalid.
      */
     protected abstract List<IStep> generateSteps()
         throws InstantiationException;
@@ -83,10 +83,9 @@ public abstract class ToolUser implements IRestartable
      * @return The {@link Procedure} for this {@link ToolUser}.
      */
     @NotNull
-    protected Procedure<?> getProcedure()
-        throws InstantiationException
+    public Procedure<?> getProcedure()
     {
-        return new Procedure<>(this, generateSteps());
+        return procedure;
     }
 
     /**
@@ -203,6 +202,16 @@ public abstract class ToolUser implements IRestartable
         }
 
         return false;
+    }
+
+    /**
+     * Gets the {@link IStep} in the {@link #procedure} this {@link ToolUser} is currently at.
+     *
+     * @return The current {@link IStep} in the {@link #procedure}.
+     */
+    public IStep getCurrentStep()
+    {
+        return procedure.currentStep;
     }
 
     /**

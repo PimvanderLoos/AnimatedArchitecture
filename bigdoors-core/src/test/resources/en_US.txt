@@ -194,8 +194,8 @@ CREATOR.GENERAL.BLOCKSTOMOVETOOFAR=&4The number of blocks you want this door to 
 CREATOR.GENERAL.SETOPENDIR=&aPlease tell me which way you want the door to open. These are your options:\n%OPENDIRECTIONLIST%\nPlease type "/bigdoors setrotation <id>".
 
 
-# Supported: %BLOCKLIMIT%
-CREATOR.GENERAL.AREATOOBIG=&4You are not allowed to create a door this big. Your size limit is %BLOCKLIMIT%.
+# Supported: %BLOCKCOUNT% %BLOCKLIMIT%
+CREATOR.GENERAL.AREATOOBIG=&4You are not allowed to create a door this big. You selected %BLOCKCOUNT% blocks while your size limit is %BLOCKLIMIT%.
 
 # Supported: %DOORPRICE%
 CREATOR.GENERAL.INSUFFICIENTFUNDS=&4You have insufficient funds to create this door! You'd need %DOORPRICE%.

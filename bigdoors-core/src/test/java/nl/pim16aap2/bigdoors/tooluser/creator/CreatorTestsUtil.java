@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.storage.IStorage;
+import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.testimplementations.TestEconomyManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -33,6 +34,18 @@ class CreatorTestsUtil
     static
     {
         UnitTestUtil.setupStatic();
+    }
+
+    @NotNull
+    protected TestConfigLoader getConfigLoader()
+    {
+        return (TestConfigLoader) UnitTestUtil.PLATFORM.getConfigLoader();
+    }
+
+    @NotNull
+    protected TestEconomyManager getEconomyManager()
+    {
+        return (TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager();
     }
 
     @Mock
@@ -72,7 +85,7 @@ class CreatorTestsUtil
     protected @NotNull Vector3Di max = new Vector3Di(20, 25, 30);
     protected @NotNull Vector3Di engine = new Vector3Di(20, 15, 25);
     protected @NotNull Vector3Di powerblock = new Vector3Di(40, 40, 40);
-    protected @NotNull String doorName = "testDoor";
+    protected @NotNull String doorName = "testDoor123";
     protected @NotNull IPWorld world =
         UnitTestUtil.PLATFORM.getPWorldFactory().create(UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db8"));
     protected @NotNull IPWorld world2 =
@@ -128,8 +141,8 @@ class CreatorTestsUtil
 
         int idx = 0;
         for (Object obj : input)
-            Assert.assertTrue(String.format("IDX: %d, Input: %s, StepMessage: %s Error Message: %s",
-                                            (idx++), obj.toString(), creator.getCurrentStepMessage(),
+            Assert.assertTrue(String.format("IDX: %d, Input: %s, Step: %s Error Message: %s",
+                                            (idx++), obj.toString(), creator.getCurrentStep().getName(),
                                             PLAYER.getBeforeLastMessage()),
                               creator.handleInput(obj));
 

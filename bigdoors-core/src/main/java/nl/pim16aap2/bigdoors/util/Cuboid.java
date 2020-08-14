@@ -153,4 +153,23 @@ public class Cuboid
         int cZ = (int) (max.getZ() - ((max.getZ() - min.getZ()) / 2.0f));
         return new Vector3Di(cX, cY, cZ);
     }
+
+    @Override
+    public int hashCode()
+    {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Cuboid other = (Cuboid) o;
+        return min.equals(other.min) && max.equals(other.max);
+    }
 }

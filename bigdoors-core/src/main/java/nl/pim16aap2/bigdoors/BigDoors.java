@@ -367,6 +367,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Creators / ToolUsers
  */
+// TODO: Make sure skippable first steps are possible.
 // TODO: Before starting the creation process, make sure that there is space in the player's inventory for the tool
 //       So when the player's inventory is full:
 //       "/bigdoors newdoor -type BigDoor" -> "Your inventory appears to be full! Please make some space and try again!"

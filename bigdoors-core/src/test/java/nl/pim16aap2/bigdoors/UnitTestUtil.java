@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 @UtilityClass
@@ -97,6 +98,20 @@ public class UnitTestUtil
         PLATFORM.setMessages(
             new Messages(PLATFORM, new File(TEST_RESOURCE_FOLDER.getAbsolutePath()), "en_US_TEST", PLogger.get()));
         isInitialized = true;
+    }
+
+    /**
+     * Checks if an object and an Optional are the same or if they both don't exist/are null.
+     *
+     * @param obj The object to compare the optional to.
+     * @param opt The Optional to compare against the object.
+     * @param <T> The type of the Object and Optional.
+     * @return True if the Optional holds an object that equals the object or if the object is null and the Optional is
+     * empty.
+     */
+    public <T> boolean optionalEquals(final @Nullable T obj, final @NotNull Optional<T> opt)
+    {
+        return opt.map(t -> t.equals(obj)).orElseGet(() -> obj == null);
     }
 
     /**

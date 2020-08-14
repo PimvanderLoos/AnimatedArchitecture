@@ -23,6 +23,7 @@ interface MessageVariable
     String DOORPRICE = "%DOORPRICE%";
     String DOORNAME = "%DOORNAME%";
     String BLOCKLIMIT = "%BLOCKLIMIT%";
+    String BLOCKCOUNT = "%BLOCKCOUNT%";
     String OPENDIRECTIONLIST = "%OPENDIRECTIONLIST%";
     String DISTANCE = "%DISTANCE%";
     String DISTANCELIMIT = "%DISTANCELIMIT%";
