@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.logging.Level;
 
 
 // TODO: Store a function that retrieves which step comes after the current one in the IStep implementations.
@@ -469,17 +470,20 @@ public abstract class Creator extends ToolUser
             return false;
         }
 
+        final @NotNull OptionalInt distanceLimit = LimitsManager.getLimit(player, Limit.POWERBLOCK_DISTANCE);
+        final double distance;
+        if (distanceLimit.isPresent() &&
+            (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            final @NotNull OptionalInt distanceLimit = LimitsManager.getLimit(player, Limit.POWERBLOCK_DISTANCE);
-            final double distance;
-            if (distanceLimit.isPresent() &&
-                (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
-            {
-                player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POWERBLOCKTOOFAR,
-                                                      String.format("%.2f", distance),
-                                                      Integer.toString(distanceLimit.getAsInt())));
-                return false;
-            }
+            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POWERBLOCKTOOFAR,
+                                                  String.format("%.2f", distance),
+                                                  Integer.toString(distanceLimit.getAsInt())));
+            Level x = Level.INFO;
+            Level y = Level.FINE;
+            Level z = Level.FINER;
+            Level w = Level.FINEST;
+
+            return false;
         }
 
         powerblock = pos;

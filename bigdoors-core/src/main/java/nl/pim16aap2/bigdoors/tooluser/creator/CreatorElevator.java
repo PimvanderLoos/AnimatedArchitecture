@@ -6,55 +6,30 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Elevator;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
-import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
-import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.OptionalInt;
 
-public class CreatorElevator extends Creator
+public class CreatorElevator extends CreatorPortcullis
 {
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final DoorType doorType = DoorTypeElevator.get();
 
-    private int blocksToMove;
-
     public CreatorElevator(final @NotNull IPPlayer player, final @Nullable String name)
     {
-        super(player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(player, name);
     }
 
     public CreatorElevator(final @NotNull IPPlayer player)
     {
         this(player, null);
-    }
-
-    private boolean setBlocksToMove(final int blocksToMove)
-    {
-        final @NotNull OptionalInt blocksToMoveLimit = LimitsManager.getLimit(player, Limit.BLOCKS_TO_MOVE);
-        if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
-        {
-            System.out.println("Limit = " + blocksToMoveLimit.getAsInt());
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_BLOCKSTOMOVETOOFAR,
-                                                  Integer.toString(blocksToMove),
-                                                  Integer.toString(blocksToMoveLimit.getAsInt())));
-            return false;
-        }
-
-        this.blocksToMove = blocksToMove;
-        procedure.goToNextStep();
-        return true;
     }
 
     @Override

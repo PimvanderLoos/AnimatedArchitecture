@@ -189,7 +189,7 @@ CREATOR.GENERAL.POWERBLOCKTOOFAR=&4The powerblock is too far from the door!\nIt 
 CREATOR.GENERAL.BLOCKSTOMOVETOOFAR=&4The number of blocks you want this door to move exceeds the limit!\nYou selected %DISTANCE%, while your limit is only %DISTANCELIMIT% blocks!
 
 
-# Supported: %OPENDIRECTIONLIST% 
+# Supported: %OPENDIRECTIONLIST%
 # Note that this produces a list with 1 entry per line.
 CREATOR.GENERAL.SETOPENDIR=&aPlease tell me which way you want the door to open. These are your options:\n%OPENDIRECTIONLIST%\nPlease type "/bigdoors setrotation <id>".
 
@@ -220,6 +220,7 @@ CREATOR.PORTCULLIS.INIT=&aYou have been given a Portcullis Creator Stick!
 CREATOR.PORTCULLIS.SUCCESS=&aPortcullis creation process successful!
 CREATOR.PORTCULLIS.STEP1=&aStep 1/2: Please select the first corner of the portcullis.
 CREATOR.PORTCULLIS.STEP2=&aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the portcullis.
+CREATOR.PORTCULLIS.BLOCKSTOMOVE=&aAlmost there! Please select how many blocks you want this portcullis to move using /bigdoors setblockstomove <value>.
 
 
 CREATOR.DRAWBRIDGE.STICKLORE=This tool is used to create a drawbridge.
@@ -236,7 +237,7 @@ CREATOR.ELEVATOR.INIT=&aYou have been given a Elevators Creator Stick
 CREATOR.ELEVATOR.SUCCESS=&aElevator creation process successful!
 CREATOR.ELEVATOR.STEP1=&aStep 1/2: Please select the first corner of the elevator.
 CREATOR.ELEVATOR.STEP2=&aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the elevator.
-CREATOR.ELEVATOR.BLOCKSTOMOVE=&aPlease tell the plugin how many blocks this elevator should move.
+CREATOR.ELEVATOR.BLOCKSTOMOVE=&aAlmost there! Please select how many blocks you want this elevator to move using /bigdoors setblockstomove <value>.
 
 
 CREATOR.SLIDINGDOOR.STICKLORE=This tool is used to create a sliding door

@@ -60,6 +60,15 @@ class CreatorElevatorTest extends CreatorTestsUtil
         threadPool.awaitTermination(20L, TimeUnit.MILLISECONDS);
         AbstractDoorBase resultDoor = resultDoorRef.get();
         Assert.assertNotNull(resultDoor);
+        if (!actualDoor.equals(resultDoor))
+        {
+            System.out.println(actualDoor.toString());
+            System.out.println(((Elevator) actualDoor).getBlocksToMove() + "\n");
+            System.out.println(resultDoor.toString());
+            System.out.println(((Elevator) resultDoor).getBlocksToMove() + "\n");
+            System.exit(0);
+        }
+
         Assert.assertEquals(actualDoor, resultDoor);
 
         // reset

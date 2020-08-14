@@ -218,9 +218,12 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
 // TODO: Get rid of all calls to SpigotUtil for messaging players. They should all go via the proper interface for that.
-// TODO: Logging, instead of "onlyLogExceptions", properly use logging levels. Also implement a
-//       MINIMALISTIC logging level. On this level, only the names + messages of exceptions are written
-//       to the console. Make this the default setting.
+// TODO: Logging, instead of "onlyLogExceptions", properly use logging levels. Just have a loggingLevel option in the
+//       config and any levels lower than the selected value should be suppressed.
+//       Lower level = Finer detail.
+//       Still need to figure out what to actually do with this. Should it write to the file regardless?
+//       Should the file have its own setting?
+// TODO: Don't log everything at INFO, e.g. Log config stuff at Level.CONFIG.
 // TODO: Every Manager must be a singleton.
 // TODO: Add door creation event (or perhaps door modification event?).
 // TODO: Use the following snippet for all singletons, not just the ones in bigdoors-core. This will require the use of

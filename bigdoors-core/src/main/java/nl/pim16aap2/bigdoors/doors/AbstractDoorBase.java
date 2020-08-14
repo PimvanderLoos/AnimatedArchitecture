@@ -487,6 +487,14 @@ public abstract class AbstractDoorBase implements IDoorBase
         builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
+        getDoorType().getTypeData(this).ifPresent(
+            data ->
+            {
+                int idx = 0;
+                for (DoorType.Parameter parameter : getDoorType().getParameters())
+                    builder.append(parameter.getParameterName()).append(": ").append(data[idx++].toString())
+                           .append("\n");
+            });
 
         return builder.toString();
     }
