@@ -499,7 +499,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         return builder.toString();
     }
 
-    /** {@inheritDoc} */
     // TODO: Hashcode. Just the UID? Or actually calculate it?
     @Override
     public boolean equals(Object o)
@@ -512,8 +511,8 @@ public abstract class AbstractDoorBase implements IDoorBase
 
         AbstractDoorBase other = (AbstractDoorBase) o;
         return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) &&
-            maximum.equals(other.maximum) && getDoorType().equals(other.getDoorType()) && open == other.open &&
-            doorOwner.equals(other.doorOwner) && isLocked == other.isLocked &&
+            maximum.equals(other.maximum) && engine.equals(other.engine) && getDoorType().equals(other.getDoorType()) &&
+            open == other.open && doorOwner.equals(other.doorOwner) && isLocked == other.isLocked &&
             world.getUID().equals(other.world.getUID());
     }
 

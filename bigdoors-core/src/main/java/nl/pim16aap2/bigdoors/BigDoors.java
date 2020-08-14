@@ -441,6 +441,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Unit tests
  */
+// TODO: Don't use the beforeLastMessage method. Instead, use something like getLastWarning. Also means that levels will
+//       have to be used when messaging players.
 // TODO: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
 // TODO: https://www.spigotmc.org/threads/using-junit-to-test-plugins.71420/#post-789671
 // TODO: https://github.com/seeseemelk/MockBukkit

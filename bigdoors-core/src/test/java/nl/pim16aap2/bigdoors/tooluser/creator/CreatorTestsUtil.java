@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.storage.IStorage;
+import nl.pim16aap2.bigdoors.testimplementations.TestEconomyManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -20,6 +21,7 @@ import org.mockito.stubbing.Answer;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 class CreatorTestsUtil
@@ -68,7 +70,7 @@ class CreatorTestsUtil
 
     protected @NotNull Vector3Di min = new Vector3Di(10, 15, 20);
     protected @NotNull Vector3Di max = new Vector3Di(20, 25, 30);
-    protected @NotNull Vector3Di engine = new Vector3Di(15, 15, 25);
+    protected @NotNull Vector3Di engine = new Vector3Di(20, 15, 25);
     protected @NotNull Vector3Di powerblock = new Vector3Di(40, 40, 40);
     protected @NotNull String doorName = "testDoor";
     protected @NotNull IPWorld world =
@@ -115,6 +117,27 @@ class CreatorTestsUtil
         });
 
         return resultDoorRef;
+    }
+
+    public void testCreation(final @NotNull Creator creator, AbstractDoorBase actualDoor,
+                             final @NotNull Object... input)
+        throws InterruptedException
+    {
+        ((TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager()).isEconomyEnabled = false;
+        final @NotNull AtomicReference<AbstractDoorBase> resultDoorRef = setupInsertHijack();
+
+        int idx = 0;
+        for (Object obj : input)
+            Assert.assertTrue(String.format("IDX: %d, Input: %s, StepMessage: %s Error Message: %s",
+                                            (idx++), obj.toString(), creator.getCurrentStepMessage(),
+                                            PLAYER.getBeforeLastMessage()),
+                              creator.handleInput(obj));
+
+        // Wait for the thread pool to finish inserting the door etc,
+        threadPool.awaitTermination(20L, TimeUnit.MILLISECONDS);
+        AbstractDoorBase resultDoor = resultDoorRef.get();
+        Assert.assertNotNull(resultDoor);
+        Assert.assertEquals(actualDoor, resultDoor);
     }
 
 }
