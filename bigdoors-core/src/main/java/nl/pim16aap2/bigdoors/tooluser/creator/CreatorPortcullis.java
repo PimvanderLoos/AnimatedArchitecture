@@ -62,8 +62,6 @@ public class CreatorPortcullis extends Creator
 
     protected boolean setBlocksToMove(final int blocksToMove)
     {
-        System.out.println("SETTING BLOCKS TO MOVE!");
-        System.out.println("BTM VAL: " + blocksToMove);
         final @NotNull OptionalInt blocksToMoveLimit = LimitsManager.getLimit(player, Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
