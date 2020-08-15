@@ -996,7 +996,8 @@ public class SQLiteJDBCDriverConnection
     {
         Set<Door> doors = new HashSet<>();
         try (Connection conn = getConnection();
-             PreparedStatement stmp = conn.prepareStatement("SELECT p.playername, p.playeruuid, d.* from (SELECT DISTINCT(d.id), u.playerid, d.* FROM doors d left join sqlUnion u on d.id = u.doorUID where u.permission = 0) d left join players p on p.id = d.playerid"))
+             // Lord forgive me...
+             PreparedStatement stmp = conn.prepareStatement("SELECT DISTINCT (d.id), name, world, isopen, xmin, ymin, zmin, xmax, ymax, zmax, enginex, enginey, enginez, islocked, type, engineside, powerblockx, powerblocky, powerblockz, opendirection, autoclose, chunkhash, blockstomove, p.playername, p.playeruuid from (SELECT d.*, u.playerid FROM doors d left join sqlUnion u on d.id = u.doorUID where u.permission = 0) d left join players p on p.id = d.playerid"))
         {
             ResultSet rs = stmp.executeQuery();
             while (rs.next())
