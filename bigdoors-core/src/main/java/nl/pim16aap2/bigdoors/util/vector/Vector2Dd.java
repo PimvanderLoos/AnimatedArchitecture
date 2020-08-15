@@ -23,18 +23,21 @@ public final class Vector2Dd implements IVector2DdConst, Cloneable
         y = other.getY();
     }
 
+    @NotNull
     public Vector2Dd add(final @NotNull Vector2Dd other)
     {
         add(other.getX(), other.getY());
         return this;
     }
 
+    @NotNull
     public Vector2Dd subtract(final @NotNull Vector2Dd other)
     {
         add(-other.getX(), -other.getY());
         return this;
     }
 
+    @NotNull
     public Vector2Dd multiply(final @NotNull Vector2Dd other)
     {
         x *= other.getX();
@@ -42,6 +45,7 @@ public final class Vector2Dd implements IVector2DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector2Dd divide(final @NotNull Vector2Dd other)
     {
         x /= other.getX();
@@ -49,6 +53,7 @@ public final class Vector2Dd implements IVector2DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector2Dd multiply(final double val)
     {
         x *= val;
@@ -56,6 +61,7 @@ public final class Vector2Dd implements IVector2DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector2Dd divide(final double val)
     {
         x /= val;
@@ -63,30 +69,35 @@ public final class Vector2Dd implements IVector2DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector2Dd addX(double val)
     {
         x += val;
         return this;
     }
 
+    @NotNull
     public Vector2Dd addY(double val)
     {
         y += val;
         return this;
     }
 
+    @NotNull
     public Vector2Dd setX(double newVal)
     {
         x = newVal;
         return this;
     }
 
+    @NotNull
     public Vector2Dd setY(double newVal)
     {
         y = newVal;
         return this;
     }
 
+    @NotNull
     public Vector2Dd add(double x, double y)
     {
         this.x += x;
@@ -136,6 +147,7 @@ public final class Vector2Dd implements IVector2DdConst, Cloneable
         return x == other.getX() && y == other.getY();
     }
 
+    @NotNull
     public Vector2Dd normalize()
     {
         double length = Math.sqrt(x * x + y * y);

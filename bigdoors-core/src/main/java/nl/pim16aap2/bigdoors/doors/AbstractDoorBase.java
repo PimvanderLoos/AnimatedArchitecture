@@ -59,6 +59,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private boolean open;
+    @Getter(onMethod = @__({@Override}))
     @NotNull
     private RotateDirection openDir;
 
@@ -180,6 +181,11 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (!getPotentialNewCoordinates(newMin, newMax))
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
+        System.out.println("oldMin: " + getMinimum().toString());
+        System.out.println("oldMax: " + getMaximum().toString());
+        System.out.println("newMin: " + newMin.toString());
+        System.out.println("newMax: " + newMax.toString());
+
         IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
                                                        .createPrepareEvent(this, cause, actionType, responsible, time,
                                                                            skipAnimation, newMin, newMax);
@@ -292,14 +298,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     public final int getPermission()
     {
         return doorOwner == null ? -1 : doorOwner.getPermission();
-    }
-
-    @Override
-    @NotNull
-    public final RotateDirection getOpenDir()
-    {
-        // TODO: Verify the open direction here. See IDoorBase#isValidOpenDirection
-        return openDir == null || openDir == RotateDirection.NONE ? openDir = getDefaultOpenDirection() : openDir;
     }
 
     @Override

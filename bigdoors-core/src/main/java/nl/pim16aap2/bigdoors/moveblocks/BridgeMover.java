@@ -2,22 +2,15 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Drawbridge;
-import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.doors.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotEast;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotNorth;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotSouth;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.GNLVerticalRotWest;
-import nl.pim16aap2.bigdoors.moveblocks.getnewlocation.IGetNewLocation;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.Functional.TriFunction;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -27,8 +20,6 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.BiFunction;
-
 /**
  * Represents a {@link BlockMover} for {@link Drawbridge}s.
  *
@@ -36,12 +27,14 @@ import java.util.function.BiFunction;
  */
 public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends BlockMover
 {
-    private final IGetNewLocation gnl;
+    private final IVector3DdConst rotationCenter;
     protected final boolean NS;
-    protected final BiFunction<PBlockData, Double, Vector3Dd> getVector;
+    @NotNull
+    protected final TriFunction<Vector3Dd, IVector3DdConst, Double, Vector3Dd> rotator;
 
     private int halfEndCount;
     private double step;
+    protected final double angle;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -49,20 +42,23 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
      * @param door            The {@link AbstractDoorBase}.
      * @param time            The amount of time (in seconds) the door will try to toggle itself in.
      * @param skipAnimation   If the door should be opened instantly (i.e. skip animation) or not.
-     * @param upDown          Whether the {@link EDoorType#DRAWBRIDGE} should go up or down.
      * @param rotateDirection The direction the {@link AbstractDoorBase} will move.
      * @param multiplier      The speed multiplier.
      * @param player          The player who opened this door.
      */
-    public BridgeMover(final double time, final @NotNull T door, final @NotNull PBlockFace upDown,
+    public BridgeMover(final double time, final @NotNull T door,
                        final @NotNull RotateDirection rotateDirection, final boolean skipAnimation,
                        final double multiplier, final @NotNull IPPlayer player, final @NotNull IVector3DiConst finalMin,
                        final @NotNull IVector3DiConst finalMax, final @NotNull DoorActionCause cause,
                        final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, upDown, rotateDirection, -1, player, finalMin, finalMax, cause, actionType);
+        super(door, time, skipAnimation, null, rotateDirection, -1, player, finalMin, finalMax, cause, actionType);
+
+        System.out.println("finalMin: " + finalMin);
+        System.out.println("finalMax: " + finalMax);
 
         NS = door.isNorthSouthAligned();
+        rotationCenter = new Vector3Dd(door.getEngine()).add(0.5, 0, 0.5);
 
         final int xLen = Math.abs(door.getMaximum().getX() - door.getMinimum().getX());
         final int yLen = Math.abs(door.getMaximum().getY() - door.getMinimum().getY());
@@ -75,28 +71,27 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         switch (rotateDirection)
         {
             case NORTH:
-                gnl = new GNLVerticalRotNorth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-                getVector = this::getVectorNorth;
-                break;
-            case EAST:
-                gnl = new GNLVerticalRotEast(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-                getVector = this::getVectorEast;
+                angle = -Math.PI / 2;
+                rotator = Vector3Dd::rotateAroundXAxis;
                 break;
             case SOUTH:
-                gnl = new GNLVerticalRotSouth(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-                getVector = this::getVectorSouth;
+                angle = Math.PI / 2;
+                rotator = Vector3Dd::rotateAroundXAxis;
+                break;
+            case EAST:
+                angle = Math.PI / 2;
+                rotator = Vector3Dd::rotateAroundZAxis;
                 break;
             case WEST:
-                gnl = new GNLVerticalRotWest(world, xMin, xMax, yMin, yMax, zMin, zMax, upDown, openDirection);
-                getVector = this::getVectorWest;
+                angle = -Math.PI / 2;
+                rotator = Vector3Dd::rotateAroundZAxis;
                 break;
             default:
-                gnl = null;
-                getVector = null;
-                PLogger.get().dumpStackTrace("Failed to open door \"" + getDoorUID()
-                                                 + "\". Reason: Invalid rotateDirection \"" +
-                                                 rotateDirection.toString() + "\"");
-                return; // TODO: This will cause a memory leak, as this object will never be removed from the list keeping track of movers.
+                angle = 0;
+                rotator = null;
+                PLogger.get().logException(new IllegalArgumentException(
+                    "RotateDirection \"" + rotateDirection.name() + " is not valid for this type!"));
+                return;
         }
 
         init();
@@ -109,87 +104,28 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
+        step = angle / super.endCount;
         halfEndCount = super.endCount / 2;
-        step = (Math.PI / 2.0f) / super.endCount;
         super.soundActive = new PSoundDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
-    /**
-     * Calculates the speed vector of a block when rotating in northern direction.
-     *
-     * @param block   The block.
-     * @param stepSum The angle (in rads) of the block.
-     * @return The speed vector of the block.
-     */
     @NotNull
-    private Vector3Dd getVectorNorth(final @NotNull PBlockData block, final double stepSum)
+    protected Vector3Dd getGoalPos(final double angle, final double x, final double y, final double z)
     {
-        final double startAngle = block.getStartAngle();
-        final double posX = block.getFBlock().getPLocation().getX();
-        final double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
-        final double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle - stepSum);
-        return new Vector3Dd(posX, posY, posZ + 0.5);
+        return rotator.apply(new Vector3Dd(x, y, z), rotationCenter, angle);
     }
 
-    /**
-     * Calculates the speed vector of a block when rotating in western direction.
-     *
-     * @param block   The block.
-     * @param stepSum The angle (in rads) of the block.
-     * @return The speed vector of the block.
-     */
     @NotNull
-    private Vector3Dd getVectorWest(final @NotNull PBlockData block, final double stepSum)
+    protected Vector3Dd getGoalPos(final double angle, final @NotNull PBlockData pBlockData)
     {
-        final double startAngle = block.getStartAngle();
-        final double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle - stepSum);
-        final double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle - stepSum);
-        final double posZ = block.getFBlock().getPLocation().getZ();
-        return new Vector3Dd(posX + 0.5, posY, posZ);
-    }
-
-    /**
-     * Calculates the speed vector of a block when rotating in southern direction.
-     *
-     * @param block   The block.
-     * @param stepSum The angle (in rads) of the block.
-     * @return The speed vector of the block.
-     */
-    @NotNull
-    private Vector3Dd getVectorSouth(final @NotNull PBlockData block, final double stepSum)
-    {
-        final float startAngle = block.getStartAngle();
-        final double posX = block.getFBlock().getPLocation().getX();
-        final double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
-        final double posZ = door.getEngine().getZ() - block.getRadius() * Math.sin(startAngle + stepSum);
-        return new Vector3Dd(posX, posY, posZ + 0.5);
-    }
-
-    /**
-     * Calculates the speed vector of a block when rotating in eastern direction.
-     *
-     * @param block   The block.
-     * @param stepSum The angle (in rads) of the block.
-     * @return The speed vector of the block.
-     */
-    @NotNull
-    private Vector3Dd getVectorEast(final @NotNull PBlockData block, final double stepSum)
-    {
-        final float startAngle = block.getStartAngle();
-        final double posX = door.getEngine().getX() - block.getRadius() * Math.sin(startAngle + stepSum);
-        final double posY = door.getEngine().getY() - block.getRadius() * Math.cos(startAngle + stepSum);
-        final double posZ = block.getFBlock().getPLocation().getZ();
-        return new Vector3Dd(posX + 0.5, posY, posZ);
+        return getGoalPos(angle, pBlockData.getStartX(), pBlockData.getStartY(), pBlockData.getStartZ());
     }
 
     @Override
     protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        final @NotNull IVector3DdConst startLocation = block.getStartPosition();
-        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
-                                                                 startLocation.getY(), startLocation.getZ());
-        return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
+        return getGoalPos(angle, block);
     }
 
     @Override
@@ -203,16 +139,12 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         // Also, this stuff needs to be done on the main thread.
         if (replace)
             BigDoors.get().getPlatform().newPExecutor().runSync(this::respawnBlocks);
+
         for (final PBlockData block : savedBlocks)
         {
-            double radius = block.getRadius();
-            if (radius != 0)
-            {
-                Vector3Dd vec = getVector.apply(block, stepSum)
-                                         .subtract(block.getFBlock().getPosition());
-                vec.multiply(0.101);
-                block.getFBlock().setVelocity(vec);
-            }
+            final @NotNull Vector3Dd vec = getGoalPos(stepSum, block).subtract(block.getFBlock().getPosition())
+                                                                     .multiply(0.101);
+            block.getFBlock().setVelocity(vec);
         }
     }
 
@@ -226,12 +158,11 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
-        return gnl.getNewLocation(radius, xAxis, yAxis, zAxis);
+        return BigDoors.get().getPlatform().getPLocationFactory().create(world, getGoalPos(angle, xAxis, yAxis, zAxis));
     }
 
     @Override

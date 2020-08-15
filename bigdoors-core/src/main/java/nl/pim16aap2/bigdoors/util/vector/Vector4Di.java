@@ -25,18 +25,21 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         w = other.getW();
     }
 
+    @NotNull
     public Vector4Di add(final @NotNull IVector4DiConst other)
     {
         add(other.getX(), other.getY(), other.getZ(), other.getW());
         return this;
     }
 
+    @NotNull
     public Vector4Di subtract(final @NotNull IVector4DiConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ(), -other.getW());
         return this;
     }
 
+    @NotNull
     public Vector4Di multiply(final @NotNull IVector4DiConst other)
     {
         x *= other.getX();
@@ -46,6 +49,7 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector4Di divide(final @NotNull IVector4DiConst other)
     {
         x /= other.getX();
@@ -55,6 +59,7 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector4Di multiply(final double val)
     {
         x *= val;
@@ -64,6 +69,7 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector4Di divide(final double val)
     {
         x /= val;
@@ -73,54 +79,63 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector4Di addX(int val)
     {
         x += val;
         return this;
     }
 
+    @NotNull
     public Vector4Di addY(int val)
     {
         y += val;
         return this;
     }
 
+    @NotNull
     public Vector4Di addZ(int val)
     {
         z += val;
         return this;
     }
 
+    @NotNull
     public Vector4Di addW(int val)
     {
         w += val;
         return this;
     }
 
+    @NotNull
     public Vector4Di setX(int newVal)
     {
         x = newVal;
         return this;
     }
 
+    @NotNull
     public Vector4Di setY(int newVal)
     {
         y = newVal;
         return this;
     }
 
+    @NotNull
     public Vector4Di setZ(int newVal)
     {
         z = newVal;
         return this;
     }
 
+    @NotNull
     public Vector4Di setW(int newVal)
     {
         w = newVal;
         return this;
     }
 
+    @NotNull
     public Vector4Di add(int x, int y, int z, int w)
     {
         this.x += x;
@@ -174,6 +189,7 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         return x == other.getX() && y == other.getY() && z == other.getZ() && w == other.getW();
     }
 
+    @NotNull
     public Vector4Di normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z + w * w);

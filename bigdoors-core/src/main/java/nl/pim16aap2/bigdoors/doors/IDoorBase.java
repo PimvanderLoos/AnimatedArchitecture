@@ -197,9 +197,13 @@ public interface IDoorBase
     int getPermission();
 
     /**
-     * Gets the {@link RotateDirection} this {@link IDoorBase} will open if currently closed. Note that if it's
-     * currently in the open status, it'll go in the opposite direction, as the closing direction is the opposite of the
-     * opening direction.
+     * Gets the {@link RotateDirection} this {@link IDoorBase} will open if currently closed.
+     * <p>
+     * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
+     * direction is the opposite of the opening direction. This isn't taken into account by this method.
+     * <p>
+     * If you want to get the direction the door would go in if it were toggled given its current state, use {@link
+     * #getCurrentToggleDir()} instead.
      *
      * @return The {@link RotateDirection} this {@link IDoorBase} will open in.
      */

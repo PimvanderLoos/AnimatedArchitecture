@@ -182,12 +182,11 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
 
             {
                 final int doorUID = 2;
-                final int autoOpen = 0;
-                final int autoClose = 0;
+                final int autoOpen = -1;
+                final int autoClose = -1;
                 final boolean modeUp = true;
                 final boolean isOpen = false;
                 final boolean isLocked = false;
-                final boolean northSouth = true;
                 final @NotNull String name = "massive2";
                 final @NotNull PBlockFace currentDirection = PBlockFace.DOWN;
                 final @NotNull Vector3Di min = new Vector3Di(144, 75, 168);
@@ -198,8 +197,7 @@ public class SQLiteJDBCDriverConnectionTest implements IRestartableHolder
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
                                                          RotateDirection.valueOf(0), doorOwner, isLocked);
-                final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, currentDirection,
-                                                                      modeUp, northSouth);
+                final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
                 door2 = drawbridge;
             }
 

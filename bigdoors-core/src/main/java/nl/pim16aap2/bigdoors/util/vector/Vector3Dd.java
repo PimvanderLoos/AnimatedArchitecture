@@ -24,13 +24,21 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         z = other.getZ();
     }
 
+    public Vector3Dd(final @NotNull IVector3DiConst other)
+    {
+        x = other.getX();
+        y = other.getY();
+        z = other.getZ();
+    }
+
+    @NotNull
     public Vector3Dd rotateAroundXAxis(final double radians)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
+        final double cos = Math.cos(radians);
+        final double sin = Math.sin(radians);
 
-        double newY = cos * getY() - sin * getZ();
-        double newZ = sin * getY() + cos * getZ();
+        final double newY = cos * getY() - sin * getZ();
+        final double newZ = sin * getY() + cos * getZ();
 
         setY(newY);
         setZ(newZ);
@@ -38,29 +46,31 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Dd rotateAroundXAxis(final @NotNull IVector3DdConst pivotPoint, final double radians)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
+        final double cos = Math.cos(radians);
+        final double sin = Math.sin(radians);
 
-        double translatedY = y - pivotPoint.getY();
-        double translatedZ = z - pivotPoint.getZ();
+        final double translatedY = y - pivotPoint.getY();
+        final double translatedZ = z - pivotPoint.getZ();
 
-        double changeY = cos * translatedY - sin * translatedZ;
-        double changeZ = sin * translatedY + cos * translatedZ;
+        final double changeY = cos * translatedY - sin * translatedZ;
+        final double changeZ = sin * translatedY + cos * translatedZ;
 
         setY(pivotPoint.getY() + changeY);
         setZ(pivotPoint.getZ() + changeZ);
         return this;
     }
 
+    @NotNull
     public Vector3Dd rotateAroundYAxis(final double radians)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
+        final double cos = Math.cos(radians);
+        final double sin = Math.sin(radians);
 
-        double newX = cos * getX() + sin * getZ();
-        double newZ = -sin * getX() + cos * getZ();
+        final double newX = cos * getX() + sin * getZ();
+        final double newZ = -sin * getX() + cos * getZ();
 
         setX(newX);
         setZ(newZ);
@@ -68,29 +78,31 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Dd rotateAroundYAxis(final @NotNull IVector3DdConst pivotPoint, final double radians)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
+        final double cos = Math.cos(radians);
+        final double sin = Math.sin(radians);
 
-        double translatedX = x - pivotPoint.getX();
-        double translatedZ = z - pivotPoint.getZ();
+        final double translatedX = x - pivotPoint.getX();
+        final double translatedZ = z - pivotPoint.getZ();
 
-        double changeX = cos * translatedX - sin * translatedZ;
-        double changeZ = sin * translatedX + cos * translatedZ;
+        final double changeX = cos * translatedX - sin * translatedZ;
+        final double changeZ = sin * translatedX + cos * translatedZ;
 
         setX(pivotPoint.getX() + changeX);
         setZ(pivotPoint.getZ() + changeZ);
         return this;
     }
 
+    @NotNull
     public Vector3Dd rotateAroundZAxis(final double radians)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
+        final double cos = Math.cos(radians);
+        final double sin = Math.sin(radians);
 
-        double newX = cos * getX() - sin * getY();
-        double newY = sin * getX() + cos * getY();
+        final double newX = cos * getX() - sin * getY();
+        final double newY = sin * getX() + cos * getY();
 
         setX(newX);
         setY(newY);
@@ -98,34 +110,38 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Dd rotateAroundZAxis(final @NotNull IVector3DdConst pivotPoint, final double radians)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
+        final double cos = Math.cos(radians);
+        final double sin = Math.sin(radians);
 
-        double translatedX = x - pivotPoint.getX();
-        double translatedY = y - pivotPoint.getY();
+        final double translatedY = y - pivotPoint.getY();
+        final double translatedX = x - pivotPoint.getX();
 
-        double changeX = cos * translatedX - sin * translatedY;
-        double changeY = sin * translatedX + cos * translatedY;
+        final double changeY = cos * translatedY - sin * translatedX;
+        final double changeX = sin * translatedY + cos * translatedX;
 
+        setY(pivotPoint.getY() + changeY);
         setX(pivotPoint.getX() + changeX);
-        setY(pivotPoint.getZ() + changeY);
         return this;
     }
 
+    @NotNull
     public Vector3Dd add(final @NotNull IVector3DdConst other)
     {
         add(other.getX(), other.getY(), other.getZ());
         return this;
     }
 
+    @NotNull
     public Vector3Dd subtract(final @NotNull IVector3DdConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ());
         return this;
     }
 
+    @NotNull
     public Vector3Dd multiply(final @NotNull IVector3DdConst other)
     {
         x *= other.getX();
@@ -134,6 +150,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Dd divide(final @NotNull IVector3DdConst other)
     {
         x /= other.getX();
@@ -142,6 +159,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Dd multiply(final double val)
     {
         x *= val;
@@ -150,6 +168,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Dd divide(final double val)
     {
         x /= val;
@@ -158,42 +177,49 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Dd addX(double val)
     {
         x += val;
         return this;
     }
 
+    @NotNull
     public Vector3Dd addY(double val)
     {
         y += val;
         return this;
     }
 
+    @NotNull
     public Vector3Dd addZ(double val)
     {
         z += val;
         return this;
     }
 
+    @NotNull
     public Vector3Dd setX(double newVal)
     {
         x = newVal;
         return this;
     }
 
+    @NotNull
     public Vector3Dd setY(double newVal)
     {
         y = newVal;
         return this;
     }
 
+    @NotNull
     public Vector3Dd setZ(double newVal)
     {
         z = newVal;
         return this;
     }
 
+    @NotNull
     public Vector3Dd add(double x, double y, double z)
     {
         this.x += x;
@@ -232,6 +258,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return hash;
     }
 
+    @NotNull
     public Vector3Dd normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z);
