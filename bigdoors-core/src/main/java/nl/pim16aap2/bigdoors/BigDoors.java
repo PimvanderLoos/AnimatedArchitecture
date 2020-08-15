@@ -12,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Experimental
  */
+// TODO: Store a general lastOp in the database to keep track of the last action of a door (e.g. Toggle North), useful
+//       To help figure out what to do when its data was changed.
 // TODO: Consider storing a serialized version of a door before removing its blocks and removing it before placing the blocks.
 //       This would make sure that blocks aren't lost in case of a server crash, which will be more important to avoid
 //       with the new perpetually moving objects. Just make sure to do it async and it should be fine. Also, it should
@@ -31,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Write script (python? might be fun to switch it up) to build plugin.yml on compilation.
 // TODO: For storing player permissions, consider storing them in the database when a player leaves.
 //       Then ONLY use those whenever that player is offline. Just use the online permissions otherwise.
+//       Also include if they're an OP or not. All this can just be handled via a bitflag.
 // TODO: When initializing the plugin, initialize vital functions first (database, etc). Because some
 //       things are intialized async (e.g. database upgrades), make sure to wait for everything on a
 //       separate thread. If anything fails, make sure to try to unload everything properly.
@@ -63,6 +66,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Doors
  */
+// TODO: Think about how lenient the Drawbridge should be. Should it allow setting any of the 4 possible rotations,
+//       or should it restrict itself to only the 2 that are possible.
 // TODO: getBlocksToMove() should return the number of blocks it'll move, regardless of if this value was set.
 //       Internally, keep track of the specified and the default value, then return the specified value if possible,
 //       otherwise the default value. Also distinguish between goal and actual.
