@@ -232,7 +232,7 @@ public class Commander
     // Returns an Set of doors.
     // The Set is defined by door UID.
     // The door player is the creator of the door.
-    private Set<Door> getDoors()
+    public Set<Door> getDoors()
     {
         return db.getDoors();
     }
