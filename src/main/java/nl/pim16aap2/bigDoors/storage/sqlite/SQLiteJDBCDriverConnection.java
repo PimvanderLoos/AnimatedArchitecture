@@ -10,10 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -986,6 +989,30 @@ public class SQLiteJDBCDriverConnection
         }
         return door;
     }
+
+    // Get a set of all doors in the database. This set is defined by doorUID.
+    // Since a door can have more than one owner the creator is returned as player
+    public Set<Door> getDoors()
+    {
+        Set<Door> doors = new HashSet<>();
+        try (Connection conn = getConnection();
+             PreparedStatement stmp = conn.prepareStatement("SELECT p.playername, p.playeruuid, d.* from (SELECT DISTINCT(d.id), u.playerid, d.* FROM doors d left join sqlUnion u on d.id = u.doorUID where u.permission = 0) d left join players p on p.id = d.playerid"))
+        {
+            ResultSet rs = stmp.executeQuery();
+            while (rs.next())
+            {
+                doors.add(newDoorFromRS(rs, rs.getInt(DOOR_ID), 0,
+                        UUID.fromString(rs.getString("playerUUID")), rs.getString("playername")));
+            }
+        } catch (SQLException | NullPointerException e)
+        {
+            // TODO: Add appropriate error code
+            logMessage("", e);
+            return Collections.emptySet();
+        }
+        return doors;
+    }
+
 
     // Get ALL doors owned by a given playerUUID.
     public ArrayList<Door> getDoors(final String playerUUID, final String name)
