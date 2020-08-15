@@ -115,8 +115,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
                     continue;
 
                 final double timeAngle = hourArm ? hourAngle : minuteAngle;
-                final Vector3Dd vec = getVector.apply(block, timeAngle)
-                                               .subtract(block.getFBlock().getPosition());
+                final @NotNull Vector3Dd vec = getGoalPos(timeAngle, block).subtract(block.getFBlock().getPosition());
                 vec.multiply(0.03);
                 block.getFBlock().setVelocity(vec);
             }

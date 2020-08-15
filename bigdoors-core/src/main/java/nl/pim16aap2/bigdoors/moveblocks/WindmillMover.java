@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.doors.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.Windmill;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -29,7 +28,7 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
                          final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
                          final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, PBlockFace.NONE, rotateDirection, false, multiplier, player, door.getMinimum(),
+        super(time, door, rotateDirection, false, multiplier, player, door.getMinimum(),
               door.getMaximum(), cause, actionType);
     }
 
@@ -61,7 +60,8 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
         for (final PBlockData block : savedBlocks)
             if (Math.abs(block.getRadius()) > EPS)
             {
-                final Vector3Dd vec = getVector.apply(block, stepSum).subtract(block.getFBlock().getPosition());
+                final @NotNull Vector3Dd vec = getGoalPos(stepSum, block).subtract(block.getFBlock().getPosition())
+                                                                         .multiply(0.101);
                 block.getFBlock().setVelocity(vec.multiply(0.101));
             }
     }

@@ -28,6 +28,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
     }
 
     // TODO: Test this.
+    @NotNull
     public Vector3Di rotateAroundXAxis(final double radians)
     {
         double cos = Math.cos(radians);
@@ -41,17 +42,17 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    // TODO: Test this.
+    @NotNull
     public Vector3Di rotateAroundXAxis(final @NotNull IVector3DiConst pivotPoint, final double radians)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
+        final double cos = Math.cos(radians);
+        final double sin = Math.sin(radians);
 
-        double translatedY = y - pivotPoint.getY();
-        double translatedZ = z - pivotPoint.getZ();
+        final double translatedY = y - pivotPoint.getY();
+        final double translatedZ = z - pivotPoint.getZ();
 
-        double changeY = cos * translatedY - sin * translatedZ;
-        double changeZ = sin * translatedY + cos * translatedZ;
+        final double changeY = cos * translatedY - sin * translatedZ;
+        final double changeZ = sin * translatedY + cos * translatedZ;
 
         setY((int) (pivotPoint.getY() + changeY));
         setZ((int) (pivotPoint.getZ() + changeZ));
@@ -59,6 +60,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
     }
 
     // TODO: Test this.
+    @NotNull
     public Vector3Di rotateAroundYAxis(final double radians)
     {
         double cos = Math.cos(radians);
@@ -72,16 +74,17 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Di rotateAroundYAxis(final @NotNull IVector3DiConst pivotPoint, final double radians)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
+        final double cos = Math.cos(radians);
+        final double sin = Math.sin(radians);
 
-        double translatedX = x - pivotPoint.getX();
-        double translatedZ = z - pivotPoint.getZ();
+        final double translatedX = x - pivotPoint.getX();
+        final double translatedZ = z - pivotPoint.getZ();
 
-        double changeX = cos * translatedX - sin * translatedZ;
-        double changeZ = sin * translatedX + cos * translatedZ;
+        final double changeX = cos * translatedX - sin * translatedZ;
+        final double changeZ = sin * translatedX + cos * translatedZ;
 
         setX((int) (pivotPoint.getX() + changeX));
         setZ((int) (pivotPoint.getZ() + changeZ));
@@ -89,6 +92,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
     }
 
     // TODO: Test this.
+    @NotNull
     public Vector3Di rotateAroundZAxis(final double radians)
     {
         double cos = Math.cos(radians);
@@ -103,35 +107,38 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    // TODO: Test this.
+    @NotNull
     public Vector3Di rotateAroundZAxis(final @NotNull IVector3DiConst pivotPoint, final double radians)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
+        final double cos = Math.cos(radians);
+        final double sin = Math.sin(radians);
 
-        double translatedX = x - pivotPoint.getX();
-        double translatedY = y - pivotPoint.getY();
+        final double translatedY = y - pivotPoint.getY();
+        final double translatedX = x - pivotPoint.getX();
 
-        double changeX = cos * translatedX - sin * translatedY;
-        double changeY = sin * translatedX + cos * translatedY;
+        final double changeY = cos * translatedY - sin * translatedX;
+        final double changeX = sin * translatedY + cos * translatedX;
 
+        setY((int) (pivotPoint.getY() + changeY));
         setX((int) (pivotPoint.getX() + changeX));
-        setY((int) (pivotPoint.getZ() + changeY));
         return this;
     }
 
+    @NotNull
     public Vector3Di add(final @NotNull IVector3DiConst other)
     {
         add(other.getX(), other.getY(), other.getZ());
         return this;
     }
 
+    @NotNull
     public Vector3Di subtract(final @NotNull IVector3DiConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ());
         return this;
     }
 
+    @NotNull
     public Vector3Di multiply(final @NotNull IVector3DiConst other)
     {
         x *= other.getX();
@@ -140,6 +147,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Di divide(final @NotNull IVector3DiConst other)
     {
         x /= other.getX();
@@ -148,6 +156,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Di multiply(final double val)
     {
         x *= val;
@@ -156,6 +165,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Di divide(final double val)
     {
         x /= val;
@@ -164,42 +174,49 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector3Di addX(int val)
     {
         x += val;
         return this;
     }
 
+    @NotNull
     public Vector3Di addY(int val)
     {
         y += val;
         return this;
     }
 
+    @NotNull
     public Vector3Di addZ(int val)
     {
         z += val;
         return this;
     }
 
+    @NotNull
     public Vector3Di setX(int newVal)
     {
         x = newVal;
         return this;
     }
 
+    @NotNull
     public Vector3Di setY(int newVal)
     {
         y = newVal;
         return this;
     }
 
+    @NotNull
     public Vector3Di setZ(int newVal)
     {
         z = newVal;
         return this;
     }
 
+    @NotNull
     public Vector3Di add(int x, int y, int z)
     {
         this.x += x;
@@ -258,6 +275,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return x == other.getX() && y == other.getY() && z == other.getZ();
     }
 
+    @NotNull
     public Vector3Di normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z);

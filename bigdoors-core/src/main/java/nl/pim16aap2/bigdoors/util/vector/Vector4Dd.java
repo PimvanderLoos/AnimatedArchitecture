@@ -25,18 +25,21 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         w = other.getW();
     }
 
+    @NotNull
     public Vector4Dd add(final @NotNull IVector4DdConst other)
     {
         add(other.getX(), other.getY(), other.getZ(), other.getW());
         return this;
     }
 
+    @NotNull
     public Vector4Dd subtract(final @NotNull IVector4DdConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ(), -other.getW());
         return this;
     }
 
+    @NotNull
     public Vector4Dd multiply(final @NotNull IVector4DdConst other)
     {
         x *= other.getX();
@@ -46,6 +49,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector4Dd divide(final @NotNull IVector4DdConst other)
     {
         x /= other.getX();
@@ -55,6 +59,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector4Dd multiply(final double val)
     {
         x *= val;
@@ -64,6 +69,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector4Dd divide(final double val)
     {
         x /= val;
@@ -73,54 +79,63 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector4Dd addX(double val)
     {
         x += val;
         return this;
     }
 
+    @NotNull
     public Vector4Dd addY(double val)
     {
         y += val;
         return this;
     }
 
+    @NotNull
     public Vector4Dd addZ(double val)
     {
         z += val;
         return this;
     }
 
+    @NotNull
     public Vector4Dd addW(double val)
     {
         w += val;
         return this;
     }
 
+    @NotNull
     public Vector4Dd setX(double newVal)
     {
         x = newVal;
         return this;
     }
 
+    @NotNull
     public Vector4Dd setY(double newVal)
     {
         y = newVal;
         return this;
     }
 
+    @NotNull
     public Vector4Dd setZ(double newVal)
     {
         z = newVal;
         return this;
     }
 
+    @NotNull
     public Vector4Dd setW(double newVal)
     {
         w = newVal;
         return this;
     }
 
+    @NotNull
     public Vector4Dd add(double x, double y, double z, double w)
     {
         this.x += x;
@@ -174,6 +189,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return x == other.getX() && y == other.getY() && z == other.getZ() && w == other.getW();
     }
 
+    @NotNull
     public Vector4Dd normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z + w * w);

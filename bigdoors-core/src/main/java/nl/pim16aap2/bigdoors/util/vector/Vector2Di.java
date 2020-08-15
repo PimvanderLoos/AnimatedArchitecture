@@ -23,18 +23,21 @@ public final class Vector2Di implements IVector2DiConst, Cloneable
         y = other.getY();
     }
 
+    @NotNull
     public Vector2Di add(final @NotNull Vector2Di other)
     {
         add(other.getX(), other.getY());
         return this;
     }
 
+    @NotNull
     public Vector2Di subtract(final @NotNull Vector2Di other)
     {
         add(-other.getX(), -other.getY());
         return this;
     }
 
+    @NotNull
     public Vector2Di multiply(final @NotNull Vector2Di other)
     {
         x *= other.getX();
@@ -42,6 +45,7 @@ public final class Vector2Di implements IVector2DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector2Di divide(final @NotNull Vector2Di other)
     {
         x /= other.getX();
@@ -49,6 +53,7 @@ public final class Vector2Di implements IVector2DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector2Di multiply(final double val)
     {
         x *= val;
@@ -56,6 +61,7 @@ public final class Vector2Di implements IVector2DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector2Di divide(final double val)
     {
         x /= val;
@@ -63,30 +69,35 @@ public final class Vector2Di implements IVector2DiConst, Cloneable
         return this;
     }
 
+    @NotNull
     public Vector2Di addX(int val)
     {
         x += val;
         return this;
     }
 
+    @NotNull
     public Vector2Di addY(int val)
     {
         y += val;
         return this;
     }
 
+    @NotNull
     public Vector2Di setX(int newVal)
     {
         x = newVal;
         return this;
     }
 
+    @NotNull
     public Vector2Di setY(int newVal)
     {
         y = newVal;
         return this;
     }
 
+    @NotNull
     public Vector2Di add(int x, int y)
     {
         this.x += x;
@@ -136,6 +147,7 @@ public final class Vector2Di implements IVector2DiConst, Cloneable
         return x == other.getX() && y == other.getY();
     }
 
+    @NotNull
     public Vector2Di normalize()
     {
         double length = Math.sqrt(x * x + y * y);

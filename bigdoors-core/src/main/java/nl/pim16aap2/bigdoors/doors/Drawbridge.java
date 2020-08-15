@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeMover;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -40,14 +40,6 @@ public class Drawbridge extends AbstractDoorBase
     protected int autoOpenTime;
 
     /**
-     * Describes the current direction the door is pointing in when taking the engine as center.
-     *
-     * @return The side the {@link IDoorBase} is on relative to the engine
-     */
-    @Getter
-    protected PBlockFace currentDirection;
-
-    /**
      * Describes if this drawbridge's vertical position points (when taking the engine Y value as center) up <b>(=
      * TRUE)</b> or down <b>(= FALSE)</b>
      *
@@ -56,35 +48,18 @@ public class Drawbridge extends AbstractDoorBase
     @Getter
     protected boolean modeUp;
 
-    /**
-     * Describes if the {@link Drawbridge} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
-     * axis
-     * <b>(= FALSE)</b>.
-     * <p>
-     * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
-     * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
-     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
-     *
-     * @return True if this door is animated along the North/South axis.
-     */
-    @Getter(onMethod = @__({@Override}))
-    protected final boolean northSouthAligned;
-
     public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
-                      final PBlockFace currentDirection, final boolean modeUp, final boolean northSouthAligned)
+                      final boolean modeUp)
     {
         super(doorData);
         this.autoOpenTime = autoOpenTime;
         this.autoCloseTime = autoCloseTime;
-        this.currentDirection = currentDirection;
         this.modeUp = modeUp;
-        this.northSouthAligned = northSouthAligned;
     }
 
-    public Drawbridge(final @NotNull DoorData doorData, final PBlockFace currentDirection, final boolean modeUp,
-                      final boolean northSouthAligned)
+    public Drawbridge(final @NotNull DoorData doorData, final boolean modeUp)
     {
-        this(doorData, -1, -1, currentDirection, modeUp, northSouthAligned);
+        this(doorData, -1, -1, modeUp);
     }
 
     /** {@inheritDoc} */
@@ -130,46 +105,45 @@ public class Drawbridge extends AbstractDoorBase
     @Override
     public RotateDirection getCurrentToggleDir()
     {
-        return isOpen() ? getOpenDir() : RotateDirection.getOpposite(getOpenDir());
+        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
     public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
     {
-        IVector3DiConst vec = PBlockFace.getDirection(getCurrentDirection());
-        RotateDirection currentToggleDir = getCurrentToggleDir();
-        if (isOpen())
+        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final double angle;
+        if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.WEST)
+            angle = -Math.PI / 2;
+        else if (rotateDirection == RotateDirection.SOUTH || rotateDirection == RotateDirection.EAST)
+            angle = Math.PI / 2;
+        else
         {
-            if (isNorthSouthAligned())
-            {
-                newMax.setY(newMin.getY() + dimensions.getX());
-                int newX = vec.getX() > 0 ? newMin.getX() : newMax.getX();
-                newMin.setX(newX);
-                newMax.setX(newX);
-            }
-            else
-            {
-                newMax.setY(newMin.getY() + dimensions.getZ());
-                int newZ = vec.getZ() > 0 ? newMin.getZ() : newMax.getZ();
-                newMin.setZ(newZ);
-                newMax.setZ(newZ);
-            }
+            PLogger.get().severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
+            return false;
+        }
+
+        final @NotNull IVector3DiConst newMinTmp;
+        final @NotNull IVector3DiConst newMaxTmp;
+        if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
+        {
+            newMinTmp = newMin.clone().rotateAroundXAxis(getEngine(), angle);
+            newMaxTmp = newMax.clone().rotateAroundXAxis(getEngine(), angle);
         }
         else
         {
-            if (isNorthSouthAligned()) // On Z-axis, i.e. Z doesn't change
-            {
-                newMax.setY(newMin.getY());
-                newMin.add(currentToggleDir.equals(RotateDirection.WEST) ? -dimensions.getY() : 0, 0, 0);
-                newMax.add(currentToggleDir.equals(RotateDirection.EAST) ? dimensions.getY() : 0, 0, 0);
-            }
-            else
-            {
-                newMax.setY(newMin.getY());
-                newMin.add(0, 0, currentToggleDir.equals(RotateDirection.NORTH) ? -dimensions.getY() : 0);
-                newMax.add(0, 0, currentToggleDir.equals(RotateDirection.SOUTH) ? dimensions.getY() : 0);
-            }
+            newMinTmp = newMin.clone().rotateAroundZAxis(getEngine(), angle);
+            newMaxTmp = newMax.clone().rotateAroundZAxis(getEngine(), angle);
         }
+
+        newMin.setX(Math.min(newMinTmp.getX(), newMaxTmp.getX()));
+        newMin.setY(Math.min(newMinTmp.getY(), newMaxTmp.getY()));
+        newMin.setZ(Math.min(newMinTmp.getZ(), newMaxTmp.getZ()));
+
+        newMax.setX(Math.max(newMinTmp.getX(), newMaxTmp.getX()));
+        newMax.setY(Math.max(newMinTmp.getY(), newMaxTmp.getY()));
+        newMax.setZ(Math.max(newMinTmp.getZ(), newMaxTmp.getZ()));
+
         return true;
     }
 
@@ -179,11 +153,8 @@ public class Drawbridge extends AbstractDoorBase
                                       final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
-        PBlockFace upDown =
-            Math.abs(minimum.getY() - maximum.getY()) > 0 ? PBlockFace.DOWN : PBlockFace.UP;
-
         doorOpeningUtility.registerBlockMover(
-            new BridgeMover(this, time, upDown, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
+            new BridgeMover(time, this, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
                 .getMultiplier(this), responsible, newMin, newMax, cause, actionType));
     }
 
@@ -197,9 +168,15 @@ public class Drawbridge extends AbstractDoorBase
             return false;
 
         final @NotNull Drawbridge other = (Drawbridge) o;
-        return currentDirection.equals(other.currentDirection) &&
-            autoCloseTime == other.autoCloseTime &&
+        return autoCloseTime == other.autoCloseTime &&
             autoOpenTime == other.autoOpenTime &&
             modeUp == other.modeUp;
+    }
+
+    @Override
+    public boolean isNorthSouthAligned()
+    {
+        final @NotNull RotateDirection openDir = getOpenDir();
+        return openDir == RotateDirection.NORTH || openDir == RotateDirection.SOUTH;
     }
 }

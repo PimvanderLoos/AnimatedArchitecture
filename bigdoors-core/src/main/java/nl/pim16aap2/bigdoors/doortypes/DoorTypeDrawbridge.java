@@ -21,12 +21,10 @@ public final class DoorTypeDrawbridge extends DoorType
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(4);
+        List<Parameter> parameterTMP = new ArrayList<>(3);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
-        parameterTMP.add(new Parameter(ParameterType.INTEGER, "currentDirection"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "modeUpDown"));
-        parameterTMP.add(new Parameter(ParameterType.INTEGER, "northSouthAligned"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
 
@@ -64,14 +62,11 @@ public final class DoorTypeDrawbridge extends DoorType
         final int autoCloseTimer = (int) typeData[0];
         final int autoOpenTimer = (int) typeData[1];
 
-        final boolean modeUP = ((int) typeData[3]) == 1;
-        final boolean northSouthAligned = ((int) typeData[4]) == 1;
+        final boolean modeUP = ((int) typeData[2]) == 1;
         return Optional.of(new Drawbridge(doorData,
                                           autoCloseTimer,
                                           autoOpenTimer,
-                                          currentDirection,
-                                          modeUP,
-                                          northSouthAligned));
+                                          modeUP));
     }
 
     /** {@inheritDoc} */
@@ -86,8 +81,6 @@ public final class DoorTypeDrawbridge extends DoorType
         final @NotNull Drawbridge drawbridge = (Drawbridge) door;
         return new Object[]{drawbridge.getAutoCloseTime(),
                             drawbridge.getAutoOpenTime(),
-                            PBlockFace.getValue(drawbridge.getCurrentDirection()),
-                            drawbridge.isModeUp() ? 1 : 0,
-                            drawbridge.isNorthSouthAligned() ? 1 : 0};
+                            drawbridge.isModeUp() ? 1 : 0};
     }
 }

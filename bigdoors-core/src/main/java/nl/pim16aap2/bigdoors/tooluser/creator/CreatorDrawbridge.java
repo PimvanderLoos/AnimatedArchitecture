@@ -57,6 +57,6 @@ public class CreatorDrawbridge extends Creator
     @NotNull
     protected AbstractDoorBase constructDoor()
     {
-        return new Drawbridge(constructDoorData(), null, false, false);
+        return new Drawbridge(constructDoorData(), true);
     }
 }
