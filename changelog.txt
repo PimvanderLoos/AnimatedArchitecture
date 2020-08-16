@@ -1,3 +1,6 @@
+Alpha 0.1.8.26
+- Added method to get all available doors. Thanks, @Chojo, for the implementation.
+
 Alpha 0.1.8.25
 - Added support for version 1.16.2 of Minecraft.
 - Added support for PlotSquared v5 (in addition to v3 and v4). Thanks, @xTronix, for the bug report!
