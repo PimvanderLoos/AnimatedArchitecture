@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -226,6 +227,14 @@ public class Commander
         if (playerUUID == null && name == null)
             return new ArrayList<>();
         return playerUUID == null ? getDoors(name) : db.getDoors(playerUUID, name);
+    }
+
+    // Returns an Set of doors.
+    // The Set is defined by door UID.
+    // The door player is the creator of the door.
+    public Set<Door> getDoors()
+    {
+        return db.getDoors();
     }
 
     // Returns an ArrayList of doors with a specific name.
