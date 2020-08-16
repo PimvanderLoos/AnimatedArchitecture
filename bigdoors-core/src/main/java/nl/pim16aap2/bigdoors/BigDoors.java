@@ -97,6 +97,9 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: PLogger: Add the possibility to log a Supplier<String>. This would be used for expensive logging operations
+//       (such as PPreparedStament logging). Then the PLogger can decide if it needs to retrieve the value if the
+//       logging level allows logging that message.
 // TODO: Expand the script that generates the testing translation file a bit.
 //       It should copy the latest real file to its own directory if the testing file doesn't exist (it shouldn't be
 //       in the repo). If the file does exist, quickly check the hashes of both to see if the copied file is still
