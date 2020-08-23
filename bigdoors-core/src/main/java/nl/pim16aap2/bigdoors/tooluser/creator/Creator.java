@@ -29,6 +29,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -447,6 +448,18 @@ public abstract class Creator extends ToolUser
         for (RotateDirection rotateDirection : getDoorType().getValidOpenDirections())
             sb.append(idx++).append(": ").append(messages.getString(rotateDirection.getMessage())).append("\n");
         return sb.toString();
+    }
+
+    /**
+     * Gets the list of valid open directions for this type. It returns a subset of {@link
+     * DoorType#getValidOpenDirections()} based on the current physical aspects of the {@link AbstractDoorBase}.
+     *
+     * @return The list of valid open directions for this type given its current physical dimensions.
+     */
+    @NotNull
+    protected List<RotateDirection> getValidOpenDirections()
+    {
+        return getDoorType().getValidOpenDirections();
     }
 
     /**

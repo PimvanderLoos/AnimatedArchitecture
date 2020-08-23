@@ -375,6 +375,10 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Creators / ToolUsers
  */
+// TODO: Consider introducing different (optional) modes for the creators such as Creator.Mode#NEW_DOOR
+//       and Creator.Mode#UPDATE_COORDS, Creator.Mode#UPDATE_POWERBLOCK, etc. These modes can be used to
+//       update a specific aspect of a door. Only including the desired steps should be enough to
+//       actually use it. Any mode other than NEW_DOOR should update a door instead of inserting a new one.
 // TODO: Make sure skippable first steps are possible.
 // TODO: Before starting the creation process, make sure that there is space in the player's inventory for the tool
 //       So when the player's inventory is full:
