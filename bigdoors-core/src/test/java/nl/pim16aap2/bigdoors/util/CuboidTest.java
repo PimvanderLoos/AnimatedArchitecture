@@ -33,6 +33,51 @@ class CuboidTest
     }
 
     @Test
+    void moveTest()
+    {
+        final @NotNull Vector3Di min0 = new Vector3Di(12, 45, 68);
+        final @NotNull Vector3Di max0 = new Vector3Di(22, 65, 88);
+
+        final @NotNull Vector3Di min1 = new Vector3Di(13, 49, 76);
+        final @NotNull Vector3Di max1 = new Vector3Di(23, 69, 96);
+
+        final @NotNull Cuboid cuboid = new Cuboid(min0, max0);
+        cuboid.move(1, 4, 8);
+        Assert.assertEquals(min1, cuboid.getMin());
+        Assert.assertEquals(max1, cuboid.getMax());
+    }
+
+    @Test
+    void changeDimensionsTest()
+    {
+        final @NotNull Vector3Di min0 = new Vector3Di(12, 45, 68);
+        final @NotNull Vector3Di max0 = new Vector3Di(22, 65, 88);
+
+        final @NotNull Vector3Di min1 = new Vector3Di(11, 41, 60);
+        final @NotNull Vector3Di max1 = new Vector3Di(23, 69, 96);
+
+        final @NotNull Cuboid cuboid = new Cuboid(min0, max0);
+        cuboid.changeDimensions(1, 4, 8);
+        Assert.assertEquals(min1, cuboid.getMin());
+        Assert.assertEquals(max1, cuboid.getMax());
+    }
+
+    @Test
+    void changeDimensionsInvTest()
+    {
+        final @NotNull Vector3Di min0 = new Vector3Di(12, 45, 68);
+        final @NotNull Vector3Di max0 = new Vector3Di(22, 65, 70);
+
+        final @NotNull Vector3Di min1 = new Vector3Di(13, 49, 62);
+        final @NotNull Vector3Di max1 = new Vector3Di(21, 61, 76);
+
+        final @NotNull Cuboid cuboid = new Cuboid(min0, max0);
+        cuboid.changeDimensions(-1, -4, -8);
+        Assert.assertEquals(min1, cuboid.getMin());
+        Assert.assertEquals(max1, cuboid.getMax());
+    }
+
+    @Test
     void isPosInsideCuboid()
     {
         final @NotNull Vector3Di min = new Vector3Di(0, 0, 0);

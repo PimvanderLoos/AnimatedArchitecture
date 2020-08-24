@@ -112,7 +112,10 @@ public final class PWorldSpigot implements IPWorld
         }
         catch (CloneNotSupportedException e)
         {
-            throw new Error(e);
+            // TODO: Only log to file! It's already dumped in the console because it's thrown.
+            Error er = new Error(e);
+            PLogger.get().logError(er);
+            throw er;
         }
     }
 }

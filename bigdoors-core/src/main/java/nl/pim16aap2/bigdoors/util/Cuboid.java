@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
-public class Cuboid
+public class Cuboid implements Cloneable
 {
     @NotNull
     private Vector3Di min, max;
@@ -154,6 +154,35 @@ public class Cuboid
         return new Vector3Di(cX, cY, cZ);
     }
 
+    /**
+     * Moves this {@link Cuboid}.
+     *
+     * @param x The number of blocks to move in the x-axis.
+     * @param y The number of blocks to move in the y-axis.
+     * @param z The number of blocks to move in the z-axis.
+     */
+    public void move(final int x, final int y, final int z)
+    {
+        min.add(x, y, z);
+        max.add(x, y, z);
+    }
+
+    /**
+     * Changes the dimensions of this {@link Cuboid}. The changes are applied symmetrically. So a change of 1 in the
+     * x-axis, means that the length of the x-axis is increased by 2 (1 subtracted from min and 1 added to max).
+     *
+     * @param x The number of blocks to change in the x-axis.
+     * @param y The number of blocks to change in the y-axis.
+     * @param z The number of blocks to change in the z-axis.
+     */
+    public void changeDimensions(final int x, final int y, final int z)
+    {
+        min.add(-x, -y, -z);
+        max.add(x, y, z);
+        // Fix the min/max values to avoid issues with overlapping changes.
+        minMaxFix();
+    }
+
     @Override
     public int hashCode()
     {
@@ -171,5 +200,24 @@ public class Cuboid
 
         Cuboid other = (Cuboid) o;
         return min.equals(other.min) && max.equals(other.max);
+    }
+
+    @Override
+    protected Object clone()
+    {
+        try
+        {
+            Cuboid clone = (Cuboid) super.clone();
+            clone.min = min.clone();
+            clone.max = max.clone();
+            return clone;
+        }
+        catch (CloneNotSupportedException e)
+        {
+            // TODO: Only log to file! It's already dumped in the console because it's thrown.
+            Error er = new Error(e);
+            PLogger.get().logError(er);
+            throw er;
+        }
     }
 }
