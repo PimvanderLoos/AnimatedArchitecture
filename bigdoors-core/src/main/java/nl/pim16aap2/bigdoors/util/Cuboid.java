@@ -203,7 +203,8 @@ public class Cuboid implements Cloneable
     }
 
     @Override
-    protected Object clone()
+    @NotNull
+    protected Cuboid clone()
     {
         try
         {
