@@ -34,12 +34,13 @@ public class Cuboid implements Cloneable
      * @param first  The first of the two new coordinates.
      * @param second The first of the two new coordinates.
      */
-    public void updatePositions(final @NotNull IVector3DiConst first, final @NotNull IVector3DiConst second)
+    public Cuboid updatePositions(final @NotNull IVector3DiConst first, final @NotNull IVector3DiConst second)
     {
         min = new Vector3Di(first);
         max = new Vector3Di(second);
         minMaxFix();
         volume = null;
+        return this;
     }
 
     /**
@@ -161,10 +162,11 @@ public class Cuboid implements Cloneable
      * @param y The number of blocks to move in the y-axis.
      * @param z The number of blocks to move in the z-axis.
      */
-    public void move(final int x, final int y, final int z)
+    public Cuboid move(final int x, final int y, final int z)
     {
         min.add(x, y, z);
         max.add(x, y, z);
+        return this;
     }
 
     /**
@@ -175,12 +177,13 @@ public class Cuboid implements Cloneable
      * @param y The number of blocks to change in the y-axis.
      * @param z The number of blocks to change in the z-axis.
      */
-    public void changeDimensions(final int x, final int y, final int z)
+    public Cuboid changeDimensions(final int x, final int y, final int z)
     {
         min.add(-x, -y, -z);
         max.add(x, y, z);
         // Fix the min/max values to avoid issues with overlapping changes.
         minMaxFix();
+        return this;
     }
 
     @Override
