@@ -518,7 +518,7 @@ public abstract class Creator extends ToolUser
             return false;
 
         final @NotNull Vector3Di pos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        if (!cuboid.isPosInsideCuboid(pos))
+        if (!cuboid.clone().changeDimensions(1, 1, 1).isPosInsideCuboid(pos))
         {
             player.sendMessage(messages.getString(Message.CREATOR_GENERAL_INVALIDROTATIONPOINT));
             return false;
