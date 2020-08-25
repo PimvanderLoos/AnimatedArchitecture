@@ -103,6 +103,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
+//       messages much more generic. Many of them only differ in the hardcoded name of the type.
 // TODO: PLogger: Add the possibility to log a Supplier<String>. This would be used for expensive logging operations
 //       (such as PPreparedStament logging). Then the PLogger can decide if it needs to retrieve the value if the
 //       logging level allows logging that message.

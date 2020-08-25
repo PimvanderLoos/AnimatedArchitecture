@@ -247,6 +247,7 @@ CREATOR.SLIDINGDOOR.INIT=&aYou have been given a Sliding Door Creator Stick!
 CREATOR.SLIDINGDOOR.SUCCESS=&aSliding Door creation successful!
 CREATOR.SLIDINGDOOR.STEP1=&aStep 1/2: Please select the first corner of the sliding door.
 CREATOR.SLIDINGDOOR.STEP2=&aStep 2/2: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the sliding door.
+CREATOR.SLIDINGDOOR.BLOCKSTOMOVE=&aAlmost there! Please select how many blocks you want this sliding door to move using /bigdoors setblockstomove <value>.
 
 
 CREATOR.BIGDOOR.STICKLORE=This tool is used to create a big door.
