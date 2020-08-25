@@ -182,6 +182,8 @@ CREATOR.GENERAL.TIMEOUT=&4Time's up! Creation was aborted, please try again.
 CREATOR.GENERAL.STICKNAME=Big Door Tool
 CREATOR.GENERAL.INIT=&aProcess initiated! You have 60 seconds to complete this process!\nIf you wish to cancel the process sooner, type "/BigDoors cancel" in chat.
 CREATOR.GENERAL.SETPOWERBLOCK=&aPlease select a location for the powerblock.
+CREATOR.GENERAL.2NDPOSNOT2D=&4This type requires a '2d' area, but the selected area does not meet this constaint!\nPlease make sure that the selected area has a depth of 1 block in 1 dimension.
+CREATOR.GENERAL.POINTNOTACORNER=&4Please select a corner!
 
 
 # Supported: %DISTANCE% %DISTANCELIMIT%
@@ -259,8 +261,8 @@ CREATOR.FLAG.STICKLORE=This tool is used to create a flag.
 CREATOR.FLAG.INIT=&aYou have been given a Flag Creator Stick!
 CREATOR.FLAG.SUCCESS=&aFlag creation successful!
 CREATOR.FLAG.STEP1=&aStep 1/3: Please select the first corner of the flag.
-CREATOR.FLAG.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the flag.
-CREATOR.FLAG.STEP3=&aStep 3/3: Second point selected! Please select the point where the flag is attached to the pole.
+CREATOR.FLAG.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the flag.\nNote that the resulting area has to be 1 block deep in either the x or z axis.
+CREATOR.FLAG.STEP3=&aStep 3/3: Second point selected! Please select the point where the flag is attached to the pole. This has to be a corner of the selected area!
 
 
 CREATOR.WINDMILL.STICKLORE=This tool is used to create a windmill.

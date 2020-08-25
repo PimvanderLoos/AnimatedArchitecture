@@ -307,7 +307,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         if (newRotDir.equals(RotateDirection.NONE))
         {
-            openDir = getDefaultOpenDirection();
             PLogger.get()
                    .logMessage("\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
             return;

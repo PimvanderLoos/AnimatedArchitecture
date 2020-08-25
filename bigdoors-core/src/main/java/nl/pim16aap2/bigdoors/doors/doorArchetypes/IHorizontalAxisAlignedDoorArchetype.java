@@ -1,5 +1,9 @@
-package nl.pim16aap2.bigdoors.doors;
+package nl.pim16aap2.bigdoors.doors.doorArchetypes;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.doors.IDoorBase;
+import nl.pim16aap2.bigdoors.doors.SlidingDoor;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 

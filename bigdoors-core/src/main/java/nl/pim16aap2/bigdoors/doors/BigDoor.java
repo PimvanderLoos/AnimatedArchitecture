@@ -71,15 +71,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
     }
 
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        return RotateDirection.CLOCKWISE;
-    }
-
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()

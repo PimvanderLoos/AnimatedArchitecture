@@ -83,16 +83,7 @@ public class Portcullis extends AbstractDoorBase
     {
         return calculateCurrentChunkRange();
     }
-
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        return RotateDirection.UP;
-    }
-
-    /** {@inheritDoc} */
+    
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()

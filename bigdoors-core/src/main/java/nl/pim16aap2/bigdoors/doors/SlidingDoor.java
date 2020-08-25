@@ -85,15 +85,6 @@ public class SlidingDoor extends AbstractDoorBase
                                new Vector2Di(getChunk().getX() + distanceX, getChunk().getY() + distanceZ)};
     }
 
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        return RotateDirection.NORTH;
-    }
-
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()

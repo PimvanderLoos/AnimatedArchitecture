@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors;
 import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -87,17 +88,6 @@ public class Drawbridge extends AbstractDoorBase
 
         return new Vector2Di[]{new Vector2Di(getChunk().getX() - radius, getChunk().getY() - radius),
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
-    }
-
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        if (isNorthSouthAligned())
-            return RotateDirection.EAST;
-        else
-            return RotateDirection.NORTH;
     }
 
     /** {@inheritDoc} */

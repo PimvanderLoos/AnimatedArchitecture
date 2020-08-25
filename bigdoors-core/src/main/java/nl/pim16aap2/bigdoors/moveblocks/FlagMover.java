@@ -36,7 +36,7 @@ public class FlagMover extends BlockMover
 
         final int xLen = Math.abs(xMax - xMin) + 1;
         final int zLen = Math.abs(zMax - zMin) + 1;
-        NS = zLen > xLen;
+        NS = door.isNorthSouthAligned();
         getGoalPos = NS ? this::getGoalPosNS : this::getGoalPosEW;
 
         final int length = NS ? zLen : xLen;

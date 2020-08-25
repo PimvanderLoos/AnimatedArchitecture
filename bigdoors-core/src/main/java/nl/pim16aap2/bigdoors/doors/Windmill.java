@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -70,17 +71,6 @@ public class Windmill extends AbstractDoorBase
         if (!isNorthSouthAligned())
             return getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
         return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.SOUTH : RotateDirection.NORTH;
-    }
-
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        if (isNorthSouthAligned())
-            return RotateDirection.NORTH;
-        else
-            return RotateDirection.EAST;
     }
 
     @Override

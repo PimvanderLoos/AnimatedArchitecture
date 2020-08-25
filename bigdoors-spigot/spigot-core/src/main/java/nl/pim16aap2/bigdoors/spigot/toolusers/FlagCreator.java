@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Flag;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +26,7 @@ public class FlagCreator extends BigDoorCreator
     @Override
     protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
     {
-        return new Flag(doorData, false, PBlockFace.EAST);
+        return new Flag(doorData, false);
     }
 
     @Override

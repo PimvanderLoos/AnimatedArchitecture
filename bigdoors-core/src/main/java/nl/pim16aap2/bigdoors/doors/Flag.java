@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -9,9 +10,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.FlagMover;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,34 +27,21 @@ public class Flag extends AbstractDoorBase
     private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
 
     /**
-     * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
-     * axis
+     * Describes if the {@link Flag} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West axis
      * <b>(= FALSE)</b>.
      * <p>
      * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
-     * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
-     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     * along the North/South <i>(= Z)</i> axis.
      *
      * @return True if this door is animated along the North/South axis.
      */
     @Getter(onMethod = @__({@Override}))
     protected final boolean northSouthAligned;
 
-    /**
-     * Gets the side the flag is on flag relative to it rotation point ("engine", i.e. the point).
-     *
-     * @return The side of the rotation point (pole) that the flag is on.
-     */
-    @Getter
-    @NotNull
-    protected final PBlockFace flagDirection;
-
-    public Flag(final @NotNull DoorData doorData, final boolean northSouthAligned,
-                final @NotNull PBlockFace flagDirection)
+    public Flag(final @NotNull DoorData doorData, final boolean northSouthAligned)
     {
         super(doorData);
         this.northSouthAligned = northSouthAligned;
-        this.flagDirection = flagDirection;
     }
 
     /** {@inheritDoc} */
@@ -64,19 +50,6 @@ public class Flag extends AbstractDoorBase
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Because flags do not actually open in any direction, the open direction simply the same as {@link
-     * #getFlagDirection()} ()}.
-     */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        return Util.getRotateDirection(getFlagDirection());
     }
 
     /**
@@ -113,7 +86,6 @@ public class Flag extends AbstractDoorBase
             return false;
 
         final @NotNull Flag other = (Flag) o;
-        return flagDirection.equals(other.flagDirection) &&
-            northSouthAligned == other.northSouthAligned;
+        return northSouthAligned == other.northSouthAligned;
     }
 }

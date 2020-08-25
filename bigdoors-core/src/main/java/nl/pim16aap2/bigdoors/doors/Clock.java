@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -77,16 +78,15 @@ public class Clock extends AbstractDoorBase
         return getOpenDir();
     }
 
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        if (isNorthSouthAligned())
-            return engine.getX() == minimum.getX() ? RotateDirection.SOUTH : RotateDirection.NORTH;
-        else
-            return engine.getZ() == minimum.getZ() ? RotateDirection.EAST : RotateDirection.WEST;
-    }
+//    @NotNull
+//    @Override
+//    public RotateDirection getDefaultOpenDirection()
+//    {
+//        if (isNorthSouthAligned())
+//            return engine.getX() == minimum.getX() ? RotateDirection.SOUTH : RotateDirection.NORTH;
+//        else
+//            return engine.getZ() == minimum.getZ() ? RotateDirection.EAST : RotateDirection.WEST;
+//    }
 
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
