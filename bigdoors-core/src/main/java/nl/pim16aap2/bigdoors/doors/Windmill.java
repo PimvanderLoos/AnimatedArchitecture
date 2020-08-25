@@ -54,6 +54,11 @@ public class Windmill extends AbstractDoorBase
         this.quarterCircles = quarterCircles;
     }
 
+    public Windmill(final @NotNull DoorData doorData, final boolean northSouthAligned)
+    {
+        this(doorData, northSouthAligned, 1);
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override

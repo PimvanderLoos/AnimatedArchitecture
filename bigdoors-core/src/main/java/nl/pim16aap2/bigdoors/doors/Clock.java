@@ -78,16 +78,6 @@ public class Clock extends AbstractDoorBase
         return getOpenDir();
     }
 
-//    @NotNull
-//    @Override
-//    public RotateDirection getDefaultOpenDirection()
-//    {
-//        if (isNorthSouthAligned())
-//            return engine.getX() == minimum.getX() ? RotateDirection.SOUTH : RotateDirection.NORTH;
-//        else
-//            return engine.getZ() == minimum.getZ() ? RotateDirection.EAST : RotateDirection.WEST;
-//    }
-
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
                                       final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
@@ -95,7 +85,7 @@ public class Clock extends AbstractDoorBase
                                       final @NotNull DoorActionType actionType)
     {
         doorOpeningUtility
-            .registerBlockMover(new ClockMover(this, getCurrentToggleDir(), responsible, cause, actionType));
+            .registerBlockMover(new ClockMover<>(this, getCurrentToggleDir(), responsible, cause, actionType));
     }
 
     @Override

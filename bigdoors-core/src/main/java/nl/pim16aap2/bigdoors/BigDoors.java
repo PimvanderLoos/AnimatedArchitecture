@@ -402,6 +402,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Openers / Movers
  */
+// TODO: The ClockMover should keep in mind that clocks can have a depth greater than 2 blocks. Currently, it only
+//       thinks there are 2 arms, each 1 block deep, which would cause issues with any other size.
 // TODO: The perpetual movers (revolving door, windmill) should also have a mode where they can be opened and closed like regular doors.
 // TODO: When a door is modified in a way that leaves it in an 'impossible' state, make sure to first return to the proper state.
 //       So, if a door is currently open to the west and the opendir is changed to east and it is toggled again,

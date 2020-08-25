@@ -296,3 +296,4 @@ CREATOR.CLOCK.SUCCESS=&aclock creation successful!
 CREATOR.CLOCK.STEP1=&aStep 1/3: Please select the first corner of the clock.
 CREATOR.CLOCK.STEP2=&aStep 2/3: First point selected! Please select a second point!\nThe second point should be as far away from the first point while still being part of the clock. Note that the clocks have a few requirements: It must be 2 blocks deep, square, and an uneven number of blocks tall.
 CREATOR.CLOCK.STEP3=&aStep 3/3: Second point selected! Please select one of the two center blocks. This will be the front side of the clock.
+CREATOR.CLOCK.SELECTHOURARMSIDE=&aStep 3/3: Second point selected! Please specify where the hour arm should be. Just select any block on the desired side of the clock.

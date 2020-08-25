@@ -27,28 +27,34 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
      * Represented as a {@link Function} becuase
      */
     @NotNull
-    private final Function<PBlockData, Boolean> isHourArm;
+    protected final Function<PBlockData, Boolean> isHourArm;
 
     /**
      * The start position of the clock.
      */
 //    private static final float STARTPOINT = (float) Math.PI / 2;
-    private static final float STARTPOINT = 0;
+    protected static final float STARTPOINT = 0;
 
     /**
      * The step of 1 minute on a clock, or 1/60th of a circle in radians.
      */
-    private static final float MINUTESTEP = (float) Math.PI / 30;
+    protected static final float MINUTESTEP = (float) Math.PI / 30;
 
     /**
      * The step of 1 hours on a clock, or 1/12th of a circle in radians.
      */
-    private static final float HOURSTEP = (float) Math.PI / 6;
+    protected static final float HOURSTEP = (float) Math.PI / 6;
 
     /**
      * The step of 1 minute between two full ours on a clock, or 1/720th of a circle in radians.
      */
-    private static final float HOURSUBSTEP = (float) Math.PI / 360;
+    protected static final float HOURSUBSTEP = (float) Math.PI / 360;
+
+    /**
+     * This value should be either 1 or -1. It is used to change the sign of the angle based on which way the clock
+     * should rotate.
+     */
+    protected final int angleDirectionMultiplier;
 
     public ClockMover(final @NotNull T door, final @NotNull RotateDirection rotateDirection,
                       final @NotNull IPPlayer player, final @NotNull DoorActionCause cause,
@@ -56,6 +62,8 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
     {
         super(door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
         isHourArm = NS ? this::isHourArmNS : this::isHourArmEW;
+        angleDirectionMultiplier =
+            (rotateDirection == RotateDirection.EAST || rotateDirection == RotateDirection.SOUTH) ? -1 : 1;
     }
 
     @Override
@@ -72,9 +80,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
      */
     private boolean isHourArmNS(final @NotNull PBlockData block)
     {
-        // If NS, the clock rotates along the z axis (north south), so the hands are distributed along the x axis.
-        // The engine location determines what the front side of the clock is and the little hand is the front side.
-        return ((int) block.getStartLocation().getX()) == door.getEngine().getX();
+        return ((int) block.getStartLocation().getZ()) == door.getEngine().getZ();
     }
 
     /**
@@ -84,9 +90,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
      */
     private boolean isHourArmEW(final @NotNull PBlockData block)
     {
-        // If NS, the clock rotates along the z axis (north south), so the hands are distributed along the x axis.
-        // The engine location determines what the front side of the clock is and the little hand is the front side.
-        return ((int) block.getStartLocation().getZ()) == door.getEngine().getZ();
+        return ((int) block.getStartLocation().getX()) == door.getEngine().getX();
     }
 
     @Override
@@ -98,14 +102,15 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
     @Override
     protected void executeAnimationStep(final int ticks)
     {
-        final WorldTime worldTime = world.getTime();
-        final double hourAngle = ClockMover.hoursToAngle(worldTime.getHours(), worldTime.getMinutes());
-        final double minuteAngle = ClockMover.minutesToAngle(worldTime.getMinutes());
+        final @NotNull WorldTime worldTime = world.getTime();
+        final double hourAngle = angleDirectionMultiplier * ClockMover.hoursToAngle(worldTime.getHours(),
+                                                                                    worldTime.getMinutes());
+        final double minuteAngle = angleDirectionMultiplier * ClockMover.minutesToAngle(worldTime.getMinutes());
 
         // Move the hour arm at a lower tickRate than the minute arm.
         final boolean moveHourArm = ticks % 10 == 0;
 
-        for (final PBlockData block : savedBlocks)
+        for (final @NotNull PBlockData block : savedBlocks)
             if (Math.abs(block.getRadius()) > EPS)
             {
                 // Move the little hand at a lower interval than the big hand.

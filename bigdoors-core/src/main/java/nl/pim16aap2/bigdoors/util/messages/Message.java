@@ -221,6 +221,7 @@ public enum Message implements MessageVariable
     CREATOR_CLOCK_STEP1(),
     CREATOR_CLOCK_STEP2(),
     CREATOR_CLOCK_STEP3(),
+    CREATOR_CLOCK_SELECTHOURARMSIDE(),
 
     ;
 
