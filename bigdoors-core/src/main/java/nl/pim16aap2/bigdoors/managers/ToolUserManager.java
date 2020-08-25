@@ -136,7 +136,8 @@ public final class ToolUserManager extends Restartable
             @Override
             public void run()
             {
-                System.out.println("ABORTING TASK!!");
+                toolUser.getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                                         .getString(Message.CREATOR_GENERAL_TIMEOUT));
                 toolUser.shutdown();
             }
         };

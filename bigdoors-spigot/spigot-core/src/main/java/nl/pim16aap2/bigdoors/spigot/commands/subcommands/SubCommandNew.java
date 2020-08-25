@@ -130,7 +130,7 @@ public class SubCommandNew extends SubCommand
                   .warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
             return;
         }
-        ToolUserManager.get().startToolUser(creator, 60 * 20);
+        ToolUserManager.get().startToolUser(creator, 120 * 20);
     }
 
     /**

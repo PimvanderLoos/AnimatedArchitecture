@@ -108,7 +108,6 @@ public abstract class ToolUser implements IRestartable
     @Override
     public void shutdown()
     {
-        System.out.println("ABORTING TOOLUSER!");
         cleanUpProcess();
     }
 
