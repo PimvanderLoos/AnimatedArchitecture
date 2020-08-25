@@ -346,29 +346,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         playerGUIs = new HashMap<>();
         cmdWaiters = new HashMap<>();
 
-        // Load stats collector if allowed, otherwise unload it if needed or simply
-        // don't load it in the first place.
-        if (configLoader.allowStats())
-        {
-            pLogger.info("Enabling stats! Thanks, it really helps!");
-            if (metrics == null)
-                try
-                {
-                    metrics = new Metrics(this);
-                }
-                catch (Exception e)
-                {
-                    pLogger.logException(e, "Failed to intialize stats! Please contact pim16aap2!");
-                }
-        }
-        else
-        {
-            // Y u do dis? :(
-            metrics = null;
-            pLogger.info("Stats disabled; not loading stats :(... Please consider enabling it! "
-                             + "It helps me stay motivated to keep working on this plugin!");
-        }
-
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
     }
 

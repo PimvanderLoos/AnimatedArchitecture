@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doors.Windmill;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +59,6 @@ public class CreatorWindMill extends Creator
     @NotNull
     protected AbstractDoorBase constructDoor()
     {
-        northSouthAligned = opendir == RotateDirection.WEST || opendir == RotateDirection.EAST;
-        return new Windmill(constructDoorData(), northSouthAligned);
+        return new Windmill(constructDoorData());
     }
 }

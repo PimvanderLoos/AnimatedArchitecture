@@ -19,8 +19,7 @@ public final class DoorTypeWindmill extends DoorType
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(2);
-        parameterTMP.add(new Parameter(ParameterType.INTEGER, "northSouth"));
+        List<Parameter> parameterTMP = new ArrayList<>(1);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "qCircles"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
@@ -52,10 +51,8 @@ public final class DoorTypeWindmill extends DoorType
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
                                                      final @NotNull Object... typeData)
     {
-        final boolean onNorthSouthAxis = ((int) typeData[0]) == 1;
-        final int quarterCircles = (int) typeData[1];
+        final int quarterCircles = (int) typeData[0];
         return Optional.of(new Windmill(doorData,
-                                        onNorthSouthAxis,
                                         quarterCircles));
     }
 
@@ -69,7 +66,6 @@ public final class DoorTypeWindmill extends DoorType
                 "Trying to get the type-specific data for a Windmill from type: " + door.getDoorType().toString());
 
         final @NotNull Windmill windmill = (Windmill) door;
-        return new Object[]{windmill.isNorthSouthAligned() ? 1 : 0,
-                            windmill.getQuarterCircles()};
+        return new Object[]{windmill.getQuarterCircles()};
     }
 }

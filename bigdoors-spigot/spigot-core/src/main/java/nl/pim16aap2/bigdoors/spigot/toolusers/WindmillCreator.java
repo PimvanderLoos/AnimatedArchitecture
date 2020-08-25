@@ -29,7 +29,7 @@ public class WindmillCreator extends BigDoorCreator
     @Override
     protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
     {
-        return new Windmill(doorData, false, 0);
+        return new Windmill(doorData);
     }
 
     @Override
