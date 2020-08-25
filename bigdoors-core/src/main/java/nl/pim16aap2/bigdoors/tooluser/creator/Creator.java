@@ -48,6 +48,8 @@ public abstract class Creator extends ToolUser
     protected IVector3DiConst firstPos, engine, powerblock;
     protected RotateDirection opendir;
     protected IPWorld world;
+    protected boolean isOpen = false;
+    protected boolean isLocked = false;
 
     /**
      * Factory for the {@link IStep} that sets the name.
@@ -154,8 +156,6 @@ public abstract class Creator extends ToolUser
     protected final AbstractDoorBase.DoorData constructDoorData()
     {
         // TODO: Make sure all variables are set.
-        final boolean isOpen = false;
-        final boolean isLocked = false;
         final long doorUID = -1;
         final @NotNull DoorOwner owner = new DoorOwner(doorUID, player.getUUID(), player.getName(), 0);
         return new AbstractDoorBase.DoorData(doorUID, name, cuboid.getMin(), cuboid.getMax(), engine, powerblock, world,
@@ -295,29 +295,31 @@ public abstract class Creator extends ToolUser
      * @param str The name or index of the selected open direction.
      * @return The selected {@link RotateDirection}, if it exists.
      */
-    // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirections.
+    // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirection names.
     @NotNull
     protected Optional<RotateDirection> parseOpenDirection(final @NotNull String str)
     {
         final @NotNull String openDirName = str.toUpperCase();
         final @NotNull OptionalInt idOpt = Util.parseInt(str);
 
+        final @NotNull List<RotateDirection> validOpenDirs = getValidOpenDirections();
+
         if (idOpt.isPresent())
         {
             int id = idOpt.getAsInt();
-            if (id < 0 || id >= getDoorType().getValidOpenDirections().size())
+            if (id < 0 || id >= validOpenDirs.size())
             {
                 PLogger.get().debug(
                     getClass().getSimpleName() + ": Player " + player.getUUID().toString() + " selected ID: " + id +
-                        " out of " + getDoorType().getValidOpenDirections().size() + " options.");
+                        " out of " + validOpenDirs.size() + " options.");
                 return Optional.empty();
             }
 
-            return Optional.of(getDoorType().getValidOpenDirections().get(id));
+            return Optional.of(validOpenDirs.get(id));
         }
 
         return RotateDirection.getRotateDirection(openDirName).flatMap(
-            foundOpenDir -> getDoorType().isValidOpenDirection(foundOpenDir) ?
+            foundOpenDir -> validOpenDirs.contains(foundOpenDir) ?
                             Optional.of(foundOpenDir) : Optional.empty());
     }
 
@@ -445,7 +447,7 @@ public abstract class Creator extends ToolUser
     {
         StringBuilder sb = new StringBuilder();
         int idx = 0;
-        for (RotateDirection rotateDirection : getDoorType().getValidOpenDirections())
+        for (RotateDirection rotateDirection : getValidOpenDirections())
             sb.append(idx++).append(": ").append(messages.getString(rotateDirection.getMessage())).append("\n");
         return sb.toString();
     }

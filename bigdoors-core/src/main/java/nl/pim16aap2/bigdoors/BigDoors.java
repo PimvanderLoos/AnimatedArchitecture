@@ -12,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Experimental
  */
+// TODO: Consider storing boolean type-specific entries in single integers as much as possible. Let the db or some
+//       service handle the automatic packing/unpacking, so the door classes won't even notice it.
 // TODO: Store a general lastOp in the database to keep track of the last action of a door (e.g. Toggle North), useful
 //       To help figure out what to do when its data was changed.
 // TODO: Consider storing a serialized version of a door before removing its blocks and removing it before placing the blocks.
@@ -66,6 +68,10 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Doors
  */
+// TODO: When changing the open direction of a GarageDoor, the engine location needs to be updated as well, otherwise
+//       it'll just break. Alternatively, consider ignoring the engine location altogether and just figuring it out
+//       when it needs to be toggled? When toggling it, the engine location can just be derived from the open direction
+//       and the current position without any guess work being involved.
 // TODO: Think about how lenient the Drawbridge should be. Should it allow setting any of the 4 possible rotations,
 //       or should it restrict itself to only the 2 that are possible.
 // TODO: getBlocksToMove() should return the number of blocks it'll move, regardless of if this value was set.

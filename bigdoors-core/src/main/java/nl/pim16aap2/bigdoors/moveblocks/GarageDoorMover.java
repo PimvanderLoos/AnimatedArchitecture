@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.GarageDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -34,19 +33,17 @@ public class GarageDoorMover extends BlockMover
     private BiFunction<PBlockData, Double, Vector3Dd> getVector;
     private int xLen, yLen, zLen;
     private boolean NS = false;
-    protected PBlockFace currentDirection;
     protected int blocksToMove;
 
     private double step;
 
-    public GarageDoorMover(final @NotNull AbstractDoorBase door, final double time, final double multiplier,
-                           final boolean skipAnimation, final @NotNull PBlockFace currentDirection,
+    public GarageDoorMover(final @NotNull GarageDoor door, final double time, final double multiplier,
+                           final boolean skipAnimation,
                            final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
                            final @NotNull IVector3DiConst finalMin, final @NotNull IVector3DiConst finalMax,
                            final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
         super(door, time, skipAnimation, rotateDirection, player, finalMin, finalMax, cause, actionType);
-        this.currentDirection = currentDirection;
 
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
@@ -88,7 +85,7 @@ public class GarageDoorMover extends BlockMover
         yLen = yMax - yMin;
         zLen = zMax - zMin;
 
-        if (currentDirection.equals(PBlockFace.UP))
+        if (!door.isOpen())
         {
             blocksToMove = yLen + 1;
             getVector = this::getVectorUp;
@@ -212,7 +209,7 @@ public class GarageDoorMover extends BlockMover
     {
         double newX, newY, newZ;
 
-        if (currentDirection.equals(PBlockFace.UP))
+        if (!door.isOpen())
         {
             newX = xAxis + (1 + yLen - radius) * directionVec.getX();
             newY = resultHeight;
@@ -267,7 +264,7 @@ public class GarageDoorMover extends BlockMover
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
-        if (currentDirection.equals(PBlockFace.UP))
+        if (!door.isOpen())
         {
             final float height = door.getMaximum().getY();
             return height - yAxis;

@@ -23,8 +23,6 @@ public class CreatorFlag extends Creator
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final DoorType doorType = DoorTypeFlag.get();
-
-    protected int blocksToMove;
     protected boolean northSouthAligned;
 
     public CreatorFlag(final @NotNull IPPlayer player, final @Nullable String name)
@@ -70,9 +68,7 @@ public class CreatorFlag extends Creator
                                           new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()))
             .getDimensions();
 
-        // Check if there's only 1 dimension that is 1
-        // e.g. 1*1 and 2*2 etc doors are allowed. Only
-        // 1*x and x*1 is allowed.
+        // Flags must have a dimension of 1 along either the x or z axis, as it's a `2d` shape.
         if ((cuboidDims.getX() == 1) ^ (cuboidDims.getZ() == 1))
         {
             northSouthAligned = cuboidDims.getX() == 1;

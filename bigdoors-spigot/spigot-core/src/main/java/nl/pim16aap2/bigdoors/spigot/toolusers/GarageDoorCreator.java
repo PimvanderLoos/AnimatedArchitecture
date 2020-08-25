@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.GarageDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -29,7 +28,7 @@ public class GarageDoorCreator extends BigDoorCreator
     @Override
     protected AbstractDoorBase create(final @NotNull AbstractDoorBase.DoorData doorData)
     {
-        return new GarageDoor(doorData, 0, 0, false, PBlockFace.EAST);
+        return new GarageDoor(doorData, false);
     }
 
     // TODO: When an "open" garage door (i.e. flat against the ceiling) is created,

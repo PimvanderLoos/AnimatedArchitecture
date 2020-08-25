@@ -3,10 +3,8 @@ package nl.pim16aap2.bigdoors.doortypes;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.GarageDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,11 +19,10 @@ public final class DoorTypeGarageDoor extends DoorType
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(4);
+        List<Parameter> parameterTMP = new ArrayList<>(3);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "northSouth"));
-        parameterTMP.add(new Parameter(ParameterType.INTEGER, "currentDirection"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
 
@@ -56,10 +53,6 @@ public final class DoorTypeGarageDoor extends DoorType
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
                                                      final @NotNull Object... typeData)
     {
-        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) typeData[3]);
-        if (currentDirection == null)
-            return Optional.empty();
-
         final int autoCloseTimer = (int) typeData[0];
         final int autoOpenTimer = (int) typeData[1];
         final boolean onNorthSouthAxis = ((int) typeData[2]) == 1;
@@ -67,8 +60,7 @@ public final class DoorTypeGarageDoor extends DoorType
         return Optional.of(new GarageDoor(doorData,
                                           autoCloseTimer,
                                           autoOpenTimer,
-                                          onNorthSouthAxis,
-                                          currentDirection));
+                                          onNorthSouthAxis));
     }
 
     /** {@inheritDoc} */
@@ -83,7 +75,6 @@ public final class DoorTypeGarageDoor extends DoorType
         final @NotNull GarageDoor garageDoor = (GarageDoor) door;
         return new Object[]{garageDoor.getAutoCloseTime(),
                             garageDoor.getAutoOpenTime(),
-                            garageDoor.isNorthSouthAligned() ? 1 : 0,
-                            PBlockFace.getValue(garageDoor.getCurrentDirection())};
+                            garageDoor.isNorthSouthAligned() ? 1 : 0};
     }
 }

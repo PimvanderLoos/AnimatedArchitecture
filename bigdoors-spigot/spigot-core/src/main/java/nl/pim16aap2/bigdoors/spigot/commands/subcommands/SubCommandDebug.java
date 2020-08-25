@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.tooluser.creator.CreatorFlag;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorGarageDoor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -41,7 +41,7 @@ public class SubCommandDebug extends SubCommand
 
 //        new CreatorBigDoor(SpigotAdapter.wrapPlayer((Player) sender));
 
-        new CreatorFlag(SpigotAdapter.wrapPlayer((Player) sender), "test");
+        new CreatorGarageDoor(SpigotAdapter.wrapPlayer((Player) sender), "test");
 
 //        BigDoors.get().getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140);
 //        BigDoors.get().getDatabaseManager().getDoor(236L).ifPresent(door -> BigDoors.get().getDatabaseManager().fillDoor((door)));
