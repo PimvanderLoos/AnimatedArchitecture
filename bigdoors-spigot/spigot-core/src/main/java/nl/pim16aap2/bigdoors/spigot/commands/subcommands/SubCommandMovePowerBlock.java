@@ -1,14 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,16 +25,16 @@ public class SubCommandMovePowerBlock extends SubCommand
 
     public boolean execute(final @NotNull Player player, final @NotNull AbstractDoorBase door)
     {
-        BigDoors.get().getDatabaseManager().hasPermissionForAction(SpigotAdapter.wrapPlayer(player), door.getDoorUID(),
-                                                                   DoorAttribute.RELOCATEPOWERBLOCK)
-                .whenComplete(
-                    (isAllowed, throwable) ->
-                    {
-                        if (!isAllowed)
-                            commandManager.handleException(new CommandActionNotAllowedException(), player, null, null);
-                        else
-                            plugin.getAbortableTaskManager().startPowerBlockRelocator(player, door);
-                    });
+//        BigDoors.get().getDatabaseManager().hasPermissionForAction(SpigotAdapter.wrapPlayer(player), door.getDoorUID(),
+//                                                                   DoorAttribute.RELOCATEPOWERBLOCK)
+//                .whenComplete(
+//                    (isAllowed, throwable) ->
+//                    {
+//                        if (!isAllowed)
+//                            commandManager.handleException(new CommandActionNotAllowedException(), player, null, null);
+//                        else
+//                            plugin.getAbortableTaskManager().startPowerBlockRelocator(player, door);
+//                    });
         return true;
     }
 

@@ -1,24 +1,27 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.EDoorType;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigot.toolusers.BigDoorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.ClockCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.Creator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.DrawbridgeCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.ElevatorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.FlagCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.GarageDoorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.PortcullisCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.RevolvingDoorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.SlidingDoorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.WindmillCreator;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorBigDoor;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorClock;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorDrawbridge;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorElevator;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorFlag;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorGarageDoor;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorPortcullis;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorRevolvingDoor;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorSlidingDoor;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorWindMill;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
@@ -59,7 +62,8 @@ public class SubCommandNew extends SubCommand
 
     private boolean isPlayerBusy(final @NotNull Player player)
     {
-        boolean isBusy = (plugin.getToolUser(player).isPresent() || plugin.getCommandWaiter(player).isPresent());
+        boolean isBusy = (ToolUserManager.get().getToolUser(player.getUniqueId()).isPresent() ||
+            plugin.getCommandWaiter(player).isPresent());
         if (isBusy)
             SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_PLAYERISBUSY));
         return isBusy;
@@ -83,37 +87,38 @@ public class SubCommandNew extends SubCommand
         }
 
         Creator creator = null;
+        IPPlayer pPlayer = SpigotAdapter.wrapPlayer(player);
         switch (type)
         {
             case BIGDOOR:
-                creator = new BigDoorCreator(plugin, player, name);
+                creator = new CreatorBigDoor(pPlayer, name);
                 break;
             case DRAWBRIDGE:
-                creator = new DrawbridgeCreator(plugin, player, name);
+                creator = new CreatorDrawbridge(pPlayer, name);
                 break;
             case PORTCULLIS:
-                creator = new PortcullisCreator(plugin, player, name);
+                creator = new CreatorPortcullis(pPlayer, name);
                 break;
             case ELEVATOR:
-                creator = new ElevatorCreator(plugin, player, name);
+                creator = new CreatorElevator(pPlayer, name);
                 break;
             case SLIDINGDOOR:
-                creator = new SlidingDoorCreator(plugin, player, name);
+                creator = new CreatorSlidingDoor(pPlayer, name);
                 break;
             case FLAG:
-                creator = new FlagCreator(plugin, player, name);
+                creator = new CreatorFlag(pPlayer, name);
                 break;
             case WINDMILL:
-                creator = new WindmillCreator(plugin, player, name);
+                creator = new CreatorWindMill(pPlayer, name);
                 break;
             case REVOLVINGDOOR:
-                creator = new RevolvingDoorCreator(plugin, player, name);
+                creator = new CreatorRevolvingDoor(pPlayer, name);
                 break;
             case GARAGEDOOR:
-                creator = new GarageDoorCreator(plugin, player, name);
+                creator = new CreatorGarageDoor(pPlayer, name);
                 break;
             case CLOCK:
-                creator = new ClockCreator(plugin, player, name);
+                creator = new CreatorClock(pPlayer, name);
             default:
                 break;
         }
@@ -125,7 +130,7 @@ public class SubCommandNew extends SubCommand
                   .warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
             return;
         }
-        plugin.getAbortableTaskManager().startTimerForAbortableTask(creator, 60 * 20);
+        ToolUserManager.get().startToolUser(creator, 60 * 20);
     }
 
     /**

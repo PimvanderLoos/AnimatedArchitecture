@@ -108,6 +108,7 @@ public abstract class ToolUser implements IRestartable
     @Override
     public void shutdown()
     {
+        System.out.println("ABORTING TOOLUSER!");
         cleanUpProcess();
     }
 
@@ -180,6 +181,7 @@ public abstract class ToolUser implements IRestartable
     public boolean handleInput(final @NotNull Object obj)
     {
         PLogger.get().debug("Handling input: " + obj.toString() + " for step: " + procedure.getCurrentStepName());
+        PLogger.get().debug("Class of input object: " + obj.getClass().getSimpleName());
 
         if (!active)
             return false;

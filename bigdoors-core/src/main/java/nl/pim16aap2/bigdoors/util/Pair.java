@@ -1,78 +1,30 @@
 package nl.pim16aap2.bigdoors.util;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Objects;
 
 /**
  * Represents a name-value pair.
  *
- * @autor Pim
+ * @author Pim
  */
-public final class Pair<K, V>
+public final class Pair<T1, T2>
 {
-    @NotNull
-    private K key;
-    @NotNull
-    private V value;
+    public T1 first;
+    public T2 second;
 
-    public Pair(final @NotNull K key, final @NotNull V value)
+    public Pair(final T1 first, final T2 second)
     {
-        this.key = key;
-        this.value = value;
+        this.first = first;
+        this.second = second;
     }
 
     /**
-     * Retrieves the key of this pair.
-     *
-     * @return The key of this pair.
-     */
-    @NotNull
-    public K key()
-    {
-        return key;
-    }
-
-    /**
-     * Retrieves the value of this pair.
-     *
-     * @return The value of this pair.
-     */
-    @NotNull
-    public V value()
-    {
-        return value;
-    }
-
-    /**
-     * Sets the key.
-     *
-     * @param key The key.
-     */
-    public void setKey(final @NotNull K key)
-    {
-        this.key = key;
-    }
-
-    /**
-     * Sets the value.
-     *
-     * @param value The value.
-     */
-    public void setValue(final @NotNull V value)
-    {
-        this.value = value;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Returns the hashCode of the key.
+     * Returns the hashCode of {@link #first}.
      */
     @Override
     public int hashCode()
     {
-        return key.hashCode();
+        return first == null ? 0 : first.hashCode();
     }
 
     @Override
@@ -85,6 +37,6 @@ public final class Pair<K, V>
             return false;
 
         Pair<?, ?> other = (Pair<?, ?>) o;
-        return Objects.equals(key, other.key) && Objects.equals(value, other.value);
+        return Objects.equals(first, other.first) && Objects.equals(second, other.second);
     }
 }

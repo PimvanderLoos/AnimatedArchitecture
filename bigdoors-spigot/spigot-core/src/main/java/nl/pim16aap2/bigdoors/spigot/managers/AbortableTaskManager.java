@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetBlocksToMove;
-import nl.pim16aap2.bigdoors.spigot.toolusers.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.spigot.util.AbortableTask;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForRemoveOwner;
@@ -73,18 +72,6 @@ public final class AbortableTaskManager
             }
         }.runTaskLater(plugin, time);
         abortableTask.setTask(task);
-    }
-
-    /**
-     * Starts the {@link PowerBlockRelocator} process for a given player and {@link AbstractDoorBase}.
-     *
-     * @param player The player.
-     * @param door   The {@link AbstractDoorBase}.
-     */
-    public void startPowerBlockRelocator(final @NotNull Player player, final @NotNull AbstractDoorBase door)
-    {
-        final int time = 20 * 20; // Give the user 20 seconds.
-        startTimerForAbortableTask(new PowerBlockRelocator(plugin, player, door, door.getPowerBlock(), time), time);
     }
 
     /**

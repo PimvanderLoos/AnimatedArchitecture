@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
@@ -41,6 +40,7 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandMenu;
@@ -93,8 +93,6 @@ import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
-import nl.pim16aap2.bigdoors.spigot.toolusers.ToolUser;
-import nl.pim16aap2.bigdoors.spigot.toolusers.ToolVerifier;
 import nl.pim16aap2.bigdoors.spigot.util.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PExecutorSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
@@ -116,9 +114,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -137,9 +133,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     private final PLogger pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
 
-    @Getter
-    private ToolVerifier toolVerifier;
-
     /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private ConfigLoaderSpigot configLoader;
@@ -152,7 +145,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private boolean validVersion = false;
     private CommandManager commandManager;
     private Map<UUID, WaitForCommand> cmdWaiters;
-    private Map<UUID, ToolUser> toolUsers;
     private Map<UUID, GUI> playerGUIs;
     private final Set<IRestartable> restartables = new HashSet<>();
 
@@ -217,7 +209,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     @Getter(onMethod = @__({@Override}))
     @NotNull
-    private final IBigDoorsToolUtil bigDoorsToolUtil;
+    private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
 
     public BigDoorsSpigot()
     {
@@ -270,7 +262,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             }
 
             DoorManager.init(this);
-            toolVerifier = new ToolVerifier(messages, this);
             vaultManager = VaultManager.init(this);
             AutoCloseScheduler.init(this);
 
@@ -342,7 +333,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         configLoader.restart();
         getPLogger().setConsoleLogging(getConfigLoader().consoleLogging());
         messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
-        toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
         cmdWaiters = new HashMap<>();
 
@@ -495,14 +485,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         if (!validVersion)
             return;
 
-        Iterator<Entry<UUID, ToolUser>> it = toolUsers.entrySet().iterator();
-        while (it.hasNext())
-        {
-            Entry<UUID, ToolUser> entry = it.next();
-            entry.getValue().abort();
-        }
-
-        toolUsers.clear();
         cmdWaiters.clear();
     }
 
@@ -536,22 +518,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public BigDoorsSpigot getPlugin()
     {
         return this;
-    }
-
-    @NotNull
-    public Optional<ToolUser> getToolUser(final @NotNull Player player)
-    {
-        return Optional.ofNullable(toolUsers.get(player.getUniqueId()));
-    }
-
-    public void addToolUser(final @NotNull ToolUser toolUser)
-    {
-        toolUsers.put(toolUser.getPlayer().getUniqueId(), toolUser);
-    }
-
-    public void removeToolUser(final @NotNull ToolUser toolUser)
-    {
-        toolUsers.remove(toolUser.getPlayer().getUniqueId());
     }
 
     @NotNull
@@ -596,8 +562,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         getCommandWaiter(player).ifPresent(WaitForCommand::abortSilently);
         cmdWaiters.remove(player.getUniqueId());
         playerGUIs.remove(player.getUniqueId());
-        getToolUser(player).ifPresent(ToolUser::abortSilently);
-        toolUsers.remove(player.getUniqueId());
+        ToolUserManager.get().abortToolUser(player.getUniqueId());
     }
 
     // Get the logger.

@@ -74,7 +74,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
             });
     }
 
-    private boolean isTool(final @Nullable ItemStack item)
+    public boolean isTool(final @Nullable ItemStack item)
     {
         if (item == null || !item.getType().equals(TOOL_MATERIAL))
             return false;
@@ -87,7 +87,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
     }
 
     @Override
-    public boolean isPlayerHoldingTool(@NotNull IPPlayer player)
+    public boolean isPlayerHoldingTool(final @NotNull IPPlayer player)
     {
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
@@ -97,6 +97,11 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
             return false;
         }
 
-        return isTool(spigotPlayer.getInventory().getItemInMainHand());
+        return isPlayerHoldingTool(spigotPlayer);
+    }
+
+    public boolean isPlayerHoldingTool(final @NotNull Player player)
+    {
+        return isTool(player.getInventory().getItemInMainHand());
     }
 }

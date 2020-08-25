@@ -207,9 +207,9 @@ public final class DatabaseManager extends Restartable
     {
         // Check if the name is actually the UID of the door.
         final @NotNull Pair<Boolean, Long> doorID = Util.longFromString(name);
-        if (doorID.key())
+        if (doorID.first)
             return CompletableFuture
-                .supplyAsync(() -> db.getDoor(playerUUID, doorID.value()).map(Collections::singletonList),
+                .supplyAsync(() -> db.getDoor(playerUUID, doorID.second).map(Collections::singletonList),
                              threadPool);
 
         return name == null ? getDoors(playerUUID) :
