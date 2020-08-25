@@ -37,6 +37,11 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
         this.quarterCircles = quarterCircles;
     }
 
+    public RevolvingDoor(final @NotNull DoorData doorData)
+    {
+        this(doorData, 1);
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override
@@ -44,12 +49,12 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     {
         return DOOR_TYPE;
     }
-    
+
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
     {
-        return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
+        return getOpenDir();
     }
 
     /** {@inheritDoc} */
