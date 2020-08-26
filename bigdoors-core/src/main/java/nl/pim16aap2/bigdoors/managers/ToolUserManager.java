@@ -122,6 +122,7 @@ public final class ToolUserManager extends Restartable
                 new IllegalStateException("Trying to start a tool user even though it wasn't registered, somehow!"));
             return;
         }
+
         if (pair.second != null)
         {
             PLogger.get().logException(
@@ -136,8 +137,9 @@ public final class ToolUserManager extends Restartable
             @Override
             public void run()
             {
-                toolUser.getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                                         .getString(Message.CREATOR_GENERAL_TIMEOUT));
+                if (toolUser.isActive())
+                    toolUser.getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                                             .getString(Message.CREATOR_GENERAL_TIMEOUT));
                 toolUser.shutdown();
             }
         };
@@ -177,23 +179,13 @@ public final class ToolUserManager extends Restartable
 
         if (pair.first != null)
         {
-            pair.first.getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                                       .getString(Message.CREATOR_GENERAL_CANCELLED));
+            if (pair.first.isActive())
+                pair.first.getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                                           .getString(Message.CREATOR_GENERAL_CANCELLED));
             pair.first.shutdown();
         }
 
         if (pair.second != null)
             pair.second.cancel();
-    }
-
-    /**
-     * Removes a {@link ToolUser} from the registered list. Note that it does not shut down the {@link ToolUser}! If you
-     * want to properly stop the {@link ToolUser}, you should use {@link #abortToolUser(ToolUser)} instead.
-     *
-     * @param toolUser The {@link ToolUser} to remove.
-     */
-    public void removeToolUser(final @NotNull ToolUser toolUser)
-    {
-        toolUsers.remove(toolUser.getPlayer().getUUID());
     }
 }

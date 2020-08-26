@@ -30,8 +30,14 @@ public abstract class ToolUser implements IRestartable
     protected final Procedure<?> procedure;
 
     /**
+     * Checks if this {@link ToolUser} has been shut down or not.
+     */
+    private boolean isShutDown = false;
+
+    /**
      * Keeps track of whether this {@link ToolUser} is active or not.
      */
+    @Getter
     protected boolean active = true;
 
     protected boolean playerHasStick = false;
@@ -94,9 +100,12 @@ public abstract class ToolUser implements IRestartable
      */
     protected final void cleanUpProcess()
     {
-        ToolUserManager.get().removeToolUser(this);
+        if (isShutDown)
+            return;
+        isShutDown = true;
         removeTool();
         active = false;
+        ToolUserManager.get().abortToolUser(this);
     }
 
     @Override
