@@ -1,10 +1,14 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Portcullis;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorPortcullis;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,9 +50,8 @@ public final class DoorTypePortcullis extends DoorType
         return instance;
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
                                                      final @NotNull Object... typeData)
     {
@@ -62,9 +65,22 @@ public final class DoorTypePortcullis extends DoorType
                                           autoOpenTimer));
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player)
+    {
+        return new CreatorPortcullis(player);
+    }
+
+    @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    {
+        return new CreatorPortcullis(player, name);
+    }
+
+    @Override
+    @NotNull
     protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
         if (!(door instanceof Portcullis))

@@ -3,11 +3,14 @@ package nl.pim16aap2.bigdoors.doortypes;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Value;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +32,7 @@ public abstract class DoorType
     protected final String pluginName;
 
     /**
-     * Gets the name of this {@link DoorType}.
+     * Gets the name of this {@link DoorType}. Note that this is always in lower case!
      *
      * @return The name of this {@link DoorType}.
      */
@@ -88,11 +91,11 @@ public abstract class DoorType
                        final @NotNull List<RotateDirection> validOpenDirections)
     {
         this.pluginName = pluginName;
-        this.simpleName = simpleName;
+        this.simpleName = simpleName.toLowerCase();
         this.typeVersion = typeVersion;
         this.parameters = parameters;
         this.validOpenDirections = validOpenDirections;
-        translationName = "DoorType_" + toString();
+        translationName = "DOORTYPE_" + simpleName.toUpperCase();
     }
 
     /**
@@ -113,12 +116,29 @@ public abstract class DoorType
      * @param typeData The type-specific data for this {@link DoorType}. Must be in the order as defined by {@link
      *                 #getParameters()}.
      * @return A new {@link AbstractDoorBase} if one could be instantiated.
-     *
-     * @throws Exception
      */
+    @NotNull
     protected abstract Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                              final @NotNull Object... typeData)
-        throws Exception;
+                                                              final @NotNull Object... typeData);
+
+    /**
+     * Creates (and registers) a new {@link Creator} for this type.
+     *
+     * @param player The player who will own the {@link Creator}.
+     * @return The newly created {@link Creator}.
+     */
+    @NotNull
+    public abstract Creator getCreator(final @NotNull IPPlayer player);
+
+    /**
+     * Creates (and registers) a new {@link Creator} for this type.
+     *
+     * @param player The player who will own the {@link Creator}.
+     * @param name   The name that will be given to the door.
+     * @return The newly created {@link Creator}.
+     */
+    @NotNull
+    public abstract Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name);
 
     /**
      * Generates the type-specific data for this door type. Note that the data must be ordered in the same way as {@link

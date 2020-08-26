@@ -1,7 +1,10 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Drawbridge;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorDrawbridge;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -38,6 +41,20 @@ public final class DoorTypeDrawbridge extends DoorType
                             RotateDirection.SOUTH, RotateDirection.WEST));
     }
 
+    @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player)
+    {
+        return new CreatorDrawbridge(player);
+    }
+
+    @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    {
+        return new CreatorDrawbridge(player, name);
+    }
+
     /**
      * Obtains the instance of this type.
      *
@@ -49,13 +66,12 @@ public final class DoorTypeDrawbridge extends DoorType
         return instance;
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
                                                      final @NotNull Object... typeData)
     {
-        @Nullable final PBlockFace currentDirection = PBlockFace.valueOf((int) typeData[2]);
+        final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) typeData[2]);
         if (currentDirection == null)
             return Optional.empty();
 
@@ -69,9 +85,8 @@ public final class DoorTypeDrawbridge extends DoorType
                                           modeUP));
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
     protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
         if (!(door instanceof Drawbridge))

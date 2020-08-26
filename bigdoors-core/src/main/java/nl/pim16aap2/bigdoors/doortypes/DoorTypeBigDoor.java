@@ -1,10 +1,14 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorBigDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,12 +49,10 @@ public final class DoorTypeBigDoor extends DoorType
         return instance;
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
                                                      final @NotNull Object... typeData)
-        throws Exception
     {
         final int autoCloseTimer = (int) typeData[0];
         final int autoOpenTimer = (int) typeData[1];
@@ -60,9 +62,22 @@ public final class DoorTypeBigDoor extends DoorType
                                        autoOpenTimer));
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player)
+    {
+        return new CreatorBigDoor(player);
+    }
+
+    @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    {
+        return new CreatorBigDoor(player, name);
+    }
+
+    @Override
+    @NotNull
     protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
         throws Exception
     {

@@ -264,6 +264,27 @@ public final class Messages extends Restartable
     }
 
     /**
+     * Tries to get the translated message from the name of a {@link Message}. If no such mapping exists, an empty
+     * String will be returned.
+     *
+     * @param messageName The name of a {@link Message}, see {@link Message#valueOf(String)}.
+     * @return The translated String if possible, otherwise an empty String.
+     */
+    @NotNull
+    public String getString(final @NotNull String messageName)
+    {
+        try
+        {
+            return messageMap.get(Message.valueOf(messageName));
+        }
+        catch (IllegalStateException e)
+        {
+            PLogger.get().warn("Failed to obtain message: \"" + messageName + "\"");
+            return "";
+        }
+    }
+
+    /**
      * Gets the translated message of the provided {@link Message} and substitutes its variables for the provided
      * values.
      *

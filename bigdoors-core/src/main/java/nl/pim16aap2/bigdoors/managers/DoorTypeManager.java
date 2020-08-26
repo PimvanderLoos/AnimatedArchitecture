@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +34,23 @@ public final class DoorTypeManager
     private final Map<DoorType, DoorTypeInfo> doorTypeToID = new ConcurrentHashMap<>();
     @NotNull
     private final Map<Long, DoorType> doorTypeFromID = new ConcurrentHashMap<>();
+    @NotNull
+    private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
+
+    /**
+     * Gets all registered AND enabled {@link DoorType}s.
+     */
+    @Getter(onMethod = @__({@NotNull}))
+    private final List<DoorType> sortedDoorTypes = Collections.synchronizedList(new ArrayList<DoorType>()
+    {
+        @Override
+        public boolean add(DoorType doorType)
+        {
+            super.add(doorType);
+            sortedDoorTypes.sort(Comparator.comparing(DoorType::getSimpleName));
+            return true;
+        }
+    });
 
     private DoorTypeManager()
     {
@@ -42,6 +61,7 @@ public final class DoorTypeManager
      *
      * @return All {@link DoorType}s that are currently registered.
      */
+    @NotNull
     public Set<DoorType> getRegisteredDoorTypes()
     {
         return Collections.unmodifiableSet(doorTypeToID.keySet());
@@ -101,9 +121,23 @@ public final class DoorTypeManager
      * @param doorTypeID The ID of the {@link DoorType}.
      * @return An optional that contains the class of the {@link DoorType} if it is registered.
      */
+    @NotNull
     public Optional<DoorType> getDoorType(final long doorTypeID)
     {
         return Optional.ofNullable(doorTypeFromID.get(doorTypeID));
+    }
+
+    /**
+     * Tries to get a {@link DoorType} from it name as defined by {@link DoorType#getSimpleName()}. This method is
+     * case-insensitive.
+     *
+     * @param typeName The name of the type.
+     * @return The {@link DoorType} to retrieve, if possible.
+     */
+    @NotNull
+    public Optional<DoorType> getDoorType(final @NotNull String typeName)
+    {
+        return Optional.ofNullable(doorTypeFromName.get(typeName.toLowerCase()));
     }
 
     /**
@@ -112,6 +146,7 @@ public final class DoorTypeManager
      * @param doorType The {@link Class} of the {@link DoorType}.
      * @return An optional that contains the ID of the {@link DoorType} if it is registered.
      */
+    @NotNull
     public OptionalLong getDoorTypeID(final @NotNull DoorType doorType)
     {
         final @Nullable DoorTypeInfo info = doorTypeToID.get(doorType);
@@ -138,6 +173,7 @@ public final class DoorTypeManager
      * @param doorType The {@link DoorType} to register.
      * @return True if registration was successful.
      */
+    @NotNull
     public CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType)
     {
         return registerDoorType(doorType, true);
@@ -161,6 +197,8 @@ public final class DoorTypeManager
             return;
         }
         doorTypeFromID.remove(doorTypeInfo.id);
+        doorTypeFromName.remove(doorTypeInfo.name);
+        sortedDoorTypes.remove(doorType);
     }
 
     /**
@@ -170,6 +208,7 @@ public final class DoorTypeManager
      * @param isEnabled Whether or not this {@link DoorType} should be enabled or not. Default = true.
      * @return True if registration was successful.
      */
+    @NotNull
     public CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType, final boolean isEnabled)
     {
         CompletableFuture<Long> registrationResult = BigDoors.get().getDatabaseManager().registerDoorType(doorType);
@@ -180,6 +219,9 @@ public final class DoorTypeManager
                     return false;
                 doorTypeToID.put(doorType, new DoorTypeInfo(doorTypeID, isEnabled, doorType.getSimpleName()));
                 doorTypeFromID.put(doorTypeID, doorType);
+                doorTypeFromName.put(doorType.getSimpleName(), doorType);
+                if (isEnabled)
+                    sortedDoorTypes.add(doorType);
                 return true;
             });
     }
@@ -194,7 +236,11 @@ public final class DoorTypeManager
     {
         final @Nullable DoorTypeInfo info = doorTypeToID.get(doorType);
         if (info != null)
+        {
             info.status = isEnabled;
+            if (!isEnabled)
+                sortedDoorTypes.remove(doorType);
+        }
     }
 
     /**
