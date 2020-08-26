@@ -68,6 +68,7 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Doors
  */
+// TODO: Consider creating optional per-type configs.
 // TODO: When changing the open direction of a GarageDoor, the engine location needs to be updated as well, otherwise
 //       it'll just break. Alternatively, consider ignoring the engine location altogether and just figuring it out
 //       when it needs to be toggled? When toggling it, the engine location can just be derived from the open direction
@@ -81,7 +82,6 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Having both openDirection and rotateDirection is stupid. Check DoorBase#getNewLocations for example.
 // TODO: Cache value of DoorBase#getSimplePowerBlockChunkHash().
 // TODO: Use the IGetNewLocation code to check new pos etc.
-// TODO: Statically store GNL's in each door type.
 // TODO: Store calculated stuff such as blocksInDirection in object-scope variables, so they don't have to be
 //       calculated more than once.
 // TODO: Implement this type: https://www.filt3rs.net/sites/default/files/study/_3VIS%20-%20318%20Fer-211%20visera%20proyectable%20visor%20fachada%20basculante.jpg
@@ -103,8 +103,6 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
-// TODO: When registering a new ToolUser, also make sure to immediately start the timer thingy, otherwise it just
-//       gets too messy. Also handle the removal in the shutdown method.
 // TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
 //       messages much more generic. Many of them only differ in the hardcoded name of the type.
 // TODO: PLogger: Add the possibility to log a Supplier<String>. This would be used for expensive logging operations
@@ -263,8 +261,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       Figure this stuff out while reading the messages file, so there's 0 impact while the plugin is running.
 // TODO: Make some kind of interface for the vectors, to avoid code duplication.
 // TODO: Add default pitch and volume to PSound enum. Allow overriding them, though. Perhaps also store tick length?
+//       Perhaps just don't use an enum at all, but store the sound in the DoorType definition.
 // TODO: Add some kind of method to reset the timer on falling blocks, so they don't despawn (for perpetual movers).
-// TODO: Split DoorActionEvent into 2: one for future doors, the other for existing doors.
 // TODO: Merge spigot-core and spigot-util. It's just annoying and messy.
 // TODO: Allow the "server" to own doors.
 // TODO: Add material blacklist to the config.
@@ -385,6 +383,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Creators / ToolUsers
  */
+// TODO: When registering a new ToolUser, also make sure to immediately start the timer thingy, otherwise it just
+//       gets too messy. Also handle the removal in the shutdown method.
 // TODO: Consider introducing different (optional) modes for the creators such as Creator.Mode#NEW_DOOR
 //       and Creator.Mode#UPDATE_COORDS, Creator.Mode#UPDATE_POWERBLOCK, etc. These modes can be used to
 //       update a specific aspect of a door. Only including the desired steps should be enough to
@@ -395,15 +395,13 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       "/bigdoors newdoor -type BigDoor" -> "Your inventory appears to be full! Please make some space and try again!"
 //       If their inventory fills up during the process, just abort when they get to the point where they should have
 //       received the tool.
-// TODO: Use the openDirection to figure out the current direction for the types that need that. And if that's not
-//       possible, just ask the user.
-// TODO: GarageDoorCreator: Fix having to double click last block.
-// TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
-// TODO: Adapt to the new creation style.
 
 /*
  * Openers / Movers
  */
+// TODO: There is still a bunch of duplicated code (e.g. BigDoor#getPotentialNewCoordinates and
+//       RevolvingDoor#getPotentialNewCoordinates). This is horrible and should be fixed. Perhaps create a separate
+//       object that can do it? Or a static method? Ugh.
 // TODO: The ClockMover should keep in mind that clocks can have a depth greater than 2 blocks. Currently, it only
 //       thinks there are 2 arms, each 1 block deep, which would cause issues with any other size.
 // TODO: The perpetual movers (revolving door, windmill) should also have a mode where they can be opened and closed like regular doors.
@@ -411,9 +409,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       So, if a door is currently open to the west and the opendir is changed to east and it is toggled again,
 //       toggle it to the east again first, even though the closedir would normally be the opposite of the opendir
 //       (therefore close to the west).
-// TODO: FIX DRABRIDGES! THEY ARE BROKEN!
 // TODO: RevolvingDoor: The final location of the blocks is not the original location. You can see this issue when
-//       using a revolving door with an off-center rotation point.
+//       using a revolving door with an off-center rotation point. The same applies to
 // TODO: Figure out what to do with the player sometimes being nullable and notnull at other times. Make a clear decision.
 // TODO: Get rid of the weird speed multipliers in the CustomEntityFallingBlock_VX_XX_RX classes.
 // TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the
