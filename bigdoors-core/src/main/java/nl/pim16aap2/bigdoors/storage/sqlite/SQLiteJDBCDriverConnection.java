@@ -368,8 +368,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         int updateStatus = executeUpdate(SQLStatement.INSERT_OR_IGNORE_DOOR_TYPE.constructPPreparedStatement()
                                                                                 .setString(1, doorType.getPluginName())
-                                                                                .setString(2, doorType.getTypeName())
-                                                                                .setInt(3, doorType.getVersion())
+                                                                                .setString(2, doorType.getSimpleName())
+                                                                                .setInt(3, doorType.getTypeVersion())
                                                                                 .setString(4, typeTableName));
         if (updateStatus == -1)
         {
@@ -384,8 +384,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull Optional<Pair<Long, String>> result = Optional.ofNullable(executeQuery(
             SQLStatement.GET_DOOR_TYPE_TABLE_NAME_AND_ID.constructPPreparedStatement()
                                                         .setString(1, doorType.getPluginName())
-                                                        .setString(2, doorType.getTypeName())
-                                                        .setInt(3, doorType.getVersion()),
+                                                        .setString(2, doorType.getSimpleName())
+                                                        .setInt(3, doorType.getTypeVersion()),
             resultSet -> new Pair<>(resultSet.getLong("id"), resultSet.getString("typeTableName"))));
 
         if (!result.isPresent())
@@ -526,7 +526,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @NotNull
     private String getTableNameOfType(final @NotNull DoorType doorType)
     {
-        return String.format("%s_%s_%d", doorType.getPluginName(), doorType.getTypeName(), doorType.getVersion());
+        return String.format("%s_%s_%d", doorType.getPluginName(), doorType.getSimpleName(), doorType.getTypeVersion());
     }
 
     /**

@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Value;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -17,35 +20,75 @@ import java.util.Optional;
  */
 public abstract class DoorType
 {
-    @NotNull
+    /**
+     * Gets the name of the plugin that owns this {@link DoorType}.
+     *
+     * @return The name of the plugin that owns this {@link DoorType}.
+     */
+    @Getter(onMethod = @__({@NotNull}))
     protected final String pluginName;
-    @NotNull
-    protected final String typeName;
+
+    /**
+     * Gets the name of this {@link DoorType}.
+     *
+     * @return The name of this {@link DoorType}.
+     */
+    @Getter(onMethod = @__({@NotNull}))
+    protected final String simpleName;
+
+    /**
+     * Gets the version of this {@link DoorType}. Note that changing the version creates a whole new {@link DoorType}
+     * and you'll have to take care of the transition.
+     *
+     * @return The version of this {@link DoorType}.
+     */
+    @Getter(onMethod = @__({@NotNull}))
     protected final int typeVersion;
-    @NotNull
+
+    /**
+     * Obtains all {@link Parameter}s used by this {@link DoorType}. Note that the order of the parameters must be the
+     * same as the objects listed in {@link #instantiate(AbstractDoorBase.DoorData, Object...)}.
+     *
+     * @return A list of all {@link Parameter}s used by this {@link DoorType}.
+     */
+    @Getter(onMethod = @__({@NotNull}))
     protected final List<Parameter> parameters;
-    @NotNull
+
+    /**
+     * Obtains the value of this type that represents the key in the translation system.
+     *
+     * @return The value of this type that represents the key in the translation system.
+     */
+    @Getter(onMethod = @__({@NotNull}))
     protected final String translationName;
-    @NotNull
+
+    /**
+     * Gets a list of all theoretically valid {@link RotateDirection} for this given type. It does NOT take the physical
+     * aspects of the {@link AbstractDoorBase} into consideration. Therefore, the actual list of valid {@link
+     * RotateDirection}s is most likely going to be a subset of those returned by this method.
+     *
+     * @return A list of all valid {@link RotateDirection} for this given type.
+     */
+    @Getter(onMethod = @__({@NotNull}))
     private final List<RotateDirection> validOpenDirections;
 
     /**
      * Constructs a new {@link DoorType}. Don't forget to register it using {@link DoorTypeManager#registerDoorType(DoorType)}.
      *
      * @param pluginName  The name of the plugin that owns this {@link DoorType}.
-     * @param typeName    The name of this {@link DoorType}.
+     * @param simpleName  The 'simple' name of this {@link DoorType}. E.g. "Flag", or "Windmill".
      * @param typeVersion The version of this {@link DoorType}. Note that changing the version results in a completely
      *                    new {@link DoorType}, as far as the database is concerned. This fact can be used if the
      *                    parameters of the constructor for this type need to be changed.
      * @param parameters  List of {@link Parameter}s that describe which information is stored that is specific to this
      *                    {@link DoorType}. Do not include {@link AbstractDoorBase.DoorData}.
      */
-    protected DoorType(final @NotNull String pluginName, final @NotNull String typeName, final int typeVersion,
+    protected DoorType(final @NotNull String pluginName, final @NotNull String simpleName, final int typeVersion,
                        final @NotNull List<Parameter> parameters,
                        final @NotNull List<RotateDirection> validOpenDirections)
     {
         this.pluginName = pluginName;
-        this.typeName = typeName;
+        this.simpleName = simpleName;
         this.typeVersion = typeVersion;
         this.parameters = parameters;
         this.validOpenDirections = validOpenDirections;
@@ -61,19 +104,6 @@ public abstract class DoorType
     public final boolean isValidOpenDirection(final @NotNull RotateDirection rotateDirection)
     {
         return validOpenDirections.contains(rotateDirection);
-    }
-
-    /**
-     * Gets a list of all theoretically valid {@link RotateDirection} for this given type. It does NOT take the physical
-     * aspects of the {@link AbstractDoorBase} into consideration. Therefore, the actual list of valid {@link
-     * RotateDirection}s is most likely going to be a subset of those returned by this method.
-     *
-     * @return A list of all valid {@link RotateDirection} for this given type.
-     */
-    @NotNull
-    public final List<RotateDirection> getValidOpenDirections()
-    {
-        return validOpenDirections;
     }
 
     /**
@@ -103,68 +133,11 @@ public abstract class DoorType
     protected abstract Object[] generateTypeData(final @NotNull AbstractDoorBase door)
         throws Exception;
 
-    /**
-     * Obtains the value of this type that represents the key in the translation system.
-     *
-     * @return The value of this type that represents the key in the translation system.
-     */
-    @NotNull
-    public final String getTranslationName()
-    {
-        return translationName;
-    }
-
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public final String toString()
     {
-        return getPluginName() + ":" + getTypeName() + ":" + getVersion();
-    }
-
-    /**
-     * Gets the name of the plugin that owns this {@link DoorType}.
-     *
-     * @return The name of the plugin that owns this {@link DoorType}.
-     */
-    @NotNull
-    public final String getPluginName()
-    {
-        return pluginName;
-    }
-
-    /**
-     * Gets the name of this {@link DoorType}.
-     *
-     * @return The name of this {@link DoorType}.
-     */
-    @NotNull
-    public final String getTypeName()
-    {
-        return typeName;
-    }
-
-    /**
-     * Gets the version of this {@link DoorType}. Note that changing the version creates a whole new {@link DoorType}
-     * and you'll have to take care of the transition.
-     *
-     * @return The version of this {@link DoorType}.
-     */
-    public final int getVersion()
-    {
-        return typeVersion;
-    }
-
-    /**
-     * Obtains all {@link Parameter}s used by this {@link DoorType}. Note that the order of the parameters must be the
-     * same as the objects listed in {@link #instantiate(AbstractDoorBase.DoorData, Object...)}.
-     *
-     * @return A list of all {@link Parameter}s used by this {@link DoorType}.
-     */
-    @NotNull
-    public final List<Parameter> getParameters()
-    {
-        return parameters;
+        return getPluginName() + ":" + getSimpleName() + ":" + getTypeVersion();
     }
 
     /**
@@ -270,30 +243,11 @@ public abstract class DoorType
     /**
      * Represents a parameter with a name, a type, and a value.
      */
-    public static final class Parameter
+    @Value
+    @AllArgsConstructor
+    public static class Parameter
     {
-        @NotNull
-        private final ParameterType parameterType;
-        @NotNull
-        private final String parameterName;
-
-        public Parameter(final @NotNull ParameterType parameterType,
-                         final @NotNull String parameterName)
-        {
-            this.parameterType = parameterType;
-            this.parameterName = parameterName;
-        }
-
-        @NotNull
-        public String getParameterName()
-        {
-            return parameterName;
-        }
-
-        @NotNull
-        public ParameterType getParameterType()
-        {
-            return parameterType;
-        }
+        ParameterType parameterType;
+        String parameterName;
     }
 }

@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import lombok.AllArgsConstructor;
+import lombok.Value;
+import lombok.experimental.NonFinal;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -26,9 +29,9 @@ public final class DoorTypeManager
     @NotNull
     private static final DoorTypeManager instance = new DoorTypeManager();
     @NotNull
-    private final Map<DoorType, DoorTypeInfo> doorTypesToID = new ConcurrentHashMap<>();
+    private final Map<DoorType, DoorTypeInfo> doorTypeToID = new ConcurrentHashMap<>();
     @NotNull
-    private final Map<Long, DoorType> doorTypesFromID = new ConcurrentHashMap<>();
+    private final Map<Long, DoorType> doorTypeFromID = new ConcurrentHashMap<>();
 
     private DoorTypeManager()
     {
@@ -41,7 +44,7 @@ public final class DoorTypeManager
      */
     public Set<DoorType> getRegisteredDoorTypes()
     {
-        return Collections.unmodifiableSet(doorTypesToID.keySet());
+        return Collections.unmodifiableSet(doorTypeToID.keySet());
     }
 
     /**
@@ -53,7 +56,7 @@ public final class DoorTypeManager
     public List<DoorType> getEnabledDoorTypes()
     {
         final List<DoorType> enabledDoorTypes = new ArrayList<>();
-        for (final Map.Entry<DoorType, DoorTypeInfo> doorType : doorTypesToID.entrySet())
+        for (final Map.Entry<DoorType, DoorTypeInfo> doorType : doorTypeToID.entrySet())
             if (doorType.getValue().status)
                 enabledDoorTypes.add(doorType.getKey());
         return enabledDoorTypes;
@@ -78,7 +81,7 @@ public final class DoorTypeManager
      */
     public boolean isRegistered(final @NotNull DoorType doorType)
     {
-        return doorTypesToID.containsKey(doorType);
+        return doorTypeToID.containsKey(doorType);
     }
 
     /**
@@ -89,7 +92,7 @@ public final class DoorTypeManager
      */
     public boolean isRegistered(final long doorTypeID)
     {
-        return doorTypesFromID.containsKey(doorTypeID);
+        return doorTypeFromID.containsKey(doorTypeID);
     }
 
     /**
@@ -100,7 +103,7 @@ public final class DoorTypeManager
      */
     public Optional<DoorType> getDoorType(final long doorTypeID)
     {
-        return Optional.ofNullable(doorTypesFromID.get(doorTypeID));
+        return Optional.ofNullable(doorTypeFromID.get(doorTypeID));
     }
 
     /**
@@ -111,7 +114,7 @@ public final class DoorTypeManager
      */
     public OptionalLong getDoorTypeID(final @NotNull DoorType doorType)
     {
-        final @Nullable DoorTypeInfo info = doorTypesToID.get(doorType);
+        final @Nullable DoorTypeInfo info = doorTypeToID.get(doorType);
         return info == null ? OptionalLong.empty() : OptionalLong.of(info.id);
     }
 
@@ -125,7 +128,7 @@ public final class DoorTypeManager
      */
     public boolean isDoorTypeEnabled(final @NotNull DoorType doorType)
     {
-        final @Nullable DoorTypeInfo info = doorTypesToID.get(doorType);
+        final @Nullable DoorTypeInfo info = doorTypeToID.get(doorType);
         return info != null && info.status;
     }
 
@@ -150,14 +153,14 @@ public final class DoorTypeManager
      */
     public void unregisterDoorType(final @NotNull DoorType doorType)
     {
-        final @Nullable DoorTypeInfo doorTypeInfo = doorTypesToID.remove(doorType);
+        final @Nullable DoorTypeInfo doorTypeInfo = doorTypeToID.remove(doorType);
         if (doorTypeInfo == null)
         {
-            PLogger.get().warn("Trying to unregister door of type: " + doorType.getTypeName() + ", but it isn't " +
+            PLogger.get().warn("Trying to unregister door of type: " + doorType.getSimpleName() + ", but it isn't " +
                                    "registered already!");
             return;
         }
-        doorTypesFromID.remove(doorTypeInfo.id);
+        doorTypeFromID.remove(doorTypeInfo.id);
     }
 
     /**
@@ -175,8 +178,8 @@ public final class DoorTypeManager
             {
                 if (doorTypeID < 1)
                     return false;
-                doorTypesToID.put(doorType, new DoorTypeInfo(doorTypeID, isEnabled));
-                doorTypesFromID.put(doorTypeID, doorType);
+                doorTypeToID.put(doorType, new DoorTypeInfo(doorTypeID, isEnabled, doorType.getSimpleName()));
+                doorTypeFromID.put(doorTypeID, doorType);
                 return true;
             });
     }
@@ -189,7 +192,7 @@ public final class DoorTypeManager
      */
     public void setDoorTypeEnabled(final @NotNull DoorType doorType, final boolean isEnabled)
     {
-        final @Nullable DoorTypeInfo info = doorTypesToID.get(doorType);
+        final @Nullable DoorTypeInfo info = doorTypeToID.get(doorType);
         if (info != null)
             info.status = isEnabled;
     }
@@ -199,15 +202,13 @@ public final class DoorTypeManager
      *
      * @author Pim
      */
-    private static final class DoorTypeInfo
+    @Value
+    @AllArgsConstructor
+    private static class DoorTypeInfo
     {
-        private final long id;
-        private boolean status;
-
-        public DoorTypeInfo(final long id, final boolean status)
-        {
-            this.id = id;
-            this.status = status;
-        }
+        long id;
+        @NonFinal
+        boolean status;
+        String name;
     }
 }
