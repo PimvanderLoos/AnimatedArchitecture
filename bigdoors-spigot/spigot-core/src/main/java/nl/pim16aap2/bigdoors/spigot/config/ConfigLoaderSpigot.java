@@ -114,8 +114,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      *
      * @return The instance of the {@link ConfigLoaderSpigot}.
      */
-    @NotNull
-    public static ConfigLoaderSpigot get()
+    public @NotNull
+    static ConfigLoaderSpigot get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -441,8 +441,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    @NotNull
-    public String flagFormula()
+    public @NotNull String flagFormula()
     {
         return flagFormula;
     }

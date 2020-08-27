@@ -107,8 +107,7 @@ public final class Vector2Di implements IVector2DiConst, Cloneable
     }
 
     @Override
-    @NotNull
-    public Vector2Di clone()
+    public @NotNull Vector2Di clone()
     {
         try
         {
@@ -151,8 +150,7 @@ public final class Vector2Di implements IVector2DiConst, Cloneable
         return x == other.getX() && y == other.getY();
     }
 
-    @NotNull
-    public Vector2Di normalize()
+    public @NotNull Vector2Di normalize()
     {
         double length = Math.sqrt(x * x + y * y);
 

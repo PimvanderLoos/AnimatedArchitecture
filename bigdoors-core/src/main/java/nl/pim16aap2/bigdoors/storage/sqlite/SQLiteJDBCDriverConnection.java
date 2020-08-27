@@ -162,8 +162,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *
      * @return A database connection.
      */
-    @Nullable
-    private Connection getConnection()
+    private @Nullable Connection getConnection()
     {
         return getConnection(DatabaseState.OK);
     }

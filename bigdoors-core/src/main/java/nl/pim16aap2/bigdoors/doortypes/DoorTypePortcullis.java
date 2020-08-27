@@ -44,8 +44,8 @@ public final class DoorTypePortcullis extends DoorType
      *
      * @return The instance of this type.
      */
-    @NotNull
-    public static DoorTypePortcullis get()
+    public @NotNull
+    static DoorTypePortcullis get()
     {
         return instance;
     }

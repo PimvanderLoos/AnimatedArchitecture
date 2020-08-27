@@ -20,8 +20,7 @@ public class TestConfigLoader implements IConfigLoader
     }
 
     @Override
-    @NotNull
-    public String flagFormula()
+    public @NotNull String flagFormula()
     {
         return null;
     }

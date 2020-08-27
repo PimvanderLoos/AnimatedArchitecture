@@ -39,8 +39,7 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    @NotNull
-    public Vector2Di getChunk()
+    public @NotNull Vector2Di getChunk()
     {
         return new Vector2Di(getBlockX() << 4, getBlockZ() << 4);
     }
@@ -88,8 +87,7 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    @NotNull
-    public IPLocation clone()
+    public @NotNull IPLocation clone()
     {
         try
         {

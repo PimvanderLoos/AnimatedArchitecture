@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
-import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.spigot.util.AbortableTask;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,8 +53,7 @@ public abstract class WaitForCommand extends AbortableTask
      *
      * @return The name of the command that this waiter is waiting for.
      */
-    @NotNull
-    public final String getCommand()
+    public final @NotNull String getCommand()
     {
         return subCommand.getName();
     }

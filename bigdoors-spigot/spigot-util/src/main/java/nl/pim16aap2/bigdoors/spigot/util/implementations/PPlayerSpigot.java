@@ -40,15 +40,13 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    @NotNull
-    public UUID getUUID()
+    public @NotNull UUID getUUID()
     {
         return uuid;
     }
 
     @Override
-    @NotNull
-    public String getName()
+    public @NotNull String getName()
     {
         return name;
     }
@@ -66,8 +64,7 @@ public final class PPlayerSpigot implements IPPlayer
      *
      * @return The Bukkit player.
      */
-    @Nullable
-    public Player getBukkitPlayer()
+    public @Nullable Player getBukkitPlayer()
     {
         return Bukkit.getPlayer(uuid);
     }

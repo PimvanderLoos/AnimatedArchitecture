@@ -58,29 +58,25 @@ public class Portcullis extends AbstractDoorBase
     }
 
     @Override
-    @NotNull
-    public DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    @NotNull
-    public RotateDirection cycleOpenDirection()
+    public @NotNull RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.UP) ? RotateDirection.DOWN : RotateDirection.UP;
     }
 
     @Override
-    @NotNull
-    public Vector2Di[] calculateChunkRange()
+    public @NotNull Vector2Di[] calculateChunkRange()
     {
         return calculateCurrentChunkRange();
     }
 
     @Override
-    @NotNull
-    public RotateDirection getCurrentToggleDir()
+    public @NotNull RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.DOWN : RotateDirection.UP;
     }

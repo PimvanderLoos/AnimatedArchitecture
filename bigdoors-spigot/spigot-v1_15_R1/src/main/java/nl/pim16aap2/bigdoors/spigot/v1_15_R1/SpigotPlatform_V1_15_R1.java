@@ -32,8 +32,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     }
 
     @Override
-    @NotNull
-    public String getVersion()
+    public @NotNull String getVersion()
     {
         return VERSION;
     }
@@ -43,8 +42,8 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
      *
      * @return The instance of this class.
      */
-    @NotNull
-    public static SpigotPlatform_V1_15_R1 get()
+    public @NotNull
+    static SpigotPlatform_V1_15_R1 get()
     {
         return instance;
     }

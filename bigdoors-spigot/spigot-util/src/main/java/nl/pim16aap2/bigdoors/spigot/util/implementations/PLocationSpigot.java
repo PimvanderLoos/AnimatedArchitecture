@@ -47,8 +47,7 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    @NotNull
-    public Vector2Di getChunk()
+    public @NotNull Vector2Di getChunk()
     {
         return new Vector2Di(location.getBlockX() << 4, location.getBlockZ() << 4);
     }
@@ -134,8 +133,7 @@ public final class PLocationSpigot implements IPLocation
      *
      * @return The Bukkit location.
      */
-    @NotNull
-    public Location getBukkitLocation()
+    public @NotNull Location getBukkitLocation()
     {
         return location;
     }
@@ -166,8 +164,7 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    @NotNull
-    public PLocationSpigot clone()
+    public @NotNull PLocationSpigot clone()
     {
         try
         {

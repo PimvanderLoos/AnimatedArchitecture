@@ -106,8 +106,8 @@ public final class PLogger
      *
      * @return The instance of this PLogger.
      */
-    @NotNull
-    public static PLogger get()
+    public @NotNull
+    static PLogger get()
     {
         return instance;
     }

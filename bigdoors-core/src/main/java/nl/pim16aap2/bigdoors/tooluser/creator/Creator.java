@@ -152,8 +152,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The {@link AbstractDoorBase.DoorData} for the current door.
      */
-    @NotNull
-    protected final AbstractDoorBase.DoorData constructDoorData()
+    protected final @NotNull AbstractDoorBase.DoorData constructDoorData()
     {
         // TODO: Make sure all variables are set.
         final long doorUID = -1;
@@ -442,8 +441,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type, each on their own line.
      */
-    @NotNull
-    protected String getOpenDirections()
+    protected @NotNull String getOpenDirections()
     {
         StringBuilder sb = new StringBuilder();
         int idx = 0;
@@ -458,8 +456,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
-    @NotNull
-    protected List<RotateDirection> getValidOpenDirections()
+    protected @NotNull List<RotateDirection> getValidOpenDirections()
     {
         return getDoorType().getValidOpenDirections();
     }

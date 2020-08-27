@@ -44,8 +44,8 @@ public final class DoorTypeElevator extends DoorType
      *
      * @return The instance of this type.
      */
-    @NotNull
-    public static DoorTypeElevator get()
+    public @NotNull
+    static DoorTypeElevator get()
     {
         return instance;
     }

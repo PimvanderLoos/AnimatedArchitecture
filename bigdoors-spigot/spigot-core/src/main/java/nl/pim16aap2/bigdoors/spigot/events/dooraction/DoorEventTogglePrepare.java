@@ -47,8 +47,7 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers()
+    public @NotNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }

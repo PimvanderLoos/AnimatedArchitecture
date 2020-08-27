@@ -45,8 +45,7 @@ public class Flag extends AbstractDoorBase
     }
 
     @Override
-    @NotNull
-    public DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
@@ -59,8 +58,7 @@ public class Flag extends AbstractDoorBase
      * @return The current open direction.
      */
     @Override
-    @NotNull
-    public RotateDirection cycleOpenDirection()
+    public @NotNull RotateDirection cycleOpenDirection()
     {
         return getOpenDir();
     }

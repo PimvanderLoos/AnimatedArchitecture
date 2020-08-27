@@ -23,15 +23,13 @@ public final class TestPPlayer implements IPPlayer
     }
 
     @Override
-    @NotNull
-    public String getName()
+    public @NotNull String getName()
     {
         return name;
     }
 
     @Override
-    @NotNull
-    public UUID getUUID()
+    public @NotNull UUID getUUID()
     {
         return uuid;
     }
@@ -68,14 +66,12 @@ public final class TestPPlayer implements IPPlayer
         TestMessageableServer.get().sendMessage(level, message);
     }
 
-    @Nullable
-    public String getLastMessage()
+    public @Nullable String getLastMessage()
     {
         return lastMessage;
     }
 
-    @Nullable
-    public String getBeforeLastMessage()
+    public @Nullable String getBeforeLastMessage()
     {
         return beforeLastMessage;
     }

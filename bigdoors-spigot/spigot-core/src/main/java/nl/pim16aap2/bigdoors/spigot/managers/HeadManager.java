@@ -69,8 +69,8 @@ public final class HeadManager extends Restartable
      *
      * @return The instance of the {@link HeadManager}.
      */
-    @NotNull
-    public static HeadManager get()
+    public @NotNull
+    static HeadManager get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");

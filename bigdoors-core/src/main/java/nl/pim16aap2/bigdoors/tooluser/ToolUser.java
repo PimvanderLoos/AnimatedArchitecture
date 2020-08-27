@@ -88,8 +88,7 @@ public abstract class ToolUser implements IRestartable
      *
      * @return The {@link Procedure} for this {@link ToolUser}.
      */
-    @NotNull
-    public Procedure<?> getProcedure()
+    public @NotNull Procedure<?> getProcedure()
     {
         return procedure;
     }
@@ -152,8 +151,7 @@ public abstract class ToolUser implements IRestartable
      *
      * @return The message of the current step if possible. Otherwise, an empty String is returned.
      */
-    @NotNull
-    public String getCurrentStepMessage()
+    public @NotNull String getCurrentStepMessage()
     {
         return procedure.getMessage();
     }

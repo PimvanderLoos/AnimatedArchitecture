@@ -34,8 +34,7 @@ public class CreatorBigDoor extends Creator
     }
 
     @Override
-    @NotNull
-    protected List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
@@ -55,8 +54,7 @@ public class CreatorBigDoor extends Creator
     }
 
     @Override
-    @NotNull
-    protected AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoorBase constructDoor()
     {
         return new BigDoor(constructDoorData());
     }

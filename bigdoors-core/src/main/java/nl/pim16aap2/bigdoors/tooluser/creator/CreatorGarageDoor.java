@@ -88,8 +88,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    @NotNull
-    protected List<RotateDirection> getValidOpenDirections()
+    protected @NotNull List<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();
@@ -154,8 +153,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    @NotNull
-    protected AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoorBase constructDoor()
     {
         setEngine();
         return new GarageDoor(constructDoorData(), northSouthAligned);

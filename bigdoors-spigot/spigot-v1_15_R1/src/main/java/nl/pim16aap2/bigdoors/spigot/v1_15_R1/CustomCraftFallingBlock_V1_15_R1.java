@@ -75,24 +75,21 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    @NotNull
-    public Vector3Dd getPosition()
+    public @NotNull Vector3Dd getPosition()
     {
         Location bukkitLocation = super.getLocation();
         return new Vector3Dd(bukkitLocation.getX(), bukkitLocation.getY(), bukkitLocation.getZ());
     }
 
     @Override
-    @NotNull
-    public Vector3Dd getPVelocity()
+    public @NotNull Vector3Dd getPVelocity()
     {
         Vector bukkitVelocity = super.getVelocity();
         return new Vector3Dd(bukkitVelocity.getX(), bukkitVelocity.getY(), bukkitVelocity.getZ());
     }
 
     @Override
-    @NotNull
-    public nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 getHandle()
+    public @NotNull nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 getHandle()
     {
         return (nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1) entity;
     }
@@ -110,8 +107,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    @NotNull
-    public EntityType getType()
+    public @NotNull EntityType getType()
     {
         return EntityType.FALLING_BLOCK;
     }
@@ -125,8 +121,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    @NotNull
-    public BlockData getBlockData()
+    public @NotNull BlockData getBlockData()
     {
         return CraftBlockData.fromData(getHandle().getBlock());
     }

@@ -506,8 +506,8 @@ public final class BigDoors
      *
      * @return The instance of this class.
      */
-    @NotNull
-    public static BigDoors get()
+    public @NotNull
+    static BigDoors get()
     {
         return instance;
     }
@@ -537,8 +537,7 @@ public final class BigDoors
      *
      * @return The {@link DoorManager} instance.
      */
-    @NotNull
-    public DoorManager getDoorManager()
+    public @NotNull DoorManager getDoorManager()
     {
         return DoorManager.get();
     }
@@ -548,8 +547,7 @@ public final class BigDoors
      *
      * @return The {@link AutoCloseScheduler} instance.
      */
-    @NotNull
-    public AutoCloseScheduler getAutoCloseScheduler()
+    public @NotNull AutoCloseScheduler getAutoCloseScheduler()
     {
         return AutoCloseScheduler.get();
     }
@@ -559,8 +557,7 @@ public final class BigDoors
      *
      * @return The {@link PowerBlockManager} instance.
      */
-    @NotNull
-    public PowerBlockManager getPowerBlockManager()
+    public @NotNull PowerBlockManager getPowerBlockManager()
     {
         return PowerBlockManager.get();
     }
@@ -571,8 +568,7 @@ public final class BigDoors
      *
      * @return The currently used {@link IMessagingInterface}.
      */
-    @NotNull
-    public IMessagingInterface getMessagingInterface()
+    public @NotNull IMessagingInterface getMessagingInterface()
     {
         if (messagingInterface == null)
             return getPlatform().getMessagingInterface();
@@ -590,8 +586,7 @@ public final class BigDoors
      *
      * @return The {@link DatabaseManager} instance.
      */
-    @NotNull
-    public DatabaseManager getDatabaseManager()
+    public @NotNull DatabaseManager getDatabaseManager()
     {
         return DatabaseManager.get();
     }

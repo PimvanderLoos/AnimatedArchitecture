@@ -77,8 +77,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @return The instance of the {@link ProtectionCompatManagerSpigot}.
      */
-    @NotNull
-    public static ProtectionCompatManagerSpigot get()
+    public @NotNull
+    static ProtectionCompatManagerSpigot get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");

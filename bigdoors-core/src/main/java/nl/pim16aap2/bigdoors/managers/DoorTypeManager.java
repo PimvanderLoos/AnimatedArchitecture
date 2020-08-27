@@ -61,8 +61,7 @@ public final class DoorTypeManager
      *
      * @return All {@link DoorType}s that are currently registered.
      */
-    @NotNull
-    public Set<DoorType> getRegisteredDoorTypes()
+    public @NotNull Set<DoorType> getRegisteredDoorTypes()
     {
         return Collections.unmodifiableSet(doorTypeToID.keySet());
     }
@@ -72,8 +71,7 @@ public final class DoorTypeManager
      *
      * @return All {@link DoorType}s that are currently enabled.
      */
-    @NotNull
-    public List<DoorType> getEnabledDoorTypes()
+    public @NotNull List<DoorType> getEnabledDoorTypes()
     {
         final List<DoorType> enabledDoorTypes = new ArrayList<>();
         for (final Map.Entry<DoorType, DoorTypeInfo> doorType : doorTypeToID.entrySet())
@@ -87,8 +85,8 @@ public final class DoorTypeManager
      *
      * @return The instance of this class.
      */
-    @NotNull
-    public static DoorTypeManager get()
+    public @NotNull
+    static DoorTypeManager get()
     {
         return instance;
     }

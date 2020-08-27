@@ -148,10 +148,11 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @param actionType      The type of action.
      * @return The result of the attempt.
      */
-    @NotNull
-    final DoorToggleResult toggle(final @NotNull DoorActionCause cause, final @NotNull IMessageable messageReceiver,
-                                  final @NotNull IPPlayer responsible, final double time, boolean skipAnimation,
-                                  final @NotNull DoorActionType actionType)
+    final @NotNull DoorToggleResult toggle(final @NotNull DoorActionCause cause,
+                                           final @NotNull IMessageable messageReceiver,
+                                           final @NotNull IPPlayer responsible, final double time,
+                                           boolean skipAnimation,
+                                           final @NotNull DoorActionType actionType)
     {
         if (openDir == RotateDirection.NONE)
         {
@@ -175,11 +176,6 @@ public abstract class AbstractDoorBase implements IDoorBase
 
         if (!getPotentialNewCoordinates(newMin, newMax))
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
-
-        System.out.println("oldMin: " + getMinimum().toString());
-        System.out.println("oldMax: " + getMaximum().toString());
-        System.out.println("newMin: " + newMin.toString());
-        System.out.println("newMax: " + newMax.toString());
 
         IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
                                                        .createPrepareEvent(this, cause, actionType, responsible, time,
@@ -239,8 +235,7 @@ public abstract class AbstractDoorBase implements IDoorBase
                                                final @NotNull DoorActionType actionType);
 
     @Override
-    @NotNull
-    public Vector2Di[] calculateCurrentChunkRange()
+    public @NotNull Vector2Di[] calculateCurrentChunkRange()
     {
         Vector2Di minChunk = Util.getChunkCoords(minimum);
         Vector2Di maxChunk = Util.getChunkCoords(maximum);
@@ -276,8 +271,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     @Override
-    @NotNull
-    public final UUID getPlayerUUID()
+    public final @NotNull UUID getPlayerUUID()
     {
         if (doorOwner == null)
         {
@@ -355,8 +349,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     @Override
-    @NotNull
-    public final Vector2Di[] getChunkRange()
+    public final @NotNull Vector2Di[] getChunkRange()
     {
         verifyChunkRange();
         return new Vector2Di[]{minChunkCoords, maxChunkCoords};
@@ -410,15 +403,13 @@ public abstract class AbstractDoorBase implements IDoorBase
         onCoordsUpdate();
     }
 
-    @NotNull
-    private Vector2Di calculateEngineChunk()
+    private @NotNull Vector2Di calculateEngineChunk()
     {
         return Util.getChunkCoords(engine);
     }
 
     @Override
-    @NotNull
-    public final IVector2DiConst getChunk()
+    public final @NotNull IVector2DiConst getChunk()
     {
         return engineChunk == null ? engineChunk = calculateEngineChunk() : engineChunk;
     }
@@ -451,8 +442,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     @Override
-    @NotNull
-    public final String getBasicInfo()
+    public final @NotNull String getBasicInfo()
     {
         return doorUID + " (" + getPermission() + ")" + ": " + name;
     }

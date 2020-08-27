@@ -24,8 +24,7 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
     }
 
     @Override
-    @NotNull
-    public String getVersion()
+    public @NotNull String getVersion()
     {
         return VERSION;
     }
@@ -35,8 +34,8 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
      *
      * @return The instance of this class.
      */
-    @NotNull
-    public static SpigotPlatform_V1_14_R1 get()
+    public @NotNull
+    static SpigotPlatform_V1_14_R1 get()
     {
         return instance;
     }
@@ -51,29 +50,25 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
     }
 
     @Override
-    @NotNull
-    public IFallingBlockFactory getFallingBlockFactory()
+    public @NotNull IFallingBlockFactory getFallingBlockFactory()
     {
         return fallingBlockFactory;
     }
 
     @Override
-    @NotNull
-    public IPBlockDataFactory getPBlockDataFactory()
+    public @NotNull IPBlockDataFactory getPBlockDataFactory()
     {
         return pBlockDataFactory;
     }
 
     @Override
-    @NotNull
-    public IBlockAnalyzer getBlockAnalyzer()
+    public @NotNull IBlockAnalyzer getBlockAnalyzer()
     {
         return blockAnalyzer;
     }
 
     @Override
-    @NotNull
-    public IGlowingBlockSpawner getGlowingBlockSpawner()
+    public @NotNull IGlowingBlockSpawner getGlowingBlockSpawner()
     {
         return glowingBlockSpawner;
     }

@@ -27,8 +27,7 @@ public class PSoundDescription
         this.pitch = pitch;
     }
 
-    @NotNull
-    public PSound getSound()
+    public @NotNull PSound getSound()
     {
         return sound;
     }

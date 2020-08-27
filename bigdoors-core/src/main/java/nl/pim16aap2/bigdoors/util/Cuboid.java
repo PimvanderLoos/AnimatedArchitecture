@@ -206,8 +206,7 @@ public class Cuboid implements Cloneable
     }
 
     @Override
-    @NotNull
-    public Cuboid clone()
+    public @NotNull Cuboid clone()
     {
         try
         {

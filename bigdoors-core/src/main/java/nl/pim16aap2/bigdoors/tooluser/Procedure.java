@@ -85,8 +85,7 @@ public final class Procedure<T extends ToolUser>
      *
      * @return The message for the current step.
      */
-    @NotNull
-    public String getMessage()
+    public @NotNull String getMessage()
     {
         return currentStep.getLocalizedMessage();
     }
@@ -96,8 +95,7 @@ public final class Procedure<T extends ToolUser>
      *
      * @return The name of the current step.
      */
-    @NotNull
-    public String getCurrentStepName()
+    public @NotNull String getCurrentStepName()
     {
         return currentStep.getName();
     }

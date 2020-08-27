@@ -51,8 +51,7 @@ public class DoorOwner
      * Get a basic overview of this door owner. Useful for debugging.
      */
     @Override
-    @NotNull
-    public String toString()
+    public @NotNull String toString()
     {
         return "doorUID: " + doorUID +
             ". playerUUID: " + getPlayer().getUUID().toString() +

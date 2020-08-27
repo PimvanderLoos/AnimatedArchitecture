@@ -51,8 +51,7 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers()
+    public @NotNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }

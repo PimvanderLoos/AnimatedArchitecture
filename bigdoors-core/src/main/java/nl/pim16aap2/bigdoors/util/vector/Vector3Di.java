@@ -227,8 +227,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
     }
 
     @Override
-    @NotNull
-    public Vector3Di clone()
+    public @NotNull Vector3Di clone()
     {
         try
         {
@@ -279,8 +278,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return x == other.getX() && y == other.getY() && z == other.getZ();
     }
 
-    @NotNull
-    public Vector3Di normalize()
+    public @NotNull Vector3Di normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z);
 

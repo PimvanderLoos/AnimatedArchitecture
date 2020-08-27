@@ -151,8 +151,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    @NotNull
-    protected List<RotateDirection> getValidOpenDirections()
+    protected @NotNull List<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();
@@ -190,8 +189,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    @NotNull
-    protected AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoorBase constructDoor()
     {
         setEngine();
         setOpenDirection();

@@ -86,8 +86,8 @@ public final class DoorOpeningUtility
      *
      * @return The instance of the {@link DoorOpeningUtility}.
      */
-    @NotNull
-    public static DoorOpeningUtility get()
+    public @NotNull
+    static DoorOpeningUtility get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");

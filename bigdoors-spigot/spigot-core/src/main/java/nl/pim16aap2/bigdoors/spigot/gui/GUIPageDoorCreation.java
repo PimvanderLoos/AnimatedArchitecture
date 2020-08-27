@@ -35,8 +35,7 @@ public class GUIPageDoorCreation implements IGUIPage
     }
 
     @Override
-    @NotNull
-    public PageType getPageType()
+    public @NotNull PageType getPageType()
     {
         return PageType.DOORCREATION;
     }

@@ -34,8 +34,7 @@ public interface IPPlayer extends IMessageable
      *
      * @return The player as a String.
      */
-    @NotNull
-    default String asString()
+    default @NotNull String asString()
     {
         return String.format("\"%s\" (%s)", getName(), getUUID().toString());
     }

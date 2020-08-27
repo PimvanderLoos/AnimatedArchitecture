@@ -89,8 +89,8 @@ public final class PowerBlockManager extends Restartable
      *
      * @return The instance of the {@link PowerBlockManager}.
      */
-    @NotNull
-    public static PowerBlockManager get()
+    public @NotNull
+    static PowerBlockManager get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");

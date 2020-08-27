@@ -27,8 +27,7 @@ public class Elevator extends Portcullis
     }
 
     @Override
-    @NotNull
-    public DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }

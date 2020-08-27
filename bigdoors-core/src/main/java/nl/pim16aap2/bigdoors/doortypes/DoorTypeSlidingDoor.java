@@ -45,8 +45,8 @@ public final class DoorTypeSlidingDoor extends DoorType
      *
      * @return The instance of this type.
      */
-    @NotNull
-    public static DoorTypeSlidingDoor get()
+    public @NotNull
+    static DoorTypeSlidingDoor get()
     {
         return instance;
     }

@@ -142,22 +142,19 @@ public class SubCommandRemoveOwner extends SubCommand
     }
 
     @Override
-    @NotNull
-    public CommandData getCommandData()
+    public @NotNull CommandData getCommandData()
     {
         return command;
     }
 
     @Override
-    @NotNull
-    public String getPermission()
+    public @NotNull String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
     @Override
-    @NotNull
-    public String getName()
+    public @NotNull String getName()
     {
         return CommandData.getCommandName(command);
     }

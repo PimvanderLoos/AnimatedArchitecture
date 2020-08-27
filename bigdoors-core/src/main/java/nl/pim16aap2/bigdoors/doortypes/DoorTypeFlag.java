@@ -39,8 +39,8 @@ public final class DoorTypeFlag extends DoorType
      *
      * @return The instance of this type.
      */
-    @NotNull
-    public static DoorTypeFlag get()
+    public @NotNull
+    static DoorTypeFlag get()
     {
         return instance;
     }

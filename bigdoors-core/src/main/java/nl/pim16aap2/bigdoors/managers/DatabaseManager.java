@@ -100,8 +100,8 @@ public final class DatabaseManager extends Restartable
      *
      * @return The instance of the {@link DatabaseManager}.
      */
-    @NotNull
-    public static DatabaseManager get()
+    public @NotNull
+    static DatabaseManager get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -113,8 +113,7 @@ public final class DatabaseManager extends Restartable
      *
      * @return The {@link IStorage.DatabaseState} the database is in.
      */
-    @NotNull
-    public IStorage.DatabaseState getDatabaseState()
+    public @NotNull IStorage.DatabaseState getDatabaseState()
     {
         return db.getDatabaseState();
     }

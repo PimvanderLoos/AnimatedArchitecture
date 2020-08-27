@@ -49,8 +49,7 @@ public abstract class SubCommand implements ICommand
      *
      * @return The help information of the arguments of this command.
      */
-    @Nullable
-    public String getHelpArguments()
+    public @Nullable String getHelpArguments()
     {
         return argsHelp;
     }
@@ -62,22 +61,19 @@ public abstract class SubCommand implements ICommand
     }
 
     @Override
-    @NotNull
-    public CommandData getCommandData()
+    public @NotNull CommandData getCommandData()
     {
         return command;
     }
 
     @Override
-    @NotNull
-    public String getPermission()
+    public @NotNull String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
     @Override
-    @NotNull
-    public String getName()
+    public @NotNull String getName()
     {
         return CommandData.getCommandName(command);
     }

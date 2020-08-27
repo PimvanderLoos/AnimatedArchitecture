@@ -60,8 +60,8 @@ public final class DoorTypeDrawbridge extends DoorType
      *
      * @return The instance of this type.
      */
-    @NotNull
-    public static DoorTypeDrawbridge get()
+    public @NotNull
+    static DoorTypeDrawbridge get()
     {
         return instance;
     }

@@ -39,15 +39,13 @@ public final class PWorldSpigot implements IPWorld
     }
 
     @Override
-    @NotNull
-    public String getName()
+    public @NotNull String getName()
     {
         return world == null ? "ERROR" : world.getName();
     }
 
     @Override
-    @NotNull
-    public UUID getUID()
+    public @NotNull UUID getUID()
     {
         return uuid;
     }
@@ -63,15 +61,13 @@ public final class PWorldSpigot implements IPWorld
      *
      * @return The Bukkit world.
      */
-    @Nullable
-    public World getBukkitWorld()
+    public @Nullable World getBukkitWorld()
     {
         return world;
     }
 
     @Override
-    @NotNull
-    public WorldTime getTime()
+    public @NotNull WorldTime getTime()
     {
         return new WorldTime(world == null ? 0 : world.getTime());
     }
@@ -102,8 +98,7 @@ public final class PWorldSpigot implements IPWorld
     }
 
     @Override
-    @NotNull
-    public PWorldSpigot clone()
+    public @NotNull PWorldSpigot clone()
     {
         try
         {

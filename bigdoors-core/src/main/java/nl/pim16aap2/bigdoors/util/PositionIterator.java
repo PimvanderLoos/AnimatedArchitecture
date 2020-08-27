@@ -42,8 +42,7 @@ public class PositionIterator implements Iterable<Vector3Di>
     }
 
     @Override
-    @NotNull
-    public Iterator<Vector3Di> iterator()
+    public @NotNull Iterator<Vector3Di> iterator()
     {
         return new CustomIterator(this);
     }

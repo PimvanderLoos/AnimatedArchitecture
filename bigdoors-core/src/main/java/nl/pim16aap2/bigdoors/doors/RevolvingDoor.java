@@ -43,22 +43,19 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     }
 
     @Override
-    @NotNull
-    public DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    @NotNull
-    public RotateDirection getCurrentToggleDir()
+    public @NotNull RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }
 
     @Override
-    @NotNull
-    public RotateDirection cycleOpenDirection()
+    public @NotNull RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.CLOCKWISE) ?
                RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;

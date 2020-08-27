@@ -113,8 +113,7 @@ public final class PBlockData
      *
      * @return The starting position of this {@link PBlockData}.
      */
-    @NotNull
-    public Vector3Dd getStartPosition()
+    public @NotNull Vector3Dd getStartPosition()
     {
         return new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
     }

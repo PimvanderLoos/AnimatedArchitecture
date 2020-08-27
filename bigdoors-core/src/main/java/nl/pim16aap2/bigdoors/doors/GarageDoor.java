@@ -68,15 +68,13 @@ public class GarageDoor extends AbstractDoorBase
     }
 
     @Override
-    @NotNull
-    public DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    @NotNull
-    public Vector2Di[] calculateChunkRange()
+    public @NotNull Vector2Di[] calculateChunkRange()
     {
         int radius = 0;
 
@@ -91,8 +89,7 @@ public class GarageDoor extends AbstractDoorBase
     }
 
     @Override
-    @NotNull
-    public RotateDirection getCurrentToggleDir()
+    public @NotNull RotateDirection getCurrentToggleDir()
     {
         RotateDirection rotDir = getOpenDir();
         if (isOpen())

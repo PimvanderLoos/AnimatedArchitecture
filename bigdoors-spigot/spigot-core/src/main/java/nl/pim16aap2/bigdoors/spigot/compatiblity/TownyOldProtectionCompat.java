@@ -61,8 +61,7 @@ public class TownyOldProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    @NotNull
-    public String getName()
+    public @NotNull String getName()
     {
         return ProtectionCompat.getName(compat);
     }

@@ -135,8 +135,7 @@ class GUIItem
      *
      * @return The ItemStack.
      */
-    @NotNull
-    public ItemStack getItemStack()
+    public @NotNull ItemStack getItemStack()
     {
         return is;
     }
@@ -146,8 +145,7 @@ class GUIItem
      *
      * @return The {@link DoorAttribute} associated with this {@link GUIItem}. Returns null if unavailable.
      */
-    @NotNull
-    public Optional<DoorAttribute> getDoorAttribute()
+    public @NotNull Optional<DoorAttribute> getDoorAttribute()
     {
         return Optional.ofNullable(attribute);
     }
@@ -167,8 +165,7 @@ class GUIItem
      *
      * @return The {@link AbstractDoorBase} associated with this {@link GUIItem}. Returns null if unavailable.
      */
-    @Nullable
-    public AbstractDoorBase getDoor()
+    public @Nullable AbstractDoorBase getDoor()
     {
         return door;
     }
@@ -188,8 +185,7 @@ class GUIItem
      *
      * @return The name of this {@link GUIItem}.
      */
-    @NotNull
-    public String getName()
+    public @NotNull String getName()
     {
         return name;
     }
@@ -199,8 +195,7 @@ class GUIItem
      *
      * @return The lore of this {@link GUIItem}.
      */
-    @NotNull
-    public List<String> getLore()
+    public @NotNull List<String> getLore()
     {
         return lore;
     }

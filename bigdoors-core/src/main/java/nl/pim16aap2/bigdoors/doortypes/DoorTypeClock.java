@@ -45,8 +45,8 @@ public final class DoorTypeClock extends DoorType
      *
      * @return The instance of this type.
      */
-    @NotNull
-    public static DoorTypeClock get()
+    public @NotNull
+    static DoorTypeClock get()
     {
         return instance;
     }

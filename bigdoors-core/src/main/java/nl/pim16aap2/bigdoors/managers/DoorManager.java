@@ -49,8 +49,8 @@ public final class DoorManager extends Restartable
      *
      * @return The instance of the {@link DoorManager}.
      */
-    @NotNull
-    public static DoorManager get()
+    public @NotNull
+    static DoorManager get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");

@@ -36,8 +36,7 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers()
+    public @NotNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }

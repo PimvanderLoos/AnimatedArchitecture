@@ -545,8 +545,7 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
     }
 
     @Override
-    @NotNull
-    public IBlockData getBlock()
+    public @NotNull IBlockData getBlock()
     {
         return block;
     }

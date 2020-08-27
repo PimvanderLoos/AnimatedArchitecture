@@ -30,8 +30,7 @@ public class Mutable<T>
      *
      * @return The value stored in this {@link Mutable}.
      */
-    @Nullable
-    public T getVal()
+    public @Nullable T getVal()
     {
         return val;
     }

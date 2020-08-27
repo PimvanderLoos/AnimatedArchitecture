@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.UpdateChecker;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.spigot.util.UpdateChecker;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -59,8 +59,7 @@ public final class UpdateManager
      *
      * @return The version of the latest publicly released build.
      */
-    @NotNull
-    public String getNewestVersion()
+    public @NotNull String getNewestVersion()
     {
         if (!checkForUpdates || updater.getLastResult() == null)
             return "ERROR";

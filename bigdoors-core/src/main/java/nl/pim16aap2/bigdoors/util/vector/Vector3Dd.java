@@ -234,8 +234,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
     }
 
     @Override
-    @NotNull
-    public Vector3Dd clone()
+    public @NotNull Vector3Dd clone()
     {
         try
         {
@@ -272,8 +271,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return hash;
     }
 
-    @NotNull
-    public Vector3Dd normalize()
+    public @NotNull Vector3Dd normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z);
 

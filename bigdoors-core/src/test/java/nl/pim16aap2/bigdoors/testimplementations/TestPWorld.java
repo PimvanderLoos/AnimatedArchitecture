@@ -13,7 +13,7 @@ public final class TestPWorld implements IPWorld
     private final UUID uuid;
     private final boolean exists;
     private final WorldTime time;
-    
+
     @Getter(onMethod = @__({@Override}))
     @Setter
     private String name = "testWorld";
@@ -42,8 +42,7 @@ public final class TestPWorld implements IPWorld
 
 
     @Override
-    @NotNull
-    public UUID getUID()
+    public @NotNull UUID getUID()
     {
         return uuid;
     }
@@ -55,15 +54,13 @@ public final class TestPWorld implements IPWorld
     }
 
     @Override
-    @NotNull
-    public WorldTime getTime()
+    public @NotNull WorldTime getTime()
     {
         return time;
     }
 
     @Override
-    @NotNull
-    public IPWorld clone()
+    public @NotNull IPWorld clone()
     {
         return new TestPWorld(uuid, time, exists);
     }

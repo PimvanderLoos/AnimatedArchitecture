@@ -45,14 +45,13 @@ public final class PlatformManagerSpigot
      *
      * @return The instance of this class.
      */
-    @NotNull
-    public static PlatformManagerSpigot get()
+    public @NotNull
+    static PlatformManagerSpigot get()
     {
         return instance;
     }
 
-    @Nullable
-    public ISpigotPlatform getSpigotPlatform()
+    public @Nullable ISpigotPlatform getSpigotPlatform()
     {
         return spigotPlatform;
     }

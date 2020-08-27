@@ -33,8 +33,8 @@ public final class DoorOpener
      *
      * @return The instance of the {@link DoorOpener}.
      */
-    @NotNull
-    public static DoorOpener get()
+    public @NotNull
+    static DoorOpener get()
     {
         return instance;
     }

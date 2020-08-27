@@ -43,8 +43,8 @@ public final class DoorTypeBigDoor extends DoorType
      *
      * @return The instance of this type.
      */
-    @NotNull
-    public static DoorTypeBigDoor get()
+    public @NotNull
+    static DoorTypeBigDoor get()
     {
         return instance;
     }

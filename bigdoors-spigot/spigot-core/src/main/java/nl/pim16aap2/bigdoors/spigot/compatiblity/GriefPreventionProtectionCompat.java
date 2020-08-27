@@ -77,8 +77,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    @NotNull
-    public String getName()
+    public @NotNull String getName()
     {
         return griefPrevention.getName();
     }

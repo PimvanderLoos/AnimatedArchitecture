@@ -46,8 +46,8 @@ public final class AbortableTaskManager
      *
      * @return The instance of the {@link AbortableTaskManager}.
      */
-    @NotNull
-    public static AbortableTaskManager get()
+    public @NotNull
+    static AbortableTaskManager get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");

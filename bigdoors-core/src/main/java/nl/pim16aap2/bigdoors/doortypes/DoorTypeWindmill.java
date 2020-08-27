@@ -43,8 +43,8 @@ public final class DoorTypeWindmill extends DoorType
      *
      * @return The instance of this type.
      */
-    @NotNull
-    public static DoorTypeWindmill get()
+    public @NotNull
+    static DoorTypeWindmill get()
     {
         return instance;
     }

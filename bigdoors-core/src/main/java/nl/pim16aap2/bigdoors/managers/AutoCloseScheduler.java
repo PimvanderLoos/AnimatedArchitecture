@@ -57,8 +57,8 @@ public class AutoCloseScheduler extends Restartable
      *
      * @return The instance of the {@link AutoCloseScheduler}.
      */
-    @NotNull
-    public static AutoCloseScheduler get()
+    public @NotNull
+    static AutoCloseScheduler get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");

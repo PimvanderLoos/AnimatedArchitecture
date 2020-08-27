@@ -52,92 +52,79 @@ public final class TestPlatform implements IBigDoorsPlatform
     }
 
     @Override
-    @NotNull
-    public File getDataDirectory()
+    public @NotNull File getDataDirectory()
     {
         return dataDirectory;
     }
 
     @Override
-    @NotNull
-    public IPLocationFactory getPLocationFactory()
+    public @NotNull IPLocationFactory getPLocationFactory()
     {
         return pLocationFactory;
     }
 
     @Override
-    @NotNull
-    public IBigDoorsToolUtil getBigDoorsToolUtil()
+    public @NotNull IBigDoorsToolUtil getBigDoorsToolUtil()
     {
         return bigDoorsToolUtil;
     }
 
     @Override
-    @NotNull
-    public IEconomyManager getEconomyManager()
+    public @NotNull IEconomyManager getEconomyManager()
     {
         return economyManager;
     }
 
     @Override
-    @NotNull
-    public IPermissionsManager getPermissionsManager()
+    public @NotNull IPermissionsManager getPermissionsManager()
     {
         return permissionsManager;
     }
 
     @Override
-    @NotNull
-    public IProtectionCompatManager getProtectionCompatManager()
+    public @NotNull IProtectionCompatManager getProtectionCompatManager()
     {
         return protectionCompatManager;
     }
 
     @Override
-    @NotNull
-    public IPWorldFactory getPWorldFactory()
+    public @NotNull IPWorldFactory getPWorldFactory()
     {
         return pWorldFactory;
     }
 
     @Override
-    @NotNull
-    public IPBlockDataFactory getPBlockDataFactory()
+    public @NotNull IPBlockDataFactory getPBlockDataFactory()
     {
         return null;
     }
 
     @Override
-    @NotNull
-    public IFallingBlockFactory getFallingBlockFactory()
+    public @NotNull IFallingBlockFactory getFallingBlockFactory()
     {
         return null;
     }
 
     @Override
-    @NotNull
-    public IPPlayerFactory getPPlayerFactory()
+    public @NotNull IPPlayerFactory getPPlayerFactory()
     {
         return pPlayerFactory;
     }
 
     @Override
-    @NotNull
-    public IConfigLoader getConfigLoader()
+    public @NotNull IConfigLoader getConfigLoader()
     {
         return configLoader;
     }
 
     @Override
-    @NotNull
-    public ISoundEngine getSoundEngine()
+    public @NotNull ISoundEngine getSoundEngine()
     {
         return null;
     }
 
     @Override
-    @NotNull
-    public IMessagingInterface getMessagingInterface()
+    public @NotNull IMessagingInterface getMessagingInterface()
     {
         return null;
     }
@@ -148,43 +135,37 @@ public final class TestPlatform implements IBigDoorsPlatform
     }
 
     @Override
-    @NotNull
-    public Messages getMessages()
+    public @NotNull Messages getMessages()
     {
         return messages;
     }
 
     @Override
-    @NotNull
-    public IMessageable getMessageableServer()
+    public @NotNull IMessageable getMessageableServer()
     {
         return TestMessageableServer.get();
     }
 
     @Override
-    @NotNull
-    public IBlockAnalyzer getBlockAnalyzer()
+    public @NotNull IBlockAnalyzer getBlockAnalyzer()
     {
         return null;
     }
 
     @Override
-    @NotNull
-    public IPowerBlockRedstoneManager getPowerBlockRedstoneManager()
+    public @NotNull IPowerBlockRedstoneManager getPowerBlockRedstoneManager()
     {
         return null;
     }
 
     @Override
-    @NotNull
-    public IChunkManager getChunkManager()
+    public @NotNull IChunkManager getChunkManager()
     {
         return null;
     }
 
     @Override
-    @NotNull
-    public IDoorActionEventFactory getDoorActionEventFactory()
+    public @NotNull IDoorActionEventFactory getDoorActionEventFactory()
     {
         return null;
     }
@@ -202,8 +183,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     }
 
     @Override
-    @NotNull
-    public <T> IPExecutor<T> newPExecutor()
+    public @NotNull <T> IPExecutor<T> newPExecutor()
     {
         return null;
     }

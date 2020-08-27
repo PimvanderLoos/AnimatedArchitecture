@@ -33,8 +33,7 @@ public class CreatorElevator extends CreatorPortcullis
     }
 
     @Override
-    @NotNull
-    protected List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step<CreatorElevator> stepBlocksToMove = new Step.Factory<CreatorElevator>("SET_BLOCKS_TO_MOVE")
@@ -59,8 +58,7 @@ public class CreatorElevator extends CreatorPortcullis
     }
 
     @Override
-    @NotNull
-    protected AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoorBase constructDoor()
     {
         engine = cuboid.getCenterBlock();
         return new Elevator(constructDoorData(), blocksToMove);

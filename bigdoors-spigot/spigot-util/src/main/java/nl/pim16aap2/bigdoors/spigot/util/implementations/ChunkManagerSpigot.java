@@ -24,8 +24,8 @@ public final class ChunkManagerSpigot implements IChunkManager
      *
      * @return The instance of the {@link ChunkManagerSpigot}.
      */
-    @NotNull
-    public static ChunkManagerSpigot get()
+    public @NotNull
+    static ChunkManagerSpigot get()
     {
         return instance;
     }

@@ -36,14 +36,12 @@ class CreatorTestsUtil
         UnitTestUtil.setupStatic();
     }
 
-    @NotNull
-    protected TestConfigLoader getConfigLoader()
+    protected @NotNull TestConfigLoader getConfigLoader()
     {
         return (TestConfigLoader) UnitTestUtil.PLATFORM.getConfigLoader();
     }
 
-    @NotNull
-    protected TestEconomyManager getEconomyManager()
+    protected @NotNull TestEconomyManager getEconomyManager()
     {
         return (TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager();
     }
@@ -107,8 +105,7 @@ class CreatorTestsUtil
      *
      * @return The reference to the {@link AbstractDoorBase} that was supposed to be inserted into the database.
      */
-    @NotNull
-    protected AtomicReference<AbstractDoorBase> setupInsertHijack()
+    protected @NotNull AtomicReference<AbstractDoorBase> setupInsertHijack()
     {
         // Door insertion is handled by a thread pool (take a look at the DatabaseManager).
         // When capturing the method call to insert the door, the result will be stored on this AtomicReference,

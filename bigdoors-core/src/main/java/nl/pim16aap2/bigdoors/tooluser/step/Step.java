@@ -47,8 +47,7 @@ public class Step<T extends ToolUser> implements IStep
     }
 
     @Override
-    @NotNull
-    public Optional<StepExecutor> getStepExecutor()
+    public @NotNull Optional<StepExecutor> getStepExecutor()
     {
         return Optional.of(stepExecutor);
     }
@@ -60,8 +59,7 @@ public class Step<T extends ToolUser> implements IStep
     }
 
     @Override
-    @NotNull
-    public String getLocalizedMessage()
+    public @NotNull String getLocalizedMessage()
     {
         final @NotNull List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
         messageVariablesRetrievers.forEach(fun -> variables.add(fun.get()));

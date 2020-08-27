@@ -154,8 +154,7 @@ public abstract class DoorType
         throws Exception;
 
     @Override
-    @NotNull
-    public final String toString()
+    public final @NotNull String toString()
     {
         return getPluginName() + ":" + getSimpleName() + ":" + getTypeVersion();
     }

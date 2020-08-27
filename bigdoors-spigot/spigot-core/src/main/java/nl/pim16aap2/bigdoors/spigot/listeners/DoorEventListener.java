@@ -40,8 +40,8 @@ public class DoorEventListener implements Listener
      *
      * @return The instance of the {@link DoorEventListener}.
      */
-    @NotNull
-    public static DoorEventListener get()
+    public @NotNull
+    static DoorEventListener get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");

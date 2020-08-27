@@ -61,8 +61,8 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
      *
      * @return The instance of this class.
      */
-    @Nullable
-    public static GlowingBlockSpawner_V1_15_R1 get()
+    public @Nullable
+    static GlowingBlockSpawner_V1_15_R1 get()
     {
         return instance;
     }

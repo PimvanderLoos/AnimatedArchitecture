@@ -31,8 +31,7 @@ public enum Limit
         this.globalLimitSupplier = globalLimitSupplier;
     }
 
-    @NotNull
-    public OptionalInt getGlobalLimit()
+    public @NotNull OptionalInt getGlobalLimit()
     {
         return globalLimitSupplier.get();
     }

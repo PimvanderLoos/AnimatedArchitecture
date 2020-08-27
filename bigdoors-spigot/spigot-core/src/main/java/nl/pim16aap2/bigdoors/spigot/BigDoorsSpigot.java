@@ -362,36 +362,31 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    @NotNull
-    public File getDataDirectory()
+    public @NotNull File getDataDirectory()
     {
         return getDataFolder();
     }
 
     @Override
-    @NotNull
-    public IPBlockDataFactory getPBlockDataFactory()
+    public @NotNull IPBlockDataFactory getPBlockDataFactory()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getPBlockDataFactory();
     }
 
     @Override
-    @NotNull
-    public IFallingBlockFactory getFallingBlockFactory()
+    public @NotNull IFallingBlockFactory getFallingBlockFactory()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getFallingBlockFactory();
     }
 
     @Override
-    @NotNull
-    public IMessageable getMessageableServer()
+    public @NotNull IMessageable getMessageableServer()
     {
         return MessageableServerSpigot.get();
     }
 
     @Override
-    @NotNull
-    public IBlockAnalyzer getBlockAnalyzer()
+    public @NotNull IBlockAnalyzer getBlockAnalyzer()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getBlockAnalyzer();
     }
@@ -403,8 +398,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    @NotNull
-    public <T> IPExecutor<T> newPExecutor()
+    public @NotNull <T> IPExecutor<T> newPExecutor()
     {
         return new PExecutorSpigot<>(INSTANCE, INSTANCE.getPLogger());
     }
@@ -477,33 +471,28 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    @NotNull
-    public IEconomyManager getEconomyManager()
+    public @NotNull IEconomyManager getEconomyManager()
     {
         return vaultManager;
     }
 
     @Override
-    @NotNull
-    public IPermissionsManager getPermissionsManager()
+    public @NotNull IPermissionsManager getPermissionsManager()
     {
         return vaultManager;
     }
 
-    @NotNull
-    public IFallingBlockFactory getFABF()
+    public @NotNull IFallingBlockFactory getFABF()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getFallingBlockFactory();
     }
 
-    @NotNull
-    public IGlowingBlockSpawner getGlowingBlockSpawner()
+    public @NotNull IGlowingBlockSpawner getGlowingBlockSpawner()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getGlowingBlockSpawner();
     }
 
-    @NotNull
-    public BigDoorsSpigot getPlugin()
+    public @NotNull BigDoorsSpigot getPlugin()
     {
         return this;
     }
@@ -554,8 +543,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     // Get the logger.
-    @NotNull
-    public PLogger getPLogger()
+    public @NotNull PLogger getPLogger()
     {
         return PLogger.get();
     }
@@ -567,8 +555,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      *
      * @return The message to send to admins and OPs when they log in.
      */
-    @NotNull
-    public String getLoginMessage()
+    public @NotNull String getLoginMessage()
     {
         String ret = "";
         if (Constants.DEVBUILD)

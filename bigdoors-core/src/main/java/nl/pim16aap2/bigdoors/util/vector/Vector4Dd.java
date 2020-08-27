@@ -147,8 +147,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
     }
 
     @Override
-    @NotNull
-    public Vector4Dd clone()
+    public @NotNull Vector4Dd clone()
     {
         try
         {
@@ -193,8 +192,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return x == other.getX() && y == other.getY() && z == other.getZ() && w == other.getW();
     }
 
-    @NotNull
-    public Vector4Dd normalize()
+    public @NotNull Vector4Dd normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z + w * w);
 

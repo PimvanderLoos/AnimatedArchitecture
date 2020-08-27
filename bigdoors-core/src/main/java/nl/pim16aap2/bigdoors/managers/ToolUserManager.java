@@ -30,8 +30,8 @@ public final class ToolUserManager extends Restartable
         super(holder);
     }
 
-    @NotNull
-    public static ToolUserManager get()
+    public @NotNull
+    static ToolUserManager get()
     {
         return INSTANCE;
     }

@@ -45,8 +45,7 @@ public class Windmill extends AbstractDoorBase
     }
 
     @Override
-    @NotNull
-    public DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
@@ -58,8 +57,7 @@ public class Windmill extends AbstractDoorBase
     }
 
     @Override
-    @NotNull
-    public RotateDirection cycleOpenDirection()
+    public @NotNull RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
                getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
