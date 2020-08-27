@@ -184,13 +184,6 @@ import org.jetbrains.annotations.Nullable;
 //       won't initialize anything either (minimizing overhead), but it will be modifiable. This might actually be
 //       preferable, since it won't mix modifiable (when not empty) and unmodifiable (when empty), which is confusing.
 // TODO: Look into this: https://www.jetbrains.com/help/idea/parametersarenonnullbydefault-annotation.html
-// TODO: DoorTypes currently need to be registered before BigDoors is initialized, so that they are put in the config.
-//       However, registering DoorTypes requires the DatabaseManager to exist, but it doesn't until halfway through
-//       BigDoor's initialization.
-//       Do not remove any invalid names from the list in the config, but store them in a map instead. Then match from
-//       that map when a new type is registered. If that value didn't exist yet, rewrite the config and add the value.
-//       When a type is unregistered, either remove them from the list and use the old value for the new one, or leave
-//       them there to avoid destroying user data.
 // TODO: Look into overriding Equals() properly for all the subtypes of the door.
 // TODO: Override toString for the subtypes of the doors. All the type's type-specific data should be printed as well.
 // TODO: Make sure there aren't any errors on startup if the plugin folder doesn't exist.
