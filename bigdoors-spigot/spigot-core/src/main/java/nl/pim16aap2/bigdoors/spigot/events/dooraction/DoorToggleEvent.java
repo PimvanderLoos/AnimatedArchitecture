@@ -13,31 +13,25 @@ import org.jetbrains.annotations.NotNull;
 @AllArgsConstructor
 abstract class DoorToggleEvent extends BigDoorsSpigotEvent implements IDoorEvent
 {
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final AbstractDoorBase door;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final DoorActionCause cause;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final DoorActionType actionType;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final IPPlayer responsible;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     protected final double time;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     protected final boolean animationSkipped;
 }

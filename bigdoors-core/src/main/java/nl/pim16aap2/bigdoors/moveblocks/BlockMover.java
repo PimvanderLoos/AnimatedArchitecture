@@ -153,7 +153,6 @@ public abstract class BlockMover implements IRestartable
         abort();
     }
 
-    /** {@inheritDoc} */
     public void abort()
     {
         if (moverTask != null)

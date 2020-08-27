@@ -37,7 +37,6 @@ public abstract class SubCommand implements ICommand
         this.command = command;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getHelp(final @NotNull CommandSender sender)
@@ -62,7 +61,6 @@ public abstract class SubCommand implements ICommand
         return commandManager.getCommand(CommandData.getSuperCommand(command)).getMinArgCount() + minArgCount;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public CommandData getCommandData()
@@ -70,7 +68,6 @@ public abstract class SubCommand implements ICommand
         return command;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getPermission()
@@ -78,7 +75,6 @@ public abstract class SubCommand implements ICommand
         return CommandData.getPermission(command);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getName()

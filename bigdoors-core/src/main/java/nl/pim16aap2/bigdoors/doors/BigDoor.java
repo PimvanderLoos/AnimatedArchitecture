@@ -29,12 +29,10 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
@@ -51,7 +49,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         this(doorData, -1, -1);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -59,7 +56,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         return DOOR_TYPE;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()
@@ -79,7 +75,6 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()

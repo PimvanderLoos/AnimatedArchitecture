@@ -67,7 +67,6 @@ public class GarageDoor extends AbstractDoorBase
         this(doorData, -1, -1, northSouthAligned);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -75,7 +74,6 @@ public class GarageDoor extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()

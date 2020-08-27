@@ -133,12 +133,10 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     private final PLogger pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private ConfigLoaderSpigot configLoader;
     private Metrics metrics;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private Messages messages;
 
@@ -152,11 +150,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private ProtectionCompatManagerSpigot protectionCompatManager;
     private LoginResourcePackListener rPackHandler;
 
-    /** {@inheritDoc} */
     @Getter
     private VaultManager vaultManager;
 
-    /** {@inheritDoc} */
     @Getter
     private HeadManager headManager;
     private UpdateManager updateManager;
@@ -167,42 +163,34 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @NotNull
     private AbortableTaskManager abortableTaskManager;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IPLocationFactory pLocationFactory = new PLocationFactorySpigot();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IPWorldFactory pWorldFactory = new PWorldFactorySpigot();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final ISoundEngine soundEngine = new PSoundEngineSpigot();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IMessagingInterface messagingInterface = new MessagingInterfaceSpigot(this);
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IChunkManager chunkManager = ChunkManagerSpigot.get();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IDoorActionEventFactory doorActionEventFactory = new DoorActionEventFactorySpigot();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();

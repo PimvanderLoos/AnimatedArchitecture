@@ -642,7 +642,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return doorUID;
     }
 
-    /** {@inheritDoc} */
     // TODO: Return the UID of the door.
     @Override
     public boolean insert(final @NotNull AbstractDoorBase door)

@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.commands;
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandMenu;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandMenu;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import org.bukkit.command.Command;
@@ -30,7 +30,6 @@ public class CommandMenu extends SubCommandMenu
         return super.onCommand(sender, cmd, label, args);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getHelp(final @NotNull CommandSender sender)
@@ -38,7 +37,6 @@ public class CommandMenu extends SubCommandMenu
         return SpigotUtil.helpFormat(name, super.getHelp(sender));
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public CommandData getCommandData()
@@ -46,7 +44,6 @@ public class CommandMenu extends SubCommandMenu
         return command;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getPermission()
@@ -54,7 +51,6 @@ public class CommandMenu extends SubCommandMenu
         return CommandData.getPermission(command);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getName()

@@ -101,7 +101,6 @@ public final class PWorldSpigot implements IPWorld
         return getUID().hashCode();
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public PWorldSpigot clone()

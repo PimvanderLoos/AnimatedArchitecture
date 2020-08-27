@@ -62,7 +62,6 @@ public class Clock extends AbstractDoorBase
         this.hourArmSide = hourArmSide;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -70,7 +69,6 @@ public class Clock extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()

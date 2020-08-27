@@ -45,7 +45,6 @@ public interface IPLocation extends IPLocationConst, Cloneable
     @Override
     double getZ();
 
-    /** {@inheritDoc} */
     void setX(double newVal);
 
     /**
@@ -91,7 +90,6 @@ public interface IPLocation extends IPLocationConst, Cloneable
     @NotNull
     IPLocation add(final @NotNull IVector3DdConst vector);
 
-    /** {@inheritDoc} */
     @NotNull
     IPLocation clone();
 }

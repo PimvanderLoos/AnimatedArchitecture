@@ -23,7 +23,6 @@ public interface IHorizontalAxisAlignedDoorArchetype extends IDoorBase
      */
     boolean isNorthSouthAligned();
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     default RotateDirection cycleOpenDirection()

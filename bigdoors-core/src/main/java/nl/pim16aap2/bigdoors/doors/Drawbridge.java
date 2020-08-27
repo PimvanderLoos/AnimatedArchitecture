@@ -30,12 +30,10 @@ public class Drawbridge extends AbstractDoorBase
     @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
@@ -63,7 +61,6 @@ public class Drawbridge extends AbstractDoorBase
         this(doorData, -1, -1, modeUp);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -71,7 +68,6 @@ public class Drawbridge extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()
@@ -90,7 +86,6 @@ public class Drawbridge extends AbstractDoorBase
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()

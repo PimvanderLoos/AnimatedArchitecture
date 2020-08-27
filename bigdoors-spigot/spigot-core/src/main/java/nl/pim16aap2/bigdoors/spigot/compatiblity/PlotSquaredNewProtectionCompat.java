@@ -142,7 +142,6 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return success;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getName()

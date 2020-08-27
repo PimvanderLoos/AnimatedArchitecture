@@ -36,28 +36,23 @@ import java.util.UUID;
  */
 public abstract class AbstractDoorBase implements IDoorBase
 {
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     private final long doorUID;
     @NotNull
     protected final DoorOpeningUtility doorOpeningUtility;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected final IPWorld world;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     protected IVector3DiConst minimum, maximum, engine, powerBlock, dimensions;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private String name;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private boolean open;
@@ -65,12 +60,10 @@ public abstract class AbstractDoorBase implements IDoorBase
     @NotNull
     private RotateDirection openDir;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private boolean isLocked;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private DoorOwner doorOwner;
@@ -417,7 +410,6 @@ public abstract class AbstractDoorBase implements IDoorBase
         onCoordsUpdate();
     }
 
-    /** {@inheritDoc} */
     @NotNull
     private Vector2Di calculateEngineChunk()
     {

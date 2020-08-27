@@ -17,12 +17,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventToggleStart
 {
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     IVector3DiConst newMinimum;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
     IVector3DiConst newMaximum;

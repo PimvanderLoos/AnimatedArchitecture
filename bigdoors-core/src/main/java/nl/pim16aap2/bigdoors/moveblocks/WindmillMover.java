@@ -39,7 +39,6 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
         step = (Math.PI / 2.0) / (20.0f * super.time * 2.0f);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)

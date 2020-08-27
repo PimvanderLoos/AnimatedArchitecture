@@ -26,7 +26,6 @@ public interface IStationaryDoorArchetype extends IDoorBase
         return true;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     default Vector2Di[] calculateChunkRange()

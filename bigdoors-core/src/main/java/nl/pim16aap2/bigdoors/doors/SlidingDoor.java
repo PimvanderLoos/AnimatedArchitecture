@@ -30,17 +30,14 @@ public class SlidingDoor extends AbstractDoorBase
 {
     private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int blocksToMove;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
@@ -59,7 +56,6 @@ public class SlidingDoor extends AbstractDoorBase
         this(doorData, blocksToMove, -1, -1);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -67,7 +63,6 @@ public class SlidingDoor extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()
@@ -94,7 +89,6 @@ public class SlidingDoor extends AbstractDoorBase
                getOpenDir().equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()

@@ -16,7 +16,6 @@ import java.util.Optional;
 
 public class PBlockDataFactorySpigot_V1_14_R1 implements IPBlockDataFactory
 {
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public Optional<PBlockData> create(final @NotNull IPLocationConst startLocation, final boolean bottom,

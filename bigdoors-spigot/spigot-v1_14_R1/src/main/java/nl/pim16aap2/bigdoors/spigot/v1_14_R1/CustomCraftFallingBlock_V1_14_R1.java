@@ -91,7 +91,6 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return new Vector3Dd(bukkitVelocity.getX(), bukkitVelocity.getY(), bukkitVelocity.getZ());
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public CustomEntityFallingBlock_V1_14_R1 getHandle()
@@ -111,7 +110,6 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return "CraftFallingBlock";
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public EntityType getType()
@@ -119,7 +117,6 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return EntityType.FALLING_BLOCK;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     @Deprecated
@@ -128,7 +125,6 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         return CraftMagicNumbers.getMaterial(getHandle().getBlock()).getItemType();
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public BlockData getBlockData()

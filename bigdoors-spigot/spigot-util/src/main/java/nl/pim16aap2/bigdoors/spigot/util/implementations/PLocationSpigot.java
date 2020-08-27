@@ -26,7 +26,6 @@ public final class PLocationSpigot implements IPLocation
     @NotNull
     private Location location;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     @NotNull

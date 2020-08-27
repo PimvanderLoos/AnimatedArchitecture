@@ -44,7 +44,6 @@ public class Flag extends AbstractDoorBase
         this.northSouthAligned = northSouthAligned;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()

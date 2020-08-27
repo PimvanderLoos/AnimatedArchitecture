@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
 {
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocationConst loc,
@@ -39,7 +38,6 @@ public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
         return ret;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public INMSBlock nmsBlockFactory(final @NotNull IPLocationConst loc)

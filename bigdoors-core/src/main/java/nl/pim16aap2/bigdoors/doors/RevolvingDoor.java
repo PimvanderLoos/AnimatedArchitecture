@@ -42,7 +42,6 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
         this(doorData, 1);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -57,7 +56,6 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
         return getOpenDir();
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()

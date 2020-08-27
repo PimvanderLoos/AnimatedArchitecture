@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.spigot.commands;
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -94,7 +94,6 @@ public class SuperCommand implements ICommand
         return true;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getHelp(final @NotNull CommandSender sender)
@@ -112,7 +111,6 @@ public class SuperCommand implements ICommand
         return builder.toString();
     }
 
-    /** {@inheritDoc} */
     @NotNull
     private String getHelpOfSubCommand(final @NotNull CommandSender sender, final @NotNull SubCommand subCommand)
     {
@@ -121,7 +119,6 @@ public class SuperCommand implements ICommand
         return SpigotUtil.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args), help);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getPermission()
@@ -129,7 +126,6 @@ public class SuperCommand implements ICommand
         return CommandData.getPermission(command);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public String getName()
@@ -143,7 +139,6 @@ public class SuperCommand implements ICommand
         return minArgCount;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public CommandData getCommandData()

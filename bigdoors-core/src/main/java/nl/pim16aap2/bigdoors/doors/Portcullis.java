@@ -31,17 +31,14 @@ public class Portcullis extends AbstractDoorBase
 {
     private static final DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int blocksToMove;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
@@ -60,7 +57,6 @@ public class Portcullis extends AbstractDoorBase
         this(doorData, blocksToMove, -1, -1);
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public DoorType getDoorType()
@@ -68,7 +64,6 @@ public class Portcullis extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
@@ -76,14 +71,13 @@ public class Portcullis extends AbstractDoorBase
         return getOpenDir().equals(RotateDirection.UP) ? RotateDirection.DOWN : RotateDirection.UP;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public Vector2Di[] calculateChunkRange()
     {
         return calculateCurrentChunkRange();
     }
-    
+
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
