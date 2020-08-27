@@ -389,6 +389,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       and Creator.Mode#UPDATE_COORDS, Creator.Mode#UPDATE_POWERBLOCK, etc. These modes can be used to
 //       update a specific aspect of a door. Only including the desired steps should be enough to
 //       actually use it. Any mode other than NEW_DOOR should update a door instead of inserting a new one.
+//       However, this needs to use the door attribute system and as such this issue is blocked until that is in place.
+//       Because an Enum won't cut it for custom attributes.
 // TODO: Before starting the creation process, make sure that there is space in the player's inventory for the tool
 //       So when the player's inventory is full:
 //       "/bigdoors newdoor -type BigDoor" -> "Your inventory appears to be full! Please make some space and try again!"
