@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Class that manages all objects of {@link IProtectionCompat}.
@@ -280,7 +281,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             Plugin otherPlugin = plugin.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
             if (otherPlugin == null)
             {
-                PLogger.get().logMessage("Failed to obtain instance of \"" + compatName + "\"!");
+                PLogger.get().logMessage(Level.FINE, "Failed to obtain instance of \"" + compatName + "\"!");
                 return;
             }
 
@@ -289,10 +290,11 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
             if (compatClass == null)
             {
-                PLogger.get().logMessage(
-                    "Could not find compatibility class for: \"" + ProtectionCompat.getName(compat) +
-                        "\". " +
-                        "This most likely means that this version is not supported!");
+                PLogger.get().logMessage(Level.SEVERE,
+                                         "Could not find compatibility class for: \"" +
+                                             ProtectionCompat.getName(compat) +
+                                             "\". " +
+                                             "This most likely means that this version is not supported!");
                 return;
             }
 

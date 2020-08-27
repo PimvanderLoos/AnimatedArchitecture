@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 /**
  * SQLite implementation of {@link IStorage}.
@@ -70,11 +71,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * The URL of the database.
      */
     private final String url;
-
-    /**
-     * Log ALL statements to the log file.
-     */
-    private boolean logStatements = false;
 
     /**
      * The {@link DatabaseState} the database is in.
@@ -1284,22 +1280,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Logs a {@link PPreparedStatement} to the logger as INFO. If {@link #logStatements} is false, nothing is logged
-     * instead.
+     * Logs a {@link PPreparedStatement} to the logger.
      *
      * @param pPreparedStatement The {@link PPreparedStatement} to log.
      */
     private void logStatement(final @NotNull PPreparedStatement pPreparedStatement)
     {
-        if (!logStatements)
-            return;
-        PLogger.get().info("Executed statement:\n" + pPreparedStatement.toString() + "\n");
-    }
-
-    @Override
-    public void setStatementLogging(final boolean enabled)
-    {
-        logStatements = enabled;
+        PLogger.get().logMessage(Level.FINEST, "Executed statement:", pPreparedStatement::toString);
     }
 
     @Override
@@ -1393,7 +1380,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                      rs -> rs.getInt(1), -1);
         if (dbVersion == -1)
         {
-            PLogger.get().logMessage("Failed to obtain database version!");
+            PLogger.get().logMessage(Level.SEVERE, "Failed to obtain database version!");
             databaseState = DatabaseState.ERROR;
             return dbVersion;
         }
@@ -1405,15 +1392,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         if (dbVersion < MIN_DATABASE_VERSION)
         {
-            PLogger.get().logMessage("Trying to load database version " + dbVersion +
-                                         " while the minimum allowed version is " + MIN_DATABASE_VERSION);
+            PLogger.get().logMessage(Level.SEVERE, "Trying to load database version " + dbVersion +
+                " while the minimum allowed version is " + MIN_DATABASE_VERSION);
             databaseState = DatabaseState.TOO_OLD;
         }
 
         if (dbVersion > DATABASE_VERSION)
         {
-            PLogger.get().logMessage("Trying to load database version " + dbVersion +
-                                         " while the maximum allowed version is " + DATABASE_VERSION);
+            PLogger.get().logMessage(Level.SEVERE, "Trying to load database version " + dbVersion +
+                " while the maximum allowed version is " + DATABASE_VERSION);
             databaseState = DatabaseState.TOO_NEW;
         }
         return dbVersion;

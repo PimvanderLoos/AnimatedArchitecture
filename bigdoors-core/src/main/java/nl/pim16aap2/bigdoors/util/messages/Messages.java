@@ -19,6 +19,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 /**
@@ -118,8 +119,8 @@ public final class Messages extends Restartable
         {
             URL url = getClass().getClassLoader().getResource(DEFAULTFILENAME);
             if (url == null)
-                plogger.logMessage("Failed to read resources file from the jar! " +
-                                       "The default translation file cannot be generated! Please contact pim16aap2");
+                plogger.logMessage(Level.SEVERE, "Failed to read resources file from the jar! " +
+                    "The default translation file cannot be generated! Please contact pim16aap2");
             else
             {
                 URLConnection connection = url.openConnection();
@@ -175,8 +176,8 @@ public final class Messages extends Restartable
             }
             catch (IllegalArgumentException e)
             {
-                plogger.logMessage("Failed to identify Message corresponding to key: \"" + parts[0] +
-                                       "\". Its value will be ignored!");
+                plogger.logMessage(Level.WARNING, "Failed to identify Message corresponding to key: \"" + parts[0] +
+                    "\". Its value will be ignored!");
             }
         }
     }

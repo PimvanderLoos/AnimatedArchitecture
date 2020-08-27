@@ -324,13 +324,6 @@ public interface IStorage
     boolean deleteDoorType(final @NotNull DoorType doorType);
 
     /**
-     * Enables or disables logging of statements sent to the database.
-     *
-     * @param enabled True to enable statement logging, false to disable.
-     */
-    void setStatementLogging(final boolean enabled);
-
-    /**
      * Removes an owner of a door. Note that the original creator (= permission level 0) can never be removed.
      *
      * @param doorUID    The UID of the door to modify.

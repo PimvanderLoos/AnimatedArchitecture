@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 /**
  * Manages all power block interactions.
@@ -89,8 +90,7 @@ public final class PowerBlockManager extends Restartable
      *
      * @return The instance of the {@link PowerBlockManager}.
      */
-    public @NotNull
-    static PowerBlockManager get()
+    public static @NotNull PowerBlockManager get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -131,7 +131,8 @@ public final class PowerBlockManager extends Restartable
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            pLogger.logMessage(Level.WARNING,
+                               "Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
             return CompletableFuture.completedFuture(EMPTYDOORLIST);
         }
 
@@ -171,7 +172,8 @@ public final class PowerBlockManager extends Restartable
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            pLogger.logMessage(Level.WARNING,
+                               "Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
             return false;
         }
         return powerBlockWorld.isBigDoorsWorld();
@@ -191,7 +193,8 @@ public final class PowerBlockManager extends Restartable
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getUID());
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage("Failed to load power blocks for world: \"" +
+            pLogger.logMessage(Level.WARNING,
+                               "Failed to load power blocks for world: \"" +
                                    door.getWorld().getUID().toString() + "\".");
             return;
         }
@@ -212,7 +215,8 @@ public final class PowerBlockManager extends Restartable
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            pLogger.logMessage(Level.WARNING,
+                               "Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
             return;
         }
         powerBlockWorld.invalidatePosition(pos);
@@ -230,7 +234,8 @@ public final class PowerBlockManager extends Restartable
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage("Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            pLogger.logMessage(Level.WARNING,
+                               "Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
             return;
         }
         powerBlockWorld.invalidatePosition(new Vector3Di(chunk.getX(), 64, chunk.getY()));

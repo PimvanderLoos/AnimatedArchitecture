@@ -28,6 +28,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Represents an unspecialized door.
@@ -295,7 +296,8 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (newRotDir.equals(RotateDirection.NONE))
         {
             PLogger.get()
-                   .logMessage("\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
+                   .logMessage(Level.WARNING,
+                               "\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
             return;
         }
         openDir = newRotDir;

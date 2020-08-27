@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 
 class CreatorTestsUtil
 {
@@ -76,7 +77,7 @@ class CreatorTestsUtil
     public static void basicSetup()
     {
         PLogger.get().setConsoleLogging(true);
-        PLogger.get().setOnlyLogExceptions(true);
+        PLogger.get().setLogLevel(Level.SEVERE);
     }
 
     protected @NotNull Vector3Di min = new Vector3Di(10, 15, 20);
