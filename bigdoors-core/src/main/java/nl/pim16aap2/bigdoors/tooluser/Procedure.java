@@ -24,7 +24,7 @@ public final class Procedure<T extends ToolUser>
     {
         this.toolUser = toolUser;
         this.steps = steps.iterator();
-        currentStep = this.steps.next();
+        goToNextStep();
     }
 
     /**
