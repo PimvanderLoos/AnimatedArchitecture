@@ -129,16 +129,6 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Enables or disables logging of statements sent to the database.
-     *
-     * @param enabled True to enable statement logging, false to disable.
-     */
-    public void setStatementLogging(final boolean enabled)
-    {
-        db.setStatementLogging(enabled);
-    }
-
-    /**
      * Inserts a {@link AbstractDoorBase} into the database.
      *
      * @param newDoor The new {@link AbstractDoorBase}.

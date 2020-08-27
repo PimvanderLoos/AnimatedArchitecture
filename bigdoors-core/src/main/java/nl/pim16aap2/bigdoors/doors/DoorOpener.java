@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 /**
  * Represents the class that can open, close, and toggle doors.
@@ -163,7 +164,8 @@ public final class DoorOpener
                 {
                     if (!optionalDoorOwner.isPresent())
                     {
-                        PLogger.get().logMessage("Failed to obtain prime owner of door: " + door.getDoorUID());
+                        PLogger.get().logMessage(Level.SEVERE,
+                                                 "Failed to obtain prime owner of door: " + door.getDoorUID());
                         return CompletableFuture.completedFuture(DoorToggleResult.ERROR);
                     }
                     return animateDoorSendToMainThread(door, cause, messageReceiver,

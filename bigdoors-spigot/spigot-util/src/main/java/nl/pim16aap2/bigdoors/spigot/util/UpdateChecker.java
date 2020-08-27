@@ -230,12 +230,6 @@ public final class UpdateChecker
                 httpConnection.disconnect();
             }
 
-            if (httpConnection == null)
-            {
-                logger.logMessage("Failed to construct connection: " + location);
-                return false;
-            }
-
             if (httpConnection.getResponseCode() != 200)
             {
                 logger.logException(

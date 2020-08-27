@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.util;
 
+import lombok.AllArgsConstructor;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,7 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
@@ -51,17 +53,13 @@ public final class PLogger
     /**
      * Determine if debug messages should be logged or not.
      */
-    private boolean debugLogging = true;
+    @NotNull
+    private Level logLevel = Level.WARNING;
 
     /**
      * The instance of this {@link PLogger}.
      */
-    private static PLogger instance = new PLogger();
-
-    /**
-     * Controls what is written to the log file. When enabled, only exceptions and errors are written to the log file.
-     */
-    private AtomicBoolean onlyLogExceptions = new AtomicBoolean(false);
+    private static final PLogger instance = new PLogger();
 
     private PLogger()
     {
@@ -135,14 +133,16 @@ public final class PLogger
     }
 
     /**
-     * Changes whether non-errors and non-exceptions are written to the log file.
+     * Changes the log {@link Level} for this logger. {@link Level}s with a {@link Level#intValue()} lower than that of
+     * the current {@link #logLevel} will be ignored.
      *
-     * @param onlyLogExceptions True will only log errors and exception to the log file.
+     * @param logLevel The new log {@link Level}.
      */
-    public void setOnlyLogExceptions(final boolean onlyLogExceptions)
+    public synchronized void setLogLevel(final @NotNull Level logLevel)
     {
-        this.onlyLogExceptions.set(onlyLogExceptions);
+        this.logLevel = logLevel;
     }
+
 
     /**
      * Checks if the {@link #messageQueue} is empty.
@@ -169,12 +169,7 @@ public final class PLogger
             // Keep getting new LogMessages. It's a blocked queue, so the thread
             // will just sleep until there's a new entry if it's currently empty.
             while (true)
-            {
-                LogMessage msg = messageQueue.take();
-                if (onlyLogExceptions.get() && !(msg instanceof LogMessageError || msg instanceof LogMessageException))
-                    continue;
-                writeToLog(msg.toString());
-            }
+                writeToLog(messageQueue.take().toString());
         }
         catch (InterruptedException e)
         {
@@ -201,13 +196,19 @@ public final class PLogger
     /**
      * Adds a message to the queue of messages that will be written to the log file.
      *
-     * @param logMessage The {@link LogMessage} to be written to the log file.
+     * @param logMessageSupplier The {@link Supplier} that will create the {@link LogMessage} that is to be written to
+     *                           the log file.
+     * @param level              The level of the message (info, warn, etc).
      */
-    private void addToMessageQueue(final @NotNull LogMessage logMessage)
+    private void addToMessageQueue(final @NotNull Level level, final @NotNull Supplier<LogMessage> logMessageSupplier)
     {
         if (isInitialized() && !success)
             throw new IllegalStateException("PLogger was not initialized successfully!");
-        messageQueue.add(logMessage);
+
+        if (level.intValue() < logLevel.intValue())
+            return;
+
+        messageQueue.add(logMessageSupplier.get());
     }
 
     /**
@@ -249,7 +250,17 @@ public final class PLogger
      */
     public void dumpStackTrace(final @NotNull String message)
     {
-        dumpBoundedStackTrace(message, 0);
+        dumpBoundedStackTrace(Level.SEVERE, message, 0);
+    }
+
+    /**
+     * Dumps the stack trace to the log file at an arbitrary location.
+     *
+     * @param message An optional message to be printed along with the stack trace.
+     */
+    public void dumpStackTrace(final @NotNull Level level, final @NotNull String message)
+    {
+        dumpBoundedStackTrace(level, message, 0);
     }
 
     /**
@@ -258,9 +269,10 @@ public final class PLogger
      * @param message       An optional message to be printed along with the stack trace.
      * @param numberOfLines The number of lines to be written to the log.
      */
-    public void dumpBoundedStackTrace(final @NotNull String message, final int numberOfLines)
+    public void dumpBoundedStackTrace(final @NotNull Level level, final @NotNull String message,
+                                      final int numberOfLines)
     {
-        addToMessageQueue(new LogMessageException(message + "\n", new Exception(), numberOfLines));
+        addToMessageQueue(level, () -> new LogMessageException(message, new Exception(), numberOfLines));
     }
 
     /**
@@ -278,29 +290,15 @@ public final class PLogger
     /**
      * Logs a message to the log file and potentially to the console as well at a given level.
      *
-     * @param msg            The message to be logged.
-     * @param level          The level at which the message is logged (info, warn, etc).
-     * @param printToConsole If the message should be written to the console.
-     */
-    private void logMessage(final @NotNull String msg, final @NotNull Level level, final boolean printToConsole)
-    {
-        if (level == Level.FINEST && !debugLogging)
-            return;
-
-        if (printToConsole)
-            writeToConsole(level, msg);
-        addToMessageQueue(new LogMessageString(msg));
-    }
-
-    /**
-     * Logs a message to the log file and potentially to the console as well at a given level.
-     *
      * @param msg   The message to be logged.
      * @param level The level at which the message is logged (info, warn, etc).
      */
-    public void logMessage(final @NotNull String msg, final @NotNull Level level)
+    public void logMessage(final @NotNull Level level, final @NotNull String msg)
     {
-        logMessage(msg, level, true);
+        if (level.intValue() < logLevel.intValue())
+            return;
+        writeToConsole(level, msg);
+        addToMessageQueue(level, () -> new LogMessageString(msg));
     }
 
     /**
@@ -329,8 +327,9 @@ public final class PLogger
      */
     public void logException(final @NotNull Exception exception)
     {
-        addToMessageQueue(new LogMessageException(exception.getMessage() + "\n" + exception.getClass().getName() +
-                                                      "\n", exception));
+        addToMessageQueue(Level.SEVERE,
+                          () -> new LogMessageException(exception.getMessage() + "\n" + exception.getClass().getName(),
+                                                        exception));
         if (consoleLogging)
             writeToConsole(Level.SEVERE, "\n" + exception.getClass().getName() + ": " + exception.getMessage() + "\n" +
                 limitStackTraceLength(exception.getStackTrace(), 0));
@@ -346,7 +345,8 @@ public final class PLogger
      */
     public void logException(final @NotNull Exception exception, final @NotNull String message)
     {
-        addToMessageQueue(new LogMessageException(message + "\n" + exception.getClass().getName() + "\n", exception));
+        addToMessageQueue(Level.SEVERE,
+                          () -> new LogMessageException(message + "\n" + exception.getClass().getName(), exception));
         if (consoleLogging)
             writeToConsole(Level.SEVERE, "\n" + exception.getClass().getName() + ": " + message + "\n" +
                 limitStackTraceLength(exception.getStackTrace(), 0));
@@ -361,7 +361,7 @@ public final class PLogger
      */
     public void logError(final @NotNull Error error)
     {
-        addToMessageQueue(new LogMessageError(error.getMessage() + "\n", error));
+        addToMessageQueue(Level.SEVERE, () -> new LogMessageError(error.getMessage(), error));
         if (consoleLogging)
             writeToConsole(Level.SEVERE, "\n" + error.getClass().getName() + ": " + error.getMessage() + "\n" +
                 limitStackTraceLength(error.getStackTrace(), 0));
@@ -377,7 +377,7 @@ public final class PLogger
      */
     public void logError(final @NotNull Error error, final @NotNull String message)
     {
-        addToMessageQueue(new LogMessageError(message + "\n", error));
+        addToMessageQueue(Level.SEVERE, () -> new LogMessageError(message, error));
         if (consoleLogging)
             writeToConsole(Level.SEVERE, "\n" + error.getClass().getName() + ": " + message + "\n" +
                 limitStackTraceLength(error.getStackTrace(), 0));
@@ -386,14 +386,33 @@ public final class PLogger
     }
 
     /**
-     * Logs a message to the log file.
+     * Logs a message at a certain log {@link Level}.
      *
-     * @param message The message to log.
+     * @param level           The log {@link Level} to log the message at. If the level is lower than this, it won't be
+     *                        logged at all.
+     * @param message         The base message.
+     * @param messageSupplier The {@link Supplier} to retrieve a message. If this message isn't logged because the
+     *                        loglevel doesn't allow to log it at the provided <code>level</code>, this won't be
+     *                        retrieved at all.
      */
-    // TODO: Remove this. The level-specific stuff should be used instead.
-    public void logMessage(final @NotNull String message)
+    public void logMessage(final @NotNull Level level, final @NotNull String message,
+                           final @NotNull Supplier<String> messageSupplier)
     {
-        addToMessageQueue(new LogMessageString(message));
+        addToMessageQueue(level, () -> new LogMessageStringSupplier(message, messageSupplier));
+    }
+
+    /**
+     * Logs a message at a certain log {@link Level}.
+     *
+     * @param level           The log {@link Level} to log the message at. If the level is lower than this, it won't be
+     *                        logged at all.
+     * @param messageSupplier The {@link Supplier} to retrieve a message. If this message isn't logged because the
+     *                        loglevel doesn't allow to log it at the provided <code>level</code>, this won't be
+     *                        retrieved at all.
+     */
+    public void logMessage(final @NotNull Level level, final @NotNull Supplier<String> messageSupplier)
+    {
+        logMessage(level, "", messageSupplier);
     }
 
     /**
@@ -403,7 +422,7 @@ public final class PLogger
      */
     public void info(final @NotNull String str)
     {
-        logMessage(str, Level.INFO, true);
+        logMessage(Level.INFO, str);
     }
 
     /**
@@ -413,7 +432,7 @@ public final class PLogger
      */
     public void warn(final @NotNull String str)
     {
-        logMessage(str, Level.WARNING, true);
+        logMessage(Level.WARNING, str);
     }
 
     /**
@@ -423,7 +442,7 @@ public final class PLogger
      */
     public void severe(final @NotNull String str)
     {
-        logMessage(str, Level.SEVERE, true);
+        logMessage(Level.SEVERE, str);
     }
 
     /**
@@ -433,7 +452,7 @@ public final class PLogger
      */
     public void debug(final @NotNull String str)
     {
-        logMessage(str, Level.FINEST, true);
+        logMessage(Level.FINEST, str);
     }
 
     /**
@@ -462,20 +481,29 @@ public final class PLogger
      *
      * @author Pim
      */
+    @AllArgsConstructor
     private static abstract class LogMessage
     {
+        @NotNull
         protected final String message;
 
-        LogMessage(final @NotNull String message)
+        @Override
+        public @NotNull String toString()
         {
-            this.message = message;
+            return message;
         }
 
-        @Override
-        @NotNull
-        public String toString()
+        /**
+         * Formats a message. If it's null or empty, it'll return an empty String.
+         *
+         * @param str The message to format.
+         * @return The formatted message.
+         */
+        protected static @NotNull String checkMessage(final @Nullable String str)
         {
-            return message + "\n";
+            if (str == null || str.equals("\n"))
+                return "";
+            return str + "\n";
         }
     }
 
@@ -486,26 +514,14 @@ public final class PLogger
      */
     private static class LogMessageException extends LogMessage
     {
-        private final Exception exception;
-        private final int numberOfLines;
-
         LogMessageException(final @NotNull String message, final @NotNull Exception exception, final int numberOfLines)
         {
-            super(message);
-            this.exception = exception;
-            this.numberOfLines = numberOfLines;
+            super(checkMessage(message) + limitStackTraceLength(exception.getStackTrace(), numberOfLines));
         }
 
         LogMessageException(final @NotNull String message, final @NotNull Exception exception)
         {
             this(message, exception, 0);
-        }
-
-        @Override
-        @NotNull
-        public String toString()
-        {
-            return super.message + limitStackTraceLength(exception.getStackTrace(), numberOfLines);
         }
     }
 
@@ -516,26 +532,14 @@ public final class PLogger
      */
     private static class LogMessageError extends LogMessage
     {
-        private final Error error;
-        private final int numberOfLines;
-
         LogMessageError(final @NotNull String message, final @NotNull Error error, final int numberOfLines)
         {
-            super(message);
-            this.error = error;
-            this.numberOfLines = numberOfLines;
+            super(checkMessage(message) + limitStackTraceLength(error.getStackTrace(), numberOfLines));
         }
 
         LogMessageError(final @NotNull String message, final @NotNull Error error)
         {
             this(message, error, 0);
-        }
-
-        @Override
-        @NotNull
-        public String toString()
-        {
-            return super.toString() + limitStackTraceLength(error.getStackTrace(), numberOfLines);
         }
     }
 
@@ -550,12 +554,13 @@ public final class PLogger
         {
             super(message);
         }
+    }
 
-        @Override
-        @NotNull
-        public String toString()
+    private static class LogMessageStringSupplier extends LogMessage
+    {
+        LogMessageStringSupplier(final @NotNull String message, final @NotNull Supplier<String> stringSupplier)
         {
-            return super.toString();
+            super(checkMessage(message) + stringSupplier.get());
         }
     }
 }

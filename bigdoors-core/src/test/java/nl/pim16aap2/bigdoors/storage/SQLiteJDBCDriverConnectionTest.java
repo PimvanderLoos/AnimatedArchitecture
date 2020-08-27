@@ -54,6 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 @ExtendWith(MockitoExtension.class)
 public class SQLiteJDBCDriverConnectionTest
@@ -121,7 +122,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         UnitTestUtil.setupStatic();
         PLogger.get().setConsoleLogging(true);
-        PLogger.get().setOnlyLogExceptions(true); // Only log errors etc.
+        PLogger.get().setLogLevel(Level.SEVERE);
     }
 
     // Initialize mocking.
@@ -413,9 +414,9 @@ public class SQLiteJDBCDriverConnectionTest
         UnitTestUtil.waitForLogger();
         Assert.assertEquals(UnitTestUtil.LOG_FILE.length(), 0);
 
-        PLogger.get().setOnlyLogExceptions(false);
+        PLogger.get().setLogLevel(Level.ALL);
 
-        PLogger.get().logMessage("================================\nStarting failure testing now:");
+        PLogger.get().logMessage(Level.INFO, "================================\nStarting failure testing now:");
         testFailures();
     }
 
