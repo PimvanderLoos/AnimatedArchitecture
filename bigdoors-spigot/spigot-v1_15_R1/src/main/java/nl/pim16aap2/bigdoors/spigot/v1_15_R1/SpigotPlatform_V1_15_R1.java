@@ -31,8 +31,8 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     {
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getVersion()
     {
         return VERSION;

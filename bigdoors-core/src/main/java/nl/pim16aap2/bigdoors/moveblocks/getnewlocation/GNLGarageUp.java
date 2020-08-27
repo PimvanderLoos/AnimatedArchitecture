@@ -10,8 +10,8 @@ public class GNLGarageUp implements IGetNewLocation
 
     }
 
-    @NotNull
     @Override
+    @NotNull
     public IPLocation getNewLocation(final double radius, final double xPos, final double yPos, final double zPos)
     {
         // TODO: Implement this.

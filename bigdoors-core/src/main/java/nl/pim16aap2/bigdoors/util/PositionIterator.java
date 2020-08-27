@@ -41,8 +41,8 @@ public class PositionIterator implements Iterable<Vector3Di>
         dz = posA.getZ() > posB.getZ() ? -1 : 1;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public Iterator<Vector3Di> iterator()
     {
         return new CustomIterator(this);

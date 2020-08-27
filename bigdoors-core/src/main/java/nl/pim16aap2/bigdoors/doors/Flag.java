@@ -44,8 +44,8 @@ public class Flag extends AbstractDoorBase
         this.northSouthAligned = northSouthAligned;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
@@ -58,8 +58,8 @@ public class Flag extends AbstractDoorBase
      *
      * @return The current open direction.
      */
-    @NotNull
     @Override
+    @NotNull
     public RotateDirection cycleOpenDirection()
     {
         return getOpenDir();

@@ -544,8 +544,8 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
         crashreportsystemdetails.a("Imitating BlockState", block.toString());
     }
 
-    @NotNull
     @Override
+    @NotNull
     public IBlockData getBlock()
     {
         return block;

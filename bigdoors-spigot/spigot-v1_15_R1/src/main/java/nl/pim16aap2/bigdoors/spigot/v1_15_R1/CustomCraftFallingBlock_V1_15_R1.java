@@ -90,8 +90,8 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
         return new Vector3Dd(bukkitVelocity.getX(), bukkitVelocity.getY(), bukkitVelocity.getZ());
     }
 
-    @NotNull
     @Override
+    @NotNull
     public nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 getHandle()
     {
         return (nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1) entity;
@@ -109,23 +109,23 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
         return "CraftFallingBlock";
     }
 
-    @NotNull
     @Override
+    @NotNull
     public EntityType getType()
     {
         return EntityType.FALLING_BLOCK;
     }
 
-    @NotNull
     @Override
+    @NotNull
     @Deprecated
     public Material getMaterial()
     {
         return CraftMagicNumbers.getMaterial(getHandle().getBlock()).getItemType();
     }
 
-    @NotNull
     @Override
+    @NotNull
     public BlockData getBlockData()
     {
         return CraftBlockData.fromData(getHandle().getBlock());

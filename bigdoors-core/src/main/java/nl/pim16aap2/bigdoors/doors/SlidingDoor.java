@@ -56,15 +56,15 @@ public class SlidingDoor extends AbstractDoorBase
         this(doorData, blocksToMove, -1, -1);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public Vector2Di[] calculateChunkRange()
     {
         int distanceX = 0;
@@ -80,8 +80,8 @@ public class SlidingDoor extends AbstractDoorBase
                                new Vector2Di(getChunk().getX() + distanceX, getChunk().getY() + distanceZ)};
     }
 
-    @NotNull
     @Override
+    @NotNull
     public RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
@@ -89,8 +89,8 @@ public class SlidingDoor extends AbstractDoorBase
                getOpenDir().equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();

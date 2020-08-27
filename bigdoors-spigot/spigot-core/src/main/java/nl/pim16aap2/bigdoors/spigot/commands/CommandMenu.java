@@ -30,29 +30,29 @@ public class CommandMenu extends SubCommandMenu
         return super.onCommand(sender, cmd, label, args);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getHelp(final @NotNull CommandSender sender)
     {
         return SpigotUtil.helpFormat(name, super.getHelp(sender));
     }
 
-    @NotNull
     @Override
+    @NotNull
     public CommandData getCommandData()
     {
         return command;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getName()
     {
         return CommandData.getCommandName(command);

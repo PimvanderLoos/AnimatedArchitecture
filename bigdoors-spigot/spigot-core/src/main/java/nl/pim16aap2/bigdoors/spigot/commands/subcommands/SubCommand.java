@@ -37,8 +37,8 @@ public abstract class SubCommand implements ICommand
         this.command = command;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getHelp(final @NotNull CommandSender sender)
     {
         return help;
@@ -61,22 +61,22 @@ public abstract class SubCommand implements ICommand
         return commandManager.getCommand(CommandData.getSuperCommand(command)).getMinArgCount() + minArgCount;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public CommandData getCommandData()
     {
         return command;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getName()
     {
         return CommandData.getCommandName(command);

@@ -155,8 +155,8 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
-    @NotNull
     @Override
+    @NotNull
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return BigDoors.get().getPlatform().getPLocationFactory().create(world, getGoalPos(angle, xAxis, yAxis, zAxis));

@@ -20,8 +20,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
 {
-    @NotNull
     @Override
+    @NotNull
     public ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocationConst loc,
                                                         final @NotNull INMSBlock block)
     {
@@ -38,8 +38,8 @@ public class FallingBlockFactory_V1_14_R1 implements IFallingBlockFactory
         return ret;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public INMSBlock nmsBlockFactory(final @NotNull IPLocationConst loc)
     {
         if (!(loc.getWorld() instanceof PWorldSpigot))

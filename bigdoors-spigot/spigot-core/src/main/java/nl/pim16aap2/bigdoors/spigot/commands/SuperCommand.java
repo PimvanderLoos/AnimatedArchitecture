@@ -94,8 +94,8 @@ public class SuperCommand implements ICommand
         return true;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getHelp(final @NotNull CommandSender sender)
     {
         StringBuilder builder = new StringBuilder();
@@ -119,15 +119,15 @@ public class SuperCommand implements ICommand
         return SpigotUtil.helpFormat(getName() + " " + subCommand.getName() + (args == null ? "" : " " + args), help);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getName()
     {
         return CommandData.getCommandName(command);
@@ -139,8 +139,8 @@ public class SuperCommand implements ICommand
         return minArgCount;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public CommandData getCommandData()
     {
         return command;

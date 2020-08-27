@@ -471,8 +471,8 @@ public final class PLogger
             this.message = message;
         }
 
-        @NotNull
         @Override
+        @NotNull
         public String toString()
         {
             return message + "\n";
@@ -501,8 +501,8 @@ public final class PLogger
             this(message, exception, 0);
         }
 
-        @NotNull
         @Override
+        @NotNull
         public String toString()
         {
             return super.message + limitStackTraceLength(exception.getStackTrace(), numberOfLines);
@@ -531,8 +531,8 @@ public final class PLogger
             this(message, error, 0);
         }
 
-        @NotNull
         @Override
+        @NotNull
         public String toString()
         {
             return super.toString() + limitStackTraceLength(error.getStackTrace(), numberOfLines);
@@ -551,8 +551,8 @@ public final class PLogger
             super(message);
         }
 
-        @NotNull
         @Override
+        @NotNull
         public String toString()
         {
             return super.toString();

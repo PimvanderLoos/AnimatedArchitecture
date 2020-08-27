@@ -26,8 +26,8 @@ public interface IStationaryDoorArchetype extends IDoorBase
         return true;
     }
 
-    @NotNull
     @Override
+    @NotNull
     default Vector2Di[] calculateChunkRange()
     {
         return calculateCurrentChunkRange();
@@ -56,8 +56,8 @@ public interface IStationaryDoorArchetype extends IDoorBase
      * <p>
      * Always the same as {@link #getOpenDir()}, as this archetype makes no distinction between opening and closing.
      */
-    @NotNull
     @Override
+    @NotNull
     default RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();

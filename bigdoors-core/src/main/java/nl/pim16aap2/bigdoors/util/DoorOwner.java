@@ -50,8 +50,8 @@ public class DoorOwner
     /**
      * Get a basic overview of this door owner. Useful for debugging.
      */
-    @NotNull
     @Override
+    @NotNull
     public String toString()
     {
         return "doorUID: " + doorUID +

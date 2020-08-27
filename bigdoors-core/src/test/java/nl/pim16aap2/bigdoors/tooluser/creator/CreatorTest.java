@@ -279,7 +279,7 @@ public class CreatorTest extends CreatorTestsUtil
         testEconomyManager.buyDoor = true;
         testEconomyManager.price = OptionalDouble.empty();
     }
-    
+
     private static class CreatorTestImpl extends Creator
     {
         public boolean isFinished = false;

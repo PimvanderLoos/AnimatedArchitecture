@@ -101,8 +101,8 @@ public final class PWorldSpigot implements IPWorld
         return getUID().hashCode();
     }
 
-    @NotNull
     @Override
+    @NotNull
     public PWorldSpigot clone()
     {
         try

@@ -122,8 +122,8 @@ public class SubCommandRemoveOwner extends SubCommand
         return true;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getHelp(@NotNull CommandSender sender)
     {
         return help;
@@ -141,22 +141,22 @@ public class SubCommandRemoveOwner extends SubCommand
         return minArgCount;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public CommandData getCommandData()
     {
         return command;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getName()
     {
         return CommandData.getCommandName(command);

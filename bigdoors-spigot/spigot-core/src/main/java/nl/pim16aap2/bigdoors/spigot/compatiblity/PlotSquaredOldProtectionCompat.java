@@ -136,8 +136,8 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
         return success;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getName()
     {
         return plotSquaredPlugin.getName();

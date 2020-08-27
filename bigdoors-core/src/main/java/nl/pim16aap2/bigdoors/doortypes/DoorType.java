@@ -153,8 +153,8 @@ public abstract class DoorType
     protected abstract Object[] generateTypeData(final @NotNull AbstractDoorBase door)
         throws Exception;
 
-    @NotNull
     @Override
+    @NotNull
     public final String toString()
     {
         return getPluginName() + ":" + getSimpleName() + ":" + getTypeVersion();

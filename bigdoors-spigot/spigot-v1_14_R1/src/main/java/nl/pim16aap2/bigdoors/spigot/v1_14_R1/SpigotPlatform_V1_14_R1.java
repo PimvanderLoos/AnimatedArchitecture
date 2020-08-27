@@ -23,8 +23,8 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
     {
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getVersion()
     {
         return VERSION;
@@ -50,29 +50,29 @@ public final class SpigotPlatform_V1_14_R1 implements ISpigotPlatform
         blockAnalyzer = new BlockAnalyzer_V1_14_R1();
     }
 
-    @NotNull
     @Override
+    @NotNull
     public IFallingBlockFactory getFallingBlockFactory()
     {
         return fallingBlockFactory;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public IPBlockDataFactory getPBlockDataFactory()
     {
         return pBlockDataFactory;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public IBlockAnalyzer getBlockAnalyzer()
     {
         return blockAnalyzer;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public IGlowingBlockSpawner getGlowingBlockSpawner()
     {
         return glowingBlockSpawner;

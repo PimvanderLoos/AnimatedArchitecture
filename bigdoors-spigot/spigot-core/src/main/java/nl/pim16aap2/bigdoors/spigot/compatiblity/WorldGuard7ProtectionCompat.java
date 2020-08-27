@@ -98,8 +98,8 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
         return success;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getName()
     {
         return worldGuardPlugin.getName();

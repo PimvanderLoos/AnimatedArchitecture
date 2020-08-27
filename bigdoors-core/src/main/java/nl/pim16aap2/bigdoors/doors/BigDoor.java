@@ -49,15 +49,15 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         this(doorData, -1, -1);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public Vector2Di[] calculateChunkRange()
     {
         // Yeah, radius might be too big, but it doesn't really matter.
@@ -67,16 +67,16 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
     }
 
-    @NotNull
     @Override
+    @NotNull
     public RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.CLOCKWISE) ?
                RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();

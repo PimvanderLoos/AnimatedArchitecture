@@ -93,8 +93,8 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         return success;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getName()
     {
         return worldGuard.getName();

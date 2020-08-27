@@ -156,8 +156,8 @@ public class SubCommandNew extends SubCommand
         return minArgCount;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public CommandData getCommandData()
     {
         return command;

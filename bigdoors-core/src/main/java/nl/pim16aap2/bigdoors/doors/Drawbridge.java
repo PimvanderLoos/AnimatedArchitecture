@@ -61,15 +61,15 @@ public class Drawbridge extends AbstractDoorBase
         this(doorData, -1, -1, modeUp);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public Vector2Di[] calculateChunkRange()
     {
         int xLen = dimensions.getX();
@@ -86,8 +86,8 @@ public class Drawbridge extends AbstractDoorBase
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
     }
 
-    @NotNull
     @Override
+    @NotNull
     public RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();

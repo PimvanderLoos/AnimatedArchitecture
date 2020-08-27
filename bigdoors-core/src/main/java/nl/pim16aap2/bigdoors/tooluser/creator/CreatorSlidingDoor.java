@@ -64,7 +64,7 @@ public class CreatorSlidingDoor extends Creator
     {
         if (blocksToMove < 1)
             return false;
-        
+
         final @NotNull OptionalInt blocksToMoveLimit = LimitsManager.getLimit(player, Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {

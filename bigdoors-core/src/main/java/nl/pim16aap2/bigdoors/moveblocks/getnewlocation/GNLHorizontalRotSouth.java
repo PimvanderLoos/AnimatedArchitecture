@@ -22,8 +22,8 @@ public class GNLHorizontalRotSouth implements IGetNewLocation
         this.zMin = zMin;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public IPLocation getNewLocation(final double radius, final double xPos, final double yPos, final double zPos)
     {
         IPLocation newPos = locationFactory.create(world, xPos, yPos, zPos);
