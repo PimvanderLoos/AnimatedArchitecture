@@ -32,6 +32,7 @@ Alpha 0.1.8.22
 - Fixed being able to access "/bigdoors menu" even if you didn't have permission to access the menu. Thanks, @AntiMaid, for the report!
 - Permissions are no longer enabled by default. Opt-out permissions are simply too confusing and annoying.
 - The config will no longer ignore and remove non-solid blocks from its white/blacklists (powerblocks can only be solid blocks still). This is needed because some non-solid blocks can be animated these days. Thanks, @NiGHTS, for the bug report!
+- Updated bStats.
 
 Alpha 0.1.8.21
 - Fixed concurrency issue where a door could be toggled more than once under specific circumstances.
