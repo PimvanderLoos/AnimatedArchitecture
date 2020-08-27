@@ -396,10 +396,14 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       "/bigdoors newdoor -type BigDoor" -> "Your inventory appears to be full! Please make some space and try again!"
 //       If their inventory fills up during the process, just abort when they get to the point where they should have
 //       received the tool.
+// TODO: Implement a system to request text input from the user. Either by registering a command waiter to request command
+//       input, or by making text in a message clickable, or opening a GUI or whatever. Perhaps even all of them and
+//       let the user decide which option they prefer.
 
 /*
  * Openers / Movers
  */
+// TODO: Port the chunk range shit from v1 to v2.
 // TODO: There is still a bunch of duplicated code (e.g. BigDoor#getPotentialNewCoordinates and
 //       RevolvingDoor#getPotentialNewCoordinates). This is horrible and should be fixed. Perhaps create a separate
 //       object that can do it? Or a static method? Ugh.
@@ -448,13 +452,9 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
  * Manual Testing
  */
 // TODO: Make sure no unnecessary database calls are made. Log them in the construct method of the PPreparedStatement class.
-// TODO: Test new creators: Windmill, RevolvingDoor, GarageDoor. Make sure it cannot be fucked up.
-// TODO: Test new chunkInRange methods. Especially sliding door.
 // TODO: Make sure that new lines in the messages work (check Util::stringFromArray).
-// TODO: Fix no permission to set AutoCloseTime from GUI.
 // TODO: Check if TimedCache#containsValue() works properly.
 // TODO: Test all methods in the database manager stuff.
-// TODO: Fix command waiter system.
 // TODO: Fix not being able to use doorUID in setBlocksToMove (direct).
 // TODO: Fix start message of creator appearing twice as well as receiving 2 creator sticks (at least for flag and sliding door).
 // TODO: Verify the following types work: (Wall)Signs, (Wall)Banners, plants (potatoes, carrots, etc), redstone stuff (wire, conduit, repeater, etc),
