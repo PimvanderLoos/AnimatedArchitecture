@@ -31,7 +31,7 @@ public final class DoorTypeFlag extends DoorType
 
     private DoorTypeFlag()
     {
-        super(Constants.PLUGINNAME, "Flag", TYPE_VERSION, PARAMETERS, new ArrayList<>());
+        super(Constants.PLUGINNAME, "Flag", TYPE_VERSION, PARAMETERS, Collections.emptyList());
     }
 
     /**

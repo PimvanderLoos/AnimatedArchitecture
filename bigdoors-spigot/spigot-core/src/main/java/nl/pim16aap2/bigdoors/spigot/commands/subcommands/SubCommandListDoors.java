@@ -14,7 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,7 +57,7 @@ public class SubCommandListDoors extends SubCommand
 
         if (sender instanceof Player)
             BigDoors.get().getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name).whenComplete(
-                (optionalDoorList, throwable) -> execute(sender, optionalDoorList.orElse(new ArrayList<>())));
+                (optionalDoorList, throwable) -> execute(sender, optionalDoorList.orElse(Collections.emptyList())));
 
         else if (name != null)
             // If the console requested the door(s), first try to get all doors with the provided name.
@@ -65,7 +65,7 @@ public class SubCommandListDoors extends SubCommand
                 (optionalDoorList, throwable) ->
                 {
                     @NotNull List<AbstractDoorBase> doorList = optionalDoorList
-                        .orElse(new ArrayList<>());
+                        .orElse(Collections.emptyList());
 
                     // If no door with the provided name could be found, list all doors owned by the
                     // player with that name instead.
@@ -76,7 +76,7 @@ public class SubCommandListDoors extends SubCommand
                             Optional<UUID> playerUUID = SpigotUtil.playerUUIDFromString(name);
                             if (playerUUID.isPresent())
                                 doorList = BigDoors.get().getDatabaseManager().getDoors(playerUUID.get()).get()
-                                                   .orElse(new ArrayList<>());
+                                                   .orElse(Collections.emptyList());
                         }
                         catch (InterruptedException | ExecutionException e)
                         {

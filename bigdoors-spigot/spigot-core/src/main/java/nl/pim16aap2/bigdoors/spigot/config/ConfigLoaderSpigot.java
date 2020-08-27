@@ -46,8 +46,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private final BigDoorsSpigot plugin;
     private final PLogger logger;
 
-    private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Collections.singletonList("GOLD_BLOCK"));
-    private static final List<String> DEFAULTBLACKLIST = new ArrayList<>();
+    private static final List<String> DEFAULTPOWERBLOCK = Collections
+        .unmodifiableList(new ArrayList<>(Collections.singletonList("GOLD_BLOCK")));
+    private static final List<String> DEFAULTBLACKLIST = Collections.emptyList();
 
     private final Set<Material> powerBlockTypesMap;
     private final Set<Material> materialBlacklist;

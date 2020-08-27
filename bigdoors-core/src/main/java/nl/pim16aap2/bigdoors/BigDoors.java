@@ -148,7 +148,6 @@ import org.jetbrains.annotations.Nullable;
 //       When a type is unregistered, either remove them from the list and use the old value for the new one, or leave
 //       them there to avoid destroying user data.
 // TODO: Look into overriding Equals() properly for all the subtypes of the door.
-// TODO: Override toString for the subtypes of the doors. All the type's type-specific data should be printed as well.
 // TODO: Make sure there aren't any errors on startup if the plugin folder doesn't exist.
 // TODO: Create a system that allows external plugins to register custom tick stuff for the falling blocks. For every tick,
 //       all the registered custom tick methods will be executed. Either give the custom ticker the falling block itself,
@@ -156,15 +155,10 @@ import org.jetbrains.annotations.Nullable;
 //       as well, which will be executed by the mover after processing each animated block. Might need a better name than
 //       "async", though, to indicate it's actually executed by the mover. Perhaps they should register a builder for the
 //       ticker so that they can store custom per-entity data.
-// TODO: Instead of bitflags, consider using EnumSets. Much cleaner. https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html
-// TODO: Consider using the cumbersome method of achieving const-correctness using interfaces (only return the const interface in regular getters).
-//       This doesn't have to be used everywhere, but it's nice to use for stuff like returning positions and locations
-//       to make sure it doesn't have to create a copy.
+// TODO: Instead of bitflags, consider using EnumSets. Much cleaner.
+//       https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html
 // TODO: Restrict setters where appropriate.
-// TODO: Don't use 'final' in function parameters. It doesn't do anything (fuck you, Javba).
-// TODO: Get rid of "Collections.unmodifiableList(new ArrayList<>());" everywhere. It's dumb. Just use
-//       "Collections.emptyList()" instead. Or just return "new ArrayList<>(0)". This doesn't have any overhead but it's
-//       still modifiable. (to avoid mix-'n-match).
+// TODO: Don't use 'final' in function parameters. It doesn't do anything (fuck you, Java).
 // TODO: Everything that should be accessible by other plugins should be initialized in the constructor, not in onEnable.
 //       This will ensure it's initialized in time, as Spigot doesn't start enabling plugins until they're all constructed.
 // TODO: Look into Java's ResourceBundle and MessageFormat classes for localisation handling.
@@ -172,7 +166,8 @@ import org.jetbrains.annotations.Nullable;
 //                  https://docs.oracle.com/javase/7/docs/api/java/text/MessageFormat.html
 // TODO: Add more basic options to the messages system. For example:
 //       - Add different strings for singular and plural objects.
-//       - Add different versions of the same word for different circumstances ("the door" vs "door"). Especially useful in languages that use genders (f.e. German).
+//       - Add different versions of the same word for different circumstances ("the door" vs "door").
+//       Especially useful in languages that use genders (f.i. German).
 // TODO: Use static unmodifiable lists as "null object". Return these from functions that can return empty lists.
 //       This should also replace Optionals. Also, look into Collections#emptyList() (it doesn't create new objects).
 //       Note that this list will be unmodifiable. If the list might be modified later on, use "new Arraylist(0)". This
@@ -180,14 +175,13 @@ import org.jetbrains.annotations.Nullable;
 //       preferable, since it won't mix modifiable (when not empty) and unmodifiable (when empty), which is confusing.
 // TODO: Look into this: https://www.jetbrains.com/help/idea/parametersarenonnullbydefault-annotation.html
 // TODO: Look into overriding Equals() properly for all the subtypes of the door.
-// TODO: Override toString for the subtypes of the doors. All the type's type-specific data should be printed as well.
 // TODO: Make sure there aren't any errors on startup if the plugin folder doesn't exist.
 // TODO: Use reflection or something to hack Spigot's API-version to always use the currently-used API-version.
 // TODO: Add a new type of powerblock that locks/unlocks doors instead of toggling them.
 // TODO: Handle restartable interface options in DatabaseManager class.
 // TODO: Don't use the local maven files. Use this method instead: https://stackoverflow.com/a/4955695
-// TODO: Load everything on startup (including RedstoneListener (should be singleton)). Use the IRestartable interface to handle restarts instead.
-// TODO: Don't just play sound at the door's engine. Instead, play it more realistically (so not from a single point). Perhaps packets might help with this.
+// TODO: Don't just play sound at the door's engine. Instead, play it more realistically (so not from a single point).
+//       Perhaps packets might help with this.
 // TODO: Move AbortableTaskManager and PowerBlockRedstoneManagerSpigot to bigdoors-core.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
@@ -196,6 +190,7 @@ import org.jetbrains.annotations.Nullable;
 // TODO: ICustomEntityFallingBlock: Clean this damn class up!
 // TODO: Look into restartables interface. Perhaps it's a good idea to split restart() into stop() and init().
 //       This way, it can call all init()s in BigDoors::onEnable and all stop()s in BigDoors::onDisable.
+//       Then just load everything on initial construction (including RedstoneListener (should be singleton)).
 // TODO: Make GlowingBlockSpawner restartable. Upon restarting the plugin, all glowing blocks have to be removed.
 // TODO: Store PBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
 //       Alternatively, merge PBlockFace and RotateDirection into Direction.
@@ -216,13 +211,11 @@ import org.jetbrains.annotations.Nullable;
 //       Also: Use lastAccessTime instead of addTime for timeout values.
 //       Alternatively, consider deleting it and using this instead: https://github.com/jhalterman/expiringmap
 // TODO: Keep VaultManager#setupPermissions result. Perhaps this class should be split up.
-// TODO: Remove blockMovers from BigDoors-core.
 // TODO: Make sure to keep the config file's maxDoorCount in mind. Or just remove it.
 // TODO: Fix (big) mushroom blocks changing color.
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
 // TODO: Get rid of all calls to SpigotUtil for messaging players. They should all go via the proper interface for that.
-// TODO: Don't log everything at INFO, e.g. Log config stuff at Level.CONFIG.
 // TODO: Every Manager must be a singleton.
 // TODO: Add door creation event (or perhaps door modification event?).
 // TODO: Use the following snippet for all singletons, not just the ones in bigdoors-core. This will require the use of
@@ -230,15 +223,10 @@ import org.jetbrains.annotations.Nullable;
 /*
 Preconditions.checkState(instance != null, "Instance has not yet been initialized. Be sure #init() has been invoked");
  */
-// TODO: Get rid of all occurrences of ".orElse(new ArrayList<>())". Use a default, unmodifiable list instead. See
-//       PowerBlockManager#EMPTYDOORSLIST for example.
 // TODO: Do permissions checking for bypasses etc (compats) fully async (so not with an ugly .get()).
 // TODO: Create proper (abstract) factory for the event system.
 // TODO: Use the messaging interface to send messages to players.
 // TODO: Make sure all entities are named "BigDoorsEntity".
-// TODO: Write a method that can loop over 3 3d vectors (min, max x+y+z) and takes a supplier/consumer to execute for
-//       every entry.
-// TODO: Cache IPWorldFactory#getCurrentToggleDir(). It'd be easiest if all doors used the same formula.
 // TODO: Use YAML for messages system.
 // TODO: Use generic translation messages for door creators etc and allow overriding these messages for specific types.
 //       Figure this stuff out while reading the messages file, so there's 0 impact while the plugin is running.
@@ -264,7 +252,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       No longer requires dirty code to check is it's refreshing etc. Bweugh.
 // TODO: Use some NMS stuff to change the name of a GUI without reopening it:
 //       https://www.spigotmc.org/threads/how-to-set-the-title-of-an-open-inventory-itemgui.95572/#post-1049250
-// TODO: Use a less stupid way to check for interaction: https://www.spigotmc.org/threads/quick-tip-how-to-check-if-a-player-is-interacting-with-your-custom-gui.225871/
+// TODO: Use a less stupid way to check for interaction:
+//       https://www.spigotmc.org/threads/quick-tip-how-to-check-if-a-player-is-interacting-with-your-custom-gui.225871/
 // TODO: Once (if?) door pooling is implemented, use Observers to update doors in the GUI when needed.
 // TODO: Move rotation cycling away from GUI and into the Door class.
 // TODO: Put all GUI buttons and whatnot in try/catch blocks.

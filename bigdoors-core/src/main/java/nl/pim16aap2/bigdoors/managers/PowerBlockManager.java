@@ -41,17 +41,6 @@ public final class PowerBlockManager extends Restartable
     @NotNull
     private final PLogger pLogger;
 
-    /**
-     * Empty, unmodifiable list that is returned when no power blocks are found in a given location.
-     */
-    @NotNull
-    private static final List<Long> EMPTYUIDLIST = Collections.unmodifiableList(new ArrayList<>());
-
-    /**
-     * Empty, unmodifiable list that is returned when no power blocks are found in a given location.
-     */
-    @NotNull
-    private static final List<AbstractDoorBase> EMPTYDOORLIST = Collections.unmodifiableList(new ArrayList<>());
     @Nullable
     private static PowerBlockManager instance;
 
@@ -65,6 +54,7 @@ public final class PowerBlockManager extends Restartable
         this.config = config;
         this.databaseManager = databaseManager;
         this.pLogger = pLogger;
+
     }
 
     /**
@@ -133,7 +123,7 @@ public final class PowerBlockManager extends Restartable
         {
             pLogger.logMessage(Level.WARNING,
                                "Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
-            return CompletableFuture.completedFuture(EMPTYDOORLIST);
+            return CompletableFuture.completedFuture(Collections.emptyList());
         }
 
         // TODO: Rewrite this mess.
@@ -301,7 +291,7 @@ public final class PowerBlockManager extends Restartable
         private List<Long> getPowerBlocks(final @NotNull IVector3DiConst loc)
         {
             if (!isBigDoorsWorld())
-                return EMPTYUIDLIST;
+                return Collections.emptyList();
 
             final long chunkHash = Util.simpleChunkHashFromLocation(loc.getX(), loc.getZ());
             if (!powerBlockChunks.containsKey(chunkHash))
@@ -377,10 +367,10 @@ public final class PowerBlockManager extends Restartable
         private List<Long> getPowerBlocks(final @NotNull IVector3DiConst loc)
         {
             if (!isPowerBlockChunk())
-                return EMPTYUIDLIST;
+                return Collections.emptyList();
 
             return powerBlocks.getOrDefault(Util.simpleChunkSpaceLocationhash(loc.getX(), loc.getY(), loc.getZ()),
-                                            EMPTYUIDLIST);
+                                            Collections.emptyList());
         }
 
         /**

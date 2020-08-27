@@ -973,7 +973,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                 while (resultSet.next())
                                     doors.add(resultSet.getLong("id"));
                                 return doors;
-                            }, new ArrayList<>());
+                            }, new ArrayList<>(0));
     }
 
     @Override
@@ -1312,8 +1312,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                           resultSet.getString("playerName"),
                                                           resultSet.getInt("permission")));
                                 return ret;
-                            },
-                            new ArrayList<>());
+                            }, new ArrayList<>(0));
     }
 
     @Override

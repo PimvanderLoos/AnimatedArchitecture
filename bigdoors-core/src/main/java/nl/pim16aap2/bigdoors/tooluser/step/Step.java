@@ -125,7 +125,7 @@ public class Step<T extends ToolUser> implements IStep
                 throw new InstantiationException("Trying to instantiate a Step without message");
 
             if (messageVariablesRetrievers == null)
-                messageVariablesRetrievers = new ArrayList<>();
+                messageVariablesRetrievers = Collections.emptyList();
 
             if (messageVariablesRetrievers.size() != Message.getVariableCount(message))
                 throw new InstantiationException("Parameter mismatch for " + name + ". Expected: " +
