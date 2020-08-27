@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
-import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandNew;
@@ -52,13 +53,13 @@ public class GUIPageDoorCreation implements IGUIPage
         if (item == null)
             return;
 
-        if (!(item.getSpecialValue() instanceof EDoorType))
+        if (!(item.getSpecialValue() instanceof DoorType))
         {
             plugin.getPLogger().warn("Something went wrong constructing the selected GUIItem at " + interactionIDX
                                          + ":\n" + item.toString());
             return;
         }
-        startCreationProcess(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), (EDoorType) item.getSpecialValue());
+        startCreationProcess(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), (DoorType) item.getSpecialValue());
     }
 
     @Override
@@ -83,20 +84,19 @@ public class GUIPageDoorCreation implements IGUIPage
     private void fillPage()
     {
         int position = 9;
-        for (EDoorType type : EDoorType.cachedValues())
-            if (EDoorType.isEnabled(type) &&
-                SubCommandNew.hasCreationPermission(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), type))
+        for (DoorType type : DoorTypeManager.get().getSortedDoorTypes())
+            if (SubCommandNew.hasCreationPermission(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), type))
             {
                 String initMessage = plugin.getMessages().getString(Message.GUI_DESCRIPTION_INITIATION,
                                                                     plugin.getMessages()
-                                                                          .getString(EDoorType.getMessage(type)));
+                                                                          .getString(type.getTranslationName()));
                 gui.addItem(position++,
                             new GUIItem(GUI.NEWDOORMAT, initMessage, null, 1, type));
             }
 
     }
 
-    private void startCreationProcess(final @NotNull Player player, final @NotNull EDoorType type)
+    private void startCreationProcess(final @NotNull Player player, final @NotNull DoorType type)
     {
         player.closeInventory();
         subCommand.execute(player, null, type);

@@ -13,9 +13,11 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
+import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -48,7 +50,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @NotNull
-    protected Vector3Di minimum, maximum, engine, powerBlock, dimensions;
+    protected IVector3DiConst minimum, maximum, engine, powerBlock, dimensions;
 
     /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
@@ -172,7 +174,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (isOpenable != DoorToggleResult.SUCCESS)
             return doorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
-        if (doorOpeningUtility.isTooBig(this))
+        if (LimitsManager.exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
             return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
 
         Vector3Di newMin = new Vector3Di(getMinimum());
@@ -305,7 +307,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         if (newRotDir.equals(RotateDirection.NONE))
         {
-            openDir = getDefaultOpenDirection();
             PLogger.get()
                    .logMessage("\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
             return;
@@ -454,12 +455,6 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public final long getSimplePowerBlockChunkHash()
     {
-        if (powerBlock == null)
-        {
-            NullPointerException e = new NullPointerException("Powerblock unexpectedly null!");
-            PLogger.get().logException(e);
-            throw e;
-        }
         return Util.simpleChunkHashFromLocation(powerBlock.getX(), powerBlock.getZ());
     }
 
@@ -489,11 +484,18 @@ public abstract class AbstractDoorBase implements IDoorBase
         builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
+        getDoorType().getTypeData(this).ifPresent(
+            data ->
+            {
+                int idx = 0;
+                for (DoorType.Parameter parameter : getDoorType().getParameters())
+                    builder.append(parameter.getParameterName()).append(": ").append(data[idx++].toString())
+                           .append("\n");
+            });
 
         return builder.toString();
     }
 
-    /** {@inheritDoc} */
     // TODO: Hashcode. Just the UID? Or actually calculate it?
     @Override
     public boolean equals(Object o)
@@ -505,10 +507,10 @@ public abstract class AbstractDoorBase implements IDoorBase
             return false;
 
         AbstractDoorBase other = (AbstractDoorBase) o;
-        return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) && maximum
-            .equals(other.maximum) &&
-            getDoorType().equals(other.getDoorType()) && open == other.open && doorOwner.equals(other.doorOwner) &&
-            isLocked == other.isLocked && world.getUID().equals(other.world.getUID());
+        return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) &&
+            maximum.equals(other.maximum) && engine.equals(other.engine) && getDoorType().equals(other.getDoorType()) &&
+            open == other.open && doorOwner.equals(other.doorOwner) && isLocked == other.isLocked &&
+            world.getUID().equals(other.world.getUID());
     }
 
     /**
@@ -535,25 +537,25 @@ public abstract class AbstractDoorBase implements IDoorBase
          * The location with the coordinates closest to the origin.
          */
         @NotNull
-        Vector3Di min;
+        IVector3DiConst min;
 
         /**
          * The location with the coordinates furthest away from the origin.
          */
         @NotNull
-        Vector3Di max;
+        IVector3DiConst max;
 
         /**
          * The location of the engine.
          */
         @NotNull
-        Vector3Di engine;
+        IVector3DiConst engine;
 
         /**
          * The location of the powerblock.
          */
         @NotNull
-        Vector3Di powerBlock;
+        IVector3DiConst powerBlock;
 
         /**
          * The {@link IPWorld} this door is in.

@@ -1,13 +1,18 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
+import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
+import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
@@ -18,18 +23,32 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class TestPlatform implements IBigDoorsPlatform
 {
     private final TestPPlayerFactory pPlayerFactory = new TestPPlayerFactory();
     private final TestPWorldFactory pWorldFactory = new TestPWorldFactory();
+    private final TestPLocationFactory pLocationFactory = new TestPLocationFactory();
+    private final TestConfigLoader configLoader = new TestConfigLoader();
+
     private static final File dataDirectory = new File(".");
+    private final Set<IRestartable> restartables = new HashSet<>();
+    @Nullable
+    private Messages messages;
+    private final IBigDoorsToolUtil bigDoorsToolUtil = new TestBigDoorsToolUtil();
+
+    private final IEconomyManager economyManager = new TestEconomyManager();
+    private final IPermissionsManager permissionsManager = new TestPermissionsManager();
+    private final IProtectionCompatManager protectionCompatManager = new TestProtectionCompatManager();
 
     public TestPlatform()
     {
-        // TODO: INIT STUFF. Perhaps add a #getDataFolder() to IBigDoorsPlatform.
+        // TODO: Reinitialize everything between every test.
     }
 
     @Override
@@ -43,7 +62,35 @@ public final class TestPlatform implements IBigDoorsPlatform
     @NotNull
     public IPLocationFactory getPLocationFactory()
     {
-        return null;
+        return pLocationFactory;
+    }
+
+    @Override
+    @NotNull
+    public IBigDoorsToolUtil getBigDoorsToolUtil()
+    {
+        return bigDoorsToolUtil;
+    }
+
+    @Override
+    @NotNull
+    public IEconomyManager getEconomyManager()
+    {
+        return economyManager;
+    }
+
+    @Override
+    @NotNull
+    public IPermissionsManager getPermissionsManager()
+    {
+        return permissionsManager;
+    }
+
+    @Override
+    @NotNull
+    public IProtectionCompatManager getProtectionCompatManager()
+    {
+        return protectionCompatManager;
     }
 
     @Override
@@ -78,7 +125,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     @NotNull
     public IConfigLoader getConfigLoader()
     {
-        return null;
+        return configLoader;
     }
 
     @Override
@@ -95,18 +142,23 @@ public final class TestPlatform implements IBigDoorsPlatform
         return null;
     }
 
+    public void setMessages(final @NotNull Messages messages)
+    {
+        this.messages = messages;
+    }
+
     @Override
     @NotNull
     public Messages getMessages()
     {
-        return null;
+        return messages;
     }
 
     @Override
     @NotNull
     public IMessageable getMessageableServer()
     {
-        return MessageableServerTest.get();
+        return TestMessageableServer.get();
     }
 
     @Override
@@ -138,7 +190,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     }
 
     @Override
-    public void callDoorActionEvent(@NotNull IDoorEvent doorActionEvent)
+    public void callDoorActionEvent(final @NotNull IDoorEvent doorActionEvent)
     {
 
     }
@@ -154,5 +206,17 @@ public final class TestPlatform implements IBigDoorsPlatform
     public <T> IPExecutor<T> newPExecutor()
     {
         return null;
+    }
+
+    @Override
+    public void registerRestartable(final @NotNull IRestartable restartable)
+    {
+        restartables.add(restartable);
+    }
+
+    @Override
+    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
+    {
+        return restartables.contains(restartable);
     }
 }

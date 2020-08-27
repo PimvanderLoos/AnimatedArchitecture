@@ -115,16 +115,6 @@ public interface IDoorBase
     Vector2Di[] calculateCurrentChunkRange();
 
     /**
-     * Find out the default open direction for the current setup and use.
-     * <p>
-     * There is no universal default because the default depends on the type and current orientation of the door.
-     *
-     * @return The default {@link RotateDirection} for this {@link IDoorBase}.
-     */
-    @NotNull
-    RotateDirection getDefaultOpenDirection();
-
-    /**
      * Check if a provided {@link IVector2DiConst} is in range of the door. Range in this case refers to all Vector2Dis
      * this {@link IDoorBase} could potentially occupy using animated blocks.
      *

@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.toolusers.ToolUser;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -43,24 +44,22 @@ public class EventListeners implements Listener
     @EventHandler
     public void onLeftClick(final PlayerInteractEvent event)
     {
-        try
-        {
-            if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null &&
-                plugin.getToolVerifier().isTool(event.getPlayer().getInventory().getItemInMainHand()))
+        if (event.getAction() != Action.LEFT_CLICK_BLOCK)
+            return;
+
+        if (event.getClickedBlock() == null)
+            return;
+
+        if (!BigDoors.get().getPlatform().getBigDoorsToolUtil()
+                     .isPlayerHoldingTool(SpigotAdapter.wrapPlayer(event.getPlayer())))
+            return;
+
+        ToolUserManager.get().getToolUser(event.getPlayer().getUniqueId()).ifPresent(
+            toolUser ->
             {
-                plugin.getToolUser(event.getPlayer()).ifPresent(
-                    TU ->
-                    {
-                        TU.selector(event.getClickedBlock().getLocation());
-                        event.setCancelled(true);
-                    }
-                );
-            }
-        }
-        catch (Exception e)
-        {
-            plugin.getPLogger().logException(e);
-        }
+                event.setCancelled(true);
+                toolUser.handleInput(SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation()));
+            });
     }
 
     /**
@@ -107,7 +106,7 @@ public class EventListeners implements Listener
      */
     private boolean isToolUser(final @NotNull Player player)
     {
-        return plugin.getToolUser(player).isPresent();
+        return ToolUserManager.get().isToolUser(player.getUniqueId());
     }
 
     /**
@@ -123,7 +122,7 @@ public class EventListeners implements Listener
     {
         try
         {
-            if (plugin.getToolVerifier().isTool(event.getItemDrop().getItemStack()))
+            if (plugin.getBigDoorsToolUtil().isPlayerHoldingTool(event.getPlayer()))
             {
                 if (isToolUser(event.getPlayer()))
                     event.setCancelled(true);
@@ -148,7 +147,7 @@ public class EventListeners implements Listener
     {
         try
         {
-            if (!plugin.getToolVerifier().isTool(event.getCurrentItem()))
+            if (!plugin.getBigDoorsToolUtil().isTool(event.getCurrentItem()))
                 return;
             if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) ||
                 !event.getClickedInventory().getType().equals(InventoryType.PLAYER))
@@ -183,7 +182,7 @@ public class EventListeners implements Listener
             event.getNewItems().forEach(
                 (K, V) ->
                 {
-                    if (plugin.getToolVerifier().isTool(V))
+                    if (plugin.getBigDoorsToolUtil().isTool(V))
                         event.setCancelled(true);
                 });
         }
@@ -203,7 +202,7 @@ public class EventListeners implements Listener
     {
         try
         {
-            if (!plugin.getToolVerifier().isTool(event.getItem()))
+            if (!plugin.getBigDoorsToolUtil().isTool(event.getItem()))
                 return;
 
             Inventory src = event.getSource();

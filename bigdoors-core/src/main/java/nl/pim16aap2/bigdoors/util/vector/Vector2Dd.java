@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.util.vector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -115,7 +116,10 @@ public final class Vector2Dd implements IVector2DdConst, Cloneable
         }
         catch (CloneNotSupportedException e)
         {
-            throw new Error(e);
+            // TODO: Only log to file! It's already dumped in the console because it's thrown.
+            Error er = new Error(e);
+            PLogger.get().logError(er);
+            throw er;
         }
     }
 

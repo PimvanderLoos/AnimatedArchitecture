@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -25,20 +26,6 @@ public class Windmill extends AbstractDoorBase
     private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
     /**
-     * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
-     * axis
-     * <b>(= FALSE)</b>.
-     * <p>
-     * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
-     * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
-     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
-     *
-     * @return True if this door is animated along the North/South axis.
-     */
-    @Getter(onMethod = @__({@Override}))
-    protected final boolean northSouthAligned;
-
-    /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
      *
      * @return The number of quarter circles this door will rotate.
@@ -46,11 +33,15 @@ public class Windmill extends AbstractDoorBase
     @Getter
     private int quarterCircles = 1;
 
-    public Windmill(final @NotNull DoorData doorData, final boolean northSouthAligned, final int quarterCircles)
+    public Windmill(final @NotNull DoorData doorData, final int quarterCircles)
     {
         super(doorData);
-        this.northSouthAligned = northSouthAligned;
         this.quarterCircles = quarterCircles;
+    }
+
+    public Windmill(final @NotNull DoorData doorData)
+    {
+        this(doorData, 1);
     }
 
     /** {@inheritDoc} */
@@ -61,26 +52,20 @@ public class Windmill extends AbstractDoorBase
         return DOOR_TYPE;
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
-    public RotateDirection cycleOpenDirection()
+    public boolean isNorthSouthAligned()
     {
-        // This type goes exactly the other way as most usual axis aligned ones.
-        if (!isNorthSouthAligned())
-            return getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
-        return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.SOUTH : RotateDirection.NORTH;
+        return getOpenDir() == RotateDirection.EAST || getOpenDir() == RotateDirection.WEST;
     }
 
     /** {@inheritDoc} */
     @NotNull
     @Override
-    public RotateDirection getDefaultOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
-        if (isNorthSouthAligned())
-            return RotateDirection.NORTH;
-        else
-            return RotateDirection.EAST;
+        return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
+               getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
+               getOpenDir().equals(RotateDirection.SOUTH) ? RotateDirection.WEST : RotateDirection.NORTH;
     }
 
     @Override
@@ -92,8 +77,9 @@ public class Windmill extends AbstractDoorBase
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
-        doorOpeningUtility.registerBlockMover(new WindmillMover(this, fixedTime, doorOpeningUtility.getMultiplier(this),
-                                                                getCurrentToggleDir(), responsible, cause, actionType));
+        doorOpeningUtility
+            .registerBlockMover(new WindmillMover<>(this, fixedTime, doorOpeningUtility.getMultiplier(this),
+                                                    getCurrentToggleDir(), responsible, cause, actionType));
     }
 
     @Override
@@ -105,6 +91,6 @@ public class Windmill extends AbstractDoorBase
             return false;
 
         final @NotNull Windmill other = (Windmill) o;
-        return northSouthAligned == other.northSouthAligned;
+        return quarterCircles == other.quarterCircles;
     }
 }

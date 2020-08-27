@@ -1,11 +1,17 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.RevolvingDoor;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorRevolvingDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +33,8 @@ public final class DoorTypeRevolvingDoor extends DoorType
 
     private DoorTypeRevolvingDoor()
     {
-        super(Constants.PLUGINNAME, "RevolvingDoor", TYPE_VERSION, PARAMETERS);
+        super(Constants.PLUGINNAME, "RevolvingDoor", TYPE_VERSION, PARAMETERS, Arrays
+            .asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
     }
 
     /**
@@ -41,9 +48,8 @@ public final class DoorTypeRevolvingDoor extends DoorType
         return instance;
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
                                                      final @NotNull Object... typeData)
     {
@@ -52,9 +58,22 @@ public final class DoorTypeRevolvingDoor extends DoorType
                                              qCircles));
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player)
+    {
+        return new CreatorRevolvingDoor(player);
+    }
+
+    @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    {
+        return new CreatorRevolvingDoor(player, name);
+    }
+
+    @Override
+    @NotNull
     protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
         if (!(door instanceof RevolvingDoor))

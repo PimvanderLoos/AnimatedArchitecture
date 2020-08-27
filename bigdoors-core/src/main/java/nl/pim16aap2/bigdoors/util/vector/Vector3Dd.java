@@ -3,6 +3,10 @@ package nl.pim16aap2.bigdoors.util.vector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @Data
 @AllArgsConstructor
+// TODO: Write test.
 public final class Vector3Dd implements IVector3DdConst, Cloneable
 {
     @Getter
@@ -238,8 +243,17 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         }
         catch (CloneNotSupportedException e)
         {
-            throw new Error(e);
+            // TODO: Only log to file! It's already dumped in the console because it's thrown.
+            Error er = new Error(e);
+            PLogger.get().logError(er);
+            throw er;
         }
+    }
+
+    @Override
+    public IPLocation toLocation(final @NotNull IPWorld world)
+    {
+        return BigDoors.get().getPlatform().getPLocationFactory().create(world, this);
     }
 
     @Override

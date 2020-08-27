@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.Flag;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -33,12 +32,11 @@ public class FlagMover extends BlockMover
                      final @NotNull IPPlayer player, final @NotNull DoorActionCause cause,
                      final @NotNull DoorActionType actionType)
     {
-        super(door, time, false, PBlockFace.UP, RotateDirection.NONE, -1, player, door.getMinimum(),
-              door.getMaximum(), cause, actionType);
+        super(door, time, false, RotateDirection.NONE, player, door.getMinimum(), door.getMaximum(), cause, actionType);
 
         final int xLen = Math.abs(xMax - xMin) + 1;
         final int zLen = Math.abs(zMax - zMin) + 1;
-        NS = zLen > xLen;
+        NS = door.isNorthSouthAligned();
         getGoalPos = NS ? this::getGoalPosNS : this::getGoalPosEW;
 
         final int length = NS ? zLen : xLen;

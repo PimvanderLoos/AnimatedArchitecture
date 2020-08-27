@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Drawbridge;
-import nl.pim16aap2.bigdoors.doors.IHorizontalAxisAlignedDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Functional.TriFunction;
@@ -52,10 +52,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
                        final @NotNull IVector3DiConst finalMax, final @NotNull DoorActionCause cause,
                        final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, null, rotateDirection, -1, player, finalMin, finalMax, cause, actionType);
-
-        System.out.println("finalMin: " + finalMin);
-        System.out.println("finalMax: " + finalMax);
+        super(door, time, skipAnimation, rotateDirection, player, finalMin, finalMax, cause, actionType);
 
         NS = door.isNorthSouthAligned();
         rotationCenter = new Vector3Dd(door.getEngine()).add(0.5, 0, 0.5);

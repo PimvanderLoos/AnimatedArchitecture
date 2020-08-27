@@ -86,11 +86,11 @@ public class SubCommandToggle extends SubCommand
         final @NotNull Pair<Boolean, Long> lastUID = Util.longFromString(lastStr);
 
         double time = 0.0d;
-        if (!lastUID.key())
+        if (!lastUID.first)
         {
             final @NotNull Pair<Boolean, Double> timeVal = Util.doubleFromString(lastStr);
-            if (timeVal.key())
-                time = timeVal.value();
+            if (timeVal.first)
+                time = timeVal.second;
         }
 
         int index = args.length;

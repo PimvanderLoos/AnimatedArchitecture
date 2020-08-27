@@ -1,11 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
-import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigot.toolusers.PowerBlockInspector;
-import nl.pim16aap2.bigdoors.spigot.toolusers.ToolUser;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,8 +25,8 @@ public class SubCommandInspectPowerBlock extends SubCommand
 
     public boolean execute(final @NotNull Player player)
     {
-        plugin.getAbortableTaskManager()
-              .startTimerForAbortableTask(new PowerBlockInspector(plugin, player, -1), 20 * 20);
+//        plugin.getAbortableTaskManager()
+//              .startTimerForAbortableTask(new PowerBlockInspector(plugin, player, -1), 20 * 20);
         return true;
     }
 
@@ -41,7 +39,7 @@ public class SubCommandInspectPowerBlock extends SubCommand
             throw new CommandSenderNotPlayerException();
         Player player = (Player) sender;
 
-        plugin.getToolUser(player).ifPresent(ToolUser::abortSilently);
+//        plugin.getToolUser(player).ifPresent(ToolUser::abortSilently);
         execute(player);
         return true;
     }

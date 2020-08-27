@@ -12,6 +12,10 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Experimental
  */
+// TODO: Consider storing boolean type-specific entries in single integers as much as possible. Let the db or some
+//       service handle the automatic packing/unpacking, so the door classes won't even notice it.
+// TODO: Store a general lastOp in the database to keep track of the last action of a door (e.g. Toggle North), useful
+//       To help figure out what to do when its data was changed.
 // TODO: Consider storing a serialized version of a door before removing its blocks and removing it before placing the blocks.
 //       This would make sure that blocks aren't lost in case of a server crash, which will be more important to avoid
 //       with the new perpetually moving objects. Just make sure to do it async and it should be fine. Also, it should
@@ -26,13 +30,12 @@ import org.jetbrains.annotations.Nullable;
 //       Also: https://www.baeldung.com/java-size-of-object
 // TODO: Fix violation of LSP for doorAttributes. Instead of having a switch per type in the GUI, override a return in the DoorAttribute enum.
 // TODO: Look into Aikar's command system to replace my command system: https://www.spigotmc.org/threads/acf-beta-annotation-command-framework.234266/
-// TODO: Consider storing original locations in the database. Then use the OpenDirection as the direction to go when in
-//       the original position. Then you cannot make regular doors go in a full circle anymore.
 // TODO: Instead of placing all blocks one by one and sending packets to the players about it, use this method instead:
 //       https://www.spigotmc.org/threads/efficiently-change-large-area-of-blocks.262341/#post-2585360
 // TODO: Write script (python? might be fun to switch it up) to build plugin.yml on compilation.
 // TODO: For storing player permissions, consider storing them in the database when a player leaves.
 //       Then ONLY use those whenever that player is offline. Just use the online permissions otherwise.
+//       Also include if they're an OP or not. All this can just be handled via a bitflag.
 // TODO: When initializing the plugin, initialize vital functions first (database, etc). Because some
 //       things are intialized async (e.g. database upgrades), make sure to wait for everything on a
 //       separate thread. If anything fails, make sure to try to unload everything properly.
@@ -65,6 +68,13 @@ import org.jetbrains.annotations.Nullable;
 /*
  * Doors
  */
+// TODO: Consider creating optional per-type configs.
+// TODO: When changing the open direction of a GarageDoor, the engine location needs to be updated as well, otherwise
+//       it'll just break. Alternatively, consider ignoring the engine location altogether and just figuring it out
+//       when it needs to be toggled? When toggling it, the engine location can just be derived from the open direction
+//       and the current position without any guess work being involved.
+// TODO: Think about how lenient the Drawbridge should be. Should it allow setting any of the 4 possible rotations,
+//       or should it restrict itself to only the 2 that are possible.
 // TODO: getBlocksToMove() should return the number of blocks it'll move, regardless of if this value was set.
 //       Internally, keep track of the specified and the default value, then return the specified value if possible,
 //       otherwise the default value. Also distinguish between goal and actual.
@@ -72,7 +82,6 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Having both openDirection and rotateDirection is stupid. Check DoorBase#getNewLocations for example.
 // TODO: Cache value of DoorBase#getSimplePowerBlockChunkHash().
 // TODO: Use the IGetNewLocation code to check new pos etc.
-// TODO: Statically store GNL's in each door type.
 // TODO: Store calculated stuff such as blocksInDirection in object-scope variables, so they don't have to be
 //       calculated more than once.
 // TODO: Implement this type: https://www.filt3rs.net/sites/default/files/study/_3VIS%20-%20318%20Fer-211%20visera%20proyectable%20visor%20fachada%20basculante.jpg
@@ -94,6 +103,35 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
+//       messages much more generic. Many of them only differ in the hardcoded name of the type.
+// TODO: PLogger: Add the possibility to log a Supplier<String>. This would be used for expensive logging operations
+//       (such as PPreparedStament logging). Then the PLogger can decide if it needs to retrieve the value if the
+//       logging level allows logging that message.
+// TODO: Expand the script that generates the testing translation file a bit.
+//       It should copy the latest real file to its own directory if the testing file doesn't exist (it shouldn't be
+//       in the repo). If the file does exist, quickly check the hashes of both to see if the copied file is still
+//       up-to-date. If it isn't up-to-date, copy over the latest file.
+//       If the file had to be copied over for whatever reason, regenerate the test translations file using the existing
+//       script. Also, make this all part of the test step in Maven, so the plugin can be compiled on Windows by skipping
+//       the test step.
+// TODO: Per-door speed multiplier.
+// TODO: Replace the chunk loading system with v1's new system.
+// TODO: Move implementations for tests and stuff to its own module.
+// TODO: PLogger: Make it possible to log exceptions/errors without logging anything to the console. This is useful
+//       in the case where you want to actually throw the error/exception in addition to logging it.
+// TODO: Place the creator stick in the player's hotbar. If possible, in the currently selected place.
+//       If there is no space in the hotbar (or maybe always do this), move the currently selected item into the
+//       player's inventory. If there is no space, abort the process and inform the player that they need to sort
+//       their shit out and do some inventory management.
+// TODO: Implement a way to retrieve the original locations in the database. Then use the OpenDirection as the
+//       direction to go when in the original position. Then you cannot make regular doors go in a full circle anymore.
+//       Perhaps this could just be a single value in the database that describes the original min value (they can't
+//       change shape, after all). How this hash is implemented can be determined on a per-type basis. A portcullis
+//       can just use its lowest y-value as the x/z values do not matter at all.
+//       However, it might also be nice to have a reversible way to retrieve the original location, so it's easier to
+//       determine how to toggle a door back to its original position. Be careful to not make a very complicated
+//       system to avoid storing a few more ints in the database; it's not worth it.
 // TODO: Make a decision about using null in parameters. You could make a point that instead of value vs null, you can
 //       value vs empty Optional vs null. However, Optionals make it more clear when an object might not be present
 //       and they shouldn't be null anyway. On the other hand, the biggest reason I want it right now is because
@@ -196,9 +234,12 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
 // TODO: Get rid of all calls to SpigotUtil for messaging players. They should all go via the proper interface for that.
-// TODO: Logging, instead of "onlyLogExceptions", properly use logging levels. Also implement a
-//       MINIMALISTIC logging level. On this level, only the names + messages of exceptions are written
-//       to the console. Make this the default setting.
+// TODO: Logging, instead of "onlyLogExceptions", properly use logging levels. Just have a loggingLevel option in the
+//       config and any levels lower than the selected value should be suppressed.
+//       Lower level = Finer detail.
+//       Still need to figure out what to actually do with this. Should it write to the file regardless?
+//       Should the file have its own setting?
+// TODO: Don't log everything at INFO, e.g. Log config stuff at Level.CONFIG.
 // TODO: Every Manager must be a singleton.
 // TODO: Add door creation event (or perhaps door modification event?).
 // TODO: Use the following snippet for all singletons, not just the ones in bigdoors-core. This will require the use of
@@ -220,8 +261,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       Figure this stuff out while reading the messages file, so there's 0 impact while the plugin is running.
 // TODO: Make some kind of interface for the vectors, to avoid code duplication.
 // TODO: Add default pitch and volume to PSound enum. Allow overriding them, though. Perhaps also store tick length?
+//       Perhaps just don't use an enum at all, but store the sound in the DoorType definition.
 // TODO: Add some kind of method to reset the timer on falling blocks, so they don't despawn (for perpetual movers).
-// TODO: Split DoorActionEvent into 2: one for future doors, the other for existing doors.
 // TODO: Merge spigot-core and spigot-util. It's just annoying and messy.
 // TODO: Allow the "server" to own doors.
 // TODO: Add material blacklist to the config.
@@ -340,32 +381,37 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Instead of using an enum, consider using annotations instead. It can also include stuff like PlayerOnly etc.
 
 /*
- * Creators
+ * Creators / ToolUsers
  */
-// TODO: Use the openDirection to figure out the current direction for the types that need that. And if that's not
-//       possible, just ask the user.
-// TODO: Make users explicitly specify the openDirection on door creation.
-// TODO: Use the openDirection to figure out the current direction for the types that need that. And if that's not
-//       possible, just ask the user.
-// TODO: Move ToolUsers from spigot-core to bigdoors-core. Also use the following system:
-//       - Use an "int step" or something to keep track of at which step in the creation process the user is.
-//       - Use an array of function pointers which can easily be used using the step integer.
-//       - Make sure it's very easy to extend the system.
-// TODO: GarageDoorCreator: Fix having to double click last block.
-// TODO: GarageDoorCreator: Before defaulting to North/East, check if those directions are actually available.
-// TODO: Adapt to the new creation style.
+// TODO: When registering a new ToolUser, also make sure to immediately start the timer thingy, otherwise it just
+//       gets too messy. Also handle the removal in the shutdown method.
+// TODO: Consider introducing different (optional) modes for the creators such as Creator.Mode#NEW_DOOR
+//       and Creator.Mode#UPDATE_COORDS, Creator.Mode#UPDATE_POWERBLOCK, etc. These modes can be used to
+//       update a specific aspect of a door. Only including the desired steps should be enough to
+//       actually use it. Any mode other than NEW_DOOR should update a door instead of inserting a new one.
+//       However, this needs to use the door attribute system and as such this issue is blocked until that is in place.
+//       Because an Enum won't cut it for custom attributes.
+// TODO: Before starting the creation process, make sure that there is space in the player's inventory for the tool
+//       So when the player's inventory is full:
+//       "/bigdoors newdoor -type BigDoor" -> "Your inventory appears to be full! Please make some space and try again!"
+//       If their inventory fills up during the process, just abort when they get to the point where they should have
+//       received the tool.
 
 /*
  * Openers / Movers
  */
+// TODO: There is still a bunch of duplicated code (e.g. BigDoor#getPotentialNewCoordinates and
+//       RevolvingDoor#getPotentialNewCoordinates). This is horrible and should be fixed. Perhaps create a separate
+//       object that can do it? Or a static method? Ugh.
+// TODO: The ClockMover should keep in mind that clocks can have a depth greater than 2 blocks. Currently, it only
+//       thinks there are 2 arms, each 1 block deep, which would cause issues with any other size.
 // TODO: The perpetual movers (revolving door, windmill) should also have a mode where they can be opened and closed like regular doors.
 // TODO: When a door is modified in a way that leaves it in an 'impossible' state, make sure to first return to the proper state.
 //       So, if a door is currently open to the west and the opendir is changed to east and it is toggled again,
 //       toggle it to the east again first, even though the closedir would normally be the opposite of the opendir
 //       (therefore close to the west).
-// TODO: FIX DRABRIDGES! THEY ARE BROKEN!
 // TODO: RevolvingDoor: The final location of the blocks is not the original location. You can see this issue when
-//       using a revolving door with an off-center rotation point.
+//       using a revolving door with an off-center rotation point. The same applies to
 // TODO: Figure out what to do with the player sometimes being nullable and notnull at other times. Make a clear decision.
 // TODO: Get rid of the weird speed multipliers in the CustomEntityFallingBlock_VX_XX_RX classes.
 // TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the
@@ -407,7 +453,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Make sure that new lines in the messages work (check Util::stringFromArray).
 // TODO: Fix no permission to set AutoCloseTime from GUI.
 // TODO: Check if TimedCache#containsValue() works properly.
-// TODO: What happens when a player is given a creator stick while their inventory is full?
 // TODO: Test all methods in the database manager stuff.
 // TODO: Fix command waiter system.
 // TODO: Fix not being able to use doorUID in setBlocksToMove (direct).
@@ -419,6 +464,10 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Unit tests
  */
+// TODO: Don't use the beforeLastMessage method. Instead, use something like getLastWarning. Also means that levels will
+//       have to be used when messaging players.
+// TODO: The Unit Tests have access to protected members. Use this to test specific methods (in addition to running
+//       the whole procedure, of course).
 // TODO: https://bukkit.org/threads/how-to-unit-test-your-plugin-with-example-project.23569/
 // TODO: https://www.spigotmc.org/threads/using-junit-to-test-plugins.71420/#post-789671
 // TODO: https://github.com/seeseemelk/MockBukkit

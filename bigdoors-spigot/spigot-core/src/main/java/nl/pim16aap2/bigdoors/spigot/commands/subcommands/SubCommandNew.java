@@ -1,24 +1,18 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.EDoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigot.toolusers.BigDoorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.ClockCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.Creator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.DrawbridgeCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.ElevatorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.FlagCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.GarageDoorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.PortcullisCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.RevolvingDoorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.SlidingDoorCreator;
-import nl.pim16aap2.bigdoors.spigot.toolusers.WindmillCreator;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
@@ -27,24 +21,12 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Optional;
-
 public class SubCommandNew extends SubCommand
 {
-    protected static final String help = "Create a new door from selection with name \"doorName\". Defaults to a regular door.";
+    protected static final String help = "Create a new door from selection with name \"doorName\". Defaults to a regular door (BigDoor).";
     protected static final String argsHelp = "[-pc/-db/-bd/-el/-fl/-sd/-gd] <doorName>";
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.NEW;
-
-    private static final Map<EDoorType, String> typePermissions = new EnumMap<>(EDoorType.class);
-
-    static
-    {
-        for (EDoorType type : EDoorType.cachedValues())
-            typePermissions.put(type, CommandData.getPermission(CommandData.NEW) + type.toString().toLowerCase());
-    }
 
     public SubCommandNew(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
     {
@@ -52,14 +34,15 @@ public class SubCommandNew extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    public static boolean hasCreationPermission(final @NotNull Player player, final @NotNull EDoorType type)
+    public static boolean hasCreationPermission(final @NotNull Player player, final @NotNull DoorType type)
     {
-        return player.hasPermission(typePermissions.get(type));
+        return player.hasPermission(CommandData.getPermission(CommandData.NEW) + type.getSimpleName());
     }
 
     private boolean isPlayerBusy(final @NotNull Player player)
     {
-        boolean isBusy = (plugin.getToolUser(player).isPresent() || plugin.getCommandWaiter(player).isPresent());
+        boolean isBusy = (ToolUserManager.get().getToolUser(player.getUniqueId()).isPresent() ||
+            plugin.getCommandWaiter(player).isPresent());
         if (isBusy)
             SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_PLAYERISBUSY));
         return isBusy;
@@ -69,12 +52,12 @@ public class SubCommandNew extends SubCommand
      * Initiates door creation. It is assumed that all checks regarding permissions (allowed to create this type,
      * allowed to create additional doors) are already verified at this point.
      *
-     * @param player The player initiating the door creation.
-     * @param name   The name of the door, may be null.
-     * @param type   The type of the door to be created.
+     * @param player   The player initiating the door creation.
+     * @param name     The name of the door, may be null.
+     * @param doorType The type of the door to be created.
      */
     private void initiateDoorCreation(final @NotNull Player player, final @Nullable String name,
-                                      final @NotNull EDoorType type)
+                                      final @NotNull DoorType doorType)
     {
         if (name != null && !Util.isValidDoorName(name))
         {
@@ -82,50 +65,8 @@ public class SubCommandNew extends SubCommand
             return;
         }
 
-        Creator creator = null;
-        switch (type)
-        {
-            case BIGDOOR:
-                creator = new BigDoorCreator(plugin, player, name);
-                break;
-            case DRAWBRIDGE:
-                creator = new DrawbridgeCreator(plugin, player, name);
-                break;
-            case PORTCULLIS:
-                creator = new PortcullisCreator(plugin, player, name);
-                break;
-            case ELEVATOR:
-                creator = new ElevatorCreator(plugin, player, name);
-                break;
-            case SLIDINGDOOR:
-                creator = new SlidingDoorCreator(plugin, player, name);
-                break;
-            case FLAG:
-                creator = new FlagCreator(plugin, player, name);
-                break;
-            case WINDMILL:
-                creator = new WindmillCreator(plugin, player, name);
-                break;
-            case REVOLVINGDOOR:
-                creator = new RevolvingDoorCreator(plugin, player, name);
-                break;
-            case GARAGEDOOR:
-                creator = new GarageDoorCreator(plugin, player, name);
-                break;
-            case CLOCK:
-                creator = new ClockCreator(plugin, player, name);
-            default:
-                break;
-        }
-
-        //noinspection ConstantConditions This check is just here in case new doors are added that do not have creators.
-        if (creator == null)
-        {
-            plugin.getPLogger()
-                  .warn("Failed to initiate door creation process for door type: \"" + type.toString() + "\"");
-            return;
-        }
-        plugin.getAbortableTaskManager().startTimerForAbortableTask(creator, 60 * 20);
+        final @NotNull Creator creator = doorType.getCreator(SpigotAdapter.wrapPlayer(player), name);
+        ToolUserManager.get().startToolUser(creator, 120 * 20);
     }
 
     /**
@@ -133,14 +74,14 @@ public class SubCommandNew extends SubCommand
      *
      * @param player       The player initiating the door creation.
      * @param name         The name of the door, may be null.
-     * @param type         The type of the door to be created.
+     * @param doorType     The type of the door to be created.
      * @param maxDoorCount The maximum number of doors this player is allowed to create.
      */
     private void initiateDoorCreation(final @NotNull Player player, final @Nullable String name,
-                                      final @NotNull EDoorType type, final int maxDoorCount)
+                                      final @NotNull DoorType doorType, final int maxDoorCount)
     {
         if (maxDoorCount < 0)
-            initiateDoorCreation(player, name, type);
+            initiateDoorCreation(player, name, doorType);
         else
             BigDoors.get().getDatabaseManager().countDoorsOwnedByPlayer(player.getUniqueId()).whenComplete(
                 (doorCount, throwable) ->
@@ -149,21 +90,22 @@ public class SubCommandNew extends SubCommand
                         SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_TOOMANYDOORSOWNED,
                                                                             Integer.toString(maxDoorCount)));
                     else
-                        initiateDoorCreation(player, name, type);
+                        initiateDoorCreation(player, name, doorType);
                 });
     }
 
     // Create a new door.
-    public void execute(final @NotNull Player player, final @Nullable String name, final @NotNull EDoorType type)
+    public void execute(final @NotNull Player player, final @Nullable String name, final @NotNull DoorType doorType)
     {
-        if (!EDoorType.isEnabled(type))
+        if (!DoorTypeManager.get().isDoorTypeEnabled(doorType))
         {
             plugin.getPLogger()
-                  .severe("Trying to create door of type: \"" + type.toString() + "\", but this type is not enabled!");
+                  .severe(
+                      "Trying to create door of type: \"" + doorType.toString() + "\", but this type is not enabled!");
             return;
         }
 
-        if (!hasCreationPermission(player, type))
+        if (!hasCreationPermission(player, doorType))
         {
             SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_NOPERMISSIONFORDOORTYPE));
             return;
@@ -173,7 +115,7 @@ public class SubCommandNew extends SubCommand
             return;
 
         SpigotUtil.getMaxDoorsForPlayer(player)
-                  .whenComplete((maxDoors, throwable) -> initiateDoorCreation(player, name, type, maxDoors));
+                  .whenComplete((maxDoors, throwable) -> initiateDoorCreation(player, name, doorType, maxDoors));
     }
 
     @Override
@@ -184,17 +126,13 @@ public class SubCommandNew extends SubCommand
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
 
-        EDoorType type = EDoorType.BIGDOOR;
+        DoorType doorType = DoorTypeBigDoor.get();
         String name = args[args.length - 1];
 
         if (args.length == minArgCount + 1)
-        {
-            Optional<EDoorType> optType = EDoorType.valueOfCommandFlag(args[args.length - 2].toUpperCase());
-            if (!optType.isPresent())
-                return false;
-            else type = optType.get();
-        }
-        execute((Player) sender, name, type);
+            doorType = DoorTypeManager.get().getDoorType(args[args.length - 2]).orElse(doorType);
+
+        execute((Player) sender, name, doorType);
         return true;
     }
 
@@ -218,7 +156,6 @@ public class SubCommandNew extends SubCommand
         return minArgCount;
     }
 
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public CommandData getCommandData()

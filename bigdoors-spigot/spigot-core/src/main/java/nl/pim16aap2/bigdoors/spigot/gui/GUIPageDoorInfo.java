@@ -89,8 +89,8 @@ public class GUIPageDoorInfo implements IGUIPage
                         gui.setGUIPage(new GUIPageDeleteConfirmation(plugin, gui));
                         break;
                     case RELOCATEPOWERBLOCK:
-                        plugin.getAbortableTaskManager().startPowerBlockRelocator(player, door);
-                        gui.close();
+//                        plugin.getAbortableTaskManager().startPowerBlockRelocator(player, door);
+//                        gui.close();
                         break;
                     case DIRECTION_ROTATE_VERTICAL2:
                     case DIRECTION_STRAIGHT_HORIZONTAL:

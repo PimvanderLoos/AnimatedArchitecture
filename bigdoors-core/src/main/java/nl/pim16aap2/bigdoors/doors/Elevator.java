@@ -21,9 +21,13 @@ public class Elevator extends Portcullis
         super(doorData, blocksToMove, autoCloseTime, autoOpenTime);
     }
 
-    /** {@inheritDoc} */
-    @NotNull
+    public Elevator(final @NotNull DoorData doorData, final int blocksToMove)
+    {
+        super(doorData, blocksToMove, -1, -1);
+    }
+
     @Override
+    @NotNull
     public DoorType getDoorType()
     {
         return DOOR_TYPE;

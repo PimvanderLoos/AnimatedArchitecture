@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -21,19 +20,17 @@ import org.jetbrains.annotations.NotNull;
 public class BigDoorMover extends BlockMover
 {
     private final IVector3DdConst rotationCenter;
-
     private int halfEndCount;
     private final double angle;
     private double step;
 
-    public BigDoorMover(final @NotNull RotateDirection rotDirection, final double time,
-                        final @NotNull PBlockFace currentDirection, final @NotNull AbstractDoorBase door,
-                        final boolean skipAnimation, final double multiplier, @NotNull final IPPlayer player,
-                        final @NotNull IVector3DiConst finalMin, final @NotNull IVector3DiConst finalMax,
-                        final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+    public BigDoorMover(final @NotNull AbstractDoorBase door, final @NotNull RotateDirection rotDirection,
+                        final double time, final boolean skipAnimation, final double multiplier,
+                        @NotNull final IPPlayer player, final @NotNull IVector3DiConst finalMin,
+                        final @NotNull IVector3DiConst finalMax, final @NotNull DoorActionCause cause,
+                        final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, currentDirection, rotDirection, -1, player, finalMin, finalMax, cause,
-              actionType);
+        super(door, time, skipAnimation, rotDirection, player, finalMin, finalMax, cause, actionType);
 
         angle = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
                 rotDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;

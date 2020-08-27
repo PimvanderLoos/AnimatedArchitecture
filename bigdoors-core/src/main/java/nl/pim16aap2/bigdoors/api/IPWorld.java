@@ -21,6 +21,14 @@ public interface IPWorld extends Cloneable
     UUID getUID();
 
     /**
+     * Gets the name of this world.
+     *
+     * @return The name of this world.
+     */
+    @NotNull
+    String getName();
+
+    /**
      * Checks if this is a valid world in the current {@link IBigDoorsPlatform}.
      *
      * @return True if this is a valid world in the current {@link IBigDoorsPlatform}.

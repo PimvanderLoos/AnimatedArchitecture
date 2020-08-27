@@ -1,13 +1,17 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.BigDoor;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorBigDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -19,10 +23,9 @@ public final class DoorTypeBigDoor extends DoorType
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(3);
+        List<Parameter> parameterTMP = new ArrayList<>(2);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
-        parameterTMP.add(new Parameter(ParameterType.INTEGER, "currentDirection"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
 
@@ -31,7 +34,8 @@ public final class DoorTypeBigDoor extends DoorType
 
     private DoorTypeBigDoor()
     {
-        super(Constants.PLUGINNAME, "BigDoor", TYPE_VERSION, PARAMETERS);
+        super(Constants.PLUGINNAME, "BigDoor", TYPE_VERSION, PARAMETERS,
+              Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
     }
 
     /**
@@ -45,29 +49,35 @@ public final class DoorTypeBigDoor extends DoorType
         return instance;
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
                                                      final @NotNull Object... typeData)
-        throws Exception
     {
-        final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) typeData[2]);
-        if (currentDirection == null)
-            return Optional.empty();
-
         final int autoCloseTimer = (int) typeData[0];
         final int autoOpenTimer = (int) typeData[1];
 
         return Optional.of(new BigDoor(doorData,
                                        autoCloseTimer,
-                                       autoOpenTimer,
-                                       currentDirection));
+                                       autoOpenTimer));
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player)
+    {
+        return new CreatorBigDoor(player);
+    }
+
+    @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    {
+        return new CreatorBigDoor(player, name);
+    }
+
+    @Override
+    @NotNull
     protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
         throws Exception
     {
@@ -77,7 +87,6 @@ public final class DoorTypeBigDoor extends DoorType
 
         final @NotNull BigDoor bigDoor = (BigDoor) door;
         return new Object[]{bigDoor.getAutoCloseTime(),
-                            bigDoor.getAutoOpenTime(),
-                            PBlockFace.getValue(bigDoor.getCurrentDirection())};
+                            bigDoor.getAutoOpenTime()};
     }
 }

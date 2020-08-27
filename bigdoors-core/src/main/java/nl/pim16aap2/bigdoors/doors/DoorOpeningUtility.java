@@ -126,22 +126,6 @@ public final class DoorOpeningUtility
     }
 
     /**
-     * Checks if the size of a {@link AbstractDoorBase} exceeds the global limit.
-     *
-     * @param door The {@link AbstractDoorBase}.
-     * @return True if the size of a {@link AbstractDoorBase} exceeds the global limit.
-     */
-    public boolean isTooBig(final @NotNull AbstractDoorBase door)
-    {
-        // Make sure the doorSize does not exceed the total doorSize.
-        // If it does, open the door instantly.
-        int maxDoorSize = config.maxDoorSize();
-        if (maxDoorSize != -1)
-            return door.getBlockCount() > maxDoorSize;
-        return false;
-    }
-
-    /**
      * Checks if the owner of a door can break blocks between 2 positions.
      * <p>
      * If the player is not allowed to break the block(s), they'll receive a message about this.

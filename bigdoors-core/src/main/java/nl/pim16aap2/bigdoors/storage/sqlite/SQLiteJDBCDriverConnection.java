@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -37,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -72,11 +72,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private final String url;
 
     /**
-     * The BigDoors configuration.
-     */
-    private final IConfigLoader config;
-
-    /**
      * Log ALL statements to the log file.
      */
     private boolean logStatements = false;
@@ -90,12 +85,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * Constructor of the SQLite driver connection.
      *
      * @param dbFile The file to store the database in.
-     * @param config The {@link IConfigLoader} containing options used in this class.
      */
-    public SQLiteJDBCDriverConnection(final @NotNull File dbFile, final @NotNull IConfigLoader config)
+    public SQLiteJDBCDriverConnection(final @NotNull File dbFile)
     {
         this.dbFile = dbFile;
-        this.config = config;
         url = "jdbc:sqlite:" + dbFile;
         if (!loadDriver())
         {
@@ -375,8 +368,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         int updateStatus = executeUpdate(SQLStatement.INSERT_OR_IGNORE_DOOR_TYPE.constructPPreparedStatement()
                                                                                 .setString(1, doorType.getPluginName())
-                                                                                .setString(2, doorType.getTypeName())
-                                                                                .setInt(3, doorType.getVersion())
+                                                                                .setString(2, doorType.getSimpleName())
+                                                                                .setInt(3, doorType.getTypeVersion())
                                                                                 .setString(4, typeTableName));
         if (updateStatus == -1)
         {
@@ -391,8 +384,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull Optional<Pair<Long, String>> result = Optional.ofNullable(executeQuery(
             SQLStatement.GET_DOOR_TYPE_TABLE_NAME_AND_ID.constructPPreparedStatement()
                                                         .setString(1, doorType.getPluginName())
-                                                        .setString(2, doorType.getTypeName())
-                                                        .setInt(3, doorType.getVersion()),
+                                                        .setString(2, doorType.getSimpleName())
+                                                        .setInt(3, doorType.getTypeVersion()),
             resultSet -> new Pair<>(resultSet.getLong("id"), resultSet.getString("typeTableName"))));
 
         if (!result.isPresent())
@@ -404,7 +397,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         // Create a new table for this DoorType, if needed.
         final @NotNull StringBuilder tableCreationStatementBuilder = new StringBuilder();
-        tableCreationStatementBuilder.append("CREATE TABLE IF NOT EXISTS ").append(result.get().value())
+        tableCreationStatementBuilder.append("CREATE TABLE IF NOT EXISTS ").append(result.get().second)
                                      .append("(id INTEGER PRIMARY KEY AUTOINCREMENT, ")
                                      .append("doorUID REFERENCES DoorBase(id) ON UPDATE CASCADE ON DELETE CASCADE");
         for (final DoorType.Parameter parameter : doorType.getParameters())
@@ -419,10 +412,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             PLogger.get().logException(
                 new SQLException("Failed to create type table: \"" + typeTableName + "\""));
-            executeUpdate(SQLStatement.DELETE_DOOR_TYPE.constructPPreparedStatement().setLong(1, result.get().key()));
+            executeUpdate(SQLStatement.DELETE_DOOR_TYPE.constructPPreparedStatement().setLong(1, result.get().first));
             return -1;
         }
-        return result.get().key();
+        return result.get().first;
     }
 
     @Override
@@ -495,7 +488,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return false;
         }
 
-        final Optional<Long> doorTypeID = DoorTypeManager.get().getDoorTypeID(door.getDoorType());
+        final @NotNull OptionalLong doorTypeID = DoorTypeManager.get().getDoorTypeID(door.getDoorType());
         if (!doorTypeID.isPresent())
         {
             PLogger.get().logException(new SQLException(
@@ -504,7 +497,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
 
         final @NotNull Optional<Pair<String, Integer>> typeSpecificDataUpdateStatementOpt
-            = getTypeDataUpdateStatement(door.getDoorType(), doorTypeID.get());
+            = getTypeDataUpdateStatement(door.getDoorType(), doorTypeID.getAsLong());
         if (!typeSpecificDataUpdateStatementOpt.isPresent())
         {
             PLogger.get().logException(new NullPointerException("Failed to obtain type-specific update statement " +
@@ -514,12 +507,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final @NotNull Pair<String, Integer> typeSpecificDataUpdateStatement = typeSpecificDataUpdateStatementOpt.get();
         final @NotNull PPreparedStatement pPreparedStatement =
-            new PPreparedStatement(typeSpecificDataUpdateStatement.value() + 1, typeSpecificDataUpdateStatement.key());
+            new PPreparedStatement(typeSpecificDataUpdateStatement.second + 1, typeSpecificDataUpdateStatement.first);
         final @NotNull Object[] typeData = typeDataOpt.get();
 
-        for (int idx = 0; idx < typeSpecificDataUpdateStatement.value(); ++idx)
+        for (int idx = 0; idx < typeSpecificDataUpdateStatement.second; ++idx)
             pPreparedStatement.setObject(idx + 1, typeData[idx]);
-        pPreparedStatement.setLong(typeSpecificDataUpdateStatement.value() + 1, door.getDoorUID());
+        pPreparedStatement.setLong(typeSpecificDataUpdateStatement.second + 1, door.getDoorUID());
 
         return executeUpdate(pPreparedStatement) > 0;
     }
@@ -533,7 +526,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @NotNull
     private String getTableNameOfType(final @NotNull DoorType doorType)
     {
-        return String.format("%s_%s_%d", doorType.getPluginName(), doorType.getTypeName(), doorType.getVersion());
+        return String.format("%s_%s_%d", doorType.getPluginName(), doorType.getSimpleName(), doorType.getTypeVersion());
     }
 
     /**
@@ -584,7 +577,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
     private long insert(final @NotNull Connection conn, final @NotNull AbstractDoorBase door, final long doorTypeID,
                         final @NotNull Object[] typeSpecificData)
-        throws SQLException
     {
         final @NotNull Optional<Pair<String, Integer>> typeSpecificDataInsertStatementOpt
             = getTypeSpecificDataInsertStatement(door.getDoorType(), doorTypeID);
@@ -632,10 +624,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                          .setInt(19, RotateDirection.getValue(door.getOpenDir())));
 
         final @NotNull PPreparedStatement pPreparedStatement
-            = new PPreparedStatement(typeSpecificDataInsertStatement.value(),
-                                     typeSpecificDataInsertStatement.key());
+            = new PPreparedStatement(typeSpecificDataInsertStatement.second,
+                                     typeSpecificDataInsertStatement.first);
 
-        for (int parameterIDX = 0; parameterIDX < typeSpecificDataInsertStatement.value(); ++parameterIDX)
+        for (int parameterIDX = 0; parameterIDX < typeSpecificDataInsertStatement.second; ++parameterIDX)
             pPreparedStatement.setObject(parameterIDX + 1, typeSpecificData[parameterIDX]);
 
         executeUpdate(conn, pPreparedStatement);
@@ -1448,17 +1440,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 return;
             }
 
-            // If an update is required and backups are enabled, make a backup.
-            // First close the connection to the database. Reopen it when possible.
-            if (config.dbBackup())
-            {
-                conn.close();
-                if (!makeBackup())
-                    return;
-                conn = getConnection(DatabaseState.OUT_OF_DATE);
-                if (conn == null)
-                    return;
-            }
+            conn.close();
+            if (!makeBackup())
+                return;
+            conn = getConnection(DatabaseState.OUT_OF_DATE);
+            if (conn == null)
+                return;
 
             if (dbVersion < 11)
                 upgradeToV11(conn);

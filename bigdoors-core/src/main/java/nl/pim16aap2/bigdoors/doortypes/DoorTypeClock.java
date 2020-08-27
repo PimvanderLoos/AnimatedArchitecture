@@ -1,13 +1,18 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Clock;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorClock;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
+import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +35,9 @@ public final class DoorTypeClock extends DoorType
 
     private DoorTypeClock()
     {
-        super(Constants.PLUGINNAME, "Clock", TYPE_VERSION, PARAMETERS);
+        super(Constants.PLUGINNAME, "Clock", TYPE_VERSION, PARAMETERS,
+              Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
+                            RotateDirection.SOUTH, RotateDirection.WEST));
     }
 
     /**
@@ -44,13 +51,12 @@ public final class DoorTypeClock extends DoorType
         return instance;
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
     protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
                                                      final @NotNull Object... typeData)
     {
-        @Nullable final PBlockFace hourArmSide = PBlockFace.valueOf((int) typeData[1]);
+        final @Nullable PBlockFace hourArmSide = PBlockFace.valueOf((int) typeData[1]);
         if (hourArmSide == null)
             return Optional.empty();
 
@@ -60,11 +66,25 @@ public final class DoorTypeClock extends DoorType
                                      hourArmSide));
     }
 
-    /** {@inheritDoc} */
-    @NotNull
     @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player)
+    {
+        return new CreatorClock(player);
+    }
+
+    @Override
+    @NotNull
+    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    {
+        return new CreatorClock(player, name);
+    }
+
+    @Override
+    @NotNull
     protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
+        // TODO: Handle with logger.
         if (!(door instanceof Clock))
             throw new IllegalArgumentException(
                 "Trying to get the type-specific data for a Clock from type: " + door.getDoorType().toString());

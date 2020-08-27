@@ -4,8 +4,15 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.OptionalInt;
+
 public class TestConfigLoader implements IConfigLoader
 {
+    public OptionalInt maxdoorCount = OptionalInt.empty();
+    public OptionalInt maxDoorSize = OptionalInt.empty();
+    public OptionalInt maxPowerBlockDistance = OptionalInt.empty();
+    public OptionalInt maxBlocksToMove = OptionalInt.empty();
+
     @Override
     public boolean debug()
     {
@@ -17,12 +24,6 @@ public class TestConfigLoader implements IConfigLoader
     public String flagFormula()
     {
         return null;
-    }
-
-    @Override
-    public boolean dbBackup()
-    {
-        return true;
     }
 
     @Override
@@ -38,9 +39,9 @@ public class TestConfigLoader implements IConfigLoader
     }
 
     @Override
-    public int maxDoorSize()
+    public OptionalInt maxDoorSize()
     {
-        return 0;
+        return maxDoorSize;
     }
 
     @Override
@@ -56,9 +57,21 @@ public class TestConfigLoader implements IConfigLoader
     }
 
     @Override
-    public int maxdoorCount()
+    public OptionalInt maxDoorCount()
     {
-        return 0;
+        return maxdoorCount;
+    }
+
+    @Override
+    public OptionalInt maxPowerBlockDistance()
+    {
+        return maxPowerBlockDistance;
+    }
+
+    @Override
+    public OptionalInt maxBlocksToMove()
+    {
+        return maxBlocksToMove;
     }
 
     @Override

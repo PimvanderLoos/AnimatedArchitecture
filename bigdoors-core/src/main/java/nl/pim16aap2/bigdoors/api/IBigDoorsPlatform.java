@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-public interface IBigDoorsPlatform
+public interface IBigDoorsPlatform extends IRestartableHolder
 {
     /**
      * Gets the directory where all data will stored.
@@ -29,6 +29,38 @@ public interface IBigDoorsPlatform
      */
     @NotNull
     IPLocationFactory getPLocationFactory();
+
+    /**
+     * Gets the instance of the {@link IBigDoorsToolUtil} for this platform.
+     *
+     * @return The instance of the {@link IBigDoorsToolUtil} for this platform.
+     */
+    @NotNull
+    IBigDoorsToolUtil getBigDoorsToolUtil();
+
+    /**
+     * Gets the instance of the {@link IEconomyManager} for this platform.
+     *
+     * @return The instance of the {@link IEconomyManager} for this platform.
+     */
+    @NotNull
+    IEconomyManager getEconomyManager();
+
+    /**
+     * Gets the instance of the {@link IPermissionsManager} for this platform.
+     *
+     * @return The instance of the {@link IPermissionsManager} for this platform.
+     */
+    @NotNull
+    IPermissionsManager getPermissionsManager();
+
+    /**
+     * Gets the instance of the {@link IProtectionCompatManager} for this platform.
+     *
+     * @return The instance of the {@link IProtectionCompatManager} for this platform.
+     */
+    @NotNull
+    IProtectionCompatManager getProtectionCompatManager();
 
     /**
      * Gets the instance of the {@link IPWorldFactory} for this platform.

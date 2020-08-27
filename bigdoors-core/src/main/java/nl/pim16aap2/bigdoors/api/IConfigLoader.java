@@ -3,6 +3,8 @@ package nl.pim16aap2.bigdoors.api;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.OptionalInt;
+
 // TODO: Change this description and while I'm at it, also the name of the class.
 
 /**
@@ -35,13 +37,6 @@ public interface IConfigLoader extends IRestartable
 //    String dbFile();
 
     /**
-     * Checks if the database should make a backup before attempting an upgrade.
-     *
-     * @return True if the database should make a backup before attempting an upgrade.
-     */
-    boolean dbBackup();
-
-    /**
      * Gets the number of ticks a door should wait before it can be activated again.
      *
      * @return The number of ticks a door should wait before it can be activated again.
@@ -62,7 +57,7 @@ public interface IConfigLoader extends IRestartable
      *
      * @return The global maximum number of blocks that can be in a door.
      */
-    int maxDoorSize();
+    OptionalInt maxDoorSize();
 
     /**
      * Gets the amount of time (in minutes) power blocks should be kept in cache.
@@ -83,7 +78,21 @@ public interface IConfigLoader extends IRestartable
      *
      * @return The global maximum number of doors a player can own.
      */
-    int maxdoorCount();
+    OptionalInt maxDoorCount();
+
+    /**
+     * Gets the global maximum distance (in blocks) a powerblock can be from the door.
+     *
+     * @return The global maximum distance (in blocks) a powerblock can be from the door.
+     */
+    OptionalInt maxPowerBlockDistance();
+
+    /**
+     * Gets the global maximum number of blocks a door can move for applicable types (e.g. sliding door).
+     *
+     * @return The global maximum number of blocks a door can move for applicable types (e.g. sliding door).
+     */
+    OptionalInt maxBlocksToMove();
 
     /**
      * Checks if updates should be downloaded automatically.

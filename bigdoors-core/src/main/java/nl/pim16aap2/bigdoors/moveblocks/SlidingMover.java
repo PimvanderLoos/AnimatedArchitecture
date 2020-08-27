@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.SlidingDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -34,14 +33,16 @@ public class SlidingMover extends BlockMover
     @Nullable
     private PBlockData firstBlockData = null;
 
-    public SlidingMover(final double time, final @NotNull AbstractDoorBase door, final boolean skipAnimation,
+    protected final int blocksToMove;
+
+    public SlidingMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
                         final int blocksToMove, final @NotNull RotateDirection openDirection, final double multiplier,
                         final @NotNull IPPlayer player, final @NotNull IVector3DiConst finalMin,
                         final @NotNull IVector3DiConst finalMax, final @NotNull DoorActionCause cause,
                         final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, PBlockFace.UP, openDirection, blocksToMove, player, finalMin, finalMax, cause,
-              actionType);
+        super(door, time, skipAnimation, openDirection, player, finalMin, finalMax, cause, actionType);
+        this.blocksToMove = blocksToMove;
 
         NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 
@@ -80,7 +81,7 @@ public class SlidingMover extends BlockMover
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
-        step = ((double) getBlocksMoved()) / ((double) super.endCount);
+        step = ((double) blocksToMove) / ((double) super.endCount);
         super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
@@ -89,11 +90,6 @@ public class SlidingMover extends BlockMover
     protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
     {
         return locationFactory.create(world, xAxis + moveX, yAxis, zAxis + moveZ);
-    }
-
-    private int getBlocksMoved()
-    {
-        return super.blocksMoved;
     }
 
     @Override

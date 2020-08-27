@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Contract;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.Set;
 
 /**
@@ -56,12 +58,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
     private final String header;
     private int coolDown;
-    private boolean makeBackup;
     private boolean allowStats;
-    private int maxDoorSize;
+    private OptionalInt maxDoorSize;
+    private OptionalInt maxPowerBlockDistance;
     private String resourcePack;
     private String languageFile;
-    private int maxDoorCount;
+    private OptionalInt maxDoorCount;
+    private OptionalInt maxBlocksToMove;
     private int cacheTimeout;
     private boolean autoDLUpdate;
     private long downloadDelay;
@@ -164,7 +167,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
             "  - BEDROCK"};
         String[] maxDoorCountComment = {
-            "Maximum number of doors a player can own. -1 = infinite."};
+            "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
+            "Not even admins and OPs can bypass this limit!",
+            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "'" + Limit.DOOR_COUNT.getUserPermission() + "x', where 'x' can be any positive value."};
+        String[] maxBlocksToMoveComment = {
+            "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
+            "Not even admins and OPs can bypass this limit!",
+            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "'" + Limit.BLOCKS_TO_MOVE.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] languageFileComment = {
             "Specify a language file to be used. Note that en_US.txt will get regenerated!"};
         String[] checkForUpdatesComment = {
@@ -180,16 +191,23 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.",
             "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"};
         String[] maxDoorSizeComment = {
-            "Max. number of blocks allowed in a door.",
+            "Global maximum number of blocks allowed in a door. You can set it to -1 to disable it this limit.",
             "If this number is exceeded, doors will open instantly and skip the animation.",
+            "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
-            "\"bigdoors.maxsize.amount\". E.g.: \"bigdoors.maxsize.200\""};
+            "'" + Limit.DOOR_SIZE.getUserPermission() + "x', where 'x' can be any positive value."};
+        String[] maxPowerBlockDistanceComment = {
+            "Global maximum distance between a door and its powerblock. You can set it to -1 to disable it this limit.",
+            "The distance is measured from the center of the door.",
+            "Not even admins and OPs can bypass this limit!",
+            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "'" + Limit.POWERBLOCK_DISTANCE.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] resourcePackComment = {
             "This plugin uses a support resource pack for things suchs as sound.",
             "You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
             "Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
-            "The default resource pack for 1.11.x/1.12.x is: \'" + defResPackUrl + "'",
-            "The default resource pack for 1.13.x is: \'" + defResPackUrl1_13 + "\'"};
+            "The default resource pack for 1.11.x/1.12.x is: '" + defResPackUrl + "'",
+            "The default resource pack for 1.13.x is: '" + defResPackUrl1_13 + "'"};
         String[] multiplierComment = {
             "These multipliers affect the opening/closing speed of their respective doorBase types.",
             "Note that the maximum speed is limited, so beyond a certain point raising these values won't have any effect.",
@@ -217,12 +235,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         String[] consoleLoggingComment = {
             "Write errors and exceptions to console. If disabled, they will only be written to the bigdoors log. ",
             "If enabled, they will be written to both the console and the bigdoors log."};
-        String[] backupComment = {
-            "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
-            "In case anything goes wrong, you can just revert to the old version! Only the most recent backup will be kept."};
 
-//        FileConfiguration config = plugin.getConfig();
+
         IConfigReader config = new ConfigReaderSpigot(plugin.getConfig());
+
 
         enableRedstone = addNewConfigEntry(config, "allowRedstone", true, enableRedstoneComment);
 
@@ -234,8 +250,20 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         addNewConfigEntry(config, "materialBlacklist", DEFAULTBLACKLIST, blacklistComment,
                           new MaterialVerifier(materialBlacklist));
 
-        maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
-        maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
+        int maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
+        this.maxDoorCount = maxDoorCount > 0 ? OptionalInt.of(maxDoorCount) : OptionalInt.empty();
+
+        int maxBlocksToMove = addNewConfigEntry(config, "maxBlocksToMove", 100, maxBlocksToMoveComment);
+        this.maxBlocksToMove = maxBlocksToMove > 0 ? OptionalInt.of(maxBlocksToMove) : OptionalInt.empty();
+
+        int maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
+        this.maxDoorSize = maxDoorSize > 0 ? OptionalInt.of(maxDoorSize) : OptionalInt.empty();
+
+        int maxPowerBlockDistance = addNewConfigEntry(config, "maxPowerBlockDistance", -1,
+                                                      maxPowerBlockDistanceComment);
+        this.maxPowerBlockDistance = maxPowerBlockDistance > 0 ?
+                                     OptionalInt.of(maxPowerBlockDistance) : OptionalInt.empty();
+
         languageFile = addNewConfigEntry(config, "languageFile", "en_US", languageFileComment);
         checkForUpdates = addNewConfigEntry(config, "checkForUpdates", true, checkForUpdatesComment);
         autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
@@ -257,7 +285,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         resourcePack = addNewConfigEntry(config, "resourcePack", defResPackUrl1_13, resourcePackComment);
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
-        makeBackup = addNewConfigEntry(config, "makeBackup", true, backupComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
 
 
@@ -421,12 +448,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public boolean dbBackup()
-    {
-        return makeBackup;
-    }
-
-    @Override
     public int coolDown()
     {
         return coolDown;
@@ -439,9 +460,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public int maxDoorSize()
+    public OptionalInt maxDoorSize()
     {
         return maxDoorSize;
+    }
+
+    @Override
+    public OptionalInt maxPowerBlockDistance()
+    {
+        return maxPowerBlockDistance;
     }
 
     @Override
@@ -462,9 +489,15 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public int maxdoorCount()
+    public OptionalInt maxDoorCount()
     {
         return maxDoorCount;
+    }
+
+    @Override
+    public OptionalInt maxBlocksToMove()
+    {
+        return maxBlocksToMove;
     }
 
     @Override
@@ -531,7 +564,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     public double getMultiplier(final @NotNull DoorType type)
     {
         return doorMultipliers.getOrDefault(type, 0.0D);
-//        return OptionalDouble.of(doorMultipliers.get(type)).orElse(0.0D);
     }
 
     @Override
@@ -539,7 +571,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     {
         return consoleLogging;
     }
-    
+
     /**
      * Represents a class that attempts to parse a list of materials represented as Strings into a list of Materials.
      * <p>

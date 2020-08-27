@@ -49,6 +49,11 @@ public final class PLogger
     private boolean consoleLogging = false;
 
     /**
+     * Determine if debug messages should be logged or not.
+     */
+    private boolean debugLogging = true;
+
+    /**
      * The instance of this {@link PLogger}.
      */
     private static PLogger instance = new PLogger();
@@ -91,7 +96,7 @@ public final class PLogger
      *
      * @return True if this logger has been initialized.
      */
-    private boolean isInitialized()
+    public boolean isInitialized()
     {
         return logFile != null;
     }
@@ -149,6 +154,11 @@ public final class PLogger
         return messageQueue.isEmpty();
     }
 
+    public int size()
+    {
+        return messageQueue.size();
+    }
+
     /**
      * Processes the queue of messages that will be logged to the log file.
      */
@@ -195,6 +205,8 @@ public final class PLogger
      */
     private void addToMessageQueue(final @NotNull LogMessage logMessage)
     {
+        if (isInitialized() && !success)
+            throw new IllegalStateException("PLogger was not initialized successfully!");
         messageQueue.add(logMessage);
     }
 
@@ -272,6 +284,9 @@ public final class PLogger
      */
     private void logMessage(final @NotNull String msg, final @NotNull Level level, final boolean printToConsole)
     {
+        if (level == Level.FINEST && !debugLogging)
+            return;
+
         if (printToConsole)
             writeToConsole(level, msg);
         addToMessageQueue(new LogMessageString(msg));
@@ -375,6 +390,7 @@ public final class PLogger
      *
      * @param message The message to log.
      */
+    // TODO: Remove this. The level-specific stuff should be used instead.
     public void logMessage(final @NotNull String message)
     {
         addToMessageQueue(new LogMessageString(message));
@@ -408,6 +424,16 @@ public final class PLogger
     public void severe(final @NotNull String str)
     {
         logMessage(str, Level.SEVERE, true);
+    }
+
+    /**
+     * Logs a message at debug level.
+     *
+     * @param str The message to log.
+     */
+    public void debug(final @NotNull String str)
+    {
+        logMessage(str, Level.FINEST, true);
     }
 
     /**

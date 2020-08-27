@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -74,7 +75,7 @@ public final class PPlayerSpigot implements IPPlayer
     @Override
     public String toString()
     {
-        return String.format("%s (%s)", getUUID().toString(), getName());
+        return asString();
     }
 
     @Override
@@ -104,7 +105,10 @@ public final class PPlayerSpigot implements IPPlayer
         }
         catch (CloneNotSupportedException e)
         {
-            throw new Error(e);
+            // TODO: Only log to file! It's already dumped in the console because it's thrown.
+            Error er = new Error(e);
+            PLogger.get().logError(er);
+            throw er;
         }
     }
 }

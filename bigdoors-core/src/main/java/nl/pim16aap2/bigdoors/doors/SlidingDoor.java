@@ -54,6 +54,11 @@ public class SlidingDoor extends AbstractDoorBase
         this.autoOpenTime = autoOpenTime;
     }
 
+    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove)
+    {
+        this(doorData, blocksToMove, -1, -1);
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override
@@ -80,15 +85,6 @@ public class SlidingDoor extends AbstractDoorBase
                                new Vector2Di(getChunk().getX() + distanceX, getChunk().getY() + distanceZ)};
     }
 
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        return RotateDirection.NORTH;
-    }
-
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection cycleOpenDirection()
@@ -136,7 +132,7 @@ public class SlidingDoor extends AbstractDoorBase
             newMin.getZ() - minimum.getZ() : newMin.getX() - minimum.getX();
 
         doorOpeningUtility.registerBlockMover(
-            new SlidingMover(time, this, skipAnimation, finalBlocksToMove, currentToggleDir,
+            new SlidingMover(this, time, skipAnimation, finalBlocksToMove, currentToggleDir,
                              doorOpeningUtility.getMultiplier(this), responsible, newMin, newMax, cause, actionType));
     }
 

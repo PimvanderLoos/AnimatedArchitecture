@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -58,14 +57,12 @@ public final class DatabaseManager extends Restartable
      * Constructs a new {@link DatabaseManager}.
      *
      * @param restartableHolder The object managing restarts for this object.
-     * @param config            The configuration for the plugin.
      * @param dbFile            The name of the database file.
      */
-    private DatabaseManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull IConfigLoader config,
-                            final @NotNull File dbFile)
+    private DatabaseManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull File dbFile)
     {
         super(restartableHolder);
-        db = new SQLiteJDBCDriverConnection(dbFile, config);
+        db = new SQLiteJDBCDriverConnection(dbFile);
         if (db.isSingleThreaded())
             threadPool = Executors.newSingleThreadExecutor();
         else
@@ -76,15 +73,13 @@ public final class DatabaseManager extends Restartable
      * Initializes the {@link DatabaseManager}. If it has already been initialized, it'll return that instance instead.
      *
      * @param restartableHolder The object managing restarts for this object.
-     * @param config            The configuration for the plugin.
      * @param dbFile            The name of the database file.
      * @return The instance of this {@link DatabaseManager}.
      */
     @NotNull
-    public static DatabaseManager init(final @NotNull IRestartableHolder restartableHolder,
-                                       final @NotNull IConfigLoader config, final @NotNull File dbFile)
+    public static DatabaseManager init(final @NotNull IRestartableHolder restartableHolder, final @NotNull File dbFile)
     {
-        return (instance == null) ? instance = new DatabaseManager(restartableHolder, config, dbFile) : instance;
+        return (instance == null) ? instance = new DatabaseManager(restartableHolder, dbFile) : instance;
     }
 
     /**
@@ -212,9 +207,9 @@ public final class DatabaseManager extends Restartable
     {
         // Check if the name is actually the UID of the door.
         final @NotNull Pair<Boolean, Long> doorID = Util.longFromString(name);
-        if (doorID.key())
+        if (doorID.first)
             return CompletableFuture
-                .supplyAsync(() -> db.getDoor(playerUUID, doorID.value()).map(Collections::singletonList),
+                .supplyAsync(() -> db.getDoor(playerUUID, doorID.second).map(Collections::singletonList),
                              threadPool);
 
         return name == null ? getDoors(playerUUID) :
@@ -584,5 +579,16 @@ public final class DatabaseManager extends Restartable
     CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(final long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool);
+    }
+
+    /**
+     * ONLY used for testing.
+     */
+    private DatabaseManager(final @NotNull IRestartableHolder restartableHolder)
+    {
+        super(restartableHolder);
+        threadPool = Executors.newSingleThreadExecutor();
+        db = null;
+        instance = this;
     }
 }

@@ -119,7 +119,7 @@ class GUIPageDoorList implements IGUIPage
             DoorType doorType = currentDoor.getDoorType();
             lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(currentDoor.getDoorUID())));
 //            lore.add(messages.getString(EDoorType.getMessage(EDoorType)));
-            lore.add(doorType.getTypeName());
+            lore.add(doorType.getSimpleName());
             GUIItem item = new GUIItem(
                 GUI.DOORTYPES[(int) (long) DoorTypeManager.get().getDoorTypeID(doorType).orElse(0L)],
                 currentDoor.getName(), lore, 1);

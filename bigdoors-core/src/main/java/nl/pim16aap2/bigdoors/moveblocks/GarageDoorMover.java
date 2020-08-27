@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.GarageDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -34,17 +33,17 @@ public class GarageDoorMover extends BlockMover
     private BiFunction<PBlockData, Double, Vector3Dd> getVector;
     private int xLen, yLen, zLen;
     private boolean NS = false;
+    protected int blocksToMove;
 
     private double step;
 
-    public GarageDoorMover(final @NotNull AbstractDoorBase door, final double time, final double multiplier,
-                           final boolean skipAnimation, final @NotNull PBlockFace currentDirection,
+    public GarageDoorMover(final @NotNull GarageDoor door, final double time, final double multiplier,
+                           final boolean skipAnimation,
                            final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
                            final @NotNull IVector3DiConst finalMin, final @NotNull IVector3DiConst finalMax,
                            final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, currentDirection, rotateDirection, -1, player, finalMin, finalMax, cause,
-              actionType);
+        super(door, time, skipAnimation, rotateDirection, player, finalMin, finalMax, cause, actionType);
 
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
@@ -86,15 +85,16 @@ public class GarageDoorMover extends BlockMover
         yLen = yMax - yMin;
         zLen = zMax - zMin;
 
-        if (currentDirection.equals(PBlockFace.UP))
+        if (!door.isOpen())
         {
-            super.blocksMoved = yLen + 1;
+            blocksToMove = yLen + 1;
             getVector = this::getVectorUp;
         }
         else
         {
-            super.blocksMoved = (xLen + 1) * directionVec.getX() + (yLen + 1) * directionVec.getY()
-                + (zLen + 1) * directionVec.getZ();
+            blocksToMove = Math.abs((xLen + 1) * directionVec.getX()
+                                        + (yLen + 1) * directionVec.getY()
+                                        + (zLen + 1) * directionVec.getZ());
             getVector = getVectorTmp;
         }
 
@@ -108,7 +108,7 @@ public class GarageDoorMover extends BlockMover
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
-        step = getBlocksMoved() / ((float) super.endCount);
+        step = blocksToMove / ((float) super.endCount);
         super.soundActive = new PSoundDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
@@ -209,7 +209,7 @@ public class GarageDoorMover extends BlockMover
     {
         double newX, newY, newZ;
 
-        if (currentDirection.equals(PBlockFace.UP))
+        if (!door.isOpen())
         {
             newX = xAxis + (1 + yLen - radius) * directionVec.getX();
             newY = resultHeight;
@@ -232,11 +232,6 @@ public class GarageDoorMover extends BlockMover
             newY -= 2;
         }
         return locationFactory.create(world, newX, newY, newZ);
-    }
-
-    private double getBlocksMoved()
-    {
-        return Math.abs(blocksMoved);
     }
 
     @Override
@@ -269,7 +264,7 @@ public class GarageDoorMover extends BlockMover
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
-        if (currentDirection.equals(PBlockFace.UP))
+        if (!door.isOpen())
         {
             final float height = door.getMaximum().getY();
             return height - yAxis;

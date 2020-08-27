@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors;
 import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -29,6 +30,7 @@ public class GarageDoor extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
     private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
+
     /**
      * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
      * axis
@@ -43,33 +45,26 @@ public class GarageDoor extends AbstractDoorBase
     @Getter(onMethod = @__({@Override}))
     protected final boolean northSouthAligned;
 
-    /**
-     * Gets the side the flag is on flag relative to it rotation point ("engine", i.e. the point).
-     *
-     * @return The side the {@link IDoorBase} is on relative to the engine
-     */
-    @Getter
-    @NotNull
-    protected PBlockFace currentDirection;
-
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoCloseTime;
 
-    /** {@inheritDoc} */
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     protected int autoOpenTime;
 
     public GarageDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
-                      final boolean northSouthAligned, final @NotNull PBlockFace currentDirection)
+                      final boolean northSouthAligned)
     {
         super(doorData);
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
         this.northSouthAligned = northSouthAligned;
-        this.currentDirection = currentDirection;
+    }
+
+    public GarageDoor(final @NotNull DoorData doorData, final boolean northSouthAligned)
+    {
+        this(doorData, -1, -1, northSouthAligned);
     }
 
     /** {@inheritDoc} */
@@ -97,26 +92,14 @@ public class GarageDoor extends AbstractDoorBase
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
     }
 
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        if (isNorthSouthAligned())
-            return RotateDirection.EAST;
-        else
-            return RotateDirection.NORTH;
-    }
-
-    /** {@inheritDoc} */
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
     {
         RotateDirection rotDir = getOpenDir();
-        if (getCurrentDirection().equals(PBlockFace.UP))
-            return rotDir;
-        return RotateDirection.getOpposite(Util.getRotateDirection(getCurrentDirection()));
+        if (isOpen())
+            return RotateDirection.getOpposite(getOpenDir());
+        return rotDir;
     }
 
     @Override
@@ -146,7 +129,7 @@ public class GarageDoor extends AbstractDoorBase
             return false;
         }
 
-        if (getCurrentDirection().equals(PBlockFace.UP))
+        if (!isOpen())
         {
             minY = maxY = maximum.getY() + 1;
 
@@ -219,8 +202,7 @@ public class GarageDoor extends AbstractDoorBase
 
         doorOpeningUtility.registerBlockMover(
             new GarageDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), skipAnimation,
-                                getCurrentDirection(), getCurrentToggleDir(), responsible, newMin, newMax, cause,
-                                actionType));
+                                getCurrentToggleDir(), responsible, newMin, newMax, cause, actionType));
     }
 
     @Override
@@ -233,8 +215,7 @@ public class GarageDoor extends AbstractDoorBase
             return false;
 
         final @NotNull GarageDoor other = (GarageDoor) o;
-        return currentDirection.equals(other.currentDirection) &&
-            northSouthAligned == other.northSouthAligned &&
+        return northSouthAligned == other.northSouthAligned &&
             autoOpenTime == other.autoOpenTime &&
             autoCloseTime == other.autoCloseTime;
     }

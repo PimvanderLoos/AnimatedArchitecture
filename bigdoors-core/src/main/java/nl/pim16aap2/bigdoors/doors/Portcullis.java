@@ -55,6 +55,11 @@ public class Portcullis extends AbstractDoorBase
         this.autoOpenTime = autoOpenTime;
     }
 
+    public Portcullis(final @NotNull DoorData doorData, final int blocksToMove)
+    {
+        this(doorData, blocksToMove, -1, -1);
+    }
+
     /** {@inheritDoc} */
     @NotNull
     @Override
@@ -78,16 +83,7 @@ public class Portcullis extends AbstractDoorBase
     {
         return calculateCurrentChunkRange();
     }
-
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public RotateDirection getDefaultOpenDirection()
-    {
-        return RotateDirection.UP;
-    }
-
-    /** {@inheritDoc} */
+    
     @NotNull
     @Override
     public RotateDirection getCurrentToggleDir()
@@ -122,7 +118,7 @@ public class Portcullis extends AbstractDoorBase
 
         int blocksToMove = newMin.getY() - minimum.getY();
         doorOpeningUtility.registerBlockMover(
-            new VerticalMover(time, this, skipAnimation, blocksToMove, doorOpeningUtility.getMultiplier(this),
+            new VerticalMover(this, time, skipAnimation, blocksToMove, doorOpeningUtility.getMultiplier(this),
                               responsible, newMin, newMax, cause, actionType));
     }
 

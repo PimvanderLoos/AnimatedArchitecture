@@ -4,11 +4,15 @@ import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,6 +57,51 @@ public final class Util
             }
             toRotateDirection.put(pbf, mappedRotDir);
             toPBlockFace.put(mappedRotDir, pbf);
+        }
+    }
+
+    public static OptionalInt parseInt(final @Nullable String str)
+    {
+        if (str == null)
+            return OptionalInt.empty();
+
+        try
+        {
+            return OptionalInt.of(Integer.parseInt(str));
+        }
+        catch (NumberFormatException e)
+        {
+            return OptionalInt.empty();
+        }
+    }
+
+    public static OptionalDouble parseDouble(final @Nullable String str)
+    {
+        if (str == null)
+            return OptionalDouble.empty();
+
+        try
+        {
+            return OptionalDouble.of(Double.parseDouble(str));
+        }
+        catch (NumberFormatException e)
+        {
+            return OptionalDouble.empty();
+        }
+    }
+
+    public static OptionalLong parseLong(final @Nullable String str)
+    {
+        if (str == null)
+            return OptionalLong.empty();
+
+        try
+        {
+            return OptionalLong.of(Long.parseLong(str));
+        }
+        catch (NumberFormatException e)
+        {
+            return OptionalLong.empty();
         }
     }
 
@@ -162,8 +211,8 @@ public final class Util
     }
 
     /**
-     * Check if a given string is a valid door name. Numerical names aren't allowed, to make sure they don't get
-     * confused for doorUIDs.
+     * Check if a given string is a valid door name. Numerical names aren't allowed to make sure they don't get confused
+     * for doorUIDs.
      *
      * @param name The name to test for validity,
      * @return True if the name is allowed.

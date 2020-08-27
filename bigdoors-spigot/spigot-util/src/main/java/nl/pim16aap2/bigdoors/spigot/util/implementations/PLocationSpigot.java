@@ -4,9 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +35,7 @@ public final class PLocationSpigot implements IPLocation
     public PLocationSpigot(final @NotNull IPWorld world, final double x, final double y, final double z)
     {
         final @Nullable World bukkitWorld = world instanceof PWorldSpigot ?
-                                            ((PWorldSpigot) world).getBukkitWorld() : null;
+                                            ((PWorldSpigot) world).getBukkitWorld() : Bukkit.getWorld(world.getUID());
         location = new Location(bukkitWorld, x, y, z);
         this.world = world;
     }
@@ -146,18 +148,6 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    public String toIntPositionString()
-    {
-        return String.format("(%d;%d;%d)", getBlockX(), getBlockY(), getBlockZ());
-    }
-
-    @Override
-    public String toDoublePositionString()
-    {
-        return String.format("(%.2f;%.2f;%.2f)", getX(), getY(), getZ());
-    }
-
-    @Override
     public boolean equals(Object o)
     {
         if (this == o)
@@ -189,7 +179,10 @@ public final class PLocationSpigot implements IPLocation
         }
         catch (CloneNotSupportedException e)
         {
-            throw new Error(e);
+            // TODO: Only log to file! It's already dumped in the console because it's thrown.
+            Error er = new Error(e);
+            PLogger.get().logError(er);
+            throw er;
         }
     }
 }
