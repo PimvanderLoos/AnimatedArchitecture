@@ -181,7 +181,7 @@ public abstract class DoorType
     {
         if (typeData.length != getParameters().size())
         {
-            PLogger.get().logException(new IllegalArgumentException(
+            PLogger.get().logThrowable(new IllegalArgumentException(
                 "DoorType " + toString() + " Expects " + getParameters().size() + " parameters but received: " +
                     typeData.length));
             return Optional.empty();
@@ -192,7 +192,7 @@ public abstract class DoorType
         }
         catch (Exception e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return Optional.empty();
     }
@@ -211,7 +211,7 @@ public abstract class DoorType
         }
         catch (Exception e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return Optional.empty();
     }

@@ -84,7 +84,7 @@ public final class ToolUserManager extends Restartable
 
         if (toolUsers.size() != 0)
         {
-            PLogger.get().logException(new IllegalStateException("Failed to properly remove ToolUsers!"));
+            PLogger.get().logThrowable(new IllegalStateException("Failed to properly remove ToolUsers!"));
             toolUsers.clear();
         }
     }
@@ -118,14 +118,14 @@ public final class ToolUserManager extends Restartable
         final @Nullable Pair<ToolUser, TimerTask> pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new IllegalStateException("Trying to start a tool user even though it wasn't registered, somehow!"));
             return;
         }
 
         if (pair.second != null)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new IllegalStateException(
                     "Trying to create a timer for a tooluser even though it already has one! Aborting..."));
             abortPair(toolUsers.get(toolUser.getPlayer().getUUID()));

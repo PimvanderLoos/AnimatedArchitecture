@@ -11,7 +11,7 @@ public final class TestMessagingInterface implements IMessagingInterface
     @Override
     public void writeToConsole(final @NotNull Level level, final @NotNull String message)
     {
-        System.out.println(level.toString() + ", " + message);
+        System.out.println(level.toString() + ": " + message);
     }
 
     @Override

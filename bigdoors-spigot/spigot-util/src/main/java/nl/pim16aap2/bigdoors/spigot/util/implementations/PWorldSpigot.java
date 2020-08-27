@@ -27,7 +27,7 @@ public final class PWorldSpigot implements IPWorld
         uuid = worldUUID;
         final @Nullable World bukkitWorld = Bukkit.getWorld(worldUUID);
         if (bukkitWorld == null)
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new NullPointerException("World \"" + worldUUID.toString() + "\" could not be found!"));
         world = bukkitWorld;
     }
@@ -108,7 +108,7 @@ public final class PWorldSpigot implements IPWorld
         {
             // TODO: Only log to file! It's already dumped in the console because it's thrown.
             Error er = new Error(e);
-            PLogger.get().logError(er);
+            PLogger.get().logThrowable(er);
             throw er;
         }
     }

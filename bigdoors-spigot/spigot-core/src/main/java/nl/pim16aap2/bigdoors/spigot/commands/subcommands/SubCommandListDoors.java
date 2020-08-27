@@ -80,7 +80,7 @@ public class SubCommandListDoors extends SubCommand
                         }
                         catch (InterruptedException | ExecutionException e)
                         {
-                            plugin.getPLogger().logException(e);
+                            plugin.getPLogger().logThrowable(e);
                         }
                     }
                     execute(sender, doorList);

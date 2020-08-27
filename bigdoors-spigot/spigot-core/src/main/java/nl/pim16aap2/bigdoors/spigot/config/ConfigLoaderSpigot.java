@@ -383,14 +383,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             File dataFolder = plugin.getDataFolder();
             if (!dataFolder.exists() && !dataFolder.mkdirs())
             {
-                logger.logException(new IOException("Failed to create folder: \"" + dataFolder.toString() + "\""));
+                logger.logThrowable(new IOException("Failed to create folder: \"" + dataFolder.toString() + "\""));
                 return;
             }
 
             File saveTo = new File(plugin.getDataFolder(), "config.yml");
             if (!saveTo.exists() && !saveTo.createNewFile())
             {
-                logger.logException(new IOException("Failed to create file: \"" + saveTo.toString() + "\""));
+                logger.logThrowable(new IOException("Failed to create file: \"" + saveTo.toString() + "\""));
                 return;
             }
 
@@ -421,7 +421,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             }
             catch (IOException e)
             {
-                logger.logException(e, "Could not write to config.yml! "
+                logger.logThrowable(e, "Could not write to config.yml! "
                     + "Please contact pim16aap2 and show him the following stacktrace:");
             }
 
@@ -429,7 +429,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         }
         catch (IOException e)
         {
-            logger.logException(e, "Could not save config.yml! "
+            logger.logThrowable(e, "Could not save config.yml! "
                 + "Please contact pim16aap2 and show him the following stacktrace:");
         }
     }

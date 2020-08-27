@@ -81,7 +81,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
             return false;
         }
@@ -156,7 +156,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e, "Failed to determine door creation price! Please contact pim16aap2! "
+            plugin.getPLogger().logThrowable(e, "Failed to determine door creation price! Please contact pim16aap2! "
                 + "Include this: \"" + formula + "\" and stacktrace:");
             return 0.0d;
         }
@@ -171,7 +171,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (!typeID.isPresent())
         {
             PLogger.get()
-                   .logException(new IllegalStateException("Trying to calculate the price for an unregistered door!"));
+                   .logThrowable(new IllegalStateException("Trying to calculate the price for an unregistered door!"));
             return OptionalDouble.empty();
         }
 
@@ -197,7 +197,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e, "Failed to check balance of player \"" + player.getName() +
+            plugin.getPLogger().logThrowable(e, "Failed to check balance of player \"" + player.getName() +
                 "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
         return true;
@@ -223,7 +223,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e, "Failed to subtract money from player \"" + player.getName() +
+            plugin.getPLogger().logThrowable(e, "Failed to subtract money from player \"" + player.getName() +
                 "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
         return true;
@@ -278,7 +278,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
             return false;
         }
     }
@@ -303,7 +303,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
             return false;
         }
     }
@@ -327,7 +327,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString()));
             return OptionalInt.empty();
         }
@@ -351,7 +351,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString()));
             return false;
         }
@@ -365,7 +365,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString()));
             return false;
         }

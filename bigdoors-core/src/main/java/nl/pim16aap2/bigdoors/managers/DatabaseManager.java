@@ -381,7 +381,7 @@ public final class DatabaseManager extends Restartable
                 }
                 catch (InterruptedException | ExecutionException e)
                 {
-                    PLogger.get().logException(e);
+                    PLogger.get().logThrowable(e);
                     playerPermission = Integer.MAX_VALUE;
                 }
                 return playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);

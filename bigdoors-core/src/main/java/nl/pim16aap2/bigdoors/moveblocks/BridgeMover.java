@@ -86,7 +86,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
             default:
                 angle = 0;
                 rotator = null;
-                PLogger.get().logException(new IllegalArgumentException(
+                PLogger.get().logThrowable(new IllegalArgumentException(
                     "RotateDirection \"" + rotateDirection.name() + " is not valid for this type!"));
                 return;
         }

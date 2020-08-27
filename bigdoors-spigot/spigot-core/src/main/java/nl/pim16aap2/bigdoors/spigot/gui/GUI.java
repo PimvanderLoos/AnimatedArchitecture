@@ -105,7 +105,7 @@ public class GUI
     void update()
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
-            plugin.getPLogger().logException(new IllegalStateException("NOT ON THE MAIN THREAD!"));
+            plugin.getPLogger().logThrowable(new IllegalStateException("NOT ON THE MAIN THREAD!"));
         isRefreshing = true;
         items.clear();
         maxPageCount = doorBases.size() / (CHESTSIZE - 9) + ((doorBases.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
@@ -114,7 +114,7 @@ public class GUI
         Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(guiHolder);
         if (bukkitPlayer == null)
         {
-            PLogger.get().logException(new NullPointerException("Player \"" + guiHolder.toString() + "\" is null!"));
+            PLogger.get().logThrowable(new NullPointerException("Player \"" + guiHolder.toString() + "\" is null!"));
             return;
         }
 
@@ -144,7 +144,7 @@ public class GUI
         }
         catch (InterruptedException | ExecutionException e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
             return false;
         }
         return true;

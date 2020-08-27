@@ -32,7 +32,7 @@ public final class PlatformManagerSpigot
         }
         catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
             version = Version.ERROR;
             spigotPlatformTmp = null;
         }
@@ -66,7 +66,7 @@ public final class PlatformManagerSpigot
     {
         if (spigotPlatform == null)
         {
-            PLogger.get().logException(new NullPointerException("Could not load Spigot platform for " +
+            PLogger.get().logThrowable(new NullPointerException("Could not load Spigot platform for " +
                                                                     "version " + spigotVersion.name()));
             return false;
         }

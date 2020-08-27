@@ -60,7 +60,7 @@ public class GUIListener implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 
@@ -90,7 +90,7 @@ public class GUIListener implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 }

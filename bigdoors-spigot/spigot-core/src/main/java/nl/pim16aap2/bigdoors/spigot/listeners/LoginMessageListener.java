@@ -54,7 +54,7 @@ public final class LoginMessageListener implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 }

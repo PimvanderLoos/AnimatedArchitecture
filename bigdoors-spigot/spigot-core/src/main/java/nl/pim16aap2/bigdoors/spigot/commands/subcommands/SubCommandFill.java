@@ -38,7 +38,7 @@ public class SubCommandFill extends SubCommand
         World bukkitWorld = SpigotAdapter.getBukkitWorld(door.getWorld());
         if (bukkitWorld == null)
         {
-            PLogger.get().logException(new NullPointerException("World " + door.getWorld().toString() + " is null!"));
+            PLogger.get().logThrowable(new NullPointerException("World " + door.getWorld().toString() + " is null!"));
             return true;
         }
 

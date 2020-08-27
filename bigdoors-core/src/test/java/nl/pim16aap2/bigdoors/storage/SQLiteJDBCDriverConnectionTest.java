@@ -121,8 +121,8 @@ public class SQLiteJDBCDriverConnectionTest
     public static void basicSetup()
     {
         UnitTestUtil.setupStatic();
-        PLogger.get().setConsoleLogging(true);
-        PLogger.get().setLogLevel(Level.SEVERE);
+        PLogger.get().setConsoleLogLevel(Level.FINEST);
+        PLogger.get().setFileLogLevel(Level.SEVERE);
     }
 
     // Initialize mocking.
@@ -196,7 +196,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (Exception e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
     }
 
@@ -250,7 +250,7 @@ public class SQLiteJDBCDriverConnectionTest
         final @NotNull File oldDB = new File(DB_FILE.toString() + ".FINISHED");
         final @NotNull File oldLog = new File(UnitTestUtil.LOG_FILE.toString() + ".FINISHED");
 
-        PLogger.get().setConsoleLogging(true);
+        PLogger.get().setConsoleLogLevel(Level.FINEST);
         if (oldDB.exists())
             oldDB.delete();
         if (dbFileBackup.exists())
@@ -262,7 +262,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (IOException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         try
         {
@@ -414,7 +414,7 @@ public class SQLiteJDBCDriverConnectionTest
         UnitTestUtil.waitForLogger();
         Assert.assertEquals(UnitTestUtil.LOG_FILE.length(), 0);
 
-        PLogger.get().setLogLevel(Level.ALL);
+        PLogger.get().setFileLogLevel(Level.ALL);
 
         PLogger.get().logMessage(Level.INFO, "================================\nStarting failure testing now:");
         testFailures();
@@ -827,7 +827,7 @@ public class SQLiteJDBCDriverConnectionTest
         throws NoSuchFieldException, IllegalAccessException
     {
         // Disable console logging of errors as it's the point of this test. This way I won't get scared by errors in the console.
-        PLogger.get().setConsoleLogging(false);
+        PLogger.get().setConsoleLogLevel(Level.OFF);
 
         long previousLogSize = verifyLogSizeIncrease(-1L);
         // Verify database disabling works as intended.
@@ -846,6 +846,6 @@ public class SQLiteJDBCDriverConnectionTest
         // Make sure new errors were added to the log file.
         previousLogSize = verifyLogSizeIncrease(previousLogSize);
 
-        PLogger.get().setConsoleLogging(true); // Enable console logging again after the test.
+        PLogger.get().setConsoleLogLevel(Level.FINE); // Enable console logging again after the test.
     }
 }

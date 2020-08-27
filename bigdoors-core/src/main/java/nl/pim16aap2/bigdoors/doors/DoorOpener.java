@@ -65,7 +65,7 @@ public final class DoorOpener
             {
                 if (!doorOpt.isPresent())
                 {
-                    PLogger.get().logException(new NullPointerException("Received empty Optional in toggle request!"));
+                    PLogger.get().logThrowable(new NullPointerException("Received empty Optional in toggle request!"));
                     return CompletableFuture.completedFuture(DoorToggleResult.ERROR);
                 }
                 return animateDoorSendToMainThread(doorOpt.get(), cause, messageReceiver, responsible, time,
@@ -199,7 +199,7 @@ public final class DoorOpener
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
             PLogger.get()
-                   .logException(new IllegalThreadStateException("Doors can only be animated on the main thread!"));
+                   .logThrowable(new IllegalThreadStateException("Doors can only be animated on the main thread!"));
             return DoorToggleResult.ERROR;
         }
 

@@ -66,7 +66,7 @@ public class SubCommandRemoveOwner extends SubCommand
                             }
                             catch (InterruptedException | ExecutionException e)
                             {
-                                plugin.getPLogger().logException(e);
+                                plugin.getPLogger().logThrowable(e);
                                 hasPermission = false;
                             }
                         }
@@ -86,7 +86,7 @@ public class SubCommandRemoveOwner extends SubCommand
                         }
                         catch (InterruptedException | ExecutionException e)
                         {
-                            plugin.getPLogger().logException(e);
+                            plugin.getPLogger().logThrowable(e);
                             successfulRemoval = false;
                         }
                         if (successfulRemoval)

@@ -47,7 +47,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
         catch (NoSuchMethodException | SecurityException e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 
@@ -60,7 +60,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
         return false;
     }

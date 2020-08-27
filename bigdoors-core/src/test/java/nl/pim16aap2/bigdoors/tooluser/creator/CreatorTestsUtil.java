@@ -76,8 +76,8 @@ class CreatorTestsUtil
     @BeforeAll
     public static void basicSetup()
     {
-        PLogger.get().setConsoleLogging(true);
-        PLogger.get().setLogLevel(Level.SEVERE);
+        PLogger.get().setConsoleLogLevel(Level.FINEST);
+        PLogger.get().setFileLogLevel(Level.SEVERE);
     }
 
     protected @NotNull Vector3Di min = new Vector3Di(10, 15, 20);

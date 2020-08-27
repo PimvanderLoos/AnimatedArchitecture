@@ -70,7 +70,7 @@ public class ChunkListener implements Listener
         {
             success = false;
             plugin.getPLogger()
-                  .logException(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+                  .logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
         }
     }
 
@@ -132,7 +132,7 @@ public class ChunkListener implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 
@@ -153,7 +153,7 @@ public class ChunkListener implements Listener
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
             plugin.getPLogger()
-                  .logException(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+                  .logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
             return false;
         }
     }

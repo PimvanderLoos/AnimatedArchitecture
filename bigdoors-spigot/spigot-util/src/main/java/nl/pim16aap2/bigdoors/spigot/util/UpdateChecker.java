@@ -124,7 +124,7 @@ public final class UpdateChecker
                     catch (NumberFormatException e)
                     {
                         PLogger.get()
-                               .logException(e, "Failed to obtain age of update from ageString: \"" + ageString + "\"");
+                               .logThrowable(e, "Failed to obtain age of update from ageString: \"" + ageString + "\"");
                     }
 
 
@@ -232,7 +232,7 @@ public final class UpdateChecker
 
             if (httpConnection.getResponseCode() != 200)
             {
-                logger.logException(
+                logger.logThrowable(
                     new RuntimeException("Download returned status #" + httpConnection.getResponseCode() +
                                              "\n for URL: " + downloadURL));
                 return false;
@@ -257,7 +257,7 @@ public final class UpdateChecker
         }
         catch (Exception e)
         {
-            logger.logException(e);
+            logger.logThrowable(e);
         }
         return downloadSuccessfull;
     }

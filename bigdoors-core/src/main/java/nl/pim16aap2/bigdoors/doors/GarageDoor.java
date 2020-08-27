@@ -118,7 +118,7 @@ public class GarageDoor extends AbstractDoorBase
         }
         catch (Exception e)
         {
-            PLogger.get().logException(new IllegalArgumentException(
+            PLogger.get().logThrowable(new IllegalArgumentException(
                 "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
                     getDoorType().toString() + "\""));
             return false;

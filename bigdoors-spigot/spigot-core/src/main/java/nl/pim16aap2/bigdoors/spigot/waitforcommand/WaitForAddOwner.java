@@ -44,7 +44,7 @@ public class WaitForAddOwner extends WaitForCommand
         }
         catch (ExecutionException | InterruptedException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return false;
     }

@@ -113,7 +113,7 @@ public class SubCommandToggle extends SubCommand
                     }
                     catch (InterruptedException | ExecutionException e)
                     {
-                        plugin.getPLogger().logException(e, "Failed to obtain door \"" + args[currentPos] + "\"");
+                        plugin.getPLogger().logThrowable(e, "Failed to obtain door \"" + args[currentPos] + "\"");
                     }
                 }
                 return finalTime;

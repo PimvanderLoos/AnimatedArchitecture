@@ -96,7 +96,7 @@ public class LoginResourcePackListener extends Restartable implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 }

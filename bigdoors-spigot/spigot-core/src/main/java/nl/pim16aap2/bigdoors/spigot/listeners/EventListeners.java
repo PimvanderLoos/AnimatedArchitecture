@@ -76,7 +76,7 @@ public class EventListeners implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 
@@ -94,7 +94,7 @@ public class EventListeners implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 
@@ -132,7 +132,7 @@ public class EventListeners implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 
@@ -164,7 +164,7 @@ public class EventListeners implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 
@@ -188,7 +188,7 @@ public class EventListeners implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 
@@ -218,7 +218,7 @@ public class EventListeners implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
     }
 }

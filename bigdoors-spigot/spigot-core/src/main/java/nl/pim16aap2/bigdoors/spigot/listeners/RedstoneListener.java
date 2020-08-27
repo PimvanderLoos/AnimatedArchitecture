@@ -140,7 +140,7 @@ public class RedstoneListener extends Restartable implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logException(e, "Exception thrown while handling redstone event!");
+            plugin.getPLogger().logThrowable(e, "Exception thrown while handling redstone event!");
         }
     }
 

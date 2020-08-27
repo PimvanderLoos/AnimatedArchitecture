@@ -129,7 +129,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
         World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
         if (bukkitWorld == null)
         {
-            PLogger.get().logException(new NullPointerException());
+            PLogger.get().logThrowable(new NullPointerException());
             return;
         }
 

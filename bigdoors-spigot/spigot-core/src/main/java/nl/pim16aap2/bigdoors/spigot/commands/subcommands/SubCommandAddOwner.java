@@ -79,7 +79,7 @@ public class SubCommandAddOwner extends SubCommand
                         }
                         catch (ExecutionException | InterruptedException e)
                         {
-                            PLogger.get().logException(e);
+                            PLogger.get().logThrowable(e);
                         }
                     });
         return true;

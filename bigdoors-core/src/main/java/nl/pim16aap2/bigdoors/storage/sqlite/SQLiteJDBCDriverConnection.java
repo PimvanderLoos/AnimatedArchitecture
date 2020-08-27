@@ -132,7 +132,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         if (!databaseState.equals(state))
         {
-            PLogger.get().logException(new IllegalStateException(
+            PLogger.get().logThrowable(new IllegalStateException(
                 "The database is in an incorrect state: " + databaseState.name() +
                     ". All database operations are disabled!"));
             return null;
@@ -146,10 +146,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            PLogger.get().logException(e, "Failed to open connection!");
+            PLogger.get().logThrowable(e, "Failed to open connection!");
         }
         if (conn == null)
-            PLogger.get().logException(new NullPointerException("Could not open connection!"));
+            PLogger.get().logThrowable(new NullPointerException("Could not open connection!"));
         return conn;
     }
 
@@ -201,7 +201,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             {
                 if (!dbFile.getParentFile().exists() && !dbFile.getParentFile().mkdirs())
                 {
-                    PLogger.get().logException(
+                    PLogger.get().logThrowable(
                         new IOException(
                             "Failed to create directory \"" + dbFile.getParentFile().toString() + "\""));
                     databaseState = DatabaseState.ERROR;
@@ -209,7 +209,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 }
                 if (!dbFile.createNewFile())
                 {
-                    PLogger.get().logException(new IOException("Failed to create file \"" + dbFile.toString() + "\""));
+                    PLogger.get().logThrowable(new IOException("Failed to create file \"" + dbFile.toString() + "\""));
                     databaseState = DatabaseState.ERROR;
                     return;
                 }
@@ -218,7 +218,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             catch (IOException e)
             {
                 PLogger.get().severe("File write error: " + dbFile);
-                PLogger.get().logException(e);
+                PLogger.get().logThrowable(e);
                 databaseState = DatabaseState.ERROR;
                 return;
             }
@@ -250,7 +250,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -265,7 +265,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull Optional<DoorType> doorType = DoorTypeManager.get().getDoorType(doorBaseRS.getInt("doorType"));
         if (!doorType.isPresent())
         {
-            PLogger.get().logException(new NullPointerException(
+            PLogger.get().logThrowable(new NullPointerException(
                 "Failed to obtain door type of door: " + doorUID + ", typeID: " + doorBaseRS.getInt("doorType")));
             return Optional.empty();
         }
@@ -356,7 +356,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull String typeTableName = getTableNameOfType(doorType);
         if (!IStorage.isValidTableName(typeTableName))
         {
-            PLogger.get().logException(new IllegalArgumentException(
+            PLogger.get().logThrowable(new IllegalArgumentException(
                 "Invalid table name in database: \"" + typeTableName + "\". Please use only alphanumeric characters."));
             return -1;
         }
@@ -368,7 +368,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                                 .setString(4, typeTableName));
         if (updateStatus == -1)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new SQLException("Failed to create definition table for door type: \"" + typeTableName + "\""));
             return -1;
         }
@@ -385,7 +385,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         if (!result.isPresent())
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new SQLException("Failed to obtain ID and typeTableName for door type: \"" + typeTableName + "\""));
             return -1;
         }
@@ -405,7 +405,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         // If the table creation failed, delete the entry from the DoorType table.
         if (insertStatus == -1)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new SQLException("Failed to create type table: \"" + typeTableName + "\""));
             executeUpdate(SQLStatement.DELETE_DOOR_TYPE.constructPPreparedStatement().setLong(1, result.get().first));
             return -1;
@@ -419,7 +419,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final long typeID = DoorTypeManager.get().getDoorTypeID(doorType).orElse(-1L);
         if (typeID == -1)
         {
-            PLogger.get().logException(new IllegalStateException(
+            PLogger.get().logThrowable(new IllegalStateException(
                 "Trying to delete door type: " + doorType.toString() +
                     ", but it is not registered! Please register it first."));
             return false;
@@ -428,7 +428,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull String typeTableName = getTableNameOfType(doorType);
         if (!IStorage.isValidTableName(typeTableName))
         {
-            PLogger.get().logException(new IllegalArgumentException(
+            PLogger.get().logThrowable(new IllegalArgumentException(
                 "Invalid table name in database: \"" + typeTableName + "\". Please use only alphanumeric characters."));
             return false;
         }
@@ -478,7 +478,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull Optional<Object[]> typeDataOpt = door.getDoorType().getTypeData(door);
         if (!typeDataOpt.isPresent())
         {
-            PLogger.get().logException(new IllegalArgumentException(
+            PLogger.get().logThrowable(new IllegalArgumentException(
                 "Failed to update door " + door.getDoorUID() + ": Could not get type-specific data!"));
             return false;
         }
@@ -486,7 +486,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull OptionalLong doorTypeID = DoorTypeManager.get().getDoorTypeID(door.getDoorType());
         if (!doorTypeID.isPresent())
         {
-            PLogger.get().logException(new SQLException(
+            PLogger.get().logThrowable(new SQLException(
                 "Failed to update type-data of door: \"" + door.getDoorUID() + "\"! Reason: DoorType not registered!"));
             return false;
         }
@@ -495,7 +495,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             = getTypeDataUpdateStatement(door.getDoorType(), doorTypeID.getAsLong());
         if (!typeSpecificDataUpdateStatementOpt.isPresent())
         {
-            PLogger.get().logException(new NullPointerException("Failed to obtain type-specific update statement " +
+            PLogger.get().logThrowable(new NullPointerException("Failed to obtain type-specific update statement " +
                                                                     "for type with ID: " + doorTypeID));
             return false;
         }
@@ -577,7 +577,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             = getTypeSpecificDataInsertStatement(door.getDoorType(), doorTypeID);
         if (!typeSpecificDataInsertStatementOpt.isPresent())
         {
-            PLogger.get().logException(new NullPointerException("Failed to obtain type-specific insertion statement " +
+            PLogger.get().logThrowable(new NullPointerException("Failed to obtain type-specific insertion statement " +
                                                                     "for type with ID: " + doorTypeID));
             return -1;
         }
@@ -644,7 +644,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull Optional<Object[]> typeSpecificDataOpt = door.getDoorType().getTypeData(door);
         if (!typeSpecificDataOpt.isPresent())
         {
-            PLogger.get().logException(new IllegalArgumentException(
+            PLogger.get().logThrowable(new IllegalArgumentException(
                 "Could not get type-specific data for a new door of type: " + door.getDoorType().toString()));
             return false;
         }
@@ -653,7 +653,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         if (doorTypeID == -1)
         {
             PLogger.get()
-                   .logException(new SQLException("Could not find DoorType: " + door.getDoorType().toString()));
+                   .logThrowable(new SQLException("Could not find DoorType: " + door.getDoorType().toString()));
             return false;
         }
 
@@ -700,7 +700,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         if (!DoorTypeManager.get().isRegistered(doorBaseRS.getInt("doorType")))
         {
-            PLogger.get().logException(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
+            PLogger.get().logThrowable(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
                                                                      " has not been registered (yet)!"));
             return Optional.empty();
         }
@@ -737,7 +737,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             if (!DoorTypeManager.get().isRegistered(doorBaseRS.getInt("doorType")))
             {
-                PLogger.get().logException(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
+                PLogger.get().logThrowable(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
                                                                          " has not been registered (yet)!"));
                 continue;
             }
@@ -1051,7 +1051,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return -1;
     }
@@ -1072,7 +1072,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return -1;
     }
@@ -1097,7 +1097,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return -1;
     }
@@ -1123,12 +1123,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
             catch (SQLException ex)
             {
-                PLogger.get().logException(ex);
+                PLogger.get().logThrowable(ex);
             }
         }
         catch (SQLException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return -1;
     }
@@ -1171,7 +1171,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return fallback;
     }
@@ -1201,7 +1201,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return fallback;
     }
@@ -1246,12 +1246,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             {
                 if (failureAction == FailureAction.ROLLBACK)
                     conn.rollback();
-                PLogger.get().logException(e);
+                PLogger.get().logThrowable(e);
             }
         }
         catch (Exception e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
         return fallback;
     }
@@ -1333,7 +1333,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
                 if (playerID == -1)
                 {
-                    PLogger.get().logException(new IllegalArgumentException(
+                    PLogger.get().logThrowable(new IllegalArgumentException(
                         "Trying to add player \"" + player.getUUID().toString() + "\" as owner of door " + doorUID +
                             ", but that player is not registered in the database! Aborting..."));
                     return false;
@@ -1441,7 +1441,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -1458,7 +1458,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         // to be created.
         if (dbFileBackup.exists() && !dbFileBackup.delete())
         {
-            PLogger.get().logException(new IOException("Failed to delete old backup! Aborting backup creation!"));
+            PLogger.get().logThrowable(new IOException("Failed to delete old backup! Aborting backup creation!"));
             return false;
         }
         try
@@ -1467,7 +1467,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (IOException e)
         {
-            PLogger.get().logException(e, "Failed to create backup of the database! "
+            PLogger.get().logThrowable(e, "Failed to create backup of the database! "
                 + "Database upgrade aborted and access is disabled!");
             return false;
         }
@@ -1488,7 +1488,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
     }
 
@@ -1521,7 +1521,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
     }
 

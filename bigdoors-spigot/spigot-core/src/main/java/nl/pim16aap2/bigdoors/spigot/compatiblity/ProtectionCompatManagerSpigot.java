@@ -171,7 +171,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             }
             catch (Exception e)
             {
-                plugin.getPLogger().logException(e, "Failed to use \"" + compat.getName()
+                plugin.getPLogger().logThrowable(e, "Failed to use \"" + compat.getName()
                     + "\"! Please send this error to pim16aap2:");
             }
         return Optional.empty();
@@ -213,7 +213,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             }
             catch (Exception e)
             {
-                plugin.getPLogger().logException(e, "Failed to use \"" + compat.getName()
+                plugin.getPLogger().logThrowable(e, "Failed to use \"" + compat.getName()
                     + "\"! Please send this error to pim16aap2:");
             }
         return Optional.empty();
@@ -307,7 +307,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         catch (NoClassDefFoundError e)
         {
             plugin.getPLogger()
-                  .logError(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
+                  .logThrowable(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
         }
         catch (NullPointerException e)
         {
@@ -316,7 +316,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         catch (Exception e)
         {
             plugin.getPLogger()
-                  .logException(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
+                  .logThrowable(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
         }
     }
 }

@@ -95,7 +95,7 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
             }
             catch (Exception e)
             {
-                plogger.logException(e, "Failed to register color: " + col.name());
+                plogger.logThrowable(e, "Failed to register color: " + col.name());
             }
     }
 
@@ -138,7 +138,7 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
         final World bukkitWorld = Bukkit.getWorld(world);
         if (player == null || bukkitWorld == null)
         {
-            plogger.logException(new NullPointerException(),
+            plogger.logThrowable(new NullPointerException(),
                                  (player == null ? "Player" : "bukkitWorld") + " unexpectedly null!");
             return null;
         }

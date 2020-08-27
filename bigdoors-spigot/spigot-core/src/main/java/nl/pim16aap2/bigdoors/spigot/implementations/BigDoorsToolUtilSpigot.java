@@ -30,7 +30,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
             return;
         }
@@ -62,7 +62,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
             return;
         }
@@ -92,7 +92,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            PLogger.get().logException(
+            PLogger.get().logThrowable(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
             return false;
         }

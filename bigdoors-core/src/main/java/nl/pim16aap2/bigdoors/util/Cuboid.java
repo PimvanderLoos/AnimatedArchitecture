@@ -219,7 +219,7 @@ public class Cuboid implements Cloneable
         {
             // TODO: Only log to file! It's already dumped in the console because it's thrown.
             Error er = new Error(e);
-            PLogger.get().logError(er);
+            PLogger.get().logThrowable(er);
             throw er;
         }
     }

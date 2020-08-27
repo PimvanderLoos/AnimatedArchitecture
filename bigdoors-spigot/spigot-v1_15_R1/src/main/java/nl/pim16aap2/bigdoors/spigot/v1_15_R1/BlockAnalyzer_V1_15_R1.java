@@ -36,7 +36,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
                 GREYLIST.add(mat);
             else if (result == MaterialStatus.UNMAPPED)
             {
-                PLogger.get().logException(new NoSuchFieldException("Material \"" + mat.name() + "\" is not mapped! " +
+                PLogger.get().logThrowable(new NoSuchFieldException("Material \"" + mat.name() + "\" is not mapped! " +
                                                                         "Please contact pim16aap2!"));
                 BLACKLIST.add(mat);
             }

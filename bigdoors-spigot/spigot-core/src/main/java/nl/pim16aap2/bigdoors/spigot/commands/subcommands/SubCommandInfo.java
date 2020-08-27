@@ -76,7 +76,7 @@ public class SubCommandInfo extends SubCommand
             }
             catch (Exception e)
             {
-                plugin.getPLogger().logException(e, "Failed to spawn a glowing block!");
+                plugin.getPLogger().logThrowable(e, "Failed to spawn a glowing block!");
             }
         }
         return true;

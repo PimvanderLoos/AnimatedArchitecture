@@ -55,7 +55,7 @@ public abstract class ToolUser implements IRestartable
         catch (InstantiationException e)
         {
             PLogger.get()
-                   .logException(e, e.getMessage() + " Failed to instantiate procedure for ToolUser for player: " +
+                   .logThrowable(e, e.getMessage() + " Failed to instantiate procedure for ToolUser for player: " +
                        player.asString());
             active = false;
         }
@@ -206,7 +206,7 @@ public abstract class ToolUser implements IRestartable
         }
         catch (Exception e)
         {
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
         }
 
         return false;

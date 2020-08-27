@@ -34,7 +34,7 @@ public final class Procedure<T extends ToolUser>
     {
         if (!steps.hasNext())
         {
-            PLogger.get().logException(new IndexOutOfBoundsException(
+            PLogger.get().logThrowable(new IndexOutOfBoundsException(
                 "Trying to advance to the next step while there is none! Step: " + getCurrentStepName()));
             return;
         }

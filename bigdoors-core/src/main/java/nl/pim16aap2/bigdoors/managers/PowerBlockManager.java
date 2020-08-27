@@ -152,7 +152,7 @@ public final class PowerBlockManager extends Restartable
                         }
                         catch (InterruptedException | ExecutionException e)
                         {
-                            pLogger.logException(e);
+                            pLogger.logThrowable(e);
                             door = Optional.empty();
                         }
                         door.ifPresent(doorBases::add);
@@ -408,7 +408,7 @@ public final class PowerBlockManager extends Restartable
             }
             catch (InterruptedException | ExecutionException e)
             {
-                pLogger.logException(e);
+                pLogger.logThrowable(e);
                 powerBlocks = new ConcurrentHashMap<>();
             }
             return powerBlocks.size() > 0;

@@ -243,7 +243,7 @@ public class CommandManager implements CommandExecutor
             for (String str : args)
                 sb.append(str).append(str.equals(args[args.length - 1]) ? "" : ", ");
             plugin.getPLogger()
-                  .logException(exception, "An exception occurred while processing command \"" + cmd.getName()
+                  .logThrowable(exception, "An exception occurred while processing command \"" + cmd.getName()
                       + "\" with args: \"" + sb.toString() + "\"!");
         }
     }
@@ -330,7 +330,7 @@ public class CommandManager implements CommandExecutor
         }
         catch (InterruptedException | ExecutionException e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
             return false;
         }
     }
@@ -365,7 +365,7 @@ public class CommandManager implements CommandExecutor
                     }
                     catch (InterruptedException | ExecutionException e)
                     {
-                        plugin.getPLogger().logException(e);
+                        plugin.getPLogger().logThrowable(e);
                         doors = Optional.empty();
                     }
                     if (!doors.isPresent() || doors.get().isEmpty())

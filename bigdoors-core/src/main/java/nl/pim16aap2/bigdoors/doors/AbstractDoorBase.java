@@ -118,7 +118,7 @@ public abstract class AbstractDoorBase implements IDoorBase
             IChunkManager.ChunkLoadResult.FAIL)
         {
             PLogger.get()
-                   .logException(new IllegalStateException("Failed to load chunk at: " + powerBlockChunk.toString()));
+                   .logThrowable(new IllegalStateException("Failed to load chunk at: " + powerBlockChunk.toString()));
             return false;
         }
 
@@ -158,7 +158,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (openDir == RotateDirection.NONE)
         {
             IllegalStateException e = new IllegalStateException("OpenDir cannot be NONE!");
-            PLogger.get().logException(e);
+            PLogger.get().logThrowable(e);
             throw e;
         }
 
@@ -278,7 +278,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         {
             NullPointerException npe = new NullPointerException(
                 "Door " + getDoorUID() + " did not have an owner! Please contact pim16aap2.");
-            PLogger.get().logException(npe);
+            PLogger.get().logThrowable(npe);
             throw npe;
         }
         return doorOwner.getPlayer().getUUID();

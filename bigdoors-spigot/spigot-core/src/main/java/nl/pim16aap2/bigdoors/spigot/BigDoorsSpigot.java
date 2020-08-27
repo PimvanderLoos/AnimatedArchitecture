@@ -273,7 +273,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         catch (Exception exception)
         {
             successfulInit = false;
-            pLogger.logException(exception);
+            pLogger.logThrowable(exception);
         }
     }
 
@@ -319,7 +319,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             return;
 
         configLoader.restart();
-        getPLogger().setConsoleLogging(getConfigLoader().consoleLogging());
         messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         playerGUIs = new HashMap<>();
         cmdWaiters = new HashMap<>();
@@ -582,7 +581,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     {
         if (!(doorEvent instanceof BigDoorsSpigotEvent))
         {
-            getPLogger().logException(new IllegalArgumentException(
+            getPLogger().logThrowable(new IllegalArgumentException(
                 "Event " + doorEvent.getEventName() +
                     ", is not a Spigot event, but it was called on the Spigot platform!"));
             return;

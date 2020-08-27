@@ -47,7 +47,7 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
     {
         if (!(loc.getWorld() instanceof PWorldSpigot))
         {
-            PLogger.get().logException(new IllegalArgumentException());
+            PLogger.get().logThrowable(new IllegalArgumentException());
             return null; // TODO: Don't violate @NotNull.
         }
         return new NMSBlock_V1_15_R1((PWorldSpigot) loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());

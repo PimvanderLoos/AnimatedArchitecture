@@ -304,7 +304,7 @@ public class PPreparedStatement
         if (!IStorage.isValidTableName(obj))
         {
             PLogger.get()
-                   .logException(new IllegalArgumentException(
+                   .logThrowable(new IllegalArgumentException(
                        "Trying to set table name using an invalid string: " + obj));
             return this;
         }
@@ -314,7 +314,7 @@ public class PPreparedStatement
         if (questionMarkPos == -1)
         {
             PLogger.get()
-                   .logException(new IllegalArgumentException(
+                   .logThrowable(new IllegalArgumentException(
                        "Trying to set table name in a statement without any variables!"));
             return this;
         }

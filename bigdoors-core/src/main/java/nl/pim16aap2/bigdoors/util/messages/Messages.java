@@ -76,7 +76,7 @@ public final class Messages extends Restartable
         if (!fileDir.exists())
             if (!fileDir.mkdirs())
             {
-                plogger.logException(new IOException("Failed to create folder: \"" + fileDir.toString() + "\""));
+                plogger.logThrowable(new IOException("Failed to create folder: \"" + fileDir.toString() + "\""));
                 return;
             }
 
@@ -131,7 +131,7 @@ public final class Messages extends Restartable
         }
         catch (Exception e)
         {
-            plogger.logException(e, "Failed to write default file to \"" + textFile + "\".");
+            plogger.logThrowable(e, "Failed to write default file to \"" + textFile + "\".");
         }
         finally
         {
@@ -142,7 +142,7 @@ public final class Messages extends Restartable
             }
             catch (IOException e)
             {
-                plogger.logException(e);
+                plogger.logThrowable(e);
             }
         }
     }
@@ -221,11 +221,11 @@ public final class Messages extends Restartable
         }
         catch (FileNotFoundException e)
         {
-            plogger.logException(e, "Locale file \"" + textFile + "\" does not exist!");
+            plogger.logThrowable(e, "Locale file \"" + textFile + "\" does not exist!");
         }
         catch (IOException e)
         {
-            plogger.logException(e, "Could not read locale file! \"" + textFile + "\"");
+            plogger.logThrowable(e, "Could not read locale file! \"" + textFile + "\"");
         }
 
 
@@ -237,11 +237,11 @@ public final class Messages extends Restartable
         }
         catch (FileNotFoundException e)
         {
-            plogger.logException(e, "Failed to load internal locale file!");
+            plogger.logThrowable(e, "Failed to load internal locale file!");
         }
         catch (IOException e)
         {
-            plogger.logException(e, "Could not read internal locale file!");
+            plogger.logThrowable(e, "Could not read internal locale file!");
         }
 
         for (final Message msg : Message.values())
@@ -302,7 +302,7 @@ public final class Messages extends Restartable
 
         if (values.length != Message.getVariableCount(msg))
         {
-            plogger.logException(new IllegalArgumentException("Expected " + Message.getVariableCount(msg)
+            plogger.logThrowable(new IllegalArgumentException("Expected " + Message.getVariableCount(msg)
                                                                   + " variables for key " + msg.name() +
                                                                   " but only got " + values.length
                                                                   + ". This is a bug. Please contact pim16aap2!"));

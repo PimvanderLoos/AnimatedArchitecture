@@ -237,7 +237,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         {
             // TODO: Only log to file! It's already dumped in the console because it's thrown.
             Error er = new Error(e);
-            PLogger.get().logError(er);
+            PLogger.get().logThrowable(er);
             throw er;
         }
     }
@@ -245,7 +245,6 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
     @Override
     public IPLocation toLocation(final @NotNull IPWorld world)
     {
-        System.out.println("Creating Location from vector: " + toString());
         return BigDoors.get().getPlatform().getPLocationFactory().create(world, this);
     }
 

@@ -69,7 +69,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
                 }
                 catch (Exception e)
                 {
-                    plogger.logException(e, "Failed to register color: " + col.name());
+                    plogger.logThrowable(e, "Failed to register color: " + col.name());
                 }
     }
 
@@ -101,7 +101,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
         teams.forEach((K, V) -> V.unregister());
         teams.clear();
     }
-    
+
     @Override
     @Nullable
     public IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,
@@ -111,7 +111,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
         final ChatColor color = SpigotUtil.toBukkitColor(pColor);
         if (!teams.containsKey(color))
         {
-            plogger.logException(new IllegalArgumentException("Unsupported color: " + color.name()));
+            plogger.logThrowable(new IllegalArgumentException("Unsupported color: " + color.name()));
             return null;
         }
 
@@ -119,7 +119,7 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
         final World bukkitWorld = Bukkit.getWorld(world);
         if (player == null || bukkitWorld == null)
         {
-            plogger.logException(new NullPointerException(),
+            plogger.logThrowable(new NullPointerException(),
                                  (player == null ? "Player" : "bukkitWorld") + " unexpectedly null!");
             return null;
         }

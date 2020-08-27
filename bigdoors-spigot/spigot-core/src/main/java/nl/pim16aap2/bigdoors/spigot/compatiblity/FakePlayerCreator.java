@@ -79,12 +79,12 @@ class FakePlayerCreator
         }
         catch (ClassNotFoundException | NoSuchMethodException | SecurityException | NoSuchFieldException e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
             return;
         }
         catch (LinkageError e)
         {
-            plugin.getPLogger().logError(e);
+            plugin.getPLogger().logThrowable(e);
             return;
         }
         success = true;
@@ -136,7 +136,7 @@ class FakePlayerCreator
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e)
         {
-            plugin.getPLogger().logException(e);
+            plugin.getPLogger().logThrowable(e);
         }
 
         if (player != null)

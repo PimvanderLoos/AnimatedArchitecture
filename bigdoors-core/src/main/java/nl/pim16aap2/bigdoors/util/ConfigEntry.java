@@ -77,7 +77,7 @@ public final class ConfigEntry<V>
         }
         catch (Exception e)
         {
-            logger.logException(e,
+            logger.logThrowable(e,
                                 "Failed to read config value of: \"" + optionName + "\"! Using default value instead!");
             value = defaultValue;
         }
