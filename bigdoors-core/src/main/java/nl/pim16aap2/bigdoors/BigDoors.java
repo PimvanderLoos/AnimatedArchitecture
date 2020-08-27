@@ -105,9 +105,6 @@ import org.jetbrains.annotations.Nullable;
  */
 // TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
 //       messages much more generic. Many of them only differ in the hardcoded name of the type.
-// TODO: PLogger: Add the possibility to log a Supplier<String>. This would be used for expensive logging operations
-//       (such as PPreparedStament logging). Then the PLogger can decide if it needs to retrieve the value if the
-//       logging level allows logging that message.
 // TODO: Expand the script that generates the testing translation file a bit.
 //       It should copy the latest real file to its own directory if the testing file doesn't exist (it shouldn't be
 //       in the repo). If the file does exist, quickly check the hashes of both to see if the copied file is still
@@ -118,8 +115,6 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Per-door speed multiplier.
 // TODO: Replace the chunk loading system with v1's new system.
 // TODO: Move implementations for tests and stuff to its own module.
-// TODO: PLogger: Make it possible to log exceptions/errors without logging anything to the console. This is useful
-//       in the case where you want to actually throw the error/exception in addition to logging it.
 // TODO: Place the creator stick in the player's hotbar. If possible, in the currently selected place.
 //       If there is no space in the hotbar (or maybe always do this), move the currently selected item into the
 //       player's inventory. If there is no space, abort the process and inform the player that they need to sort
@@ -227,11 +222,6 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Documentation: Instead of "Get the result", use "Gets the result" and similar.
 // TODO: Create abstraction layer for config stuff. Just wrap Bukkit's config stuff for the Spigot implementation (for now).
 // TODO: Get rid of all calls to SpigotUtil for messaging players. They should all go via the proper interface for that.
-// TODO: Logging, instead of "onlyLogExceptions", properly use logging levels. Just have a loggingLevel option in the
-//       config and any levels lower than the selected value should be suppressed.
-//       Lower level = Finer detail.
-//       Still need to figure out what to actually do with this. Should it write to the file regardless?
-//       Should the file have its own setting?
 // TODO: Don't log everything at INFO, e.g. Log config stuff at Level.CONFIG.
 // TODO: Every Manager must be a singleton.
 // TODO: Add door creation event (or perhaps door modification event?).
