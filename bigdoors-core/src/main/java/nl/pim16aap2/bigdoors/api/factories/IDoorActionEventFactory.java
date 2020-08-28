@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -38,8 +38,8 @@ public interface IDoorActionEventFactory
                                                final @NotNull DoorActionType actionType,
                                                final @NotNull IPPlayer responsible, final double time,
                                                final boolean skipAnimation,
-                                               final @NotNull IVector3DiConst newMinimum,
-                                               final @NotNull IVector3DiConst newMaximum);
+                                               final @NotNull Vector3DiConst newMinimum,
+                                               final @NotNull Vector3DiConst newMaximum);
 
     /**
      * Constructs a {@link IDoorEventToggleStart}.
@@ -61,8 +61,8 @@ public interface IDoorActionEventFactory
                                            final @NotNull DoorActionType actionType,
                                            final @NotNull IPPlayer responsible, final double time,
                                            final boolean skipAnimation,
-                                           final @NotNull IVector3DiConst newMinimum,
-                                           final @NotNull IVector3DiConst newMaximum);
+                                           final @NotNull Vector3DiConst newMinimum,
+                                           final @NotNull Vector3DiConst newMaximum);
 
     /**
      * Constructs a {@link IDoorEventToggleEnd}.

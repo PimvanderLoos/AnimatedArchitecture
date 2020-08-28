@@ -15,9 +15,9 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,7 +111,7 @@ public class GarageDoor extends AbstractDoorBase
         int yLen = dimensions.getY();
         int zLen = dimensions.getZ();
 
-        IVector3DiConst rotateVec;
+        Vector3DiConst rotateVec;
         try
         {
             rotateVec = PBlockFace.getDirection(Util.getPBlockFace(rotateDirection));
@@ -188,8 +188,8 @@ public class GarageDoor extends AbstractDoorBase
 
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
+                                      final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
+                                      final @NotNull Vector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         // TODO: Get rid of this.

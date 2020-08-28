@@ -7,8 +7,8 @@ import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +29,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     }
 
     @Override
-    public void playSound(final @NotNull IVector3DiConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
+    public void playSound(final @NotNull Vector3DiConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
                           final float volume, final float pitch)
     {
         SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getUID()), pos.getX(), pos.getY(), pos.getZ()),
@@ -37,7 +37,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     }
 
     @Override
-    public void playSound(final @NotNull IVector3DdConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
+    public void playSound(final @NotNull Vector3DdConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
                           final float volume, final float pitch)
     {
         SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getUID()), pos.getX(), pos.getY(), pos.getZ()),

@@ -1,12 +1,5 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,30 +7,24 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-@Data
-@AllArgsConstructor
-// TODO: Write test.
-public final class Vector3Dd implements IVector3DdConst, Cloneable
+public final class Vector3Dd extends Vector3DdConst
 {
-    @Getter
-    private double x, y, z;
-
-    public Vector3Dd(final @NotNull IVector3DdConst other)
+    public Vector3Dd(final double x, final double y, final double z)
     {
-        x = other.getX();
-        y = other.getY();
-        z = other.getZ();
+        super(x, y, z);
     }
 
-    public Vector3Dd(final @NotNull IVector3DiConst other)
+    public Vector3Dd(final @NotNull Vector3DdConst other)
     {
-        x = other.getX();
-        y = other.getY();
-        z = other.getZ();
+        super(other);
     }
 
-    @NotNull
-    public Vector3Dd rotateAroundXAxis(final double radians)
+    public Vector3Dd(final @NotNull Vector3DiConst other)
+    {
+        super(other);
+    }
+
+    public @NotNull Vector3Dd rotateAroundXAxis(final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -51,8 +38,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd rotateAroundXAxis(final @NotNull IVector3DdConst pivotPoint, final double radians)
+    public @NotNull Vector3Dd rotateAroundXAxis(final @NotNull Vector3DdConst pivotPoint, final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -68,8 +54,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd rotateAroundYAxis(final double radians)
+    public @NotNull Vector3Dd rotateAroundYAxis(final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -83,8 +68,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd rotateAroundYAxis(final @NotNull IVector3DdConst pivotPoint, final double radians)
+    public @NotNull Vector3Dd rotateAroundYAxis(final @NotNull Vector3DdConst pivotPoint, final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -100,8 +84,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd rotateAroundZAxis(final double radians)
+    public @NotNull Vector3Dd rotateAroundZAxis(final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -115,8 +98,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd rotateAroundZAxis(final @NotNull IVector3DdConst pivotPoint, final double radians)
+    public @NotNull Vector3Dd rotateAroundZAxis(final @NotNull Vector3DdConst pivotPoint, final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -132,22 +114,19 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd add(final @NotNull IVector3DdConst other)
+    public @NotNull Vector3Dd add(final @NotNull Vector3DdConst other)
     {
         add(other.getX(), other.getY(), other.getZ());
         return this;
     }
 
-    @NotNull
-    public Vector3Dd subtract(final @NotNull IVector3DdConst other)
+    public @NotNull Vector3Dd subtract(final @NotNull Vector3DdConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ());
         return this;
     }
 
-    @NotNull
-    public Vector3Dd multiply(final @NotNull IVector3DdConst other)
+    public @NotNull Vector3Dd multiply(final @NotNull Vector3DdConst other)
     {
         x *= other.getX();
         y *= other.getY();
@@ -155,8 +134,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd divide(final @NotNull IVector3DdConst other)
+    public @NotNull Vector3Dd divide(final @NotNull Vector3DdConst other)
     {
         x /= other.getX();
         y /= other.getY();
@@ -164,8 +142,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd multiply(final double val)
+    public @NotNull Vector3Dd multiply(final double val)
     {
         x *= val;
         y *= val;
@@ -173,8 +150,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd divide(final double val)
+    public @NotNull Vector3Dd divide(final double val)
     {
         x /= val;
         y /= val;
@@ -182,50 +158,43 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Dd addX(double val)
+    public @NotNull Vector3Dd addX(double val)
     {
         x += val;
         return this;
     }
 
-    @NotNull
-    public Vector3Dd addY(double val)
+    public @NotNull Vector3Dd addY(double val)
     {
         y += val;
         return this;
     }
 
-    @NotNull
-    public Vector3Dd addZ(double val)
+    public @NotNull Vector3Dd addZ(double val)
     {
         z += val;
         return this;
     }
 
-    @NotNull
-    public Vector3Dd setX(double newVal)
+    public @NotNull Vector3Dd setX(double newVal)
     {
         x = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector3Dd setY(double newVal)
+    public @NotNull Vector3Dd setY(double newVal)
     {
         y = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector3Dd setZ(double newVal)
+    public @NotNull Vector3Dd setZ(double newVal)
     {
         z = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector3Dd add(double x, double y, double z)
+    public @NotNull Vector3Dd add(double x, double y, double z)
     {
         this.x += x;
         this.y += y;
@@ -236,39 +205,7 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
     @Override
     public @NotNull Vector3Dd clone()
     {
-        try
-        {
-            return (Vector3Dd) super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
-            Error er = new Error(e);
-            PLogger.get().logThrowable(er);
-            throw er;
-        }
-    }
-
-    @Override
-    public IPLocation toLocation(final @NotNull IPWorld world)
-    {
-        return BigDoors.get().getPlatform().getPLocationFactory().create(world, this);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "(" + x + ":" + y + ":" + z + ")";
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int hash = 3;
-        hash = 19 * hash + Double.valueOf(x).hashCode();
-        hash = 19 * hash + Double.valueOf(y).hashCode();
-        hash = 19 * hash + Double.valueOf(z).hashCode();
-        return hash;
+        return new Vector3Dd(this);
     }
 
     public @NotNull Vector3Dd normalize()
@@ -280,5 +217,18 @@ public final class Vector3Dd implements IVector3DdConst, Cloneable
         z /= length;
 
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+        Vector3Dd other = (Vector3Dd) o;
+        return x == other.getX() && y == other.getY() && z == other.getZ();
     }
 }

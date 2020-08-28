@@ -3,10 +3,10 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.IVector2DiConst;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -115,13 +115,13 @@ public interface IDoorBase
     Vector2Di[] calculateCurrentChunkRange();
 
     /**
-     * Check if a provided {@link IVector2DiConst} is in range of the door. Range in this case refers to all Vector2Dis
+     * Check if a provided {@link Vector2DiConst} is in range of the door. Range in this case refers to all Vector2Dis
      * this {@link IDoorBase} could potentially occupy using animated blocks.
      *
      * @param chunk The chunk to check
-     * @return True if the {@link IVector2DiConst} is in range of the door.
+     * @return True if the {@link Vector2DiConst} is in range of the door.
      */
-    boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull IVector2DiConst chunk);
+    boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2DiConst chunk);
 
     /**
      * Gets the name of this door.
@@ -220,7 +220,7 @@ public interface IDoorBase
      * @return The position of the power block of this door.
      */
     @NotNull
-    IVector3DiConst getPowerBlock();
+    Vector3DiConst getPowerBlock();
 
     /**
      * Gets the position of the engine of this door.
@@ -228,7 +228,7 @@ public interface IDoorBase
      * @return The position of the engine block of this door.
      */
     @NotNull
-    IVector3DiConst getEngine();
+    Vector3DiConst getEngine();
 
     /**
      * Gets the minimum position of this door.
@@ -236,14 +236,14 @@ public interface IDoorBase
      * @return The minimum coordinates of this door.
      */
     @NotNull
-    IVector3DiConst getMinimum();
+    Vector3DiConst getMinimum();
 
     /**
      * Changes the 'minimum' position of this {@link IDoorBase}.
      *
      * @param pos The new minimum position.
      */
-    void setMinimum(final @NotNull IVector3DiConst pos);
+    void setMinimum(final @NotNull Vector3DiConst pos);
 
     /**
      * Gets a copy of the maximum position of this door.
@@ -251,14 +251,14 @@ public interface IDoorBase
      * @return A copy of the maximum position of this door.
      */
     @NotNull
-    IVector3DiConst getMaximum();
+    Vector3DiConst getMaximum();
 
     /**
      * Changes the 'maximum' position of this {@link IDoorBase}.
      *
      * @param loc The new maximum position of this door.
      */
-    void setMaximum(final @NotNull IVector3DiConst loc);
+    void setMaximum(final @NotNull Vector3DiConst loc);
 
     /**
      * Gets the the Vector2Di coordinates of the min and max Vector2Dis that are in range of this door.
@@ -275,14 +275,14 @@ public interface IDoorBase
      *
      * @param loc The new position of the engine.
      */
-    void setEnginePosition(final @NotNull IVector3DiConst loc);
+    void setEnginePosition(final @NotNull Vector3DiConst loc);
 
     /**
      * Changes the position of the power block.
      *
      * @param loc The new position of the power block.
      */
-    void setPowerBlockPosition(final @NotNull IVector3DiConst loc);
+    void setPowerBlockPosition(final @NotNull Vector3DiConst loc);
 
     /**
      * Changes the lock status of this door. Locked doors cannot be opened.
@@ -315,7 +315,7 @@ public interface IDoorBase
      * @return The Vector2Di the power block of this {@link IDoorBase} resides in.
      */
     @NotNull
-    IVector2DiConst getChunk();
+    Vector2DiConst getChunk();
 
     /**
      * Retrieve the total number of blocks this {@link IDoorBase} is made out of. If invalidated or not calculated *
@@ -336,7 +336,7 @@ public interface IDoorBase
      * @return The dimensions of this door.
      */
     @NotNull
-    IVector3DiConst getDimensions();
+    Vector3DiConst getDimensions();
 
     /**
      * @return The simple hash of the chunk in which the power block resides.

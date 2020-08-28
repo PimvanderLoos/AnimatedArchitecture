@@ -6,8 +6,8 @@ import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -40,7 +40,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
     /**
      * {@inheritDoc}
      * <p>
-     * This method creates an intermediate {@link Location}. To avoid this, use {@link #teleport(IVector3DdConst)}
+     * This method creates an intermediate {@link Location}. To avoid this, use {@link #teleport(Vector3DdConst)}
      */
     @Override
     public boolean teleport(final @NotNull IPLocationConst newLocation)
@@ -54,7 +54,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
      * This method does not construct a new intermediate {@link Location}, unlike {@link #teleport(IPLocationConst)}.
      */
     @Override
-    public boolean teleport(final @NotNull IVector3DdConst newPosition)
+    public boolean teleport(final @NotNull Vector3DdConst newPosition)
     {
         super.entity.setLocation(newPosition.getX(), newPosition.getY(), newPosition.getZ(), entity.yaw, entity.pitch);
         ((WorldServer) entity.world).chunkCheck(entity);
@@ -62,7 +62,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    public void setVelocity(final @NotNull IVector3DdConst vector)
+    public void setVelocity(final @NotNull Vector3DdConst vector)
     {
         entity.setMot(new Vec3D(vector.getX(), vector.getY(), vector.getZ()));
         entity.velocityChanged = true;
@@ -166,7 +166,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
      */
     @Deprecated
     @Override
-    public void setHeadPose(final @NotNull IVector3DdConst pose)
+    public void setHeadPose(final @NotNull Vector3DdConst pose)
     {
     }
 
@@ -177,7 +177,7 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
      */
     @Deprecated
     @Override
-    public void setBodyPose(final @NotNull IVector3DdConst eulerAngle)
+    public void setBodyPose(final @NotNull Vector3DdConst eulerAngle)
     {
     }
 }

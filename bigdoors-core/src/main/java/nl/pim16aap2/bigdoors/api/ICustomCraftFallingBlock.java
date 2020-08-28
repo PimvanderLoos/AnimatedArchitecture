@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,7 +25,7 @@ public interface ICustomCraftFallingBlock
      * @param newPosition The location that the entity will be reported to.
      * @return True if the teleport was successful.
      */
-    boolean teleport(final @NotNull IVector3DdConst newPosition);
+    boolean teleport(final @NotNull Vector3DdConst newPosition);
 
     /**
      * Removes the entity from the world.
@@ -61,19 +61,19 @@ public interface ICustomCraftFallingBlock
      *
      * @param vector The new velocity of the entity.
      */
-    void setVelocity(final @NotNull IVector3DdConst vector);
+    void setVelocity(final @NotNull Vector3DdConst vector);
 
     /**
      * Sets the headPose of this entity.
      *
      * @param pose The new pose of this entity's head.
      */
-    void setHeadPose(final @NotNull IVector3DdConst pose);
+    void setHeadPose(final @NotNull Vector3DdConst pose);
 
     /**
      * Sets the headPose of this entity.
      *
      * @param eulerAngle The new pose of this entity's head described as a EulerAngle.
      */
-    void setBodyPose(final @NotNull IVector3DdConst eulerAngle);
+    void setBodyPose(final @NotNull Vector3DdConst eulerAngle);
 }

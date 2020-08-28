@@ -1,9 +1,5 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,37 +7,31 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-@Data
-@AllArgsConstructor
-public final class Vector4Di implements IVector4DiConst, Cloneable
+public final class Vector4Di extends Vector4DiConst
 {
-    @Getter
-    private int x, y, z, w;
-
-    public Vector4Di(final @NotNull IVector4DiConst other)
+    public Vector4Di(final int x, final int y, final int z, final int w)
     {
-        x = other.getX();
-        y = other.getY();
-        z = other.getZ();
-        w = other.getW();
+        super(x, y, z, w);
     }
 
-    @NotNull
-    public Vector4Di add(final @NotNull IVector4DiConst other)
+    public Vector4Di(final @NotNull Vector4DiConst other)
+    {
+        super(other);
+    }
+
+    public @NotNull Vector4Di add(final @NotNull Vector4DiConst other)
     {
         add(other.getX(), other.getY(), other.getZ(), other.getW());
         return this;
     }
 
-    @NotNull
-    public Vector4Di subtract(final @NotNull IVector4DiConst other)
+    public @NotNull Vector4Di subtract(final @NotNull Vector4DiConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ(), -other.getW());
         return this;
     }
 
-    @NotNull
-    public Vector4Di multiply(final @NotNull IVector4DiConst other)
+    public @NotNull Vector4Di multiply(final @NotNull Vector4DiConst other)
     {
         x *= other.getX();
         y *= other.getY();
@@ -50,8 +40,7 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector4Di divide(final @NotNull IVector4DiConst other)
+    public @NotNull Vector4Di divide(final @NotNull Vector4DiConst other)
     {
         x /= other.getX();
         y /= other.getY();
@@ -60,8 +49,7 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector4Di multiply(final double val)
+    public @NotNull Vector4Di multiply(final double val)
     {
         x *= val;
         y *= val;
@@ -70,8 +58,7 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector4Di divide(final double val)
+    public @NotNull Vector4Di divide(final double val)
     {
         x /= val;
         y /= val;
@@ -80,64 +67,55 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector4Di addX(int val)
+    public @NotNull Vector4Di addX(int val)
     {
         x += val;
         return this;
     }
 
-    @NotNull
-    public Vector4Di addY(int val)
+    public @NotNull Vector4Di addY(int val)
     {
         y += val;
         return this;
     }
 
-    @NotNull
-    public Vector4Di addZ(int val)
+    public @NotNull Vector4Di addZ(int val)
     {
         z += val;
         return this;
     }
 
-    @NotNull
-    public Vector4Di addW(int val)
+    public @NotNull Vector4Di addW(int val)
     {
         w += val;
         return this;
     }
 
-    @NotNull
-    public Vector4Di setX(int newVal)
+    public @NotNull Vector4Di setX(int newVal)
     {
         x = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector4Di setY(int newVal)
+    public @NotNull Vector4Di setY(int newVal)
     {
         y = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector4Di setZ(int newVal)
+    public @NotNull Vector4Di setZ(int newVal)
     {
         z = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector4Di setW(int newVal)
+    public @NotNull Vector4Di setW(int newVal)
     {
         w = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector4Di add(int x, int y, int z, int w)
+    public @NotNull Vector4Di add(int x, int y, int z, int w)
     {
         this.x += x;
         this.y += y;
@@ -149,34 +127,7 @@ public final class Vector4Di implements IVector4DiConst, Cloneable
     @Override
     public @NotNull Vector4Di clone()
     {
-        try
-        {
-            return (Vector4Di) super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
-            Error er = new Error(e);
-            PLogger.get().logThrowable(er);
-            throw er;
-        }
-    }
-
-    @Override
-    public String toString()
-    {
-        return "(" + x + ":" + y + ":" + z + ":" + w + ")";
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int hash = 3;
-        hash = 19 * hash + x;
-        hash = 19 * hash + y;
-        hash = 19 * hash + z;
-        hash = 19 * hash + w;
-        return hash;
+        return new Vector4Di(this);
     }
 
     @Override

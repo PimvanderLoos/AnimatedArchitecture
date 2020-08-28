@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,5 +18,5 @@ public interface IPowerBlockRedstoneManager
      * @return True if the block at the given position is a valid power block that is receiving an active redstone
      * signal.
      */
-    boolean isBlockPowered(final @NotNull IPWorld world, final @NotNull IVector3DiConst position);
+    boolean isBlockPowered(final @NotNull IPWorld world, final @NotNull Vector3DiConst position);
 }

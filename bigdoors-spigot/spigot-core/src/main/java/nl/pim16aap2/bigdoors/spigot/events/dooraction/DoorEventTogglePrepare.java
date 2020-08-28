@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,8 +40,8 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
     public DoorEventTogglePrepare(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
                                   final @NotNull DoorActionType actionType,
                                   final @NotNull IPPlayer responsible, final double time,
-                                  final boolean animationSkipped, final @NotNull IVector3DiConst newMinimum,
-                                  final @NotNull IVector3DiConst newMaximum)
+                                  final boolean animationSkipped, final @NotNull Vector3DiConst newMinimum,
+                                  final @NotNull Vector3DiConst newMaximum)
     {
         super(door, cause, actionType, responsible, time, animationSkipped, newMinimum, newMaximum);
     }

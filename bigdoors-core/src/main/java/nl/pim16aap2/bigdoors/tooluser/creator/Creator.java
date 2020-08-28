@@ -24,8 +24,8 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -45,7 +45,7 @@ public abstract class Creator extends ToolUser
 {
     protected String name;
     protected Cuboid cuboid;
-    protected IVector3DiConst firstPos, engine, powerblock;
+    protected Vector3DiConst firstPos, engine, powerblock;
     protected RotateDirection opendir;
     protected IPWorld world;
     protected boolean isOpen = false;

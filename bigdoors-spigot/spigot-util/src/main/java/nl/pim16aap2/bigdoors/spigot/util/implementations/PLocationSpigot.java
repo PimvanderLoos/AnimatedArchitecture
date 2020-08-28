@@ -5,9 +5,9 @@ import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -116,14 +116,14 @@ public final class PLocationSpigot implements IPLocation
 
     @Override
     @NotNull
-    public IPLocation add(final @NotNull IVector3DiConst vector)
+    public IPLocation add(final @NotNull Vector3DiConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
 
     @Override
     @NotNull
-    public IPLocation add(final @NotNull IVector3DdConst vector)
+    public IPLocation add(final @NotNull Vector3DdConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }

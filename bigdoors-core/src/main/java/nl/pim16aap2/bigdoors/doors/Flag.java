@@ -11,7 +11,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.FlagMover;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,8 +65,8 @@ public class Flag extends AbstractDoorBase
 
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @Nullable IPPlayer responsible,
+                                      final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
+                                      final @NotNull Vector3DiConst newMax, final @Nullable IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         doorOpeningUtility.registerBlockMover(

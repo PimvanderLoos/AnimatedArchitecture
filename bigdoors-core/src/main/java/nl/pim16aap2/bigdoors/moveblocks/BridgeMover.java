@@ -15,9 +15,9 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -27,10 +27,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends BlockMover
 {
-    private final IVector3DdConst rotationCenter;
+    private final Vector3DdConst rotationCenter;
     protected final boolean NS;
     @NotNull
-    protected final TriFunction<Vector3Dd, IVector3DdConst, Double, Vector3Dd> rotator;
+    protected final TriFunction<Vector3Dd, Vector3DdConst, Double, Vector3Dd> rotator;
 
     private int halfEndCount;
     private double step;
@@ -48,8 +48,8 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
      */
     public BridgeMover(final double time, final @NotNull T door,
                        final @NotNull RotateDirection rotateDirection, final boolean skipAnimation,
-                       final double multiplier, final @NotNull IPPlayer player, final @NotNull IVector3DiConst finalMin,
-                       final @NotNull IVector3DiConst finalMax, final @NotNull DoorActionCause cause,
+                       final double multiplier, final @NotNull IPPlayer player, final @NotNull Vector3DiConst finalMin,
+                       final @NotNull Vector3DiConst finalMax, final @NotNull DoorActionCause cause,
                        final @NotNull DoorActionType actionType)
     {
         super(door, time, skipAnimation, rotateDirection, player, finalMin, finalMax, cause, actionType);

@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -35,7 +35,7 @@ public interface IPLocationFactory
      * @return A new IPLocation object.
      */
     @NotNull
-    IPLocation create(final @NotNull IPWorld world, final @NotNull IVector3DiConst position);
+    IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DiConst position);
 
     /**
      * Creates a new IPLocation.
@@ -45,7 +45,7 @@ public interface IPLocationFactory
      * @return A new IPLocation object.
      */
     @NotNull
-    IPLocation create(final @NotNull IPWorld world, final @NotNull IVector3DdConst position);
+    IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DdConst position);
 
     /**
      * Creates a new IPLocation.
@@ -67,7 +67,7 @@ public interface IPLocationFactory
      * @return A new IPLocation object.
      */
     @NotNull
-    IPLocation create(final @NotNull UUID worldUUID, final @NotNull IVector3DiConst position);
+    IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst position);
 
     /**
      * Creates a new IPLocation.
@@ -77,5 +77,5 @@ public interface IPLocationFactory
      * @return A new IPLocation object.
      */
     @NotNull
-    IPLocation create(final @NotNull UUID worldUUID, final @NotNull IVector3DdConst position);
+    IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DdConst position);
 }

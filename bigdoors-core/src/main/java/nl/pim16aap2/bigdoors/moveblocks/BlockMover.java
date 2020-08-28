@@ -21,9 +21,9 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +55,7 @@ public abstract class BlockMover implements IRestartable
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
-    private final IVector3DiConst finalMin, finalMax;
+    private final Vector3DiConst finalMin, finalMax;
     protected final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
     protected final IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
     @Nullable
@@ -104,7 +104,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected BlockMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
                          final @NotNull RotateDirection openDirection, final @NotNull IPPlayer player,
-                         final @NotNull IVector3DiConst finalMin, final @NotNull IVector3DiConst finalMax,
+                         final @NotNull Vector3DiConst finalMin, final @NotNull Vector3DiConst finalMax,
                          final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
         BigDoors.get().getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
@@ -169,7 +169,7 @@ public abstract class BlockMover implements IRestartable
     private void respawnBlock(final @NotNull PBlockData blockData, final @NotNull INMSBlock newBlock)
     {
         final IPLocationConst loc = blockData.getFBlock().getPLocation();
-        final IVector3DdConst veloc = blockData.getFBlock().getPVelocity();
+        final Vector3DdConst veloc = blockData.getFBlock().getPVelocity();
 
         final ICustomCraftFallingBlock fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
         blockData.getFBlock().remove();

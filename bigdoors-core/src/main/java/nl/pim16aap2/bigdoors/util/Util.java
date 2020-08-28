@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -335,7 +335,7 @@ public final class Util
      * @return The chunk coordinates.
      */
     @NotNull
-    public static Vector2Di getChunkCoords(final @NotNull IVector3DiConst position)
+    public static Vector2Di getChunkCoords(final @NotNull Vector3DiConst position)
     {
         return new Vector2Di(position.getX() << 4, position.getZ() << 4);
     }
@@ -393,7 +393,7 @@ public final class Util
      * @param position The position in world space coordinates.
      * @return The coordinates in chunkspace coordinates.
      */
-    public static Vector3Di getChunkSpacePosition(final @NotNull IVector3DiConst position)
+    public static Vector3Di getChunkSpacePosition(final @NotNull Vector3DiConst position)
     {
         return getChunkSpacePosition(position.getX(), position.getY(), position.getZ());
     }

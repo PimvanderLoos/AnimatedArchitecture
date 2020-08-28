@@ -104,7 +104,7 @@ import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -416,8 +416,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     @NotNull
     public Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
-                                                      final @NotNull IVector3DiConst pos1,
-                                                      final @NotNull IVector3DiConst pos2,
+                                                      final @NotNull Vector3DiConst pos1,
+                                                      final @NotNull Vector3DiConst pos2,
                                                       final @NotNull IPWorld world)
     {
         return protectionCompatManager.canBreakBlocksBetweenLocs(player, pos1, pos2, world);

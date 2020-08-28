@@ -8,9 +8,9 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.IVector2DiConst;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -115,7 +115,7 @@ public final class PowerBlockManager extends Restartable
      * @return All {@link AbstractDoorBase}s that have a powerblock at a location in a world.
      */
     @NotNull
-    public CompletableFuture<List<AbstractDoorBase>> doorsFromPowerBlockLoc(final @NotNull IVector3DiConst loc,
+    public CompletableFuture<List<AbstractDoorBase>> doorsFromPowerBlockLoc(final @NotNull Vector3DiConst loc,
                                                                             final @NotNull UUID worldUUID)
     {
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
@@ -176,8 +176,8 @@ public final class PowerBlockManager extends Restartable
      * @param oldPos The old position.
      * @param newPos The new position.
      */
-    public void updatePowerBlockLoc(final @NotNull AbstractDoorBase door, final @NotNull IVector3DiConst oldPos,
-                                    final @NotNull IVector3DiConst newPos)
+    public void updatePowerBlockLoc(final @NotNull AbstractDoorBase door, final @NotNull Vector3DiConst oldPos,
+                                    final @NotNull Vector3DiConst newPos)
     {
         databaseManager.updatePowerBlockLoc(door.getDoorUID(), newPos);
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getUID());
@@ -200,7 +200,7 @@ public final class PowerBlockManager extends Restartable
      * @param worldUUID The world of the door.
      * @param pos       The position of the door's power block.
      */
-    public void onDoorAddOrRemove(final @NotNull UUID worldUUID, final @NotNull IVector3DiConst pos)
+    public void onDoorAddOrRemove(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst pos)
     {
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
@@ -219,7 +219,7 @@ public final class PowerBlockManager extends Restartable
      * @param worldUUID The UUID of the world.
      * @param chunk     The location (x,z) of the chunk in chunk-space.
      */
-    public void invalidateChunk(final @NotNull UUID worldUUID, final @NotNull IVector2DiConst chunk)
+    public void invalidateChunk(final @NotNull UUID worldUUID, final @NotNull Vector2DiConst chunk)
     {
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
@@ -288,7 +288,7 @@ public final class PowerBlockManager extends Restartable
          * @return All UIDs of doors whose power blocks are in the given location.
          */
         @NotNull
-        private List<Long> getPowerBlocks(final @NotNull IVector3DiConst loc)
+        private List<Long> getPowerBlocks(final @NotNull Vector3DiConst loc)
         {
             if (!isBigDoorsWorld())
                 return Collections.emptyList();
@@ -305,7 +305,7 @@ public final class PowerBlockManager extends Restartable
          *
          * @param pos The position.
          */
-        private void invalidatePosition(final @NotNull IVector3DiConst pos)
+        private void invalidatePosition(final @NotNull Vector3DiConst pos)
         {
             powerBlockChunks.remove(Util.simpleChunkHashFromLocation(pos.getX(), pos.getZ()));
         }
@@ -364,7 +364,7 @@ public final class PowerBlockManager extends Restartable
          * @return All UIDs of doors whose power blocks are in the given location.
          */
         @NotNull
-        private List<Long> getPowerBlocks(final @NotNull IVector3DiConst loc)
+        private List<Long> getPowerBlocks(final @NotNull Vector3DiConst loc)
         {
             if (!isPowerBlockChunk())
                 return Collections.emptyList();

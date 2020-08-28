@@ -19,9 +19,9 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -136,8 +136,8 @@ public final class DoorOpeningUtility
      * @param responsible Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(final @NotNull AbstractDoorBase door, final @NotNull IVector3DiConst pos1,
-                                             final @NotNull IVector3DiConst pos2, final @NotNull IPPlayer responsible)
+    public boolean canBreakBlocksBetweenLocs(final @NotNull AbstractDoorBase door, final @NotNull Vector3DiConst pos1,
+                                             final @NotNull Vector3DiConst pos2, final @NotNull IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
         return protectionManager.canBreakBlocksBetweenLocs(responsible, pos1, pos2, door.getWorld()).map(
@@ -161,8 +161,8 @@ public final class DoorOpeningUtility
      * @param world  The world to check the blocks in.
      * @return True if the area is not empty.
      */
-    public boolean isLocationEmpty(final @NotNull IVector3DiConst newMin, final @NotNull IVector3DiConst newMax,
-                                   final @NotNull IVector3DiConst curMin, final @NotNull IVector3DiConst curMax,
+    public boolean isLocationEmpty(final @NotNull Vector3DiConst newMin, final @NotNull Vector3DiConst newMax,
+                                   final @NotNull Vector3DiConst curMin, final @NotNull Vector3DiConst curMax,
                                    final @Nullable IPPlayer player, final @NotNull IPWorld world)
     {
         IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
@@ -210,9 +210,9 @@ public final class DoorOpeningUtility
      * @param blocksToMove The number of blocks to try move.
      * @return Gets the number of blocks this door can move in the given direction.
      */
-    public int getBlocksInDir(final @NotNull IVector3DiConst vec, final @Nullable IPPlayer player,
-                              final @NotNull IPWorld world, final @NotNull IVector3DiConst curMin,
-                              final @NotNull IVector3DiConst curMax, final int blocksToMove)
+    public int getBlocksInDir(final @NotNull Vector3DiConst vec, final @Nullable IPPlayer player,
+                              final @NotNull IPWorld world, final @NotNull Vector3DiConst curMin,
+                              final @NotNull Vector3DiConst curMax, final int blocksToMove)
     {
         int startY = vec.getY() == 0 ? curMin.getY() : vec.getY() == 1 ? curMax.getY() + 1 : curMin.getY() - 1;
 

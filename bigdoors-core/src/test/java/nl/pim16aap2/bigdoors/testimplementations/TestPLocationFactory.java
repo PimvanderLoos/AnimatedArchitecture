@@ -4,8 +4,8 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -21,14 +21,14 @@ public class TestPLocationFactory implements IPLocationFactory
 
     @Override
     @NotNull
-    public IPLocation create(final @NotNull IPWorld world, final @NotNull IVector3DiConst position)
+    public IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DiConst position)
     {
         return create(world, position.getX(), position.getY(), position.getZ());
     }
 
     @Override
     @NotNull
-    public IPLocation create(final @NotNull IPWorld world, final @NotNull IVector3DdConst position)
+    public IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DdConst position)
     {
         return create(world, position.getX(), position.getY(), position.getZ());
     }
@@ -42,7 +42,7 @@ public class TestPLocationFactory implements IPLocationFactory
 
     @Override
     @NotNull
-    public IPLocation create(final @NotNull UUID worldUUID, final @NotNull IVector3DiConst position)
+    public IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst position)
     {
         return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldUUID),
                       position.getX(), position.getY(), position.getZ());
@@ -50,7 +50,7 @@ public class TestPLocationFactory implements IPLocationFactory
 
     @Override
     @NotNull
-    public IPLocation create(final @NotNull UUID worldUUID, final @NotNull IVector3DdConst position)
+    public IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DdConst position)
     {
         return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldUUID),
                       position.getX(), position.getY(), position.getZ());

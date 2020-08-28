@@ -1,9 +1,5 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,95 +7,88 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-@Data
-@AllArgsConstructor
-public final class Vector2Dd implements IVector2DdConst, Cloneable
+public class Vector2Dd extends Vector2DdConst
 {
-    @Getter
-    private double x, y;
-
-    public Vector2Dd(final @NotNull IVector2DdConst other)
+    public Vector2Dd(final double x, final double y)
     {
-        x = other.getX();
-        y = other.getY();
+        super(x, y);
     }
 
-    @NotNull
-    public Vector2Dd add(final @NotNull Vector2Dd other)
+    public Vector2Dd(final @NotNull Vector2DdConst other)
+    {
+        super(other);
+    }
+
+    public Vector2Dd(final @NotNull Vector2DiConst other)
+    {
+        super(other);
+    }
+
+    public @NotNull Vector2Dd add(final @NotNull Vector2Dd other)
     {
         add(other.getX(), other.getY());
         return this;
     }
 
-    @NotNull
-    public Vector2Dd subtract(final @NotNull Vector2Dd other)
+    public @NotNull Vector2Dd subtract(final @NotNull Vector2Dd other)
     {
         add(-other.getX(), -other.getY());
         return this;
     }
 
-    @NotNull
-    public Vector2Dd multiply(final @NotNull Vector2Dd other)
+    public @NotNull Vector2Dd multiply(final @NotNull Vector2Dd other)
     {
         x *= other.getX();
         y *= other.getY();
         return this;
     }
 
-    @NotNull
-    public Vector2Dd divide(final @NotNull Vector2Dd other)
+    public @NotNull Vector2Dd divide(final @NotNull Vector2Dd other)
     {
         x /= other.getX();
         y /= other.getY();
         return this;
     }
 
-    @NotNull
-    public Vector2Dd multiply(final double val)
+    public @NotNull Vector2Dd multiply(final double val)
     {
         x *= val;
         y *= val;
         return this;
     }
 
-    @NotNull
-    public Vector2Dd divide(final double val)
+    public @NotNull Vector2Dd divide(final double val)
     {
         x /= val;
         y /= val;
         return this;
     }
 
-    @NotNull
-    public Vector2Dd addX(double val)
+    public @NotNull Vector2Dd addX(double val)
     {
         x += val;
         return this;
     }
 
-    @NotNull
-    public Vector2Dd addY(double val)
+    public @NotNull Vector2Dd addY(double val)
     {
         y += val;
         return this;
     }
 
-    @NotNull
-    public Vector2Dd setX(double newVal)
+    public @NotNull Vector2Dd setX(double newVal)
     {
         x = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector2Dd setY(double newVal)
+    public @NotNull Vector2Dd setY(double newVal)
     {
         y = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector2Dd add(double x, double y)
+    public @NotNull Vector2Dd add(double x, double y)
     {
         this.x += x;
         this.y += y;
@@ -109,32 +98,13 @@ public final class Vector2Dd implements IVector2DdConst, Cloneable
     @Override
     public @NotNull Vector2Dd clone()
     {
-        try
-        {
-            return (Vector2Dd) super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
-            Error er = new Error(e);
-            PLogger.get().logThrowable(er);
-            throw er;
-        }
+        return new Vector2Dd(this);
     }
 
     @Override
     public String toString()
     {
         return "(" + x + ":" + y + ")";
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int hash = 3;
-        hash = 19 * hash + Double.valueOf(x).hashCode();
-        hash = 19 * hash + Double.valueOf(y).hashCode();
-        return hash;
     }
 
     @Override

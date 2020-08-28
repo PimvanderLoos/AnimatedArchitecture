@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ public class Cuboid implements Cloneable
     @Nullable
     private Integer volume = null;
 
-    public Cuboid(final @NotNull IVector3DiConst min, final @NotNull IVector3DiConst max)
+    public Cuboid(final @NotNull Vector3DiConst min, final @NotNull Vector3DiConst max)
     {
         this.min = new Vector3Di(min);
         this.max = new Vector3Di(max);
@@ -34,7 +34,7 @@ public class Cuboid implements Cloneable
      * @param first  The first of the two new coordinates.
      * @param second The first of the two new coordinates.
      */
-    public Cuboid updatePositions(final @NotNull IVector3DiConst first, final @NotNull IVector3DiConst second)
+    public Cuboid updatePositions(final @NotNull Vector3DiConst first, final @NotNull Vector3DiConst second)
     {
         min = new Vector3Di(first);
         max = new Vector3Di(second);
@@ -48,7 +48,7 @@ public class Cuboid implements Cloneable
      *
      * @return The lower bound position.
      */
-    public IVector3DiConst getMin()
+    public Vector3DiConst getMin()
     {
         return min;
     }
@@ -58,7 +58,7 @@ public class Cuboid implements Cloneable
      *
      * @return The upper bound position.
      */
-    public IVector3DiConst getMax()
+    public Vector3DiConst getMax()
     {
         return max;
     }
@@ -100,7 +100,7 @@ public class Cuboid implements Cloneable
      * @param pos The position to check.
      * @return True if the position lies inside this cuboid (including the edges).
      */
-    public boolean isPosInsideCuboid(final @NotNull IVector3DiConst pos)
+    public boolean isPosInsideCuboid(final @NotNull Vector3DiConst pos)
     {
         return pos.getX() >= min.getX() && pos.getX() <= max.getX() &&
             pos.getY() >= min.getY() && pos.getY() <= max.getY() &&

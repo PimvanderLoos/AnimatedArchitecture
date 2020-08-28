@@ -13,9 +13,9 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BridgeMover;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -105,8 +105,8 @@ public class Drawbridge extends AbstractDoorBase
             return false;
         }
 
-        final @NotNull IVector3DiConst newMinTmp;
-        final @NotNull IVector3DiConst newMaxTmp;
+        final @NotNull Vector3DiConst newMinTmp;
+        final @NotNull Vector3DiConst newMaxTmp;
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
         {
             newMinTmp = newMin.clone().rotateAroundXAxis(getEngine(), angle);
@@ -131,8 +131,8 @@ public class Drawbridge extends AbstractDoorBase
 
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                      final @NotNull IVector3DiConst newMax, final @NotNull IPPlayer responsible,
+                                      final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
+                                      final @NotNull Vector3DiConst newMax, final @NotNull IPPlayer responsible,
                                       final @NotNull DoorActionType actionType)
     {
         doorOpeningUtility.registerBlockMover(

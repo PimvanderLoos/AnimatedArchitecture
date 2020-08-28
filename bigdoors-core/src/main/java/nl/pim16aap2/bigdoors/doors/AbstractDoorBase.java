@@ -21,10 +21,10 @@ import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.IVector2DiConst;
-import nl.pim16aap2.bigdoors.util.vector.IVector3DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -48,7 +48,7 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     @Getter(onMethod = @__({@Override}))
     @NotNull
-    protected IVector3DiConst minimum, maximum, engine, powerBlock, dimensions;
+    protected Vector3DiConst minimum, maximum, engine, powerBlock, dimensions;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
@@ -230,8 +230,8 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @param actionType    The type of action that will be performed by the BlockMover.
      */
     protected abstract void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                               final boolean skipAnimation, final @NotNull IVector3DiConst newMin,
-                                               final @NotNull IVector3DiConst newMax,
+                                               final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
+                                               final @NotNull Vector3DiConst newMax,
                                                final @NotNull IPPlayer responsible,
                                                final @NotNull DoorActionType actionType);
 
@@ -246,7 +246,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     @Override
-    public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull IVector2DiConst chunk)
+    public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2DiConst chunk)
     {
         if (!otherWorld.equals(getWorld()))
             return false;
@@ -310,7 +310,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setMinimum(final @NotNull IVector3DiConst pos)
+    public final void setMinimum(final @NotNull Vector3DiConst pos)
     {
         minimum = new Vector3Di(pos);
         onCoordsUpdate();
@@ -322,7 +322,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setMaximum(final @NotNull IVector3DiConst pos)
+    public final void setMaximum(final @NotNull Vector3DiConst pos)
     {
         maximum = new Vector3Di(pos);
         onCoordsUpdate();
@@ -387,7 +387,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setEnginePosition(final @NotNull IVector3DiConst pos)
+    public final void setEnginePosition(final @NotNull Vector3DiConst pos)
     {
         engine = new Vector3Di(pos);
         onCoordsUpdate();
@@ -399,7 +399,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      * Triggers {@link #onCoordsUpdate()}.
      */
     @Override
-    public final void setPowerBlockPosition(final @NotNull IVector3DiConst pos)
+    public final void setPowerBlockPosition(final @NotNull Vector3DiConst pos)
     {
         powerBlock = new Vector3Di(pos);
         onCoordsUpdate();
@@ -411,7 +411,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     @Override
-    public final @NotNull IVector2DiConst getChunk()
+    public final @NotNull Vector2DiConst getChunk()
     {
         return engineChunk == null ? engineChunk = calculateEngineChunk() : engineChunk;
     }
@@ -521,25 +521,25 @@ public abstract class AbstractDoorBase implements IDoorBase
          * The location with the coordinates closest to the origin.
          */
         @NotNull
-        IVector3DiConst min;
+        Vector3DiConst min;
 
         /**
          * The location with the coordinates furthest away from the origin.
          */
         @NotNull
-        IVector3DiConst max;
+        Vector3DiConst max;
 
         /**
          * The location of the engine.
          */
         @NotNull
-        IVector3DiConst engine;
+        Vector3DiConst engine;
 
         /**
          * The location of the powerblock.
          */
         @NotNull
-        IVector3DiConst powerBlock;
+        Vector3DiConst powerBlock;
 
         /**
          * The {@link IPWorld} this door is in.

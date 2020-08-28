@@ -1,9 +1,5 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,95 +7,83 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-@Data
-@AllArgsConstructor
-public final class Vector2Di implements IVector2DiConst, Cloneable
+public final class Vector2Di extends Vector2DiConst
 {
-    @Getter
-    private int x, y;
-
-    public Vector2Di(final @NotNull IVector2DiConst other)
+    public Vector2Di(final int x, final int y)
     {
-        x = other.getX();
-        y = other.getY();
+        super(x, y);
     }
 
-    @NotNull
-    public Vector2Di add(final @NotNull Vector2Di other)
+    public Vector2Di(final @NotNull Vector2DiConst other)
+    {
+        super(other);
+    }
+
+    public @NotNull Vector2Di add(final @NotNull Vector2Di other)
     {
         add(other.getX(), other.getY());
         return this;
     }
 
-    @NotNull
-    public Vector2Di subtract(final @NotNull Vector2Di other)
+    public @NotNull Vector2Di subtract(final @NotNull Vector2Di other)
     {
         add(-other.getX(), -other.getY());
         return this;
     }
 
-    @NotNull
-    public Vector2Di multiply(final @NotNull Vector2Di other)
+    public @NotNull Vector2Di multiply(final @NotNull Vector2Di other)
     {
         x *= other.getX();
         y *= other.getY();
         return this;
     }
 
-    @NotNull
-    public Vector2Di divide(final @NotNull Vector2Di other)
+    public @NotNull Vector2Di divide(final @NotNull Vector2Di other)
     {
         x /= other.getX();
         y /= other.getY();
         return this;
     }
 
-    @NotNull
-    public Vector2Di multiply(final double val)
+    public @NotNull Vector2Di multiply(final int val)
     {
         x *= val;
         y *= val;
         return this;
     }
 
-    @NotNull
-    public Vector2Di divide(final double val)
+    public @NotNull Vector2Di divide(final int val)
     {
         x /= val;
         y /= val;
         return this;
     }
 
-    @NotNull
-    public Vector2Di addX(int val)
+    public @NotNull Vector2Di addX(int val)
     {
         x += val;
         return this;
     }
 
-    @NotNull
-    public Vector2Di addY(int val)
+    public @NotNull Vector2Di addY(int val)
     {
         y += val;
         return this;
     }
 
-    @NotNull
-    public Vector2Di setX(int newVal)
+    public @NotNull Vector2Di setX(int newVal)
     {
         x = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector2Di setY(int newVal)
+    public @NotNull Vector2Di setY(int newVal)
     {
         y = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector2Di add(int x, int y)
+    public @NotNull Vector2Di add(int x, int y)
     {
         this.x += x;
         this.y += y;
@@ -109,32 +93,13 @@ public final class Vector2Di implements IVector2DiConst, Cloneable
     @Override
     public @NotNull Vector2Di clone()
     {
-        try
-        {
-            return (Vector2Di) super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
-            Error er = new Error(e);
-            PLogger.get().logThrowable(er);
-            throw er;
-        }
+        return new Vector2Di(this);
     }
 
     @Override
     public String toString()
     {
         return "(" + x + ":" + y + ")";
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int hash = 3;
-        hash = 19 * hash + x;
-        hash = 19 * hash + y;
-        return hash;
     }
 
     @Override

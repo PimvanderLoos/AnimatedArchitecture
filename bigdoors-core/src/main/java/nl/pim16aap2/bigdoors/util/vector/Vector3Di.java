@@ -1,36 +1,26 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an int vector or vertex in 3D space.
+ * Represents an integer vector or vertex in 3D space.
  *
  * @author Pim
  */
-@Data
-@AllArgsConstructor
-public final class Vector3Di implements IVector3DiConst, Cloneable
+public final class Vector3Di extends Vector3DiConst
 {
-    @Getter
-    private int x, y, z;
-
-    public Vector3Di(final @NotNull IVector3DiConst other)
+    public Vector3Di(final int x, final int y, final int z)
     {
-        x = other.getX();
-        y = other.getY();
-        z = other.getZ();
+        super(x, y, z);
+    }
+
+    public Vector3Di(final @NotNull Vector3DiConst other)
+    {
+        super(other);
     }
 
     // TODO: Test this.
-    @NotNull
-    public Vector3Di rotateAroundXAxis(final double radians)
+    public @NotNull Vector3Di rotateAroundXAxis(final double radians)
     {
         double cos = Math.cos(radians);
         double sin = Math.sin(radians);
@@ -43,8 +33,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Di rotateAroundXAxis(final @NotNull IVector3DiConst pivotPoint, final double radians)
+    public @NotNull Vector3Di rotateAroundXAxis(final @NotNull Vector3DiConst pivotPoint, final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -61,8 +50,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
     }
 
     // TODO: Test this.
-    @NotNull
-    public Vector3Di rotateAroundYAxis(final double radians)
+    public @NotNull Vector3Di rotateAroundYAxis(final double radians)
     {
         double cos = Math.cos(radians);
         double sin = Math.sin(radians);
@@ -75,8 +63,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Di rotateAroundYAxis(final @NotNull IVector3DiConst pivotPoint, final double radians)
+    public @NotNull Vector3Di rotateAroundYAxis(final @NotNull Vector3DiConst pivotPoint, final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -93,8 +80,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
     }
 
     // TODO: Test this.
-    @NotNull
-    public Vector3Di rotateAroundZAxis(final double radians)
+    public @NotNull Vector3Di rotateAroundZAxis(final double radians)
     {
         double cos = Math.cos(radians);
         double sin = Math.sin(radians);
@@ -108,8 +94,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Di rotateAroundZAxis(final @NotNull IVector3DiConst pivotPoint, final double radians)
+    public @NotNull Vector3Di rotateAroundZAxis(final @NotNull Vector3DiConst pivotPoint, final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -125,22 +110,19 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Di add(final @NotNull IVector3DiConst other)
+    public @NotNull Vector3Di add(final @NotNull Vector3DiConst other)
     {
         add(other.getX(), other.getY(), other.getZ());
         return this;
     }
 
-    @NotNull
-    public Vector3Di subtract(final @NotNull IVector3DiConst other)
+    public @NotNull Vector3Di subtract(final @NotNull Vector3DiConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ());
         return this;
     }
 
-    @NotNull
-    public Vector3Di multiply(final @NotNull IVector3DiConst other)
+    public @NotNull Vector3Di multiply(final @NotNull Vector3DiConst other)
     {
         x *= other.getX();
         y *= other.getY();
@@ -148,8 +130,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Di divide(final @NotNull IVector3DiConst other)
+    public @NotNull Vector3Di divide(final @NotNull Vector3DiConst other)
     {
         x /= other.getX();
         y /= other.getY();
@@ -157,8 +138,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Di multiply(final double val)
+    public @NotNull Vector3Di multiply(final double val)
     {
         x *= val;
         y *= val;
@@ -166,8 +146,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Di divide(final double val)
+    public @NotNull Vector3Di divide(final double val)
     {
         x /= val;
         y /= val;
@@ -175,50 +154,43 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector3Di addX(int val)
+    public @NotNull Vector3Di addX(int val)
     {
         x += val;
         return this;
     }
 
-    @NotNull
-    public Vector3Di addY(int val)
+    public @NotNull Vector3Di addY(int val)
     {
         y += val;
         return this;
     }
 
-    @NotNull
-    public Vector3Di addZ(int val)
+    public @NotNull Vector3Di addZ(int val)
     {
         z += val;
         return this;
     }
 
-    @NotNull
-    public Vector3Di setX(int newVal)
+    public @NotNull Vector3Di setX(int newVal)
     {
         x = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector3Di setY(int newVal)
+    public @NotNull Vector3Di setY(int newVal)
     {
         y = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector3Di setZ(int newVal)
+    public @NotNull Vector3Di setZ(int newVal)
     {
         z = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector3Di add(int x, int y, int z)
+    public @NotNull Vector3Di add(int x, int y, int z)
     {
         this.x += x;
         this.y += y;
@@ -229,39 +201,7 @@ public final class Vector3Di implements IVector3DiConst, Cloneable
     @Override
     public @NotNull Vector3Di clone()
     {
-        try
-        {
-            return (Vector3Di) super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
-            Error er = new Error(e);
-            PLogger.get().logThrowable(er);
-            throw er;
-        }
-    }
-
-    @Override
-    public IPLocation toLocation(final @NotNull IPWorld world)
-    {
-        return BigDoors.get().getPlatform().getPLocationFactory().create(world, this);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "(" + x + ":" + y + ":" + z + ")";
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int hash = 3;
-        hash = 19 * hash + x;
-        hash = 19 * hash + y;
-        hash = 19 * hash + z;
-        return hash;
+        return new Vector3Di(this);
     }
 
     @Override

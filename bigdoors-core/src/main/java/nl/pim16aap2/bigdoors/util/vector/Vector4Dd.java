@@ -1,9 +1,6 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,37 +8,39 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-@Data
-@AllArgsConstructor
-public final class Vector4Dd implements IVector4DdConst, Cloneable
+public final class Vector4Dd extends Vector4DdConst
 {
     @Getter
     private double x, y, z, w;
 
-    public Vector4Dd(final @NotNull IVector4DdConst other)
+    public Vector4Dd(final double x, final double y, final double z, final double w)
     {
-        x = other.getX();
-        y = other.getY();
-        z = other.getZ();
-        w = other.getW();
+        super(x, y, z, w);
     }
 
-    @NotNull
-    public Vector4Dd add(final @NotNull IVector4DdConst other)
+    public Vector4Dd(final @NotNull Vector4DdConst other)
+    {
+        super(other);
+    }
+
+    public Vector4Dd(final @NotNull Vector4DiConst other)
+    {
+        super(other);
+    }
+
+    public @NotNull Vector4Dd add(final @NotNull Vector4DdConst other)
     {
         add(other.getX(), other.getY(), other.getZ(), other.getW());
         return this;
     }
 
-    @NotNull
-    public Vector4Dd subtract(final @NotNull IVector4DdConst other)
+    public @NotNull Vector4Dd subtract(final @NotNull Vector4DdConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ(), -other.getW());
         return this;
     }
 
-    @NotNull
-    public Vector4Dd multiply(final @NotNull IVector4DdConst other)
+    public @NotNull Vector4Dd multiply(final @NotNull Vector4DdConst other)
     {
         x *= other.getX();
         y *= other.getY();
@@ -50,8 +49,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector4Dd divide(final @NotNull IVector4DdConst other)
+    public @NotNull Vector4Dd divide(final @NotNull Vector4DdConst other)
     {
         x /= other.getX();
         y /= other.getY();
@@ -60,8 +58,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector4Dd multiply(final double val)
+    public @NotNull Vector4Dd multiply(final double val)
     {
         x *= val;
         y *= val;
@@ -70,8 +67,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector4Dd divide(final double val)
+    public @NotNull Vector4Dd divide(final double val)
     {
         x /= val;
         y /= val;
@@ -80,64 +76,55 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
         return this;
     }
 
-    @NotNull
-    public Vector4Dd addX(double val)
+    public @NotNull Vector4Dd addX(double val)
     {
         x += val;
         return this;
     }
 
-    @NotNull
-    public Vector4Dd addY(double val)
+    public @NotNull Vector4Dd addY(double val)
     {
         y += val;
         return this;
     }
 
-    @NotNull
-    public Vector4Dd addZ(double val)
+    public @NotNull Vector4Dd addZ(double val)
     {
         z += val;
         return this;
     }
 
-    @NotNull
-    public Vector4Dd addW(double val)
+    public @NotNull Vector4Dd addW(double val)
     {
         w += val;
         return this;
     }
 
-    @NotNull
-    public Vector4Dd setX(double newVal)
+    public @NotNull Vector4Dd setX(double newVal)
     {
         x = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector4Dd setY(double newVal)
+    public @NotNull Vector4Dd setY(double newVal)
     {
         y = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector4Dd setZ(double newVal)
+    public @NotNull Vector4Dd setZ(double newVal)
     {
         z = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector4Dd setW(double newVal)
+    public @NotNull Vector4Dd setW(double newVal)
     {
         w = newVal;
         return this;
     }
 
-    @NotNull
-    public Vector4Dd add(double x, double y, double z, double w)
+    public @NotNull Vector4Dd add(double x, double y, double z, double w)
     {
         this.x += x;
         this.y += y;
@@ -149,34 +136,7 @@ public final class Vector4Dd implements IVector4DdConst, Cloneable
     @Override
     public @NotNull Vector4Dd clone()
     {
-        try
-        {
-            return (Vector4Dd) super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
-            Error er = new Error(e);
-            PLogger.get().logThrowable(er);
-            throw er;
-        }
-    }
-
-    @Override
-    public String toString()
-    {
-        return "(" + x + ":" + y + ":" + z + ":" + w + ")";
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int hash = 3;
-        hash = 19 * hash + Double.valueOf(x).hashCode();
-        hash = 19 * hash + Double.valueOf(y).hashCode();
-        hash = 19 * hash + Double.valueOf(z).hashCode();
-        hash = 19 * hash + Double.valueOf(w).hashCode();
-        return hash;
+        return new Vector4Dd(this);
     }
 
     @Override
