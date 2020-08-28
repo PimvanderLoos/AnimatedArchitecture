@@ -16,9 +16,9 @@ public class Vector4DiConst
     }
 
     @Override
-    public @NotNull Vector4DiConst clone()
+    public @NotNull Vector4Di clone()
     {
-        return new Vector4DiConst(this);
+        return new Vector4Di(this);
     }
 
     @Override

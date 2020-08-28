@@ -36,9 +36,9 @@ public class Vector3DiConst
     }
 
     @Override
-    public @NotNull Vector3DiConst clone()
+    public @NotNull Vector3Di clone()
     {
-        return new Vector3DiConst(this);
+        return new Vector3Di(this);
     }
 
     @Override

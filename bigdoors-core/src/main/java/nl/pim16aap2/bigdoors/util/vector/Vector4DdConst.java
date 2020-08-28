@@ -39,9 +39,9 @@ public class Vector4DdConst
     }
 
     @Override
-    public @NotNull Vector4DdConst clone()
+    public @NotNull Vector4Dd clone()
     {
-        return new Vector4DdConst(this);
+        return new Vector4Dd(this);
     }
 
     @Override

@@ -57,11 +57,11 @@ public class Vector3DdConst
     {
         return "(" + x + ":" + y + ":" + z + ")";
     }
-    
+
     @Override
-    public @NotNull Vector3DdConst clone()
+    public @NotNull Vector3Dd clone()
     {
-        return new Vector3DdConst(this);
+        return new Vector3Dd(this);
     }
 
     @Override
