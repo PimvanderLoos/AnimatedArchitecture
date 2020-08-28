@@ -4,7 +4,6 @@ import net.minecraft.server.v1_14_R1.Vec3D;
 import net.minecraft.server.v1_14_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
@@ -37,24 +36,9 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
         entity.noclip = true;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This method creates an intermediate {@link Location}. To avoid this, use {@link #teleport(Vector3DdConst)}
-     */
     @Override
-    public boolean teleport(final @NotNull IPLocationConst newLocation)
-    {
-        return super.teleport(SpigotAdapter.getBukkitLocation(newLocation));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This method does not construct a new intermediate {@link Location}, unlike {@link #teleport(IPLocationConst)}.
-     */
-    @Override
-    public boolean teleport(final @NotNull Vector3DdConst newPosition)
+    public boolean teleport(@NotNull Vector3DdConst newPosition, @NotNull Vector3DdConst rotation,
+                            @NotNull TeleportMode teleportMode)
     {
         super.entity.setLocation(newPosition.getX(), newPosition.getY(), newPosition.getZ(), entity.yaw, entity.pitch);
         ((WorldServer) entity.world).chunkCheck(entity);
@@ -113,9 +97,8 @@ public class CustomCraftFallingBlock_V1_14_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    @NotNull
     @Deprecated
-    public Material getMaterial()
+    public @NotNull Material getMaterial()
     {
         return CraftMagicNumbers.getMaterial(getHandle().getBlock()).getItemType();
     }

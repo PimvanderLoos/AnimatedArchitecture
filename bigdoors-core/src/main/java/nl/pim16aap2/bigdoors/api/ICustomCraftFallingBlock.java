@@ -12,12 +12,27 @@ import org.jetbrains.annotations.NotNull;
 public interface ICustomCraftFallingBlock
 {
     /**
-     * Teleports the entity to the provided location.
+     * Teleports the entity to the provided position.
      *
-     * @param newLocation The location that the entity will be reported to.
+     * @param newPosition  The location that the entity will be reported to.
+     * @param rotation     The local rotations of the entity.
+     * @param teleportMode How to handle the teleport.
      * @return True if the teleport was successful.
      */
-    boolean teleport(final @NotNull IPLocationConst newLocation);
+    boolean teleport(final @NotNull Vector3DdConst newPosition, final @NotNull Vector3DdConst rotation,
+                     final @NotNull TeleportMode teleportMode);
+
+    /**
+     * Teleports the entity to the provided position.
+     *
+     * @param newPosition The location that the entity will be reported to.
+     * @param rotation    The local rotations of the entity.
+     * @return True if the teleport was successful.
+     */
+    default boolean teleport(final @NotNull Vector3DdConst newPosition, final @NotNull Vector3DdConst rotation)
+    {
+        return teleport(newPosition, rotation, TeleportMode.SET_VELOCITY);
+    }
 
     /**
      * Teleports the entity to the provided position.
@@ -25,7 +40,10 @@ public interface ICustomCraftFallingBlock
      * @param newPosition The location that the entity will be reported to.
      * @return True if the teleport was successful.
      */
-    boolean teleport(final @NotNull Vector3DdConst newPosition);
+    default boolean teleport(final @NotNull Vector3DdConst newPosition)
+    {
+        return teleport(newPosition, new Vector3Dd(0, 0, 0), TeleportMode.SET_VELOCITY);
+    }
 
     /**
      * Removes the entity from the world.
@@ -76,4 +94,10 @@ public interface ICustomCraftFallingBlock
      * @param eulerAngle The new pose of this entity's head described as a EulerAngle.
      */
     void setBodyPose(final @NotNull Vector3DdConst eulerAngle);
+
+    enum TeleportMode
+    {
+        SET_VELOCITY,
+        NO_VELOCITY
+    }
 }

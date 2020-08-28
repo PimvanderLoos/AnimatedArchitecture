@@ -187,4 +187,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @return A new {@link IPExecutor}.
      */
     @NotNull <T> IPExecutor<T> newPExecutor();
+
+    /**
+     * Gets the {@link IGlowingBlockSpawner} for the current platform.
+     *
+     * @return The {@link IGlowingBlockSpawner} for the current platform.
+     */
+    @NotNull IGlowingBlockSpawner getGlowingBlockSpawner();
 }

@@ -1,22 +1,25 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import net.minecraft.server.v1_15_R1.PacketPlayOutEntityTeleport;
 import net.minecraft.server.v1_15_R1.Vec3D;
 import net.minecraft.server.v1_15_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,27 +40,57 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
         entity.noclip = true;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This method creates an intermediate {@link Location}. To avoid this, use {@link #teleport(Vector3DdConst)}
-     */
-    @Override
-    public boolean teleport(final @NotNull IPLocationConst newLocation)
-    {
-        return super.teleport(SpigotAdapter.getBukkitLocation(newLocation));
-    }
+    private Vector3DdConst lastPos = new Vector3Dd(getHandle().locX(), getHandle().locY(), entity.locZ());
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This method does not construct a new intermediate {@link Location}, unlike {@link #teleport(IPLocationConst)}.
-     */
     @Override
-    public boolean teleport(final @NotNull Vector3DdConst newPosition)
+    public boolean teleport(@NotNull Vector3DdConst newPosition, @NotNull Vector3DdConst rotation,
+                            @NotNull TeleportMode teleportMode)
     {
+        Vector3DdConst currentPos = new Vector3DdConst(entity.locX(), entity.locY(), entity.locZ());
+        final double distance = currentPos.getDistance(newPosition);
+        System.out.print("distance:   " + distance);
+        if (distance < 0.00001)
+        {
+            System.out.println("Distance too small! Skip!");
+            return true;
+        }
+
         super.entity.setLocation(newPosition.getX(), newPosition.getY(), newPosition.getZ(), entity.yaw, entity.pitch);
         ((WorldServer) entity.world).chunkCheck(entity);
+
+        double deltaX = entity.locX() - lastPos.getX();
+        double deltaY = entity.locY() - lastPos.getY();
+        double deltaZ = entity.locZ() - lastPos.getZ();
+
+//        Vector3DdConst currentPos = new Vector3DdConst(entity.locX(), entity.locY(), entity.locZ());
+//        final double distance = currentPos.getDistance(lastPos);
+
+        final @NotNull Vector3Dd velocity = new Vector3Dd(deltaX, deltaY, deltaZ).normalize();
+        velocity.multiply(distance);
+
+        @NotNull Vector3DdConst oldPos = new Vector3DdConst(entity.lastX, entity.lastY, entity.lastZ);
+//        @NotNull Vector3Dd newPos = new Vector3Dd(entity.locX(), entity.locY(), entity.locZ());
+//        @NotNull Vector3Dd velocity = new Vector3Dd(deltaX, deltaY, deltaZ).multiply(0.101);
+//        BigDoors.get().getMessagingInterface().broadcastMessage("goalPos: " + ((Vector3Dd) newPosition).toString(4));
+        System.out.print("lastPos:    " + lastPos.toString(4));
+        System.out.print("oldPos:     " + oldPos.toString(4));
+        System.out.print("velocity:   " + velocity.toString(4));
+        System.out.println("currentPos: " + currentPos.toString(4));
+//        BigDoors.get().getMessagingInterface().broadcastMessage("newPos: " + newPos.toString(4));
+//        BigDoors.get().getMessagingInterface().broadcastMessage("lastPos: " + lastPos.toString(4));
+//        BigDoors.get().getMessagingInterface().broadcastMessage("velocity: " + velocity.toString(4));
+
+
+//        if (teleportMode == TeleportMode.SET_VELOCITY)
+        setVelocity(velocity);
+
+        Player pim16aap2 = Bukkit.getPlayer("pim16aap2");
+        PacketPlayOutEntityTeleport tppacket = new PacketPlayOutEntityTeleport(entity);
+        ((CraftPlayer) pim16aap2).getHandle().playerConnection.sendPacket(tppacket);
+
+        lastPos = new Vector3DdConst(getHandle().locX(), getHandle().locY(), getHandle().locZ());
+
+
         return true;
     }
 
@@ -113,9 +146,8 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    @NotNull
     @Deprecated
-    public Material getMaterial()
+    public @NotNull Material getMaterial()
     {
         return CraftMagicNumbers.getMaterial(getHandle().getBlock()).getItemType();
     }
@@ -160,8 +192,6 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @deprecated Not currently implemented.
      */
     @Deprecated
@@ -171,8 +201,6 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @deprecated Not currently implemented.
      */
     @Deprecated

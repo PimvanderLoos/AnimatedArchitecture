@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
+import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -184,6 +185,12 @@ public final class TestPlatform implements IBigDoorsPlatform
 
     @Override
     public @NotNull <T> IPExecutor<T> newPExecutor()
+    {
+        return null;
+    }
+
+    @Override
+    public @NotNull IGlowingBlockSpawner getGlowingBlockSpawner()
     {
         return null;
     }

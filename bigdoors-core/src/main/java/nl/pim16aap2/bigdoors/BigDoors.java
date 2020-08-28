@@ -192,6 +192,10 @@ import org.jetbrains.annotations.Nullable;
 //       This way, it can call all init()s in BigDoors::onEnable and all stop()s in BigDoors::onDisable.
 //       Then just load everything on initial construction (including RedstoneListener (should be singleton)).
 // TODO: Make GlowingBlockSpawner restartable. Upon restarting the plugin, all glowing blocks have to be removed.
+// TODO: The GlowingBlockSpawner shouldn't handle the packets on its own. Rather, it should create an object that can
+//       handle it. This object needs to be able to spawn/respawn/teleport itself as well.
+//       Perhaps also let it implement IAnimatedBlock (or whatever it'll be called, but I mean the same one that's
+//       used for the current animated blocks). Then it can toggle doors as preview.
 // TODO: Store PBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
 //       Alternatively, merge PBlockFace and RotateDirection into Direction.
 // TODO: Get rid of all occurrences of "boolean onDisable". Just do it via the main class.

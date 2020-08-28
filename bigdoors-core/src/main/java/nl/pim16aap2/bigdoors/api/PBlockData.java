@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the data of an animated block.
@@ -44,7 +43,7 @@ public final class PBlockData
      */
     @Getter
     @Setter
-    @Nullable
+    @NotNull
     private ICustomCraftFallingBlock fBlock;
 
     /**

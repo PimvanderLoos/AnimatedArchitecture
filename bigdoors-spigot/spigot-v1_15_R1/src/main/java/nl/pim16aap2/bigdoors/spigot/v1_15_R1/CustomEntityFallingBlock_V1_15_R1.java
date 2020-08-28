@@ -38,7 +38,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     private boolean f;
     private int fallHurtMax;
     private float fallHurtAmount;
-    private org.bukkit.World bukkitWorld;
+    private final org.bukkit.World bukkitWorld;
     private boolean g;
 
     public CustomEntityFallingBlock_V1_15_R1(final @NotNull org.bukkit.World world, final double d0, final double d1,
