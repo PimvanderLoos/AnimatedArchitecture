@@ -362,6 +362,10 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Creators / ToolUsers
  */
+// TODO: In the creation process, ask the user if the door is currently opened or closed (when appropriate).
+//       Then do not ask the user to set the openDirection, but ask them which direction they want the move.
+//       From this, we can infer what the openDir is supposed to be. Perhaps ask the user to hit the stick in the
+//       desired direction. Or use the glowing blocks to show a preview?
 // TODO: When registering a new ToolUser, also make sure to immediately start the timer thingy, otherwise it just
 //       gets too messy. Also handle the removal in the shutdown method.
 // TODO: Consider introducing different (optional) modes for the creators such as Creator.Mode#NEW_DOOR
