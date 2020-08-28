@@ -21,9 +21,9 @@ public class Vector2DiConst
     }
 
     @Override
-    public @NotNull Vector2DiConst clone()
+    public @NotNull Vector2Di clone()
     {
-        return new Vector2DiConst(this);
+        return new Vector2Di(this);
     }
 
     @Override

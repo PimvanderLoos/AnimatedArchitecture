@@ -26,9 +26,9 @@ public class Vector2DdConst
     }
 
     @Override
-    public @NotNull Vector2DdConst clone()
+    public @NotNull Vector2Dd clone()
     {
-        return new Vector2DdConst(this);
+        return new Vector2Dd(this);
     }
 
     /**
