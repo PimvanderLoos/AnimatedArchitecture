@@ -142,13 +142,7 @@ public class RevolvingDoorMover extends BlockMover
         final double stepSum = step * ticks;
 
         for (final PBlockData block : savedBlocks)
-            if (Math.abs(block.getRadius()) > 2 * Double.MIN_VALUE)
-            {
-                final Vector3Dd vec = getGoalPos.apply(block, stepSum)
-                                                .subtract(block.getFBlock().getPosition());
-                vec.multiply(0.101);
-                block.getFBlock().setVelocity(vec);
-            }
+            block.getFBlock().teleport(getGoalPos.apply(block, stepSum));
     }
 
     @Override

@@ -307,6 +307,8 @@ public abstract class BlockMover implements IRestartable
     {
         prepareAnimation();
 
+        stopDelay = 0;
+        endCount += 1;
         moverTask = new TimerTask()
         {
             int counter = 0;

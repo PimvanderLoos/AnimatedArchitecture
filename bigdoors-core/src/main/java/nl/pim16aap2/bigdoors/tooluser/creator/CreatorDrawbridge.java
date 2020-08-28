@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.Drawbridge;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
+import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ public class CreatorDrawbridge extends Creator
 {
     @Getter(onMethod = @__({@Override}))
     @NotNull
-    private final DoorType doorType = DoorTypeBigDoor.get();
+    private final DoorType doorType = DoorTypeDrawbridge.get();
 
     public CreatorDrawbridge(final @NotNull IPPlayer player, final @Nullable String name)
     {

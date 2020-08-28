@@ -48,9 +48,10 @@ public class FlagMover extends BlockMover
         this.time = time;
 
         super.tickRate = Util.tickRateFromSpeed(speed);
-        super.tickRate = 3;
+        super.tickRate = 1;
 
         waveSpeed = super.tickRate * 10.0f;
+        stopDelay = 0;
 
         init();
         super.startAnimation();
@@ -134,10 +135,7 @@ public class FlagMover extends BlockMover
     {
         final int counter = ticks / tickRate;
         for (final PBlockData block : savedBlocks)
-        {
-            Vector3Dd vec = getGoalPos.apply(block, counter).subtract(block.getFBlock().getPosition());
-            block.getFBlock().setVelocity(vec.multiply(0.101));
-        }
+            block.getFBlock().teleport(getGoalPos.apply(block, counter));
     }
 
     @Override

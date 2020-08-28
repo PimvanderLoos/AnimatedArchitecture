@@ -138,11 +138,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
             BigDoors.get().getPlatform().newPExecutor().runSync(this::respawnBlocks);
 
         for (final PBlockData block : savedBlocks)
-        {
-            final @NotNull Vector3Dd vec = getGoalPos(stepSum, block).subtract(block.getFBlock().getPosition())
-                                                                     .multiply(0.101);
-            block.getFBlock().setVelocity(vec);
-        }
+            block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 
     @Override

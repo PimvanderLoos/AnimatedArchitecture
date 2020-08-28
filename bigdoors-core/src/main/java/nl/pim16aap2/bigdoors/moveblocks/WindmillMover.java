@@ -57,11 +57,7 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     {
         final double stepSum = step * ticks;
         for (final @NotNull PBlockData block : savedBlocks)
-        {
-            final @NotNull Vector3Dd vec = getGoalPos(stepSum, block).subtract(block.getFBlock().getPosition())
-                                                                     .multiply(0.101);
-            block.getFBlock().setVelocity(vec.multiply(0.101));
-        }
+            block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 
     @Override

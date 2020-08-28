@@ -1,25 +1,20 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import net.minecraft.server.v1_15_R1.PacketPlayOutEntityTeleport;
 import net.minecraft.server.v1_15_R1.Vec3D;
-import net.minecraft.server.v1_15_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,67 +26,35 @@ import org.jetbrains.annotations.NotNull;
  */
 public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements FallingBlock, ICustomCraftFallingBlock
 {
+    @NotNull
+    protected final CustomEntityFallingBlock_V1_15_R1 entity;
+    @NotNull
+    private Vector3DdConst lastPos;
+    @NotNull
+    private Vector3DdConst lastGoalPos;
+
     CustomCraftFallingBlock_V1_15_R1(final @NotNull Server server,
                                      final @NotNull nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 entity)
     {
         super((org.bukkit.craftbukkit.v1_15_R1.CraftServer) server, entity);
+        this.entity = entity;
         setVelocity(new Vector(0, 0, 0));
         setDropItem(false);
         entity.noclip = true;
+
+        lastPos = new Vector3Dd(entity.locX(), entity.locY(), entity.locZ());
+        lastGoalPos = new Vector3Dd(entity.locX(), entity.locY(), entity.locZ());
     }
 
-    private Vector3DdConst lastPos = new Vector3Dd(getHandle().locX(), getHandle().locY(), entity.locZ());
-
+    // TODO: It should apply velocity if possible, but the issue is that the last position isn't the actual last position,
+    //       because the velocity moved it. or does the tp offset it?
+    // TODO: The blocks should lag behind 1 tick, so they have 3 variables: LastPos, CurrentPos, FuturePos.
+    //       This can be used to set proper velocity as well.
     @Override
-    public boolean teleport(@NotNull Vector3DdConst newPosition, @NotNull Vector3DdConst rotation,
-                            @NotNull TeleportMode teleportMode)
+    public boolean teleport(final @NotNull Vector3DdConst newPosition, final @NotNull Vector3DdConst rotation,
+                            final @NotNull TeleportMode teleportMode)
     {
-        Vector3DdConst currentPos = new Vector3DdConst(entity.locX(), entity.locY(), entity.locZ());
-        final double distance = currentPos.getDistance(newPosition);
-        System.out.print("distance:   " + distance);
-        if (distance < 0.00001)
-        {
-            System.out.println("Distance too small! Skip!");
-            return true;
-        }
-
-        super.entity.setLocation(newPosition.getX(), newPosition.getY(), newPosition.getZ(), entity.yaw, entity.pitch);
-        ((WorldServer) entity.world).chunkCheck(entity);
-
-        double deltaX = entity.locX() - lastPos.getX();
-        double deltaY = entity.locY() - lastPos.getY();
-        double deltaZ = entity.locZ() - lastPos.getZ();
-
-//        Vector3DdConst currentPos = new Vector3DdConst(entity.locX(), entity.locY(), entity.locZ());
-//        final double distance = currentPos.getDistance(lastPos);
-
-        final @NotNull Vector3Dd velocity = new Vector3Dd(deltaX, deltaY, deltaZ).normalize();
-        velocity.multiply(distance);
-
-        @NotNull Vector3DdConst oldPos = new Vector3DdConst(entity.lastX, entity.lastY, entity.lastZ);
-//        @NotNull Vector3Dd newPos = new Vector3Dd(entity.locX(), entity.locY(), entity.locZ());
-//        @NotNull Vector3Dd velocity = new Vector3Dd(deltaX, deltaY, deltaZ).multiply(0.101);
-//        BigDoors.get().getMessagingInterface().broadcastMessage("goalPos: " + ((Vector3Dd) newPosition).toString(4));
-        System.out.print("lastPos:    " + lastPos.toString(4));
-        System.out.print("oldPos:     " + oldPos.toString(4));
-        System.out.print("velocity:   " + velocity.toString(4));
-        System.out.println("currentPos: " + currentPos.toString(4));
-//        BigDoors.get().getMessagingInterface().broadcastMessage("newPos: " + newPos.toString(4));
-//        BigDoors.get().getMessagingInterface().broadcastMessage("lastPos: " + lastPos.toString(4));
-//        BigDoors.get().getMessagingInterface().broadcastMessage("velocity: " + velocity.toString(4));
-
-
-//        if (teleportMode == TeleportMode.SET_VELOCITY)
-        setVelocity(velocity);
-
-        Player pim16aap2 = Bukkit.getPlayer("pim16aap2");
-        PacketPlayOutEntityTeleport tppacket = new PacketPlayOutEntityTeleport(entity);
-        ((CraftPlayer) pim16aap2).getHandle().playerConnection.sendPacket(tppacket);
-
-        lastPos = new Vector3DdConst(getHandle().locX(), getHandle().locY(), getHandle().locZ());
-
-
-        return true;
+        return entity.teleport(newPosition, rotation);
     }
 
     @Override

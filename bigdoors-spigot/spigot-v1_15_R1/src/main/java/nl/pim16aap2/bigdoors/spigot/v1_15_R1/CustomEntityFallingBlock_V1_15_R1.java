@@ -13,8 +13,13 @@ import net.minecraft.server.v1_15_R1.EnumMoveType;
 import net.minecraft.server.v1_15_R1.GameProfileSerializer;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.PacketPlayOutEntity;
+import net.minecraft.server.v1_15_R1.PlayerChunkMap;
 import net.minecraft.server.v1_15_R1.TagsBlock;
+import net.minecraft.server.v1_15_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
+import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.NotNull;
@@ -40,12 +45,19 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     private float fallHurtAmount;
     private final org.bukkit.World bukkitWorld;
     private boolean g;
+    private PlayerChunkMap.EntityTracker tracker;
+    private final WorldServer worldServer;
+
+    private Vector3DdConst previousPosition;
+    private Vector3DdConst currentPosition;
+    private Vector3DdConst futurePosition;
 
     public CustomEntityFallingBlock_V1_15_R1(final @NotNull org.bukkit.World world, final double d0, final double d1,
                                              final double d2, final @NotNull IBlockData iblockdata)
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
         bukkitWorld = world;
+        worldServer = ((CraftWorld) bukkitWorld).getHandle();
         block = iblockdata;
         i = true;
         setPosition(d0, d1 + (1.0F - getHeight()) / 2.0F, d2);
@@ -57,6 +69,10 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         lastX = d0;
         lastY = d1;
         lastZ = d2;
+
+        previousPosition = new Vector3DdConst(d0, d1, d2);
+        currentPosition = previousPosition;
+        futurePosition = currentPosition;
 
         // try setting noclip twice, because it doesn't seem to stick.
         noclip = true;
@@ -76,6 +92,41 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     public void spawn()
     {
         ((org.bukkit.craftbukkit.v1_15_R1.CraftWorld) bukkitWorld).getHandle().addEntity(this, SpawnReason.CUSTOM);
+        tracker = worldServer.getChunkProvider().playerChunkMap.trackedEntities.get(getId());
+        if (tracker == null)
+        {
+            IllegalStateException e = new IllegalStateException(
+                "Failed to obtain EntityTracker for FallingBlock: " + getId());
+            PLogger.get().logThrowableSilently(e);
+            throw e;
+        }
+    }
+
+    private void cyclePositions(@NotNull Vector3DdConst newPosition)
+    {
+        previousPosition = currentPosition;
+        currentPosition = futurePosition;
+        futurePosition = newPosition;
+    }
+
+    public boolean teleport(final @NotNull Vector3DdConst newPosition, final @NotNull Vector3DdConst rotation)
+    {
+        final double distance = futurePosition.getDistance(newPosition);
+        cyclePositions(newPosition);
+
+        double deltaX = currentPosition.getX() - previousPosition.getX();
+        double deltaY = currentPosition.getY() - previousPosition.getY();
+        double deltaZ = currentPosition.getZ() - previousPosition.getZ();
+
+        short relX = (short) (deltaX * 4096);
+        short relY = (short) (deltaY * 4096);
+        short relZ = (short) (deltaZ * 4096);
+
+        PacketPlayOutEntity.PacketPlayOutRelEntityMove tppacket =
+            new PacketPlayOutEntity.PacketPlayOutRelEntityMove(getId(), relX, relY, relZ, true);
+
+        tracker.broadcast(tppacket);
+        return true;
     }
 
     @Override

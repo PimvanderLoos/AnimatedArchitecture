@@ -64,6 +64,9 @@ import org.jetbrains.annotations.Nullable;
 //       This would make door definition much more friendly.
 //       The database might be able to use the components as well. Perhaps each component should have an ID?
 //       Then it could just store "PreparedStatement::setString" (for example). Or they all just use setObject, also fine.
+// TODO: Use a packet listener to figure out which players can see which doors. Use 1 specific entity in the door for
+//       this purpose (e.g. in the engine). Then keep a map of which players can see which doors somewhere, which can be used to send
+//       all kinds of interesting packets.
 
 /*
  * Doors
@@ -379,6 +382,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Openers / Movers
  */
+// TODO: Make sure the relmove isn't too far. If so, limit it to the highest/lowest possible value.
+// TODO: Instead of a relmove, use a full teleport every now and then to avoid client-server desync from dropped packets.
 // TODO: Port the chunk range shit from v1 to v2.
 // TODO: There is still a bunch of duplicated code (e.g. BigDoor#getPotentialNewCoordinates and
 //       RevolvingDoor#getPotentialNewCoordinates). This is horrible and should be fixed. Perhaps create a separate

@@ -56,6 +56,7 @@ public class BigDoorMover extends BlockMover
         super.time = vars[0];
 //        super.tickRate = (int) vars[1];
         super.tickRate = 1;
+        super.stopDelay = 0;
 
         init();
         super.startAnimation();
@@ -66,7 +67,7 @@ public class BigDoorMover extends BlockMover
      */
     protected void init()
     {
-        super.endCount = (int) (20 * super.time);
+        super.endCount = (int) (20 * super.time) + 1;
         step = angle / super.endCount;
         halfEndCount = super.endCount / 2;
         super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
@@ -80,8 +81,6 @@ public class BigDoorMover extends BlockMover
         final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
                                                                  startLocation.getY(), startLocation.getZ());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
-//        return new Vector3Dd(finalLoc.getBlockX(), finalLoc.getBlockY(), finalLoc.getBlockZ());
-//        return new Vector3Dd(finalLoc.getBlockX() + 1, finalLoc.getBlockY(), finalLoc.getBlockZ() + 1);
     }
 
     private IPPlayer pim16aap2 = null;
@@ -118,40 +117,19 @@ public class BigDoorMover extends BlockMover
         final double sin = Math.sin(stepSum);
 
         for (final PBlockData block : savedBlocks)
-        {
-            final double radius = block.getRadius();
-            if (radius == 0)
-                continue;
-
-//            if (ticks % 20 > 0)
-//                continue;
-
-            final Vector3Dd goalPos = getGoalPos(cos, sin, block.getStartX(), block.getStartY(), block.getStartZ());
-
-//            BigDoors.get().getMessagingInterface().broadcastMessage(goalPos.toString(3));
-
-//            block.getFBlock().setPosition(goalPos, new Vector3Dd(0, 0, 0));
-            block.getFBlock().teleport(goalPos);
-
-//            if (ticks % 2 == 0)
-//                BigDoors.get().getPlatform().getGlowingBlockSpawner()
-//                        .spawnGlowingBlock(pim16aap2, door.getWorld().getUID(), 1,
-//                                           goalPos.getX(), goalPos.getY(), goalPos.getZ(), PColor.GOLD);
-
-//            final Vector3Dd vec = goalPos.subtract(block.getFBlock().getPosition());
-//            block.getFBlock().setVelocity(vec.multiply(0.101));
-        }
+            block.getFBlock().teleport(getGoalPos(cos, sin, block.getStartX(), block.getStartY(), block.getStartZ()));
     }
 
-    @NotNull
-    private Vector3Dd getGoalPos(final double angle, final double startX, final double startY, final double startZ)
+
+    private @NotNull Vector3Dd getGoalPos(final double angle, final double startX, final double startY,
+                                          final double startZ)
     {
         return getGoalPos(Math.cos(angle), Math.sin(angle), startX, startY, startZ);
     }
 
-    @NotNull
-    private Vector3Dd getGoalPos(final double cos, final double sin, final double startX, final double startY,
-                                 final double startZ)
+
+    private @NotNull Vector3Dd getGoalPos(final double cos, final double sin, final double startX, final double startY,
+                                          final double startZ)
     {
         double translatedX = startX - rotationCenter.getX();
         double translatedZ = startZ - rotationCenter.getZ();
@@ -163,8 +141,8 @@ public class BigDoorMover extends BlockMover
     }
 
     @Override
-    @NotNull
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
+    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+                                                 final double zAxis)
     {
         return locationFactory.create(world, getGoalPos(angle, xAxis, yAxis, zAxis));
     }

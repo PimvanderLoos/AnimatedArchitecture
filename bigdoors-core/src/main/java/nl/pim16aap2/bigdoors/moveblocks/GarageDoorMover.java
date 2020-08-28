@@ -48,7 +48,7 @@ public class GarageDoorMover extends BlockMover
         double speed = 1 * multiplier;
         speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
         tickRate = Util.tickRateFromSpeed(speed);
-        tickRate = 3;
+        tickRate = 1;
 
         resultHeight = door.getMaximum().getY() + 1;
 
@@ -108,7 +108,7 @@ public class GarageDoorMover extends BlockMover
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
-        step = blocksToMove / ((float) super.endCount);
+        step = (blocksToMove + 0.5) / ((float) super.endCount);
         super.soundActive = new PSoundDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
@@ -255,10 +255,7 @@ public class GarageDoorMover extends BlockMover
     {
         final double stepSum = step * ticks;
         for (final PBlockData block : savedBlocks)
-        {
-            Vector3Dd vec = getVector.apply(block, stepSum).subtract(block.getFBlock().getPosition());
-            block.getFBlock().setVelocity(vec.multiply(0.101));
-        }
+            block.getFBlock().teleport(getVector.apply(block, stepSum));
     }
 
     @Override

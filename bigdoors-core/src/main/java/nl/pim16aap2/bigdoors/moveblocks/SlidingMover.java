@@ -108,26 +108,19 @@ public class SlidingMover extends BlockMover
         firstBlockData = savedBlocks.get(0);
     }
 
+    protected @NotNull Vector3Dd getGoalPos(final @NotNull PBlockData pBlockData, final double stepSum)
+    {
+        return pBlockData.getStartPosition().add(NS ? 0 : stepSum, 0, NS ? stepSum : 0);
+    }
+
     @Override
     protected void executeAnimationStep(final int ticks)
     {
         if (firstBlockData == null)
             return;
 
-        final Vector3Dd pos = firstBlockData.getStartPosition();
         final double stepSum = step * ticks;
-
-        if (NS)
-            pos.setZ(pos.getZ() + stepSum);
-        else
-            pos.setX(pos.getX() + stepSum);
-
-        if (firstBlockData.getStartLocation().getY() != yMin)
-            pos.setY(pos.getY() - .010001);
-        final Vector3Dd vec = pos.subtract(firstBlockData.getFBlock().getPosition());
-        vec.multiply(0.101);
-
-        for (final PBlockData block : savedBlocks)
-            block.getFBlock().setVelocity(vec);
+        for (final PBlockData pBlockData : savedBlocks)
+            pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
     }
 }

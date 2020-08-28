@@ -95,6 +95,11 @@ public class VerticalMover extends BlockMover
         firstBlockData = savedBlocks.get(0);
     }
 
+    protected @NotNull Vector3Dd getGoalPos(final @NotNull PBlockData pBlockData, final double stepSum)
+    {
+        return pBlockData.getStartPosition().add(0, stepSum, 0);
+    }
+
     @Override
     protected void executeAnimationStep(final int ticks)
     {
@@ -118,15 +123,8 @@ public class VerticalMover extends BlockMover
             return;
 
         final double stepSum = step * ticks;
-
-        final Vector3Dd pos = firstBlockData.getStartPosition();
-        pos.add(0, stepSum, 0);
-
-        final Vector3Dd vec = pos.subtract(firstBlockData.getFBlock().getPosition());
-        vec.multiply(0.101);
-
-        for (final PBlockData mbd : savedBlocks)
-            mbd.getFBlock().setVelocity(vec);
+        for (final PBlockData pBlockData : savedBlocks)
+            pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
     }
 
     @Override

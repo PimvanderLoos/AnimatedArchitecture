@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
+import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,7 +35,7 @@ public class SubCommandCancel extends SubCommand
             throw new CommandSenderNotPlayerException();
         Player player = (Player) sender;
 
-        ToolUserManager.get().abortToolUser(player.getUniqueId());
+        ToolUserManager.get().getToolUser(player.getUniqueId()).ifPresent(ToolUser::shutdown);
         plugin.getCommandWaiter(player).ifPresent(WaitForCommand::abortSilently);
         return true;
     }
