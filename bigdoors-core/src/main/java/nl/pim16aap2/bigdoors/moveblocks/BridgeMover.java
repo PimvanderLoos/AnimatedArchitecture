@@ -63,7 +63,6 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         final int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
         final double[] vars = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
         this.time = vars[0];
-        tickRate = (int) vars[1];
 
         switch (rotateDirection)
         {
@@ -107,20 +106,18 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
-    @NotNull
-    protected Vector3Dd getGoalPos(final double angle, final double x, final double y, final double z)
+    protected @NotNull Vector3Dd getGoalPos(final double angle, final double x, final double y, final double z)
     {
         return rotator.apply(new Vector3Dd(x, y, z), rotationCenter, angle);
     }
 
-    @NotNull
-    protected Vector3Dd getGoalPos(final double angle, final @NotNull PBlockData pBlockData)
+    protected @NotNull Vector3Dd getGoalPos(final double angle, final @NotNull PBlockData pBlockData)
     {
         return getGoalPos(angle, pBlockData.getStartX(), pBlockData.getStartY(), pBlockData.getStartZ());
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         return getGoalPos(angle, block);
     }
@@ -152,8 +149,8 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
     }
 
     @Override
-    @NotNull
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
+    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+                                                 final double zAxis)
     {
         return BigDoors.get().getPlatform().getPLocationFactory().create(world, getGoalPos(angle, xAxis, yAxis, zAxis));
     }

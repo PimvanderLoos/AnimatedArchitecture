@@ -68,11 +68,6 @@ public abstract class BlockMover implements IRestartable
     protected int endCount = 0;
 
     /**
-     * The tickrate of the animation.
-     */
-    protected int tickRate = 1;
-
-    /**
      * The sound to play while the animation is active.
      */
     @Nullable
@@ -83,13 +78,6 @@ public abstract class BlockMover implements IRestartable
      */
     @Nullable
     protected PSoundDescription soundFinish = null;
-
-    /**
-     * The amount of time (measured in ticks) between the "prepareToEndAnimation" phase (where blocks are moved to their
-     * final position while in their animated state.
-     */
-    protected int stopDelay = 50;
-
 
     /**
      * Constructs a {@link BlockMover}.
@@ -250,7 +238,7 @@ public abstract class BlockMover implements IRestartable
      * @param block The {@link PBlockData}.
      * @return The final position of a {@link PBlockData}.
      */
-    protected abstract Vector3Dd getFinalPosition(final @NotNull PBlockData block);
+    protected abstract @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block);
 
     /**
      * Runs a single step of the animation.
@@ -277,21 +265,6 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Executes the final step of the animation: Move all blocks to their final positions while still in their animated
-     * state.
-     */
-    protected void prepareToEndAnimation()
-    {
-        // Move the blocks to their final positions.
-        // TODO: Store the final location in the block or something.
-        for (final PBlockData block : savedBlocks)
-        {
-            Vector3Dd vec = getFinalPosition(block).subtract(block.getFBlock().getPosition());
-            block.getFBlock().setVelocity(vec.multiply(0.101));
-        }
-    }
-
-    /**
      * This method is called right before the animation is started (and after all variables have been initialized).
      * <p>
      * It does not do anything by default.
@@ -307,8 +280,6 @@ public abstract class BlockMover implements IRestartable
     {
         prepareAnimation();
 
-        stopDelay = 0;
-        endCount += 1;
         moverTask = new TimerTask()
         {
             int counter = 0;
@@ -336,11 +307,9 @@ public abstract class BlockMover implements IRestartable
                 if (counter % 12500 == 0)
                     respawnBlocks();
 
-                if (counter > (endCount + stopDelay))
+                if (counter > endCount)
                     stopAnimation();
-                else if (counter > endCount)
-                    prepareToEndAnimation();
-                else if (counter % tickRate == 0)
+                else
                     executeAnimationStep(counter);
             }
         };
@@ -472,7 +441,7 @@ public abstract class BlockMover implements IRestartable
      * @param zAxis  The old z-coordinate of the block.
      * @return The new Location of the block.
      */
-    protected abstract IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
+    protected abstract @NotNull IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
 
     /**
      * Toggles the open status of a {@link AbstractDoorBase}.
@@ -499,7 +468,7 @@ public abstract class BlockMover implements IRestartable
      *
      * @return The {@link AbstractDoorBase} being moved.
      */
-    public final AbstractDoorBase getDoor()
+    public final @NotNull AbstractDoorBase getDoor()
     {
         return door;
     }

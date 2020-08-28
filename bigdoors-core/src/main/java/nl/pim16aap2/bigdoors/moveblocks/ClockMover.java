@@ -30,12 +30,6 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
     protected final Function<PBlockData, Boolean> isHourArm;
 
     /**
-     * The start position of the clock.
-     */
-//    private static final float STARTPOINT = (float) Math.PI / 2;
-    protected static final float STARTPOINT = 0;
-
-    /**
      * The step of 1 minute on a clock, or 1/60th of a circle in radians.
      */
     protected static final float MINUTESTEP = (float) Math.PI / 30;
@@ -70,7 +64,6 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
     protected void init()
     {
         super.endCount = 40000;
-        super.tickRate = 1;
     }
 
     /**
@@ -94,7 +87,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         return block.getStartPosition();
     }
@@ -133,7 +126,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
      */
     private static float minutesToAngle(final int minutes)
     {
-        return (float) Util.clampAngleRad(STARTPOINT - minutes * MINUTESTEP);
+        return (float) Util.clampAngleRad(-minutes * MINUTESTEP);
     }
 
     /**
@@ -146,6 +139,6 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
      */
     private static float hoursToAngle(final int hours, final int minutes)
     {
-        return (float) Util.clampAngleRad(STARTPOINT - hours * HOURSTEP - minutes * HOURSUBSTEP);
+        return (float) Util.clampAngleRad(-hours * HOURSTEP - minutes * HOURSUBSTEP);
     }
 }

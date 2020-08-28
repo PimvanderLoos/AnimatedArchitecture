@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
@@ -44,11 +43,6 @@ public class GarageDoorMover extends BlockMover
                            final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
         super(door, time, skipAnimation, rotateDirection, player, finalMin, finalMax, cause, actionType);
-
-        double speed = 1 * multiplier;
-        speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
-        tickRate = Util.tickRateFromSpeed(speed);
-        tickRate = 1;
 
         resultHeight = door.getMaximum().getY() + 1;
 
@@ -113,7 +107,7 @@ public class GarageDoorMover extends BlockMover
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
-    private Vector3Dd getVectorUp(final @NotNull PBlockData block, final double stepSum)
+    private @NotNull Vector3Dd getVectorUp(final @NotNull PBlockData block, final double stepSum)
     {
         final double currentHeight = Math.min(resultHeight, block.getStartY() + stepSum);
         double xMod = 0;
@@ -130,7 +124,7 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector3Dd getVectorDownNorth(final @NotNull PBlockData block, final double stepSum)
+    private @NotNull Vector3Dd getVectorDownNorth(final @NotNull PBlockData block, final double stepSum)
     {
         final double goalZ = door.getEngine().getZ();
         final double pivotZ = goalZ + 1.5;
@@ -149,7 +143,7 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector3Dd getVectorDownSouth(final @NotNull PBlockData block, final double stepSum)
+    private @NotNull Vector3Dd getVectorDownSouth(final @NotNull PBlockData block, final double stepSum)
     {
         final double goalZ = door.getEngine().getZ();
         final double pivotZ = goalZ - 1.5;
@@ -167,7 +161,7 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector3Dd getVectorDownEast(final @NotNull PBlockData block, final double stepSum)
+    private @NotNull Vector3Dd getVectorDownEast(final @NotNull PBlockData block, final double stepSum)
     {
         final double goalX = door.getEngine().getX();
         final double pivotX = goalX - 1.5;
@@ -185,7 +179,7 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private Vector3Dd getVectorDownWest(final @NotNull PBlockData block, final double stepSum)
+    private @NotNull Vector3Dd getVectorDownWest(final @NotNull PBlockData block, final double stepSum)
     {
         final double goalX = door.getEngine().getX();
         final double pivotX = goalX + 1.5;
@@ -205,7 +199,8 @@ public class GarageDoorMover extends BlockMover
     }
 
     @Override
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
+    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+                                                 final double zAxis)
     {
         double newX, newY, newZ;
 
@@ -235,7 +230,7 @@ public class GarageDoorMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         final @NotNull IPLocationConst startLocation = block.getStartLocation();
         final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),

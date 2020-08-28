@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doors.Flag;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,8 +19,6 @@ import java.util.function.BiFunction;
  */
 public class FlagMover extends BlockMover
 {
-    private static final double maxSpeed = 3;
-    private static final double minSpeed = 0.1;
     private final BiFunction<PBlockData, Integer, Vector3Dd> getGoalPos;
     private final boolean NS;
     private final double period;
@@ -43,15 +40,8 @@ public class FlagMover extends BlockMover
         period = length * 2.0f;
         amplitude = length / 4.0;
 
-        double speed = 1 * multiplier;
-        speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
         this.time = time;
-
-        super.tickRate = Util.tickRateFromSpeed(speed);
-        super.tickRate = 1;
-
-        waveSpeed = super.tickRate * 10.0f;
-        stopDelay = 0;
+        waveSpeed = 10.0f;
 
         init();
         super.startAnimation();
@@ -102,7 +92,7 @@ public class FlagMover extends BlockMover
 //        return offset;
     }
 
-    private Vector3Dd getGoalPosNS(final @NotNull PBlockData block, final int counter)
+    private @NotNull Vector3Dd getGoalPosNS(final @NotNull PBlockData block, final int counter)
     {
         double xOff = 0;
         if (block.getRadius() > 0)
@@ -110,7 +100,7 @@ public class FlagMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xOff, block.getStartY(), block.getStartZ());
     }
 
-    private Vector3Dd getGoalPosEW(final @NotNull PBlockData block, final int counter)
+    private @NotNull Vector3Dd getGoalPosEW(final @NotNull PBlockData block, final int counter)
     {
         double zOff = 0;
         if (block.getRadius() > 0)
@@ -119,13 +109,14 @@ public class FlagMover extends BlockMover
     }
 
     @Override
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
+    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+                                                 final double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         return block.getStartPosition();
     }
@@ -133,9 +124,8 @@ public class FlagMover extends BlockMover
     @Override
     protected void executeAnimationStep(final int ticks)
     {
-        final int counter = ticks / tickRate;
         for (final PBlockData block : savedBlocks)
-            block.getFBlock().teleport(getGoalPos.apply(block, counter));
+            block.getFBlock().teleport(getGoalPos.apply(block, ticks));
     }
 
     @Override

@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.jetbrains.annotations.NotNull;
@@ -26,8 +25,6 @@ import java.util.function.BiFunction;
  */
 public class RevolvingDoorMover extends BlockMover
 {
-    private static final double maxSpeed = 3;
-    private static final double minSpeed = 0.1;
     private final BiFunction<PBlockData, Double, Vector3Dd> getGoalPos;
     private final RotateDirection rotateDirection;
 
@@ -50,11 +47,6 @@ public class RevolvingDoorMover extends BlockMover
 
         this.time = time;
         this.rotateDirection = rotateDirection;
-
-        double speed = 1 * multiplier;
-        speed = speed > maxSpeed ? 3 : Math.max(speed, minSpeed);
-        tickRate = Util.tickRateFromSpeed(speed);
-        tickRate = 3;
 
         switch (rotateDirection)
         {
@@ -88,34 +80,36 @@ public class RevolvingDoorMover extends BlockMover
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
-    private Vector3Dd getGoalPosClockwise(final double radius, final double startAngle, final double startY,
-                                          final double stepSum)
+    private @NotNull Vector3Dd getGoalPosClockwise(final double radius, final double startAngle, final double startY,
+                                                   final double stepSum)
     {
         final double posX = 0.5 + door.getEngine().getX() - radius * Math.sin(startAngle + stepSum);
         final double posZ = 0.5 + door.getEngine().getZ() - radius * Math.cos(startAngle + stepSum);
         return new Vector3Dd(posX, startY, posZ);
     }
 
-    private Vector3Dd getGoalPosClockwise(final @NotNull PBlockData block, final double stepSum)
+    private @NotNull Vector3Dd getGoalPosClockwise(final @NotNull PBlockData block, final double stepSum)
     {
         return getGoalPosClockwise(block.getRadius(), block.getStartAngle(), block.getStartY(), stepSum);
     }
 
-    private Vector3Dd getGoalPosCounterClockwise(final double radius, final double startAngle, final double startY,
-                                                 final double stepSum)
+    private @NotNull Vector3Dd getGoalPosCounterClockwise(final double radius, final double startAngle,
+                                                          final double startY,
+                                                          final double stepSum)
     {
         final double posX = 0.5 + door.getEngine().getX() - radius * Math.sin(startAngle - stepSum);
         final double posZ = 0.5 + door.getEngine().getZ() - radius * Math.cos(startAngle - stepSum);
         return new Vector3Dd(posX, startY, posZ);
     }
 
-    private Vector3Dd getGoalPosCounterClockwise(final @NotNull PBlockData block, final double stepSum)
+    private @NotNull Vector3Dd getGoalPosCounterClockwise(final @NotNull PBlockData block, final double stepSum)
     {
         return getGoalPosCounterClockwise(block.getRadius(), block.getStartAngle(), block.getStartY(), stepSum);
     }
 
     @Override
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
+    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+                                                 final double zAxis)
     {
         // TODO: Redo all this, it's too hacky.
         final double startAngle = getStartAngle((int) xAxis, (int) yAxis, (int) zAxis);
@@ -128,7 +122,7 @@ public class RevolvingDoorMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         final @NotNull Vector3DdConst startLocation = block.getStartPosition();
         final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),

@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -18,8 +16,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 public class BigDoorMover extends BlockMover
 {
@@ -54,9 +50,6 @@ public class BigDoorMover extends BlockMover
         final int doorLength = Math.max(xLen, zLen) + 1;
         final double[] vars = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
         super.time = vars[0];
-//        super.tickRate = (int) vars[1];
-        super.tickRate = 1;
-        super.stopDelay = 0;
 
         init();
         super.startAnimation();
@@ -75,7 +68,7 @@ public class BigDoorMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         final @NotNull Vector3DdConst startLocation = block.getStartPosition();
         final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
@@ -83,34 +76,11 @@ public class BigDoorMover extends BlockMover
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
-    private IPPlayer pim16aap2 = null;
-
-    private boolean hasPreparedEnd = false;
-
-    @Override
-    protected void prepareToEndAnimation()
-    {
-        if (hasPreparedEnd)
-            return;
-        for (final PBlockData block : savedBlocks)
-        {
-            final Vector3Dd goalPos = getGoalPos(endCos, endSin, block.getStartX(), block.getStartY(),
-                                                 block.getStartZ());
-            block.getFBlock().teleport(goalPos, new Vector3Dd(0, 0, 0),
-                                       ICustomCraftFallingBlock.TeleportMode.NO_VELOCITY);
-        }
-        hasPreparedEnd = true;
-    }
-
     @Override
     protected void executeAnimationStep(final int ticks)
     {
         if (ticks == halfEndCount)
             applyRotation();
-
-        if (pim16aap2 == null)
-            pim16aap2 = BigDoors.get().getPlatform().getPPlayerFactory()
-                                .create(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), "pim16aap2");
 
         final double stepSum = step * ticks;
         final double cos = Math.cos(stepSum);

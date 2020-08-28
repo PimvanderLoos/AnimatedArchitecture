@@ -47,7 +47,7 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         return block.getStartPosition();
     }
