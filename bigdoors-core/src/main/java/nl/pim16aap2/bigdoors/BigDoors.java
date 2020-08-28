@@ -41,6 +41,9 @@ import org.jetbrains.annotations.Nullable;
 //       separate thread. If anything fails, make sure to try to unload everything properly.
 //       Only keep something loaded to inform users about the issue and to handle command attempts
 //       gracefully.
+// TODO: Consider breaking utilities such as the GlowingBlockSpawner and the Falling Blocks up into
+//       separate repositories. Perhaps other people would like to use them as well? Or at least the GlowingBlockSpawner.
+//       The falling blocks might be a little too specialized.
 // TODO: Consider adding linked doors that will toggle upon activation of any of the existing doors.
 //       Need to figure out how to deal with the new powerblock system, though. Perhaps let the doors
 //       share a powerblock? Might be tricky to do in an efficient manner.
@@ -64,9 +67,6 @@ import org.jetbrains.annotations.Nullable;
 //       This would make door definition much more friendly.
 //       The database might be able to use the components as well. Perhaps each component should have an ID?
 //       Then it could just store "PreparedStatement::setString" (for example). Or they all just use setObject, also fine.
-// TODO: Use a packet listener to figure out which players can see which doors. Use 1 specific entity in the door for
-//       this purpose (e.g. in the engine). Then keep a map of which players can see which doors somewhere, which can be used to send
-//       all kinds of interesting packets.
 
 /*
  * Doors
@@ -184,7 +184,9 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Handle restartable interface options in DatabaseManager class.
 // TODO: Don't use the local maven files. Use this method instead: https://stackoverflow.com/a/4955695
 // TODO: Don't just play sound at the door's engine. Instead, play it more realistically (so not from a single point).
-//       Perhaps packets might help with this.
+//       If you look at CustomEntityFallingBlock_V1_15_R1, you can see how to get a list of all players that can 'see'
+//       a given entity. Consider using one or more entities (center, 8 corners?) to determine which players to
+//       actually send the audio to.
 // TODO: Move AbortableTaskManager and PowerBlockRedstoneManagerSpigot to bigdoors-core.
 // TODO: Implement TPS limit. Below a certain TPS, doors cannot be opened.
 //       double tps = ((CraftServer) Bukkit.getServer()).getServer().recentTps[0]; // 3 values: last 1, 5, 15 mins.
@@ -302,6 +304,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       function that takes the array of Objects and returns a new array of Objects that should be put in the new
 //       type-specific table. All this should be done off the main thread and the database should be locked until it's done.
 // TODO: Be consistent in UUID usage. Either use Strings everywhere or UUIDs everywhere, not the current mix.
+// TODO: Add more overloaded methods for different types to make stuff easier to use. For example, if a method expexts
+//       a Player's UUID, don't just have a method for the IPPlayer, but also for the UUID. Same for worlds, etc.
 // TODO: When registering DoorTypes, make sure to take into account that the database might be upgrading itself on
 //       another thread. If this is the case, wait until the upgrades have finished before registering them.
 //       Just return a CompletableFuture<Boolean> instead of a boolean from the register method.
@@ -403,8 +407,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       using a revolving door with an off-center rotation point. The same applies to
 // TODO: Figure out what to do with the player sometimes being nullable and notnull at other times. Make a clear decision.
 // TODO: Get rid of the weird speed multipliers in the CustomEntityFallingBlock_VX_XX_RX classes.
-// TODO: Remove getNewLocation() method from Movers. Instead, they should ALL use a GNL. GNLs should not just get the
-//       x,y,z values, but the entire block and blocksMoved. Then they can figure it out for themselves.
 // TODO: Clamp angles to [-2PI ; 2PI].
 // TODO: Make sure the new types don't just open instantly without a provided time parameter.
 // TODO: Rename variables in updateCoords to avoid confusion. Perhaps a complete removal altogether would be nice as well.
