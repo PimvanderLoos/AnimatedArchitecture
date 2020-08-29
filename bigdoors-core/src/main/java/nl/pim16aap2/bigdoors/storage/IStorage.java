@@ -144,7 +144,7 @@ public interface IStorage
      * @param name       The name of the doors to search for.
      * @return All doors owned by the given player with the given name.
      */
-    @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID, final @NotNull String name);
+    @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID, final @NotNull String name);
 
     /**
      * Gets all the doors owned by the the given player.
@@ -152,7 +152,7 @@ public interface IStorage
      * @param playerUUID The UUID of the player to search for.
      * @return All doors owned by the given player.
      */
-    @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID);
+    @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID);
 
     /**
      * Gets all the doors with the given name, regardless of who owns them.
@@ -160,7 +160,7 @@ public interface IStorage
      * @param name The name of the doors to search for.
      * @return All doors with the given name or an empty Optional if none exist.
      */
-    @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull String name);
+    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String name);
 
     /**
      * Gets all the doors with the given name, owned by the player with at least a certain permission level.
@@ -170,9 +170,9 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
-    @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID,
-                                                       final @NotNull String doorName,
-                                                       final int maxPermission);
+    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID,
+                                             final @NotNull String doorName,
+                                             final int maxPermission);
 
     /**
      * Gets all the doors owned by a given player with at least a certain permission level.
@@ -181,7 +181,7 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors owned by the player with at least a certain permission level.
      */
-    @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID, final int maxPermission);
+    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID, final int maxPermission);
 
     /**
      * Updates the name of the player.
@@ -284,12 +284,15 @@ public interface IStorage
     boolean setLock(final long doorUID, final boolean newLockStatus);
 
     /**
-     * Inserts a new door in the database.
+     * Inserts a new door in the database. If the insertion was successful, a new {@link AbstractDoorBase} will be
+     * created with the correct doorUID.
      *
      * @param door The door to insert.
-     * @return True if the update was successful.
+     * @return The {@link AbstractDoorBase} that was just inserted if insertion was successful. This is
+     * <u><b>NOT!!</b></u> the same object as the
+     * one passed to this method.
      */
-    boolean insert(final @NotNull AbstractDoorBase door);
+    @NotNull Optional<AbstractDoorBase> insert(final @NotNull AbstractDoorBase door);
 
     /**
      * Updates the type-specific data of an {@link AbstractDoorBase} in the database. This data is provided by {@link

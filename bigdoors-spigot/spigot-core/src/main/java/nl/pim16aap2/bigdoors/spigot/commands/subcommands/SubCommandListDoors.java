@@ -14,8 +14,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,16 +56,13 @@ public class SubCommandListDoors extends SubCommand
 
         if (sender instanceof Player)
             BigDoors.get().getDatabaseManager().getDoors(((Player) sender).getUniqueId(), name).whenComplete(
-                (optionalDoorList, throwable) -> execute(sender, optionalDoorList.orElse(Collections.emptyList())));
+                (doorList, throwable) -> execute(sender, doorList));
 
         else if (name != null)
             // If the console requested the door(s), first try to get all doors with the provided name.
             BigDoors.get().getDatabaseManager().getDoors(name).whenComplete(
-                (optionalDoorList, throwable) ->
+                (doorList, throwable) ->
                 {
-                    @NotNull List<AbstractDoorBase> doorList = optionalDoorList
-                        .orElse(Collections.emptyList());
-
                     // If no door with the provided name could be found, list all doors owned by the
                     // player with that name instead.
                     if (doorList.isEmpty())
@@ -76,8 +71,7 @@ public class SubCommandListDoors extends SubCommand
                         {
                             Optional<UUID> playerUUID = SpigotUtil.playerUUIDFromString(name);
                             if (playerUUID.isPresent())
-                                doorList = BigDoors.get().getDatabaseManager().getDoors(playerUUID.get()).get()
-                                                   .orElse(Collections.emptyList());
+                                doorList = BigDoors.get().getDatabaseManager().getDoors(playerUUID.get()).get();
                         }
                         catch (InterruptedException | ExecutionException e)
                         {

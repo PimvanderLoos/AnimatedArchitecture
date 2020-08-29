@@ -32,7 +32,7 @@ public class PPreparedStatement
     /**
      * Keeps track of the number of variables that should be skipped.
      * <p>
-     * This number is almost always going to 0, but in case {@link #setTableName(int, String)} has been invoked, it will
+     * This number is almost always going to 0, but in case {@link #setRawString(int, String)} has been invoked, it will
      * be higher.
      */
     private int skipCount = 0;
@@ -120,14 +120,14 @@ public class PPreparedStatement
 
     /**
      * This method does not do anything. Setting table named should be done via {@link
-     * PPreparedStatement#setTableName(int, String)} instead. This method only exists to avoid null-values in a simple
+     * PPreparedStatement#setRawString(int, String)} instead. This method only exists to avoid null-values in a simple
      * manner.
      *
      * @param preparedStatement Ignored.
      * @param idx               Ignored.
      * @param obj               Ignored.
      */
-    private static void setTableName(final @NotNull PreparedStatement preparedStatement, final int idx,
+    private static void setRawString(final @NotNull PreparedStatement preparedStatement, final int idx,
                                      final @NotNull Object obj)
     {
     }
@@ -284,21 +284,22 @@ public class PPreparedStatement
     }
 
     /**
-     * Sets the name of a table. Unlike all other types, this is executed before constructing the actual {@link
-     * PreparedStatement} and modifies {@link #statement}.
+     * Replaces a '?' at the given index with a raw String.. Unlike all other types, this is executed before
+     * constructing the actual {@link PreparedStatement} and modifies {@link #statement}.
      * <p>
-     * Note that the name must comply with {@link IStorage#isValidTableName(String)}. This means that only alphanumerics
-     * characters and the underscore character are allowed.
+     * Note that you'll have to make sure that the String is sanitized and valid. For example, when using it to specify
+     * the name of a table, the name must comply with {@link IStorage#isValidTableName(String)}. This means that only
+     * alphanumerics characters and the underscore character are allowed.
      * <p>
-     * Most importantly: When using this method, it MUST BE USED in the correct order. Variables that should be set
-     * before should be added before and those that should be set after should be added after.
+     * Most importantly: When using this method, it <b><u>MUST BE USED in the correct order</u></b>. Variables that
+     * should be set before should be added before and those that should be set after should be added after.
      *
      * @param idx The index of the variable character (= "?") in the statement that should be replaced by the table
      *            name.
      * @param obj The name of the table.
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setTableName(final int idx, final String obj)
+    public @NotNull PPreparedStatement setRawString(final int idx, final String obj)
     {
         if (!IStorage.isValidTableName(obj))
         {

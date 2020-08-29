@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -85,7 +86,7 @@ public class ChunkListener implements Listener
         long chunkHash = Util.simpleChunkHashFromChunkCoordinates(event.getChunk().getX(), event.getChunk().getZ());
         BigDoors.get().getDatabaseManager().getDoorsInChunk(chunkHash).whenComplete(
             (doors, throwable) ->
-                doors.forEach(doorUID -> BigDoors.get().getDatabaseManager().getDoor(doorUID).whenComplete(
+                doors.forEach(doorUID -> DoorRegistry.get().getDoor(doorUID).whenComplete(
                     (optionalDoor, throwable2) ->
                         optionalDoor.ifPresent(
                             door ->

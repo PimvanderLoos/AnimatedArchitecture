@@ -32,6 +32,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -325,7 +326,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *
      * @throws SQLException
      */
-    private @NotNull Object[] createTypeData(final @NotNull ResultSet doorBaseRS)
+    private @NotNull Object @NotNull [] createTypeData(final @NotNull ResultSet doorBaseRS)
         throws SQLException
     {
         final @NotNull Optional<DoorType> doorType =
@@ -364,11 +365,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return -1;
         }
 
-        int updateStatus = executeUpdate(SQLStatement.INSERT_OR_IGNORE_DOOR_TYPE.constructPPreparedStatement()
-                                                                                .setString(1, doorType.getPluginName())
-                                                                                .setString(2, doorType.getSimpleName())
-                                                                                .setInt(3, doorType.getTypeVersion())
-                                                                                .setString(4, typeTableName));
+        final int updateStatus = executeUpdate(
+            SQLStatement.INSERT_OR_IGNORE_DOOR_TYPE.constructPPreparedStatement()
+                                                   .setString(1, doorType.getPluginName())
+                                                   .setString(2, doorType.getSimpleName())
+                                                   .setInt(3, doorType.getTypeVersion())
+                                                   .setString(4, typeTableName));
         if (updateStatus == -1)
         {
             PLogger.get().logThrowable(
@@ -403,7 +405,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                          .append(parameter.getParameterType()).append(" NOT NULL");
         tableCreationStatementBuilder.append(", UNIQUE(doorUID));");
 
-        int insertStatus = executeUpdate(new PPreparedStatement(0, tableCreationStatementBuilder.toString()));
+        final int insertStatus = executeUpdate(new PPreparedStatement(0, tableCreationStatementBuilder.toString()));
 
         // If the table creation failed, delete the entry from the DoorType table.
         if (insertStatus == -1)
@@ -571,7 +573,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }));
     }
 
-    private long insert(final @NotNull Connection conn, final @NotNull AbstractDoorBase door, final long doorTypeID,
+    private Long insert(final @NotNull Connection conn, final @NotNull AbstractDoorBase door, final long doorTypeID,
                         final @NotNull Object[] typeSpecificData)
     {
         final @NotNull Optional<Pair<String, Integer>> typeSpecificDataInsertStatementOpt
@@ -580,7 +582,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             PLogger.get().logThrowable(new NullPointerException("Failed to obtain type-specific insertion statement " +
                                                                     "for type with ID: " + doorTypeID));
-            return -1;
+            return -1L;
         }
 
         final @NotNull Pair<String, Integer> typeSpecificDataInsertStatement = typeSpecificDataInsertStatementOpt.get();
@@ -638,16 +640,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return doorUID;
     }
 
-    // TODO: Return the UID of the door.
     @Override
-    public boolean insert(final @NotNull AbstractDoorBase door)
+    public @NotNull Optional<AbstractDoorBase> insert(final @NotNull AbstractDoorBase door)
     {
         final @NotNull Optional<Object[]> typeSpecificDataOpt = door.getDoorType().getTypeData(door);
         if (!typeSpecificDataOpt.isPresent())
         {
             PLogger.get().logThrowable(new IllegalArgumentException(
                 "Could not get type-specific data for a new door of type: " + door.getDoorType().toString()));
-            return false;
+            return Optional.empty();
         }
 
         final long doorTypeID = DoorTypeManager.get().getDoorTypeID(door.getDoorType()).orElse(-1L);
@@ -655,11 +656,18 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             PLogger.get()
                    .logThrowable(new SQLException("Could not find DoorType: " + door.getDoorType().toString()));
-            return false;
+            return Optional.empty();
         }
 
-        return executeTransaction(
-            conn -> (insert(conn, door, doorTypeID, typeSpecificDataOpt.get()) > 0), false);
+        final long doorUID = executeTransaction(conn -> insert(conn, door, doorTypeID, typeSpecificDataOpt.get()), -1L);
+        if (doorUID > 0)
+            return door.getDoorType().constructDoor(
+                new AbstractDoorBase.DoorData(doorUID, door.getName(), door.getMinimum(), door.getMaximum(),
+                                              door.getEngine(), door.getPowerBlock(), door.getWorld(), door.isOpen(),
+                                              door.getOpenDir(), door.getDoorOwner(), door.isLocked()),
+                typeSpecificDataOpt.get());
+
+        return Optional.empty();
     }
 
     /**
@@ -707,7 +715,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         final @NotNull Object[] typeData =
             executeQuery(SQLStatement.GET_TYPE_SPECIFIC_DATA.constructPPreparedStatement()
-                                                            .setTableName(1, doorBaseRS.getString("typeTableName"))
+                                                            .setRawString(1, doorBaseRS.getString("typeTableName"))
                                                             .setString(2, doorBaseRS.getString("typeTableName"))
                                                             .setLong(3, doorBaseRS.getLong("id")),
                          this::createTypeData, new Object[]{});
@@ -726,14 +734,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *
      * @throws SQLException
      */
-    private @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull ResultSet doorBaseRS)
+    private @NotNull List<AbstractDoorBase> getDoors(final @NotNull ResultSet doorBaseRS)
         throws SQLException
     {
+        for (int idx = 0; idx < 100; ++idx)
+            System.out.println("private @NotNull List<AbstractDoorBase> getDoors(final @NotNull ResultSet doorBaseRS)");
+
         // Make sure the resultset isn't empty.
         if (!doorBaseRS.isBeforeFirst())
-            return Optional.empty();
+            return Collections.emptyList();
 
-        final List<AbstractDoorBase> doors = new ArrayList<>();
+        final @NotNull List<AbstractDoorBase> doors = new ArrayList<>();
         while (doorBaseRS.next())
         {
             if (!DoorTypeManager.get().isRegistered(doorBaseRS.getInt("doorType")))
@@ -744,14 +755,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
             final @NotNull Object[] typeData =
                 executeQuery(SQLStatement.GET_TYPE_SPECIFIC_DATA.constructPPreparedStatement()
-                                                                .setTableName(1, doorBaseRS.getString("typeTableName"))
+                                                                .setRawString(1, doorBaseRS.getString("typeTableName"))
                                                                 .setString(2, doorBaseRS.getString("typeTableName"))
                                                                 .setLong(3, doorBaseRS.getLong("id")),
                              this::createTypeData, new Object[]{});
 
             constructDoor(doorBaseRS, typeData).ifPresent(doors::add);
         }
-        return doors.isEmpty() ? Optional.empty() : Optional.of(doors);
+        return doors;
     }
 
     @Override
@@ -760,6 +771,19 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return executeQuery(SQLStatement.GET_DOOR_BASE_FROM_ID.constructPPreparedStatement()
                                                               .setLong(1, doorUID),
                             this::getDoor, Optional.empty());
+    }
+
+    //    @Override
+    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull List<Long> doorUIDs)
+    {
+        final @NotNull StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < doorUIDs.size(); i++)
+            stringBuilder.append("?,");
+
+        final @NotNull String questionMarks = stringBuilder.deleteCharAt(stringBuilder.length() - 1).toString();
+        return executeQuery(SQLStatement.GET_DOOR_BASES_FROM_IDS.constructPPreparedStatement()
+                                                                .setRawString(1, questionMarks),
+                            this::getDoors, new ArrayList<>(0));
     }
 
     @Override
@@ -837,43 +861,43 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID,
-                                                              final @NotNull String doorName,
-                                                              final int maxPermission)
+    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID,
+                                                    final @NotNull String doorName,
+                                                    final int maxPermission)
     {
         return executeQuery(SQLStatement.GET_NAMED_DOORS_OWNED_BY_PLAYER.constructPPreparedStatement()
                                                                         .setString(1, playerUUID)
                                                                         .setString(2, doorName)
                                                                         .setInt(3, maxPermission),
-                            this::getDoors, Optional.empty());
+                            this::getDoors, Collections.emptyList());
     }
 
     @Override
-    public @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID,
-                                                              final @NotNull String name)
+    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID,
+                                                    final @NotNull String name)
     {
         return getDoors(playerUUID.toString(), name, 0);
     }
 
     @Override
-    public @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull String name)
+    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull String name)
     {
         return executeQuery(SQLStatement.GET_DOORS_WITH_NAME.constructPPreparedStatement()
                                                             .setString(1, name),
-                            this::getDoors, Optional.empty());
+                            this::getDoors, Collections.emptyList());
     }
 
     @Override
-    public @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID, int maxPermission)
+    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID, int maxPermission)
     {
         return executeQuery(SQLStatement.GET_DOORS_OWNED_BY_PLAYER_WITH_LEVEL.constructPPreparedStatement()
                                                                              .setString(1, playerUUID)
                                                                              .setInt(2, maxPermission),
-                            this::getDoors, Optional.empty());
+                            this::getDoors, Collections.emptyList());
     }
 
     @Override
-    public @NotNull Optional<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID)
+    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID)
     {
         return getDoors(playerUUID.toString(), 0);
     }
@@ -924,7 +948,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeQuery(SQLStatement.GET_PRIME_OWNER.constructPPreparedStatement().setLong(1, doorUID),
                             (resultSet -> Optional.of(new DoorOwner(doorUID,
-                                                                    UUID.fromString(resultSet.getString("playerUUID")),
+                                                                    UUID.fromString(
+                                                                        resultSet.getString("playerUUID")),
                                                                     resultSet.getString("playerName"), 0))),
                             Optional.empty());
     }

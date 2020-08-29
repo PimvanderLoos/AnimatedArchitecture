@@ -2,12 +2,17 @@ package nl.pim16aap2.bigdoors;
 
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
+import nl.pim16aap2.bigdoors.api.IRestartable;
+import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /*
  * Experimental
@@ -471,13 +476,16 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
  *
  * @author Pim
  */
-public final class BigDoors
+public final class BigDoors implements IRestartableHolder, IRestartable
 {
     @NotNull
     private static final BigDoors instance = new BigDoors();
 
     @Nullable
     private IMessagingInterface messagingInterface = null;
+
+    @NotNull
+    private final Set<IRestartable> restartables = new HashSet<>();
 
     /**
      * The platform to use. e.g. "Spigot".
@@ -567,7 +575,6 @@ public final class BigDoors
         this.messagingInterface = messagingInterface;
     }
 
-
     /**
      * Gets the {@link DatabaseManager} instance.
      *
@@ -576,5 +583,29 @@ public final class BigDoors
     public @NotNull DatabaseManager getDatabaseManager()
     {
         return DatabaseManager.get();
+    }
+
+    @Override
+    public void restart()
+    {
+        restartables.forEach(IRestartable::restart);
+    }
+
+    @Override
+    public void shutdown()
+    {
+        restartables.forEach(IRestartable::shutdown);
+    }
+
+    @Override
+    public void registerRestartable(@NotNull IRestartable restartable)
+    {
+        restartables.add(restartable);
+    }
+
+    @Override
+    public boolean isRestartableRegistered(@NotNull IRestartable restartable)
+    {
+        return restartables.contains(restartable);
     }
 }

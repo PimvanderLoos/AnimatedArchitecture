@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -372,10 +373,10 @@ public abstract class Creator extends ToolUser
         // TODO: Don't complete the process until the CompletableFuture has an actual result.
         //       Or maybe just finish it anyway and send whatever message once it is done.
         //       There's nothing that can be done about failure anyway.
-        DatabaseManager.get().addDoorBase(door).whenComplete(
-            (result, throwable) ->
+        DoorRegistry.get().addDoorBase(door).whenComplete(
+            (newDoor, throwable) ->
             {
-                if (!result)
+                if (!newDoor.isPresent())
                     PLogger.get().severe("Failed to insert door after creation!");
             });
     }

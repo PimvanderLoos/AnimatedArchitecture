@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.ICommand;
@@ -24,6 +25,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -354,7 +356,7 @@ public class CommandManager implements CommandExecutor
             door = CompletableFuture.supplyAsync(
                 () ->
                 {
-                    Optional<List<AbstractDoorBase>> doors;
+                    List<AbstractDoorBase> doors;
                     try
                     {
                         doors = BigDoors.get().getDatabaseManager().getDoors(((Player) sender).getUniqueId(), doorArg)
@@ -363,25 +365,25 @@ public class CommandManager implements CommandExecutor
                     catch (InterruptedException | ExecutionException e)
                     {
                         plugin.getPLogger().logThrowable(e);
-                        doors = Optional.empty();
+                        doors = Collections.emptyList();
                     }
-                    if (!doors.isPresent() || doors.get().isEmpty())
+                    if (doors.isEmpty())
                     {
                         handleException(new NotEnoughDoorsException(), sender, cmd, args);
                         return Optional.empty();
                     }
-                    else if (doors.get().size() > 1)
+                    else if (doors.size() > 1)
                     {
                         handleException(new TooManyDoorsException(), sender, cmd, args);
                         return Optional.empty();
                     }
-                    return Optional.of(doors.get().get(0));
+                    return Optional.of(doors.get(0));
                 });
         }
         else
             try
             {
-                door = BigDoors.get().getDatabaseManager().getDoor(Long.parseLong(doorArg));
+                door = DoorRegistry.get().getDoor(Long.parseLong(doorArg));
             }
             catch (NumberFormatException e)
             {

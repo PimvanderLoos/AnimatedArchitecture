@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -82,9 +81,9 @@ public class GUI
         page = 0;
         items = new ConcurrentHashMap<>();
         BigDoors.get().getDatabaseManager().getDoors(guiHolder.getUUID()).whenComplete(
-            (optionalDoorList, throwable) ->
+            (doorList, throwable) ->
             {
-                doorBases = optionalDoorList.orElse(new ArrayList<>());
+                doorBases = doorList;
                 sort();
                 guiPage = new GUIPageDoorList(plugin, this);
                 BigDoors.get().getPlatform().newPExecutor().runOnMainThread(this::update);
