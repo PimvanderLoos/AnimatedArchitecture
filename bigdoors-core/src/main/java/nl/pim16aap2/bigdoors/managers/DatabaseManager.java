@@ -134,7 +134,7 @@ public final class DatabaseManager extends Restartable
      * @param newDoor The new {@link AbstractDoorBase}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    @NotNull CompletableFuture<Optional<AbstractDoorBase>> addDoorBase(final @NotNull AbstractDoorBase newDoor)
+    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> addDoorBase(final @NotNull AbstractDoorBase newDoor)
     {
         return CompletableFuture.supplyAsync(
             () ->
@@ -156,8 +156,9 @@ public final class DatabaseManager extends Restartable
      * @param door The door.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    @NotNull CompletableFuture<Boolean> removeDoor(final @NotNull AbstractDoorBase door)
+    public @NotNull CompletableFuture<Boolean> deleteDoor(final @NotNull AbstractDoorBase door)
     {
+        DoorRegistry.get().deleteDoor(door.getDoorUID());
         return CompletableFuture.supplyAsync(
             () ->
             {
@@ -275,7 +276,7 @@ public final class DatabaseManager extends Restartable
      * @param doorUID The UID of the {@link AbstractDoorBase}.
      * @return The {@link AbstractDoorBase} if it exists.
      */
-    @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final long doorUID)
+    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool);
     }

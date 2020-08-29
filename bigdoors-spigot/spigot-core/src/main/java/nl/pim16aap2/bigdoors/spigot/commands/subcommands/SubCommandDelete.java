@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
@@ -37,7 +37,7 @@ public class SubCommandDelete extends SubCommand
     {
         String name = door.getName();
         long doorUID = door.getDoorUID();
-        DoorRegistry.get().deleteDoor(door);
+        DatabaseManager.get().deleteDoor(door);
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
                                                 messages.getString(Message.COMMAND_DOOR_DELETE_SUCCESS, name,
                                                                    Long.toString(doorUID)));

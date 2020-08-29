@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.ICommand;
@@ -383,7 +383,7 @@ public class CommandManager implements CommandExecutor
         else
             try
             {
-                door = DoorRegistry.get().getDoor(Long.parseLong(doorArg));
+                door = DatabaseManager.get().getDoor(Long.parseLong(doorArg));
             }
             catch (NumberFormatException e)
             {

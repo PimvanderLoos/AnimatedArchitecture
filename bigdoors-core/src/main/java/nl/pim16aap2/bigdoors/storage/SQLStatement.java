@@ -169,16 +169,6 @@ public enum SQLStatement
             "    WHERE DoorBase.id = ? AND DoorOwnerPlayer.permission = 0;"
     ),
 
-    GET_DOOR_BASES_FROM_IDS(
-        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, World.worldUUID, DoorType.typeTableName \n" +
-            "    FROM DoorBase \n" +
-            "    INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
-            "    INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
-            "    INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
-            "    INNER JOIN World ON DoorBase.world = World.id\n" +
-            "    WHERE DoorBase.id IN (?) AND DoorOwnerPlayer.permission = 0;"
-    ),
-
     /**
      * Obtains the IDs of all doors whose engine's chunk hash value has a certain value.
      */

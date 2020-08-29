@@ -279,7 +279,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return Optional.empty();
         }
 
-        final @NotNull Optional<AbstractDoorBase> registeredDoor = DoorRegistry.get().getDoorResult(doorUID);
+        final @NotNull Optional<AbstractDoorBase> registeredDoor = DoorRegistry.get().getRegisteredDoor(doorUID);
         if (registeredDoor.isPresent())
             return registeredDoor;
 
@@ -779,19 +779,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return executeQuery(SQLStatement.GET_DOOR_BASE_FROM_ID.constructPPreparedStatement()
                                                               .setLong(1, doorUID),
                             this::getDoor, Optional.empty());
-    }
-
-    //    @Override
-    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull List<Long> doorUIDs)
-    {
-        final @NotNull StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < doorUIDs.size(); i++)
-            stringBuilder.append("?,");
-
-        final @NotNull String questionMarks = stringBuilder.deleteCharAt(stringBuilder.length() - 1).toString();
-        return executeQuery(SQLStatement.GET_DOOR_BASES_FROM_IDS.constructPPreparedStatement()
-                                                                .setRawString(1, questionMarks),
-                            this::getDoors, new ArrayList<>(0));
     }
 
     @Override

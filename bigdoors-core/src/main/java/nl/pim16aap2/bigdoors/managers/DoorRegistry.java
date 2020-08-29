@@ -5,11 +5,9 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -26,26 +24,8 @@ public final class DoorRegistry extends Restartable
     @NotNull
     private static final DoorRegistry INSTANCE = new DoorRegistry();
 
-    /*
-     * The idea here is that the doors map contains the completed queries. Which should not be stored as
-     * CompletableFutures, as they have been completed by definition. Only the AbstractDoorBase class is allowed
-     * to add actual AbstractDoorBases to it. Not even this class may do so.
-     *
-     * The futureDoors map contains the active queries. I.e. doors that have been requested but haven't been
-     * found/constructed yet.
-     *
-     * When requesting a door, this class will first attempt to retrieve it from the doors map.
-     * If it isn't in the doors map, it will request a new instance and add the request to the futureDoors map.
-     * Note that the futureDoors entries need a .onComplete to remove themselves from this map and to add an empty
-     * optional to the doors map if no existing entry exists for it (i.e. could not be found).
-     *
-     * The AbstractDoorBase class will register itself in the doors map on instantiation.
-     */
     @NotNull
     private final Map<Long, Optional<AbstractDoorBase>> doors = new ConcurrentHashMap<>();
-
-    @NotNull
-    private final Map<Long, CompletableFuture<Optional<AbstractDoorBase>>> futureDoors = new ConcurrentHashMap<>();
 
     private DoorRegistry()
     {
@@ -64,84 +44,24 @@ public final class DoorRegistry extends Restartable
     }
 
     /**
-     * Attempts to get the {@link AbstractDoorBase} associated the given UID. If the door does not exist in the
-     * registry, the database will be queried to find it.
-     *
-     * @param doorUID The UID of the door.
-     * @return The {@link AbstractDoorBase} once the database has been queried if it could be found. Otherwise, the
-     * {@link Optional} will be empty.
-     */
-    // TODO: Synchronized? Perhaps the maps shouldn't be concurrent ones?
-    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final long doorUID)
-    {
-        final @Nullable CompletableFuture<Optional<AbstractDoorBase>> futureDoor = futureDoors.get(doorUID);
-        if (futureDoor != null)
-            return futureDoor;
-
-        final @Nullable Optional<AbstractDoorBase> currentDoor = doors.get(doorUID);
-        if (currentDoor != null)
-            return CompletableFuture.completedFuture(currentDoor);
-
-        final @NotNull CompletableFuture<Optional<AbstractDoorBase>> newDoor = DatabaseManager.get().getDoor(doorUID);
-        newDoor.whenComplete(
-            (door, throwable) ->
-            {
-                if (!door.isPresent())
-                    doors.put(doorUID, Optional.empty());
-            });
-        futureDoors.put(doorUID, newDoor);
-        return newDoor;
-    }
-
-    /**
      * Attempts to get the {@link AbstractDoorBase} associated the given UID. It will only search
      *
      * @param doorUID The UID of the door.
      * @return The {@link AbstractDoorBase} if it has been retrieved from the database.
      */
-    public @NotNull Optional<AbstractDoorBase> getDoorResult(final long doorUID)
+    public @NotNull Optional<AbstractDoorBase> getRegisteredDoor(final long doorUID)
     {
         return doors.getOrDefault(doorUID, Optional.empty());
     }
 
     /**
-     * Deletes an {@link AbstractDoorBase} from both the database and the registry.
+     * Deletes an {@link AbstractDoorBase} from the registry.
      *
-     * @param door The {@link AbstractDoorBase} to delete.
+     * @param doorUID The UID of the {@link AbstractDoorBase} to delete.
      */
-    public void deleteDoor(final @NotNull AbstractDoorBase door)
+    void deleteDoor(final long doorUID)
     {
-        doors.computeIfPresent(door.getDoorUID(), (key, val)
-            ->
-        {
-            DatabaseManager.get().removeDoor(door).whenComplete(
-                (result, throwable) ->
-                {
-                    if (!result)
-                        PLogger.get()
-                               .logThrowable(new IllegalStateException("Failed to delete door: " + door.getDoorUID()));
-                });
-            return Optional.empty();
-        });
-    }
-
-    /**
-     * Inserts a {@link AbstractDoorBase} into the database.
-     *
-     * @param newDoor The new {@link AbstractDoorBase}.
-     * @return The future result of the operation. If the operation was successful this will be true.
-     */
-    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> addDoorBase(final @NotNull AbstractDoorBase newDoor)
-    {
-        if (newDoor.getDoorUID() > 0)
-        {
-            PLogger.get().logThrowable(new IllegalArgumentException(
-                "Tried to insert a door with doorUID \"" + newDoor.getDoorUID() +
-                    "\"! Only the database is allowed to assign doorUIDs!"));
-            doors.remove(newDoor.getDoorUID());
-            return CompletableFuture.completedFuture(Optional.empty());
-        }
-        return DatabaseManager.get().addDoorBase(newDoor);
+        doors.computeIfPresent(doorUID, (key, val) -> Optional.empty());
     }
 
     /**
