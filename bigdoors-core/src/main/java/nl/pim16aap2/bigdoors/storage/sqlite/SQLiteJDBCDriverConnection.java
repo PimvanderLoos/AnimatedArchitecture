@@ -5,12 +5,14 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Functional.CheckedFunction;
+import nl.pim16aap2.bigdoors.util.Functional.CheckedSupplier;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Pair;
@@ -261,8 +263,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
     }
 
+    //    private @NotNull Optional<AbstractDoorBase> constructDoor(final @NotNull ResultSet doorBaseRS,
+//                                                              final @NotNull Object[] typeData)
     private @NotNull Optional<AbstractDoorBase> constructDoor(final @NotNull ResultSet doorBaseRS,
-                                                              final @NotNull Object[] typeData)
+                                                              final @NotNull CheckedSupplier<Object[], SQLException> typeDataSupplier)
         throws SQLException
     {
         final long doorUID = doorBaseRS.getLong("id");
@@ -274,6 +278,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 "Failed to obtain door type of door: " + doorUID + ", typeID: " + doorBaseRS.getInt("doorType")));
             return Optional.empty();
         }
+
+        final @NotNull Optional<AbstractDoorBase> registeredDoor = DoorRegistry.get().getDoorResult(doorUID);
+        if (registeredDoor.isPresent())
+            return registeredDoor;
 
         final @NotNull Optional<RotateDirection> openDirection =
             Optional.ofNullable(RotateDirection.valueOf(doorBaseRS.getInt("openDirection")));
@@ -312,7 +320,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                                           openDirection.get(),
                                                                                           doorOwner, isLocked);
 
-        final @NotNull Optional<? extends AbstractDoorBase> door = doorType.get().constructDoor(doorData, typeData);
+        final @NotNull Optional<? extends AbstractDoorBase> door = doorType.get().constructDoor(doorData,
+                                                                                                typeDataSupplier.get());
 
         return door.map(abstractDoorBase -> abstractDoorBase);
     }
@@ -713,13 +722,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                      " has not been registered (yet)!"));
             return Optional.empty();
         }
-        final @NotNull Object[] typeData =
+
+        final @NotNull CheckedSupplier<Object[], SQLException> typeDataSupplier = () ->
             executeQuery(SQLStatement.GET_TYPE_SPECIFIC_DATA.constructPPreparedStatement()
                                                             .setRawString(1, doorBaseRS.getString("typeTableName"))
                                                             .setString(2, doorBaseRS.getString("typeTableName"))
                                                             .setLong(3, doorBaseRS.getLong("id")),
                          this::createTypeData, new Object[]{});
-        return constructDoor(doorBaseRS, typeData);
+
+        return constructDoor(doorBaseRS, typeDataSupplier);
     }
 
     /**
@@ -737,9 +748,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private @NotNull List<AbstractDoorBase> getDoors(final @NotNull ResultSet doorBaseRS)
         throws SQLException
     {
-        for (int idx = 0; idx < 100; ++idx)
-            System.out.println("private @NotNull List<AbstractDoorBase> getDoors(final @NotNull ResultSet doorBaseRS)");
-
         // Make sure the resultset isn't empty.
         if (!doorBaseRS.isBeforeFirst())
             return Collections.emptyList();
@@ -753,14 +761,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                          " has not been registered (yet)!"));
                 continue;
             }
-            final @NotNull Object[] typeData =
+            final @NotNull CheckedSupplier<Object[], SQLException> typeDataSupplier = () ->
                 executeQuery(SQLStatement.GET_TYPE_SPECIFIC_DATA.constructPPreparedStatement()
                                                                 .setRawString(1, doorBaseRS.getString("typeTableName"))
                                                                 .setString(2, doorBaseRS.getString("typeTableName"))
                                                                 .setLong(3, doorBaseRS.getLong("id")),
                              this::createTypeData, new Object[]{});
 
-            constructDoor(doorBaseRS, typeData).ifPresent(doors::add);
+            constructDoor(doorBaseRS, typeDataSupplier).ifPresent(doors::add);
         }
         return doors;
     }

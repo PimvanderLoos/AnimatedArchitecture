@@ -42,7 +42,7 @@ public final class DoorRegistry extends Restartable
      * The AbstractDoorBase class will register itself in the doors map on instantiation.
      */
     @NotNull
-    private final Map<Long, CompletableFuture<Optional<AbstractDoorBase>>> doors = new ConcurrentHashMap<>();
+    private final Map<Long, Optional<AbstractDoorBase>> doors = new ConcurrentHashMap<>();
 
     @NotNull
     private final Map<Long, CompletableFuture<Optional<AbstractDoorBase>>> futureDoors = new ConcurrentHashMap<>();
@@ -64,7 +64,8 @@ public final class DoorRegistry extends Restartable
     }
 
     /**
-     * Attempts to get the {@link AbstractDoorBase} associated the given UID.
+     * Attempts to get the {@link AbstractDoorBase} associated the given UID. If the door does not exist in the
+     * registry, the database will be queried to find it.
      *
      * @param doorUID The UID of the door.
      * @return The {@link AbstractDoorBase} once the database has been queried if it could be found. Otherwise, the
@@ -77,21 +78,37 @@ public final class DoorRegistry extends Restartable
         if (futureDoor != null)
             return futureDoor;
 
-        final @Nullable CompletableFuture<Optional<AbstractDoorBase>> currentDoor = doors.get(doorUID);
+        final @Nullable Optional<AbstractDoorBase> currentDoor = doors.get(doorUID);
         if (currentDoor != null)
-            return currentDoor;
+            return CompletableFuture.completedFuture(currentDoor);
 
         final @NotNull CompletableFuture<Optional<AbstractDoorBase>> newDoor = DatabaseManager.get().getDoor(doorUID);
         newDoor.whenComplete(
             (door, throwable) ->
             {
                 if (!door.isPresent())
-                    doors.put(doorUID, CompletableFuture.completedFuture(Optional.empty()));
+                    doors.put(doorUID, Optional.empty());
             });
         futureDoors.put(doorUID, newDoor);
         return newDoor;
     }
 
+    /**
+     * Attempts to get the {@link AbstractDoorBase} associated the given UID. It will only search
+     *
+     * @param doorUID The UID of the door.
+     * @return The {@link AbstractDoorBase} if it has been retrieved from the database.
+     */
+    public @NotNull Optional<AbstractDoorBase> getDoorResult(final long doorUID)
+    {
+        return doors.getOrDefault(doorUID, Optional.empty());
+    }
+
+    /**
+     * Deletes an {@link AbstractDoorBase} from both the database and the registry.
+     *
+     * @param door The {@link AbstractDoorBase} to delete.
+     */
     public void deleteDoor(final @NotNull AbstractDoorBase door)
     {
         doors.computeIfPresent(door.getDoorUID(), (key, val)
@@ -104,7 +121,7 @@ public final class DoorRegistry extends Restartable
                         PLogger.get()
                                .logThrowable(new IllegalStateException("Failed to delete door: " + door.getDoorUID()));
                 });
-            return CompletableFuture.completedFuture(Optional.empty());
+            return Optional.empty();
         });
     }
 
@@ -136,7 +153,7 @@ public final class DoorRegistry extends Restartable
      * @param doorUID The UID of the door.
      * @return True if an entry exists for the {@link AbstractDoorBase} with the given UID.
      */
-    public boolean isRegistered(final @NotNull long doorUID)
+    public boolean isRegistered(final long doorUID)
     {
         return doors.containsKey(doorUID);
     }
@@ -151,8 +168,7 @@ public final class DoorRegistry extends Restartable
     public boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
     {
         final @NotNull AbstractDoorBase doorBase = registerable.getAbstractDoorBase();
-        return doors.putIfAbsent(doorBase.getDoorUID(), CompletableFuture.completedFuture(Optional.of(doorBase))) ==
-            null;
+        return doors.putIfAbsent(doorBase.getDoorUID(), Optional.of(doorBase)) == null;
     }
 
     @Override
