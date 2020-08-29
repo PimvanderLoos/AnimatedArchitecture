@@ -71,8 +71,7 @@ public interface IDoorBase
      *
      * @return The direction the door would go if it were to be toggled.
      */
-    @NotNull
-    RotateDirection getCurrentToggleDir();
+    @NotNull RotateDirection getCurrentToggleDir();
 
     /**
      * Finds the new minimum and maximum coordinates of this door that would be the result of toggling it.
@@ -93,8 +92,7 @@ public interface IDoorBase
      *
      * @return The new {@link RotateDirection} direction this {@link IDoorBase} will open in.
      */
-    @NotNull
-    RotateDirection cycleOpenDirection();
+    @NotNull RotateDirection cycleOpenDirection();
 
     /**
      * Calculates the Min and Max coordinates of the range of Vector2Dis that this {@link IDoorBase} might interact
@@ -102,8 +100,7 @@ public interface IDoorBase
      *
      * @return 2 {@link Vector2Di}. Min and Max coordinates of Vector2Dis in animation range.
      */
-    @NotNull
-    Vector2Di[] calculateChunkRange();
+    @NotNull Vector2Di[] calculateChunkRange();
 
     /**
      * Calculates the Min and Max coordinates of the range of Vector2Dis that this {@link IDoorBase} might currently
@@ -111,8 +108,7 @@ public interface IDoorBase
      *
      * @return 2 {@link Vector2Di}. Min and Max coordinates of Vector2Dis in current range.
      */
-    @NotNull
-    Vector2Di[] calculateCurrentChunkRange();
+    @NotNull Vector2Di[] calculateCurrentChunkRange();
 
     /**
      * Check if a provided {@link Vector2DiConst} is in range of the door. Range in this case refers to all Vector2Dis
@@ -128,8 +124,7 @@ public interface IDoorBase
      *
      * @return The name of this door.
      */
-    @NotNull
-    String getName();
+    @NotNull String getName();
 
     /**
      * Changes the name of the door.
@@ -143,8 +138,7 @@ public interface IDoorBase
      *
      * @return The IPWorld this {@link IDoorBase} exists in
      */
-    @NotNull
-    IPWorld getWorld();
+    @NotNull IPWorld getWorld();
 
     /**
      * Gets the UID of the {@link IDoorBase} as used in the database. Guaranteed to be unique and available.
@@ -175,8 +169,7 @@ public interface IDoorBase
      *
      * @return The UUID of the current owner if available
      */
-    @NotNull
-    UUID getPlayerUUID();
+    @NotNull UUID getPlayerUUID();
 
     /**
      * Gets the permission level of the current owner of the door. If the owner wasn't set (as explained at {@link
@@ -197,8 +190,7 @@ public interface IDoorBase
      *
      * @return The {@link RotateDirection} this {@link IDoorBase} will open in.
      */
-    @NotNull
-    RotateDirection getOpenDir();
+    @NotNull RotateDirection getOpenDir();
 
     /**
      * Changes the direction the {@link IDoorBase} will open in.
@@ -219,24 +211,21 @@ public interface IDoorBase
      *
      * @return The position of the power block of this door.
      */
-    @NotNull
-    Vector3DiConst getPowerBlock();
+    @NotNull Vector3DiConst getPowerBlock();
 
     /**
      * Gets the position of the engine of this door.
      *
      * @return The position of the engine block of this door.
      */
-    @NotNull
-    Vector3DiConst getEngine();
+    @NotNull Vector3DiConst getEngine();
 
     /**
      * Gets the minimum position of this door.
      *
      * @return The minimum coordinates of this door.
      */
-    @NotNull
-    Vector3DiConst getMinimum();
+    @NotNull Vector3DiConst getMinimum();
 
     /**
      * Changes the 'minimum' position of this {@link IDoorBase}.
@@ -250,8 +239,7 @@ public interface IDoorBase
      *
      * @return A copy of the maximum position of this door.
      */
-    @NotNull
-    Vector3DiConst getMaximum();
+    @NotNull Vector3DiConst getMaximum();
 
     /**
      * Changes the 'maximum' position of this {@link IDoorBase}.
@@ -267,8 +255,7 @@ public interface IDoorBase
      *
      * @return The Vector2Di coordinates of the min and max Vector2Dis in range of this door.
      */
-    @NotNull
-    Vector2Di[] getChunkRange();
+    @NotNull Vector2Di[] getChunkRange();
 
     /**
      * Changes the position of the engine.
@@ -303,8 +290,7 @@ public interface IDoorBase
      *
      * @return The owner of this door.
      */
-    @NotNull
-    DoorOwner getDoorOwner();
+    @NotNull DoorOwner getDoorOwner();
 
     /**
      * Retrieve the Vector2Di the power block of this {@link IDoorBase} resides in. If invalidated or not calculated
@@ -314,8 +300,7 @@ public interface IDoorBase
      *
      * @return The Vector2Di the power block of this {@link IDoorBase} resides in.
      */
-    @NotNull
-    Vector2DiConst getChunk();
+    @NotNull Vector2DiConst getChunk();
 
     /**
      * Retrieve the total number of blocks this {@link IDoorBase} is made out of. If invalidated or not calculated *
@@ -335,8 +320,7 @@ public interface IDoorBase
      *
      * @return The dimensions of this door.
      */
-    @NotNull
-    Vector3DiConst getDimensions();
+    @NotNull Vector3DiConst getDimensions();
 
     /**
      * @return The simple hash of the chunk in which the power block resides.
@@ -348,14 +332,13 @@ public interface IDoorBase
      *
      * @return Basic {@link IDoorBase} info
      */
-    @NotNull
-    String getBasicInfo();
+    @NotNull String getBasicInfo();
 
     /**
      * @return String with (almost) all data of this door.
      */
     @Override
-    String toString();
+    @NotNull String toString();
 
     @Override
     boolean equals(Object o);

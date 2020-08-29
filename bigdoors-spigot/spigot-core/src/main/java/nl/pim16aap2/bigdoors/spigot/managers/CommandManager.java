@@ -41,9 +41,10 @@ import java.util.logging.Level;
  */
 public class CommandManager implements CommandExecutor
 {
+    @NotNull
     private static final String helpMessage = ChatColor.BLUE
         + "{}: Not required when used from GUI, <>: always required, []: optional\n";
-
+    @NotNull
     private final BigDoorsSpigot plugin;
     private Map<String, ICommand> commands;
     private Map<CommandData, ICommand> commandsShortcut;
@@ -63,8 +64,7 @@ public class CommandManager implements CommandExecutor
      *
      * @throws CommandPlayerNotFoundException If no player was found.
      */
-    @NotNull
-    public static UUID getPlayerFromArg(final @NotNull String playerArg)
+    public static @NotNull UUID getPlayerFromArg(final @NotNull String playerArg)
         throws CommandPlayerNotFoundException
     {
         Optional<UUID> playerUUID = SpigotUtil.playerUUIDFromString(playerArg);
@@ -154,7 +154,7 @@ public class CommandManager implements CommandExecutor
      *
      * @return The help message.
      */
-    public static String getHelpMessage()
+    public static @NotNull String getHelpMessage()
     {
         return helpMessage;
     }
@@ -188,8 +188,7 @@ public class CommandManager implements CommandExecutor
      * @param command The {@link CommandData} of the {@link ICommand}.
      * @return The {@link ICommand}.
      */
-    @NotNull
-    public ICommand getCommand(final @NotNull CommandData command)
+    public @NotNull ICommand getCommand(final @NotNull CommandData command)
     {
         return commandsShortcut.get(command);
     }
@@ -282,9 +281,8 @@ public class CommandManager implements CommandExecutor
      * @param commandName The name of the {@link ICommand}.
      * @return The {@link WaitForCommand} of a {@link CommandSender} for a command if one exists.
      */
-    @NotNull
-    public Optional<WaitForCommand> isCommandWaiter(final @NotNull CommandSender sender,
-                                                    final @NotNull String commandName)
+    public @NotNull Optional<WaitForCommand> isCommandWaiter(final @NotNull CommandSender sender,
+                                                             final @NotNull String commandName)
     {
         if (!(sender instanceof Player))
             return Optional.empty();
@@ -344,11 +342,10 @@ public class CommandManager implements CommandExecutor
      * @param doorArg The name or UID of the  {@link AbstractDoorBase}.
      * @return The {@link AbstractDoorBase} if exactly 1 door was found.
      */
-    @NotNull
-    public CompletableFuture<Optional<AbstractDoorBase>> getDoorFromArg(final @NotNull CommandSender sender,
-                                                                        final @NotNull String doorArg,
-                                                                        final @NotNull Command cmd,
-                                                                        final @NotNull String[] args)
+    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoorFromArg(final @NotNull CommandSender sender,
+                                                                                 final @NotNull String doorArg,
+                                                                                 final @NotNull Command cmd,
+                                                                                 final @NotNull String[] args)
     {
         CompletableFuture<Optional<AbstractDoorBase>> door = null;
 

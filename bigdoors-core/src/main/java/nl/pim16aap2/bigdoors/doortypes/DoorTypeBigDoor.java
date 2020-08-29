@@ -19,11 +19,12 @@ import java.util.Optional;
 public final class DoorTypeBigDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
+    @NotNull
     private static final List<Parameter> PARAMETERS;
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(2);
+        final @NotNull List<Parameter> parameterTMP = new ArrayList<>(2);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
@@ -43,16 +44,14 @@ public final class DoorTypeBigDoor extends DoorType
      *
      * @return The instance of this type.
      */
-    public @NotNull
-    static DoorTypeBigDoor get()
+    public static @NotNull DoorTypeBigDoor get()
     {
         return instance;
     }
 
     @Override
-    @NotNull
-    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                     final @NotNull Object... typeData)
+    protected @NotNull Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                              final @NotNull Object... typeData)
     {
         final int autoCloseTimer = (int) typeData[0];
         final int autoOpenTimer = (int) typeData[1];
@@ -63,22 +62,19 @@ public final class DoorTypeBigDoor extends DoorType
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
     {
         return new CreatorBigDoor(player);
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorBigDoor(player, name);
     }
 
     @Override
-    @NotNull
-    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    protected @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
         throws Exception
     {
         if (!(door instanceof BigDoor))

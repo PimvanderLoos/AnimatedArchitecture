@@ -25,7 +25,9 @@ import java.util.function.BiFunction;
  */
 public class RevolvingDoorMover extends BlockMover
 {
+    @NotNull
     private final BiFunction<PBlockData, Double, Vector3Dd> getGoalPos;
+    @NotNull
     private final RotateDirection rotateDirection;
 
     /**

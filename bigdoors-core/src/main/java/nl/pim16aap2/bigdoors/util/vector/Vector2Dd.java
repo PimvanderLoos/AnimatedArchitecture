@@ -102,12 +102,6 @@ public class Vector2Dd extends Vector2DdConst
     }
 
     @Override
-    public String toString()
-    {
-        return "(" + x + ":" + y + ")";
-    }
-
-    @Override
     public boolean equals(Object o)
     {
         if (this == o)

@@ -236,9 +236,8 @@ public class GUIPageDoorInfo implements IGUIPage
 //        gui.updateItem(index, createGUIItemOfAttribute(door, openTypeAttribute));
     }
 
-    @NotNull
-    private Optional<GUIItem> createGUIItemOfAttribute(final @NotNull AbstractDoorBase door,
-                                                       final @NotNull DoorAttribute atr)
+    private @NotNull Optional<GUIItem> createGUIItemOfAttribute(final @NotNull AbstractDoorBase door,
+                                                                final @NotNull DoorAttribute atr)
     {
 //        // If the permission level is higher than the max permission of this action.
 //        if (door.getPermission() > DoorAttribute.getPermissionLevel(atr))

@@ -85,8 +85,7 @@ public final class DoorTypeManager
      *
      * @return The instance of this class.
      */
-    public @NotNull
-    static DoorTypeManager get()
+    public static @NotNull DoorTypeManager get()
     {
         return instance;
     }
@@ -119,8 +118,7 @@ public final class DoorTypeManager
      * @param doorTypeID The ID of the {@link DoorType}.
      * @return An optional that contains the class of the {@link DoorType} if it is registered.
      */
-    @NotNull
-    public Optional<DoorType> getDoorType(final long doorTypeID)
+    public @NotNull Optional<DoorType> getDoorType(final long doorTypeID)
     {
         return Optional.ofNullable(doorTypeFromID.get(doorTypeID));
     }
@@ -132,8 +130,7 @@ public final class DoorTypeManager
      * @param typeName The name of the type.
      * @return The {@link DoorType} to retrieve, if possible.
      */
-    @NotNull
-    public Optional<DoorType> getDoorType(final @NotNull String typeName)
+    public @NotNull Optional<DoorType> getDoorType(final @NotNull String typeName)
     {
         return Optional.ofNullable(doorTypeFromName.get(typeName.toLowerCase()));
     }
@@ -144,8 +141,7 @@ public final class DoorTypeManager
      * @param doorType The {@link Class} of the {@link DoorType}.
      * @return An optional that contains the ID of the {@link DoorType} if it is registered.
      */
-    @NotNull
-    public OptionalLong getDoorTypeID(final @NotNull DoorType doorType)
+    public @NotNull OptionalLong getDoorTypeID(final @NotNull DoorType doorType)
     {
         final @Nullable DoorTypeInfo info = doorTypeToID.get(doorType);
         return info == null ? OptionalLong.empty() : OptionalLong.of(info.id);
@@ -171,8 +167,7 @@ public final class DoorTypeManager
      * @param doorType The {@link DoorType} to register.
      * @return True if registration was successful.
      */
-    @NotNull
-    public CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType)
+    public @NotNull CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType)
     {
         return registerDoorType(doorType, true);
     }
@@ -206,8 +201,8 @@ public final class DoorTypeManager
      * @param isEnabled Whether or not this {@link DoorType} should be enabled or not. Default = true.
      * @return True if registration was successful.
      */
-    @NotNull
-    public CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType, final boolean isEnabled)
+    public @NotNull CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType,
+                                                                final boolean isEnabled)
     {
         CompletableFuture<Long> registrationResult = BigDoors.get().getDatabaseManager().registerDoorType(doorType);
         return registrationResult.handle(

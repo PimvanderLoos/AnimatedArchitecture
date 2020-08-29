@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ConfigReaderSpigot implements IConfigReader
 {
+    @NotNull
     private final FileConfiguration config;
 
     public ConfigReaderSpigot(final @NotNull FileConfiguration config)
@@ -20,7 +21,7 @@ public class ConfigReaderSpigot implements IConfigReader
     }
 
     @Override
-    public Object get(@NotNull String path, @Nullable Object def)
+    public @NotNull Object get(@NotNull String path, @Nullable Object def)
     {
         return config.get(path, def);
     }

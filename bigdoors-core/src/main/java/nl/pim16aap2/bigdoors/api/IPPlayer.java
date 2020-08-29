@@ -18,16 +18,14 @@ public interface IPPlayer extends IMessageable
      *
      * @return The name of this player.
      */
-    @NotNull
-    String getName();
+    @NotNull String getName();
 
     /**
      * Gets the UUID of this player.
      *
      * @return The UUID of this player.
      */
-    @NotNull
-    UUID getUUID();
+    @NotNull UUID getUUID();
 
     /**
      * Gets the player as a String in the format '"playerName" (playerUUID)'.

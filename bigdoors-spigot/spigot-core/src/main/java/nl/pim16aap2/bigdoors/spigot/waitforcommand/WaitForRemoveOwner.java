@@ -19,7 +19,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class WaitForRemoveOwner extends WaitForCommand
 {
+    @NotNull
     private final AbstractDoorBase door;
+    @NotNull
     private final SubCommandRemoveOwner subCommand;
 
     public WaitForRemoveOwner(final @NotNull BigDoorsSpigot plugin, final @NotNull SubCommandRemoveOwner subCommand,

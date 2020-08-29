@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class Flag extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
+    @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
 
     /**

@@ -34,7 +34,7 @@ public class PowerBlockInspector extends ToolUser
     }
 
     @Override
-    protected List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step<CreatorElevator> stepBlocksToMove = new Step.Factory<CreatorElevator>("INSPECT_POWER_BLOCK")

@@ -19,7 +19,6 @@ public class CreatorWindMill extends Creator
     @Getter(onMethod = @__({@Override}))
     @NotNull
     private final DoorType doorType = DoorTypeWindmill.get();
-    private boolean northSouthAligned;
 
     public CreatorWindMill(final @NotNull IPPlayer player, final @Nullable String name)
     {

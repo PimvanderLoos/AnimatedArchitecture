@@ -19,8 +19,7 @@ public interface IProtectionCompatManager
      * @param loc    The {@link IPLocation} to check.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    @NotNull
-    Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc);
+    @NotNull Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc);
 
     /**
      * Check if a player can break all blocks between two locations.
@@ -31,7 +30,8 @@ public interface IProtectionCompatManager
      * @param world  The world.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    @NotNull
-    Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player, final @NotNull Vector3DiConst pos1,
-                                               final @NotNull Vector3DiConst pos2, final @NotNull IPWorld world);
+    @NotNull Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
+                                                        final @NotNull Vector3DiConst pos1,
+                                                        final @NotNull Vector3DiConst pos2,
+                                                        final @NotNull IPWorld world);
 }

@@ -12,8 +12,7 @@ public class Mutable<T>
     /**
      * The value stored in this {@link Mutable}.
      */
-    @Nullable
-    private T val;
+    private @Nullable T val;
 
     /**
      * Constructs a new {@link Mutable} with a given value.

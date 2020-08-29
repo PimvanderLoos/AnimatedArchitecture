@@ -17,9 +17,8 @@ import java.util.Optional;
 public class PBlockDataFactorySpigot_V1_15_R1 implements IPBlockDataFactory
 {
     @Override
-    @NotNull
-    public Optional<PBlockData> create(final @NotNull IPLocationConst startLocation, final boolean bottom,
-                                       final float radius, final float startAngle)
+    public @NotNull Optional<PBlockData> create(final @NotNull IPLocationConst startLocation, final boolean bottom,
+                                                final float radius, final float startAngle)
     {
         final World bukkitWorld = SpigotAdapter.getBukkitWorld(startLocation.getWorld());
         if (bukkitWorld == null)

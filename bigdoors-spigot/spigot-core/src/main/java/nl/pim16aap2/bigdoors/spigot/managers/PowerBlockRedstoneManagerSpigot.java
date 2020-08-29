@@ -26,8 +26,7 @@ public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedston
      *
      * @return The instance of this {@link PowerBlockRedstoneManagerSpigot}.
      */
-    public @NotNull
-    static PowerBlockRedstoneManagerSpigot get()
+    public static @NotNull PowerBlockRedstoneManagerSpigot get()
     {
         return instance;
     }

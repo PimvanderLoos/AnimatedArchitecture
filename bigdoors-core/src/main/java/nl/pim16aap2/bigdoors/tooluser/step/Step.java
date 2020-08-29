@@ -85,38 +85,38 @@ public class Step<T extends ToolUser> implements IStep
             this.name = name;
         }
 
-        public Factory<T> stepExecutor(final @NotNull StepExecutor stepExecutor)
+        public @NotNull Factory<T> stepExecutor(final @NotNull StepExecutor stepExecutor)
         {
             this.stepExecutor = stepExecutor;
             return this;
         }
 
-        public Factory<T> messageVariableRetrievers(
+        public @NotNull Factory<T> messageVariableRetrievers(
             final @NotNull List<Supplier<String>> messageVariablesRetrievers)
         {
             this.messageVariablesRetrievers = Collections.unmodifiableList(messageVariablesRetrievers);
             return this;
         }
 
-        public Factory<T> skipCondition(final @NotNull Supplier<Boolean> skipCondition)
+        public @NotNull Factory<T> skipCondition(final @NotNull Supplier<Boolean> skipCondition)
         {
             this.skipCondition = skipCondition;
             return this;
         }
 
-        public Factory<T> waitForUserInput(final boolean waitForUserInput)
+        public @NotNull Factory<T> waitForUserInput(final boolean waitForUserInput)
         {
             this.waitForUserInput = waitForUserInput;
             return this;
         }
 
-        public Factory<T> message(final @NotNull Message message)
+        public @NotNull Factory<T> message(final @NotNull Message message)
         {
             this.message = message;
             return this;
         }
 
-        public Step<T> construct()
+        public @NotNull Step<T> construct()
             throws InstantiationException
         {
             if (stepExecutor == null)

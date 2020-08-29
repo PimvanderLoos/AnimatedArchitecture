@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 public final class AbortableTaskManager
 {
     private static AbortableTaskManager instance;
+    @NotNull
     private final BigDoorsSpigot plugin;
 
     private AbortableTaskManager(final @NotNull BigDoorsSpigot plugin)
@@ -35,8 +36,7 @@ public final class AbortableTaskManager
      * @param plugin The spigot core.
      * @return The instance of this {@link AbortableTaskManager}.
      */
-    @NotNull
-    public static AbortableTaskManager init(final @NotNull BigDoorsSpigot plugin)
+    public static @NotNull AbortableTaskManager init(final @NotNull BigDoorsSpigot plugin)
     {
         return (instance == null) ? instance = new AbortableTaskManager(plugin) : instance;
     }
@@ -46,8 +46,7 @@ public final class AbortableTaskManager
      *
      * @return The instance of the {@link AbortableTaskManager}.
      */
-    public @NotNull
-    static AbortableTaskManager get()
+    public static @NotNull AbortableTaskManager get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");

@@ -295,8 +295,7 @@ public abstract class Creator extends ToolUser
      * @return The selected {@link RotateDirection}, if it exists.
      */
     // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirection names.
-    @NotNull
-    protected Optional<RotateDirection> parseOpenDirection(final @NotNull String str)
+    protected @NotNull Optional<RotateDirection> parseOpenDirection(final @NotNull String str)
     {
         final @NotNull String openDirName = str.toUpperCase();
         final @NotNull OptionalInt idOpt = Util.parseInt(str);
@@ -347,8 +346,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The newly-created door.
      */
-    @NotNull
-    protected abstract AbstractDoorBase constructDoor();
+    protected abstract @NotNull AbstractDoorBase constructDoor();
 
     /**
      * Verifies that the world of the selected location matches the world that this door is being created in.
@@ -387,8 +385,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The type of door that will be created.
      */
-    @NotNull
-    protected abstract DoorType getDoorType();
+    protected abstract @NotNull DoorType getDoorType();
 
     /**
      * Attempts to buy the door for the current player.
@@ -413,7 +410,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The price of the door if a positive price could be found.
      */
-    protected OptionalDouble getPrice()
+    protected @NotNull OptionalDouble getPrice()
     {
         // TODO: Perhaps this should be cached.
         if (cuboid == null || !BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())

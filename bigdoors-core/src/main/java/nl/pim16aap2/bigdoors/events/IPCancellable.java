@@ -13,12 +13,12 @@ public interface IPCancellable
      *
      * @return True if it has been cancelled.
      */
-    public boolean isCancelled();
+    boolean isCancelled();
 
     /**
      * Sets the cancelled status of this event.
      *
      * @param status True to cancel the event.
      */
-    public void setCancelled(boolean status);
+    void setCancelled(boolean status);
 }

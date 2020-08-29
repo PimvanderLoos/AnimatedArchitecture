@@ -38,7 +38,7 @@ public class TestConfigLoader implements IConfigLoader
     }
 
     @Override
-    public OptionalInt maxDoorSize()
+    public @NotNull OptionalInt maxDoorSize()
     {
         return maxDoorSize;
     }
@@ -50,25 +50,25 @@ public class TestConfigLoader implements IConfigLoader
     }
 
     @Override
-    public String languageFile()
+    public @NotNull String languageFile()
     {
         return null;
     }
 
     @Override
-    public OptionalInt maxDoorCount()
+    public @NotNull OptionalInt maxDoorCount()
     {
         return maxdoorCount;
     }
 
     @Override
-    public OptionalInt maxPowerBlockDistance()
+    public @NotNull OptionalInt maxPowerBlockDistance()
     {
         return maxPowerBlockDistance;
     }
 
     @Override
-    public OptionalInt maxBlocksToMove()
+    public @NotNull OptionalInt maxBlocksToMove()
     {
         return maxBlocksToMove;
     }
@@ -98,7 +98,7 @@ public class TestConfigLoader implements IConfigLoader
     }
 
     @Override
-    public String getPrice(final @NotNull DoorType type)
+    public @NotNull String getPrice(final @NotNull DoorType type)
     {
         return null;
     }

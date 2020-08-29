@@ -31,8 +31,7 @@ public class CommandMenu extends SubCommandMenu
     }
 
     @Override
-    @NotNull
-    public String getHelp(final @NotNull CommandSender sender)
+    public @NotNull String getHelp(final @NotNull CommandSender sender)
     {
         return SpigotUtil.helpFormat(name, super.getHelp(sender));
     }

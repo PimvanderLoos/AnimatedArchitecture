@@ -28,16 +28,19 @@ public final class PLogger
     /**
      * The format of the date to be used when writing to the log file.
      */
+    @NotNull
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
     /**
      * The file to write to.
      */
+    @Nullable
     private File logFile = null;
 
     /**
      * The queue of {@link LogMessage}s that will be written to the log.
      */
+    @NotNull
     private final BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
 
     /**
@@ -59,12 +62,15 @@ public final class PLogger
     @NotNull
     private Level consoleLogLevel = Level.CONFIG;
 
+    @Getter
+    @NotNull
     private Level lowestLevel = Level.CONFIG;
 
 
     /**
      * The instance of this {@link PLogger}.
      */
+    @NotNull
     private static final PLogger instance = new PLogger();
 
     private PLogger()
@@ -78,8 +84,7 @@ public final class PLogger
      * @param logFile The file to write to.
      * @return The PLogger instance.
      */
-    @NotNull
-    public static PLogger init(final @NotNull File logFile)
+    public static @NotNull PLogger init(final @NotNull File logFile)
     {
         if (instance.isInitialized())
         {
@@ -110,8 +115,7 @@ public final class PLogger
      *
      * @return The instance of this PLogger.
      */
-    public @NotNull
-    static PLogger get()
+    public static @NotNull PLogger get()
     {
         return instance;
     }
@@ -122,8 +126,7 @@ public final class PLogger
      * @param name The name to be used for logging purposes.
      * @return The name in the proper format.
      */
-    @NotNull
-    public static String formatName(final @NotNull String name)
+    public static @NotNull String formatName(final @NotNull String name)
     {
         return "[" + name + "] ";
     }
@@ -482,8 +485,7 @@ public final class PLogger
      * @param numberOfLines The number of lines to limit it to.
      * @return A string of the stack trace for at most numberOfLines lines if numberOfLines > 0.
      */
-    @NotNull
-    private static String limitStackTraceLength(final @NotNull Throwable throwable, final int numberOfLines)
+    private static @NotNull String limitStackTraceLength(final @NotNull Throwable throwable, final int numberOfLines)
     {
         StackTraceElement[] stackTrace = throwable.getStackTrace();
         int linesToWrite = numberOfLines > 0 ? Math.min(numberOfLines, stackTrace.length) : stackTrace.length;

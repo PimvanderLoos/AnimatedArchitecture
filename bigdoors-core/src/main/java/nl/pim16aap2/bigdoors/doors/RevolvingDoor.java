@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorArchetype
 {
+    @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
 
     /**

@@ -27,24 +27,29 @@ public final class Util
     /**
      * Characters to use in (secure) random strings.
      */
+    @NotNull
     private static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /**
      * Used to generate secure random strings. It's more secure than {@link Util#rnd}, but slower.
      */
-    private static SecureRandom srnd = new SecureRandom();
+    @NotNull
+    private static final SecureRandom srnd = new SecureRandom();
 
     /**
      * Used to generate simple random strings. It's faster than {@link Util#srnd}, but not secure.
      */
-    private static Random rnd = new Random();
+    @NotNull
+    private static final Random rnd = new Random();
 
+    @NotNull
     private static final Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
+    @NotNull
     private static final Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
 
     static
     {
-        for (PBlockFace pbf : PBlockFace.values())
+        for (final @NotNull PBlockFace pbf : PBlockFace.values())
         {
             RotateDirection mappedRotDir;
             try
@@ -60,7 +65,7 @@ public final class Util
         }
     }
 
-    public static OptionalInt parseInt(final @Nullable String str)
+    public static @NotNull OptionalInt parseInt(final @Nullable String str)
     {
         if (str == null)
             return OptionalInt.empty();
@@ -75,7 +80,7 @@ public final class Util
         }
     }
 
-    public static OptionalDouble parseDouble(final @Nullable String str)
+    public static @NotNull OptionalDouble parseDouble(final @Nullable String str)
     {
         if (str == null)
             return OptionalDouble.empty();
@@ -90,7 +95,7 @@ public final class Util
         }
     }
 
-    public static OptionalLong parseLong(final @Nullable String str)
+    public static @NotNull OptionalLong parseLong(final @Nullable String str)
     {
         if (str == null)
             return OptionalLong.empty();
@@ -127,8 +132,7 @@ public final class Util
      * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise {@link
      * RotateDirection#NONE}.
      */
-    @NotNull
-    public static RotateDirection getRotateDirection(final @NotNull PBlockFace pBlockFace)
+    public static @NotNull RotateDirection getRotateDirection(final @NotNull PBlockFace pBlockFace)
     {
         return toRotateDirection.get(pBlockFace);
     }
@@ -140,8 +144,7 @@ public final class Util
      * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise {@link
      * PBlockFace#NONE}.
      */
-    @NotNull
-    public static PBlockFace getPBlockFace(final @NotNull RotateDirection rotateDirection)
+    public static @NotNull PBlockFace getPBlockFace(final @NotNull RotateDirection rotateDirection)
     {
         return toPBlockFace.get(rotateDirection);
     }
@@ -152,7 +155,7 @@ public final class Util
      * @param angle The current angle in radians.
      * @return The angle (in radians) clamped to [-2PI ; 2PI].
      */
-    public static double clampAngleRad(double angle)
+    public static double clampAngleRad(final double angle)
     {
         return angle % (2 * Math.PI);
 //        double twoPi = 2 * Math.PI;
@@ -165,7 +168,7 @@ public final class Util
      * @param angle The current angle in degrees.
      * @return The angle (in degrees) clamped to [-360 ; 360].
      */
-    public static double clampAngleDeg(double angle)
+    public static double clampAngleDeg(final double angle)
     {
         return angle % (2 * Math.PI);
     }
@@ -178,7 +181,7 @@ public final class Util
      * @param second Second array.
      * @return A single concatenated array.
      */
-    public static <T> T[] concatArrays(T[] first, T[] second)
+    public static @NotNull <T> T[] concatArrays(final @NotNull T[] first, final @NotNull T[] second)
     {
         T[] result = Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);
@@ -192,7 +195,7 @@ public final class Util
      * @param arr Array to be doubled in size
      * @return A copy of the array but with doubled size.
      */
-    public static <T> T[] doubleArraySize(T[] arr)
+    public static @NotNull <T> T[] doubleArraySize(final @NotNull T[] arr)
     {
         return Arrays.copyOf(arr, arr.length * 2);
     }
@@ -205,7 +208,7 @@ public final class Util
      * @param newLength The new length of the array.
      * @return A truncated array
      */
-    public static <T> T[] truncateArray(T[] arr, int newLength)
+    public static @NotNull <T> T[] truncateArray(final @NotNull T[] arr, final int newLength)
     {
         return Arrays.copyOf(arr, newLength);
     }
@@ -217,7 +220,7 @@ public final class Util
      * @param name The name to test for validity,
      * @return True if the name is allowed.
      */
-    public static boolean isValidDoorName(String name)
+    public static boolean isValidDoorName(final @NotNull String name)
     {
         try
         {
@@ -236,7 +239,7 @@ public final class Util
      * @param length Length of the resulting string
      * @return An insecure random alphanumeric string.
      */
-    public static String randomInsecureString(int length)
+    public static @NotNull String randomInsecureString(final int length)
     {
         StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
@@ -250,7 +253,7 @@ public final class Util
      * @param length Length of the resulting string
      * @return A secure random alphanumeric string.
      */
-    public static String secureRandomString(int length)
+    public static @NotNull String secureRandomString(final int length)
     {
         StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
@@ -265,7 +268,7 @@ public final class Util
      * @param max The lower bound (inclusive).
      * @return A random integer value.
      */
-    public static int getRandomNumber(int min, int max)
+    public static int getRandomNumber(final int min, final int max)
     {
 
         if (min >= max)
@@ -282,7 +285,7 @@ public final class Util
      * @param input The string to be converted to a double.
      * @return Double converted from the string if possible, and defaultVal otherwise.
      */
-    public static Pair<Boolean, Double> doubleFromString(String input)
+    public static @NotNull Pair<Boolean, Double> doubleFromString(final @NotNull String input)
     {
         boolean isDouble = false;
         double value = 0;
@@ -308,7 +311,7 @@ public final class Util
      * @param input The string to be converted to a long.
      * @return Long converted from the string if possible, and defaultVal otherwise.
      */
-    public static Pair<Boolean, Long> longFromString(final String input)
+    public static @NotNull Pair<Boolean, Long> longFromString(final String input)
     {
         boolean isLong = false;
         long value = 0;
@@ -334,8 +337,7 @@ public final class Util
      * @param position The position.
      * @return The chunk coordinates.
      */
-    @NotNull
-    public static Vector2Di getChunkCoords(final @NotNull Vector3DiConst position)
+    public static @NotNull Vector2Di getChunkCoords(final @NotNull Vector3DiConst position)
     {
         return new Vector2Di(position.getX() << 4, position.getZ() << 4);
     }
@@ -348,7 +350,7 @@ public final class Util
      * @param chunkZ The z-coordinate of the chunk.
      * @return The simple hash of the chunk.
      */
-    public static long simpleChunkHashFromChunkCoordinates(int chunkX, int chunkZ)
+    public static long simpleChunkHashFromChunkCoordinates(final int chunkX, final int chunkZ)
     {
         long hash = 3;
         hash = 19 * hash + (int) (Double.doubleToLongBits(chunkX) ^ (Double.doubleToLongBits(chunkX) >>> 32));
@@ -364,7 +366,7 @@ public final class Util
      * @param posZ The z-coordinate of the location.
      * @return The simple hash of the chunk.
      */
-    public static long simpleChunkHashFromLocation(int posX, int posZ)
+    public static long simpleChunkHashFromLocation(final int posX, final int posZ)
     {
         return simpleChunkHashFromChunkCoordinates(posX >> 4, posZ >> 4);
     }
@@ -378,7 +380,7 @@ public final class Util
      * @param z The z-coordinate of the location.
      * @return The simple hash of the location.
      */
-    public static long simpleLocationhash(int x, int y, int z)
+    public static long simpleLocationhash(final int x, final int y, final int z)
     {
         int hash = 3;
         hash = 19 * hash + (int) (Double.doubleToLongBits(x) ^ Double.doubleToLongBits(x) >>> 32);
@@ -393,7 +395,7 @@ public final class Util
      * @param position The position in world space coordinates.
      * @return The coordinates in chunkspace coordinates.
      */
-    public static Vector3Di getChunkSpacePosition(final @NotNull Vector3DiConst position)
+    public static @NotNull Vector3Di getChunkSpacePosition(final @NotNull Vector3DiConst position)
     {
         return getChunkSpacePosition(position.getX(), position.getY(), position.getZ());
     }
@@ -406,7 +408,7 @@ public final class Util
      * @param z The z coordinate in world space.
      * @return The coordinates in chunkspace coordinates.
      */
-    public static Vector3Di getChunkSpacePosition(int x, int y, int z)
+    public static @NotNull Vector3Di getChunkSpacePosition(final int x, final int y, final int z)
     {
         return new Vector3Di(x % 16, y, z % 16);
     }
@@ -433,7 +435,7 @@ public final class Util
      * @param strings Input array of string
      * @return Resulting concatenated string.
      */
-    public static String stringFromArray(String[] strings)
+    public static @NotNull String stringFromArray(final @NotNull String[] strings)
     {
         StringBuilder builder = new StringBuilder();
         for (String str : strings)
@@ -449,7 +451,7 @@ public final class Util
      * @param high Maximum value.
      * @return True if the value is in the provided range or if it equals the low and/or the high value.
      */
-    public static boolean between(int test, int low, int high)
+    public static boolean between(final int test, final int low, final int high)
     {
         return test <= high && test >= low;
     }
@@ -471,12 +473,12 @@ public final class Util
 
     // Return {time, tickRate, distanceMultiplier} for a given door size.
     @Deprecated
-    public static double[] calculateTimeAndTickRate(final int doorSize, double time,
-                                                    final double speedMultiplier,
-                                                    final double baseSpeed)
+    public static @NotNull double[] calculateTimeAndTickRate(final int doorSize, double time,
+                                                             final double speedMultiplier,
+                                                             final double baseSpeed)
     {
-        double ret[] = new double[3];
-        double distance = Math.PI * doorSize / 2;
+        final @NotNull double[] ret = new double[3];
+        final double distance = Math.PI * doorSize / 2;
         if (time == 0.0)
             time = baseSpeed + doorSize / 3.5;
         double speed = distance / time;
@@ -487,19 +489,19 @@ public final class Util
         }
 
         // Too fast or too slow!
-        double maxSpeed = 11;
+        final double maxSpeed = 11;
         if (speed > maxSpeed || speed <= 0)
             time = distance / maxSpeed;
 
-        double distanceMultiplier = speed > 4 ? 1.01 : speed > 3.918 ? 1.08 : speed > 3.916 ? 1.10 :
-                                                                              speed > 2.812 ? 1.12 :
-                                                                              speed > 2.537 ? 1.19 :
-                                                                              speed > 2.2 ? 1.22 :
-                                                                              speed > 2.0 ? 1.23 :
-                                                                              speed > 1.770 ?
-                                                                              1.25 :
-                                                                              speed > 1.570 ?
-                                                                              1.28 : 1.30;
+        final double distanceMultiplier = speed > 4 ? 1.01 : speed > 3.918 ? 1.08 : speed > 3.916 ? 1.10 :
+                                                                                    speed > 2.812 ? 1.12 :
+                                                                                    speed > 2.537 ? 1.19 :
+                                                                                    speed > 2.2 ? 1.22 :
+                                                                                    speed > 2.0 ? 1.23 :
+                                                                                    speed > 1.770 ?
+                                                                                    1.25 :
+                                                                                    speed > 1.570 ?
+                                                                                    1.28 : 1.30;
         ret[0] = time;
         ret[1] = tickRateFromSpeed(speed);
         ret[2] = distanceMultiplier;

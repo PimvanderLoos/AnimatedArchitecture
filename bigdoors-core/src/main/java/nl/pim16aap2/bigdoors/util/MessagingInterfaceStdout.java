@@ -14,6 +14,7 @@ import java.util.logging.Level;
  */
 public class MessagingInterfaceStdout implements IMessagingInterface
 {
+    @NotNull
     private final String formattedName;
 
     public MessagingInterfaceStdout(final @NotNull String name)

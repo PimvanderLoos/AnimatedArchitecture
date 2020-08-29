@@ -31,6 +31,7 @@ public class AutoCloseScheduler extends Restartable
      * <p>
      * Value: A {@link TimerTask} to toggle this door again after a certain amount of time.
      */
+    @NotNull
     private final Map<Long, TimerTask> timers;
 
     private AutoCloseScheduler(final @NotNull IRestartableHolder restartableHolder)
@@ -46,8 +47,7 @@ public class AutoCloseScheduler extends Restartable
      * @param restartableHolder The object that can restart this object.
      * @return The instance of this {@link AutoCloseScheduler}.
      */
-    @NotNull
-    public static AutoCloseScheduler init(final @NotNull IRestartableHolder restartableHolder)
+    public static @NotNull AutoCloseScheduler init(final @NotNull IRestartableHolder restartableHolder)
     {
         return (instance == null) ? instance = new AutoCloseScheduler(restartableHolder) : instance;
     }
@@ -57,8 +57,7 @@ public class AutoCloseScheduler extends Restartable
      *
      * @return The instance of the {@link AutoCloseScheduler}.
      */
-    public @NotNull
-    static AutoCloseScheduler get()
+    public static @NotNull AutoCloseScheduler get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");

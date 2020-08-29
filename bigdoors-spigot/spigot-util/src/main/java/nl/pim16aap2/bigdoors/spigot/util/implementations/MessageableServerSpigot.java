@@ -22,8 +22,7 @@ public final class MessageableServerSpigot implements IMessageable
     /**
      * @return The instance of the server.
      */
-    public @NotNull
-    static MessageableServerSpigot get()
+    public static @NotNull MessageableServerSpigot get()
     {
         return INSTANCE;
     }

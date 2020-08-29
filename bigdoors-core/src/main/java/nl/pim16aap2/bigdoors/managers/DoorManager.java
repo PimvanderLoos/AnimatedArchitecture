@@ -21,6 +21,7 @@ public final class DoorManager extends Restartable
 {
     @Nullable
     private static DoorManager instance = null;
+    @NotNull
     private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
 
     /**
@@ -39,7 +40,7 @@ public final class DoorManager extends Restartable
      * @param holder The {@link IRestartableHolder} that manages this object.
      * @return The instance of this {@link DoorManager}.
      */
-    public static DoorManager init(final @NotNull IRestartableHolder holder)
+    public static @NotNull DoorManager init(final @NotNull IRestartableHolder holder)
     {
         return (instance == null) ? instance = new DoorManager(holder) : instance;
     }
@@ -49,8 +50,7 @@ public final class DoorManager extends Restartable
      *
      * @return The instance of the {@link DoorManager}.
      */
-    public @NotNull
-    static DoorManager get()
+    public static @NotNull DoorManager get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -103,7 +103,7 @@ public final class DoorManager extends Restartable
      *
      * @return All the currently active {@link BlockMover}s.
      */
-    public Stream<BlockMover> getBlockMovers()
+    public @NotNull Stream<BlockMover> getBlockMovers()
     {
         return busyDoors.values().stream().filter(Optional::isPresent).map(Optional::get);
     }
@@ -114,7 +114,7 @@ public final class DoorManager extends Restartable
      * @param doorUID The UID of the {@link AbstractDoorBase}.
      * @return The {@link BlockMover} of a busy {@link AbstractDoorBase}.
      */
-    public Optional<BlockMover> getBlockMover(final long doorUID)
+    public @NotNull Optional<BlockMover> getBlockMover(final long doorUID)
     {
         return busyDoors.containsKey(doorUID) ? busyDoors.get(doorUID) : Optional.empty();
     }

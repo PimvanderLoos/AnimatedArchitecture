@@ -42,7 +42,7 @@ public class Vector3DiConst
     }
 
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         return "(" + x + ":" + y + ":" + z + ")";
     }

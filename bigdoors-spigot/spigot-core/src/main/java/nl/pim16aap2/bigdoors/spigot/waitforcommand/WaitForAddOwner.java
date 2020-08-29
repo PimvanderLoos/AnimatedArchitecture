@@ -20,7 +20,9 @@ import java.util.concurrent.ExecutionException;
  */
 public class WaitForAddOwner extends WaitForCommand
 {
+    @NotNull
     private final AbstractDoorBase door;
+    @NotNull
     private final SubCommandAddOwner subCommand;
 
     public WaitForAddOwner(final @NotNull BigDoorsSpigot plugin, final @NotNull SubCommandAddOwner subCommand,

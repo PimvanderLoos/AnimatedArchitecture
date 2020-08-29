@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
     implements ICustomEntityFallingBlock
 {
+    @NotNull
     protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
                                                                               DataWatcherRegistry.l);
     public int ticksLived;

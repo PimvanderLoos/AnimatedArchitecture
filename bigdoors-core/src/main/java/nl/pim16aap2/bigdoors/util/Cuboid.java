@@ -34,7 +34,7 @@ public class Cuboid implements Cloneable
      * @param first  The first of the two new coordinates.
      * @param second The first of the two new coordinates.
      */
-    public Cuboid updatePositions(final @NotNull Vector3DiConst first, final @NotNull Vector3DiConst second)
+    public @NotNull Cuboid updatePositions(final @NotNull Vector3DiConst first, final @NotNull Vector3DiConst second)
     {
         min = new Vector3Di(first);
         max = new Vector3Di(second);
@@ -48,7 +48,7 @@ public class Cuboid implements Cloneable
      *
      * @return The lower bound position.
      */
-    public Vector3DiConst getMin()
+    public @NotNull Vector3DiConst getMin()
     {
         return min;
     }
@@ -58,7 +58,7 @@ public class Cuboid implements Cloneable
      *
      * @return The upper bound position.
      */
-    public Vector3DiConst getMax()
+    public @NotNull Vector3DiConst getMax()
     {
         return max;
     }
@@ -69,7 +69,7 @@ public class Cuboid implements Cloneable
      *
      * @return The total number of blocks in this cuboid.
      */
-    public Integer getVolume()
+    public @NotNull Integer getVolume()
     {
         if (volume != null)
             return volume;
@@ -86,7 +86,7 @@ public class Cuboid implements Cloneable
      *
      * @return The dimensions of this door.
      */
-    public Vector3Di getDimensions()
+    public @NotNull Vector3Di getDimensions()
     {
         int x = max.getX() - min.getX() + 1;
         int y = max.getY() - min.getY() + 1;
@@ -134,7 +134,7 @@ public class Cuboid implements Cloneable
      *
      * @return The center point of the cuboid.
      */
-    public Vector3Dd getCenter()
+    public @NotNull Vector3Dd getCenter()
     {
         double cX = max.getX() - ((max.getX() - min.getX()) / 2.0f);
         double cY = max.getY() - ((max.getY() - min.getY()) / 2.0f);
@@ -147,7 +147,7 @@ public class Cuboid implements Cloneable
      *
      * @return The center block of the cuboid.
      */
-    public Vector3Di getCenterBlock()
+    public @NotNull Vector3Di getCenterBlock()
     {
         int cX = (int) (max.getX() - ((max.getX() - min.getX()) / 2.0f));
         int cY = (int) (max.getY() - ((max.getY() - min.getY()) / 2.0f));
@@ -162,7 +162,7 @@ public class Cuboid implements Cloneable
      * @param y The number of blocks to move in the y-axis.
      * @param z The number of blocks to move in the z-axis.
      */
-    public Cuboid move(final int x, final int y, final int z)
+    public @NotNull Cuboid move(final int x, final int y, final int z)
     {
         min.add(x, y, z);
         max.add(x, y, z);
@@ -177,7 +177,7 @@ public class Cuboid implements Cloneable
      * @param y The number of blocks to change in the y-axis.
      * @param z The number of blocks to change in the z-axis.
      */
-    public Cuboid changeDimensions(final int x, final int y, final int z)
+    public @NotNull Cuboid changeDimensions(final int x, final int y, final int z)
     {
         min.add(-x, -y, -z);
         max.add(x, y, z);

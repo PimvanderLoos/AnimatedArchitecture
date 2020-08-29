@@ -39,7 +39,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class BlockMover implements IRestartable
 {
+    @NotNull
     protected final IPWorld world;
+    @NotNull
     protected final AbstractDoorBase door;
     @NotNull
     protected final IPPlayer player;
@@ -54,9 +56,13 @@ public abstract class BlockMover implements IRestartable
     protected List<PBlockData> savedBlocks;
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
+    @NotNull
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
+    @NotNull
     private final Vector3DiConst finalMin, finalMax;
+    @NotNull
     protected final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
+    @NotNull
     protected final IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
     @Nullable
     protected TimerTask moverTask = null;

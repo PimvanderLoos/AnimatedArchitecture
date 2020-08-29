@@ -24,8 +24,7 @@ public final class ChunkManagerSpigot implements IChunkManager
      *
      * @return The instance of the {@link ChunkManagerSpigot}.
      */
-    public @NotNull
-    static ChunkManagerSpigot get()
+    public static @NotNull ChunkManagerSpigot get()
     {
         return instance;
     }
@@ -37,7 +36,7 @@ public final class ChunkManagerSpigot implements IChunkManager
     }
 
     @Override
-    public ChunkLoadResult load(final @NotNull IPWorld world, final @NotNull Vector2DiConst chunk)
+    public @NotNull ChunkLoadResult load(final @NotNull IPWorld world, final @NotNull Vector2DiConst chunk)
     {
         return ChunkLoadResult.SUCCESS;
     }

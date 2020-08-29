@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends BlockMover
 {
+    @NotNull
     private final Vector3DdConst rotationCenter;
     protected final boolean NS;
     @NotNull

@@ -9,8 +9,7 @@ import java.util.UUID;
 public class TestPWorldFactory implements IPWorldFactory
 {
     @Override
-    @NotNull
-    public IPWorld create(@NotNull UUID worldUUID)
+    public @NotNull IPWorld create(@NotNull UUID worldUUID)
     {
         return new TestPWorld(worldUUID);
     }

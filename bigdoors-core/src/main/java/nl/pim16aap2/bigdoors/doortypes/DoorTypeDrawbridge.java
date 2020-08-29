@@ -20,11 +20,12 @@ import java.util.Optional;
 public final class DoorTypeDrawbridge extends DoorType
 {
     private static final int TYPE_VERSION = 1;
+    @NotNull
     private static final List<Parameter> PARAMETERS;
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(3);
+        final @NotNull List<Parameter> parameterTMP = new ArrayList<>(3);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "modeUpDown"));
@@ -42,15 +43,13 @@ public final class DoorTypeDrawbridge extends DoorType
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
     {
         return new CreatorDrawbridge(player);
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorDrawbridge(player, name);
     }
@@ -60,16 +59,14 @@ public final class DoorTypeDrawbridge extends DoorType
      *
      * @return The instance of this type.
      */
-    public @NotNull
-    static DoorTypeDrawbridge get()
+    public static @NotNull DoorTypeDrawbridge get()
     {
         return instance;
     }
 
     @Override
-    @NotNull
-    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                     final @NotNull Object... typeData)
+    protected @NotNull Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                              final @NotNull Object... typeData)
     {
         final @Nullable PBlockFace currentDirection = PBlockFace.valueOf((int) typeData[2]);
         if (currentDirection == null)
@@ -86,8 +83,7 @@ public final class DoorTypeDrawbridge extends DoorType
     }
 
     @Override
-    @NotNull
-    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    protected @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
         if (!(door instanceof Drawbridge))
             throw new IllegalArgumentException(

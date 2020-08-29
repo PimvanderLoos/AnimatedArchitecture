@@ -32,16 +32,22 @@ public final class Messages extends Restartable
     /**
      * The name of the default language file.
      */
+    @NotNull
     private static final String DEFAULTFILENAME = "en_US.txt";
+    @NotNull
     private final PLogger plogger;
 
+    @NotNull
     private static final Pattern matchDots = Pattern.compile("\\.");
+    @NotNull
     private static final Pattern matchNewLines = Pattern.compile("\\\\n");
+    @NotNull
     private static final Pattern matchColorCodes = Pattern.compile("&((?i)[0-9a-fk-or])");
 
     /**
      * The directory of the language file.
      */
+    @NotNull
     private final File fileDir;
 
     /**
@@ -51,6 +57,7 @@ public final class Messages extends Restartable
      * <p>
      * Value: The translated message.
      */
+    @NotNull
     private Map<Message, String> messageMap = new EnumMap<>(Message.class);
 
     /**
@@ -258,8 +265,7 @@ public final class Messages extends Restartable
      * @param key The key that could not be resolved.
      * @return The default String to return in case a value could not be found for a given String.
      */
-    @NotNull
-    private String getFailureString(final @NotNull String key)
+    private @NotNull String getFailureString(final @NotNull String key)
     {
         return "Translation for key \"" + key + "\" not found! Contact server admin!";
     }
@@ -271,8 +277,7 @@ public final class Messages extends Restartable
      * @param messageName The name of a {@link Message}, see {@link Message#valueOf(String)}.
      * @return The translated String if possible, otherwise an empty String.
      */
-    @NotNull
-    public String getString(final @NotNull String messageName)
+    public @NotNull String getString(final @NotNull String messageName)
     {
         try
         {
@@ -294,8 +299,7 @@ public final class Messages extends Restartable
      * @return The translated message of the provided {@link Message} and substitutes its variables for the provided
      * values.
      */
-    @NotNull
-    public String getString(final @NotNull Message msg, final @NotNull String... values)
+    public @NotNull String getString(final @NotNull Message msg, final @NotNull String... values)
     {
         if (msg.equals(Message.EMPTY))
             return "";

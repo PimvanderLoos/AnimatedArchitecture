@@ -21,10 +21,14 @@ import org.jetbrains.annotations.NotNull;
  */
 class WorldGuard7ProtectionCompat implements IProtectionCompat
 {
+    @NotNull
     private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    @NotNull
     @SuppressWarnings("unused")
     private final BigDoorsSpigot plugin;
+    @NotNull
     private final WorldGuard worldGuard;
+    @NotNull
     private final WorldGuardPlugin worldGuardPlugin;
     private boolean success = false;
 
@@ -51,7 +55,7 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
                                                                                      com.sk89q.worldguard.protection.flags.Flags.BUILD);
     }
 
-    private LocalPlayer getLocalPlayer(final @NotNull Player player)
+    private @NotNull LocalPlayer getLocalPlayer(final @NotNull Player player)
     {
         return worldGuardPlugin.wrapPlayer(player);
     }

@@ -55,24 +55,21 @@ public interface ICustomCraftFallingBlock
      *
      * @return The current location of this entity.
      */
-    @NotNull
-    IPLocation getPLocation();
+    @NotNull IPLocation getPLocation();
 
     /**
      * Gets the current position of this entity.
      *
      * @return The current position of this entity.
      */
-    @NotNull
-    Vector3Dd getPosition();
+    @NotNull Vector3Dd getPosition();
 
     /**
      * Gets the current velocity of this entity.
      *
      * @return The current velocity of this entity.
      */
-    @NotNull
-    Vector3Dd getPVelocity();
+    @NotNull Vector3Dd getPVelocity();
 
     /**
      * Sets the velocity of the entity.

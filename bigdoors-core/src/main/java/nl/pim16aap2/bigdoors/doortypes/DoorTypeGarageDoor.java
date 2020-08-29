@@ -19,11 +19,12 @@ import java.util.Optional;
 public final class DoorTypeGarageDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
+    @NotNull
     private static final List<Parameter> PARAMETERS;
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(3);
+        final @NotNull List<Parameter> parameterTMP = new ArrayList<>(3);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "northSouth"));
@@ -45,16 +46,14 @@ public final class DoorTypeGarageDoor extends DoorType
      *
      * @return The instance of this type.
      */
-    public @NotNull
-    static DoorTypeGarageDoor get()
+    public static @NotNull DoorTypeGarageDoor get()
     {
         return instance;
     }
 
     @Override
-    @NotNull
-    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                     final @NotNull Object... typeData)
+    protected @NotNull Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                              final @NotNull Object... typeData)
     {
         final int autoCloseTimer = (int) typeData[0];
         final int autoOpenTimer = (int) typeData[1];
@@ -67,22 +66,19 @@ public final class DoorTypeGarageDoor extends DoorType
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
     {
         return new CreatorGarageDoor(player);
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorGarageDoor(player, name);
     }
 
     @Override
-    @NotNull
-    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    protected @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
         if (!(door instanceof GarageDoor))
             throw new IllegalArgumentException(

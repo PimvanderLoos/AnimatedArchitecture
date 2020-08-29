@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 public class GarageDoor extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
+    @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
 
     /**

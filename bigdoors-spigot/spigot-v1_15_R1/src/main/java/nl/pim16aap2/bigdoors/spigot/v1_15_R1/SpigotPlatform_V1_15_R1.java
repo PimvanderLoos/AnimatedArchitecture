@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
 {
+    @NotNull
     private static final String VERSION = "v1_15_R1";
+    @NotNull
     private static final SpigotPlatform_V1_15_R1 instance = new SpigotPlatform_V1_15_R1();
 
     @Getter(onMethod = @__({@Override}))
@@ -42,8 +44,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
      *
      * @return The instance of this class.
      */
-    public @NotNull
-    static SpigotPlatform_V1_15_R1 get()
+    public static @NotNull SpigotPlatform_V1_15_R1 get()
     {
         return instance;
     }

@@ -30,8 +30,7 @@ public class DoorOwner
     /**
      * The {@link IPPlayer} object represented by this {@link DoorOwner}.
      */
-    @NotNull
-    IPPlayer player;
+    @NotNull IPPlayer player;
 
     /**
      * Constructor of {@link DoorOwner}.

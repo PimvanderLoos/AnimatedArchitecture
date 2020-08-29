@@ -24,8 +24,7 @@ public interface IPLocationFactory
      * @param z     The z coordinate.
      * @return A new IPLocation object.
      */
-    @NotNull
-    IPLocation create(final @NotNull IPWorld world, final double x, final double y, final double z);
+    @NotNull IPLocation create(final @NotNull IPWorld world, final double x, final double y, final double z);
 
     /**
      * Creates a new IPLocation.
@@ -34,8 +33,7 @@ public interface IPLocationFactory
      * @param position The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull
-    IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DiConst position);
+    @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DiConst position);
 
     /**
      * Creates a new IPLocation.
@@ -44,8 +42,7 @@ public interface IPLocationFactory
      * @param position The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull
-    IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DdConst position);
+    @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DdConst position);
 
     /**
      * Creates a new IPLocation.
@@ -56,8 +53,7 @@ public interface IPLocationFactory
      * @param z         The z coordinate.
      * @return A new IPLocation object.
      */
-    @NotNull
-    IPLocation create(final @NotNull UUID worldUUID, final double x, final double y, final double z);
+    @NotNull IPLocation create(final @NotNull UUID worldUUID, final double x, final double y, final double z);
 
     /**
      * Creates a new IPLocation.
@@ -66,8 +62,7 @@ public interface IPLocationFactory
      * @param position  The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull
-    IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst position);
+    @NotNull IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst position);
 
     /**
      * Creates a new IPLocation.
@@ -76,6 +71,5 @@ public interface IPLocationFactory
      * @param position  The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull
-    IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DdConst position);
+    @NotNull IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DdConst position);
 }

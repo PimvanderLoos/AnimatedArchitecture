@@ -19,6 +19,7 @@ import java.util.function.BiFunction;
  */
 public class FlagMover extends BlockMover
 {
+    @NotNull
     private final BiFunction<PBlockData, Integer, Vector3Dd> getGoalPos;
     private final boolean NS;
     private final double period;

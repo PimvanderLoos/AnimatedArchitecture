@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class Clock extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
+    @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
     /**
@@ -51,8 +52,7 @@ public class Clock extends AbstractDoorBase
      * @return The side of the hour arm relative to the minute arm.
      */
     @Getter
-    @NotNull
-    protected PBlockFace hourArmSide;
+    protected @NotNull PBlockFace hourArmSide;
 
     public Clock(final @NotNull DoorData doorData, final boolean northSouthAligned,
                  final @NotNull PBlockFace hourArmSide)

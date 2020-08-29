@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
-import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +16,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class WaitForSetBlocksToMove extends WaitForCommand
 {
+    @NotNull
     private final AbstractDoorBase door;
+    @NotNull
     private final SubCommandSetBlocksToMove subCommand;
 
     public WaitForSetBlocksToMove(final @NotNull BigDoorsSpigot plugin,

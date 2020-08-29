@@ -26,7 +26,7 @@ public interface IChunkManager
      * @param chunk The coordinates of the chunk.
      * @return The result of the load attempt.
      */
-    ChunkLoadResult load(final @NotNull IPWorld world, final @NotNull Vector2DiConst chunk);
+    @NotNull ChunkLoadResult load(final @NotNull IPWorld world, final @NotNull Vector2DiConst chunk);
 
     /**
      * Represents the result of an attempt to load a chunk.

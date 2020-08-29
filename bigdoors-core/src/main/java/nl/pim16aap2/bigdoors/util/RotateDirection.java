@@ -30,15 +30,17 @@ public enum RotateDirection
     /**
      * Map of all indices with their respective {@link RotateDirection} constants as values.
      */
+    @NotNull
     private final static Map<Integer, RotateDirection> idMap;
+    @NotNull
     private final static Map<String, RotateDirection> nameMap;
 
     static
     {
-        RotateDirection[] values = RotateDirection.values();
-        Map<Integer, RotateDirection> idMapTmp = new HashMap<>(values.length);
-        Map<String, RotateDirection> nameMapTmp = new HashMap<>(values.length);
-        for (RotateDirection dir : RotateDirection.values())
+        final @NotNull RotateDirection[] values = RotateDirection.values();
+        final @NotNull Map<Integer, RotateDirection> idMapTmp = new HashMap<>(values.length);
+        final @NotNull Map<String, RotateDirection> nameMapTmp = new HashMap<>(values.length);
+        for (final @NotNull RotateDirection dir : RotateDirection.values())
         {
             idMapTmp.put(dir.val, dir);
             nameMapTmp.put(dir.name(), dir);
@@ -76,8 +78,7 @@ public enum RotateDirection
      * @param dir The {@link RotateDirection}.
      * @return The {@link RotateDirection} associated with this index value.
      */
-    @Nullable
-    public static RotateDirection valueOf(final int dir)
+    public static @Nullable RotateDirection valueOf(final int dir)
     {
         try
         {
@@ -89,8 +90,7 @@ public enum RotateDirection
         }
     }
 
-    @NotNull
-    public static Optional<RotateDirection> getRotateDirection(final @NotNull String name)
+    public static @NotNull Optional<RotateDirection> getRotateDirection(final @NotNull String name)
     {
         return Optional.ofNullable(nameMap.get(name));
     }
@@ -101,8 +101,7 @@ public enum RotateDirection
      * @param dir The {@link RotateDirection}.
      * @return The {@link Message} associated with a {@link RotateDirection}.
      */
-    @NotNull
-    public static Message getMessage(final @NotNull RotateDirection dir)
+    public static @NotNull Message getMessage(final @NotNull RotateDirection dir)
     {
         return dir.message;
     }
@@ -114,8 +113,7 @@ public enum RotateDirection
      * @param dir The current {@link RotateDirection}
      * @return The opposite direction of the current {@link RotateDirection}.
      */
-    @NotNull
-    public static RotateDirection getOpposite(final @NotNull RotateDirection dir)
+    public static @NotNull RotateDirection getOpposite(final @NotNull RotateDirection dir)
     {
         switch (dir)
         {

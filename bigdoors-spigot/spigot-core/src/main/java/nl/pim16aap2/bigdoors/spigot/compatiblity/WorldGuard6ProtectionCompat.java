@@ -19,8 +19,11 @@ import java.lang.reflect.Method;
  */
 class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
+    @NotNull
     private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    @NotNull
     private final BigDoorsSpigot plugin;
+    @NotNull
     private final WorldGuardPlugin worldGuard;
     private boolean success = false;
     private Method m;

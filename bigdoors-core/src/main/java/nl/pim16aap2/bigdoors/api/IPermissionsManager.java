@@ -17,7 +17,7 @@ public interface IPermissionsManager
      *                       at the end).
      * @return The highest numerical suffix of the base permission node if it exists, otherwise an empty OptionalInt.
      */
-    OptionalInt getMaxPermissionSuffix(final @NotNull IPPlayer player, final @NotNull String permissionBase);
+    @NotNull OptionalInt getMaxPermissionSuffix(final @NotNull IPPlayer player, final @NotNull String permissionBase);
 
     /**
      * Checks if a player has a certain permission node or not.

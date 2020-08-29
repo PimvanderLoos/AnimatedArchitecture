@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class Windmill extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
+    @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
     /**

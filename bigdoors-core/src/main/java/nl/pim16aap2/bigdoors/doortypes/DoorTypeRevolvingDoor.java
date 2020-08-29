@@ -19,11 +19,12 @@ import java.util.Optional;
 public final class DoorTypeRevolvingDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
+    @NotNull
     private static final List<Parameter> PARAMETERS;
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(1);
+        final @NotNull List<Parameter> parameterTMP = new ArrayList<>(1);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "qCircles"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
@@ -42,16 +43,14 @@ public final class DoorTypeRevolvingDoor extends DoorType
      *
      * @return The instance of this type.
      */
-    public @NotNull
-    static DoorTypeRevolvingDoor get()
+    public static @NotNull DoorTypeRevolvingDoor get()
     {
         return instance;
     }
 
     @Override
-    @NotNull
-    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                     final @NotNull Object... typeData)
+    protected @NotNull Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                              final @NotNull Object... typeData)
     {
         final int qCircles = (int) typeData[0];
         return Optional.of(new RevolvingDoor(doorData,
@@ -59,22 +58,19 @@ public final class DoorTypeRevolvingDoor extends DoorType
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
     {
         return new CreatorRevolvingDoor(player);
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorRevolvingDoor(player, name);
     }
 
     @Override
-    @NotNull
-    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    protected @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
         if (!(door instanceof RevolvingDoor))
             throw new IllegalArgumentException(

@@ -73,10 +73,9 @@ public class SubCommandToggle extends SubCommand
                     });
     }
 
-    @NotNull
-    private CompletableFuture<Double> parseDoorsAndTime(final @NotNull CommandSender sender,
-                                                        final @NotNull String[] args,
-                                                        final @NotNull List<AbstractDoorBase> doors)
+    private @NotNull CompletableFuture<Double> parseDoorsAndTime(final @NotNull CommandSender sender,
+                                                                 final @NotNull String[] args,
+                                                                 final @NotNull List<AbstractDoorBase> doors)
         throws IllegalArgumentException
     {
         final String lastStr = args[args.length - 1];

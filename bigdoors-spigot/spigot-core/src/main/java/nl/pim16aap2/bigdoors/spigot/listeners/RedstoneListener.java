@@ -31,7 +31,9 @@ public class RedstoneListener extends Restartable implements Listener
 {
     @Nullable
     private static RedstoneListener instance;
+    @NotNull
     private final BigDoorsSpigot plugin;
+    @NotNull
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private boolean isRegistered = false;
 
@@ -49,8 +51,7 @@ public class RedstoneListener extends Restartable implements Listener
      * @param plugin The {@link BigDoorsSpigot} plugin.
      * @return The instance of this {@link RedstoneListener}.
      */
-    @NotNull
-    public static RedstoneListener init(final @NotNull BigDoorsSpigot plugin)
+    public static @NotNull RedstoneListener init(final @NotNull BigDoorsSpigot plugin)
     {
         return (instance == null) ? instance = new RedstoneListener(plugin) : instance;
     }

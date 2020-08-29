@@ -70,7 +70,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         return asString();
     }
@@ -94,7 +94,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public PPlayerSpigot clone()
+    public @NotNull PPlayerSpigot clone()
     {
         try
         {

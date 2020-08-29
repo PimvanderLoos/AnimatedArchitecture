@@ -25,7 +25,7 @@ public class StepExecutorVoid extends StepExecutor
     }
 
     @Override
-    public Class<?> getInputClass()
+    public @NotNull Class<?> getInputClass()
     {
         return Object.class;
     }

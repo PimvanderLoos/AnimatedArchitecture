@@ -18,7 +18,7 @@ public class StepExecutorString extends StepExecutor
     }
 
     @Override
-    public Class<?> getInputClass()
+    public @NotNull Class<?> getInputClass()
     {
         return String.class;
     }

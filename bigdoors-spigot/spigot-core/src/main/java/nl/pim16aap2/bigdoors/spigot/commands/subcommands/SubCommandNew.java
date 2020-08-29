@@ -137,8 +137,7 @@ public class SubCommandNew extends SubCommand
     }
 
     @Override
-    @NotNull
-    public String getHelp(final @NotNull CommandSender sender)
+    public @NotNull String getHelp(final @NotNull CommandSender sender)
     {
         return help;
     }

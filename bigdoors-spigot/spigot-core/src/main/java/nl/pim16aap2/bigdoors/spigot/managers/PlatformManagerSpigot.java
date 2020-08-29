@@ -45,8 +45,7 @@ public final class PlatformManagerSpigot
      *
      * @return The instance of this class.
      */
-    public @NotNull
-    static PlatformManagerSpigot get()
+    public static @NotNull PlatformManagerSpigot get()
     {
         return instance;
     }
@@ -79,8 +78,7 @@ public final class PlatformManagerSpigot
         ERROR
             {
                 @Override
-                @Nullable
-                public ISpigotPlatform getPlatform()
+                public @Nullable ISpigotPlatform getPlatform()
                 {
                     return null;
                 }
@@ -88,8 +86,7 @@ public final class PlatformManagerSpigot
         v1_14_R1
             {
                 @Override
-                @NotNull
-                public ISpigotPlatform getPlatform()
+                public @NotNull ISpigotPlatform getPlatform()
                 {
                     return SpigotPlatform_V1_14_R1.get();
                 }
@@ -97,8 +94,7 @@ public final class PlatformManagerSpigot
         v1_15_R1
             {
                 @Override
-                @NotNull
-                public ISpigotPlatform getPlatform()
+                public @NotNull ISpigotPlatform getPlatform()
                 {
                     return SpigotPlatform_V1_15_R1.get();
                 }
@@ -110,8 +106,7 @@ public final class PlatformManagerSpigot
          *
          * @return The instance of the {@link ISpigotPlatform} for this {@link Version}.
          */
-        @Nullable
-        public abstract ISpigotPlatform getPlatform()
+        public abstract @Nullable ISpigotPlatform getPlatform()
             throws UnsupportedOperationException;
     }
 }

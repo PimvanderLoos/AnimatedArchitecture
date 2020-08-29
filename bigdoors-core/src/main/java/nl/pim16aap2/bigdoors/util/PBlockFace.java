@@ -24,8 +24,9 @@ public enum PBlockFace
     DOWN(5, new Vector3Di(0, -1, 0)),
     NONE(6, new Vector3Di(0, 0, 0)),
     ;
-
+    @NotNull
     private static Map<Vector3DiConst, PBlockFace> dirs = new HashMap<>();
+    @NotNull
     private static Map<Integer, PBlockFace> vals = new HashMap<>();
 
     static
@@ -57,8 +58,7 @@ public enum PBlockFace
      * @param dir The current {@link PBlockFace}
      * @return The opposite direction of the current {@link PBlockFace}.
      */
-    @NotNull
-    public static PBlockFace getOpposite(final @NotNull PBlockFace dir)
+    public static @NotNull PBlockFace getOpposite(final @NotNull PBlockFace dir)
     {
         switch (dir)
         {
@@ -91,8 +91,8 @@ public enum PBlockFace
         return dir.val;
     }
 
-    @Nullable // TODO: Optional
-    public static PBlockFace valueOf(final int val)
+    // TODO: Optional
+    public static @Nullable PBlockFace valueOf(final int val)
     {
         return vals.get(val);
     }
@@ -103,8 +103,7 @@ public enum PBlockFace
      * @param myFace The direction.
      * @return The vector of the direction.
      */
-    @NotNull
-    public static Vector3DiConst getDirection(final @NotNull PBlockFace myFace)
+    public static @NotNull Vector3DiConst getDirection(final @NotNull PBlockFace myFace)
     {
         return myFace.directionVector;
     }
@@ -116,8 +115,7 @@ public enum PBlockFace
      * @param myFace The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
-    @NotNull
-    public static PBlockFace rotateClockwise(final @NotNull PBlockFace myFace)
+    public static @NotNull PBlockFace rotateClockwise(final @NotNull PBlockFace myFace)
     {
         switch (myFace)
         {
@@ -141,8 +139,7 @@ public enum PBlockFace
      * @param myFace The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
-    @NotNull
-    public static PBlockFace rotateCounterClockwise(final @NotNull PBlockFace myFace)
+    public static @NotNull PBlockFace rotateCounterClockwise(final @NotNull PBlockFace myFace)
     {
         switch (myFace)
         {
@@ -166,8 +163,7 @@ public enum PBlockFace
      * @param curFace The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
-    @NotNull
-    public static PBlockFace rotateVerticallyNorth(final @NotNull PBlockFace curFace)
+    public static @NotNull PBlockFace rotateVerticallyNorth(final @NotNull PBlockFace curFace)
     {
         switch (curFace)
         {
@@ -193,8 +189,7 @@ public enum PBlockFace
      * @param curFace The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
-    @NotNull
-    public static PBlockFace rotateVerticallySouth(final @NotNull PBlockFace curFace)
+    public static @NotNull PBlockFace rotateVerticallySouth(final @NotNull PBlockFace curFace)
     {
         switch (curFace)
         {
@@ -220,8 +215,7 @@ public enum PBlockFace
      * @param curFace The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
-    @NotNull
-    public static PBlockFace rotateVerticallyEast(final @NotNull PBlockFace curFace)
+    public static @NotNull PBlockFace rotateVerticallyEast(final @NotNull PBlockFace curFace)
     {
         switch (curFace)
         {
@@ -247,8 +241,7 @@ public enum PBlockFace
      * @param curFace The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
-    @NotNull
-    public static PBlockFace rotateVerticallyWest(final @NotNull PBlockFace curFace)
+    public static @NotNull PBlockFace rotateVerticallyWest(final @NotNull PBlockFace curFace)
     {
         switch (curFace)
         {
@@ -273,8 +266,7 @@ public enum PBlockFace
      * @param dir The {@link PBlockFace#directionVector}.
      * @return The {@link PBlockFace} associated with this {@link PBlockFace#directionVector}.
      */
-    @NotNull
-    public static PBlockFace faceFromDir(final @NotNull Vector3DiConst dir)
+    public static @NotNull PBlockFace faceFromDir(final @NotNull Vector3DiConst dir)
     {
         return dirs.get(dir);
     }
@@ -285,8 +277,8 @@ public enum PBlockFace
      * @param rotDir The {@link RotateDirection} to rotate in.
      * @return The appropriate function for rotating the {@link PBlockFace} in the given direction.
      */
-    @Nullable // TODO: OPTIONAL
-    public static Function<PBlockFace, PBlockFace> getDirFun(final @NotNull RotateDirection rotDir)
+    // TODO: OPTIONAL
+    public static @Nullable Function<PBlockFace, PBlockFace> getDirFun(final @NotNull RotateDirection rotDir)
     {
         switch (rotDir)
         {
@@ -320,9 +312,8 @@ public enum PBlockFace
      *
      * @see PBlockFace#getDirFun
      */
-    @NotNull
-    public static PBlockFace rotate(final @NotNull PBlockFace pbf, int steps,
-                                    final @NotNull Function<PBlockFace, PBlockFace> dir)
+    public static @NotNull PBlockFace rotate(final @NotNull PBlockFace pbf, int steps,
+                                             final @NotNull Function<PBlockFace, PBlockFace> dir)
     {
         if (pbf.equals(PBlockFace.NONE))
             return pbf;

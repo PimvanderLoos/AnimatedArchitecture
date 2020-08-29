@@ -482,6 +482,7 @@ public final class BigDoors
     /**
      * The platform to use. e.g. "Spigot".
      */
+    @NotNull
     private IBigDoorsPlatform platform;
 
     private BigDoors()
@@ -493,8 +494,7 @@ public final class BigDoors
      *
      * @return The instance of this class.
      */
-    public @NotNull
-    static BigDoors get()
+    public static @NotNull BigDoors get()
     {
         return instance;
     }
@@ -514,7 +514,7 @@ public final class BigDoors
      *
      * @return The platform implementing BigDoor's internal API.
      */
-    public IBigDoorsPlatform getPlatform()
+    public @NotNull IBigDoorsPlatform getPlatform()
     {
         return platform;
     }

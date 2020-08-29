@@ -22,7 +22,6 @@ public interface IPBlockDataFactory
      * @param radius The radius of the block to an arbitrary point.
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
-    @NotNull
-    Optional<PBlockData> create(final @NotNull IPLocationConst loc, final boolean bottom, final float radius,
-                                final float startAngle);
+    @NotNull Optional<PBlockData> create(final @NotNull IPLocationConst loc, final boolean bottom, final float radius,
+                                         final float startAngle);
 }

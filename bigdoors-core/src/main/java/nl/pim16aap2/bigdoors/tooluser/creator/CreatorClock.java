@@ -34,12 +34,14 @@ public class CreatorClock extends Creator
     /**
      * The valid open directions when the door is positioned along the north/south axis.
      */
+    @NotNull
     private static final List<RotateDirection> northSouthAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.EAST, RotateDirection.WEST));
 
     /**
      * The valid open directions when the door is positioned along the east/west axis.
      */
+    @NotNull
     private static final List<RotateDirection> eastWestAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
@@ -59,7 +61,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step<CreatorClock> stepSelectHourArm = new Step.Factory<CreatorClock>("SELECT_HOUR_ARM")

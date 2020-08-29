@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public class SlidingDoor extends AbstractDoorBase
     implements IStationaryDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
+    @NotNull
     private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
     @Getter(onMethod = @__({@Override}))

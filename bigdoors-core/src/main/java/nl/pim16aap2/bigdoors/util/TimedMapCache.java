@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -24,9 +25,13 @@ import java.util.function.Supplier;
  */
 public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
 {
+    @NotNull
     private static final TimeUnit DEFAULTTIMEUNIT = TimeUnit.MINUTES;
+    @NotNull
     private static final TimeUnit SMALLESTTIMEUNIT = TimeUnit.MILLISECONDS;
+    @NotNull
     private final Supplier<? extends Map> ctor;
+    @NotNull
     private final Class<? extends Map> mapType;
     /**
      * The amount of time a variable will be available measured in milliseconds for positive non-zero values.
@@ -37,10 +42,13 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      */
     private long timeOut = -1L;
 
+    @NotNull
     private Map<K, TimedValue<V>> map;
+
     /**
      * {@link TimerTask} of {@link TimedMapCache#verifyCache}
      */
+    @NotNull
     private final TimerTask verifyTask = new TimerTask()
     {
         @Override
@@ -53,6 +61,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     /**
      * Periodically run the {@link TimedMapCache#verifyTask}.
      */
+    @NotNull
     private Timer taskTimer;
 
     /**
@@ -156,7 +165,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      * if caching is enabled, otherwise null.
      */
     @Override
-    public V get(Object key)
+    public @Nullable V get(Object key)
     {
         if (timeOut < 0 || key == null)
             return null;
@@ -222,7 +231,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
      * {@inheritDoc}
      */
     @Override
-    public V put(K key, V value)
+    public @Nullable V put(K key, V value)
     {
         if (timeOut < 0)
             return null;
@@ -232,7 +241,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     }
 
     @Override
-    public V remove(Object key)
+    public @Nullable V remove(Object key)
     {
         TimedValue<V> timedValue = map.remove(key);
         return timedValue == null ? null : timedValue.value;
@@ -251,19 +260,19 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     }
 
     @Override
-    public Set keySet()
+    public @Nullable Set keySet()
     {
         return null;
     }
 
     @Override
-    public Collection values()
+    public @NotNull Collection values()
     {
         return map.values();
     }
 
     @Override
-    public java.util.Set entrySet()
+    public @NotNull java.util.Set entrySet()
     {
         return mapType.cast(map).entrySet();
     }
@@ -291,6 +300,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     private final class TimedValue<V>
     {
         public final long insertTime;
+        @NotNull
         public final V value;
 
         /**
@@ -298,7 +308,7 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
          *
          * @param val The value of this {@link TimedValue}.
          */
-        public TimedValue(V val)
+        public TimedValue(final @NotNull V val)
         {
             value = val;
             insertTime = System.currentTimeMillis();

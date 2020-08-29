@@ -56,7 +56,7 @@ public enum PageType
      * @param type The {@link PageType}.
      * @return The {@link Message} associated with the name of the {@link PageType}.
      */
-    public static Message getMessage(final @NotNull PageType type)
+    public static @NotNull Message getMessage(final @NotNull PageType type)
     {
         return type.message;
     }

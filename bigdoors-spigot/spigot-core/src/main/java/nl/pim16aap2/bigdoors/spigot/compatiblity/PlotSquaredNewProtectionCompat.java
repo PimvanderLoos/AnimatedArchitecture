@@ -25,8 +25,11 @@ import java.util.Optional;
  */
 public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 {
+    @NotNull
     private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
+    @NotNull
     private final BigDoorsSpigot plugin;
+    @NotNull
     private final JavaPlugin plotSquaredPlugin;
     private boolean success = false;
 

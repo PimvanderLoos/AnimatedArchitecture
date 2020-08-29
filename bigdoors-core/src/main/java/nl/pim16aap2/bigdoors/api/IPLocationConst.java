@@ -15,16 +15,14 @@ public interface IPLocationConst extends Cloneable
      *
      * @return The world of this location.
      */
-    @NotNull
-    IPWorld getWorld();
+    @NotNull IPWorld getWorld();
 
     /**
      * Gets the chunk coordinates of the chunk this location is in.
      *
      * @return The chunk coordinates of this location.
      */
-    @NotNull
-    Vector2Di getChunk();
+    @NotNull Vector2Di getChunk();
 
     /**
      * Gets the X value of this location.
@@ -73,7 +71,7 @@ public interface IPLocationConst extends Cloneable
      *
      * @return The position in integers as a String.
      */
-    default String toIntPositionString()
+    default @NotNull String toIntPositionString()
     {
         return String.format("(%d;%d;%d)", getBlockX(), getBlockY(), getBlockZ());
     }
@@ -83,7 +81,7 @@ public interface IPLocationConst extends Cloneable
      *
      * @return The position in double as a String.
      */
-    default String toDoublePositionString()
+    default @NotNull String toDoublePositionString()
     {
         return String.format("(%.2f;%.2f;%.2f)", getX(), getY(), getZ());
     }

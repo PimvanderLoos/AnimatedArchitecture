@@ -30,7 +30,7 @@ public class DoorEventListener implements Listener
      * @param doorOpener The {@link DoorOpener} used to open, close, and toggle doors.
      * @return The instance of this {@link DoorEventListener}.
      */
-    public static DoorEventListener init(final @NotNull DoorOpener doorOpener)
+    public static @NotNull DoorEventListener init(final @NotNull DoorOpener doorOpener)
     {
         return (instance == null) ? instance = new DoorEventListener(doorOpener) : instance;
     }
@@ -40,8 +40,7 @@ public class DoorEventListener implements Listener
      *
      * @return The instance of the {@link DoorEventListener}.
      */
-    public @NotNull
-    static DoorEventListener get()
+    public static @NotNull DoorEventListener get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");

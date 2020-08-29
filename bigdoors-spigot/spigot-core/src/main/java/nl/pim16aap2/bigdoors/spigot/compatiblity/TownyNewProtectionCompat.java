@@ -19,6 +19,7 @@ public class TownyNewProtectionCompat implements IProtectionCompat
     @NotNull
     private final BigDoorsSpigot plugin;
     private boolean success = false;
+    @NotNull
     private static final ProtectionCompat compat = ProtectionCompat.TOWNY;
 
     public TownyNewProtectionCompat(final @NotNull BigDoorsSpigot plugin)

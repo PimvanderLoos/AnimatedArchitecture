@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
-import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +16,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class WaitForSetTime extends WaitForCommand
 {
+    @NotNull
     private final AbstractDoorBase door;
+    @NotNull
     private final SubCommandSetAutoCloseTime subCommand;
 
     public WaitForSetTime(final @NotNull BigDoorsSpigot plugin, final @NotNull SubCommandSetAutoCloseTime subCommand,

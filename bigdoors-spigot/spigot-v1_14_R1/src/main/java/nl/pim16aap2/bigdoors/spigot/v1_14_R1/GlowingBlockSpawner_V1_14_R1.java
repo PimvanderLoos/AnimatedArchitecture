@@ -103,20 +103,21 @@ public class GlowingBlockSpawner_V1_14_R1 extends Restartable implements IGlowin
     }
 
     @Override
-    @Nullable
-    public IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,
-                                           final double x, final double y, final double z, final @NotNull PColor pColor)
+    public @Nullable IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world,
+                                                     final int time,
+                                                     final double x, final double y, final double z,
+                                                     final @NotNull PColor pColor)
     {
 
-        final ChatColor color = SpigotUtil.toBukkitColor(pColor);
+        final @NotNull ChatColor color = SpigotUtil.toBukkitColor(pColor);
         if (!teams.containsKey(color))
         {
             plogger.logThrowable(new IllegalArgumentException("Unsupported color: " + color.name()));
             return null;
         }
 
-        final Player player = Bukkit.getPlayer(pPlayer.getUUID());
-        final World bukkitWorld = Bukkit.getWorld(world);
+        final @Nullable Player player = Bukkit.getPlayer(pPlayer.getUUID());
+        final @Nullable World bukkitWorld = Bukkit.getWorld(world);
         if (player == null || bukkitWorld == null)
         {
             plogger.logThrowable(new NullPointerException(),

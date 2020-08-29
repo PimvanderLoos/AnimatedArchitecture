@@ -80,7 +80,7 @@ public abstract class ToolUser implements IRestartable
      *
      * @throws InstantiationException When a step's factory is incomplete or otherwise invalid.
      */
-    protected abstract List<IStep> generateSteps()
+    protected abstract @NotNull List<IStep> generateSteps()
         throws InstantiationException;
 
     /**
@@ -218,7 +218,7 @@ public abstract class ToolUser implements IRestartable
      *
      * @return The current {@link IStep} in the {@link #procedure}.
      */
-    public IStep getCurrentStep()
+    public @NotNull IStep getCurrentStep()
     {
         return procedure.currentStep;
     }

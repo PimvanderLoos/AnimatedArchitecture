@@ -25,6 +25,7 @@ import org.bukkit.block.data.type.Stairs;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
@@ -57,7 +58,7 @@ public class NMSBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.Block imple
                   .a(((CraftWorld) pWorld.getBukkitWorld()).getHandle().getType(new BlockPosition(x, y, z))
                                                            .getBlock()));
 
-        World bukkitWorld = SpigotAdapter.getBukkitWorld(pWorld);
+        final @Nullable World bukkitWorld = SpigotAdapter.getBukkitWorld(pWorld);
         craftWorld = (CraftWorld) bukkitWorld;
         loc = new Location(bukkitWorld, x, y, z);
 

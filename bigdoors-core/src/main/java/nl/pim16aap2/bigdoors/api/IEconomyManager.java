@@ -26,7 +26,7 @@ public interface IEconomyManager
      * @param blockCount The number of blocks.
      * @return The price of this {@link DoorType} with this number of blocks.
      */
-    OptionalDouble getPrice(final @NotNull DoorType type, final int blockCount);
+    @NotNull OptionalDouble getPrice(final @NotNull DoorType type, final int blockCount);
 
     /**
      * Checks if the economy manager is enabled.

@@ -40,8 +40,8 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     }
 
     @Override
-    @NotNull
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis, final double zAxis)
+    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+                                                 final double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }

@@ -16,8 +16,10 @@ import org.jetbrains.annotations.NotNull;
 public class TownyOldProtectionCompat implements IProtectionCompat
 {
     @SuppressWarnings("unused")
+    @NotNull
     private final BigDoorsSpigot plugin;
     private boolean success = false;
+    @NotNull
     private static final ProtectionCompat compat = ProtectionCompat.TOWNY;
 
     public TownyOldProtectionCompat(final @NotNull BigDoorsSpigot plugin)

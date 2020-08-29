@@ -19,9 +19,12 @@ import java.util.UUID;
  */
 public class LandsProtectionCompat implements IProtectionCompat
 {
+    @NotNull
     private static final ProtectionCompat compat = ProtectionCompat.LANDS;
+    @NotNull
     private final BigDoorsSpigot plugin;
     private boolean success = false;
+    @NotNull
     private final LandsIntegration landsAddon;
 
     public LandsProtectionCompat(final @NotNull BigDoorsSpigot plugin)
@@ -72,7 +75,7 @@ public class LandsProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public String getName()
+    public @NotNull String getName()
     {
         return ProtectionCompat.getName(compat);
     }

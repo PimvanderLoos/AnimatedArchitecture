@@ -13,9 +13,13 @@ import java.util.List;
  */
 public final class ConfigEntry<V>
 {
+    @NotNull
     private final PLogger logger;
+    @NotNull
     private final IConfigReader config;
+    @NotNull
     private final String optionName;
+    @NotNull
     private final V defaultValue;
     @Nullable
     private final String[] comment;
@@ -90,7 +94,7 @@ public final class ConfigEntry<V>
      *
      * @return The value of the config option.
      */
-    public V getValue()
+    public @NotNull V getValue()
     {
         return value;
     }
@@ -100,7 +104,7 @@ public final class ConfigEntry<V>
      *
      * @return The comment of the config option.
      */
-    public String[] getComment()
+    public @Nullable String[] getComment()
     {
         return comment;
     }
@@ -112,7 +116,7 @@ public final class ConfigEntry<V>
      * @return The config option formatted for printing in the config file
      */
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         String string = "";
 
@@ -157,7 +161,6 @@ public final class ConfigEntry<V>
          * @param value The value to check.
          * @return The value if it was valid, otherwise the value made valid.
          */
-        @NotNull
-        T test(final @NotNull T value);
+        @NotNull T test(final @NotNull T value);
     }
 }

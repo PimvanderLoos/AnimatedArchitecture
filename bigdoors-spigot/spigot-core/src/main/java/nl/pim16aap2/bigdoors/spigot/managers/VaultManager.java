@@ -38,12 +38,17 @@ import java.util.Set;
  */
 public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManager
 {
+    @NotNull
     private static final VaultManager instance = new VaultManager();
+    @NotNull
     private final Map<DoorType, Double> flatPrices;
     private boolean economyEnabled = false;
     private boolean permissionsEnabled = false;
+    @Nullable
     private Economy economy = null;
+    @Nullable
     private Permission perms = null;
+    @NotNull
     private BigDoorsSpigot plugin;
 
     private VaultManager()
@@ -62,7 +67,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * @param plugin The {@link BigDoorsSpigot} instance.
      * @return The {@link VaultManager} instance.
      */
-    public static VaultManager init(final @NotNull BigDoorsSpigot plugin)
+    public static @NotNull VaultManager init(final @NotNull BigDoorsSpigot plugin)
     {
         if (!plugin.isRestartableRegistered(instance))
             plugin.registerRestartable(instance);
@@ -163,7 +168,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public OptionalDouble getPrice(final @NotNull DoorType type, final int blockCount)
+    public @NotNull OptionalDouble getPrice(final @NotNull DoorType type, final int blockCount)
     {
         if (!economyEnabled)
             return OptionalDouble.empty();
@@ -322,7 +327,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public OptionalInt getMaxPermissionSuffix(final @NotNull IPPlayer player, final @NotNull String permissionBase)
+    public @NotNull OptionalInt getMaxPermissionSuffix(final @NotNull IPPlayer player,
+                                                       final @NotNull String permissionBase)
     {
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)

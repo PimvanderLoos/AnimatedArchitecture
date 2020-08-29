@@ -43,7 +43,7 @@ public final class PowerBlockManager extends Restartable
 
     @Nullable
     private static PowerBlockManager instance;
-
+    @NotNull
     private final IRestartableHolder restartableHolder;
 
     private PowerBlockManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull IConfigLoader config,
@@ -67,9 +67,10 @@ public final class PowerBlockManager extends Restartable
      * @param pLogger         The logger used for error logging.
      * @return The instance of this {@link PowerBlockManager}.
      */
-    @NotNull
-    public static PowerBlockManager init(final @NotNull IRestartableHolder holder, final @NotNull IConfigLoader config,
-                                         final @NotNull DatabaseManager databaseManager, final @NotNull PLogger pLogger)
+    public static @NotNull PowerBlockManager init(final @NotNull IRestartableHolder holder,
+                                                  final @NotNull IConfigLoader config,
+                                                  final @NotNull DatabaseManager databaseManager,
+                                                  final @NotNull PLogger pLogger)
     {
         return (instance == null) ? instance = new PowerBlockManager(holder, config, databaseManager, pLogger) :
                instance;
@@ -114,9 +115,8 @@ public final class PowerBlockManager extends Restartable
      * @param worldUUID The {@link UUID} of the world.
      * @return All {@link AbstractDoorBase}s that have a powerblock at a location in a world.
      */
-    @NotNull
-    public CompletableFuture<List<AbstractDoorBase>> doorsFromPowerBlockLoc(final @NotNull Vector3DiConst loc,
-                                                                            final @NotNull UUID worldUUID)
+    public @NotNull CompletableFuture<List<AbstractDoorBase>> doorsFromPowerBlockLoc(final @NotNull Vector3DiConst loc,
+                                                                                     final @NotNull UUID worldUUID)
     {
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)

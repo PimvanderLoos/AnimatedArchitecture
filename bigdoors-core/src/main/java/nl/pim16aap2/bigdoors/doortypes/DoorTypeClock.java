@@ -20,11 +20,12 @@ import java.util.Optional;
 public final class DoorTypeClock extends DoorType
 {
     private static final int TYPE_VERSION = 1;
+    @NotNull
     private static final List<Parameter> PARAMETERS;
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(2);
+        final @NotNull List<Parameter> parameterTMP = new ArrayList<>(2);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "northSouth"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "hourArmSide"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
@@ -45,16 +46,14 @@ public final class DoorTypeClock extends DoorType
      *
      * @return The instance of this type.
      */
-    public @NotNull
-    static DoorTypeClock get()
+    public static @NotNull DoorTypeClock get()
     {
         return instance;
     }
 
     @Override
-    @NotNull
-    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                     final @NotNull Object... typeData)
+    protected @NotNull Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                              final @NotNull Object... typeData)
     {
         final @Nullable PBlockFace hourArmSide = PBlockFace.valueOf((int) typeData[1]);
         if (hourArmSide == null)
@@ -67,22 +66,19 @@ public final class DoorTypeClock extends DoorType
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
     {
         return new CreatorClock(player);
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorClock(player, name);
     }
 
     @Override
-    @NotNull
-    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    protected @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
         // TODO: Handle with logger.
         if (!(door instanceof Clock))

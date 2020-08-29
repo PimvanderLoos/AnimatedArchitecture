@@ -10,8 +10,11 @@ import org.jetbrains.annotations.NotNull;
 public class GNLHorizontalRotEast implements IGetNewLocation
 {
     private final int xMin;
+    @NotNull
     private final IPWorld world;
+    @NotNull
     private final RotateDirection rotDir;
+    @NotNull
     private final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
 
     public GNLHorizontalRotEast(final @NotNull IPWorld world, final int xMin, final int xMax, final int zMin,
@@ -23,8 +26,8 @@ public class GNLHorizontalRotEast implements IGetNewLocation
     }
 
     @Override
-    @NotNull
-    public IPLocation getNewLocation(final double radius, final double xPos, final double yPos, final double zPos)
+    public @NotNull IPLocation getNewLocation(final double radius, final double xPos, final double yPos,
+                                              final double zPos)
     {
         IPLocation newPos = locationFactory.create(world, xPos, yPos, zPos);
         newPos.setX(xMin);

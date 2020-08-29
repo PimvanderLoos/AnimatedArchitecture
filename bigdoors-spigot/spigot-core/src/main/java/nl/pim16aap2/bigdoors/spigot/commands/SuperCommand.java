@@ -95,8 +95,7 @@ public class SuperCommand implements ICommand
     }
 
     @Override
-    @NotNull
-    public String getHelp(final @NotNull CommandSender sender)
+    public @NotNull String getHelp(final @NotNull CommandSender sender)
     {
         StringBuilder builder = new StringBuilder();
         subCommands.forEach((K, V) ->
@@ -111,8 +110,8 @@ public class SuperCommand implements ICommand
         return builder.toString();
     }
 
-    @NotNull
-    private String getHelpOfSubCommand(final @NotNull CommandSender sender, final @NotNull SubCommand subCommand)
+    private @NotNull String getHelpOfSubCommand(final @NotNull CommandSender sender,
+                                                final @NotNull SubCommand subCommand)
     {
         String help = subCommand.getHelp(sender);
         String args = subCommand.getHelpArguments();

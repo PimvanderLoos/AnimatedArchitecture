@@ -27,7 +27,7 @@ public class Vector2DiConst
     }
 
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         return "(" + x + ":" + y + ")";
     }

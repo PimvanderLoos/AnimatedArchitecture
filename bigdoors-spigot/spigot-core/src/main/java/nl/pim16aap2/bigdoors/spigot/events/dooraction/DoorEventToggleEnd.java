@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventToggleEnd
 {
+    @NotNull
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     /**
@@ -41,7 +42,7 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
         return HANDLERS_LIST;
     }
 
-    public static HandlerList getHandlerList()
+    public static @NotNull HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

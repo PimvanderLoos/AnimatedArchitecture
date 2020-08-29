@@ -42,6 +42,7 @@ import java.util.List;
 public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_14_R1.EntityFallingBlock
     implements ICustomEntityFallingBlock
 {
+    @NotNull
     protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
                                                                               DataWatcherRegistry.l);
     public int ticksLived;
@@ -104,8 +105,8 @@ public class CustomEntityFallingBlock_V1_14_R1 extends net.minecraft.server.v1_1
     }
 
     @SuppressWarnings("unused")
-    @NotNull
-    private List<Entity> getFallingBlocksOnSide(final @NotNull AxisAlignedBB bb, final @NotNull EnumDirection dir)
+    private @NotNull List<Entity> getFallingBlocksOnSide(final @NotNull AxisAlignedBB bb,
+                                                         final @NotNull EnumDirection dir)
     {
         /**
          * AxisAlignedBB: a/d = min/max x, b/e = min/max y, c/f = min/max z.

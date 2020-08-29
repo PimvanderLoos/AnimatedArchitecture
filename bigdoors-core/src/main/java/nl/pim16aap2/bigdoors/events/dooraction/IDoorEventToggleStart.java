@@ -16,14 +16,12 @@ public interface IDoorEventToggleStart extends IDoorEvent
      *
      * @return The new minimum coordinates of the door after the toggle.
      */
-    @NotNull
-    Vector3DiConst getNewMinimum();
+    @NotNull Vector3DiConst getNewMinimum();
 
     /**
      * Gets the new maximum coordinates of the door after the toggle.
      *
      * @return The new maximum coordinates of the door after the toggle.
      */
-    @NotNull
-    Vector3DiConst getNewMaximum();
+    @NotNull Vector3DiConst getNewMaximum();
 }

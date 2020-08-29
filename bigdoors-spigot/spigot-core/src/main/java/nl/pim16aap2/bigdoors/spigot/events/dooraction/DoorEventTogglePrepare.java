@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoorEventTogglePrepare
 {
+    @NotNull
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter(onMethod = @__({@Override}))
@@ -52,7 +53,7 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
         return HANDLERS_LIST;
     }
 
-    public static HandlerList getHandlerList()
+    public static @NotNull HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

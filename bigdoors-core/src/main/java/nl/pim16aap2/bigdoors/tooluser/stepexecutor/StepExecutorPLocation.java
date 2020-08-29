@@ -19,7 +19,7 @@ public class StepExecutorPLocation extends StepExecutor
     }
 
     @Override
-    public Class<?> getInputClass()
+    public @NotNull Class<?> getInputClass()
     {
         return IPLocationConst.class;
     }

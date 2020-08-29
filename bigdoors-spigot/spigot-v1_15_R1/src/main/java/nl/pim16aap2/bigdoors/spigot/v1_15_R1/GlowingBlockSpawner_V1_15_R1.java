@@ -61,8 +61,7 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
      *
      * @return The instance of this class.
      */
-    public @Nullable
-    static GlowingBlockSpawner_V1_15_R1 get()
+    public static @Nullable GlowingBlockSpawner_V1_15_R1 get()
     {
         return instance;
     }
@@ -76,9 +75,8 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
      * @param plogger The logger object to log to.
      * @return The instance of this {@link GlowingBlockSpawner_V1_15_R1}.
      */
-    @NotNull
-    public static GlowingBlockSpawner_V1_15_R1 init(final @NotNull IRestartableHolder holder,
-                                                    final @NotNull PLogger plogger)
+    public static @NotNull GlowingBlockSpawner_V1_15_R1 init(final @NotNull IRestartableHolder holder,
+                                                             final @NotNull PLogger plogger)
     {
         return instance == null ? instance = new GlowingBlockSpawner_V1_15_R1(holder, plogger) : instance;
     }
@@ -88,7 +86,7 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
      */
     private void init()
     {
-        for (final PColor col : PColor.values())
+        for (final @NotNull PColor col : PColor.values())
             try
             {
                 registerTeam(col);
@@ -130,12 +128,13 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
     }
 
     @Override
-    @Nullable
-    public IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world, final int time,
-                                           final double x, final double y, final double z, final @NotNull PColor color)
+    public @Nullable IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer pPlayer, final @NotNull UUID world,
+                                                     final int time,
+                                                     final double x, final double y, final double z,
+                                                     final @NotNull PColor color)
     {
-        final Player player = Bukkit.getPlayer(pPlayer.getUUID());
-        final World bukkitWorld = Bukkit.getWorld(world);
+        final @Nullable Player player = Bukkit.getPlayer(pPlayer.getUUID());
+        final @Nullable World bukkitWorld = Bukkit.getWorld(world);
         if (player == null || bukkitWorld == null)
         {
             plogger.logThrowable(new NullPointerException(),
@@ -143,7 +142,7 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
             return null;
         }
 
-        final IGlowingBlock glowingBlock = new GlowingBlock_V1_15_R1(player, bukkitWorld, color, x, y, z);
+        final @NotNull IGlowingBlock glowingBlock = new GlowingBlock_V1_15_R1(player, bukkitWorld, color, x, y, z);
         BigDoors.get().getPlatform().newPExecutor().runSyncLater(new TimerTask()
         {
             @Override
@@ -161,8 +160,7 @@ public class GlowingBlockSpawner_V1_15_R1 extends Restartable implements IGlowin
      *
      * @return All the registered teams.
      */
-    @NotNull
-    Map<PColor, Team> getTeams()
+    @NotNull Map<PColor, Team> getTeams()
     {
         return teams;
     }

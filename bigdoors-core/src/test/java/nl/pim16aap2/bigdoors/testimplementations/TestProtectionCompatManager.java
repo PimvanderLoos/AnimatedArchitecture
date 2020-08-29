@@ -12,18 +12,16 @@ import java.util.Optional;
 public class TestProtectionCompatManager implements IProtectionCompatManager
 {
     @Override
-    @NotNull
-    public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc)
+    public @NotNull Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc)
     {
         return Optional.empty();
     }
 
     @Override
-    @NotNull
-    public Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
-                                                      final @NotNull Vector3DiConst pos1,
-                                                      final @NotNull Vector3DiConst pos2,
-                                                      final @NotNull IPWorld world)
+    public @NotNull Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
+                                                               final @NotNull Vector3DiConst pos1,
+                                                               final @NotNull Vector3DiConst pos2,
+                                                               final @NotNull IPWorld world)
     {
         return Optional.empty();
     }

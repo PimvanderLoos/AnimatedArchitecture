@@ -28,6 +28,7 @@ public class GarageDoorMover extends BlockMover
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
     private final double resultHeight;
+    @NotNull
     private final Vector3DiConst directionVec;
     private BiFunction<PBlockData, Double, Vector3Dd> getVector;
     private int xLen, yLen, zLen;

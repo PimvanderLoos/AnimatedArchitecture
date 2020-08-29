@@ -5,6 +5,5 @@ import org.jetbrains.annotations.NotNull;
 
 public interface IGetNewLocation
 {
-    @NotNull
-    IPLocation getNewLocation(final double radius, final double xPos, final double yPos, final double zPos);
+    @NotNull IPLocation getNewLocation(final double radius, final double xPos, final double yPos, final double zPos);
 }

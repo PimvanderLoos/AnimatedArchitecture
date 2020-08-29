@@ -25,6 +25,7 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
     @NotNull
     Vector3DiConst newMaximum;
 
+    @NotNull
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     /**
@@ -56,7 +57,7 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
         return HANDLERS_LIST;
     }
 
-    public static HandlerList getHandlerList()
+    public static @NotNull HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

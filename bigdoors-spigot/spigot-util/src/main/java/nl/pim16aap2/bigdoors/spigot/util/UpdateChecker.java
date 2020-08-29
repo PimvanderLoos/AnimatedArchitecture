@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
  */
 public final class UpdateChecker
 {
+    @NotNull
     public static final VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
     {
         String[] firstSplit = splitVersionInfo(first), secondSplit = splitVersionInfo(second);
@@ -61,19 +62,27 @@ public final class UpdateChecker
         return (secondSplit.length > firstSplit.length) ? second : first;
     };
 
+    @NotNull
     private static final String USER_AGENT = "BigDoors-update-checker";
+    @NotNull
     private static final String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
+    @NotNull
     private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
+    @NotNull
     private final String downloadURL;
 
     @Nullable
     private static UpdateChecker instance;
 
+    @Nullable
     private UpdateResult lastResult = null;
 
+    @NotNull
     private final JavaPlugin plugin;
     private final int pluginID;
+    @NotNull
     private final VersionScheme versionScheme;
+    @NotNull
     private final PLogger logger;
 
     private UpdateChecker(final @NotNull JavaPlugin plugin, final int pluginID,
@@ -92,7 +101,7 @@ public final class UpdateChecker
      *
      * @return a future update result
      */
-    public CompletableFuture<UpdateResult> requestUpdateCheck()
+    public @NotNull CompletableFuture<UpdateResult> requestUpdateCheck()
     {
         return CompletableFuture.supplyAsync(
             () ->
@@ -172,7 +181,7 @@ public final class UpdateChecker
      *
      * @return the last update check result. null if none.
      */
-    public UpdateResult getLastResult()
+    public @NotNull UpdateResult getLastResult()
     {
         return lastResult;
     }
@@ -191,7 +200,7 @@ public final class UpdateChecker
      *
      * @return The url to download the latest version from.
      */
-    public String getDownloadUrl()
+    public @NotNull String getDownloadUrl()
     {
         return downloadURL;
     }
@@ -275,8 +284,8 @@ public final class UpdateChecker
      * @param logger        The {@link PLogger} to use for logging.
      * @return The {@link UpdateChecker} instance.
      */
-    public static UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
-                                     final @NotNull VersionScheme versionScheme, final @NotNull PLogger logger)
+    public static @NotNull UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
+                                              final @NotNull VersionScheme versionScheme, final @NotNull PLogger logger)
     {
         Preconditions.checkArgument(pluginID > 0, "Plugin ID must be greater than 0");
 
@@ -295,8 +304,8 @@ public final class UpdateChecker
      * @param logger   The {@link PLogger} to use for logging.
      * @return The {@link UpdateChecker} instance.
      */
-    public static UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
-                                     final @NotNull PLogger logger)
+    public static @NotNull UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
+                                              final @NotNull PLogger logger)
     {
         return init(plugin, pluginID, VERSION_SCHEME_DECIMAL, logger);
     }
@@ -307,7 +316,7 @@ public final class UpdateChecker
      *
      * @return The {@link UpdateChecker} instance.
      */
-    public static UpdateChecker get()
+    public static @NotNull UpdateChecker get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -340,14 +349,14 @@ public final class UpdateChecker
          * @param second the second version to check
          * @return the greater of the two versions. null if unsupported version schemes
          */
-        public String compareVersions(String first, String second);
+        @NotNull String compareVersions(String first, String second);
 
     }
 
     /**
      * A constant reason for the result of {@link UpdateResult}.
      */
-    public static enum UpdateReason
+    public enum UpdateReason
     {
 
         /**
@@ -399,7 +408,9 @@ public final class UpdateChecker
      */
     public final class UpdateResult
     {
+        @NotNull
         private final UpdateReason reason;
+        @NotNull
         private final String newestVersion;
         private final long age;
 
@@ -428,8 +439,7 @@ public final class UpdateChecker
          *
          * @return the reason
          */
-        @NotNull
-        public UpdateReason getReason()
+        public @NotNull UpdateReason getReason()
         {
             return reason;
         }
@@ -450,8 +460,7 @@ public final class UpdateChecker
          *
          * @return the newest version of the plugin
          */
-        @NotNull
-        public String getNewestVersion()
+        public @NotNull String getNewestVersion()
         {
             return newestVersion;
         }

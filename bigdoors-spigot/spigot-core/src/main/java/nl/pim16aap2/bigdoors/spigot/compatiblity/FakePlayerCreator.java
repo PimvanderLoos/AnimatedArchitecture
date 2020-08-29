@@ -90,15 +90,13 @@ class FakePlayerCreator
         success = true;
     }
 
-    @NotNull
-    private Class<?> getNMSClass(final @NotNull String name)
+    private @NotNull Class<?> getNMSClass(final @NotNull String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(NMSbase + name);
     }
 
-    @NotNull
-    private Class<?> getCraftClass(final @NotNull String name)
+    private @NotNull Class<?> getCraftClass(final @NotNull String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(CraftBase + name);
@@ -111,8 +109,7 @@ class FakePlayerCreator
      * @param world   The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
-    @NotNull
-    Optional<Player> getFakePlayer(final @NotNull OfflinePlayer oPlayer, final @NotNull World world)
+    @NotNull Optional<Player> getFakePlayer(final @NotNull OfflinePlayer oPlayer, final @NotNull World world)
     {
         if (!success)
             return Optional.empty();

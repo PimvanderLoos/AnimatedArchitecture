@@ -298,7 +298,7 @@ public class CreatorTest extends CreatorTestsUtil
         }
 
         @Override
-        protected List<IStep> generateSteps()
+        protected @NotNull List<IStep> generateSteps()
             throws InstantiationException
         {
             stepSetName = factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct();
@@ -336,15 +336,13 @@ public class CreatorTest extends CreatorTestsUtil
         }
 
         @Override
-        @NotNull
-        protected AbstractDoorBase constructDoor()
+        protected @NotNull AbstractDoorBase constructDoor()
         {
             return null;
         }
 
         @Override
-        @NotNull
-        protected DoorType getDoorType()
+        protected @NotNull DoorType getDoorType()
         {
             return DoorTypeBigDoor.get();
         }

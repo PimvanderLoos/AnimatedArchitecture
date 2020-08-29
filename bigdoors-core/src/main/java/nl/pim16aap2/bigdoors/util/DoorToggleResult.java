@@ -82,6 +82,7 @@ public enum DoorToggleResult
     /**
      * The {@link Message} associated with the {@link DoorToggleResult}.
      */
+    @NotNull
     private final Message message;
 
     DoorToggleResult(@NotNull final Message message)
@@ -95,8 +96,7 @@ public enum DoorToggleResult
      * @param result The {@link DoorToggleResult}.
      * @return The Key for the translation of this {@link DoorToggleResult}.
      */
-    @NotNull
-    public static Message getMessage(final @NotNull DoorToggleResult result)
+    public static @NotNull Message getMessage(final @NotNull DoorToggleResult result)
     {
         return result.message;
     }

@@ -22,7 +22,7 @@ public class TestEconomyManager implements IEconomyManager
     }
 
     @Override
-    public OptionalDouble getPrice(final @NotNull DoorType type, final int blockCount)
+    public @NotNull OptionalDouble getPrice(final @NotNull DoorType type, final int blockCount)
     {
         return price;
     }

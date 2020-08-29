@@ -24,7 +24,7 @@ public class LimitsManager
      * <p>
      * If the player has a player limit as well as a global limit, the lowest value of the two will be used.
      */
-    public OptionalInt getLimit(final @NotNull IPPlayer player, final @NotNull Limit limit)
+    public @NotNull OptionalInt getLimit(final @NotNull IPPlayer player, final @NotNull Limit limit)
     {
         final boolean hasBypass = BigDoors.get().getPlatform().getPermissionsManager()
                                           .hasPermission(player, limit.getAdminPermission());

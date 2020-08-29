@@ -123,8 +123,7 @@ public class SubCommandRemoveOwner extends SubCommand
     }
 
     @Override
-    @NotNull
-    public String getHelp(@NotNull CommandSender sender)
+    public @NotNull String getHelp(@NotNull CommandSender sender)
     {
         return help;
     }

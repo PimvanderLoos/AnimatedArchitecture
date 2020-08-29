@@ -13,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public interface IPLocation extends IPLocationConst, Cloneable
 {
     @Override
-    @NotNull
-    IPWorld getWorld();
+    @NotNull IPWorld getWorld();
 
     /**
      * Updates the world of this location.
@@ -24,8 +23,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
     void setWorld(final @NotNull IPWorld other);
 
     @Override
-    @NotNull
-    Vector2Di getChunk();
+    @NotNull Vector2Di getChunk();
 
     @Override
     int getBlockX();
@@ -69,8 +67,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param z The value to add to the z coordinate.
      * @return This current IPLocation.
      */
-    @NotNull
-    IPLocation add(final double x, final double y, final double z);
+    @NotNull IPLocation add(final double x, final double y, final double z);
 
     /**
      * Adds values to the coordinates of this location.
@@ -78,8 +75,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NotNull
-    IPLocation add(final @NotNull Vector3DiConst vector);
+    @NotNull IPLocation add(final @NotNull Vector3DiConst vector);
 
     /**
      * Adds values to the coordinates of this location.
@@ -87,9 +83,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NotNull
-    IPLocation add(final @NotNull Vector3DdConst vector);
+    @NotNull IPLocation add(final @NotNull Vector3DdConst vector);
 
-    @NotNull
-    IPLocation clone();
+    @NotNull IPLocation clone();
 }

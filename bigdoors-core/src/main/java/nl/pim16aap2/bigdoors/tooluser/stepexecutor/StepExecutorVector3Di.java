@@ -19,7 +19,7 @@ public class StepExecutorVector3Di extends StepExecutor
     }
 
     @Override
-    public Class<?> getInputClass()
+    public @NotNull Class<?> getInputClass()
     {
         return Vector3DiConst.class;
     }

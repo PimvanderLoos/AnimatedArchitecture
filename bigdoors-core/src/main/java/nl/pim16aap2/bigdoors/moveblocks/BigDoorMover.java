@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BigDoorMover extends BlockMover
 {
+    @NotNull
     private final Vector3DdConst rotationCenter;
     private int halfEndCount;
     private final double angle;

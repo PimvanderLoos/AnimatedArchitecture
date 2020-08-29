@@ -19,6 +19,5 @@ public interface IPPlayerFactory
      * @param playerName The name of the player.
      * @return A new IPWorld object.
      */
-    @NotNull
-    IPPlayer create(final @NotNull UUID playerUUID, final @NotNull String playerName);
+    @NotNull IPPlayer create(final @NotNull UUID playerUUID, final @NotNull String playerName);
 }

@@ -374,7 +374,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      *
      * @return The current dimensions.
      */
-    protected Vector3Di calculateDimensions()
+    protected @NotNull Vector3Di calculateDimensions()
     {
         return new Vector3Di(maximum.getX() - minimum.getX(),
                              maximum.getY() - minimum.getY(),
@@ -453,7 +453,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @return String with (almost) all data of this door.
      */
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         StringBuilder builder = new StringBuilder();
         builder.append(doorUID).append(": ").append(name).append("\n");

@@ -35,7 +35,9 @@ public final class HeadManager extends Restartable
      * <p>
      * Value: The player's head as item.
      */
+    @NotNull
     private final TimedMapCache<UUID, ItemStack> headMap;
+    @NotNull
     private final ConfigLoaderSpigot config;
 
     /**
@@ -58,8 +60,8 @@ public final class HeadManager extends Restartable
      * @param config The BigDoors configuration.
      * @return The instance of this {@link HeadManager}.
      */
-    @NotNull
-    public static HeadManager init(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoaderSpigot config)
+    public static @NotNull HeadManager init(final @NotNull IRestartableHolder holder,
+                                            final @NotNull ConfigLoaderSpigot config)
     {
         return (instance == null) ? instance = new HeadManager(holder, config) : instance;
     }
@@ -69,8 +71,7 @@ public final class HeadManager extends Restartable
      *
      * @return The instance of the {@link HeadManager}.
      */
-    public @NotNull
-    static HeadManager get()
+    public static @NotNull HeadManager get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -85,8 +86,8 @@ public final class HeadManager extends Restartable
      * @param displayName The display name to give assign to the {@link ItemStack}.
      * @return The ItemStack of a head with the texture of the player's head if possible.
      */
-    public CompletableFuture<Optional<ItemStack>> getPlayerHead(final @NotNull UUID playerUUID,
-                                                                final @NotNull String displayName)
+    public @NotNull CompletableFuture<Optional<ItemStack>> getPlayerHead(final @NotNull UUID playerUUID,
+                                                                         final @NotNull String displayName)
     {
         return CompletableFuture.supplyAsync(
             () ->

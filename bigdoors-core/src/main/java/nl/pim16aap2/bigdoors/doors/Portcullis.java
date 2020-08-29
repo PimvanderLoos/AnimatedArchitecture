@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 public class Portcullis extends AbstractDoorBase
     implements IMovingDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
+    @NotNull
     private static final DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
     @Getter(onMethod = @__({@Override}))

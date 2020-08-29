@@ -19,43 +19,37 @@ import java.util.UUID;
 public class PLocationFactorySpigot implements IPLocationFactory
 {
     @Override
-    @NotNull
-    public IPLocation create(final @NotNull IPWorld world, final double x, final double y, final double z)
+    public @NotNull IPLocation create(final @NotNull IPWorld world, final double x, final double y, final double z)
     {
         return new PLocationSpigot(world, x, y, z);
     }
 
     @Override
-    @NotNull
-    public IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DiConst position)
+    public @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DiConst position)
     {
         return create(world, position.getX(), position.getY(), position.getZ());
     }
 
     @Override
-    @NotNull
-    public IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DdConst position)
+    public @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DdConst position)
     {
         return create(world, position.getX(), position.getY(), position.getZ());
     }
 
     @Override
-    @NotNull
-    public IPLocation create(final @NotNull UUID worldUUID, final double x, final double y, final double z)
+    public @NotNull IPLocation create(final @NotNull UUID worldUUID, final double x, final double y, final double z)
     {
         return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldUUID), x, y, z);
     }
 
     @Override
-    @NotNull
-    public IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst position)
+    public @NotNull IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst position)
     {
         return create(worldUUID, position.getX(), position.getY(), position.getZ());
     }
 
     @Override
-    @NotNull
-    public IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DdConst position)
+    public @NotNull IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DdConst position)
     {
         return create(worldUUID, position.getX(), position.getY(), position.getZ());
     }

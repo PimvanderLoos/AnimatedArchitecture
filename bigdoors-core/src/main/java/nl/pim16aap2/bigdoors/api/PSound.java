@@ -33,8 +33,7 @@ public enum PSound
      * @param sound The {@link PSound}.
      * @return The name of the {@link PSound}.
      */
-    @NotNull
-    public static String getSoundName(final @NotNull PSound sound)
+    public static @NotNull String getSoundName(final @NotNull PSound sound)
     {
         return sound.name;
     }

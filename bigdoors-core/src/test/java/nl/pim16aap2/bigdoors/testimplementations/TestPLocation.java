@@ -63,8 +63,7 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    @NotNull
-    public IPLocation add(final double x, final double y, final double z)
+    public @NotNull IPLocation add(final double x, final double y, final double z)
     {
         this.x += x;
         this.y += y;
@@ -73,15 +72,13 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    @NotNull
-    public IPLocation add(final @NotNull Vector3DiConst vector)
+    public @NotNull IPLocation add(final @NotNull Vector3DiConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
 
     @Override
-    @NotNull
-    public IPLocation add(final @NotNull Vector3DdConst vector)
+    public @NotNull IPLocation add(final @NotNull Vector3DdConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }

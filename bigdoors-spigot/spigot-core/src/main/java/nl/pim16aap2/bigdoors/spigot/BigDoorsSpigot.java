@@ -308,7 +308,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         DoorTypeManager.get().registerDoorType(type);
     }
 
-    public static BigDoorsSpigot get()
+    public static @NotNull BigDoorsSpigot get()
     {
         return INSTANCE;
     }
@@ -402,23 +402,20 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return new PExecutorSpigot<>(INSTANCE, INSTANCE.getPLogger());
     }
 
-    @NotNull
-    public ICommand getCommand(final @NotNull CommandData command)
+    public @NotNull ICommand getCommand(final @NotNull CommandData command)
     {
         return commandManager.getCommand(command);
     }
 
-    @NotNull
-    public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc)
+    public @NotNull Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc)
     {
         return protectionCompatManager.canBreakBlock(player, loc);
     }
 
-    @NotNull
-    public Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
-                                                      final @NotNull Vector3DiConst pos1,
-                                                      final @NotNull Vector3DiConst pos2,
-                                                      final @NotNull IPWorld world)
+    public @NotNull Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
+                                                               final @NotNull Vector3DiConst pos1,
+                                                               final @NotNull Vector3DiConst pos2,
+                                                               final @NotNull IPWorld world)
     {
         return protectionCompatManager.canBreakBlocksBetweenLocs(player, pos1, pos2, world);
     }
@@ -486,6 +483,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return PlatformManagerSpigot.get().getSpigotPlatform().getFallingBlockFactory();
     }
 
+    @Override
     public @NotNull IGlowingBlockSpawner getGlowingBlockSpawner()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getGlowingBlockSpawner();
@@ -496,8 +494,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return this;
     }
 
-    @NotNull
-    public Optional<GUI> getGUIUser(final @NotNull Player player)
+    public @NotNull Optional<GUI> getGUIUser(final @NotNull Player player)
     {
         GUI gui = null;
         if (playerGUIs.containsKey(player.getUniqueId()))
@@ -515,8 +512,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         playerGUIs.remove(gui.getGuiHolder().getUUID());
     }
 
-    @NotNull
-    public Optional<WaitForCommand> getCommandWaiter(final @NotNull Player player)
+    public @NotNull Optional<WaitForCommand> getCommandWaiter(final @NotNull Player player)
     {
         if (cmdWaiters.containsKey(player.getUniqueId()))
             return Optional.of(cmdWaiters.get(player.getUniqueId()));

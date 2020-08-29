@@ -73,7 +73,7 @@ public final class PWorldSpigot implements IPWorld
     }
 
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         String worldName = world == null ? "" : (" (" + world.getName() + ")");
         return uuid.toString() + worldName;

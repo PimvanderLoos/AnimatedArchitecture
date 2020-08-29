@@ -13,20 +13,15 @@ public interface ISpigotPlatform
      *
      * @return The version.
      */
-    @NotNull
-    String getVersion();
+    @NotNull String getVersion();
 
     void init(final @NotNull BigDoorsSpigotAbstract plugin);
 
-    @NotNull
-    IFallingBlockFactory getFallingBlockFactory();
+    @NotNull IFallingBlockFactory getFallingBlockFactory();
 
-    @NotNull
-    IPBlockDataFactory getPBlockDataFactory();
+    @NotNull IPBlockDataFactory getPBlockDataFactory();
 
-    @NotNull
-    IBlockAnalyzer getBlockAnalyzer();
+    @NotNull IBlockAnalyzer getBlockAnalyzer();
 
-    @NotNull
-    IGlowingBlockSpawner getGlowingBlockSpawner();
+    @NotNull IGlowingBlockSpawner getGlowingBlockSpawner();
 }

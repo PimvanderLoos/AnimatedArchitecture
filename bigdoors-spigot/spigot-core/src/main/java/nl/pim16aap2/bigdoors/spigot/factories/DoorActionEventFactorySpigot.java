@@ -17,28 +17,26 @@ import org.jetbrains.annotations.NotNull;
 public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
 {
     @Override
-    @NotNull
-    public IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
-                                                      final @NotNull DoorActionCause cause,
-                                                      final @NotNull DoorActionType actionType,
-                                                      final @NotNull IPPlayer responsible, final double time,
-                                                      final boolean skipAnimation,
-                                                      final @NotNull Vector3DiConst newMinimum,
-                                                      final @NotNull Vector3DiConst newMaximum)
+    public @NotNull IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
+                                                               final @NotNull DoorActionCause cause,
+                                                               final @NotNull DoorActionType actionType,
+                                                               final @NotNull IPPlayer responsible, final double time,
+                                                               final boolean skipAnimation,
+                                                               final @NotNull Vector3DiConst newMinimum,
+                                                               final @NotNull Vector3DiConst newMaximum)
     {
         return new DoorEventTogglePrepare(door, cause, actionType, responsible, time, skipAnimation, newMinimum,
                                           newMaximum);
     }
 
     @Override
-    @NotNull
-    public IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
-                                                  final @NotNull DoorActionCause cause,
-                                                  final @NotNull DoorActionType actionType,
-                                                  final @NotNull IPPlayer responsible, final double time,
-                                                  final boolean skipAnimation,
-                                                  final @NotNull Vector3DiConst newMinimum,
-                                                  final @NotNull Vector3DiConst newMaximum)
+    public @NotNull IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
+                                                           final @NotNull DoorActionCause cause,
+                                                           final @NotNull DoorActionType actionType,
+                                                           final @NotNull IPPlayer responsible, final double time,
+                                                           final boolean skipAnimation,
+                                                           final @NotNull Vector3DiConst newMinimum,
+                                                           final @NotNull Vector3DiConst newMaximum)
 
     {
         return new DoorEventToggleStart(door, cause, actionType, responsible, time, skipAnimation, newMinimum,
@@ -46,12 +44,11 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
     }
 
     @Override
-    @NotNull
-    public IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,
-                                              final @NotNull DoorActionCause cause,
-                                              final @NotNull DoorActionType actionType,
-                                              final @NotNull IPPlayer responsible, final double time,
-                                              final boolean skipAnimation)
+    public @NotNull IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,
+                                                       final @NotNull DoorActionCause cause,
+                                                       final @NotNull DoorActionType actionType,
+                                                       final @NotNull IPPlayer responsible, final double time,
+                                                       final boolean skipAnimation)
     {
         return new DoorEventToggleEnd(door, cause, actionType, responsible, time, skipAnimation);
     }

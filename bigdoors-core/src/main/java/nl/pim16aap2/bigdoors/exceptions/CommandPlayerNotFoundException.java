@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public class CommandPlayerNotFoundException extends Exception
 {
     private static final long serialVersionUID = 1L;
+    
     @Getter
-    @NotNull
-    String playerArg;
+    @NotNull String playerArg;
 }

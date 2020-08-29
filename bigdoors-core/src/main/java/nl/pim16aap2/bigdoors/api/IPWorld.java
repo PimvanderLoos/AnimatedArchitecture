@@ -17,16 +17,14 @@ public interface IPWorld extends Cloneable
      *
      * @return The UUID of this world.
      */
-    @NotNull
-    UUID getUID();
+    @NotNull UUID getUID();
 
     /**
      * Gets the name of this world.
      *
      * @return The name of this world.
      */
-    @NotNull
-    String getName();
+    @NotNull String getName();
 
     /**
      * Checks if this is a valid world in the current {@link IBigDoorsPlatform}.
@@ -40,9 +38,7 @@ public interface IPWorld extends Cloneable
      *
      * @return Gets the time in this world.
      */
-    @NotNull
-    WorldTime getTime();
+    @NotNull WorldTime getTime();
 
-    @NotNull
-    IPWorld clone();
+    @NotNull IPWorld clone();
 }

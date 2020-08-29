@@ -15,13 +15,17 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class UpdateManager
 {
+    @NotNull
     private final BigDoorsSpigot plugin;
+    @NotNull
     private final PLogger logger;
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
-
+    
+    @NotNull
     private UpdateChecker updater;
+    @NotNull
     private BukkitTask updateRunner = null;
 
     public UpdateManager(final @NotNull BigDoorsSpigot plugin, final int pluginID)

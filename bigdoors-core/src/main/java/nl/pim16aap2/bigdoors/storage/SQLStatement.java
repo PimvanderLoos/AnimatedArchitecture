@@ -416,8 +416,7 @@ public enum SQLStatement
      * @param sqlStatement The {@link SQLStatement}.
      * @return The statement this {@link SQLStatement} represents.
      */
-    @NotNull
-    public static String getStatement(final @NotNull SQLStatement sqlStatement)
+    public static @NotNull String getStatement(final @NotNull SQLStatement sqlStatement)
     {
         return sqlStatement.statement;
     }
@@ -439,7 +438,7 @@ public enum SQLStatement
      * @param sqlStatement The {@link SQLStatement}.
      * @return A new {@link PPreparedStatement}.
      */
-    public static PPreparedStatement constructPPreparedStatement(final @NotNull SQLStatement sqlStatement)
+    public static @NotNull PPreparedStatement constructPPreparedStatement(final @NotNull SQLStatement sqlStatement)
     {
         return sqlStatement.constructPPreparedStatement();
     }
@@ -449,7 +448,7 @@ public enum SQLStatement
      *
      * @return A new {@link PPreparedStatement}.
      */
-    public PPreparedStatement constructPPreparedStatement()
+    public @NotNull PPreparedStatement constructPPreparedStatement()
     {
         return new PPreparedStatement(variableCount, statement);
     }

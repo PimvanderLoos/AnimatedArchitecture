@@ -20,7 +20,9 @@ public class LoginResourcePackListener extends Restartable implements Listener
 {
     @Nullable
     private static LoginResourcePackListener instance;
+    @NotNull
     private final BigDoorsSpigot plugin;
+    @NotNull
     private final String url;
     private boolean isRegistered = false;
 
@@ -39,8 +41,8 @@ public class LoginResourcePackListener extends Restartable implements Listener
      * @param url    The URL of the resource pack.
      * @return The instance of this {@link LoginResourcePackListener}.
      */
-    @NotNull
-    public static LoginResourcePackListener init(final @NotNull BigDoorsSpigot plugin, final @NotNull String url)
+    public static @NotNull LoginResourcePackListener init(final @NotNull BigDoorsSpigot plugin,
+                                                          final @NotNull String url)
     {
         return (instance == null) ? instance = new LoginResourcePackListener(plugin, url) : instance;
     }

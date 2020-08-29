@@ -20,8 +20,7 @@ public interface IPExecutor<T>
      * @param supplier A function returning the value to be used to complete the returned IMainThreadExecutor.
      * @return The result of the action.
      */
-    @NotNull
-    CompletableFuture<T> supplyOnMainThread(final @NotNull Supplier<T> supplier);
+    @NotNull CompletableFuture<T> supplyOnMainThread(final @NotNull Supplier<T> supplier);
 
     /**
      * Schedules an action to be run on the main thread.
@@ -36,8 +35,7 @@ public interface IPExecutor<T>
      * @param supplier A function returning the value to be used to complete the returned IMainThreadExecutor.
      * @return The result of the action.
      */
-    @NotNull
-    CompletableFuture<T> supplyAsync(final @NotNull Supplier<T> supplier);
+    @NotNull CompletableFuture<T> supplyAsync(final @NotNull Supplier<T> supplier);
 
     /**
      * Schedules an action to be run asynchronously.

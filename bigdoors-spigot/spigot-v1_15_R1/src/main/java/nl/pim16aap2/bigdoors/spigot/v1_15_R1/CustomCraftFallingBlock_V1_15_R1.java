@@ -97,7 +97,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         return "CraftFallingBlock";
     }

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
@@ -54,5 +55,5 @@ public abstract class StepExecutor
      *
      * @return The {@link Class} of the input object.
      */
-    protected abstract Class<?> getInputClass();
+    protected abstract @NotNull Class<?> getInputClass();
 }

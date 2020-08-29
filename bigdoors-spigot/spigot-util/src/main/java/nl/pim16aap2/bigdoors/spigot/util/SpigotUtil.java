@@ -33,7 +33,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class SpigotUtil
 {
+    @NotNull
     private static final Map<PBlockFace, BlockFace> toBlockFace = new EnumMap<>(PBlockFace.class);
+    @NotNull
     private static final Map<BlockFace, PBlockFace> toPBlockFace = new EnumMap<>(BlockFace.class);
     @Getter
     @Setter
@@ -41,9 +43,9 @@ public final class SpigotUtil
 
     static
     {
-        for (PBlockFace pbf : PBlockFace.values())
+        for (final @NotNull PBlockFace pbf : PBlockFace.values())
         {
-            BlockFace mappedBlockFace;
+            final @NotNull BlockFace mappedBlockFace;
             if (pbf.equals(PBlockFace.NONE))
                 mappedBlockFace = BlockFace.SELF;
             else
@@ -53,6 +55,7 @@ public final class SpigotUtil
         }
     }
 
+    @NotNull
     private static final Map<PColor, ChatColor> toBukkitColor = new EnumMap<>(PColor.class);
 
     static
@@ -67,8 +70,7 @@ public final class SpigotUtil
      * @param pColor The {@link PColor}.
      * @return The bukkit version of the {@link PColor}.
      */
-    @NotNull
-    public static ChatColor toBukkitColor(final @NotNull PColor pColor)
+    public static @NotNull ChatColor toBukkitColor(final @NotNull PColor pColor)
     {
         return toBukkitColor.get(pColor);
     }
@@ -78,8 +80,7 @@ public final class SpigotUtil
      *
      * @param playerUUID The UUID of the player.
      */
-    @NotNull
-    public static OfflinePlayer getOfflinePlayer(final @NotNull UUID playerUUID)
+    public static @NotNull OfflinePlayer getOfflinePlayer(final @NotNull UUID playerUUID)
     {
         @Nullable final Player onlinePlayer = Bukkit.getPlayer(playerUUID);
         return onlinePlayer != null ? onlinePlayer : Bukkit.getOfflinePlayer(playerUUID);
@@ -173,8 +174,7 @@ public final class SpigotUtil
      * @param explanation Explanation of how to use the command.
      * @return String in the helperformat.
      */
-    @NotNull
-    public static String helpFormat(final @NotNull String command, final @NotNull String explanation)
+    public static @NotNull String helpFormat(final @NotNull String command, final @NotNull String explanation)
     {
         return String.format(ChatColor.GREEN + "/%s: " + ChatColor.BLUE + "%s\n", command, explanation);
     }
@@ -185,8 +185,7 @@ public final class SpigotUtil
      * @param mbf {@link PBlockFace} that will be converted.
      * @return The parallel {@link org.bukkit.block.BlockFace}.
      */
-    @NotNull
-    public static BlockFace getBukkitFace(final @NotNull PBlockFace mbf)
+    public static @NotNull BlockFace getBukkitFace(final @NotNull PBlockFace mbf)
     {
         return toBlockFace.get(mbf);
     }
@@ -197,8 +196,7 @@ public final class SpigotUtil
      * @param bf {@link org.bukkit.block.BlockFace} that will be converted.
      * @return The parallel {@link PBlockFace}.
      */
-    @NotNull
-    public static PBlockFace getPBlockFace(final @NotNull BlockFace bf)
+    public static @NotNull PBlockFace getPBlockFace(final @NotNull BlockFace bf)
     {
         return toPBlockFace.get(bf);
     }
@@ -209,8 +207,7 @@ public final class SpigotUtil
      * @param loc The location to convert to a string.
      * @return A string of the coordinates of the location.
      */
-    @NotNull
-    public static String locIntToString(final @NotNull Location loc)
+    public static @NotNull String locIntToString(final @NotNull Location loc)
     {
         return String.format("(%d;%d;%d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
@@ -221,14 +218,12 @@ public final class SpigotUtil
      * @param loc The location to convert to a string.
      * @return A string of the coordinates of the location.
      */
-    @NotNull
-    public static String locDoubleToString(final @NotNull Location loc)
+    public static @NotNull String locDoubleToString(final @NotNull Location loc)
     {
         return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
     }
 
-    @NotNull
-    public static Optional<String> nameFromUUID(final @NotNull UUID playerUUID)
+    public static @NotNull Optional<String> nameFromUUID(final @NotNull UUID playerUUID)
     {
         Player player = Bukkit.getPlayer(playerUUID);
         return Optional
@@ -245,8 +240,7 @@ public final class SpigotUtil
      * First try to get the UUID from an online player, then try an offline player;
      * the first option is faster.
      */
-    @NotNull
-    public static Optional<UUID> playerUUIDFromString(final @NotNull String playerName)
+    public static @NotNull Optional<UUID> playerUUIDFromString(final @NotNull String playerName)
     {
         Player player = Bukkit.getPlayer(playerName);
         if (player == null)
@@ -303,7 +297,7 @@ public final class SpigotUtil
      * @param player The player for whom to retrieve the limit.
      * @return The limit if one was found, or -1 if unlimited.
      */
-    public static CompletableFuture<Integer> getMaxDoorsForPlayer(final @NotNull Player player)
+    public static @NotNull CompletableFuture<Integer> getMaxDoorsForPlayer(final @NotNull Player player)
     {
         if (player.isOp())
             return CompletableFuture.completedFuture(-1);
@@ -317,7 +311,7 @@ public final class SpigotUtil
      * @param player The player for whom to retrieve the limit.
      * @return The limit if one was found, or -1 if unlimited.
      */
-    public static CompletableFuture<Integer> getMaxDoorSizeForPlayer(final @NotNull Player player)
+    public static @NotNull CompletableFuture<Integer> getMaxDoorSizeForPlayer(final @NotNull Player player)
     {
         if (player.isOp())
             return CompletableFuture.completedFuture(-1);
@@ -334,7 +328,7 @@ public final class SpigotUtil
      * @param permissionNode The base permission node.
      * @return The highest value of the variable suffix of the permission node or -1 if none was found.
      */
-    private static CompletableFuture<Integer> getHighestPermissionSuffix(
+    private static @NotNull CompletableFuture<Integer> getHighestPermissionSuffix(
         final @NotNull Set<PermissionAttachmentInfo> permissions,
         final @NotNull String permissionNode)
     {

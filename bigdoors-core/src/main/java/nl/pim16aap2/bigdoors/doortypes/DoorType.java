@@ -117,9 +117,9 @@ public abstract class DoorType
      *                 #getParameters()}.
      * @return A new {@link AbstractDoorBase} if one could be instantiated.
      */
-    @NotNull
-    protected abstract Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                              final @NotNull Object... typeData);
+    protected abstract @NotNull Optional<AbstractDoorBase> instantiate(
+        final @NotNull AbstractDoorBase.DoorData doorData,
+        final @NotNull Object... typeData);
 
     /**
      * Creates (and registers) a new {@link Creator} for this type.
@@ -127,8 +127,7 @@ public abstract class DoorType
      * @param player The player who will own the {@link Creator}.
      * @return The newly created {@link Creator}.
      */
-    @NotNull
-    public abstract Creator getCreator(final @NotNull IPPlayer player);
+    public abstract @NotNull Creator getCreator(final @NotNull IPPlayer player);
 
     /**
      * Creates (and registers) a new {@link Creator} for this type.
@@ -137,8 +136,7 @@ public abstract class DoorType
      * @param name   The name that will be given to the door.
      * @return The newly created {@link Creator}.
      */
-    @NotNull
-    public abstract Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name);
+    public abstract @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name);
 
     /**
      * Generates the type-specific data for this door type. Note that the data must be ordered in the same way as {@link
@@ -149,8 +147,7 @@ public abstract class DoorType
      *
      * @throws Exception
      */
-    @NotNull
-    protected abstract Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    protected abstract @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
         throws Exception;
 
     @Override
@@ -176,8 +173,8 @@ public abstract class DoorType
      * @param typeData The type-specific data for the door.
      * @return A new {@link AbstractDoorBase} if one was instantiated successfully.
      */
-    public final Optional<AbstractDoorBase> constructDoor(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                          final @NotNull Object[] typeData)
+    public final @NotNull Optional<AbstractDoorBase> constructDoor(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                                   final @NotNull Object[] typeData)
     {
         if (typeData.length != getParameters().size())
         {
@@ -203,7 +200,7 @@ public abstract class DoorType
      * @param door The {@link AbstractDoorBase} whose type-specific data to get.
      * @return An optional containing the type-specific data of the door, represented as an array of Objects.
      */
-    public final Optional<Object[]> getTypeData(final @NotNull AbstractDoorBase door)
+    public final @NotNull Optional<Object[]> getTypeData(final @NotNull AbstractDoorBase door)
     {
         try
         {

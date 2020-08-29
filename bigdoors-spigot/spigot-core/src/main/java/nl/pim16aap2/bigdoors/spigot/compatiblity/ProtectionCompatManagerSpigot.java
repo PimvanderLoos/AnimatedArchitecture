@@ -38,8 +38,11 @@ import java.util.logging.Level;
  */
 public final class ProtectionCompatManagerSpigot extends Restartable implements Listener, IProtectionCompatManager
 {
+    @NotNull
     private final List<IProtectionCompat> protectionCompats;
+    @NotNull
     private final BigDoorsSpigot plugin;
+    @NotNull
     private FakePlayerCreator fakePlayerCreator;
     private ConfigLoaderSpigot config;
 
@@ -66,8 +69,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * @param plugin The Spigot plugin.
      * @return The instance of this {@link ProtectionCompatManagerSpigot}.
      */
-    @NotNull
-    public static ProtectionCompatManagerSpigot init(final @NotNull BigDoorsSpigot plugin)
+    public static @NotNull ProtectionCompatManagerSpigot init(final @NotNull BigDoorsSpigot plugin)
     {
         return (instance == null) ?
                instance = new ProtectionCompatManagerSpigot(plugin) : instance;
@@ -78,8 +80,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @return The instance of the {@link ProtectionCompatManagerSpigot}.
      */
-    public @NotNull
-    static ProtectionCompatManagerSpigot get()
+    public static @NotNull ProtectionCompatManagerSpigot get()
     {
         Preconditions.checkState(instance != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -135,8 +136,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @see FakePlayerCreator
      */
-    @NotNull
-    private Optional<Player> getPlayer(final @NotNull IPPlayer player, final @NotNull World world)
+    private @NotNull Optional<Player> getPlayer(final @NotNull IPPlayer player, final @NotNull World world)
     {
         Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
         if (bukkitPlayer == null)
@@ -146,8 +146,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     }
 
     @Override
-    @NotNull
-    public Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst pLoc)
+    public @NotNull Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst pLoc)
     {
         if (protectionCompats.isEmpty())
             return Optional.empty();
@@ -178,11 +177,10 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     }
 
     @Override
-    @NotNull
-    public Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
-                                                      final @NotNull Vector3DiConst pos1,
-                                                      final @NotNull Vector3DiConst pos2,
-                                                      final @NotNull IPWorld world)
+    public @NotNull Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
+                                                               final @NotNull Vector3DiConst pos1,
+                                                               final @NotNull Vector3DiConst pos2,
+                                                               final @NotNull IPWorld world)
     {
         if (protectionCompats.isEmpty())
             return Optional.empty();

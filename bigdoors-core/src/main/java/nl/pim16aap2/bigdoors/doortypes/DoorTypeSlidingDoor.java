@@ -19,11 +19,12 @@ import java.util.Optional;
 public final class DoorTypeSlidingDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
+    @NotNull
     private static final List<Parameter> PARAMETERS;
 
     static
     {
-        List<Parameter> parameterTMP = new ArrayList<>(3);
+        final @NotNull List<Parameter> parameterTMP = new ArrayList<>(3);
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "blocksToMove"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoCloseTimer"));
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "autoOpenTimer"));
@@ -45,16 +46,14 @@ public final class DoorTypeSlidingDoor extends DoorType
      *
      * @return The instance of this type.
      */
-    public @NotNull
-    static DoorTypeSlidingDoor get()
+    public static @NotNull DoorTypeSlidingDoor get()
     {
         return instance;
     }
 
     @Override
-    @NotNull
-    protected Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                     final @NotNull Object... typeData)
+    protected @NotNull Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
+                                                              final @NotNull Object... typeData)
     {
         final int blocksToMove = (int) typeData[0];
         final int autoCloseTimer = (int) typeData[1];
@@ -67,22 +66,19 @@ public final class DoorTypeSlidingDoor extends DoorType
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
     {
         return new CreatorSlidingDoor(player);
     }
 
     @Override
-    @NotNull
-    public Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorSlidingDoor(player, name);
     }
 
     @Override
-    @NotNull
-    protected Object[] generateTypeData(final @NotNull AbstractDoorBase door)
+    protected @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
         if (!(door instanceof SlidingDoor))
             throw new IllegalArgumentException(

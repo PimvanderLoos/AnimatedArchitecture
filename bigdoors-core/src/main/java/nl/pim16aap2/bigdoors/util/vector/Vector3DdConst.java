@@ -53,7 +53,7 @@ public class Vector3DdConst
     }
 
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         return "(" + x + ":" + y + ":" + z + ")";
     }

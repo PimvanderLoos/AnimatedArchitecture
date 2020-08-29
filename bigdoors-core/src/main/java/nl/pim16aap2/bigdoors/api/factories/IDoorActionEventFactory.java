@@ -32,14 +32,13 @@ public interface IDoorActionEventFactory
      * @param newMinimum    The new minimum coordinates of the door after the toggle.
      * @param newMaximum    The new maximum coordinates of the door after the toggle.
      */
-    @NotNull
-    IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
-                                               final @NotNull DoorActionCause cause,
-                                               final @NotNull DoorActionType actionType,
-                                               final @NotNull IPPlayer responsible, final double time,
-                                               final boolean skipAnimation,
-                                               final @NotNull Vector3DiConst newMinimum,
-                                               final @NotNull Vector3DiConst newMaximum);
+    @NotNull IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
+                                                        final @NotNull DoorActionCause cause,
+                                                        final @NotNull DoorActionType actionType,
+                                                        final @NotNull IPPlayer responsible, final double time,
+                                                        final boolean skipAnimation,
+                                                        final @NotNull Vector3DiConst newMinimum,
+                                                        final @NotNull Vector3DiConst newMaximum);
 
     /**
      * Constructs a {@link IDoorEventToggleStart}.
@@ -55,14 +54,13 @@ public interface IDoorActionEventFactory
      * @param newMinimum    The new minimum coordinates of the door after the toggle.
      * @param newMaximum    The new maximum coordinates of the door after the toggle.
      */
-    @NotNull
-    IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
-                                           final @NotNull DoorActionCause cause,
-                                           final @NotNull DoorActionType actionType,
-                                           final @NotNull IPPlayer responsible, final double time,
-                                           final boolean skipAnimation,
-                                           final @NotNull Vector3DiConst newMinimum,
-                                           final @NotNull Vector3DiConst newMaximum);
+    @NotNull IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
+                                                    final @NotNull DoorActionCause cause,
+                                                    final @NotNull DoorActionType actionType,
+                                                    final @NotNull IPPlayer responsible, final double time,
+                                                    final boolean skipAnimation,
+                                                    final @NotNull Vector3DiConst newMinimum,
+                                                    final @NotNull Vector3DiConst newMaximum);
 
     /**
      * Constructs a {@link IDoorEventToggleEnd}.
@@ -76,9 +74,9 @@ public interface IDoorActionEventFactory
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      */
-    @NotNull
-    IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,
-                                       final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType,
-                                       final @NotNull IPPlayer responsible, final double time,
-                                       final boolean skipAnimation);
+    @NotNull IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,
+                                                final @NotNull DoorActionCause cause,
+                                                final @NotNull DoorActionType actionType,
+                                                final @NotNull IPPlayer responsible, final double time,
+                                                final boolean skipAnimation);
 }

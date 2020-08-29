@@ -38,8 +38,7 @@ public abstract class SubCommand implements ICommand
     }
 
     @Override
-    @NotNull
-    public String getHelp(final @NotNull CommandSender sender)
+    public @NotNull String getHelp(final @NotNull CommandSender sender)
     {
         return help;
     }

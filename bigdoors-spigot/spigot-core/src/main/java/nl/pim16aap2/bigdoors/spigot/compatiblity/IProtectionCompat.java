@@ -44,6 +44,5 @@ interface IProtectionCompat
      *
      * @return The name of the {@link JavaPlugin} that is being hooked into.
      */
-    @NotNull
-    String getName();
+    @NotNull String getName();
 }

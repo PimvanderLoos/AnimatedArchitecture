@@ -12,16 +12,14 @@ public interface IDoorEvent extends IPEvent
      *
      * @return The door.
      */
-    @NotNull
-    AbstractDoorBase getDoor();
+    @NotNull AbstractDoorBase getDoor();
 
     /**
      * Gets what caused the door action request to be created.
      *
      * @return The cause of the door action request.
      */
-    @NotNull
-    DoorActionCause getCause();
+    @NotNull DoorActionCause getCause();
 
     /**
      * Gets the UUID of the player responsible for this door action. This either means the player who directly requested
@@ -30,16 +28,14 @@ public interface IDoorEvent extends IPEvent
      *
      * @return The player that is responsible for this event.
      */
-    @NotNull
-    IPPlayer getResponsible();
+    @NotNull IPPlayer getResponsible();
 
     /**
      * Gets the type of the requested action.
      *
      * @return The type of the requested action.
      */
-    @NotNull
-    DoorActionType getActionType();
+    @NotNull DoorActionType getActionType();
 
     /**
      * Checks if the event requested the door to skip its animation and open instantly.

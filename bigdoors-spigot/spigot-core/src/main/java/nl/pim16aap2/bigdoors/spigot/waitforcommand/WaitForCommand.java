@@ -17,8 +17,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class WaitForCommand extends AbortableTask
 {
+    @NotNull
     protected final BigDoorsSpigot plugin;
+    @NotNull
     protected final SubCommand subCommand;
+    @NotNull
     protected Player player;
     protected boolean isFinished = false;
 
@@ -77,7 +80,7 @@ public abstract class WaitForCommand extends AbortableTask
      *
      * @return The player that will execute the command.
      */
-    public final Player getPlayer()
+    public final @NotNull Player getPlayer()
     {
         return player;
     }

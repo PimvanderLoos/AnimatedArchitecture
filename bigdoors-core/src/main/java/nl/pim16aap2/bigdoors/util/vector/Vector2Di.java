@@ -97,12 +97,6 @@ public final class Vector2Di extends Vector2DiConst
     }
 
     @Override
-    public String toString()
-    {
-        return "(" + x + ":" + y + ")";
-    }
-
-    @Override
     public boolean equals(Object o)
     {
         if (this == o)

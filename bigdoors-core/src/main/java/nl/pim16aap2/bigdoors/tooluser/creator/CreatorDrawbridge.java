@@ -34,7 +34,7 @@ public class CreatorDrawbridge extends Creator
     }
 
     @Override
-    protected List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),

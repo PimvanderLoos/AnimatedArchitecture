@@ -19,7 +19,7 @@ public class StepExecutorBoolean extends StepExecutor
     }
 
     @Override
-    public Class<?> getInputClass()
+    public @NotNull Class<?> getInputClass()
     {
         return Boolean.class;
     }

@@ -21,9 +21,8 @@ import org.jetbrains.annotations.NotNull;
 public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
 {
     @Override
-    @NotNull
-    public ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocationConst loc,
-                                                        final @NotNull INMSBlock block)
+    public @NotNull ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocationConst loc,
+                                                                 final @NotNull INMSBlock block)
     {
         World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
 
@@ -42,8 +41,7 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
     }
 
     @Override
-    @NotNull
-    public INMSBlock nmsBlockFactory(final @NotNull IPLocationConst loc)
+    public @NotNull INMSBlock nmsBlockFactory(final @NotNull IPLocationConst loc)
     {
         if (!(loc.getWorld() instanceof PWorldSpigot))
         {

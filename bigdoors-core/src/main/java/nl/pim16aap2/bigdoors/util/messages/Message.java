@@ -230,6 +230,7 @@ public enum Message implements MessageVariable
      * <p>
      * For example: "This door will move %BLOCKSTOMOVE% blocks." Would contain at least "%BLOCKSTOMOVE%".
      */
+    @NotNull
     private final String[] variableNames;
 
     /**
@@ -249,8 +250,7 @@ public enum Message implements MessageVariable
      * @param idx The index of the variable name.
      * @return The name of the variable at the given position of this message.
      */
-    @NotNull
-    public static String getVariableName(final @NotNull Message msg, final int idx)
+    public static @NotNull String getVariableName(final @NotNull Message msg, final int idx)
     {
         return msg.variableNames[idx];
     }
@@ -261,8 +261,7 @@ public enum Message implements MessageVariable
      * @param msg The message for which to retrieve the variable names.
      * @return The names of the variables of this message.
      */
-    @NotNull
-    public static String[] getVariableNames(final @NotNull Message msg)
+    public static @NotNull String[] getVariableNames(final @NotNull Message msg)
     {
         return msg.variableNames;
     }

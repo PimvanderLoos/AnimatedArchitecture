@@ -30,8 +30,7 @@ public final class ToolUserManager extends Restartable
         super(holder);
     }
 
-    public @NotNull
-    static ToolUserManager get()
+    public static @NotNull ToolUserManager get()
     {
         return INSTANCE;
     }
@@ -60,14 +59,12 @@ public final class ToolUserManager extends Restartable
         return toolUsers.containsKey(uuid);
     }
 
-    @NotNull
-    public Optional<ToolUser> getToolUser(final @NotNull IPPlayer player)
+    public @NotNull Optional<ToolUser> getToolUser(final @NotNull IPPlayer player)
     {
         return getToolUser(player.getUUID());
     }
 
-    @NotNull
-    public Optional<ToolUser> getToolUser(final @NotNull UUID uuid)
+    public @NotNull Optional<ToolUser> getToolUser(final @NotNull UUID uuid)
     {
         return Optional.ofNullable(toolUsers.get(uuid)).map(pair -> pair.first);
     }

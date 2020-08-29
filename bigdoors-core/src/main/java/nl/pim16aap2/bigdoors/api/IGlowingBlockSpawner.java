@@ -41,9 +41,9 @@ public interface IGlowingBlockSpawner
      * @param z      The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    @Nullable
-    default IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer player, @NotNull UUID world, final int time,
-                                            final double x, final double y, final double z)
+    default @Nullable IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer player, @NotNull UUID world,
+                                                      final int time,
+                                                      final double x, final double y, final double z)
     {
         return spawnGlowingBlock(player, world, time, x, y, z, PColor.WHITE);
     }
@@ -56,9 +56,8 @@ public interface IGlowingBlockSpawner
      * @param location The location where the glowing block will be spawned.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    @Nullable
-    default IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer player, final int time,
-                                            final @NotNull IPLocationConst location)
+    default @Nullable IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer player, final int time,
+                                                      final @NotNull IPLocationConst location)
     {
         return spawnGlowingBlock(player, location.getWorld().getUID(), time,
                                  location.getX(), location.getY(), location.getZ());
@@ -73,9 +72,9 @@ public interface IGlowingBlockSpawner
      * @param color    The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    @Nullable
-    default IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer player, final int time,
-                                            final @NotNull IPLocationConst location, final @NotNull PColor color)
+    default @Nullable IGlowingBlock spawnGlowingBlock(final @NotNull IPPlayer player, final int time,
+                                                      final @NotNull IPLocationConst location,
+                                                      final @NotNull PColor color)
     {
         return spawnGlowingBlock(player, location.getWorld().getUID(), time,
                                  location.getX(), location.getY(), location.getZ(), color);

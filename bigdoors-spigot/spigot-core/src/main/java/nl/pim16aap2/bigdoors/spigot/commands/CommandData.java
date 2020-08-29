@@ -45,20 +45,17 @@ public enum CommandData
         this.commandName = commandName;
     }
 
-    @NotNull
-    public static String getPermission(final @NotNull CommandData command)
+    public static @NotNull String getPermission(final @NotNull CommandData command)
     {
         return command.permission;
     }
 
-    @Nullable
-    public static CommandData getSuperCommand(final @NotNull CommandData command)
+    public static @Nullable CommandData getSuperCommand(final @NotNull CommandData command)
     {
         return command.superCommand;
     }
 
-    @NotNull
-    public static String getCommandName(final @NotNull CommandData command)
+    public static @NotNull String getCommandName(final @NotNull CommandData command)
     {
         return command.commandName;
     }

@@ -70,11 +70,10 @@ public final class DoorOpeningUtility
      * @param protectionManager   The class used to check with compatibility hooks if it is allowed to be toggled.
      * @return The instance of this {@link DoorOpeningUtility}.
      */
-    @NotNull
-    public static DoorOpeningUtility init(final @NotNull PLogger pLogger,
-                                          final @NotNull IGlowingBlockSpawner glowingBlockSpawner,
-                                          final @NotNull IConfigLoader config,
-                                          final @NotNull IProtectionCompatManager protectionManager)
+    public static @NotNull DoorOpeningUtility init(final @NotNull PLogger pLogger,
+                                                   final @NotNull IGlowingBlockSpawner glowingBlockSpawner,
+                                                   final @NotNull IConfigLoader config,
+                                                   final @NotNull IProtectionCompatManager protectionManager)
     {
         return (instance == null) ?
                instance = new DoorOpeningUtility(pLogger, glowingBlockSpawner, config, protectionManager) :
@@ -86,8 +85,7 @@ public final class DoorOpeningUtility
      *
      * @return The instance of the {@link DoorOpeningUtility}.
      */
-    public @NotNull
-    static DoorOpeningUtility get()
+    public static @NotNull DoorOpeningUtility get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -103,9 +101,8 @@ public final class DoorOpeningUtility
      * @param responsible Who is responsible for the action.
      * @return The result.
      */
-    @NotNull
-    public DoorToggleResult abort(final @NotNull AbstractDoorBase door, final @NotNull DoorToggleResult result,
-                                  final @NotNull DoorActionCause cause, final @NotNull IPPlayer responsible)
+    public @NotNull DoorToggleResult abort(final @NotNull AbstractDoorBase door, final @NotNull DoorToggleResult result,
+                                           final @NotNull DoorActionCause cause, final @NotNull IPPlayer responsible)
     {
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this door. However, in every other case it should, because the door is
@@ -301,9 +298,9 @@ public final class DoorOpeningUtility
      * @param actionType The type of action.
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
-    @NotNull
-    public DoorToggleResult canBeToggled(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
-                                         final @NotNull DoorActionType actionType)
+    public @NotNull DoorToggleResult canBeToggled(final @NotNull AbstractDoorBase door,
+                                                  final @NotNull DoorActionCause cause,
+                                                  final @NotNull DoorActionType actionType)
     {
         if (isBusySetIfNot(door.getDoorUID()))
             return DoorToggleResult.BUSY;
@@ -377,8 +374,7 @@ public final class DoorOpeningUtility
      * @return The {@link BlockMover} of a {@link AbstractDoorBase} if it has been registered with the {@link
      * DatabaseManager}.
      */
-    @NotNull
-    public Optional<BlockMover> getBlockMover(final long doorUID)
+    public @NotNull Optional<BlockMover> getBlockMover(final long doorUID)
     {
         return BigDoors.get().getDoorManager().getBlockMover(doorUID);
     }
