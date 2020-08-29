@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.DoorManager;
+import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -520,13 +520,13 @@ public final class BigDoors
     }
 
     /**
-     * Gets the {@link DoorManager} instance.
+     * Gets the {@link DoorActivityManager} instance.
      *
-     * @return The {@link DoorManager} instance.
+     * @return The {@link DoorActivityManager} instance.
      */
-    public @NotNull DoorManager getDoorManager()
+    public @NotNull DoorActivityManager getDoorManager()
     {
-        return DoorManager.get();
+        return DoorActivityManager.get();
     }
 
     /**

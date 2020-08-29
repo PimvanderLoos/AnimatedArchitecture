@@ -17,40 +17,41 @@ import java.util.stream.Stream;
  *
  * @author Pim
  */
-public final class DoorManager extends Restartable
+public final class DoorActivityManager extends Restartable
 {
     @Nullable
-    private static DoorManager instance = null;
+    private static DoorActivityManager instance = null;
     @NotNull
     private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
 
     /**
-     * Constructs a new {@link DoorManager}.
+     * Constructs a new {@link DoorActivityManager}.
      *
      * @param holder The {@link IRestartableHolder} that manages this object.
      */
-    private DoorManager(final @NotNull IRestartableHolder holder)
+    private DoorActivityManager(final @NotNull IRestartableHolder holder)
     {
         super(holder);
     }
 
     /**
-     * Initializes the {@link DoorManager}. If it has already been initialized, it'll return that instance instead.
+     * Initializes the {@link DoorActivityManager}. If it has already been initialized, it'll return that instance
+     * instead.
      *
      * @param holder The {@link IRestartableHolder} that manages this object.
-     * @return The instance of this {@link DoorManager}.
+     * @return The instance of this {@link DoorActivityManager}.
      */
-    public static @NotNull DoorManager init(final @NotNull IRestartableHolder holder)
+    public static @NotNull DoorActivityManager init(final @NotNull IRestartableHolder holder)
     {
-        return (instance == null) ? instance = new DoorManager(holder) : instance;
+        return (instance == null) ? instance = new DoorActivityManager(holder) : instance;
     }
 
     /**
-     * Gets the instance of the {@link DoorManager} if it exists.
+     * Gets the instance of the {@link DoorActivityManager} if it exists.
      *
-     * @return The instance of the {@link DoorManager}.
+     * @return The instance of the {@link DoorActivityManager}.
      */
-    public static @NotNull DoorManager get()
+    public static @NotNull DoorActivityManager get()
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
