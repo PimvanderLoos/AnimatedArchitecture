@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.data.BlockData;
@@ -71,10 +70,9 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    public @NotNull Vector3Dd getPosition()
+    public @NotNull Vector3DdConst getPosition()
     {
-        Location bukkitLocation = super.getLocation();
-        return new Vector3Dd(bukkitLocation.getX(), bukkitLocation.getY(), bukkitLocation.getZ());
+        return ((CustomEntityFallingBlock_V1_15_R1) entity).getCurrentPosition();
     }
 
     @Override

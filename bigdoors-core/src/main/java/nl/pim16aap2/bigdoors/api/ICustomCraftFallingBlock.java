@@ -62,7 +62,7 @@ public interface ICustomCraftFallingBlock
      *
      * @return The current position of this entity.
      */
-    @NotNull Vector3Dd getPosition();
+    @NotNull Vector3DdConst getPosition();
 
     /**
      * Gets the current velocity of this entity.

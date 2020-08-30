@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import lombok.Getter;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.Blocks;
 import net.minecraft.server.v1_15_R1.CrashReportSystemDetails;
@@ -49,8 +50,11 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     private PlayerChunkMap.EntityTracker tracker;
     private final WorldServer worldServer;
 
+    @Getter
     private Vector3DdConst previousPosition;
+    @Getter
     private Vector3DdConst currentPosition;
+    @Getter
     private Vector3DdConst futurePosition;
 
     public CustomEntityFallingBlock_V1_15_R1(final @NotNull org.bukkit.World world, final double d0, final double d1,

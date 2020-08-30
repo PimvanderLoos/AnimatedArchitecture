@@ -397,7 +397,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Openers / Movers
  */
-// TODO: Update the BlockMover to respawn blocks using the new teleport system.
+// TODO: Consider making it possible to still use the velocity method. But to do so, it'll have to be a separate mode.
+//       This is needed to select the correct strategy for stuff like returning the correct current location.
 // TODO: Make sure the relmove isn't too far. If so, limit it to the highest/lowest possible value.
 // TODO: Instead of a relmove, use a full teleport every now and then to avoid client-server desync from dropped packets.
 // TODO: Port the chunk range shit from v1 to v2.

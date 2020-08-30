@@ -162,7 +162,7 @@ public abstract class BlockMover implements IRestartable
      */
     private void respawnBlock(final @NotNull PBlockData blockData, final @NotNull INMSBlock newBlock)
     {
-        final IPLocationConst loc = blockData.getFBlock().getPLocation();
+        final IPLocationConst loc = blockData.getFBlock().getPosition().toLocation(world);
         final Vector3DdConst veloc = blockData.getFBlock().getPVelocity();
 
         final ICustomCraftFallingBlock fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
