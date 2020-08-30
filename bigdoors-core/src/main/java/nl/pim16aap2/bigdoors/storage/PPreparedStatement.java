@@ -69,7 +69,10 @@ public class PPreparedStatement
         for (int idx = 0; idx < (actions.length - skipCount); ++idx)
         {
             final Action action = actions[idx];
-            result = result.replaceFirst("[?]", action.obj.toString());
+            if (action.obj instanceof Number)
+                result = result.replaceFirst("[?]", action.obj.toString());
+            else
+                result = result.replaceFirst("[?]", "\"" + action.obj.toString() + "\"");
         }
         return result;
     }

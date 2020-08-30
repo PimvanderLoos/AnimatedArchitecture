@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 // TODO: ConcurrentHashMaps are pretty slow at resizing, so try to estimate the size (based on the config options)
 //       on init. Also, see the note at #getDoor(long) regarding the use of ConcurrentHashmaps in general.
-// TODO: Perhaps this class should be a private member for the DatabaseManager?
 public final class DoorRegistry extends Restartable
 {
     @NotNull
