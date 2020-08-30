@@ -446,7 +446,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public final @NotNull String getBasicInfo()
     {
-        return doorUID + " (" + getPermission() + ")" + ": " + name;
+        return doorUID + " (" + getPermission() + ") - " + getDoorType().getSimpleName() + ": " + name;
     }
 
     /**
