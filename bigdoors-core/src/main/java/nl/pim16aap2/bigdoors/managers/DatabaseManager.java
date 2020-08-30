@@ -158,7 +158,7 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<Boolean> deleteDoor(final @NotNull AbstractDoorBase door)
     {
-        DoorRegistry.get().deleteDoor(door.getDoorUID());
+        DoorRegistry.get().deregisterDoor(door.getDoorUID());
         return CompletableFuture.supplyAsync(
             () ->
             {

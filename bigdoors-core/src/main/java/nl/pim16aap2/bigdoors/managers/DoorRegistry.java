@@ -58,7 +58,7 @@ public final class DoorRegistry extends Restartable
      *
      * @param doorUID The UID of the {@link AbstractDoorBase} to delete.
      */
-    void deleteDoor(final long doorUID)
+    void deregisterDoor(final long doorUID)
     {
         doors.computeIfPresent(doorUID, (key, val) -> Optional.empty());
     }

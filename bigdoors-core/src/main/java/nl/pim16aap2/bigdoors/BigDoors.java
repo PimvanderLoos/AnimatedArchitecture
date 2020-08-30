@@ -111,6 +111,8 @@ import java.util.Set;
 /*
  * General
  */
+// TODO: Consistency in word usage: Unregistered = not currently registered, Deregister = go to the state of being
+//       unregistered.
 // TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
 //       messages much more generic. Many of them only differ in the hardcoded name of the type.
 // TODO: Expand the script that generates the testing translation file a bit.
@@ -395,6 +397,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Openers / Movers
  */
+// TODO: Update the BlockMover to respawn blocks using the new teleport system.
 // TODO: Make sure the relmove isn't too far. If so, limit it to the highest/lowest possible value.
 // TODO: Instead of a relmove, use a full teleport every now and then to avoid client-server desync from dropped packets.
 // TODO: Port the chunk range shit from v1 to v2.
@@ -456,6 +459,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Unit tests
  */
+// TODO: Test the DoorRegistry system somehow.
 // TODO: Don't use the beforeLastMessage method. Instead, use something like getLastWarning. Also means that levels will
 //       have to be used when messaging players.
 // TODO: The Unit Tests have access to protected members. Use this to test specific methods (in addition to running
