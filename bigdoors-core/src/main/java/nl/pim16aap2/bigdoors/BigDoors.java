@@ -2,12 +2,17 @@ package nl.pim16aap2.bigdoors;
 
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
+import nl.pim16aap2.bigdoors.api.IRestartable;
+import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.DoorManager;
+import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /*
  * Experimental
@@ -106,6 +111,8 @@ import org.jetbrains.annotations.Nullable;
 /*
  * General
  */
+// TODO: Consistency in word usage: Unregistered = not currently registered, Deregister = go to the state of being
+//       unregistered.
 // TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
 //       messages much more generic. Many of them only differ in the hardcoded name of the type.
 // TODO: Expand the script that generates the testing translation file a bit.
@@ -390,6 +397,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Openers / Movers
  */
+// TODO: Update the BlockMover to respawn blocks using the new teleport system.
 // TODO: Make sure the relmove isn't too far. If so, limit it to the highest/lowest possible value.
 // TODO: Instead of a relmove, use a full teleport every now and then to avoid client-server desync from dropped packets.
 // TODO: Port the chunk range shit from v1 to v2.
@@ -451,6 +459,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Unit tests
  */
+// TODO: Test the DoorRegistry system somehow.
 // TODO: Don't use the beforeLastMessage method. Instead, use something like getLastWarning. Also means that levels will
 //       have to be used when messaging players.
 // TODO: The Unit Tests have access to protected members. Use this to test specific methods (in addition to running
@@ -471,13 +480,16 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
  *
  * @author Pim
  */
-public final class BigDoors
+public final class BigDoors implements IRestartableHolder, IRestartable
 {
     @NotNull
     private static final BigDoors instance = new BigDoors();
 
     @Nullable
     private IMessagingInterface messagingInterface = null;
+
+    @NotNull
+    private final Set<IRestartable> restartables = new HashSet<>();
 
     /**
      * The platform to use. e.g. "Spigot".
@@ -520,13 +532,13 @@ public final class BigDoors
     }
 
     /**
-     * Gets the {@link DoorManager} instance.
+     * Gets the {@link DoorActivityManager} instance.
      *
-     * @return The {@link DoorManager} instance.
+     * @return The {@link DoorActivityManager} instance.
      */
-    public @NotNull DoorManager getDoorManager()
+    public @NotNull DoorActivityManager getDoorManager()
     {
-        return DoorManager.get();
+        return DoorActivityManager.get();
     }
 
     /**
@@ -567,7 +579,6 @@ public final class BigDoors
         this.messagingInterface = messagingInterface;
     }
 
-
     /**
      * Gets the {@link DatabaseManager} instance.
      *
@@ -576,5 +587,29 @@ public final class BigDoors
     public @NotNull DatabaseManager getDatabaseManager()
     {
         return DatabaseManager.get();
+    }
+
+    @Override
+    public void restart()
+    {
+        restartables.forEach(IRestartable::restart);
+    }
+
+    @Override
+    public void shutdown()
+    {
+        restartables.forEach(IRestartable::shutdown);
+    }
+
+    @Override
+    public void registerRestartable(@NotNull IRestartable restartable)
+    {
+        restartables.add(restartable);
+    }
+
+    @Override
+    public boolean isRestartableRegistered(@NotNull IRestartable restartable)
+    {
+        return restartables.contains(restartable);
     }
 }

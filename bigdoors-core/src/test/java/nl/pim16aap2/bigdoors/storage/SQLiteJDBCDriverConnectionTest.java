@@ -23,6 +23,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorTypeRevolvingDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
@@ -119,10 +120,12 @@ public class SQLiteJDBCDriverConnectionTest
     // Set up basic stuff.
     @BeforeAll
     public static void basicSetup()
+        throws NoSuchFieldException, IllegalAccessException
     {
         UnitTestUtil.setupStatic();
         PLogger.get().setConsoleLogLevel(Level.FINEST);
         PLogger.get().setFileLogLevel(Level.SEVERE);
+        DoorRegistry.get().restart();
     }
 
     // Initialize mocking.
@@ -244,6 +247,7 @@ public class SQLiteJDBCDriverConnectionTest
      */
     @AfterAll
     public static void cleanup()
+        throws NoSuchFieldException, IllegalAccessException
     {
         // Remove any old database files and append ".FINISHED" to the name of the current one, so it
         // won't interfere with the next run, but can still be used for manual inspection.
@@ -354,7 +358,7 @@ public class SQLiteJDBCDriverConnectionTest
     private void insertDoorTypeTestDoors()
     {
         for (int idx = 0; idx < DoorTypeManager.get().getRegisteredDoorTypes().size(); ++idx)
-            Assert.assertTrue(storage.insert(typeTesting[idx]));
+            Assert.assertTrue(storage.insert(typeTesting[idx]).isPresent());
     }
 
     /**
@@ -425,9 +429,9 @@ public class SQLiteJDBCDriverConnectionTest
      */
     public void insertDoors()
     {
-        Assert.assertTrue(storage.insert(door1));
-        Assert.assertTrue(storage.insert(door2));
-        Assert.assertTrue(storage.insert(door3));
+        Assert.assertTrue(storage.insert(door1).isPresent());
+        Assert.assertTrue(storage.insert(door2).isPresent());
+        Assert.assertTrue(storage.insert(door3).isPresent());
     }
 
     /**
@@ -443,20 +447,17 @@ public class SQLiteJDBCDriverConnectionTest
         Assert.assertNotNull(door.getPlayerUUID().toString());
         Assert.assertNotNull(door.getName());
 
-        Optional<List<AbstractDoorBase>> test = storage.getDoors(door.getPlayerUUID(), door.getName());
-        if (!test.isPresent())
-            Assert.fail("COULD NOT RETRIEVE DOOR WITH name \"" + door.getName() + "\"!");
-
-        if (test.get().size() != 1)
+        List<AbstractDoorBase> test = storage.getDoors(door.getPlayerUUID(), door.getName());
+        if (test.size() != 1)
             Assert.fail("TOO MANY DOORS FOUND FOR DOOR WITH name \"" + door.getName() + "\"!");
 
-        if (!door.getDoorOwner().equals(test.get().get(0).getDoorOwner()))
+        if (!door.getDoorOwner().equals(test.get(0).getDoorOwner()))
             Assert.fail("DOOR OWNERS DO NOT MATCH!");
 
-        if (!door.equals(test.get().get(0)))
+        if (!door.equals(test.get(0)))
             Assert.fail(
                 "Data of retrieved door is not the same! ID = " + door.getDoorUID() + ", name = " + door.getName() +
-                    ", found ID = " + test.get().get(0).getDoorUID() + ", found name = " + test.get().get(0).getName());
+                    ", found ID = " + test.get(0).getDoorUID() + ", found name = " + test.get(0).getName());
     }
 
     /**
@@ -521,20 +522,16 @@ public class SQLiteJDBCDriverConnectionTest
         Assert.assertEquals(2, storage.getOwnersOfDoor(2L).size());
 
         // Verify that player 2 is the creator of exactly 1 door.
-        Assert.assertTrue(storage.getDoors(player2UUID.toString(), 0).isPresent());
-        Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), 0).get().size());
+        Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), 0).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors (door 3 (0) and door 2 (1)).
-        Assert.assertTrue(storage.getDoors(player2UUID.toString(), 1).isPresent());
-        Assert.assertEquals(2, storage.getDoors(player2UUID.toString(), 1).get().size());
+        Assert.assertEquals(2, storage.getDoors(player2UUID.toString(), 1).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors, both named "massive2".
-        Assert.assertTrue(storage.getDoors(player2UUID.toString(), "massive2", 1).isPresent());
-        Assert.assertEquals(2, storage.getDoors(player2UUID.toString(), "massive2", 1).get().size());
+        Assert.assertEquals(2, storage.getDoors(player2UUID.toString(), "massive2", 1).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 1 door, named "massive2".
-        Assert.assertTrue(storage.getDoors(player2UUID.toString(), "massive2", 0).isPresent());
-        Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), "massive2", 0).get().size());
+        Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), "massive2", 0).size());
 
         // Verify that adding an existing owner overrides the permission level.
         Assert.assertTrue(storage.addOwner(2L, player2, 2));
@@ -550,57 +547,49 @@ public class SQLiteJDBCDriverConnectionTest
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
         // of exactly 1 door, named "massive2" (door 3).
-        Assert.assertTrue(storage.getDoors(player2UUID.toString(), "massive2", 1).isPresent());
-        Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), "massive2", 1).get().size());
+        Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), "massive2", 1).size());
 
         // Verify that player 1 is owner of exactly 1 door named "massive2".
-        Assert.assertTrue(storage.getDoors(player1UUID, "massive2").isPresent());
-        Assert.assertEquals(1, storage.getDoors(player1UUID, "massive2").get().size());
+        Assert.assertEquals(1, storage.getDoors(player1UUID, "massive2").size());
 
         // Verify that player 1 owns exactly 2 doors.
-        Assert.assertTrue(storage.getDoors(player1UUID).isPresent());
-        Assert.assertEquals(2, storage.getDoors(player1UUID).get().size());
+        Assert.assertEquals(2, storage.getDoors(player1UUID).size());
 
         // Verify that there are exactly 2 doors named "massive2" in the database.
-        Assert.assertTrue(storage.getDoors("massive2").isPresent());
-        Assert.assertEquals(2, storage.getDoors("massive2").get().size());
+        Assert.assertEquals(2, storage.getDoors("massive2").size());
 
         // Insert a copy of door 1 in the database (will have doorUID = 4).
-        Assert.assertTrue(storage.insert(door1));
+        Assert.assertTrue(storage.insert(door1).isPresent());
 
         // Verify there are now exactly 2 doors named "massive1" in the database.
-        Assert.assertTrue(storage.getDoors("massive1").isPresent());
-        Assert.assertEquals(2, storage.getDoors("massive1").get().size());
+        Assert.assertEquals(2, storage.getDoors("massive1").size());
 
         // Remove the just-added copy of door 1 (doorUID = 4) from the database.
         Assert.assertTrue(storage.removeDoor(4L));
 
         // Verify that after removal of the copy of door 1 (doorUID = 4), there is now exactly 1 door named
         // "massive1" in the database again.
-        Assert.assertTrue(storage.getDoors("massive1").isPresent());
-        Assert.assertEquals(1, storage.getDoors("massive1").get().size());
+        Assert.assertEquals(1, storage.getDoors("massive1").size());
 
         // Verify that player 2 cannot delete doors they do not own (door 1 belongs to player 1).
         Assert.assertFalse(storage.removeOwner(1L, player2UUID.toString()));
-        Assert.assertTrue(storage.getDoors("massive1").isPresent());
-        Assert.assertEquals(1, storage.getDoors("massive1").get().size());
+        Assert.assertEquals(1, storage.getDoors("massive1").size());
 
         // Add 10 copies of door3 with a different name to the database.
         door3.setName(DELETEDOORNAME);
         // Verify there are currently exactly 0 doors with this different name in the database.
-        Assert.assertFalse(storage.getDoors(DELETEDOORNAME).isPresent());
+        Assert.assertEquals(storage.getDoors(DELETEDOORNAME).size(), 0);
 
         for (int idx = 0; idx < 10; ++idx)
-            Assert.assertTrue(storage.insert(door3));
+            Assert.assertTrue(storage.insert(door3).isPresent());
 
         // Verify there are now exactly 10 doors with this different name in the database.
-        Assert.assertTrue(storage.getDoors(DELETEDOORNAME).isPresent());
-        Assert.assertEquals(10, storage.getDoors(DELETEDOORNAME).get().size());
+        Assert.assertEquals(10, storage.getDoors(DELETEDOORNAME).size());
 
         // Remove all 10 doors we just added (owned by player 2) and verify there are exactly 0 entries of the door with
         // the new name after batch removal. Also revert the name change of door 3.
         Assert.assertTrue(storage.removeDoors(player2UUID.toString(), DELETEDOORNAME));
-        Assert.assertFalse(storage.getDoors(DELETEDOORNAME).isPresent());
+        Assert.assertEquals(storage.getDoors(DELETEDOORNAME).size(), 0);
         Assert.assertTrue(storage.getDoor(3L).isPresent());
         door3.setName(storage.getDoor(3L).get().getName());
 

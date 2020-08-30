@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
@@ -54,8 +54,8 @@ public class SubCommandFill extends SubCommand
                              final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
-        BigDoors.get().getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1]))
-                .whenComplete((optionalDoor, throwable) -> optionalDoor.ifPresent(this::execute));
+        DatabaseManager.get().getDoor(CommandManager.getLongFromArg(args[1]))
+                       .whenComplete((optionalDoor, throwable) -> optionalDoor.ifPresent(this::execute));
         return true;
     }
 }

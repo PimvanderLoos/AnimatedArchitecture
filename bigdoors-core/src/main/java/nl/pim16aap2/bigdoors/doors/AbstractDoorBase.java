@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -73,6 +74,8 @@ public abstract class AbstractDoorBase implements IDoorBase
     private Vector2Di engineChunk = null;
     private Integer blockCount = null;
 
+    private final Registerable registerable = new Registerable();
+
     /**
      * Min and Max Vector2Di coordinates of the range of Vector2Dis that this {@link AbstractDoorBase} might interact
      * with.
@@ -85,6 +88,15 @@ public abstract class AbstractDoorBase implements IDoorBase
     protected AbstractDoorBase(final @NotNull DoorData doorData)
     {
         doorUID = doorData.getUid();
+
+        PLogger.get().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
+        if (doorUID > 0 && !DoorRegistry.get().registerDoor(registerable))
+        {
+            final @NotNull IllegalStateException exception = new IllegalStateException(
+                "Tried to create new door \"" + doorUID + "\" while it is already registered!");
+            PLogger.get().logThrowableSilently(exception);
+            throw exception;
+        }
 
         name = doorData.getName();
         minimum = doorData.getMin();
@@ -568,5 +580,22 @@ public abstract class AbstractDoorBase implements IDoorBase
          * Whether or not this door is currently locked.
          */
         boolean isLocked;
+    }
+
+    public class Registerable
+    {
+        private Registerable()
+        {
+        }
+
+        /**
+         * Gets the {@link AbstractDoorBase} that is associated with this {@link Registerable}.
+         *
+         * @return The {@link AbstractDoorBase} that is associated with this {@link Registerable}.
+         */
+        public @NotNull AbstractDoorBase getAbstractDoorBase()
+        {
+            return AbstractDoorBase.this;
+        }
     }
 }

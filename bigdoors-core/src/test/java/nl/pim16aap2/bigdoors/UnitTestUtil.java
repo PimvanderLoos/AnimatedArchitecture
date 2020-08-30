@@ -4,7 +4,9 @@ import junit.framework.Assert;
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.testimplementations.TestMessagingInterface;
@@ -19,8 +21,13 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 @UtilityClass
 public class UnitTestUtil
@@ -86,9 +93,12 @@ public class UnitTestUtil
     public final File LOG_FILE = new File(UnitTestUtil.TEST_DIR, "/log.txt");
 
     public void setupStatic()
+        throws NoSuchFieldException, IllegalAccessException
     {
         if (isInitialized)
             return;
+
+        setFakeDoorRegistry();
 
         System.out.println("LOG_FILE = " + LOG_FILE.toString());
         PLogger.init(LOG_FILE);
@@ -98,6 +108,82 @@ public class UnitTestUtil
         PLATFORM.setMessages(
             new Messages(PLATFORM, new File(TEST_RESOURCE_FOLDER.getAbsolutePath()), "en_US_TEST", PLogger.get()));
         isInitialized = true;
+    }
+
+    /**
+     * Stubs the maps for the {@link DoorRegistry}. No entries can be added to it or retrieved from it after this metd
+     * has been called.
+     *
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
+    public void setFakeDoorRegistry()
+        throws NoSuchFieldException, IllegalAccessException
+    {
+        final @NotNull Field fieldDoors = DoorRegistry.class.getDeclaredField("doors");
+        final @NotNull Field fieldFutureDoors = DoorRegistry.class.getDeclaredField("doors");
+
+        final @NotNull Map<Long, CompletableFuture<Optional<AbstractDoorBase>>> fakeMap = getFakeMap();
+
+        fieldDoors.setAccessible(true);
+        fieldFutureDoors.setAccessible(true);
+
+        fieldDoors.set(DoorRegistry.get(), fakeMap);
+        fieldFutureDoors.set(DoorRegistry.get(), fakeMap);
+    }
+
+    /**
+     * Creates a 'fake' map with stubbed methods so you cannot add/retrieve items to/from it.
+     *
+     * @param <T1> The type of the key.
+     * @param <T2> The type of the value.
+     * @return The 'fake' map.
+     */
+    public @NotNull <T1, T2> Map<T1, T2> getFakeMap()
+    {
+        return new HashMap<T1, T2>()
+        {
+            @Override
+            public T2 get(Object key)
+            {
+                return null;
+            }
+
+            @Override
+            public boolean containsKey(Object key)
+            {
+                return false;
+            }
+
+            @Override
+            public T2 put(T1 key, T2 value)
+            {
+                return null;
+            }
+
+            @Override
+            public void putAll(Map m)
+            {
+            }
+
+            @Override
+            public T2 putIfAbsent(T1 key, T2 value)
+            {
+                return null;
+            }
+
+            @Override
+            public T2 computeIfAbsent(Object key, Function mappingFunction)
+            {
+                return null;
+            }
+
+            @Override
+            public T2 computeIfPresent(Object key, BiFunction remappingFunction)
+            {
+                return null;
+            }
+        };
     }
 
     /**

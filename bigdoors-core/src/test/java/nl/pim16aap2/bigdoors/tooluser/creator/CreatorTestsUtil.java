@@ -4,6 +4,7 @@ import junit.framework.Assert;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.testimplementations.TestEconomyManager;
@@ -34,7 +35,15 @@ class CreatorTestsUtil
 
     static
     {
-        UnitTestUtil.setupStatic();
+        try
+        {
+            UnitTestUtil.setupStatic();
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
+            e.printStackTrace();
+            Assert.fail();
+        }
     }
 
     protected @NotNull TestConfigLoader getConfigLoader()
@@ -134,6 +143,7 @@ class CreatorTestsUtil
                              final @NotNull Object... input)
         throws InterruptedException
     {
+        DoorRegistry.get().restart();
         ((TestEconomyManager) UnitTestUtil.PLATFORM.getEconomyManager()).isEconomyEnabled = false;
         final @NotNull AtomicReference<AbstractDoorBase> resultDoorRef = setupInsertHijack();
 

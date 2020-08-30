@@ -11,8 +11,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -52,7 +50,7 @@ public class SubCommandListPlayerDoors extends SubCommand
         UUID playerUUID = CommandManager.getPlayerFromArg(args[1]);
         String name = args.length > 2 ? args[2] : null;
         BigDoors.get().getDatabaseManager().getDoors(playerUUID, name).whenComplete(
-            (doorList, throwable) -> execute(sender, doorList.orElse(Collections.emptyList())));
+            (doorList, throwable) -> execute(sender, doorList));
         return true;
     }
 }

@@ -373,9 +373,9 @@ public abstract class Creator extends ToolUser
         //       Or maybe just finish it anyway and send whatever message once it is done.
         //       There's nothing that can be done about failure anyway.
         DatabaseManager.get().addDoorBase(door).whenComplete(
-            (result, throwable) ->
+            (newDoor, throwable) ->
             {
-                if (!result)
+                if (!newDoor.isPresent())
                     PLogger.get().severe("Failed to insert door after creation!");
             });
     }

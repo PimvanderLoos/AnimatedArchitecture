@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -112,7 +113,7 @@ public final class DoorOpeningUtility
 
         if (!result.equals(DoorToggleResult.NOPERMISSION))
             if (!cause.equals(DoorActionCause.PLAYER))
-                PLogger.get().warn("Failed to toggle door: " + result.name());
+                PLogger.get().warn("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
             else
             {
                 BigDoors.get().getMessagingInterface()
@@ -287,7 +288,7 @@ public final class DoorOpeningUtility
      * <p>
      * - The {@link AbstractDoorBase} is not already being animated.
      * <p>
-     * - The {@link EDoorType} is enabled.
+     * - The {@link DoorType} is enabled.
      * <p>
      * - The {@link AbstractDoorBase} is not locked.
      * <p>
@@ -380,7 +381,7 @@ public final class DoorOpeningUtility
     }
 
     /**
-     * Gets the speed multiplier of a {@link AbstractDoorBase} from the config based on its {@link EDoorType}.
+     * Gets the speed multiplier of a {@link AbstractDoorBase} from the config based on its {@link DoorType}.
      *
      * @param door The {@link AbstractDoorBase}.
      * @return The speed multiplier of this {@link AbstractDoorBase}.
