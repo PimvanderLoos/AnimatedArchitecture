@@ -29,9 +29,9 @@ public final class PPlayerSpigot implements IPPlayer
         this.uuid = uuid;
     }
 
-    public PPlayerSpigot(final @NotNull Player player)
+    public PPlayerSpigot(final @NotNull IPPlayer player)
     {
-        this(player.getUniqueId(), player.getName());
+        this(player.getUUID(), player.getName());
     }
 
     public PPlayerSpigot(final @NotNull OfflinePlayer player)

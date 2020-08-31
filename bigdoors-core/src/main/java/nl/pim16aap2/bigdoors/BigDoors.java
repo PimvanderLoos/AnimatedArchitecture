@@ -111,6 +111,11 @@ import java.util.Set;
 /*
  * General
  */
+// TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
+//       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
+//       or add 'throws NotInstantiatedException' or something to those methods. Then just propagate the exceptions.
+// TODO: The GlowingBlockSpawners are a bit weird. Most of the code is duplicated. They can just be merged into a single
+//       class in spigot-util, right? Or even core.
 // TODO: Consistency in word usage: Unregistered = not currently registered, Deregister = go to the state of being
 //       unregistered.
 // TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various

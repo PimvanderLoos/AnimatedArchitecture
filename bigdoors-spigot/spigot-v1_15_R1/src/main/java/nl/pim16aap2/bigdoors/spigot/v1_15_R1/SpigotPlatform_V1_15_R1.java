@@ -2,12 +2,11 @@ package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
+import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
@@ -25,9 +24,9 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
 
     @Getter(onMethod = @__({@Override}))
     private IBlockAnalyzer blockAnalyzer;
-
+    
     @Getter(onMethod = @__({@Override}))
-    private IGlowingBlockSpawner glowingBlockSpawner;
+    private IGlowingBlockFactory glowingBlockFactory;
 
     private SpigotPlatform_V1_15_R1()
     {
@@ -52,9 +51,9 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     @Override
     public void init(final @NotNull BigDoorsSpigotAbstract plugin)
     {
-        glowingBlockSpawner = GlowingBlockSpawner_V1_15_R1.init(plugin, PLogger.get());
         fallingBlockFactory = new FallingBlockFactory_V1_15_R1();
         pBlockDataFactory = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.PBlockDataFactorySpigot_V1_15_R1();
         blockAnalyzer = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.BlockAnalyzer_V1_15_R1();
+        glowingBlockFactory = new GlowingBlock_V1_15_R1.Factory();
     }
 }

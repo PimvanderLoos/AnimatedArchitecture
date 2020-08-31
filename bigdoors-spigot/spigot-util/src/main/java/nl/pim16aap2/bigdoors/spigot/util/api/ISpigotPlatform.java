@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util.api;
 
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import org.jetbrains.annotations.NotNull;
@@ -23,5 +22,5 @@ public interface ISpigotPlatform
 
     @NotNull IBlockAnalyzer getBlockAnalyzer();
 
-    @NotNull IGlowingBlockSpawner getGlowingBlockSpawner();
+    @NotNull IGlowingBlockFactory getGlowingBlockFactory();
 }

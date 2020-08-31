@@ -40,8 +40,7 @@ public class SubCommandInfo extends SubCommand
     private void highlightBlock(final @NotNull Vector3DiConst loc, final @NotNull IPWorld world,
                                 final @NotNull IPPlayer player, final @NotNull PColor color)
     {
-        plugin.getGlowingBlockSpawner().spawnGlowingBlock(player, world.getUID(), 15,
-                                                          loc.getX(), loc.getY(), loc.getZ(), color);
+        plugin.getGlowingBlockSpawner().spawnGlowingBlock(player, world, 15, loc.getX(), loc.getY(), loc.getZ(), color);
     }
 
     public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door)
