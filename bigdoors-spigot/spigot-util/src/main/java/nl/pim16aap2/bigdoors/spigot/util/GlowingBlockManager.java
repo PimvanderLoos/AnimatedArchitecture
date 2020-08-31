@@ -6,6 +6,8 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IRestartable;
+import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
@@ -26,12 +28,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-public class GlowingBlockManager extends Restartable implements IGlowingBlockSpawner
+public class GlowingBlockManager extends Restartable implements IGlowingBlockSpawner, IRestartableHolder
 {
     private static final @NotNull GlowingBlockManager INSTANCE = new GlowingBlockManager();
+    private final @NotNull Map<IRestartable, Boolean> restartables = new ConcurrentHashMap<>();
     @Getter
     private final @NotNull Map<PColor, Team> teams = new EnumMap<>(PColor.class);
     private final @Nullable Scoreboard scoreboard;
@@ -129,7 +133,10 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
     @Override
     public void restart()
     {
-
+        teams.forEach((K, V) -> V.unregister());
+        teams.clear();
+        init();
+        restartables.forEach((K, V) -> K.restart());
     }
 
     @Override
@@ -137,6 +144,7 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
     {
         teams.forEach((K, V) -> V.unregister());
         teams.clear();
+        restartables.forEach((K, V) -> K.shutdown());
     }
 
     @Override
@@ -183,8 +191,28 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
             return Optional.empty();
         }
 
-        final @NotNull IGlowingBlock glowingBlock = glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld);
+        final @NotNull IGlowingBlock glowingBlock = glowingBlockFactory
+            .createGlowingBlock(spigotPlayer, spigotWorld, this);
+        
         glowingBlock.spawn(pColor, x, y, z, ticks);
         return Optional.of(glowingBlock);
+    }
+
+    @Override
+    public void registerRestartable(final @NotNull IRestartable restartable)
+    {
+        restartables.put(restartable, true);
+    }
+
+    @Override
+    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
+    {
+        return restartables.containsKey(restartable);
+    }
+
+    @Override
+    public void deregisterRestartable(@NotNull IRestartable restartable)
+    {
+        restartables.remove(restartable);
     }
 }

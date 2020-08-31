@@ -440,6 +440,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return restartables.contains(restartable);
     }
 
+    @Override
+    public void deregisterRestartable(final @NotNull IRestartable restartable)
+    {
+        restartables.remove(restartable);
+    }
+
     public void restart()
     {
         if (!validVersion)

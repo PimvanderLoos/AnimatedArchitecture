@@ -11,6 +11,7 @@ import net.minecraft.server.v1_15_R1.PacketPlayOutEntityTeleport;
 import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_15_R1.PlayerConnection;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
@@ -49,13 +50,16 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 
     private final @NotNull Map<PColor, Team> teams;
     private final @NotNull Player player;
+    private final @NotNull IRestartableHolder restartableHolder;
 
     public GlowingBlock_V1_15_R1(final @NotNull Player player, final @NotNull World world,
-                                 final @NotNull Map<PColor, Team> teams)
+                                 final @NotNull Map<PColor, Team> teams,
+                                 final @NotNull IRestartableHolder restartableHolder)
     {
         this.player = player;
         this.world = world;
         this.teams = teams;
+        this.restartableHolder = restartableHolder;
     }
 
 
@@ -75,6 +79,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     public void kill()
     {
         killTask = null;
+        restartableHolder.deregisterRestartable(this);
         if (!alive)
             return;
 
@@ -126,6 +131,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
                                             glowingBlockEntity.getDataWatcher(), false);
         playerConnection.sendPacket(entityMetadata);
         alive = true;
+        restartableHolder.registerRestartable(this);
 
         killTask = new TimerTask()
         {
@@ -150,7 +156,6 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         if (killTask == null)
             return;
         killTask.run();
-        killTask.cancel();
     }
 
     @AllArgsConstructor
@@ -174,9 +179,10 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     public static class Factory implements IGlowingBlockFactory
     {
         @Override
-        public @NotNull IGlowingBlock createGlowingBlock(final @NotNull Player player, final @NotNull World world)
+        public @NotNull IGlowingBlock createGlowingBlock(final @NotNull Player player, final @NotNull World world,
+                                                         final @NotNull IRestartableHolder restartableHolder)
         {
-            return new GlowingBlock_V1_15_R1(player, world, GlowingBlockManager.get().getTeams());
+            return new GlowingBlock_V1_15_R1(player, world, GlowingBlockManager.get().getTeams(), restartableHolder);
         }
     }
 }

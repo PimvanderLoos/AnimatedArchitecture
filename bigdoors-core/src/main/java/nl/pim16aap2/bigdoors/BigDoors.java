@@ -114,6 +114,8 @@ import java.util.Set;
 // TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
 //       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
 //       or add 'throws NotInstantiatedException' or something to those methods. Then just propagate the exceptions.
+//       The same goes for getting the BigDoorsPlatform, which is actually not entirely unlikely to happen, as some
+//       plugins could try to get the BigDoorsSpigot instance before it has been loaded.
 // TODO: The GlowingBlockSpawners are a bit weird. Most of the code is duplicated. They can just be merged into a single
 //       class in spigot-util, right? Or even core.
 // TODO: Consistency in word usage: Unregistered = not currently registered, Deregister = go to the state of being
@@ -524,7 +526,10 @@ public final class BigDoors implements IRestartableHolder, IRestartable
      */
     public void setBigDoorsPlatform(final @NotNull IBigDoorsPlatform platform)
     {
+        if (this.platform != null)
+            this.platform.deregisterRestartable(this);
         this.platform = platform;
+        this.platform.registerRestartable(this);
     }
 
     /**
@@ -608,14 +613,20 @@ public final class BigDoors implements IRestartableHolder, IRestartable
     }
 
     @Override
-    public void registerRestartable(@NotNull IRestartable restartable)
+    public void registerRestartable(final @NotNull IRestartable restartable)
     {
         restartables.add(restartable);
     }
 
     @Override
-    public boolean isRestartableRegistered(@NotNull IRestartable restartable)
+    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
     {
         return restartables.contains(restartable);
+    }
+
+    @Override
+    public void deregisterRestartable(final @NotNull IRestartable restartable)
+    {
+        restartables.remove(restartable);
     }
 }
