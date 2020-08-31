@@ -15,6 +15,7 @@ import java.util.function.Supplier;
  *
  * @author Pim
  */
+// TODO: Why is all this stuff synchronized?
 public final class PExecutorSpigot<T> implements IPExecutor<T>
 {
     @NotNull
