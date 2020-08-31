@@ -20,6 +20,7 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class manages all {@link DoorType}s. Before a type can be used, it will have to be registered here.
@@ -41,7 +42,7 @@ public final class DoorTypeManager
      * Gets all registered AND enabled {@link DoorType}s.
      */
     @Getter(onMethod = @__({@NotNull}))
-    private final List<DoorType> sortedDoorTypes = Collections.synchronizedList(new ArrayList<DoorType>()
+    private final List<DoorType> sortedDoorTypes = new CopyOnWriteArrayList<DoorType>()
     {
         @Override
         public boolean add(DoorType doorType)
@@ -50,7 +51,7 @@ public final class DoorTypeManager
             sortedDoorTypes.sort(Comparator.comparing(DoorType::getSimpleName));
             return true;
         }
-    });
+    };
 
     private DoorTypeManager()
     {
