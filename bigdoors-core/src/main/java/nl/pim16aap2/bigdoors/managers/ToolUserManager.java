@@ -45,7 +45,7 @@ public final class ToolUserManager extends Restartable
             PLogger.get().info("Aborting previous ToolUser for user: " +
                                    toolUser.getPlayer().getName() + " (" + toolUser.getPlayer().getUUID() + ") " +
                                    "because a new ToolUser was initiated.");
-            abortPair(result);
+            abortPair(toolUser.getPlayer().getUUID(), result);
         }
     }
 
@@ -76,12 +76,13 @@ public final class ToolUserManager extends Restartable
         while (it.hasNext())
         {
             final @NotNull Map.Entry<UUID, Pair<ToolUser, TimerTask>> entry = it.next();
-            abortPair(entry.getValue());
+            abortPair(entry.getKey(), entry.getValue());
         }
 
         if (toolUsers.size() != 0)
         {
             PLogger.get().logThrowable(new IllegalStateException("Failed to properly remove ToolUsers!"));
+            toolUsers.forEach((uuid, pair) -> PLogger.get().severe(uuid.toString()));
             toolUsers.clear();
         }
     }
@@ -125,7 +126,7 @@ public final class ToolUserManager extends Restartable
             PLogger.get().logThrowable(
                 new IllegalStateException(
                     "Trying to create a timer for a tooluser even though it already has one! Aborting..."));
-            abortPair(toolUsers.get(toolUser.getPlayer().getUUID()));
+            abortToolUser(toolUser.getPlayer().getUUID());
             return;
         }
 
@@ -166,11 +167,13 @@ public final class ToolUserManager extends Restartable
      */
     public void abortToolUser(final @NotNull UUID playerUUID)
     {
-        abortPair(toolUsers.get(playerUUID));
+        abortPair(playerUUID, toolUsers.get(playerUUID));
     }
 
-    private void abortPair(final @Nullable Pair<ToolUser, TimerTask> pair)
+    private void abortPair(final @NotNull UUID uuid, final @Nullable Pair<ToolUser, TimerTask> pair)
     {
+        toolUsers.remove(uuid);
+
         if (pair == null)
             return;
 
