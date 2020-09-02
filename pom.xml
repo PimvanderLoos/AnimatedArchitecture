@@ -17,6 +17,7 @@
     <modules>
         <module>bigdoors-core</module>
         <module>bigdoors-spigot</module>
+        <module>bigdoors-doors</module>
     </modules>
 
     <repositories>

@@ -1,12 +1,11 @@
-package nl.pim16aap2.bigdoors.tooluser.creator;
+package nl.pim16aap2.bigdoors.doors.clock;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.Clock;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeClock;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -61,7 +60,8 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected @NotNull
+    List<IStep> generateSteps()
         throws InstantiationException
     {
         Step<CreatorClock> stepSelectHourArm = new Step.Factory<CreatorClock>("SELECT_HOUR_ARM")
@@ -153,7 +153,8 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected @NotNull List<RotateDirection> getValidOpenDirections()
+    protected @NotNull
+    List<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();
@@ -191,7 +192,8 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected @NotNull AbstractDoorBase constructDoor()
+    protected @NotNull
+    AbstractDoorBase constructDoor()
     {
         setEngine();
         setOpenDirection();

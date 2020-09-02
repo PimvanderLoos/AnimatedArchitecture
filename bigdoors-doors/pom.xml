@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>bigdoors-spigot</artifactId>
+    <artifactId>bigdoors-doors</artifactId>
     <packaging>pom</packaging>
-    <description>Implementation for the Spigot platform</description>
+    <description>Modules for the different types of Doors</description>
     <version>${project.parent.version}</version>
 
     <parent>
@@ -13,9 +13,7 @@
     </parent>
 
     <modules>
-        <module>spigot-v1_15_R1</module>
-        <module>spigot-core</module>
-        <module>spigot-util</module>
+        <module>doors-clock</module>
     </modules>
 
     <repositories>
@@ -25,12 +23,6 @@
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>bigdoors-core</artifactId>
-            <version>200</version>
-        </dependency>
-
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-clock</artifactId>
             <version>200</version>
         </dependency>
     </dependencies>

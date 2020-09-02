@@ -97,7 +97,7 @@ public class UnitTestUtil
     {
         if (isInitialized)
             return;
-
+        
         setFakeDoorRegistry();
 
         System.out.println("LOG_FILE = " + LOG_FILE.toString());

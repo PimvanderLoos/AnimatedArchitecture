@@ -461,6 +461,9 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Unit tests
  */
+// TODO: Move Integration Tests (e.g. Database test) out of bigdoors-core. This way, it'll be possible to compile
+//       everything and run the tests immediately without having to compile it without testing first (to make sure
+//       that the door types are actually compiled before testing). More info: https://stackoverflow.com/a/39613535
 // TODO: Test the DoorRegistry system somehow.
 // TODO: Don't use the beforeLastMessage method. Instead, use something like getLastWarning. Also means that levels will
 //       have to be used when messaging players.

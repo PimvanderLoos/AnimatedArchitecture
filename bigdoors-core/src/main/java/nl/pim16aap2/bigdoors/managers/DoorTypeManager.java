@@ -168,7 +168,7 @@ public final class DoorTypeManager
      * @param doorType The {@link DoorType} to register.
      * @return True if registration was successful.
      */
-    public @NotNull CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType)
+    public @NotNull CompletableFuture<OptionalLong> registerDoorType(final @NotNull DoorType doorType)
     {
         return registerDoorType(doorType, true);
     }
@@ -202,21 +202,21 @@ public final class DoorTypeManager
      * @param isEnabled Whether or not this {@link DoorType} should be enabled or not. Default = true.
      * @return True if registration was successful.
      */
-    public @NotNull CompletableFuture<Boolean> registerDoorType(final @NotNull DoorType doorType,
-                                                                final boolean isEnabled)
+    public @NotNull CompletableFuture<OptionalLong> registerDoorType(final @NotNull DoorType doorType,
+                                                                     final boolean isEnabled)
     {
         CompletableFuture<Long> registrationResult = BigDoors.get().getDatabaseManager().registerDoorType(doorType);
         return registrationResult.handle(
             (doorTypeID, throwable) ->
             {
                 if (doorTypeID < 1)
-                    return false;
+                    return OptionalLong.empty();
                 doorTypeToID.put(doorType, new DoorTypeInfo(doorTypeID, isEnabled, doorType.getSimpleName()));
                 doorTypeFromID.put(doorTypeID, doorType);
                 doorTypeFromName.put(doorType.getSimpleName(), doorType);
                 if (isEnabled)
                     sortedDoorTypes.add(doorType);
-                return true;
+                return OptionalLong.of(doorTypeID);
             });
     }
 

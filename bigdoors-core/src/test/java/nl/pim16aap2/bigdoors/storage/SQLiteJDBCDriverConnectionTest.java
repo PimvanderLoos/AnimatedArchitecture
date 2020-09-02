@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeClock;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
@@ -29,6 +28,7 @@ import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.ExtensionLoader;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -282,19 +282,33 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
+    private @NotNull DoorType loadDoorType(final @NotNull String jarPath)
+        throws ExecutionException, InterruptedException
+    {
+        final @NotNull Optional<DoorType> doorType = ExtensionLoader.get().loadDoorType(jarPath);
+        Assert.assertTrue(doorType.isPresent());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(doorType.get()).get().isPresent());
+        return doorType.get();
+    }
+
+
     private void registerDoorTypes()
         throws ExecutionException, InterruptedException
     {
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get()).get());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()).get());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get()).get());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeElevator.get()).get());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeFlag.get()).get());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeGarageDoor.get()).get());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get()).get());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get()).get());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get()).get());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get()).get());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get()).get().isPresent());
+
+        final @NotNull DoorType doorTypeClock = loadDoorType(
+            "/home/pim/Documents/workspace/BigDoors2/bigdoors-doors/target/BigDoor-Type-Clock.jar");
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()).get().isPresent());
+
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get()).get().isPresent());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeElevator.get()).get().isPresent());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeFlag.get()).get().isPresent());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeGarageDoor.get()).get().isPresent());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get()).get().isPresent());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get()).get().isPresent());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get()).get().isPresent());
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get()).get().isPresent());
         threadPool.awaitTermination(400L, TimeUnit.MILLISECONDS);
     }
 
