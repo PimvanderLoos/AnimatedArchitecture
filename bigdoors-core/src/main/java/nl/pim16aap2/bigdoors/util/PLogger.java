@@ -354,9 +354,10 @@ public final class PLogger
         }
     }
 
-    private void addThrowableToQueue(final @NotNull Throwable throwable, final @NotNull String message)
+    private void addThrowableToQueue(final @NotNull Level level, final @NotNull Throwable throwable,
+                                     final @NotNull String message)
     {
-        addToMessageQueue(Level.SEVERE, () -> new LogMessageThrowable(throwable, message));
+        addToMessageQueue(level, () -> new LogMessageThrowable(throwable, message));
     }
 
     /**
@@ -373,6 +374,19 @@ public final class PLogger
     /**
      * Logs a {@link Throwable} without writing it in the console.
      *
+     * @param level     The level at which to log this throwable.
+     * @param throwable The {@link Throwable} to log.
+     * @param message   Message to accompany the exception.
+     */
+    public void logThrowableSilently(final @NotNull Level level, final @NotNull Throwable throwable,
+                                     final @NotNull String message)
+    {
+        addToSilentMessageQueue(level, () -> new LogMessageThrowable(throwable, message));
+    }
+
+    /**
+     * Logs a {@link Throwable} without writing it in the console.
+     *
      * @param throwable The {@link Throwable} to log.
      */
     public void logThrowableSilently(final @NotNull Throwable throwable)
@@ -383,12 +397,23 @@ public final class PLogger
     /**
      * Logs a {@link Throwable} without writing it in the console.
      *
+     * @param level     The level at which to log this throwable.
+     * @param throwable The {@link Throwable} to log.
+     */
+    public void logThrowableSilently(final @NotNull Level level, final @NotNull Throwable throwable)
+    {
+        logThrowableSilently(level, throwable, "");
+    }
+
+    /**
+     * Logs a {@link Throwable} without writing it in the console.
+     *
      * @param throwable The {@link Throwable} to log.
      * @param message   Message to accompany the exception.
      */
     public void logThrowable(final @NotNull Throwable throwable, final @NotNull String message)
     {
-        addThrowableToQueue(throwable, message);
+        addThrowableToQueue(Level.SEVERE, throwable, message);
 
         if (consoleLogLevel.intValue() == Level.OFF.intValue())
             writeToConsole(Level.OFF, throwable.toString());

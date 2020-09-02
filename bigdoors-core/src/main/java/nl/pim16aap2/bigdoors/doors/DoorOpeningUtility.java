@@ -185,7 +185,7 @@ public final class DoorOpeningUtility
                             return false;
 
                         glowingBlockSpawner
-                            .spawnGlowingBlock(player, world.getUID(), 10, xAxis, yAxis, zAxis, PColor.RED);
+                            .spawnGlowingBlock(player, world, 10, xAxis, yAxis, zAxis, PColor.RED);
                         isEmpty = false;
                     }
                 }

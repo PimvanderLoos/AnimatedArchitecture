@@ -206,4 +206,10 @@ public final class TestPlatform implements IBigDoorsPlatform
     {
         return restartables.contains(restartable);
     }
+
+    @Override
+    public void deregisterRestartable(final @NotNull IRestartable restartable)
+    {
+        restartables.remove(restartable);
+    }
 }

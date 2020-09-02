@@ -111,6 +111,11 @@ import java.util.Set;
 /*
  * General
  */
+// TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
+//       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
+//       or add 'throws NotInstantiatedException' or something to those methods. Then just propagate the exceptions.
+//       The same goes for getting the BigDoorsPlatform, which is actually not entirely unlikely to happen, as some
+//       plugins could try to get the BigDoorsSpigot instance before it has been loaded.
 // TODO: Consistency in word usage: Unregistered = not currently registered, Deregister = go to the state of being
 //       unregistered.
 // TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
@@ -203,10 +208,7 @@ import java.util.Set;
 // TODO: Look into restartables interface. Perhaps it's a good idea to split restart() into stop() and init().
 //       This way, it can call all init()s in BigDoors::onEnable and all stop()s in BigDoors::onDisable.
 //       Then just load everything on initial construction (including RedstoneListener (should be singleton)).
-// TODO: Make GlowingBlockSpawner restartable. Upon restarting the plugin, all glowing blocks have to be removed.
-// TODO: The GlowingBlockSpawner shouldn't handle the packets on its own. Rather, it should create an object that can
-//       handle it. This object needs to be able to spawn/respawn/teleport itself as well.
-//       Perhaps also let it implement IAnimatedBlock (or whatever it'll be called, but I mean the same one that's
+// TODO: Perhaps let IGlowingBlock implement IAnimatedBlock (or whatever it'll be called, but I mean the same one that's
 //       used for the current animated blocks). Then it can toggle doors as preview.
 // TODO: Store PBlockFace in rotateDirection so I don't have to cast it via strings. ewww.
 //       Alternatively, merge PBlockFace and RotateDirection into Direction.
@@ -258,7 +260,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Make some kind of MessageRecipient interface. Much cleaner than sending an "Object" to sendMessageToTarget.
 //       Just let IPPlayer extend it for players.
 // TODO: Send out event after toggling a door.
-// TODO: Generify the GlowingBlockSpawner. It needs an IBlockHighlighter interface in the core module.
 
 /*
  * GUI
@@ -519,7 +520,10 @@ public final class BigDoors implements IRestartableHolder, IRestartable
      */
     public void setBigDoorsPlatform(final @NotNull IBigDoorsPlatform platform)
     {
+        if (this.platform != null)
+            this.platform.deregisterRestartable(this);
         this.platform = platform;
+        this.platform.registerRestartable(this);
     }
 
     /**
@@ -603,14 +607,20 @@ public final class BigDoors implements IRestartableHolder, IRestartable
     }
 
     @Override
-    public void registerRestartable(@NotNull IRestartable restartable)
+    public void registerRestartable(final @NotNull IRestartable restartable)
     {
         restartables.add(restartable);
     }
 
     @Override
-    public boolean isRestartableRegistered(@NotNull IRestartable restartable)
+    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
     {
         return restartables.contains(restartable);
+    }
+
+    @Override
+    public void deregisterRestartable(final @NotNull IRestartable restartable)
+    {
+        restartables.remove(restartable);
     }
 }

@@ -93,9 +93,11 @@ import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
+import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockManager;
 import nl.pim16aap2.bigdoors.spigot.util.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PExecutorSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
+import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ChunkManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.MessageableServerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
@@ -298,6 +300,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             registerDoorType(type);
     }
 
+    @Override
+    public @NotNull IPlatformManagerSpigot getPlatformManagerSpigot()
+    {
+        return PlatformManagerSpigot.get();
+    }
+
     /**
      * Registers a {@link DoorType}
      *
@@ -399,7 +407,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Override
     public @NotNull <T> IPExecutor<T> newPExecutor()
     {
-        return new PExecutorSpigot<>(INSTANCE, INSTANCE.getPLogger());
+        return new PExecutorSpigot<>(INSTANCE);
     }
 
     public @NotNull ICommand getCommand(final @NotNull CommandData command)
@@ -430,6 +438,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
     {
         return restartables.contains(restartable);
+    }
+
+    @Override
+    public void deregisterRestartable(final @NotNull IRestartable restartable)
+    {
+        restartables.remove(restartable);
     }
 
     public void restart()
@@ -486,7 +500,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Override
     public @NotNull IGlowingBlockSpawner getGlowingBlockSpawner()
     {
-        return PlatformManagerSpigot.get().getSpigotPlatform().getGlowingBlockSpawner();
+        return GlowingBlockManager.get();
     }
 
     public @NotNull BigDoorsSpigot getPlugin()

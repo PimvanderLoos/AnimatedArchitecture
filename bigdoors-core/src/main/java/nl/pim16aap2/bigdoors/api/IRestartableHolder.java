@@ -10,8 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public interface IRestartableHolder
 {
     /**
-     * Register a {@link IRestartable} object with this object, so this object can restart the provided
-     * object.
+     * Register a {@link IRestartable} object with this object, so this object can restart the provided object.
      *
      * @param restartable A {@link IRestartable} object that can be restarted by this object.
      */
@@ -24,4 +23,11 @@ public interface IRestartableHolder
      * @return True if the {@link IRestartable} has been registered with this object.
      */
     boolean isRestartableRegistered(final @NotNull IRestartable restartable);
+
+    /**
+     * Deregisters an {@link IRestartable} if it is currently registered.
+     *
+     * @param restartable The {@link IRestartable} to deregister.
+     */
+    void deregisterRestartable(final @NotNull IRestartable restartable);
 }

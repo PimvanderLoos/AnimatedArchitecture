@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * Represents a class that can perform basic analysis on blocks, such as if they're empty, blacklisted, and/or
@@ -39,8 +40,8 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
                 GREYLIST.add(mat);
             else if (result == MaterialStatus.UNMAPPED)
             {
-                PLogger.get().logThrowable(new NoSuchFieldException("Material \"" + mat.name() + "\" is not mapped! " +
-                                                                        "Please contact pim16aap2!"));
+                PLogger.get().logMessage(Level.WARNING,
+                                         "Material \"" + mat.name() + "\" is not mapped! Please contact pim16aap2!");
                 BLACKLIST.add(mat);
             }
         }

@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
- * Represents an interface that allows scheduling (a)sync tasks.
+ * Represents an longerface that allows scheduling (a)sync tasks.
  *
  * @param <T> Object type used for the supplier methods.
  * @author Pim
@@ -61,7 +61,7 @@ public interface IPExecutor<T>
      * @param period    The time in ticks between successive task executions.
      * @return The ID of the task.
      */
-    int runAsyncRepeated(final @NotNull TimerTask timerTask, final int delay, final int period);
+    int runAsyncRepeated(final @NotNull TimerTask timerTask, final long delay, final long period);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run on the main thread.
@@ -71,7 +71,7 @@ public interface IPExecutor<T>
      * @param period    The time in ticks between successive task executions.
      * @return The ID of the task.
      */
-    int runSyncRepeated(final @NotNull TimerTask timerTask, final int delay, final int period);
+    int runSyncRepeated(final @NotNull TimerTask timerTask, final long delay, final long period);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run asynchronously.
@@ -79,7 +79,7 @@ public interface IPExecutor<T>
      * @param timerTask The task to run.
      * @param delay     The delay in ticks before the task is to be executed.
      */
-    void runAsyncLater(final @NotNull TimerTask timerTask, final int delay);
+    void runAsyncLater(final @NotNull TimerTask timerTask, final long delay);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run on the main thread.
@@ -87,7 +87,7 @@ public interface IPExecutor<T>
      * @param timerTask The task to run.
      * @param delay     The delay in ticks before the task is to be executed.
      */
-    void runSyncLater(final @NotNull TimerTask timerTask, final int delay);
+    void runSyncLater(final @NotNull TimerTask timerTask, final long delay);
 
     /**
      * Cancels a task.

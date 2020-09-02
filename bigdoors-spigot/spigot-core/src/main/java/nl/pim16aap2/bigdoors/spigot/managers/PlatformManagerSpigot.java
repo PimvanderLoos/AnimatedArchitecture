@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.spigot.v1_15_R1.SpigotPlatform_V1_15_R1;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -8,7 +9,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class PlatformManagerSpigot
+public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
     @NotNull
     private static final PlatformManagerSpigot instance = new PlatformManagerSpigot();
@@ -49,6 +50,7 @@ public final class PlatformManagerSpigot
         return instance;
     }
 
+    @Override
     public @Nullable ISpigotPlatform getSpigotPlatform()
     {
         return spigotPlatform;
