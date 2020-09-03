@@ -386,7 +386,7 @@ public final class DoorOpeningUtility
      * @param door The {@link AbstractDoorBase}.
      * @return The speed multiplier of this {@link AbstractDoorBase}.
      */
-    double getMultiplier(final @NotNull AbstractDoorBase door)
+    public double getMultiplier(final @NotNull AbstractDoorBase door)
     {
         return config.getMultiplier(door.getDoorType());
     }

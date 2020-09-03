@@ -18,6 +18,7 @@
             <artifactId>spigot-util</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
         <!-- Spigot API (docs) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -25,7 +26,6 @@
             <version>1.15.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-
 
         <!-- Spigot API + (Craft)Bukkit API + NMS -->
         <dependency>

@@ -21,7 +21,6 @@
             <scope>provided</scope>
         </dependency>
 
-
         <!-- Spigot API + (Craft)Bukkit API + NMS -->
         <dependency>
             <groupId>org.spigotmc</groupId>

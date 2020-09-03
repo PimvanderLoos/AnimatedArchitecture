@@ -111,6 +111,7 @@ import java.util.Set;
 /*
  * General
  */
+// TODO: For the ExtensionManager: Write a dependency system. Some types may have dependencies on other types.
 // TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
 //       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
 //       or add 'throws NotInstantiatedException' or something to those methods. Then just propagate the exceptions.

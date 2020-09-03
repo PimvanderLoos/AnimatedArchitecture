@@ -24,15 +24,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeRevolvingDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -299,12 +290,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         // TODO: Remove this!
         if (!DoorTypeManager.get().getDoorType("clock").isPresent())
             throw new IllegalStateException("CLOCK WAS NOT REGISTERED! Don't forget to update the mover!");
-
-        for (DoorType type : new DoorType[]{DoorTypeBigDoor.get(), DoorTypeDrawbridge.get(),
-                                            DoorTypeElevator.get(), DoorTypeFlag.get(), DoorTypeGarageDoor.get(),
-                                            DoorTypePortcullis.get(), DoorTypeRevolvingDoor.get(),
-                                            DoorTypeSlidingDoor.get(), DoorTypeWindmill.get()})
-            registerDoorType(type);
     }
 
     @Override

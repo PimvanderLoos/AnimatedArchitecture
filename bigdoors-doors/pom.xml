@@ -13,10 +13,23 @@
     </parent>
 
     <modules>
+        <module>doors-bigdoor</module>
         <module>doors-clock</module>
+        <module>doors-drawbridge</module>
+        <module>doors-elevator</module>
+        <module>doors-flag</module>
+        <module>doors-garagedoor</module>
+        <module>doors-portcullis</module>
+        <module>doors-revolvingdoor</module>
+        <module>doors-slidingdoor</module>
+        <module>doors-windmill</module>
     </modules>
 
     <repositories>
+        <repository>
+            <id>maven-jar-plugin</id>
+            <url>https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin</url>
+        </repository>
     </repositories>
 
     <dependencies>
