@@ -23,13 +23,13 @@ import nl.pim16aap2.bigdoors.doors.slidingdoor.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.doors.windmill.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.ExtensionLoader;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -287,27 +288,48 @@ public class SQLiteJDBCDriverConnectionTest
     DoorType loadDoorType(final @NotNull String jarPath)
         throws ExecutionException, InterruptedException
     {
-        final @NotNull Optional<DoorType> doorType = ExtensionLoader.get().loadDoorType(jarPath);
+        final @NotNull Optional<DoorType> doorType = DoorTypeLoader.get().loadDoorType(jarPath);
         Assert.assertTrue(doorType.isPresent());
         Assert.assertTrue(DoorTypeManager.get().registerDoorType(doorType.get()).get().isPresent());
         return doorType.get();
     }
-
-
+    
     private void registerDoorTypes()
         throws ExecutionException, InterruptedException
     {
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get()).get().isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()).get().isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get()).get().isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeElevator.get()).get().isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeFlag.get()).get().isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeGarageDoor.get()).get().isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get()).get().isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get()).get().isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get()).get().isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get()).get().isPresent());
-        threadPool.awaitTermination(400L, TimeUnit.MILLISECONDS);
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get()).get().isPresent());
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()).get().isPresent());
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get()).get().isPresent());
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeElevator.get()).get().isPresent());
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeFlag.get()).get().isPresent());
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeGarageDoor.get()).get().isPresent());
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get()).get().isPresent());
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get()).get().isPresent());
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get()).get().isPresent());
+//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get()).get().isPresent());
+
+        DoorTypeManager.get().registerDoorTypes(Arrays.asList(DoorTypeBigDoor.get(), DoorTypeClock.get(),
+                                                              DoorTypeDrawbridge.get(), DoorTypeElevator.get(),
+                                                              DoorTypeFlag.get(), DoorTypeGarageDoor.get(),
+                                                              DoorTypePortcullis.get(), DoorTypeRevolvingDoor.get(),
+                                                              DoorTypeSlidingDoor.get(), DoorTypeWindmill.get()));
+
+
+        threadPool.awaitTermination(600L, TimeUnit.MILLISECONDS);
+
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeBigDoor.get()).isPresent());
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeClock.get()).isPresent());
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeDrawbridge.get()).isPresent());
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeElevator.get()).isPresent());
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeFlag.get()).isPresent());
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeGarageDoor.get()).isPresent());
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypePortcullis.get()).isPresent());
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeRevolvingDoor.get()).isPresent());
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeSlidingDoor.get()).isPresent());
+        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeWindmill.get()).isPresent());
+
+        Assert.assertEquals(10, DoorTypeManager.get().getRegisteredDoorTypes().size());
+
     }
 
     private void initDoorTypeTest()

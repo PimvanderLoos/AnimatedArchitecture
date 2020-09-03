@@ -60,7 +60,7 @@ public final class PLogger
 
     @Getter
     @NotNull
-    private Level consoleLogLevel = Level.CONFIG;
+    private Level consoleLogLevel = Level.ALL;
 
     @Getter
     @NotNull
@@ -489,7 +489,7 @@ public final class PLogger
      */
     public void severe(final @NotNull String str)
     {
-        logMessage(Level.SEVERE, str);
+        logMessage(Level.SEVERE, str + "\n");
     }
 
     /**

@@ -32,7 +32,7 @@ public final class DoorTypeElevator extends DoorType
     }
 
     private static final @NotNull List<Pair<String, Pair<Integer, Integer>>> dependencies =
-        Collections.singletonList(new Pair<>("elevator", new Pair<>(1, 1)));
+        Collections.singletonList(new Pair<>("portcullis", new Pair<>(1, 1)));
 
     @NotNull
     private static final DoorTypeElevator INSTANCE = new DoorTypeElevator();

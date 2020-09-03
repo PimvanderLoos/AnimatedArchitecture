@@ -25,6 +25,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
+import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
@@ -94,7 +95,6 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.ExtensionLoader;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -105,6 +105,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -284,12 +285,16 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      */
     private void registerDoorTypes()
     {
-        ExtensionLoader.get().loadDoorTypesFromDirectory(getDataDirectory() + "/extensions")
-                       .forEach(this::registerDoorType);
+        final @NotNull File extensionsDir = new File(getDataDirectory() + "/Extensions");
+        if (!extensionsDir.exists())
+            if (!extensionsDir.mkdirs())
+            {
+                PLogger.get().logThrowable(new IOException("Failed to create folder: " + extensionsDir.toString()));
+                return;
+            }
 
-        // TODO: Remove this!
-        if (!DoorTypeManager.get().getDoorType("clock").isPresent())
-            throw new IllegalStateException("CLOCK WAS NOT REGISTERED! Don't forget to update the mover!");
+        DoorTypeManager.get().registerDoorTypes(
+            DoorTypeLoader.get().loadDoorTypesFromDirectory(getDataDirectory() + "/Extensions"));
     }
 
     @Override
