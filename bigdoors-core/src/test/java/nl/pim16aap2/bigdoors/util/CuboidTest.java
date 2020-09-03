@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
 import junit.framework.Assert;
-import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -9,6 +8,8 @@ import org.junit.jupiter.api.Test;
 
 class CuboidTest
 {
+    public final double EPSILON = 1E-6;
+
     @Test
     void getVolume()
     {
@@ -158,8 +159,8 @@ class CuboidTest
         final @NotNull Vector3Dd center = new Vector3Dd(5, 5.5d, 30);
 
         final @NotNull Vector3Dd foundCenter = new Cuboid(val1, val2).getCenter();
-        Assert.assertTrue(Math.abs(center.getX() - foundCenter.getX()) < UnitTestUtil.EPSILON);
-        Assert.assertTrue(Math.abs(center.getY() - foundCenter.getY()) < UnitTestUtil.EPSILON);
-        Assert.assertTrue(Math.abs(center.getZ() - foundCenter.getZ()) < UnitTestUtil.EPSILON);
+        Assert.assertTrue(Math.abs(center.getX() - foundCenter.getX()) < EPSILON);
+        Assert.assertTrue(Math.abs(center.getY() - foundCenter.getY()) < EPSILON);
+        Assert.assertTrue(Math.abs(center.getZ() - foundCenter.getZ()) < EPSILON);
     }
 }

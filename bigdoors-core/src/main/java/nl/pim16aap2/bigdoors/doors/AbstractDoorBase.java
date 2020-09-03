@@ -476,7 +476,7 @@ public abstract class AbstractDoorBase implements IDoorBase
                .append(engine.toString()).append("\n");
         builder.append("PowerBlock position: ").append(powerBlock.toString()).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");
-        builder.append("World: ").append(getWorld().getUID().toString()).append("\n");
+        builder.append("World: ").append(getWorld().getUUID().toString()).append("\n");
         builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
@@ -506,7 +506,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) &&
             maximum.equals(other.maximum) && engine.equals(other.engine) && getDoorType().equals(other.getDoorType()) &&
             open == other.open && doorOwner.equals(other.doorOwner) && isLocked == other.isLocked &&
-            world.getUID().equals(other.world.getUID());
+            world.getUUID().equals(other.world.getUUID());
     }
 
     /**

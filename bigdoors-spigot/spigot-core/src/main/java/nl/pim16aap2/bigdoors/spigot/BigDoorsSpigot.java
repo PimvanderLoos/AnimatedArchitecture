@@ -23,7 +23,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.clock.DoorTypeClock;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
@@ -104,6 +103,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.ExtensionLoader;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -293,7 +293,14 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      */
     private void registerDoorTypes()
     {
-        for (DoorType type : new DoorType[]{DoorTypeBigDoor.get(), DoorTypeClock.get(), DoorTypeDrawbridge.get(),
+        ExtensionLoader.get().loadDoorTypesFromDirectory(getDataDirectory() + "/extensions")
+                       .forEach(this::registerDoorType);
+
+        // TODO: Remove this!
+        if (!DoorTypeManager.get().getDoorType("clock").isPresent())
+            throw new IllegalStateException("CLOCK WAS NOT REGISTERED! Don't forget to update the mover!");
+
+        for (DoorType type : new DoorType[]{DoorTypeBigDoor.get(), DoorTypeDrawbridge.get(),
                                             DoorTypeElevator.get(), DoorTypeFlag.get(), DoorTypeGarageDoor.get(),
                                             DoorTypePortcullis.get(), DoorTypeRevolvingDoor.get(),
                                             DoorTypeSlidingDoor.get(), DoorTypeWindmill.get()})

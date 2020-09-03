@@ -14,6 +14,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
@@ -108,17 +110,21 @@ public final class ExtensionLoader
      *
      * @param directory The directory.
      */
-    public void loadDoorTypesFromDirectory(final @NotNull String directory)
+    public @NotNull List<DoorType> loadDoorTypesFromDirectory(final @NotNull String directory)
     {
+        final @NotNull List<DoorType> doorTypes = new ArrayList<>();
+
         try (final @NotNull Stream<Path> walk = Files.walk(Paths.get(directory)))
         {
             final @NotNull Stream<Path> result = walk.filter(Files::isRegularFile);
-            result.forEach(path -> loadDoorType(path.toFile()));
+            result.forEach(path -> loadDoorType(path.toFile()).ifPresent(doorTypes::add));
         }
         catch (IOException e)
         {
             PLogger.get().logThrowable(e);
         }
+
+        return doorTypes;
     }
 }
 

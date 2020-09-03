@@ -34,5 +34,11 @@
             <version>200</version>
             <type>pom</type>
         </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-integration-test</artifactId>
+            <version>200</version>
+        </dependency>
     </dependencies>
 </project>

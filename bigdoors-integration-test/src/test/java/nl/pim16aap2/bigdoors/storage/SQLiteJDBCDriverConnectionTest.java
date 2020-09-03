@@ -282,7 +282,8 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
-    private @NotNull DoorType loadDoorType(final @NotNull String jarPath)
+    private @NotNull
+    DoorType loadDoorType(final @NotNull String jarPath)
         throws ExecutionException, InterruptedException
     {
         final @NotNull Optional<DoorType> doorType = ExtensionLoader.get().loadDoorType(jarPath);

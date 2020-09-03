@@ -32,7 +32,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     public void playSound(final @NotNull Vector3DiConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
                           final float volume, final float pitch)
     {
-        SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getUID()), pos.getX(), pos.getY(), pos.getZ()),
+        SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getUUID()), pos.getX(), pos.getY(), pos.getZ()),
                              PSound.getSoundName(sound), volume, pitch);
     }
 
@@ -40,7 +40,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     public void playSound(final @NotNull Vector3DdConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
                           final float volume, final float pitch)
     {
-        SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getUID()), pos.getX(), pos.getY(), pos.getZ()),
+        SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getUUID()), pos.getX(), pos.getY(), pos.getZ()),
                              PSound.getSoundName(sound), volume, pitch);
     }
 
@@ -48,7 +48,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     public void playSound(double x, double y, double z, final @NotNull IPWorld world, final @NotNull PSound sound,
                           final float volume, final float pitch)
     {
-        SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getUID()), x, y, z), PSound.getSoundName(sound), volume,
+        SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getUUID()), x, y, z), PSound.getSoundName(sound), volume,
                              pitch);
     }
 }

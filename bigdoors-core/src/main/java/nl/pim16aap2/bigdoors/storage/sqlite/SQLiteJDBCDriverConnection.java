@@ -598,7 +598,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final @NotNull String playerUUID = door.getDoorOwner().getPlayer().getUUID().toString();
         final @NotNull String playerName = door.getDoorOwner().getPlayer().getName();
-        final @NotNull String worldUUID = door.getWorld().getUID().toString();
+        final @NotNull String worldUUID = door.getWorld().getUUID().toString();
 
         executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_WORLD.constructPPreparedStatement().setString(1, worldUUID));
 

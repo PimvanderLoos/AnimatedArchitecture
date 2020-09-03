@@ -42,7 +42,7 @@ public final class TestPWorld implements IPWorld
 
 
     @Override
-    public @NotNull UUID getUID()
+    public @NotNull UUID getUUID()
     {
         return uuid;
     }

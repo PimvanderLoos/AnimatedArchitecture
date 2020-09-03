@@ -180,12 +180,12 @@ public final class PowerBlockManager extends Restartable
                                     final @NotNull Vector3DiConst newPos)
     {
         databaseManager.updatePowerBlockLoc(door.getDoorUID(), newPos);
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getUID());
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getUUID());
         if (powerBlockWorld == null)
         {
             pLogger.logMessage(Level.WARNING,
                                "Failed to load power blocks for world: \"" +
-                                   door.getWorld().getUID().toString() + "\".");
+                                   door.getWorld().getUUID().toString() + "\".");
             return;
         }
 
