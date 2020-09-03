@@ -30,8 +30,9 @@
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>doors-clock</artifactId>
+            <artifactId>bigdoors-doors</artifactId>
             <version>200</version>
+            <type>pom</type>
         </dependency>
     </dependencies>
 </project>
