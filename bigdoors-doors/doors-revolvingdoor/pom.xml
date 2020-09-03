@@ -20,7 +20,7 @@
     </dependencies>
 
     <build>
-        <finalName>BigDoor-Type-RevolvingDoor</finalName>
+        <finalName>RevolvingDoor</finalName>
 
         <plugins>
             <plugin>

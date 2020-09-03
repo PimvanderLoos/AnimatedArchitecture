@@ -12,7 +12,7 @@
     </parent>
 
     <build>
-        <finalName>BigDoor-Type-GarageDoor</finalName>
+        <finalName>GarageDoor</finalName>
 
         <plugins>
             <plugin>

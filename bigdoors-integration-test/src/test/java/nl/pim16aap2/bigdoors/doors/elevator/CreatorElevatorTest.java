@@ -1,6 +1,6 @@
-package nl.pim16aap2.bigdoors.tooluser.creator;
+package nl.pim16aap2.bigdoors.doors.elevator;
 
-import nl.pim16aap2.bigdoors.doors.Elevator;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;

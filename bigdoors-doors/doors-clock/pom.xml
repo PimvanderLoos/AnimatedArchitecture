@@ -21,7 +21,7 @@
     </dependencies>
 
     <build>
-        <finalName>BigDoor-Type-Clock</finalName>
+        <finalName>Clock</finalName>
 
         <plugins>
             <plugin>

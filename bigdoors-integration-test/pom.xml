@@ -34,6 +34,76 @@
         </dependency>
 
         <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-bigdoor</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-clock</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-drawbridge</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-elevator</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-flag</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-garagedoor</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-portcullis</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-revolvingdoor</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-slidingdoor</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-windmill</artifactId>
+            <version>200</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.32.3</version>

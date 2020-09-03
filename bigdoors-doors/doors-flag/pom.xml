@@ -12,7 +12,7 @@
     </parent>
 
     <build>
-        <finalName>BigDoor-Type-Flag</finalName>
+        <finalName>Flag</finalName>
 
         <plugins>
             <plugin>

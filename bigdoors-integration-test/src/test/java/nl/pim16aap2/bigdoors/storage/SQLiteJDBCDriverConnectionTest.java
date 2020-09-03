@@ -5,22 +5,23 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.BigDoor;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.Drawbridge;
-import nl.pim16aap2.bigdoors.doors.Portcullis;
+import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
+import nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor;
+import nl.pim16aap2.bigdoors.doors.clock.DoorTypeClock;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
+import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
+import nl.pim16aap2.bigdoors.doors.elevator.DoorTypeElevator;
+import nl.pim16aap2.bigdoors.doors.flag.DoorTypeFlag;
+import nl.pim16aap2.bigdoors.doors.garagedoor.DoorTypeGarageDoor;
+import nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis;
+import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
+import nl.pim16aap2.bigdoors.doors.revolvingdoor.DoorTypeRevolvingDoor;
+import nl.pim16aap2.bigdoors.doors.slidingdoor.DoorTypeSlidingDoor;
+import nl.pim16aap2.bigdoors.doors.windmill.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeRevolvingDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -297,11 +298,7 @@ public class SQLiteJDBCDriverConnectionTest
         throws ExecutionException, InterruptedException
     {
         Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get()).get().isPresent());
-
-        final @NotNull DoorType doorTypeClock = loadDoorType(
-            "/home/pim/Documents/workspace/BigDoors2/bigdoors-doors/target/BigDoor-Type-Clock.jar");
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()).get().isPresent());
-
+        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()).get().isPresent());
         Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get()).get().isPresent());
         Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeElevator.get()).get().isPresent());
         Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeFlag.get()).get().isPresent());

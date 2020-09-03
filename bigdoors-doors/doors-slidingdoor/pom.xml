@@ -12,7 +12,7 @@
     </parent>
 
     <build>
-        <finalName>BigDoor-Type-SlidingDoor</finalName>
+        <finalName>SlidingDoor</finalName>
 
         <plugins>
             <plugin>

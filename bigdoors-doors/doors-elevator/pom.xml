@@ -21,7 +21,7 @@
     </dependencies>
 
     <build>
-        <finalName>BigDoor-Type-Elevator</finalName>
+        <finalName>Elevator</finalName>
 
         <plugins>
             <plugin>

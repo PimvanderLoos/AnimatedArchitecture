@@ -12,7 +12,7 @@
     </parent>
 
     <build>
-        <finalName>BigDoor-Type-Drawbridge</finalName>
+        <finalName>Drawbridge</finalName>
 
         <plugins>
             <plugin>

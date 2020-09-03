@@ -1,8 +1,8 @@
-package nl.pim16aap2.bigdoors.tooluser.creator;
+package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import junit.framework.Assert;
-import nl.pim16aap2.bigdoors.doors.Portcullis;
 import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;

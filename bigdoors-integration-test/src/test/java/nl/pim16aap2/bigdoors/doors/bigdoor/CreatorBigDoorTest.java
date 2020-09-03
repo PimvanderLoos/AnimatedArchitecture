@@ -1,6 +1,6 @@
-package nl.pim16aap2.bigdoors.tooluser.creator;
+package nl.pim16aap2.bigdoors.doors.bigdoor;
 
-import nl.pim16aap2.bigdoors.doors.BigDoor;
+import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;

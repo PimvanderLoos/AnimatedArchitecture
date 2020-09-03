@@ -21,7 +21,7 @@
     </dependencies>
 
     <build>
-        <finalName>BigDoor-Type-Windmill</finalName>
+        <finalName>Windmill</finalName>
 
         <plugins>
             <plugin>

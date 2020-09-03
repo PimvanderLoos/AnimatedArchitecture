@@ -12,7 +12,7 @@
     </parent>
 
     <build>
-        <finalName>BigDoor-Type-BigDoor</finalName>
+        <finalName>BigDoor</finalName>
 
         <plugins>
             <plugin>
