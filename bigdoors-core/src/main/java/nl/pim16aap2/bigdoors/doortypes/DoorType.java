@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,6 +98,17 @@ public abstract class DoorType
         this.validOpenDirections = validOpenDirections;
         translationName = "DOORTYPE_" + simpleName.toUpperCase();
     }
+
+    /**
+     * Gets the list of dependencies for this {@link DoorType}. The depedencies are defined by the {@link
+     * #getSimpleName()} and the lowest {@link #getTypeVersion()} of this {@link DoorType}.
+     * <p>
+     * A dependency here means that the listed {@link DoorType}s have to be loaded as well and that their version number
+     * must be within the provided range (inclusive).
+     *
+     * @return The list of dependencies for this {@link DoorType}.
+     */
+    public abstract List<Pair<String, Pair<Integer, Integer>>> getDependencies();
 
     /**
      * Checks if a given {@link RotateDirection} is valid for this type.

@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +22,8 @@ public final class DoorTypeBigDoor extends DoorType
     @NotNull
     private static final List<Parameter> PARAMETERS;
 
+    private static final @NotNull List<Pair<String, Pair<Integer, Integer>>> dependencies = Collections.emptyList();
+
     static
     {
         final @NotNull List<Parameter> parameterTMP = new ArrayList<>(2);
@@ -30,7 +33,7 @@ public final class DoorTypeBigDoor extends DoorType
     }
 
     @NotNull
-    private static final DoorTypeBigDoor instance = new DoorTypeBigDoor();
+    private static final DoorTypeBigDoor INSTANCE = new DoorTypeBigDoor();
 
     private DoorTypeBigDoor()
     {
@@ -45,7 +48,13 @@ public final class DoorTypeBigDoor extends DoorType
      */
     public static @NotNull DoorTypeBigDoor get()
     {
-        return instance;
+        return INSTANCE;
+    }
+
+    @Override
+    public List<Pair<String, Pair<Integer, Integer>>> getDependencies()
+    {
+        return dependencies;
     }
 
     @Override
