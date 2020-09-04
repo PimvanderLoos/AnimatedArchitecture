@@ -69,6 +69,7 @@ class DoorTypeInitializer
 
     private @NotNull Optional<DoorType> loadDoorType(final @NotNull TypeInfo typeInfo)
     {
+        PLogger.get().logMessage(Level.FINE, "Trying to load type: " + typeInfo.getTypeName());
         final @NotNull Class<?> typeClass;
         try
         {
@@ -94,6 +95,7 @@ class DoorTypeInitializer
             PLogger.get().logThrowable(e);
             return Optional.empty();
         }
+
         PLogger.get().logMessage(Level.FINE,
                                  "Loaded BigDoors extension: " + Util.capitalizeFirstLetter(doorType.getSimpleName()));
         return Optional.of(doorType);
@@ -125,6 +127,7 @@ class DoorTypeInitializer
 
     private @NotNull LoadResult verifyDependencies(final @NotNull TypeInfo doorTypeInfo)
     {
+        final @NotNull String currentName = doorTypeInfo.getTypeName();
         final @Nullable Pair<TypeInfo, Integer> currentStatus = registrationQueue.get(doorTypeInfo.typeName);
         if (currentStatus == null)
             return new LoadResult(LoadResultType.INVALID_DOOR_TYPE,
@@ -134,9 +137,7 @@ class DoorTypeInitializer
             return currentStatus.second == -1 ?
                    new LoadResult(LoadResultType.DEPENDENCIES_AVAILABLE, "") :
                    new LoadResult(LoadResultType.DEPENDENCY_UNAVAILABLE, "");
-
-        final @NotNull String currentName = doorTypeInfo.getTypeName();
-        @NotNull Integer newWeight = currentStatus.second == null ? 0 : currentStatus.second;
+        int newWeight = 0;
 
         for (final @NotNull Optional<Dependency> dependencyOpt : doorTypeInfo.getDependencies())
         {
@@ -147,7 +148,6 @@ class DoorTypeInitializer
                                       currentName + ": Failed to find dependency!");
             }
             final @NotNull Dependency dependency = dependencyOpt.get();
-
             final @NotNull String dependencyName = dependency.getDependencyName();
 
             // If the dependency has already been registered, it has already been loaded, obviously.
@@ -164,13 +164,13 @@ class DoorTypeInitializer
                 registrationQueue.replace(currentName, new Pair<>(doorTypeInfo, -1));
                 return new LoadResult(LoadResultType.DEPENDENCY_UNAVAILABLE,
                                       "Type \"" + currentName + "\" depends on type: \"" +
-                                          dependencyName + "\" which isn't available!");
+                                          dependencyName + "\" which isn't installed!");
             }
 
             // Before we just assume any old TypeInfo we find that will be registered in the future, we'll
             // have to make sure that that dependency's dependencies are also met.
             final @NotNull Pair<TypeInfo, Integer> queuedDoorTypeInfo = registrationQueue.get(dependencyName);
-            final @Nullable Integer dependencyWeight = queuedDoorTypeInfo.second;
+            @Nullable Integer dependencyWeight = queuedDoorTypeInfo.second;
             final @NotNull TypeInfo queuedDoorType = queuedDoorTypeInfo.first;
 
             // If the dependency's dependencies haven't been checked, recursively check if they are satisfied.
@@ -179,7 +179,7 @@ class DoorTypeInitializer
                 final @NotNull LoadResult dependencyLoadResult = verifyDependencies(queuedDoorType);
                 if (dependencyLoadResult.getLoadResultType() == LoadResultType.DEPENDENCIES_AVAILABLE)
                     // Increment the weight by 1, to make sure that the current DoorType is loaded after this dependency.
-                    newWeight = Math.max(newWeight, registrationQueue.get(dependencyName).second) + 1;
+                    dependencyWeight = registrationQueue.get(dependencyName).second;
                 else
                 {
                     registrationQueue.replace(currentName, new Pair<>(doorTypeInfo, -1));
@@ -188,6 +188,8 @@ class DoorTypeInitializer
                                               "\", but its dependencies could not be loaded!");
                 }
             }
+
+            newWeight = Math.max(newWeight, dependencyWeight) + 1;
 
             if (queuedDoorType.getVersion() < dependency.getMinVersion() ||
                 queuedDoorType.getVersion() > dependency.getMaxVersion())
