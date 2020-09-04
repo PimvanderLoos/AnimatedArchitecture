@@ -5,6 +5,10 @@
     <packaging>jar</packaging>
     <version>${project.parent.version}</version>
 
+    <properties>
+        <mainClass>nl.pim16aap2.bigdoors.doors.revolvingdoor.DoorTypeRevolvingDoor</mainClass>
+    </properties>
+
     <parent>
         <groupId>nl.pim16aap2.bigdoors</groupId>
         <artifactId>bigdoors-doors</artifactId>
@@ -32,7 +36,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>nl.pim16aap2.bigdoors.doors.revolvingdoor.DoorTypeRevolvingDoor</mainClass>
+                            <mainClass>${mainClass}</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
