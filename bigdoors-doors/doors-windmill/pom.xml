@@ -7,6 +7,8 @@
 
     <properties>
         <mainClass>nl.pim16aap2.bigdoors.doors.windmill.DoorTypeWindmill</mainClass>
+        <typeName>Windmill</typeName>
+        <version>1</version>
     </properties>
 
     <parent>
@@ -25,7 +27,7 @@
     </dependencies>
 
     <build>
-        <finalName>Windmill</finalName>
+        <finalName>${typeName}</finalName>
 
         <plugins>
             <plugin>
@@ -43,19 +45,19 @@
                             <manifestSection>
                                 <name>TypeName</name>
                                 <manifestEntries>
-                                    <TypeName>Windmill</TypeName>
+                                    <TypeName>${typeName}</TypeName>
                                 </manifestEntries>
                             </manifestSection>
                             <manifestSection>
                                 <name>Version</name>
                                 <manifestEntries>
-                                    <Version>1</Version>
+                                    <Version>${version}</Version>
                                 </manifestEntries>
                             </manifestSection>
                             <manifestSection>
                                 <name>Dependencies</name>
                                 <manifestEntries>
-                                    <Dependencies>bigdoors(1;1) elevators(1;100)</Dependencies>
+                                    <Dependencies>drawbridge(1;1)</Dependencies>
                                 </manifestEntries>
                             </manifestSection>
                         </manifestSections>

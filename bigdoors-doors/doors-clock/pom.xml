@@ -7,6 +7,8 @@
 
     <properties>
         <mainClass>nl.pim16aap2.bigdoors.doors.clock.DoorTypeClock</mainClass>
+        <typeName>Clock</typeName>
+        <version>1</version>
     </properties>
 
     <parent>
@@ -25,7 +27,7 @@
     </dependencies>
 
     <build>
-        <finalName>Clock</finalName>
+        <finalName>${typeName}</finalName>
 
         <plugins>
             <plugin>
@@ -39,6 +41,26 @@
                             <addClasspath>true</addClasspath>
                             <mainClass>${mainClass}</mainClass>
                         </manifest>
+                        <manifestSections>
+                            <manifestSection>
+                                <name>TypeName</name>
+                                <manifestEntries>
+                                    <TypeName>${typeName}</TypeName>
+                                </manifestEntries>
+                            </manifestSection>
+                            <manifestSection>
+                                <name>Version</name>
+                                <manifestEntries>
+                                    <Version>${version}</Version>
+                                </manifestEntries>
+                            </manifestSection>
+                            <manifestSection>
+                                <name>Dependencies</name>
+                                <manifestEntries>
+                                    <Dependencies>windmill(1;1)</Dependencies>
+                                </manifestEntries>
+                            </manifestSection>
+                        </manifestSections>
                     </archive>
                 </configuration>
             </plugin>
