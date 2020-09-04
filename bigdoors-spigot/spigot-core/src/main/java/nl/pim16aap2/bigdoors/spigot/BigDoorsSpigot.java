@@ -112,6 +112,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Represents the implementation of {@link BigDoorsSpigotAbstract}.
@@ -206,6 +207,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Override
     public void onEnable()
     {
+        Bukkit.getLogger().setLevel(Level.FINER);
+
         try
         {
             // Register this here so it can check for updates even when loaded on an incorrect version.

@@ -7,14 +7,12 @@ import lombok.experimental.NonFinal;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +32,7 @@ public final class DoorTypeManager
     @NotNull
     private static final DoorTypeManager instance = new DoorTypeManager();
     @NotNull
-    private final Map<DoorType, DoorTypeInfo> doorTypeToID = new ConcurrentHashMap<>();
+    private final Map<DoorType, DoorRegistrationStatus> doorTypeToID = new ConcurrentHashMap<>();
     @NotNull
     private final Map<Long, DoorType> doorTypeFromID = new ConcurrentHashMap<>();
     @NotNull
@@ -77,7 +75,7 @@ public final class DoorTypeManager
     public @NotNull List<DoorType> getEnabledDoorTypes()
     {
         final List<DoorType> enabledDoorTypes = new ArrayList<>();
-        for (final Map.Entry<DoorType, DoorTypeInfo> doorType : doorTypeToID.entrySet())
+        for (final Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeToID.entrySet())
             if (doorType.getValue().status)
                 enabledDoorTypes.add(doorType.getKey());
         return enabledDoorTypes;
@@ -146,7 +144,7 @@ public final class DoorTypeManager
      */
     public @NotNull OptionalLong getDoorTypeID(final @NotNull DoorType doorType)
     {
-        final @Nullable DoorTypeInfo info = doorTypeToID.get(doorType);
+        final @Nullable DoorTypeManager.DoorRegistrationStatus info = doorTypeToID.get(doorType);
         return info == null ? OptionalLong.empty() : OptionalLong.of(info.id);
     }
 
@@ -160,86 +158,8 @@ public final class DoorTypeManager
      */
     public boolean isDoorTypeEnabled(final @NotNull DoorType doorType)
     {
-        final @Nullable DoorTypeInfo info = doorTypeToID.get(doorType);
+        final @Nullable DoorTypeManager.DoorRegistrationStatus info = doorTypeToID.get(doorType);
         return info != null && info.status;
-    }
-
-    private String a(final @NotNull DoorType doorType)
-    {
-        return "(" + doorType.getSimpleName() + ") ";
-    }
-
-    private @NotNull LoadResult dependenciesSatisfied(final @NotNull DoorType doorType,
-                                                      final @NotNull HashMap<String, Pair<DoorType, DependencyCheckStatus>> registerQueue)
-    {
-        final @Nullable Pair<DoorType, DependencyCheckStatus> currentStatus =
-            registerQueue.get(doorType.getSimpleName());
-        if (currentStatus != null && currentStatus.second != DependencyCheckStatus.NOT_CHECKED)
-        {
-            return currentStatus.second == DependencyCheckStatus.OK ? new LoadResult(LoadResultType.SUCCESS, "") :
-                   new LoadResult(LoadResultType.DEPENDENCY_UNAVAILABLE, "");
-        }
-
-        for (final @NotNull Pair<String, Pair<Integer, Integer>> dependency : doorType.getDependencies())
-        {
-            // First check if it's already been registered or not.
-            @NotNull Optional<DoorType> dependencyDoorType = getDoorType(dependency.first);
-
-
-            // If it hasn't been registered yet, check if it exists in the registerQueue.
-            // If the dependency will be installed in the future, then that's fine.
-            // However, before we just use any old DoorType we find that will be registered in the future, we'll
-            // have to make sure that that dependency's dependencies are also met.
-            if (!dependencyDoorType.isPresent() && registerQueue.containsKey(dependency.first))
-            {
-                final @NotNull Pair<DoorType, DependencyCheckStatus> queuedDoorType = registerQueue
-                    .get(dependency.first);
-
-                @NotNull DependencyCheckStatus dependencyCheckStatus = queuedDoorType.second;
-                final @NotNull DoorType queuedDoor = queuedDoorType.first;
-
-                // If it hasn't been checked, recursively check if this dependency's dependencies are satisfied.
-                if (dependencyCheckStatus == DependencyCheckStatus.NOT_CHECKED)
-                {
-                    final @NotNull LoadResult dependencyLoadResult = dependenciesSatisfied(queuedDoor, registerQueue);
-                    if (dependencyLoadResult.getLoadResultType() == LoadResultType.SUCCESS)
-                    {
-                        registerQueue.replace(dependency.first, new Pair<>(queuedDoor, DependencyCheckStatus.OK));
-                        dependencyCheckStatus = DependencyCheckStatus.OK;
-                    }
-                    else
-                        registerQueue.replace(dependency.first, new Pair<>(queuedDoor, DependencyCheckStatus.NOT_OK));
-                }
-
-                if (dependencyCheckStatus == DependencyCheckStatus.OK)
-                    dependencyDoorType = Optional.of(queuedDoor);
-            }
-
-
-            if (!dependencyDoorType.isPresent())
-                return new LoadResult(LoadResultType.DEPENDENCY_UNAVAILABLE,
-                                      "Type \"" + doorType.getSimpleName() + "\" depends on type: \"" +
-                                          dependency.first + "\" which isn't available!");
-
-            if (dependencyDoorType.get().getTypeVersion() < dependency.second.first ||
-                dependencyDoorType.get().getTypeVersion() > dependency.second.second)
-                return new LoadResult(LoadResultType.DEPENDENCY_UNSUPPORTED_VERSION,
-                                      "Version " + doorType.getTypeVersion() + " of type: \"" +
-                                          doorType.getSimpleName() +
-                                          "\" requires " + dependency.second.first + ">= version <= " +
-                                          dependency.second.second + " of type: \"" +
-                                          dependencyDoorType.get().getSimpleName() + "\", but version " +
-                                          dependencyDoorType.get().getTypeVersion() + " was found!");
-        }
-
-        if (registerQueue.containsKey(doorType.getSimpleName()))
-            registerQueue.replace(doorType.getSimpleName(), new Pair<>(doorType, DependencyCheckStatus.OK));
-        return new LoadResult(LoadResultType.SUCCESS, "");
-    }
-
-    private @NotNull LoadResult dependenciesSatisfied(final @NotNull DoorType doorType)
-    {
-        return dependenciesSatisfied(doorType, new HashMap<>(0));
     }
 
     /**
@@ -263,15 +183,15 @@ public final class DoorTypeManager
      */
     public void unregisterDoorType(final @NotNull DoorType doorType)
     {
-        final @Nullable DoorTypeInfo doorTypeInfo = doorTypeToID.remove(doorType);
-        if (doorTypeInfo == null)
+        final @Nullable DoorTypeManager.DoorRegistrationStatus doorRegistrationStatus = doorTypeToID.remove(doorType);
+        if (doorRegistrationStatus == null)
         {
             PLogger.get().warn("Trying to unregister door of type: " + doorType.getSimpleName() + ", but it isn't " +
                                    "registered already!");
             return;
         }
-        doorTypeFromID.remove(doorTypeInfo.id);
-        doorTypeFromName.remove(doorTypeInfo.name);
+        doorTypeFromID.remove(doorRegistrationStatus.id);
+        doorTypeFromName.remove(doorRegistrationStatus.name);
         sortedDoorTypes.remove(doorType);
     }
 
@@ -285,13 +205,6 @@ public final class DoorTypeManager
     public @NotNull CompletableFuture<OptionalLong> registerDoorType(final @NotNull DoorType doorType,
                                                                      final boolean isEnabled)
     {
-        final @NotNull LoadResult loadResult = dependenciesSatisfied(doorType);
-        if (loadResult.getLoadResultType() != LoadResultType.SUCCESS)
-        {
-            PLogger.get().severe(loadResult.getMessage());
-            return CompletableFuture.completedFuture(OptionalLong.empty());
-        }
-
         return registerDoorTypeDirectly(doorType, isEnabled);
     }
 
@@ -305,14 +218,14 @@ public final class DoorTypeManager
     private @NotNull CompletableFuture<OptionalLong> registerDoorTypeDirectly(final @NotNull DoorType doorType,
                                                                               final boolean isEnabled)
     {
-        PLogger.get().info("Registering door type: " + doorType.toString());
+        PLogger.get().info("Trying to register door type: " + doorType.toString());
         CompletableFuture<Long> registrationResult = BigDoors.get().getDatabaseManager().registerDoorType(doorType);
         return registrationResult.handle(
             (doorTypeID, throwable) ->
             {
                 if (doorTypeID < 1)
                     return OptionalLong.empty();
-                doorTypeToID.put(doorType, new DoorTypeInfo(doorTypeID, isEnabled, doorType.getSimpleName()));
+                doorTypeToID.put(doorType, new DoorRegistrationStatus(doorTypeID, isEnabled, doorType.getSimpleName()));
                 doorTypeFromID.put(doorTypeID, doorType);
                 doorTypeFromName.put(doorType.getSimpleName(), doorType);
                 if (isEnabled)
@@ -329,7 +242,7 @@ public final class DoorTypeManager
      */
     public void setDoorTypeEnabled(final @NotNull DoorType doorType, final boolean isEnabled)
     {
-        final @Nullable DoorTypeInfo info = doorTypeToID.get(doorType);
+        final @Nullable DoorTypeManager.DoorRegistrationStatus info = doorTypeToID.get(doorType);
         if (info != null)
         {
             info.status = isEnabled;
@@ -341,51 +254,7 @@ public final class DoorTypeManager
     @SneakyThrows
     public void registerDoorTypes(final @NotNull List<DoorType> doorTypes)
     {
-//        PLogger.get().severe("Loading door types!");
-        final @NotNull HashMap<String, Pair<DoorType, DependencyCheckStatus>> registrationQueue =
-            new HashMap<>(doorTypes.size());
-
-//        PLogger.get().severe("Adding door types to registration queue!");
-        doorTypes.forEach(doorType -> registrationQueue.put(doorType.getSimpleName(),
-                                                            new Pair<>(doorType, DependencyCheckStatus.NOT_CHECKED)));
-
-//        Thread.sleep(50L);
-//        {
-//            StringBuilder sb = new StringBuilder();
-//            registrationQueue.forEach((name, pair) -> sb.append(name).append(", "));
-//            PLogger.get().severe("RegistrationQueue: " + sb.toString());
-//        }
-//        Thread.sleep(50L);
-
-//        PLogger.get().severe("Processing registration queue now!");
-        registrationQueue.forEach((name, pair) -> dependenciesSatisfied(pair.first, registrationQueue));
-//        PLogger.get().severe("Processing registration queue FINISHED!");
-
-//        Thread.sleep(50L);
-//        {
-//            StringBuilder sb = new StringBuilder();
-//            sb.append("Results: \n");
-//            registrationQueue
-//                .forEach((name, pair) -> sb.append(name).append(": ").append(pair.second.name()).append("\n"));
-//            PLogger.get().severe(sb.toString());
-//        }
-//        Thread.sleep(50L);
-
-//        PLogger.get().severe("Registering registration queue!");
-        registrationQueue.forEach(
-            (name, pair) ->
-            {
-                if (pair.second == DependencyCheckStatus.OK)
-                {
-//                    PLogger.get().severe("Registering type: " + name);
-                    registerDoorTypeDirectly(pair.first, true);
-                }
-                else if (pair.second == DependencyCheckStatus.NOT_OK)
-                    PLogger.get().severe("FAILED TO LOAD DOORTYPE: " + name);
-//                else
-//                    PLogger.get().severe("WTF? Type: " + name);
-            });
-//        Thread.sleep(50L);
+        doorTypes.forEach(this::registerDoorType);
     }
 
     /**
@@ -394,33 +263,11 @@ public final class DoorTypeManager
      * @author Pim
      */
     @Value
-    private static class DoorTypeInfo
+    private static class DoorRegistrationStatus
     {
         long id;
         @NonFinal
         boolean status;
         String name;
-    }
-
-    @Value
-    private static class LoadResult
-    {
-        LoadResultType loadResultType;
-        String message;
-    }
-
-    private enum LoadResultType
-    {
-        DEPENDENCY_UNSUPPORTED_VERSION,
-        DEPENDENCY_UNAVAILABLE,
-        INVALID_DOOR_TYPE,
-        SUCCESS
-    }
-
-    private enum DependencyCheckStatus
-    {
-        NOT_CHECKED,
-        OK,
-        NOT_OK
     }
 }

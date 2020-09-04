@@ -39,6 +39,26 @@
                             <addClasspath>true</addClasspath>
                             <mainClass>${mainClass}</mainClass>
                         </manifest>
+                        <manifestSections>
+                            <manifestSection>
+                                <name>TypeName</name>
+                                <manifestEntries>
+                                    <TypeName>Windmill</TypeName>
+                                </manifestEntries>
+                            </manifestSection>
+                            <manifestSection>
+                                <name>Version</name>
+                                <manifestEntries>
+                                    <Version>1</Version>
+                                </manifestEntries>
+                            </manifestSection>
+                            <manifestSection>
+                                <name>Dependencies</name>
+                                <manifestEntries>
+                                    <Dependencies>bigdoors(1;1) elevators(1;100)</Dependencies>
+                                </manifestEntries>
+                            </manifestSection>
+                        </manifestSections>
                     </archive>
                 </configuration>
             </plugin>

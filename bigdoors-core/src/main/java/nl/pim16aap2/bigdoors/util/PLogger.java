@@ -56,11 +56,11 @@ public final class PLogger
      */
     @Getter
     @NotNull
-    private Level fileLogLevel = Level.CONFIG;
+    private Level fileLogLevel = Level.FINER;
 
     @Getter
     @NotNull
-    private Level consoleLogLevel = Level.ALL;
+    private Level consoleLogLevel = Level.CONFIG;
 
     @Getter
     @NotNull
@@ -75,6 +75,7 @@ public final class PLogger
 
     private PLogger()
     {
+        updateLowestLevel();
     }
 
     /**
@@ -489,7 +490,7 @@ public final class PLogger
      */
     public void severe(final @NotNull String str)
     {
-        logMessage(Level.SEVERE, str + "\n");
+        logMessage(Level.SEVERE, str);
     }
 
     /**
@@ -614,7 +615,7 @@ public final class PLogger
     {
         LogMessageString(final @NotNull String message)
         {
-            super(message);
+            super(checkMessage(message));
         }
     }
 

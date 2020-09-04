@@ -76,6 +76,7 @@ import java.util.Set;
 /*
  * Doors
  */
+// TODO: Do not define the version of a DoorType in its class. Instead, use the version found in the manifest.
 // TODO: Consider creating optional per-type configs.
 // TODO: When changing the open direction of a GarageDoor, the engine location needs to be updated as well, otherwise
 //       it'll just break. Alternatively, consider ignoring the engine location altogether and just figuring it out
@@ -111,6 +112,7 @@ import java.util.Set;
 /*
  * General
  */
+// TODO: Include log level in PLogger messages.
 // TODO: For the ExtensionManager: Write a dependency system. Some types may have dependencies on other types.
 // TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
 //       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
