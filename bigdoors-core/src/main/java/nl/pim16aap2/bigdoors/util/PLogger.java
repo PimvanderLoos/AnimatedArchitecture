@@ -408,18 +408,42 @@ public final class PLogger
     /**
      * Logs a {@link Throwable} without writing it in the console.
      *
+     * @param level     The level at which to log this throwable.
      * @param throwable The {@link Throwable} to log.
      * @param message   Message to accompany the exception.
      */
-    public void logThrowable(final @NotNull Throwable throwable, final @NotNull String message)
+    public void logThrowable(final @NotNull Level level, final @NotNull Throwable throwable,
+                             final @NotNull String message)
     {
-        addThrowableToQueue(Level.SEVERE, throwable, message);
+        addThrowableToQueue(level, throwable, message);
 
         if (consoleLogLevel.intValue() == Level.OFF.intValue())
             writeToConsole(Level.OFF, throwable.toString());
 
         if (fileLogLevel.intValue() == Level.OFF.intValue())
             addToMessageQueue(Level.OFF, () -> new LogMessageString(throwable.toString()));
+    }
+
+    /**
+     * Logs a {@link Throwable} without writing it in the console.
+     *
+     * @param throwable The {@link Throwable} to log.
+     * @param message   Message to accompany the exception.
+     */
+    public void logThrowable(final @NotNull Throwable throwable, final @NotNull String message)
+    {
+        logThrowable(Level.SEVERE, throwable, message);
+    }
+
+    /**
+     * Logs a {@link Throwable} without writing it in the console.
+     *
+     * @param level     The level at which to log this throwable.
+     * @param throwable The {@link Throwable} to log.
+     */
+    public void logThrowable(final @NotNull Level level, final @NotNull Throwable throwable)
+    {
+        logThrowable(level, throwable, "");
     }
 
     /**
