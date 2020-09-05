@@ -42,7 +42,7 @@
                             <manifestSection>
                                 <name>Version</name>
                                 <manifestEntries>
-                                    <Version>${version}</Version>
+                                    <Version>1</Version>
                                 </manifestEntries>
                             </manifestSection>
                         </manifestSections>

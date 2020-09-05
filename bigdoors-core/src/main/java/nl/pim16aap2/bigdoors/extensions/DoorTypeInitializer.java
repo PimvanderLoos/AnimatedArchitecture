@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -13,9 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class DoorTypeInitializer
+final class DoorTypeInitializer
 {
     /**
      * Maps all {@link DoorType}s that are going to be registered in this run.
@@ -44,6 +43,47 @@ class DoorTypeInitializer
      */
     private final @NotNull Map<@NotNull String, @NotNull Pair<@NotNull TypeInfo, @Nullable Integer>> registrationQueue;
 
+    /**
+     * Gets the list of all {@link TypeInfo}s sorted by their dependency weights. This means that {@link TypeInfo}s at
+     * the lower indices need to be loaded before those at the higher indices to satisfy all dependencies.
+     * <p>
+     * {@link TypeInfo}s with unmet dependencies will not appear in this list.
+     *
+     * @return The sorted list of all {@link TypeInfo}s sorted by their dependency weights.
+     */
+    @Getter
+    private final @NotNull List<@NotNull TypeInfo> sorted;
+
+
+    private static final @Nullable Method CLASSLOADER_ADD_URL;
+
+    static
+    {
+        Method method;
+        try
+        {
+            method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+        }
+        catch (NoSuchMethodException e)
+        {
+            method = null;
+            PLogger.get().logThrowable(e);
+        }
+        CLASSLOADER_ADD_URL = method;
+        if (CLASSLOADER_ADD_URL != null)
+            CLASSLOADER_ADD_URL.setAccessible(true);
+        else
+            PLogger.get().logMessage(Level.SEVERE,
+                                     "Failed to initialize method URLClassLoader#addURL! No extensions will be loaded!");
+    }
+
+    /**
+     * Instantiates this {@link DoorTypeInitializer}. It will attempt to assign dependency weights to all entries
+     * (stored in {@link #registrationQueue} and then sort those entries by their weight, starting at the lowest (stored
+     * in {@link #sorted}).
+     *
+     * @param typeInfoList The list of {@link TypeInfo}s that should be loaded.
+     */
     private DoorTypeInitializer(final @NotNull List<TypeInfo> typeInfoList)
     {
         registrationQueue = new HashMap<String, Pair<TypeInfo, Integer>>(typeInfoList.size())
@@ -60,55 +100,22 @@ class DoorTypeInitializer
         registrationQueue.forEach(
             (name, pair) ->
             {
-                final @NotNull LoadResult loadResult = verifyDependencies(pair.first);
+                final @NotNull LoadResult loadResult = processDependencies(pair.first);
                 if (loadResult.loadResultType != LoadResultType.DEPENDENCIES_AVAILABLE &&
                     (!loadResult.message.isEmpty()))
                     PLogger.get().warn(loadResult.message);
             });
+
+        sorted = getSortedDoorTypeInfo();
+        PLogger.get().logMessage(Level.FINER, this::sortedDependenciesToString);
     }
 
-    private @NotNull Optional<DoorType> loadDoorType(final @NotNull TypeInfo typeInfo)
-    {
-        PLogger.get().logMessage(Level.FINE, "Trying to load type: " + typeInfo.getTypeName());
-        final @NotNull Class<?> typeClass;
-        try
-        {
-            final @NotNull ClassLoader classLoader =
-                URLClassLoader.newInstance(new URL[]{typeInfo.getJarFile().toURI().toURL()},
-                                           DoorTypeLoader.class.getClassLoader());
-            typeClass = Class.forName(typeInfo.getMainClass(), true, classLoader);
-        }
-        catch (MalformedURLException | ClassNotFoundException e)
-        {
-            PLogger.get().logThrowable(e);
-            return Optional.empty();
-        }
-
-        final @NotNull DoorType doorType;
-        try
-        {
-            final @NotNull Method getter = typeClass.getDeclaredMethod("get");
-            doorType = (DoorType) getter.invoke(null);
-        }
-        catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
-        {
-            PLogger.get().logThrowable(e);
-            return Optional.empty();
-        }
-
-        PLogger.get().logMessage(Level.FINE,
-                                 "Loaded BigDoors extension: " + Util.capitalizeFirstLetter(doorType.getSimpleName()));
-        return Optional.of(doorType);
-    }
-
-    private @NotNull List<DoorType> loadDoorTypes()
-    {
-        final @NotNull List<TypeInfo> sortedInfo = getSortedDoorTypeInfo();
-        final @NotNull List<DoorType> ret = new ArrayList<>(sortedInfo.size());
-        sortedInfo.forEach(doorInfo -> loadDoorType(doorInfo).ifPresent(ret::add));
-        return ret;
-    }
-
+    /**
+     * Constructs {@link #sorted} from {@link #registrationQueue}. The sorted list contains all {@link TypeInfo} with a
+     * valid dependency weight and it is sorted by this weight value. Lower weights are assigned lower indices.
+     *
+     * @return The sorted list of {@link TypeInfo}s with valid weights.
+     */
     private @NotNull List<TypeInfo> getSortedDoorTypeInfo()
     {
         final @NotNull List<TypeInfo> sorted = new ArrayList<>(registrationQueue.size());
@@ -125,7 +132,112 @@ class DoorTypeInitializer
         return sorted;
     }
 
-    private @NotNull LoadResult verifyDependencies(final @NotNull TypeInfo doorTypeInfo)
+    /**
+     * Formats the {@link #sorted} list into a pretty string.
+     *
+     * @return The formatted String representing {@link #sorted}.
+     */
+    private @NotNull String sortedDependenciesToString()
+    {
+        final @NotNull StringBuilder sb = new StringBuilder();
+        for (int idx = 0; idx < sorted.size(); ++idx)
+        {
+            final @NotNull TypeInfo info = sorted.get(idx);
+            final @NotNull StringBuilder depSB = new StringBuilder();
+            info.getDependencies().forEach(dependencyOpt -> dependencyOpt
+                .ifPresent(dependency -> depSB.append(dependency.dependencyName).append(" ")));
+
+            sb.append(String.format("(%-2d) Weight: %-2d type: %-15s dependencies: %s",
+                                    idx, info.weight, info.getTypeName(), depSB.toString())).append("\n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Loads all classes in a jar.
+     *
+     * @param file The jar file.
+     * @return True if all classes were loaded successfully.
+     */
+    private boolean loadClassesInJar(final @NotNull File file)
+    {
+        if (CLASSLOADER_ADD_URL == null)
+            return false;
+
+        try
+        {
+            final @NotNull ClassLoader classLoader = BigDoors.get().getPlatform().getPlatformClassLoader();
+            CLASSLOADER_ADD_URL.invoke(classLoader, file.toURI().toURL());
+        }
+        catch (Throwable e)
+        {
+            PLogger.get().logThrowable(Level.FINE, e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Attempts to load a {@link TypeInfo} from its {@link TypeInfo#getMainClass()}.
+     *
+     * @param typeInfo The {@link TypeInfo} to load.
+     * @return The {@link DoorType} that resulted from loading the {@link TypeInfo}, if possible.
+     */
+    private @NotNull Optional<DoorType> loadDoorType(final @NotNull TypeInfo typeInfo)
+    {
+        PLogger.get().logMessage(Level.FINE, "Trying to load type: " + typeInfo.getTypeName());
+
+        if (!loadClassesInJar(typeInfo.jarFile))
+        {
+            PLogger.get().logMessage(Level.WARNING,
+                                     "Failed to load file: \"" + typeInfo.getJarFile().toString() +
+                                         "\"! This type (\"" + typeInfo.getTypeName() +
+                                         "\") will not be loaded! See the log for more details.");
+            return Optional.empty();
+        }
+
+        final @NotNull DoorType doorType;
+        try
+        {
+            final @NotNull Class<?> typeClass = BigDoors.get().getPlatform().getPlatformClassLoader()
+                                                        .loadClass(typeInfo.mainClass);
+            final @NotNull Method getter = typeClass.getDeclaredMethod("get");
+            doorType = (DoorType) getter.invoke(null);
+        }
+        catch (Throwable e)
+        {
+            PLogger.get().logThrowable(e, "Failed to load extension: " + typeInfo.getTypeName());
+            return Optional.empty();
+        }
+
+        PLogger.get().logMessage(Level.FINE,
+                                 "Loaded BigDoors extension: " + Util.capitalizeFirstLetter(doorType.getSimpleName()));
+        return Optional.of(doorType);
+    }
+
+    /**
+     * Attempts to load all {@link DoorType} from {@link #sorted}.
+     *
+     * @return The {@link DoorType} sthat resulted from loading the {@link TypeInfo}s.
+     */
+    private @NotNull List<DoorType> loadDoorTypes()
+    {
+        final @NotNull List<DoorType> ret = new ArrayList<>(getSorted().size());
+        getSorted().forEach(doorInfo -> loadDoorType(doorInfo).ifPresent(ret::add));
+        return ret;
+    }
+
+    /**
+     * Processes the dependencies of a {@link TypeInfo}. It will recursively check all entries in {@link
+     * #registrationQueue} if needed.
+     * <p>
+     * Once checked, it will assign the {@link TypeInfo} it checked with a dependency weight, where a higher weight
+     * means it must be loaded after any other {@link TypeInfo}s with a lower weight.
+     *
+     * @param doorTypeInfo The {@link TypeInfo} whose dependencies to check.
+     * @return The {@link LoadResult} of the current {@link DoorType}.
+     */
+    private @NotNull LoadResult processDependencies(final @NotNull TypeInfo doorTypeInfo)
     {
         final @NotNull String currentName = doorTypeInfo.getTypeName();
         final @Nullable Pair<TypeInfo, Integer> currentStatus = registrationQueue.get(doorTypeInfo.typeName);
@@ -133,6 +245,7 @@ class DoorTypeInitializer
             return new LoadResult(LoadResultType.INVALID_DOOR_TYPE,
                                   "Type " + doorTypeInfo.getTypeName() + " was not mapped!");
 
+        // If 'currentStatus.status' (the weight) of the current entry is not null, then it has already been calculated.
         if (currentStatus.second != null)
             return currentStatus.second == -1 ?
                    new LoadResult(LoadResultType.DEPENDENCIES_AVAILABLE, "") :
@@ -176,7 +289,7 @@ class DoorTypeInitializer
             // If the dependency's dependencies haven't been checked, recursively check if they are satisfied.
             if (dependencyWeight == null)
             {
-                final @NotNull LoadResult dependencyLoadResult = verifyDependencies(queuedDoorType);
+                final @NotNull LoadResult dependencyLoadResult = processDependencies(queuedDoorType);
                 if (dependencyLoadResult.getLoadResultType() == LoadResultType.DEPENDENCIES_AVAILABLE)
                     // Increment the weight by 1, to make sure that the current DoorType is loaded after this dependency.
                     dependencyWeight = registrationQueue.get(dependencyName).second;

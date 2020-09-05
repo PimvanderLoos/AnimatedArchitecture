@@ -296,6 +296,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                 return;
             }
 
+        Bukkit.getLogger().setLevel(Level.ALL);
         DoorTypeManager.get().registerDoorTypes(
             DoorTypeLoader.get().loadDoorTypesFromDirectory(getDataDirectory() + "/Extensions"));
     }
@@ -372,6 +373,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public @NotNull File getDataDirectory()
     {
         return getDataFolder();
+    }
+
+    @Override
+    public @NotNull ClassLoader getPlatformClassLoader()
+    {
+        return getClassLoader();
     }
 
     @Override

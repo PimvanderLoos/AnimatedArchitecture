@@ -21,6 +21,8 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      */
     @NotNull File getDataDirectory();
 
+    @NotNull ClassLoader getPlatformClassLoader();
+
     /**
      * Gets the instance of the {@link IPLocationFactory} for this platform.
      *
