@@ -154,19 +154,27 @@ final class DoorTypeInitializer
     }
 
     /**
-     * Loads all classes in a jar.
+     * Attempts to load a jar.
      *
      * @param file The jar file.
-     * @return True if all classes were loaded successfully.
+     * @return True if the jar loaded successfully.
      */
-    private boolean loadClassesInJar(final @NotNull File file)
+    private boolean loadJar(final @NotNull File file)
     {
         if (CLASSLOADER_ADD_URL == null)
             return false;
 
+        final @NotNull ClassLoader classLoader = BigDoors.get().getPlatform().getPlatformClassLoader();
+        if (!(classLoader instanceof URLClassLoader))
+        {
+            PLogger.get().logThrowable(
+                new IllegalArgumentException(
+                    classLoader.getClass().getSimpleName() + " is not a URLClassLoader! No extensions can be loaded!"));
+            return false;
+        }
+
         try
         {
-            final @NotNull ClassLoader classLoader = BigDoors.get().getPlatform().getPlatformClassLoader();
             CLASSLOADER_ADD_URL.invoke(classLoader, file.toURI().toURL());
         }
         catch (Throwable e)
@@ -187,7 +195,7 @@ final class DoorTypeInitializer
     {
         PLogger.get().logMessage(Level.FINE, "Trying to load type: " + typeInfo.getTypeName());
 
-        if (!loadClassesInJar(typeInfo.jarFile))
+        if (!loadJar(typeInfo.jarFile))
         {
             PLogger.get().logMessage(Level.WARNING,
                                      "Failed to load file: \"" + typeInfo.getJarFile().toString() +

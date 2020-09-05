@@ -112,6 +112,11 @@ import java.util.Set;
 /*
  * General
  */
+// TODO: Keep a list of loaded extensions somewhere, so the restart command can unload them all and then load
+//       the jars from the extensions directory again.
+//       Perhaps a child class loader (whatever that is) can be used? If possible, all the extensions could be loaded
+//       by the child, so that only the child cl can be closed and then recreated on reinit.
+//       https://docs.oracle.com/javase/8/docs/technotes/guides/net/ClassLoader.html
 // TODO: Include log level in PLogger messages.
 // TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
 //       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
