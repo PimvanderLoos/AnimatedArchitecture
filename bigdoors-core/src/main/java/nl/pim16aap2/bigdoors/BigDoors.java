@@ -76,6 +76,10 @@ import java.util.Set;
 /*
  * Doors
  */
+// TODO: Make doors thread-safe: https://stackoverflow.com/questions/53769141/making-a-pojo-thread-safe
+//       https://stackoverflow.com/questions/14648627/java-synchronization-lock-without-blocking
+//       https://stackoverflow.com/questions/10548066/multiple-object-locks-in-java
+//       https://howtodoinjava.com/java/multi-threading/object-vs-class-level-locking/
 // TODO: Consider creating optional per-type configs.
 // TODO: When changing the open direction of a GarageDoor, the engine location needs to be updated as well, otherwise
 //       it'll just break. Alternatively, consider ignoring the engine location altogether and just figuring it out
@@ -116,6 +120,8 @@ import java.util.Set;
 //       or add 'throws NotInstantiatedException' or something to those methods. Then just propagate the exceptions.
 //       The same goes for getting the BigDoorsPlatform, which is actually not entirely unlikely to happen, as some
 //       plugins could try to get the BigDoorsSpigot instance before it has been loaded.
+//       For example, any plugin that requires the platform or whatever might just not call getPlatform whenever it
+//       needs, but only on init, after it has been guaranteed to be available. Then just re-call it on restart?
 // TODO: Consistency in word usage: Unregistered = not currently registered, Deregister = go to the state of being
 //       unregistered.
 // TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
