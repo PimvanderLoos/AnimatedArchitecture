@@ -1005,15 +1005,14 @@ public class SQLiteJDBCDriverConnection
                 doors.add(newDoorFromRS(rs, rs.getInt(DOOR_ID), 0,
                         UUID.fromString(rs.getString("playerUUID")), rs.getString("playername")));
             }
-        } catch (SQLException | NullPointerException e)
+        } 
+        catch (SQLException | NullPointerException e)
         {
-            // TODO: Add appropriate error code
-            logMessage("", e);
+            logMessage("541", e);
             return Collections.emptySet();
         }
         return doors;
     }
-
 
     // Get ALL doors owned by a given playerUUID.
     public ArrayList<Door> getDoors(final String playerUUID, final String name)
