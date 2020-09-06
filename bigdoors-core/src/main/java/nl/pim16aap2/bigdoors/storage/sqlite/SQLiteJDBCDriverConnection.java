@@ -598,7 +598,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final @NotNull String playerUUID = door.getDoorOwner().getPlayer().getUUID().toString();
         final @NotNull String playerName = door.getDoorOwner().getPlayer().getName();
-        final @NotNull String worldUUID = door.getWorld().getUID().toString();
+        final @NotNull String worldUUID = door.getWorld().getUUID().toString();
 
         executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_WORLD.constructPPreparedStatement().setString(1, worldUUID));
 
@@ -757,7 +757,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             if (!DoorTypeManager.get().isRegistered(doorBaseRS.getInt("doorType")))
             {
-                PLogger.get().logThrowable(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
+                PLogger.get().logThrowable(Level.FINE,
+                                           new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
                                                                          " has not been registered (yet)!"));
                 continue;
             }

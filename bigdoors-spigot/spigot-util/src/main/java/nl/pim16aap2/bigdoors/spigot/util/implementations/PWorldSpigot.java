@@ -45,7 +45,7 @@ public final class PWorldSpigot implements IPWorld
     }
 
     @Override
-    public @NotNull UUID getUID()
+    public @NotNull UUID getUUID()
     {
         return uuid;
     }
@@ -88,13 +88,13 @@ public final class PWorldSpigot implements IPWorld
             return false;
         if (getClass() != o.getClass())
             return false;
-        return getUID().equals(((IPWorld) o).getUID());
+        return getUUID().equals(((IPWorld) o).getUUID());
     }
 
     @Override
     public int hashCode()
     {
-        return getUID().hashCode();
+        return getUUID().hashCode();
     }
 
     @Override

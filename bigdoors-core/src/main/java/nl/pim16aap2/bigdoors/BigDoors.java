@@ -17,6 +17,7 @@ import java.util.Set;
 /*
  * Experimental
  */
+// TODO: Do not define the version of a DoorType in its class. Instead, use the version found in the manifest.
 // TODO: Consider storing boolean type-specific entries in single integers as much as possible. Let the db or some
 //       service handle the automatic packing/unpacking, so the door classes won't even notice it.
 // TODO: Store a general lastOp in the database to keep track of the last action of a door (e.g. Toggle North), useful

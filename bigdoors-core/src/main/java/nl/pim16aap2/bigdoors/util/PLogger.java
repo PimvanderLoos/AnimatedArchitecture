@@ -56,7 +56,7 @@ public final class PLogger
      */
     @Getter
     @NotNull
-    private Level fileLogLevel = Level.CONFIG;
+    private Level fileLogLevel = Level.FINER;
 
     @Getter
     @NotNull
@@ -75,6 +75,7 @@ public final class PLogger
 
     private PLogger()
     {
+        updateLowestLevel();
     }
 
     /**
@@ -638,7 +639,7 @@ public final class PLogger
     {
         LogMessageString(final @NotNull String message)
         {
-            super(message);
+            super(checkMessage(message));
         }
     }
 

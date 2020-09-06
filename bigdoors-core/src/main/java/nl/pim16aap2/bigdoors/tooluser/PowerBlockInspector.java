@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.tooluser;
 
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.tooluser.creator.CreatorElevator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -37,7 +36,7 @@ public class PowerBlockInspector extends ToolUser
     protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
-        Step<CreatorElevator> stepBlocksToMove = new Step.Factory<CreatorElevator>("INSPECT_POWER_BLOCK")
+        Step<ToolUser> stepBlocksToMove = new Step.Factory<>("INSPECT_POWER_BLOCK")
             .message(Message.CREATOR_PBINSPECTOR_INIT)
             .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
             .waitForUserInput(true).construct();

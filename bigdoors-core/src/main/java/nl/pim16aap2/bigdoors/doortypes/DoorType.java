@@ -145,10 +145,10 @@ public abstract class DoorType
      * @param door The {@link AbstractDoorBase} to generate the data for.
      * @return An array of objects containing the type-specific data.
      *
-     * @throws Exception
+     * @throws IllegalArgumentException When the door is not of the correct type.
      */
     protected abstract @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
-        throws Exception;
+        throws IllegalArgumentException;
 
     @Override
     public final @NotNull String toString()

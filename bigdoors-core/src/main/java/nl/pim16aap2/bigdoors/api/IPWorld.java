@@ -17,7 +17,7 @@ public interface IPWorld extends Cloneable
      *
      * @return The UUID of this world.
      */
-    @NotNull UUID getUID();
+    @NotNull UUID getUUID();
 
     /**
      * Gets the name of this world.

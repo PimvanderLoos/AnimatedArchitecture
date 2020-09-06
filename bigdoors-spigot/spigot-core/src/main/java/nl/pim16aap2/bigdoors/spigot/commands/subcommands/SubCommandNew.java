@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -126,11 +125,17 @@ public class SubCommandNew extends SubCommand
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
 
-        DoorType doorType = DoorTypeBigDoor.get();
+        @Nullable DoorType doorType = DoorTypeManager.get().getDoorType("bigdoor").orElse(null);
         String name = args[args.length - 1];
 
         if (args.length == minArgCount + 1)
-            doorType = DoorTypeManager.get().getDoorType(args[args.length - 2]).orElse(doorType);
+            doorType = DoorTypeManager.get().getDoorType(args[args.length - 2])
+                                      .orElse(doorType);
+        if (doorType == null)
+        {
+            sender.sendMessage("TYPE NOT FOUND!");
+            return false;
+        }
 
         execute((Player) sender, name, doorType);
         return true;

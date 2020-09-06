@@ -23,22 +23,11 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeBigDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeClock;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeDrawbridge;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeElevator;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeFlag;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeGarageDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypePortcullis;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeRevolvingDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeSlidingDoor;
-import nl.pim16aap2.bigdoors.doortypes.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
+import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
@@ -114,12 +103,14 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Represents the implementation of {@link BigDoorsSpigotAbstract}.
@@ -214,6 +205,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Override
     public void onEnable()
     {
+        Bukkit.getLogger().setLevel(Level.FINER);
+
         try
         {
             // Register this here so it can check for updates even when loaded on an incorrect version.
@@ -293,27 +286,22 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      */
     private void registerDoorTypes()
     {
-        for (DoorType type : new DoorType[]{DoorTypeBigDoor.get(), DoorTypeClock.get(), DoorTypeDrawbridge.get(),
-                                            DoorTypeElevator.get(), DoorTypeFlag.get(), DoorTypeGarageDoor.get(),
-                                            DoorTypePortcullis.get(), DoorTypeRevolvingDoor.get(),
-                                            DoorTypeSlidingDoor.get(), DoorTypeWindmill.get()})
-            registerDoorType(type);
+        final @NotNull File extensionsDir = new File(getDataDirectory() + "/Extensions");
+        if (!extensionsDir.exists())
+            if (!extensionsDir.mkdirs())
+            {
+                PLogger.get().logThrowable(new IOException("Failed to create folder: " + extensionsDir.toString()));
+                return;
+            }
+
+        Bukkit.getLogger().setLevel(Level.ALL);
+        DoorTypeLoader.get().loadDoorTypesFromDirectory();
     }
 
     @Override
     public @NotNull IPlatformManagerSpigot getPlatformManagerSpigot()
     {
         return PlatformManagerSpigot.get();
-    }
-
-    /**
-     * Registers a {@link DoorType}
-     *
-     * @param type The {@link DoorType} to register.
-     */
-    private void registerDoorType(final @NotNull DoorType type)
-    {
-        DoorTypeManager.get().registerDoorType(type);
     }
 
     public static @NotNull BigDoorsSpigot get()

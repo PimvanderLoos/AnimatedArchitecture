@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>bigdoors-doors</artifactId>
+    <packaging>pom</packaging>
+    <description>Modules for the different types of Doors</description>
+    <version>${project.parent.version}</version>
+
+    <parent>
+        <groupId>nl.pim16aap2.bigdoors</groupId>
+        <artifactId>bigdoors-parent</artifactId>
+        <version>200</version>
+    </parent>
+
+    <modules>
+        <module>doors-bigdoor</module>
+        <module>doors-clock</module>
+        <module>doors-drawbridge</module>
+        <module>doors-elevator</module>
+        <module>doors-flag</module>
+        <module>doors-garagedoor</module>
+        <module>doors-portcullis</module>
+        <module>doors-revolvingdoor</module>
+        <module>doors-slidingdoor</module>
+        <module>doors-windmill</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <id>maven-jar-plugin</id>
+            <url>https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-core</artifactId>
+            <version>200</version>
+        </dependency>
+    </dependencies>
+</project>

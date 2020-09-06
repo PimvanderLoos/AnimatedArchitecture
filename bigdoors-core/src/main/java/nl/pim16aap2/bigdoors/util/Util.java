@@ -150,6 +150,17 @@ public final class Util
     }
 
     /**
+     * Capitalizes the first letter. The rest of the String is left intact.
+     *
+     * @param string The string for which to capitalize the first letter.
+     * @return The same string that it received as input, but with a capizalized first letter.
+     */
+    public static @NotNull String capitalizeFirstLetter(final @NotNull String string)
+    {
+        return string.substring(0, 1).toUpperCase() + string.substring(1);
+    }
+
+    /**
      * Clamp an angle to [-2PI ; 2PI].
      *
      * @param angle The current angle in radians.

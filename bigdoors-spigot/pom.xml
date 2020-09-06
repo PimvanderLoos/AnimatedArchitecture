@@ -18,9 +18,6 @@
         <module>spigot-util</module>
     </modules>
 
-    <repositories>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>

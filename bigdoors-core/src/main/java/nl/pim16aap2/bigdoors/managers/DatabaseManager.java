@@ -142,7 +142,7 @@ public final class DatabaseManager extends Restartable
                 final @NotNull Optional<AbstractDoorBase> result = db.insert(newDoor);
                 result.ifPresent(
                     (door) -> BigDoors.get().getPowerBlockManager()
-                                      .onDoorAddOrRemove(door.getWorld().getUID(), new Vector3Di(
+                                      .onDoorAddOrRemove(door.getWorld().getUUID(), new Vector3Di(
                                           door.getPowerBlock().getX(),
                                           door.getPowerBlock().getY(),
                                           door.getPowerBlock().getZ())));
@@ -164,7 +164,7 @@ public final class DatabaseManager extends Restartable
             {
                 boolean result = db.removeDoor(door.getDoorUID());
                 if (result)
-                    BigDoors.get().getPowerBlockManager().onDoorAddOrRemove(door.getWorld().getUID(), new Vector3Di(
+                    BigDoors.get().getPowerBlockManager().onDoorAddOrRemove(door.getWorld().getUUID(), new Vector3Di(
                         door.getPowerBlock().getX(),
                         door.getPowerBlock().getY(),
                         door.getPowerBlock().getZ()));
