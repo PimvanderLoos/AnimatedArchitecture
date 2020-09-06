@@ -371,7 +371,7 @@ public abstract class BlockMover implements IRestartable
      *
      * @param onDisable Whether or not the plugin is currently being disabled.
      */
-    public final void putBlocks(final boolean onDisable)
+    public final synchronized void putBlocks(final boolean onDisable)
     {
         // Only allow this method to be run once! If it can be run multiple times, it'll cause door corruption because
         // While the blocks have already been placed, the coordinates can still be toggled!
@@ -380,11 +380,11 @@ public abstract class BlockMover implements IRestartable
         isFinished.set(true);
 
         // First do the first pass, placing all blocks such as stone, dirt, etc.
-        for (PBlockData savedBlock : savedBlocks)
+        for (final @NotNull PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, true);
 
         // Then do the second pass, placing all blocks such as torches, etc.
-        for (PBlockData savedBlock : savedBlocks)
+        for (final @NotNull PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, false);
 
         // Tell the door object it has been opened and what its new coordinates are.
