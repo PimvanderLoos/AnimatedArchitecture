@@ -17,6 +17,7 @@ import java.util.Set;
 /*
  * Experimental
  */
+// TODO: Do not define the version of a DoorType in its class. Instead, use the version found in the manifest.
 // TODO: Consider storing boolean type-specific entries in single integers as much as possible. Let the db or some
 //       service handle the automatic packing/unpacking, so the door classes won't even notice it.
 // TODO: Store a general lastOp in the database to keep track of the last action of a door (e.g. Toggle North), useful
@@ -76,7 +77,10 @@ import java.util.Set;
 /*
  * Doors
  */
-// TODO: Do not define the version of a DoorType in its class. Instead, use the version found in the manifest.
+// TODO: Make doors thread-safe: https://stackoverflow.com/questions/53769141/making-a-pojo-thread-safe
+//       https://stackoverflow.com/questions/14648627/java-synchronization-lock-without-blocking
+//       https://stackoverflow.com/questions/10548066/multiple-object-locks-in-java
+//       https://howtodoinjava.com/java/multi-threading/object-vs-class-level-locking/
 // TODO: Consider creating optional per-type configs.
 // TODO: When changing the open direction of a GarageDoor, the engine location needs to be updated as well, otherwise
 //       it'll just break. Alternatively, consider ignoring the engine location altogether and just figuring it out
@@ -112,17 +116,13 @@ import java.util.Set;
 /*
  * General
  */
-// TODO: Keep a list of loaded extensions somewhere, so the restart command can unload them all and then load
-//       the jars from the extensions directory again.
-//       Perhaps a child class loader (whatever that is) can be used? If possible, all the extensions could be loaded
-//       by the child, so that only the child cl can be closed and then recreated on reinit.
-//       https://docs.oracle.com/javase/8/docs/technotes/guides/net/ClassLoader.html
-// TODO: Include log level in PLogger messages.
 // TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
 //       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
 //       or add 'throws NotInstantiatedException' or something to those methods. Then just propagate the exceptions.
 //       The same goes for getting the BigDoorsPlatform, which is actually not entirely unlikely to happen, as some
 //       plugins could try to get the BigDoorsSpigot instance before it has been loaded.
+//       For example, any plugin that requires the platform or whatever might just not call getPlatform whenever it
+//       needs, but only on init, after it has been guaranteed to be available. Then just re-call it on restart?
 // TODO: Consistency in word usage: Unregistered = not currently registered, Deregister = go to the state of being
 //       unregistered.
 // TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
@@ -468,9 +468,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Unit tests
  */
-// TODO: Move Integration Tests (e.g. Database test) out of bigdoors-core. This way, it'll be possible to compile
-//       everything and run the tests immediately without having to compile it without testing first (to make sure
-//       that the door types are actually compiled before testing). More info: https://stackoverflow.com/a/39613535
 // TODO: Test the DoorRegistry system somehow.
 // TODO: Don't use the beforeLastMessage method. Instead, use something like getLastWarning. Also means that levels will
 //       have to be used when messaging players.
