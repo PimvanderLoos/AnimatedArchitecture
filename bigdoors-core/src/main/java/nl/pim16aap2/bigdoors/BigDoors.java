@@ -81,6 +81,8 @@ import java.util.Set;
 //       https://stackoverflow.com/questions/14648627/java-synchronization-lock-without-blocking
 //       https://stackoverflow.com/questions/10548066/multiple-object-locks-in-java
 //       https://howtodoinjava.com/java/multi-threading/object-vs-class-level-locking/
+//       https://stackoverflow.com/questions/34611106/synchronized-vs-readwritelock-performance
+//       https://winterbe.com/posts/2015/04/30/java8-concurrency-tutorial-synchronized-locks-examples/
 // TODO: Consider creating optional per-type configs.
 // TODO: When changing the open direction of a GarageDoor, the engine location needs to be updated as well, otherwise
 //       it'll just break. Alternatively, consider ignoring the engine location altogether and just figuring it out
