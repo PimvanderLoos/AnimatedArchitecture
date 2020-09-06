@@ -79,7 +79,6 @@ public final class DoorTypeClock extends DoorType
     @Override
     protected @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
     {
-        // TODO: Handle with logger.
         if (!(door instanceof Clock))
             throw new IllegalArgumentException(
                 "Trying to get the type-specific data for a Clock from type: " + door.getDoorType().toString());
