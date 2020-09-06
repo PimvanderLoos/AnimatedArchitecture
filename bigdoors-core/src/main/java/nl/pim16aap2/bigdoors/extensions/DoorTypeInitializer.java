@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -15,8 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,28 +51,7 @@ final class DoorTypeInitializer
     @Getter
     private final @NotNull List<@NotNull TypeInfo> sorted;
 
-
-    private static final @Nullable Method CLASSLOADER_ADD_URL;
-
-    static
-    {
-        Method method;
-        try
-        {
-            method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-        }
-        catch (NoSuchMethodException e)
-        {
-            method = null;
-            PLogger.get().logThrowable(e);
-        }
-        CLASSLOADER_ADD_URL = method;
-        if (CLASSLOADER_ADD_URL != null)
-            CLASSLOADER_ADD_URL.setAccessible(true);
-        else
-            PLogger.get().logMessage(Level.SEVERE,
-                                     "Failed to initialize method URLClassLoader#addURL! No extensions will be loaded!");
-    }
+    private final @NotNull DoorTypeClassLoader doorTypeClassLoader;
 
     /**
      * Instantiates this {@link DoorTypeInitializer}. It will attempt to assign dependency weights to all entries
@@ -84,8 +60,10 @@ final class DoorTypeInitializer
      *
      * @param typeInfoList The list of {@link TypeInfo}s that should be loaded.
      */
-    private DoorTypeInitializer(final @NotNull List<TypeInfo> typeInfoList)
+    public DoorTypeInitializer(final @NotNull List<TypeInfo> typeInfoList,
+                               final @NotNull DoorTypeClassLoader doorTypeClassLoader)
     {
+        this.doorTypeClassLoader = doorTypeClassLoader;
         registrationQueue = new HashMap<String, Pair<TypeInfo, Integer>>(typeInfoList.size())
         {
             @Override
@@ -161,21 +139,9 @@ final class DoorTypeInitializer
      */
     private boolean loadJar(final @NotNull File file)
     {
-        if (CLASSLOADER_ADD_URL == null)
-            return false;
-
-        final @NotNull ClassLoader classLoader = BigDoors.get().getPlatform().getPlatformClassLoader();
-        if (!(classLoader instanceof URLClassLoader))
-        {
-            PLogger.get().logThrowable(
-                new IllegalArgumentException(
-                    classLoader.getClass().getSimpleName() + " is not a URLClassLoader! No extensions can be loaded!"));
-            return false;
-        }
-
         try
         {
-            CLASSLOADER_ADD_URL.invoke(classLoader, file.toURI().toURL());
+            doorTypeClassLoader.addURL(file.toURI().toURL());
         }
         catch (Throwable e)
         {
@@ -207,8 +173,7 @@ final class DoorTypeInitializer
         final @NotNull DoorType doorType;
         try
         {
-            final @NotNull Class<?> typeClass = BigDoors.get().getPlatform().getPlatformClassLoader()
-                                                        .loadClass(typeInfo.mainClass);
+            final @NotNull Class<?> typeClass = doorTypeClassLoader.loadClass(typeInfo.mainClass);
             final @NotNull Method getter = typeClass.getDeclaredMethod("get");
             doorType = (DoorType) getter.invoke(null);
         }
@@ -226,9 +191,9 @@ final class DoorTypeInitializer
     /**
      * Attempts to load all {@link DoorType} from {@link #sorted}.
      *
-     * @return The {@link DoorType} sthat resulted from loading the {@link TypeInfo}s.
+     * @return The {@link DoorType}s that resulted from loading the {@link TypeInfo}s.
      */
-    private @NotNull List<DoorType> loadDoorTypes()
+    public @NotNull List<DoorType> loadDoorTypes()
     {
         final @NotNull List<DoorType> ret = new ArrayList<>(getSorted().size());
         getSorted().forEach(doorInfo -> loadDoorType(doorInfo).ifPresent(ret::add));
@@ -328,16 +293,16 @@ final class DoorTypeInitializer
         return new LoadResult(LoadResultType.DEPENDENCIES_AVAILABLE, "");
     }
 
-    /**
-     * Tries to load all the provided {@link DoorType}s as defined by their {@link TypeInfo}.
-     *
-     * @param typeInfo The list of {@link TypeInfo}s defining {@link DoorType}s that will be loaded.
-     * @return All the {@link DoorType}s that were loaded successfully.
-     */
-    public static @NotNull List<DoorType> loadDoorTypes(final @NotNull List<TypeInfo> typeInfo)
-    {
-        return new DoorTypeInitializer(typeInfo).loadDoorTypes();
-    }
+//    /**
+//     * Tries to load all the provided {@link DoorType}s as defined by their {@link TypeInfo}.
+//     *
+//     * @param typeInfo The list of {@link TypeInfo}s defining {@link DoorType}s that will be loaded.
+//     * @return All the {@link DoorType}s that were loaded successfully.
+//     */
+//    public static @NotNull List<DoorType> loadDoorTypes(final @NotNull List<TypeInfo> typeInfo)
+//    {
+//        return new DoorTypeInitializer(typeInfo).loadDoorTypes();
+//    }
 
     public static final class TypeInfo
     {

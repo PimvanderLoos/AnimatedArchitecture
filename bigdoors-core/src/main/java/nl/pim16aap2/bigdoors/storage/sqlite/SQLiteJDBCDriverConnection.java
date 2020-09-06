@@ -757,7 +757,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             if (!DoorTypeManager.get().isRegistered(doorBaseRS.getInt("doorType")))
             {
-                PLogger.get().logThrowable(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
+                PLogger.get().logThrowable(Level.FINE,
+                                           new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
                                                                          " has not been registered (yet)!"));
                 continue;
             }

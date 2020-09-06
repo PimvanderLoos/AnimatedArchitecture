@@ -23,7 +23,6 @@ import nl.pim16aap2.bigdoors.doors.slidingdoor.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.doors.windmill.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
@@ -284,30 +283,9 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
-    private @NotNull
-    DoorType loadDoorType(final @NotNull String jarPath)
-        throws ExecutionException, InterruptedException
-    {
-        final @NotNull Optional<DoorType> doorType = DoorTypeLoader.get().loadDoorType(jarPath);
-        Assert.assertTrue(doorType.isPresent());
-        Assert.assertTrue(DoorTypeManager.get().registerDoorType(doorType.get()).get().isPresent());
-        return doorType.get();
-    }
-    
     private void registerDoorTypes()
-        throws ExecutionException, InterruptedException
+        throws InterruptedException
     {
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get()).get().isPresent());
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeClock.get()).get().isPresent());
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get()).get().isPresent());
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeElevator.get()).get().isPresent());
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeFlag.get()).get().isPresent());
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeGarageDoor.get()).get().isPresent());
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get()).get().isPresent());
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeRevolvingDoor.get()).get().isPresent());
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeSlidingDoor.get()).get().isPresent());
-//        Assert.assertTrue(DoorTypeManager.get().registerDoorType(DoorTypeWindmill.get()).get().isPresent());
-
         DoorTypeManager.get().registerDoorTypes(Arrays.asList(DoorTypeBigDoor.get(), DoorTypeClock.get(),
                                                               DoorTypeDrawbridge.get(), DoorTypeElevator.get(),
                                                               DoorTypeFlag.get(), DoorTypeGarageDoor.get(),

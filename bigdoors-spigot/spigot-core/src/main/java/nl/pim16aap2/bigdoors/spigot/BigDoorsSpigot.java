@@ -23,13 +23,11 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
@@ -297,24 +295,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             }
 
         Bukkit.getLogger().setLevel(Level.ALL);
-        DoorTypeManager.get().registerDoorTypes(
-            DoorTypeLoader.get().loadDoorTypesFromDirectory(getDataDirectory() + "/Extensions"));
+        DoorTypeLoader.get().loadDoorTypesFromDirectory();
     }
 
     @Override
     public @NotNull IPlatformManagerSpigot getPlatformManagerSpigot()
     {
         return PlatformManagerSpigot.get();
-    }
-
-    /**
-     * Registers a {@link DoorType}
-     *
-     * @param type The {@link DoorType} to register.
-     */
-    private void registerDoorType(final @NotNull DoorType type)
-    {
-        DoorTypeManager.get().registerDoorType(type);
     }
 
     public static @NotNull BigDoorsSpigot get()
@@ -373,12 +360,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public @NotNull File getDataDirectory()
     {
         return getDataFolder();
-    }
-
-    @Override
-    public @NotNull ClassLoader getPlatformClassLoader()
-    {
-        return getClassLoader();
     }
 
     @Override

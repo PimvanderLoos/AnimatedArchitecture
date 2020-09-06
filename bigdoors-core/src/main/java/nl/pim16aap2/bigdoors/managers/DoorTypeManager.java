@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import lombok.Getter;
-import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author Pim
  */
-public final class DoorTypeManager
+public final class DoorTypeManager extends Restartable
 {
     @NotNull
     private static final DoorTypeManager instance = new DoorTypeManager();
@@ -55,6 +55,7 @@ public final class DoorTypeManager
 
     private DoorTypeManager()
     {
+        super(BigDoors.get());
     }
 
     /**
@@ -218,7 +219,7 @@ public final class DoorTypeManager
     private @NotNull CompletableFuture<OptionalLong> registerDoorTypeDirectly(final @NotNull DoorType doorType,
                                                                               final boolean isEnabled)
     {
-        PLogger.get().info("Trying to register door type: " + doorType.toString());
+        PLogger.get().info("Registering door type: " + doorType.toString() + "...");
         CompletableFuture<Long> registrationResult = BigDoors.get().getDatabaseManager().registerDoorType(doorType);
         return registrationResult.handle(
             (doorTypeID, throwable) ->
@@ -251,10 +252,24 @@ public final class DoorTypeManager
         }
     }
 
-    @SneakyThrows
     public void registerDoorTypes(final @NotNull List<DoorType> doorTypes)
     {
         doorTypes.forEach(this::registerDoorType);
+    }
+
+    @Override
+    public void restart()
+    {
+        shutdown();
+    }
+
+    @Override
+    public void shutdown()
+    {
+        doorTypeToID.clear();
+        doorTypeFromID.clear();
+        sortedDoorTypes.clear();
+        doorTypeFromName.clear();
     }
 
     /**

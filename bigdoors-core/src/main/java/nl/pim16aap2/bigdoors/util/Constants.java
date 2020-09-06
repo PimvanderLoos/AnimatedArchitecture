@@ -38,4 +38,9 @@ public final class Constants
      */
     @NotNull
     public static final String PLUGINNAME = "BigDoors";
+
+    /**
+     * The directory where all the extensions are loaded from.
+     */
+    public static final @NotNull String BIGDOORS_EXTENSIONS_FOLDER = "/Extensions";
 }

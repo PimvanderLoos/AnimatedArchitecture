@@ -84,7 +84,8 @@ public class GUIPageDoorCreation implements IGUIPage
     {
         int position = 9;
         for (DoorType type : DoorTypeManager.get().getSortedDoorTypes())
-            if (SubCommandNew.hasCreationPermission(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), type))
+            if (DoorTypeManager.get().isDoorTypeEnabled(type) &&
+                SubCommandNew.hasCreationPermission(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), type))
             {
                 String initMessage = plugin.getMessages().getString(Message.GUI_DESCRIPTION_INITIATION,
                                                                     plugin.getMessages()

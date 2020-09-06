@@ -1,7 +1,11 @@
 package nl.pim16aap2.bigdoors.extensions;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -24,13 +27,32 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
-public final class DoorTypeLoader
+public final class DoorTypeLoader extends Restartable
 {
-    @NotNull
-    private static final DoorTypeLoader INSTANCE = new DoorTypeLoader();
+    private static final @NotNull DoorTypeLoader INSTANCE = new DoorTypeLoader();
+    private @NotNull DoorTypeClassLoader doorTypeClassLoader = new DoorTypeClassLoader(getClass().getClassLoader());
 
     private DoorTypeLoader()
     {
+        super(BigDoors.get());
+        init();
+    }
+
+    private void init()
+    {
+        doorTypeClassLoader = new DoorTypeClassLoader(doorTypeClassLoader);
+    }
+
+    private void deregisterDoorTypes()
+    {
+        try
+        {
+            doorTypeClassLoader.close();
+        }
+        catch (IOException e)
+        {
+            PLogger.get().logThrowable(e, "Failed to close door type classloader! Extensions will NOT be reloaded!");
+        }
     }
 
     @NotNull
@@ -97,32 +119,12 @@ public final class DoorTypeLoader
         return Optional.of(new DoorTypeInitializer.TypeInfo(typeName, version, className, file, dependencies));
     }
 
-    /**
-     * Attempts to load a jar file.
-     *
-     * @param file The jar file.
-     */
-    public @NotNull Optional<DoorType> loadDoorType(final @NotNull File file)
+    public void loadDoorTypesFromDirectory()
     {
-        final @NotNull Optional<DoorTypeInitializer.TypeInfo> typeInfo = getDoorTypeInfo(file);
-        if (!typeInfo.isPresent())
-            return Optional.empty();
-
-
-        final @NotNull List<DoorType> loadDoorTypes = DoorTypeInitializer
-            .loadDoorTypes(Collections.singletonList(typeInfo.get()));
-
-        return loadDoorTypes.size() == 1 ? Optional.of(loadDoorTypes.get(0)) : Optional.empty();
-    }
-
-    /**
-     * Attempts to load a jar file that contains and describes an {@link DoorType}.
-     *
-     * @param file The jar file.
-     */
-    public @NotNull Optional<DoorType> loadDoorType(final @NotNull String file)
-    {
-        return loadDoorType(new File(file));
+        final @NotNull List<DoorType> doorTypes =
+            loadDoorTypesFromDirectory(BigDoors.get().getPlatform().getDataDirectory() +
+                                           Constants.BIGDOORS_EXTENSIONS_FOLDER);
+        DoorTypeManager.get().registerDoorTypes(doorTypes);
     }
 
     /**
@@ -130,11 +132,9 @@ public final class DoorTypeLoader
      *
      * @param directory The directory.
      */
-    public @NotNull List<DoorType> loadDoorTypesFromDirectory(final @NotNull String directory)
+    private @NotNull List<DoorType> loadDoorTypesFromDirectory(final @NotNull String directory)
     {
         final @NotNull List<DoorTypeInitializer.TypeInfo> typeInfos = new ArrayList<>();
-
-        System.out.println("Checking directory: " + Paths.get(directory).toAbsolutePath().toString());
 
         try (final @NotNull Stream<Path> walk = Files.walk(Paths.get(directory), 1, FileVisitOption.FOLLOW_LINKS))
         {
@@ -146,7 +146,21 @@ public final class DoorTypeLoader
             PLogger.get().logThrowable(e);
         }
 
-        return DoorTypeInitializer.loadDoorTypes(typeInfos);
+        return new DoorTypeInitializer(typeInfos, doorTypeClassLoader).loadDoorTypes();
+    }
+
+    @Override
+    public void restart()
+    {
+        init();
+        loadDoorTypesFromDirectory();
+    }
+
+    @Override
+    public void shutdown()
+    {
+        DoorTypeManager.get().shutdown();
+        deregisterDoorTypes();
     }
 }
 

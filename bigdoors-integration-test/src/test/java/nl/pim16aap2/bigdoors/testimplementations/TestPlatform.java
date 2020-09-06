@@ -59,12 +59,6 @@ public final class TestPlatform implements IBigDoorsPlatform
     }
 
     @Override
-    public @NotNull ClassLoader getPlatformClassLoader()
-    {
-        return getClass().getClassLoader();
-    }
-
-    @Override
     public @NotNull IPLocationFactory getPLocationFactory()
     {
         return pLocationFactory;

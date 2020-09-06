@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +85,13 @@ public class GUI
         BigDoors.get().getDatabaseManager().getDoors(guiHolder.getUUID()).whenComplete(
             (doorList, throwable) ->
             {
-                doorBases = doorList;
+                doorBases = new ArrayList<>(doorList.size());
+                doorList.forEach(
+                    doorEntry ->
+                    {
+                        if (DoorTypeManager.get().isDoorTypeEnabled(doorEntry.getDoorType()))
+                            doorBases.add(doorEntry);
+                    });
                 sort();
                 guiPage = new GUIPageDoorList(plugin, this);
                 BigDoors.get().getPlatform().newPExecutor().runOnMainThread(this::update);
