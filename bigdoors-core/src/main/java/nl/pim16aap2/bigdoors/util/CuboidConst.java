@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.util;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a cuboid as described by 2 {@link Vector3Di}s.
@@ -16,14 +16,28 @@ public class CuboidConst
     @NotNull
     protected Vector3Di min, max;
 
-    @Nullable
-    protected Integer volume = null;
+    /**
+     * Gets the total number of blocks in this cuboid. It is inclusive of lower and upper bound. E.g. the volume of
+     * [(1,1,1)(2,2,2)] = 8.
+     *
+     * @return The total number of blocks in this cuboid.
+     */
+    @Getter
+    protected int volume;
+
+    /**
+     * Gets the dimensions of this door.
+     *
+     * @return The dimensions of this door.
+     */
+    @Getter
+    private @NotNull Vector3DiConst dimensions;
 
     public CuboidConst(final @NotNull Vector3DiConst min, final @NotNull Vector3DiConst max)
     {
         this.min = new Vector3Di(min);
         this.max = new Vector3Di(max);
-        minMaxFix();
+        onCoordsUpdate();
     }
 
     public CuboidConst(final @NotNull CuboidConst cuboidConst)
@@ -34,7 +48,7 @@ public class CuboidConst
     /**
      * Makes sure that min has the lowest x,y,z values and max the highest.
      */
-    protected void minMaxFix()
+    protected void onCoordsUpdate()
     {
         int minX = Math.min(min.getX(), max.getX());
         int minY = Math.min(min.getY(), max.getY());
@@ -51,6 +65,18 @@ public class CuboidConst
         max.setX(maxX);
         max.setY(maxY);
         max.setZ(maxZ);
+
+        volume = calculateVolume();
+        dimensions = calculateDimensions();
+    }
+
+    private int calculateVolume()
+    {
+        int x = max.getX() - min.getX() + 1;
+        int y = max.getY() - min.getY() + 1;
+        int z = max.getZ() - min.getZ() + 1;
+
+        return x * y * z;
     }
 
     /**
@@ -73,35 +99,12 @@ public class CuboidConst
         return max;
     }
 
-    /**
-     * Gets the total number of blocks in this cuboid. It is inclusive of lower and upper bound. E.g. the volume of
-     * [(1,1,1)(2,2,2)] = 8.
-     *
-     * @return The total number of blocks in this cuboid.
-     */
-    public @NotNull Integer getVolume()
-    {
-        if (volume != null)
-            return volume;
-
-        int x = max.getX() - min.getX() + 1;
-        int y = max.getY() - min.getY() + 1;
-        int z = max.getZ() - min.getZ() + 1;
-
-        return volume = x * y * z;
-    }
-
-    /**
-     * Gets the dimensions of this door.
-     *
-     * @return The dimensions of this door.
-     */
-    public @NotNull Vector3Di getDimensions()
+    private Vector3DiConst calculateDimensions()
     {
         int x = max.getX() - min.getX() + 1;
         int y = max.getY() - min.getY() + 1;
         int z = max.getZ() - min.getZ() + 1;
-        return new Vector3Di(x, y, z);
+        return new Vector3DiConst(x, y, z);
     }
 
     /**
@@ -155,7 +158,7 @@ public class CuboidConst
         if (this == o)
             return true;
 
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof CuboidConst))
             return false;
 
         CuboidConst other = (CuboidConst) o;

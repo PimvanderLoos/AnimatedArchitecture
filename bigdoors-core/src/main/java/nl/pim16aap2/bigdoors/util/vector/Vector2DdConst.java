@@ -63,11 +63,11 @@ public class Vector2DdConst
     {
         if (this == o)
             return true;
-        if (o == null)
+
+        if (!(o instanceof Vector2DdConst))
             return false;
-        if (getClass() != o.getClass())
-            return false;
-        Vector2DdConst other = (Vector2Dd) o;
+
+        Vector2DdConst other = (Vector2DdConst) o;
         return x == other.getX() && y == other.getY();
     }
 }

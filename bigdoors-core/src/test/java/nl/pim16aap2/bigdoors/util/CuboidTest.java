@@ -17,7 +17,7 @@ class CuboidTest
         final @NotNull Vector3Di max = new Vector3Di(10, -10, 10);
         final @NotNull Cuboid cuboid = new Cuboid(min, max);
 
-        Assert.assertEquals(11 * 11 * 11, cuboid.getVolume().intValue());
+        Assert.assertEquals(11 * 11 * 11, cuboid.getVolume());
     }
 
     @Test

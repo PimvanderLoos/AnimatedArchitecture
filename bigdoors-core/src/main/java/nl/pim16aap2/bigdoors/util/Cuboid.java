@@ -33,8 +33,7 @@ public class Cuboid extends CuboidConst
     {
         min = new Vector3Di(first);
         max = new Vector3Di(second);
-        minMaxFix();
-        volume = null;
+        onCoordsUpdate();
         return this;
     }
 
@@ -65,7 +64,13 @@ public class Cuboid extends CuboidConst
         min.add(-x, -y, -z);
         max.add(x, y, z);
         // Fix the min/max values to avoid issues with overlapping changes.
-        minMaxFix();
+        onCoordsUpdate();
         return this;
+    }
+
+    @Override
+    public @NotNull String toString()
+    {
+        return "{ " + min.toString() + " " + max.toString() + " }";
     }
 }

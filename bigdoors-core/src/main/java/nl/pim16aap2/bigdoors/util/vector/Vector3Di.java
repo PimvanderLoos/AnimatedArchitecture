@@ -204,19 +204,6 @@ public final class Vector3Di extends Vector3DiConst
         return new Vector3Di(this);
     }
 
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-        Vector3Di other = (Vector3Di) o;
-        return x == other.getX() && y == other.getY() && z == other.getZ();
-    }
-
     public @NotNull Vector3Di normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z);

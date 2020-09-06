@@ -101,19 +101,6 @@ public class Vector2Dd extends Vector2DdConst
         return new Vector2Dd(this);
     }
 
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-        Vector2Dd other = (Vector2Dd) o;
-        return x == other.getX() && y == other.getY();
-    }
-
     public @NotNull Vector2Dd normalize()
     {
         double length = Math.sqrt(x * x + y * y);

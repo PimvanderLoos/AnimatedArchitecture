@@ -621,12 +621,12 @@ public final class PLogger
     {
         LogMessageThrowable(final @NotNull Throwable throwable, final @NotNull String message, final int numberOfLines)
         {
-            super(checkMessage(message) + limitStackTraceLength(throwable, numberOfLines));
+            super(checkMessage(message) + checkMessage(limitStackTraceLength(throwable, numberOfLines)));
         }
 
         LogMessageThrowable(final @NotNull Throwable throwable, final @NotNull String message)
         {
-            this(throwable, message, 0);
+            this(throwable, checkMessage(message), 0);
         }
     }
 
@@ -647,7 +647,7 @@ public final class PLogger
     {
         LogMessageStringSupplier(final @NotNull String message, final @NotNull Supplier<String> stringSupplier)
         {
-            super(checkMessage(message) + stringSupplier.get());
+            super(checkMessage(message) + checkMessage(stringSupplier.get()));
         }
     }
 }

@@ -139,19 +139,6 @@ public final class Vector4Dd extends Vector4DdConst
         return new Vector4Dd(this);
     }
 
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-        Vector4Dd other = (Vector4Dd) o;
-        return x == other.getX() && y == other.getY() && z == other.getZ() && w == other.getW();
-    }
-
     public @NotNull Vector4Dd normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z + w * w);

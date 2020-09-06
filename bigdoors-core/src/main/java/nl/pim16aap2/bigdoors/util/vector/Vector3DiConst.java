@@ -62,11 +62,11 @@ public class Vector3DiConst
     {
         if (this == o)
             return true;
-        if (o == null)
+
+        if (!(o instanceof Vector4DiConst))
             return false;
-        if (getClass() != o.getClass())
-            return false;
-        Vector3DiConst other = (Vector3DiConst) o;
+
+        Vector4DiConst other = (Vector4DiConst) o;
         return x == other.getX() && y == other.getY() && z == other.getZ();
     }
 }

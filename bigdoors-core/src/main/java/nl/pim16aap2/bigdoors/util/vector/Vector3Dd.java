@@ -218,17 +218,4 @@ public final class Vector3Dd extends Vector3DdConst
 
         return this;
     }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-        Vector3Dd other = (Vector3Dd) o;
-        return x == other.getX() && y == other.getY() && z == other.getZ();
-    }
 }

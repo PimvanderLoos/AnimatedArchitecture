@@ -130,19 +130,6 @@ public final class Vector4Di extends Vector4DiConst
         return new Vector4Di(this);
     }
 
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-        Vector4Di other = (Vector4Di) o;
-        return x == other.getX() && y == other.getY() && z == other.getZ() && w == other.getW();
-    }
-
     public @NotNull Vector4Di normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z + w * w);

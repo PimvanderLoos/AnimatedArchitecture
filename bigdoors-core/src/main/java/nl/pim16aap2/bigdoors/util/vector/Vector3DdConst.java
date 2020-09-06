@@ -79,10 +79,10 @@ public class Vector3DdConst
     {
         if (this == o)
             return true;
-        if (o == null)
+
+        if (!(o instanceof Vector3DdConst))
             return false;
-        if (getClass() != o.getClass())
-            return false;
+
         Vector3DdConst other = (Vector3DdConst) o;
         return x == other.getX() && y == other.getY() && z == other.getZ();
     }

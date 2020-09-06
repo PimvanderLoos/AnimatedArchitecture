@@ -46,10 +46,10 @@ public class Vector2DiConst
     {
         if (this == o)
             return true;
-        if (o == null)
+
+        if (!(o instanceof Vector2DiConst))
             return false;
-        if (getClass() != o.getClass())
-            return false;
+
         Vector2DiConst other = (Vector2DiConst) o;
         return x == other.getX() && y == other.getY();
     }

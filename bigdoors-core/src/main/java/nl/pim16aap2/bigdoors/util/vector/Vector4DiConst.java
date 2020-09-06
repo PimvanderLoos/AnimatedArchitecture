@@ -43,10 +43,10 @@ public class Vector4DiConst
     {
         if (this == o)
             return true;
-        if (o == null)
+
+        if (!(o instanceof Vector4DiConst))
             return false;
-        if (getClass() != o.getClass())
-            return false;
+
         Vector4DiConst other = (Vector4DiConst) o;
         return x == other.getX() && y == other.getY() && z == other.getZ() && w == other.getW();
     }

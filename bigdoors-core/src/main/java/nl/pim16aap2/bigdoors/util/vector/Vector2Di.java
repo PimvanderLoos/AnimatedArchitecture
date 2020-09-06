@@ -96,19 +96,6 @@ public final class Vector2Di extends Vector2DiConst
         return new Vector2Di(this);
     }
 
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-        Vector2Di other = (Vector2Di) o;
-        return x == other.getX() && y == other.getY();
-    }
-
     public @NotNull Vector2Di normalize()
     {
         double length = Math.sqrt(x * x + y * y);

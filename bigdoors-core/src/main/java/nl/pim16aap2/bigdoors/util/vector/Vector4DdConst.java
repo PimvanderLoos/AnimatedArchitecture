@@ -49,10 +49,10 @@ public class Vector4DdConst
     {
         if (this == o)
             return true;
-        if (o == null)
+
+        if (!(o instanceof Vector4DdConst))
             return false;
-        if (getClass() != o.getClass())
-            return false;
+
         Vector4DdConst other = (Vector4DdConst) o;
         return x == other.getX() && y == other.getY() && z == other.getZ() && w == other.getW();
     }
