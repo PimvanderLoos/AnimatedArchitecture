@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,8 +30,6 @@ public final class DoorTypeDrawbridge extends DoorType
         parameterTMP.add(new Parameter(ParameterType.INTEGER, "modeUpDown"));
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
-
-    private static final @NotNull List<Pair<String, Pair<Integer, Integer>>> dependencies = Collections.emptyList();
 
     @NotNull
     private static final DoorTypeDrawbridge INSTANCE = new DoorTypeDrawbridge();
@@ -64,12 +61,6 @@ public final class DoorTypeDrawbridge extends DoorType
     public static @NotNull DoorTypeDrawbridge get()
     {
         return INSTANCE;
-    }
-
-    @Override
-    public List<Pair<String, Pair<Integer, Integer>>> getDependencies()
-    {
-        return dependencies;
     }
 
     @Override

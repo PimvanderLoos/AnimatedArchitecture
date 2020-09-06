@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,9 +28,6 @@ public final class DoorTypeRevolvingDoor extends DoorType
         PARAMETERS = Collections.unmodifiableList(parameterTMP);
     }
 
-    private static final @NotNull List<Pair<String, Pair<Integer, Integer>>> dependencies =
-        Collections.singletonList(new Pair<>("bigdoor", new Pair<>(1, 1)));
-
     @NotNull
     private static final DoorTypeRevolvingDoor INSTANCE = new DoorTypeRevolvingDoor();
 
@@ -49,12 +45,6 @@ public final class DoorTypeRevolvingDoor extends DoorType
     public static @NotNull DoorTypeRevolvingDoor get()
     {
         return INSTANCE;
-    }
-
-    @Override
-    public List<Pair<String, Pair<Integer, Integer>>> getDependencies()
-    {
-        return dependencies;
     }
 
     @Override
