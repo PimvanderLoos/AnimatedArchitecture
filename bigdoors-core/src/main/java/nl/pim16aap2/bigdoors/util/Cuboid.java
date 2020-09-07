@@ -4,6 +4,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Consumer;
+
 /**
  * Represents a cuboid as described by 2 {@link Vector3Di}s.
  *
@@ -28,6 +30,7 @@ public class Cuboid extends CuboidConst
      *
      * @param first  The first of the two new coordinates.
      * @param second The first of the two new coordinates.
+     * @return This {@link Cuboid}
      */
     public @NotNull Cuboid updatePositions(final @NotNull Vector3DiConst first, final @NotNull Vector3DiConst second)
     {
@@ -38,11 +41,26 @@ public class Cuboid extends CuboidConst
     }
 
     /**
+     * Applies an update function to both {@link #min} and {@link #max}.
+     *
+     * @param updateFunction The update function used to update both {@link Vector3Di}s.
+     * @return This {@link Cuboid}
+     */
+    public @NotNull Cuboid updatePositions(final @NotNull Consumer<Vector3Di> updateFunction)
+    {
+        updateFunction.accept(min);
+        updateFunction.accept(max);
+        onCoordsUpdate();
+        return this;
+    }
+
+    /**
      * Moves this {@link Cuboid}.
      *
      * @param x The number of blocks to move in the x-axis.
      * @param y The number of blocks to move in the y-axis.
      * @param z The number of blocks to move in the z-axis.
+     * @return This {@link Cuboid}
      */
     public @NotNull Cuboid move(final int x, final int y, final int z)
     {
@@ -58,6 +76,7 @@ public class Cuboid extends CuboidConst
      * @param x The number of blocks to change in the x-axis.
      * @param y The number of blocks to change in the y-axis.
      * @param z The number of blocks to change in the z-axis.
+     * @return This {@link Cuboid}
      */
     public @NotNull Cuboid changeDimensions(final int x, final int y, final int z)
     {
