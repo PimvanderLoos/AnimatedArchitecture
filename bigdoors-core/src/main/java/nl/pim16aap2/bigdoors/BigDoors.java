@@ -125,6 +125,11 @@ import java.util.Set;
 //       plugins could try to get the BigDoorsSpigot instance before it has been loaded.
 //       For example, any plugin that requires the platform or whatever might just not call getPlatform whenever it
 //       needs, but only on init, after it has been guaranteed to be available. Then just re-call it on restart?
+//       It can already occur that the plugin will fail to start because of this:
+//       org.bukkit.plugin.InvalidPluginException: java.lang.NullPointerException: Cannot invoke "nl.pim16aap2.bigdoors.api.IBigDoorsPlatform.getMessagingInterface()" because the return value of "nl.pim16aap2.bigdoors.BigDoors.getPlatform()" is null
+//       For stuff like the messaging interface, it might be nice to provide a default implementation in case no
+//       patform exists. For the messaging interface, perhaps use stdout? Or /dev/null.
+//       Either way, this needs to be resolved!!!!
 // TODO: Consistency in word usage: Unregistered = not currently registered, Deregister = go to the state of being
 //       unregistered.
 // TODO: Use variables for the names of doors in the creator messages. This would also make it possible to make various
